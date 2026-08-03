@@ -1,81 +1,94 @@
-
-<!-- PROJECT LOGO -->
 <br />
 <div align="center">
-  <h1>🎨 Escape the Sketchbook</h1>
+  <h1>🎨 Sketchbook Universe</h1>
   <p>
     <strong>Interactive Human-in-the-Loop AI Playground</strong><br>
-    Game 2D Platformer untuk Literasi AI & Mitigasi Automation Bias Siswa SMP
+    Simulasi interaktif berlevel untuk literasi AI &amp; mitigasi automation bias siswa SMP
   </p>
 
-  <!-- BADGES -->
   <p>
     <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="License: MIT">
-    <img src="https://img.shields.io/badge/Status-SPPA-blue.svg" alt="Status: SPPA">
+    <img src="https://img.shields.io/badge/Status-Proyek%20Akhir%20%E2%80%94%20Tahap%20Pengembangan-blue.svg" alt="Status">
     <img src="https://img.shields.io/badge/Engine-Kaplay.js-orange.svg" alt="Engine: Kaplay.js">
     <img src="https://img.shields.io/badge/AI-TensorFlow.js-purple.svg" alt="AI: TensorFlow.js">
-    <img src="https://img.shields.io/badge/Docker-ready-blue.svg" alt="Docker: ready">
   </p>
 </div>
 
 ---
 
-## ❓ Problem
+## ❓ Masalah
 
-Siswa SMP terjebak **Automation Bias**—menerima output AI mentah-mentah tanpa mikir, tanpa verifikasi. Mereka nggak paham bahwa AI itu mesin probabilitas yang bisa ragu, berhalusinasi, dan bikin kesalahan fatal.
+Siswa SMP rentan terjebak **automation bias**: menerima output AI mentah-mentah tanpa evaluasi atau verifikasi. Mereka perlu dilatih memahami bahwa AI adalah alat probabilistik yang bisa ragu, salah, dan tetap butuh validasi manusia.
 
-## ✨ Solution
+## ✨ Solusi
 
-**Escape the Sketchbook** adalah game 2D platformer interaktif yang memaksa siswa untuk **mengevaluasi dan mengoreksi AI secara langsung**.
+**Sketchbook Universe** adalah simulasi interaktif berlevel yang memaksa siswa untuk **mengevaluasi dan memvalidasi keluaran AI secara langsung**, dikemas dalam gameplay 2D.
 
-Siswa menggambar objek dengan jari di udara (MediaPipe), AI menebak (CNN/TensorFlow.js), lalu siswa memutuskan: **Accept** atau **Override**? Keputusan itu punya konsekuensi nyata—kalau salah, Stickman mati dan kertas buku robek. Semua interaksi di-log sebagai data behavioral.
+Siswa menggambar objek, model klasifikasi sketsa menampilkan Top-3 prediction beserta confidence score, lalu siswa memutuskan: **Accept**, **Correct**, atau **Override**. Keputusan ini punya konsekuensi nyata di dunia game (objek jadi Solid yang membantu, atau Danger yang membahayakan Stickman). Semua interaksi dicatat sebagai data pola keputusan.
 
-> AI bukan kotak ajaib. AI bisa salah. Dan manusia yang harus memegang kendali.
+> AI bukan kotak ajaib. AI bisa salah. Dan manusia yang memegang keputusan akhir.
 
-## 🎮 Core Gameplay
+## 🎮 Alur Inti Gameplay
 
 ```
-  GAMBAR → AI NEBAK → SISWA EVALUASI → KONSEKUENSI
-  (MediaPipe)   (TF.js)   (HITL Moment)   (Game World)
+GAMBAR → AI MENEBAK → SISWA EVALUASI → KONSEKUENSI → LOG
 ```
 
-1. **Draw** — Gambar jembatan/tangga pakai telunjuk di udara
-2. **AI Guesses** — Momo (maskot AI) nampilin Top-3 prediksi + confidence score
-3. **You Decide** — Accept kalau bener, Override kalau Momo ngaco
-4. **Consequences** — Solid = Stickman selamat. Danger = buku robek, game restart
+1. **Draw** — Siswa menggambar objek di canvas.
+2. **AI Guesses** — CNN MobileNet (via TensorFlow.js, client-side) menampilkan Top-3 prediction + confidence score. Momo, si companion, menyampaikannya lewat text bubble.
+3. **You Decide** — Siswa memilih **Accept** (setuju), **Correct** (mengoreksi label), atau **Override** (menolak prediksi AI).
+4. **Consequences** — Solid = Stickman terbantu. Danger = gagal, halaman buku "robek".
+5. **Redraw** — bukan opsi keputusan keempat. Ini jalur recovery: siswa kembali ke fase menggambar untuk merevisi objek atau menindaklanjuti hasil gagal.
 
-## 👥 Team
+> **Catatan input gambar:** desain awal proyek ini menyertakan finger tracking via **MediaPipe** (bagian dari judul proposal yang disetujui pembimbing). Di build saat ini, fitur tersebut **belum diimplementasikan** — statusnya masih direncanakan, bukan aktif.
 
-| Role | Name | Scope |
+## 🧭 Progresi Level
+
+| Level | Fokus |
+|---|---|
+| 1 — Trust Build | Mengenalkan hubungan gambar → prediksi → konsekuensi |
+| 2 — Ambiguity | Membandingkan Top-3 prediction dan confidence score |
+| 3 — Override | Validasi kritis: siswa berani menolak prediksi AI yang keliru |
+
+Detail objek, rintangan, dan confidence band per level masih dalam pengembangan.
+
+## 👥 Tim & Pembimbing
+
+| Role | Nama | Scope |
 |------|------|-------|
-| 🎨 Product Designer & Game Developer | **Farchan Deano Muhammad (Can)** | IP & Narrative, UI/UX, Kaplay.js Game Engine, MediaPipe Integration |
-| 🧠 AI & Data Engineer | **[Nama Dias]** | CNN MobileNet, TensorFlow.js, REST API, Logging, K-Means Clustering |
+| 🎨 Product Designer & Game Developer | **Farchan Deano Muhammad** | Frontend, UI/UX, Kaplay.js gameplay loop, animasi & dialog Momo, level design, onboarding, wireframe |
+| 🧠 AI & Backend Engineer | **Muhammad Dias Al Izzat** | Backend REST API, CNN MobileNet, TensorFlow.js, logging SQLite, K-Means clustering, admin dashboard, kontrak data |
+
+**Dosen Pembimbing:** Dr. Tri Budi Santoso, S.T., M.T. · Dr. Ing. Hestiasari Rante, S.T., M.Sc.
+**Program Studi:** Sarjana Terapan Teknologi Rekayasa Multimedia — Jurusan Teknologi Multimedia Kreatif, Politeknik Elektronika Negeri Surabaya (PENS)
 
 ## 🏗️ Tech Stack
 
-| Layer | Technology |
-|-------|-----------|
-| 🎮 Game Engine | Kaplay.js (2D Platformer) |
-| 🖐️ Input | MediaPipe Hand Tracking (Real-time Gesture) |
-| 🧠 AI Inference | TensorFlow.js — MobileNet CNN, Client-Side Only |
-| 🎨 Frontend | React + HTML5 Canvas |
-| ⚙️ Backend | Node.js / Express — REST API (hybrid REST + WebSocket) |
-| 💾 Database | SQLite |
-| 📊 Analytics | K-Means Clustering (Behavioral Patterns) |
-| 🐳 DevOps | Docker + Proxmox VM + Tailscale |
-| 🔒 Security | Session-based (No NISN), JWT Auth |
+| Layer | Teknologi | Catatan |
+|-------|-----------|---------|
+| Frontend & Gameplay | React 18 + Vite, Kaplay.js, HTML5 Canvas | Game loop 2D & UI |
+| Computer Vision | MediaPipe Hands | **Direncanakan**, belum aktif di build sekarang |
+| AI Inference | TensorFlow.js, CNN MobileNet | Client-side only |
+| Backend | Node.js + Express | REST API |
+| Database | SQLite | Log interaksi & sesi |
+| Analytics | K-Means Clustering | Dalam pengembangan |
+| Dashboard Charting | Chart.js / Recharts | Visualisasi pola keputusan untuk guru |
+
+## 🔑 Login Siswa
+
+Rancangan saat ini: siswa masuk lewat `class_id` + `nomor_absen` (input tanpa keyboard), diproses via `POST /auth/login` yang menghasilkan JWT. Mekanisme identitas ini **masih didiskusikan** dan bisa berubah mengikuti dokumen/repo terbaru — jangan dianggap final.
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js ≥ 18
-- Docker Desktop
-- Webcam (for MediaPipe gesture input)
+- Docker (opsional, untuk deployment terpadu)
+- Webcam — hanya relevan setelah fitur MediaPipe aktif
 
 ### 1. Clone
 ```bash
-git clone https://github.com/deanodayes/escape-the-sketchbook.git
-cd escape-the-sketchbook
+git clone https://github.com/lustresense/hitl-momo.git
+cd hitl-momo
 ```
 
 ### 2. Setup Frontend
@@ -97,65 +110,33 @@ npm run dev
 ### 4. Docker (All-in-One)
 ```bash
 docker compose up -d
-# FE di :3000, BE di :5000
 ```
 
-⚡ **Done!** Buka http://localhost:5173 untuk mulai main.
-
-## 🌳 Branching Strategy
+## 📁 Struktur Proyek
 
 ```
-main        ← Production-ready (protected)
-├── develop ← Integration branch
-│   ├── feature/*    ← Can's features (ui/momo-dialogue, feat/level-2-gameplay)
-│   ├── feature/*    ← Dias' features (feat/cnn-training, feat/rest-api)
-│   └── fix/*        ← Bug fixes
-└── hotfix/*  ← Production emergencies
-```
-
-**Workflow:** Branch dari `develop` → Coding → PR → Review → Merge ke `develop` → Test → Merge ke `main` untuk release.
-
-## 📁 Project Structure
-
-```
-escape-the-sketchbook/
-├── frontend/          # React + Kaplay.js + MediaPipe
+hitl-momo/
+├── frontend/          # React + Vite + Kaplay.js
 │   ├── src/
-│   │   ├── engine/    # Kaplay.js game loop & physics
-│   │   ├── components/# React UI (Probe UI, panels)
-│   │   └── hooks/     # MediaPipe hooks
-│   └── public/
+│   │   ├── engine/    # Kaplay.js game loop & fisika
+│   │   ├── components/# UI (Probe HITL, dashboard, canvas)
+│   │   └── hooks/     # Custom hooks
 ├── backend/           # Node.js/Express REST API
-│   ├── routes/        # /api/logs/session, /api/sessions/:id
-│   ├── models/        # SQLite schema
-│   └── services/      # K-Means clustering service
-├── ai/                # Model training (Dias)
-│   ├── notebooks/     # Jupyter notebooks
-│   ├── models/        # TF.js exported models
-│   └── dataset/       # QuickDraw subset (15 kelas)
+│   ├── routes/        # Endpoint auth, logging, session
+│   ├── models/        # Skema SQLite
+│   └── services/      # K-Means clustering
+├── ai/                # Training & export model (Dias)
+│   ├── notebooks/
+│   └── models/        # Model TF.js hasil konversi
+├── Proposal/           # Dokumen proposal PA (kedua penulis)
 ├── docker-compose.yml
 └── README.md
 ```
 
-## 🔌 API Architecture: REST + WebSocket Hybrid
+## 📌 Status Proyek & Kontribusi
 
-Mengikuti pola hybrid industry-standard (dipakai oleh Stream, Slack, dan major chat providers):
+Ini adalah Proyek Akhir (setara skripsi terapan) program vokasi di PENS, dikerjakan oleh dua orang. Repo ini publik selama masa pengerjaan untuk keperluan dokumentasi dan bimbingan. Lisensi MIT sudah dipasang sebagai titik awal; kemungkinan rilis/pengembangan lanjutan agar bisa dipakai pendidik atau peneliti lain akan ditentukan setelah proses evaluasi akademik selesai — belum ada komitmen institusional soal ini, murni niat penulis.
 
-**REST → Stateless Data Operations**
-- `GET /api/sessions/:id` — Fetch session history
-- `POST /api/logs/session` — Submit interaction log
+---
 
-**WebSocket → Real-Time Events**
-- `wss://` — AI inference streaming (token-by-token confidence updates?)
-- `wss://` — Real-time game state sync? (optional multiplayer future)
-
-**Kenapa Hybrid?** REST handles stateless CRUD and data retrieval efficiently, while WebSocket handles stateful, real-time event streaming that keeps connections open for live feedback. This pattern ensures the system is reliable, scalable, and low-latency—core requirements for HITL interaction logging.
-
-**Fallback Strategy:** If WebSocket disconnects → automatic REST recovery → fetch messages newer than last timestamp → merge without duplicates.
-
-<br>
-
-> 🎨 **Momo: Si Robot Highlighter yang Jago Nebak, Tapi Sering Salah.**  
-> Proyek ini bukan cuma game—ini adalah **playground** buat ngajarin anak SMP bahwa AI bisa salah,  
-> dan manusia yang harus berani **Overriding** keputusan mesin.  
-> ── *"AI bukan selalu benar. Tapi kamu bisa verifikasi."* ──
+> **Catatan nama:** "Escape the Sketchbook" adalah nama kerja/codename awal proyek ini sebelum arah IP dimatangkan menjadi **Sketchbook Universe**. Disebut di sini hanya untuk konteks riwayat commit/dokumen lama.

@@ -1,0 +1,202 @@
+BAB 2
+KAJIAN PUSTAKA
+
+Catatan sitasi:
+Naskah ini memakai gaya sitasi numerik IEEE yang umum dipakai Mendeley. Nomor sitasi di dalam teks mengikuti urutan daftar pustaka pada proposal sumber. Metadata daftar pustaka di bagian akhir sudah diverifikasi ulang melalui sumber daring seperti halaman penerbit, DOI, arXiv, ERIC, AAAI, dan repositori institusi.
+
+2.1 Deskripsi Permasalahan
+
+Perkembangan kecerdasan buatan atau Artificial Intelligence (AI) membuat literasi digital tidak cukup hanya dipahami sebagai kemampuan menggunakan perangkat, aplikasi, atau layanan digital. Literasi AI mencakup kemampuan memahami konsep dasar AI, menggunakan AI secara tepat, mengevaluasi keluaran AI, menciptakan atau memodifikasi solusi berbasis AI secara bertanggung jawab, serta memahami isu etika penggunaan AI [1]. Dalam konteks siswa SMP, kemampuan tersebut penting karena siswa mulai berhadapan dengan sistem cerdas dalam aktivitas belajar, pencarian informasi, rekomendasi konten, dan penggunaan aplikasi sehari-hari.
+
+Permasalahan utama pada penelitian ini adalah kecenderungan siswa menerima keluaran AI sebagai jawaban final tanpa proses evaluasi. Ravi et al. menunjukkan bahwa pembelajaran literasi AI pada kelas menengah membutuhkan strategi yang membuat konsep AI dapat dipahami melalui pengalaman konkret [2]. Clerc et al. juga menunjukkan bahwa siswa usia menengah rentan menerima output AI terlalu cepat apabila tidak dilatih untuk memonitor, mengevaluasi, dan mengatur interaksinya dengan sistem [3]. Oleh karena itu, pengenalan AI kepada siswa SMP perlu diarahkan pada pengalaman membaca, membandingkan, dan memvalidasi keluaran AI.
+
+Masalah tersebut terlihat jelas pada sistem klasifikasi visual. Keluaran AI pada sistem klasifikasi tidak berbentuk kebenaran mutlak, tetapi prediksi berdasarkan pola data. Output biasanya berupa label dan nilai keyakinan atau confidence score. Jika siswa hanya melihat satu label akhir, siswa dapat menganggap AI selalu benar. Padahal explainable artificial intelligence dalam pendidikan menekankan bahwa sistem AI perlu disajikan secara dapat dipahami agar pengguna tidak menerima keputusan sistem secara pasif [6]. Karran et al. juga menunjukkan bahwa visualisasi keputusan AI dapat memengaruhi confidence, cognitive fit, dan kepercayaan pengguna terhadap sistem AI [15].
+
+Human-in-the-Loop (HITL) menjadi pendekatan yang relevan karena menempatkan manusia sebagai bagian dari alur sistem, baik dalam pemberian masukan, validasi, koreksi, maupun pengambilan keputusan terhadap output model [4]. Wang et al. menekankan bahwa manusia dan mesin memiliki peran saling melengkapi: mesin mampu memproses pola secara cepat, sedangkan manusia dapat memberi penilaian kontekstual ketika keputusan tidak sepenuhnya dapat diserahkan kepada sistem otomatis [5]. Dalam penelitian ini, HITL digunakan sebagai pengalaman belajar agar siswa memahami bahwa output AI perlu diperiksa sebelum digunakan.
+
+Permasalahan pedagogis berikutnya adalah bagaimana konsep prediksi, confidence score, validasi, dan konsekuensi dapat dipahami siswa SMP tanpa pembelajaran yang terlalu teknis. Game-based learning dapat menghadirkan tujuan, tantangan, feedback, dan konsekuensi dalam satu pengalaman belajar [8]. Game-based assessment juga menunjukkan bahwa aktivitas permainan dapat menghasilkan data untuk membaca kompetensi, pengetahuan, atau perilaku siswa, walaupun interpretasinya tetap memerlukan validasi yang hati-hati [9].
+
+Hubungan antara masalah literasi AI, kebutuhan validasi manusia, dan kebutuhan media pembelajaran interaktif diringkas pada Gambar 2.1. Gambar ini ditempatkan untuk memperjelas posisi masalah sebelum solusi sistem dijelaskan.
+
+[Gambar 2.1 Peta permasalahan literasi AI berbasis HITL]
+File: image/bab2_01_peta_permasalahan.svg
+Sumber: Diadaptasi dari [1], [3], [4], [15].
+
+Gambar 2.1 menunjukkan bahwa masalah utama penelitian tidak berdiri pada satu aspek saja. Literasi AI, visualisasi output, validasi manusia, dan pengalaman belajar berbasis permainan saling berhubungan dalam membentuk kebutuhan sistem.
+
+Berdasarkan masalah tersebut, penelitian ini mengembangkan simulasi interaktif berlevel berbasis finger tracking MediaPipe dengan mekanisme Human-in-the-Loop untuk literasi AI siswa SMP. Siswa menggambar objek melalui gerakan jari, sistem menampilkan Top-3 prediction dan confidence score, lalu siswa mengambil keputusan melalui Accept, Correct, Override, atau Redraw. Keputusan tersebut dipetakan menjadi konsekuensi dalam simulasi 2D, misalnya objek yang membantu penyelesaian level atau objek yang menyebabkan kondisi gagal. Dengan alur ini, siswa mengalami hubungan langsung antara input, prediksi AI, validasi manusia, dan konsekuensi keputusan.
+
+2.2 Teori Penunjang
+
+Teori penunjang pada penelitian ini disusun untuk mendukung rancangan sistem pada Bab 3. Sistem yang dikembangkan menggabungkan literasi AI, finger tracking, klasifikasi visual, Top-3 prediction, confidence score, mekanisme HITL, simulasi berlevel, feedback visual, dan pencatatan data interaksi. Oleh karena itu, teori yang digunakan mencakup aspek pendidikan AI, desain antarmuka AI, teknologi pelacakan tangan, serta pembelajaran berbasis permainan.
+
+Tabel 2.1 Pemetaan teori penunjang terhadap rancangan sistem
+
+| Komponen Sistem | Kebutuhan Teori | Referensi |
+|---|---|---|
+| Literasi AI siswa SMP | Memahami, menggunakan, mengevaluasi, dan bersikap etis terhadap AI | [1], [2], [3], [10] |
+| HITL | Validasi manusia terhadap output AI | [4], [5], [7] |
+| Top-3 prediction dan confidence score | Transparansi output AI dan visualisasi keputusan | [6], [14], [15] |
+| Simulasi berlevel | Tujuan, tantangan, feedback, konsekuensi, dan assessment berbasis game | [8], [9], [10], [17], [20] |
+| Finger tracking dan sketsa | Pelacakan tangan real-time dan sketsa sebagai input multimodal | [11], [12], [13], [18] |
+| Feedback visual dan interaction log | Agen pedagogis, scaffolding, dan learning analytics | [7], [16], [19] |
+
+2.2.1 Literasi AI untuk Siswa SMP
+
+Ng et al. merumuskan literasi AI melalui beberapa aspek, yaitu mengetahui dan memahami AI, menggunakan dan menerapkan AI, mengevaluasi dan menciptakan dengan AI, serta memahami isu etika [1]. Pada penelitian ini, aspek memahami AI diterjemahkan melalui pengalaman siswa melihat proses prediksi. Aspek menggunakan AI diterapkan ketika siswa membuat gambar sebagai input sistem. Aspek mengevaluasi AI diterapkan ketika siswa membandingkan Top-3 prediction dan confidence score. Aspek tanggung jawab diwujudkan melalui keputusan untuk menerima, mengoreksi, menolak, atau menggambar ulang.
+
+Ravi et al. menunjukkan bahwa pembelajaran literasi AI di kelas menengah membutuhkan aktivitas yang dapat diterapkan guru dan dipahami siswa melalui pengalaman konkret [2]. Clerc et al. memperkuat hal tersebut dengan menunjukkan bahwa siswa perlu dilatih untuk tidak menerima output AI secara tidak kritis [3]. Karena itu, sistem yang dikembangkan perlu memberi siswa ruang untuk mengevaluasi output AI, bukan hanya melihat hasil akhir.
+
+2.2.2 Human-in-the-Loop
+
+Human-in-the-Loop adalah pendekatan yang melibatkan manusia dalam alur kerja AI atau machine learning. Wu et al. menjelaskan bahwa manusia dapat terlibat dalam penyediaan data, pemberian label, perbaikan proses, atau intervensi terhadap sistem [4]. Dalam penelitian ini, siswa tidak berperan untuk melatih ulang model secara langsung, tetapi berperan sebagai validator output AI.
+
+Alur HITL yang digunakan pada penelitian ini dapat dilihat pada Gambar 2.2. Diagram tersebut memperlihatkan posisi siswa setelah sistem menghasilkan prediksi, bukan hanya saat siswa memberi input awal.
+
+[Gambar 2.2 Kerangka Human-in-the-Loop pada simulasi literasi AI]
+File: image/bab2_02_kerangka_hitl.svg
+Sumber: Diadaptasi dari [4], [5], [7].
+
+Gambar 2.2 menegaskan bahwa keputusan siswa menjadi jembatan antara output AI dan konsekuensi gameplay. Dengan demikian, proses validasi tidak hanya bersifat teknis, tetapi menjadi bagian dari pengalaman belajar.
+
+Wang et al. menjelaskan bahwa HITL muncul karena manusia dan mesin memiliki kemampuan yang saling melengkapi [5]. Mesin membaca pola gambar dan menghasilkan prediksi, sedangkan siswa menilai apakah prediksi tersebut sesuai dengan gambar yang dibuat. Prinsip ini menjadi dasar fitur Accept, Correct, Override, dan Redraw. Pendekatan human-centred learning analytics juga menekankan pentingnya kontrol manusia, keterlibatan pengguna, reliabilitas, keamanan, dan kepercayaan dalam sistem AI pendidikan [7].
+
+2.2.3 Explainable AI, Top-3 Prediction, dan Confidence Score
+
+Explainable AI dalam pendidikan diperlukan agar keluaran sistem dapat dipahami oleh pengguna. Khosravi et al. menjelaskan bahwa XAI dalam pendidikan perlu memperhatikan siapa pengguna sistem, bagaimana penjelasan disajikan, dan apa risiko dari penjelasan yang diberikan [6]. Pada penelitian ini, pengguna utama adalah siswa SMP, sehingga penjelasan AI harus sederhana dan mudah digunakan dalam pengambilan keputusan.
+
+Liao et al. menekankan bahwa desain XAI sebaiknya dimulai dari pertanyaan yang mungkin diajukan pengguna terhadap sistem AI [14]. Dalam penelitian ini, pertanyaan tersebut meliputi: AI menebak gambar saya sebagai apa, seberapa yakin AI terhadap tebakan itu, apakah ada kemungkinan lain, dan apa yang harus saya lakukan jika prediksi tidak sesuai. Pertanyaan tersebut diterjemahkan menjadi Top-3 UI, confidence score, dan tombol keputusan.
+
+Rancangan antarmuka prediksi pada penelitian ini diringkas pada Gambar 2.3. Gambar tersebut menunjukkan bahwa siswa tidak hanya melihat satu label, tetapi melihat beberapa kemungkinan prediksi yang dapat dibandingkan.
+
+[Gambar 2.3 Model Top-3 prediction dan confidence score]
+File: image/bab2_03_top3_confidence.svg
+Sumber: Diadaptasi dari [6], [14], [15].
+
+Gambar 2.3 memperjelas fungsi confidence score sebagai alat bantu evaluasi. Nilai confidence tidak diposisikan sebagai perintah untuk selalu menerima prediksi tertinggi, tetapi sebagai dasar siswa untuk menimbang pilihan.
+
+Confidence score membantu siswa melihat bahwa prediksi AI memiliki tingkat keyakinan, bukan status benar mutlak. Karran et al. menunjukkan bahwa visualisasi keputusan AI dapat memengaruhi confidence dan cognitive fit pengguna [15]. Oleh karena itu, Top-3 prediction digunakan untuk menampilkan beberapa kemungkinan jawaban. Jika prediksi pertama sesuai, siswa dapat memilih Accept. Jika prediksi kedua atau ketiga lebih sesuai, siswa dapat memilih Correct. Jika semua prediksi tidak sesuai, siswa dapat memilih Override atau Redraw.
+
+2.2.4 Game-Based Learning dan Goal-Based Scenario
+
+Game-based learning digunakan karena permainan dapat menghadirkan tujuan, tantangan, feedback, dan konsekuensi dalam lingkungan belajar yang aktif. Videnovik et al. menunjukkan bahwa game-based learning dalam pendidikan computer science berkembang karena mampu meningkatkan keterlibatan dan pengalaman belajar aktif [8]. Dalam penelitian ini, permainan menjadi wadah utama agar siswa dapat memahami AI melalui aksi dan konsekuensi.
+
+Gomez et al. menunjukkan bahwa game-based assessment dapat menggunakan aktivitas permainan untuk membaca kompetensi, keterampilan, atau pengetahuan siswa [9]. Pada sistem ini, data seperti prediksi AI, confidence score, keputusan siswa, label akhir, dan hasil gameplay dapat menjadi interaction log untuk membaca pola keputusan siswa terhadap output AI.
+
+Tseng dan Yadav melalui ActiveAI menunjukkan bahwa literasi AI untuk siswa kelas 7-9 dapat dikembangkan melalui goal-based scenario learning, immediate feedback, project-based learning, dan intelligent agents [10]. Penelitian ini menggunakan prinsip serupa melalui simulasi berlevel. Level 1 memperkenalkan hubungan gambar, prediksi, dan konsekuensi. Level 2 menekankan perbandingan Top-3 prediction dan confidence score. Level 3 menekankan validasi kritis melalui Correct, Override, atau Redraw.
+
+Hubungan antara aktivitas menggambar, prediksi, keputusan, dan konsekuensi divisualisasikan pada Gambar 2.5. Diagram ini menunjukkan bentuk loop pembelajaran yang terjadi selama siswa menjalankan simulasi.
+
+[Gambar 2.5 Loop pembelajaran: gambar, prediksi, keputusan, konsekuensi]
+File: image/bab2_05_loop_pembelajaran.svg
+Sumber: Diadaptasi dari [8], [9], [10], [17], [20].
+
+Gambar 2.5 memperlihatkan bahwa gameplay tidak hanya menjadi tampilan akhir, tetapi menjadi ruang feedback. Keputusan siswa terhadap output AI langsung diterjemahkan menjadi akibat yang dapat diamati dalam level.
+
+Norsworthy et al. menjelaskan bahwa flow berkaitan dengan keterlibatan mendalam pada aktivitas yang menantang tetapi masih sesuai kemampuan pengguna [17]. Dalam penelitian ini, flow tidak menjadi variabel pengukuran utama, tetapi menjadi prinsip desain agar tingkat tantangan level meningkat secara bertahap. Lee et al. juga menunjukkan bahwa game-based learning dapat digunakan untuk mengenalkan AI kepada pelajar muda melalui konteks problem solving yang menarik [20].
+
+2.2.5 Finger Tracking MediaPipe dan Sketsa
+
+Zhang et al. memperkenalkan MediaPipe Hands sebagai pipeline pelacakan tangan real-time dari kamera RGB. Pipeline ini terdiri dari palm detector dan hand landmark model yang dapat memprediksi skeleton tangan [11]. Teknologi ini relevan karena sistem membutuhkan cara input yang interaktif dan mudah digunakan siswa untuk menggambar objek.
+
+Tahapan teknis penggunaan finger tracking pada drawing canvas diringkas pada Gambar 2.4. Gambar ini memperjelas alur dari kamera hingga terbentuknya sketsa digital.
+
+[Gambar 2.4 Pipeline finger tracking MediaPipe untuk drawing canvas]
+File: image/bab2_04_pipeline_mediapipe.svg
+Sumber: Diadaptasi dari [11], [12], [13].
+
+Gambar 2.4 menunjukkan bahwa MediaPipe tidak langsung menjadi sistem klasifikasi sketsa, tetapi menjadi lapisan input interaksi. Hasil pelacakan jari diterjemahkan menjadi goresan yang kemudian diproses sebagai gambar.
+
+Sung et al. menunjukkan bahwa hand gesture recognition dapat dibangun di atas skeleton tracker dan classifier untuk mengenali gestur secara real-time [12]. Uboweja et al. juga menunjukkan bahwa custom hand gesture recognition dapat dikembangkan dan dijalankan secara on-device [13]. Pada penelitian ini, teknologi tersebut digunakan sebagai dasar interaksi, bukan sebagai fokus pengembangan algoritma baru. Finger tracking dipakai untuk mengubah gerakan ujung jari menjadi goresan pada drawing canvas.
+
+Sketsa juga memiliki nilai pembelajaran. Shokeen et al. menunjukkan bahwa anak-anak dapat menggunakan sketsa untuk membagikan ide, pengalaman, pengetahuan, dan ekspresi multimodal [18]. Pada sistem ini, sketsa berfungsi sebagai input teknis untuk klasifikasi visual sekaligus sebagai representasi niat siswa. Ketika AI salah membaca gambar, siswa dapat belajar bahwa kualitas input dan interpretasi sistem saling berpengaruh.
+
+2.2.6 Feedback Visual, Pedagogical Agent, dan Interaction Log
+
+Feedback visual diperlukan agar siswa memahami kondisi sistem secara cepat. Schroeder et al. menjelaskan bahwa pedagogical agents dapat memberi efek positif terhadap hasil belajar, motivasi, dan aspek afektif, tetapi prinsip desainnya masih bergantung pada konteks [16]. Oleh karena itu, pendamping visual pada sistem ini tidak diposisikan sebagai chatbot penuh, melainkan sebagai pemberi arahan singkat, peringatan, dan respons visual.
+
+Interaction log menjadi bagian penting karena keputusan siswa dapat digunakan untuk membaca pola interaksi. Alfredo et al. menekankan bahwa learning analytics dan AI in education perlu memperhatikan human control, keterlibatan pengguna, keamanan, reliabilitas, dan kepercayaan [7]. Ocak et al. menunjukkan bahwa AI dapat membantu menganalisis interaksi embodied anak dari data multimodal [19]. Dalam penelitian ini, log yang dicatat meliputi prediksi, confidence score, keputusan, label akhir, dan hasil gameplay. Namun, data tersebut perlu ditafsirkan hati-hati karena keputusan siswa tidak selalu bermakna tunggal. Misalnya, siswa yang sering memilih Override bisa jadi kritis, bukan sekadar tidak memahami sistem.
+
+2.3 Penelitian Terkait
+
+Penelitian terkait dipilih berdasarkan kedekatannya dengan masalah literasi AI, desain interaksi AI, HITL, game-based learning, finger tracking, dan analisis interaksi siswa.
+
+Ng et al. merumuskan kerangka literasi AI yang mencakup pemahaman, penggunaan, evaluasi, penciptaan, dan etika [1]. Penelitian ini menggunakan kerangka tersebut sebagai dasar tujuan pembelajaran, tetapi menerjemahkannya ke dalam simulasi interaktif berbasis keputusan. Ravi et al. meneliti pengalaman guru dalam penerapan kurikulum literasi AI di kelas menengah [2]. Penelitian tersebut relevan karena menunjukkan perlunya media yang konkret dan dapat digunakan dalam pembelajaran. Clerc et al. menunjukkan bahwa siswa perlu dilatih untuk mempertanyakan output AI agar tidak terlalu bergantung pada sistem [3]. Penelitian ini menerapkan prinsip tersebut melalui Top-3 UI dan keputusan HITL.
+
+Wu et al. dan Wang et al. membahas Human-in-the-Loop dalam machine learning [4], [5]. Kedua penelitian tersebut menjadi dasar bahwa manusia dapat dilibatkan untuk memvalidasi sistem AI. Perbedaannya, penelitian ini menggunakan HITL sebagai mekanisme pembelajaran untuk siswa SMP, bukan hanya sebagai strategi peningkatan performa model. Khosravi et al., Liao et al., dan Karran et al. membahas XAI, kebutuhan penjelasan yang berpusat pada pengguna, serta dampak visualisasi keputusan AI [6], [14], [15]. Penelitian ini menyederhanakan prinsip tersebut menjadi Top-3 prediction, confidence score, dan tombol keputusan yang mudah dipahami siswa.
+
+Videnovik et al. dan Gomez et al. memberi dasar penggunaan game sebagai media pembelajaran dan sumber data evaluasi [8], [9]. Tseng dan Yadav melalui ActiveAI menunjukkan bahwa literasi AI untuk siswa menengah dapat dikembangkan melalui goal-based scenario dan immediate feedback [10]. Lee et al. juga menunjukkan bahwa game-based learning dapat digunakan untuk mengenalkan AI kepada pelajar muda melalui konteks problem solving [20]. Penelitian ini berada pada jalur yang sama, tetapi memiliki keunikan pada integrasi sketsa, finger tracking, Top-3 prediction, dan konsekuensi gameplay.
+
+Zhang et al., Sung et al., dan Uboweja et al. menjadi dasar teknis untuk penggunaan hand tracking dan gesture recognition secara real-time [11]-[13]. Penelitian ini tidak mengembangkan algoritma pelacakan tangan baru, tetapi menggunakan teknologi tersebut sebagai media input menggambar. Shokeen et al. memperkuat dasar bahwa sketsa dapat menjadi aktivitas multimodal yang bermakna bagi anak [18], sedangkan Ocak et al. menunjukkan bahwa interaksi embodied anak dapat dianalisis sebagai data pembelajaran [19].
+
+Posisi penelitian terhadap rumpun penelitian sebelumnya ditunjukkan pada Gambar 2.6. Gambar ini digunakan untuk memperlihatkan bahwa penelitian tidak hanya mengambil satu bidang, tetapi menggabungkan literasi AI, HITL, XAI, finger tracking, dan game-based learning.
+
+[Gambar 2.6 Posisi penelitian terhadap penelitian terkait]
+File: image/bab2_06_posisi_penelitian.svg
+Sumber: Diadaptasi dari [1], [4], [8], [10], [11], [14], [15], [20].
+
+Gambar 2.6 mempertegas gap penelitian yang diisi, yaitu integrasi antara input sketsa berbasis gerakan jari, evaluasi output AI melalui Top-3 prediction, dan konsekuensi gameplay dalam satu simulasi literasi AI.
+
+Tabel 2.2 Sintesis penelitian terkait
+
+| Penelitian | Fokus | Keterkaitan | Gap yang Diisi |
+|---|---|---|---|
+| Ng et al. [1] | Konsep literasi AI | Dasar kemampuan memahami dan mengevaluasi AI | Implementasi konsep ke simulasi interaktif |
+| Ravi et al. [2] | Kurikulum AI kelas menengah | Kebutuhan media konkret untuk siswa | Prototipe interaktif untuk siswa SMP |
+| Clerc et al. [3] | Regulasi penggunaan AI | Siswa perlu mempertanyakan output AI | Validasi output melalui Top-3 UI dan HITL |
+| Wu et al. [4], Wang et al. [5] | Human-in-the-Loop | Dasar pelibatan manusia dalam sistem AI | HITL sebagai pengalaman belajar |
+| Khosravi et al. [6], Liao et al. [14], Karran et al. [15] | XAI dan visualisasi keputusan | Dasar confidence score dan explainability | Antarmuka evaluasi sederhana untuk siswa |
+| Videnovik et al. [8], Gomez et al. [9] | Game-based learning dan assessment | Dasar game sebagai media belajar dan sumber data | Log keputusan siswa terhadap output AI |
+| Tseng dan Yadav [10], Lee et al. [20] | AI learning berbasis skenario/game | Dasar pembelajaran AI untuk pelajar muda | Fokus pada sketsa, Top-3, HITL, dan konsekuensi |
+| Zhang et al. [11], Sung et al. [12], Uboweja et al. [13] | Pelacakan tangan dan gestur | Dasar finger tracking real-time | Penerapan untuk drawing canvas literasi AI |
+| Shokeen et al. [18], Ocak et al. [19] | Sketsa dan interaksi embodied | Sketsa dan interaksi sebagai data belajar | Menghubungkan input sketsa, prediksi, dan keputusan |
+
+2.4 Sintesis Kajian Pustaka
+
+Berdasarkan kajian pustaka, penelitian ini memiliki dasar teoritis yang jelas. Literasi AI untuk siswa SMP perlu menekankan kemampuan memahami dan mengevaluasi output AI, bukan hanya mengenal definisi AI [1]-[3]. Human-in-the-Loop memberi dasar agar siswa memiliki peran aktif dalam validasi output AI [4], [5], [7]. Explainable AI, Top-3 prediction, dan confidence score membantu siswa melihat bahwa prediksi AI bersifat probabilistik dan perlu dipertimbangkan sebelum digunakan [6], [14], [15].
+
+Game-based learning dan goal-based scenario learning memberi dasar bahwa konsep AI yang abstrak dapat dibuat lebih konkret melalui tujuan, tantangan, feedback, dan konsekuensi [8]-[10], [20]. Finger tracking MediaPipe memberi dasar teknis untuk membuat aktivitas menggambar lebih interaktif [11]-[13], sedangkan sketsa dan interaction log memperkuat bahwa tindakan siswa dapat menjadi bagian dari pengalaman belajar dan data evaluasi [18], [19].
+
+Dengan demikian, posisi penelitian ini adalah pengembangan simulasi interaktif berlevel berbasis finger tracking MediaPipe dengan mekanisme Human-in-the-Loop untuk literasi AI siswa SMP. Orisinalitas penelitian terletak pada integrasi antara input sketsa berbasis gerakan jari, Top-3 prediction, confidence score, keputusan Accept/Correct/Override/Redraw, serta pemetaan keputusan ke konsekuensi gameplay 2D. Integrasi tersebut membuat siswa tidak hanya membaca konsep AI, tetapi mengalami langsung proses membuat input, melihat prediksi, memvalidasi output, dan menerima konsekuensi dari keputusan yang diambil.
+
+DAFTAR PUSTAKA
+
+[1] D. T. K. Ng, J. K. L. Leung, S. K. W. Chu, and M. S. Qiao, "Conceptualizing AI literacy: An exploratory review," Computers and Education: Artificial Intelligence, vol. 2, Art. no. 100041, 2021, doi: 10.1016/j.caeai.2021.100041.
+
+[2] P. Ravi, A. Broski, G. Stump, H. Abelson, E. Klopfer, and C. Breazeal, "Understanding teacher perspectives and experiences after deployment of AI literacy curriculum in middle-school classrooms," arXiv:2312.04839, 2023, doi: 10.48550/arXiv.2312.04839.
+
+[3] O. Clerc, R. Abdelghani, C. Desvaux, E. Poisson, P.-Y. Oudeyer, and H. Sauzéon, "Teaching students to question the machine: An AI literacy intervention improves students' regulation of LLM use in a science task," arXiv:2604.01955, 2026, doi: 10.48550/arXiv.2604.01955.
+
+[4] X. Wu, L. Xiao, Y. Sun, J. Zhang, T. Ma, and L. He, "A survey of human-in-the-loop for machine learning," arXiv:2108.00941, 2021, doi: 10.48550/arXiv.2108.00941.
+
+[5] J. Wang, B. Guo, and L. Chen, "Human-in-the-loop machine learning: A macro-micro perspective," arXiv:2202.10564, 2022, doi: 10.48550/arXiv.2202.10564.
+
+[6] H. Khosravi et al., "Explainable artificial intelligence in education," Computers and Education: Artificial Intelligence, vol. 3, Art. no. 100074, 2022, doi: 10.1016/j.caeai.2022.100074.
+
+[7] R. Alfredo et al., "Human-centred learning analytics and AI in education: A systematic literature review," Computers and Education: Artificial Intelligence, vol. 6, Art. no. 100215, 2024, doi: 10.1016/j.caeai.2024.100215.
+
+[8] M. Videnovik, T. Vold, L. Kiønig, A. M. Bogdanova, and V. Trajkovik, "Game-based learning in computer science education: A scoping literature review," International Journal of STEM Education, vol. 10, Art. no. 54, 2023, doi: 10.1186/s40594-023-00447-2.
+
+[9] M. J. Gomez, J. A. Ruipérez-Valiente, and F. J. García Clemente, "A systematic literature review of game-based assessment studies: Trends and challenges," IEEE Transactions on Learning Technologies, vol. 16, no. 4, pp. 500-515, 2023, doi: 10.1109/TLT.2022.3226661.
+
+[10] Y. J. Tseng and G. Yadav, "ActiveAI: Introducing AI literacy for middle school learners with goal-based scenario learning," arXiv:2309.12337, 2023, doi: 10.48550/arXiv.2309.12337.
+
+[11] F. Zhang et al., "MediaPipe Hands: On-device real-time hand tracking," arXiv:2006.10214, 2020, doi: 10.48550/arXiv.2006.10214.
+
+[12] G. Sung et al., "On-device real-time hand gesture recognition," arXiv:2111.00038, 2021, doi: 10.48550/arXiv.2111.00038.
+
+[13] E. Uboweja et al., "On-device real-time custom hand gesture recognition," arXiv:2309.10858, 2023, doi: 10.48550/arXiv.2309.10858.
+
+[14] Q. V. Liao, D. Gruen, and S. Miller, "Questioning the AI: Informing design practices for explainable AI user experiences," in Proceedings of the 2020 CHI Conference on Human Factors in Computing Systems, 2020, pp. 1-15, doi: 10.1145/3313831.3376590.
+
+[15] A. J. Karran, T. Demazure, A. Hudon, S. Senecal, and P.-M. Léger, "Designing for confidence: The impact of visualizing artificial intelligence decisions," Frontiers in Neuroscience, vol. 16, Art. no. 883385, 2022, doi: 10.3389/fnins.2022.883385.
+
+[16] N. L. Schroeder, R. O. Davis, and E. Yang, "Designing and learning with pedagogical agents: An umbrella review," Journal of Educational Computing Research, vol. 62, no. 8, pp. 1907-1936, 2025, doi: 10.1177/07356331241288476.
+
+[17] C. Norsworthy, B. Jackson, and J. A. Dimmock, "Advancing our understanding of psychological flow: A scoping review of conceptualizations, measurements, and applications," Psychological Bulletin, vol. 147, no. 8, pp. 806-827, 2021, doi: 10.1037/bul0000337.
+
+[18] E. Shokeen, N. Katirci, C. Williams-Pierce, and E. Bonsignore, "Children learning to sketch: Sketching to learn," Information and Learning Sciences, vol. 123, no. 7/8, pp. 482-499, 2022, doi: 10.1108/ILS-03-2022-0023.
+
+[19] C. Ocak, T. J. Kopcha, and R. Dey, "An AI-enhanced pattern recognition approach to temporal and spatial analysis of children's embodied interactions," Computers and Education: Artificial Intelligence, vol. 5, Art. no. 100146, 2023, doi: 10.1016/j.caeai.2023.100146.
+
+[20] S. Lee et al., "AI-infused collaborative inquiry in upper elementary school: A game-based learning approach," in Proceedings of the AAAI Conference on Artificial Intelligence, vol. 35, no. 17, pp. 15591-15599, 2021, doi: 10.1609/aaai.v35i17.17836.

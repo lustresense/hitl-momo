@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <rect width="1200" height="720" fill="#f7f8fb"/>
+  <text x="60" y="64" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#172033">Peta Permasalahan Literasi AI</text>
+  <text x="60" y="98" font-family="Arial, sans-serif" font-size="16" fill="#4a5568">Siswa perlu belajar bahwa output AI adalah prediksi yang harus dievaluasi, bukan jawaban final.</text>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+    <style>
+      .box { fill:#ffffff; stroke:#cbd5e1; stroke-width:2; rx:16; }
+      .warn { fill:#fff7ed; stroke:#fdba74; stroke-width:2; rx:16; }
+      .good { fill:#ecfdf5; stroke:#86efac; stroke-width:2; rx:16; }
+      .title { font-family:Arial, sans-serif; font-size:20px; font-weight:700; fill:#172033; }
+      .body { font-family:Arial, sans-serif; font-size:15px; fill:#334155; }
+      .small { font-family:Arial, sans-serif; font-size:13px; fill:#64748b; }
+      .arrow { stroke:#334155; stroke-width:2.4; fill:none; marker-end:url(#arrow); }
+    </style>
+  </defs>
+  <rect class="box" x="60" y="150" width="245" height="128"/>
+  <text class="title" x="85" y="188">Konteks</text>
+  <text class="body" x="85" y="222">AI makin sering muncul</text>
+  <text class="body" x="85" y="246">dalam aktivitas belajar</text>
+  <text class="small" x="85" y="268">Literasi AI: paham, pakai, evaluasi</text>
+  <path class="arrow" d="M305 214 H385"/>
+  <rect class="warn" x="385" y="150" width="260" height="128"/>
+  <text class="title" x="410" y="188">Masalah Siswa</text>
+  <text class="body" x="410" y="222">Output AI mudah diterima</text>
+  <text class="body" x="410" y="246">sebagai jawaban akhir</text>
+  <text class="small" x="410" y="268">Over-trust dan evaluasi lemah</text>
+  <path class="arrow" d="M645 214 H725"/>
+  <rect class="warn" x="725" y="150" width="330" height="128"/>
+  <text class="title" x="750" y="188">Masalah Antarmuka</text>
+  <text class="body" x="750" y="222">Prediksi sering tampil sebagai</text>
+  <text class="body" x="750" y="246">satu label tanpa alternatif</text>
+  <text class="small" x="750" y="268">Ketidakpastian AI tidak terlihat</text>
+  <path class="arrow" d="M890 278 V360"/>
+  <rect class="box" x="720" y="360" width="345" height="138"/>
+  <text class="title" x="745" y="398">Kebutuhan Pembelajaran</text>
+  <text class="body" x="745" y="432">Siswa perlu membandingkan</text>
+  <text class="body" x="745" y="456">prediksi dan confidence score</text>
+  <text class="small" x="745" y="480">Evaluasi harus menjadi aktivitas</text>
+  <path class="arrow" d="M720 430 H640"/>
+  <rect class="good" x="350" y="360" width="290" height="138"/>
+  <text class="title" x="375" y="398">Mekanisme HITL</text>
+  <text class="body" x="375" y="432">Accept, Correct, Override,</text>
+  <text class="body" x="375" y="456">atau Redraw</text>
+  <text class="small" x="375" y="480">Manusia memvalidasi output AI</text>
+  <path class="arrow" d="M350 430 H270"/>
+  <rect class="good" x="60" y="360" width="210" height="138"/>
+  <text class="title" x="85" y="398">Solusi</text>
+  <text class="body" x="85" y="432">Simulasi interaktif</text>
+  <text class="body" x="85" y="456">berlevel berbasis</text>
+  <text class="body" x="85" y="480">finger tracking</text>
+  <path class="arrow" d="M165 498 V585 H995 V500"/>
+  <text class="small" x="60" y="650">Sumber: diadaptasi dari [1], [3], [4], [15].</text>
+</svg>

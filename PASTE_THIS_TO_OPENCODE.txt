@@ -1,0 +1,24 @@
+ROLE: WORKER
+PARENT: R&D
+TASK_ID: TASK-RND-20260822-001
+
+R&D assignment files are now in the repository:
+
+PRD:
+.ops/inbox/rnd/PRD_SKETCHBOOK_UNIVERSE_v1.0.md
+
+TASK:
+.ops/tasks/TASK-RND-20260822-001_FULL_AUTHOR_SIDE_IMPLEMENTATION.md
+
+Read both and reconcile them with current repository governance and actual implementation.
+
+This assignment grants autonomy for ordinary reversible engineering choices. Do not wait for R&D approval for framework/library/module/test choices that remain inside the PRD.
+
+First create implementation/IMPLEMENTATION_AUDIT.md, then continue implementing end-to-end.
+
+Only create .ops/outbox/rnd/RND_DECISION_REQUIRED.md if a genuine product decision blocks progress.
+
+At completion create:
+.ops/results/OPENCODE_WORKER_REPORT.md
+
+Do not modify root governance files.

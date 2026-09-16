@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <rect width="1200" height="720" fill="#fbfcfe"/>
+  <text x="60" y="64" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#172033">Loop Pembelajaran: Gambar, Prediksi, Keputusan, Konsekuensi</text>
+  <text x="60" y="98" font-family="Arial, sans-serif" font-size="16" fill="#4a5568">Game loop membuat validasi output AI menjadi pengalaman yang terlihat dan dapat dicoba ulang.</text>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+    <style>
+      .node { fill:#ffffff; stroke:#cbd5e1; stroke-width:2; rx:24; }
+      .focus { fill:#ecfdf5; stroke:#86efac; stroke-width:2; rx:24; }
+      .risk { fill:#fff7ed; stroke:#fdba74; stroke-width:2; rx:24; }
+      .title { font-family:Arial, sans-serif; font-size:20px; font-weight:700; fill:#172033; }
+      .body { font-family:Arial, sans-serif; font-size:15px; fill:#334155; }
+      .small { font-family:Arial, sans-serif; font-size:13px; fill:#64748b; }
+      .arrow { stroke:#334155; stroke-width:2.4; fill:none; marker-end:url(#arrow); }
+    </style>
+  </defs>
+  <rect class="node" x="475" y="140" width="250" height="110"/>
+  <text class="title" x="520" y="178">1. Gambar</text>
+  <text class="body" x="510" y="212">Siswa membuat sketsa</text>
+  <text class="body" x="510" y="236">dengan gerakan jari</text>
+  <path class="arrow" d="M725 195 C850 195 930 260 930 360"/>
+  <rect class="node" x="805" y="350" width="250" height="120"/>
+  <text class="title" x="850" y="388">2. Prediksi</text>
+  <text class="body" x="840" y="422">AI menampilkan Top-3</text>
+  <text class="body" x="840" y="446">dan confidence score</text>
+  <path class="arrow" d="M805 410 H685"/>
+  <rect class="focus" x="475" y="350" width="210" height="120"/>
+  <text class="title" x="505" y="388">3. Keputusan</text>
+  <text class="body" x="500" y="422">Accept, Correct,</text>
+  <text class="body" x="500" y="446">Override, Redraw</text>
+  <path class="arrow" d="M475 410 H355"/>
+  <rect class="risk" x="145" y="350" width="210" height="120"/>
+  <text class="title" x="175" y="388">4. Konsekuensi</text>
+  <text class="body" x="170" y="422">Objek menjadi Solid,</text>
+  <text class="body" x="170" y="446">Danger, atau netral</text>
+  <path class="arrow" d="M250 350 C250 235 350 195 475 195"/>
+  <path class="arrow" d="M250 470 V555 H930 V470"/>
+  <text class="small" x="402" y="578">Retry dan feedback menjaga siswa tetap mengevaluasi input serta output AI.</text>
+  <text class="small" x="60" y="650">Sumber: diadaptasi dari [8], [9], [10], [17], [20].</text>
+</svg>

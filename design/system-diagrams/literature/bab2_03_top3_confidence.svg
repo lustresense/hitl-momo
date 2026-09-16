@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <rect width="1200" height="720" fill="#f8fafc"/>
+  <text x="60" y="64" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#172033">Model Top-3 Prediction dan Confidence Score</text>
+  <text x="60" y="98" font-family="Arial, sans-serif" font-size="16" fill="#4a5568">Top-3 UI membuat ketidakpastian AI terlihat dan membuka ruang evaluasi siswa.</text>
+  <defs>
+    <style>
+      .panel { fill:#ffffff; stroke:#cbd5e1; stroke-width:2; rx:18; }
+      .row { fill:#f1f5f9; rx:12; }
+      .bar1 { fill:#2563eb; }
+      .bar2 { fill:#38bdf8; }
+      .bar3 { fill:#94a3b8; }
+      .title { font-family:Arial, sans-serif; font-size:22px; font-weight:700; fill:#172033; }
+      .body { font-family:Arial, sans-serif; font-size:17px; fill:#334155; }
+      .small { font-family:Arial, sans-serif; font-size:13px; fill:#64748b; }
+      .btn { fill:#ffffff; stroke:#94a3b8; stroke-width:2; rx:12; }
+    </style>
+  </defs>
+  <rect class="panel" x="80" y="150" width="430" height="420"/>
+  <text class="title" x="110" y="198">Panel Prediksi AI</text>
+  <rect class="row" x="110" y="230" width="370" height="74"/>
+  <text class="body" x="130" y="260">1. Bridge</text>
+  <rect class="bar1" x="130" y="278" width="270" height="12" rx="6"/>
+  <text class="small" x="410" y="290">72%</text>
+  <rect class="row" x="110" y="325" width="370" height="74"/>
+  <text class="body" x="130" y="355">2. Ladder</text>
+  <rect class="bar2" x="130" y="373" width="180" height="12" rx="6"/>
+  <text class="small" x="410" y="385">48%</text>
+  <rect class="row" x="110" y="420" width="370" height="74"/>
+  <text class="body" x="130" y="450">3. Fence</text>
+  <rect class="bar3" x="130" y="468" width="120" height="12" rx="6"/>
+  <text class="small" x="410" y="480">32%</text>
+  <text class="small" x="110" y="535">Angka membantu perbandingan, bukan perintah menerima hasil.</text>
+  <rect class="panel" x="610" y="150" width="510" height="420"/>
+  <text class="title" x="640" y="198">Ruang Keputusan Siswa</text>
+  <rect class="btn" x="640" y="235" width="210" height="58"/>
+  <text class="body" x="675" y="271">Accept</text>
+  <text class="small" x="875" y="258">Terima prediksi 1</text>
+  <text class="small" x="875" y="280">jika sesuai gambar</text>
+  <rect class="btn" x="640" y="315" width="210" height="58"/>
+  <text class="body" x="675" y="351">Correct</text>
+  <text class="small" x="875" y="338">Pilih prediksi 2/3</text>
+  <text class="small" x="875" y="360">jika lebih tepat</text>
+  <rect class="btn" x="640" y="395" width="210" height="58"/>
+  <text class="body" x="675" y="431">Override</text>
+  <text class="small" x="875" y="418">Tolak semua prediksi</text>
+  <text class="small" x="875" y="440">dan tentukan label</text>
+  <rect class="btn" x="640" y="475" width="210" height="58"/>
+  <text class="body" x="675" y="511">Redraw</text>
+  <text class="small" x="875" y="498">Gambar ulang ketika</text>
+  <text class="small" x="875" y="520">input belum jelas</text>
+  <text class="small" x="60" y="650">Sumber: diadaptasi dari [6], [14], [15].</text>
+</svg>

@@ -1,0 +1,70 @@
+Independent verification for t_82a424e5
+Started: 2026-08-27T06:51:01.509738+00:00
+
+
+=== typecheck: npm run typecheck ===
+
+> sketchbook-universe-author-side@0.2.0 typecheck
+> tsc --noEmit
+
+
+=== tests: /srv/sketchbook/Sketchbook-Universe-v2/implementation/node_modules/.bin/vitest run ===
+
+ RUN  v2.1.9 /srv/sketchbook/Sketchbook-Universe-v2/implementation
+
+ ✓ tests/input/hand-gesture.test.ts (17 tests) 9ms
+ ✓ tests/app/state-machine.test.ts (13 tests) 31ms
+ ✓ tests/components/components.test.tsx (6 tests) 130ms
+ ✓ tests/prediction/partner-http.test.ts (6 tests) 9ms
+ ✓ tests/prediction/mock-provider.test.ts (6 tests) 16ms
+ ✓ tests/prediction/validation.test.ts (10 tests) 4ms
+ ✓ tests/domain/decision-resolver.test.ts (7 tests) 4ms
+ ✓ tests/domain/behavior-resolver.test.ts (4 tests) 3ms
+ ✓ tests/input/normalize.test.ts (4 tests) 4ms
+ ✓ tests/game/spawner.test.ts (3 tests) 4ms
+
+ Test Files  10 passed (10)
+      Tests  76 passed (76)
+   Start at  13:51:03
+   Duration  5.69s (transform 165ms, setup 716ms, collect 247ms, tests 214ms, environment 2.93s, prepare 484ms)
+
+
+=== lint: npm run lint ===
+
+> sketchbook-universe-author-side@0.2.0 lint
+> next lint
+
+✔ No ESLint warnings or errors
+
+=== build: npm run build ===
+
+> sketchbook-universe-author-side@0.2.0 build
+> next build
+
+  ▲ Next.js 14.2.35
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/5) ...
+   Generating static pages (1/5) 
+   Generating static pages (2/5) 
+   Generating static pages (3/5) 
+ ✓ Generating static pages (5/5)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                              Size     First Load JS
+┌ ○ /                                    54.4 kB         142 kB
+├ ○ /_not-found                          873 B          88.4 kB
+└ ○ /icon.svg                            0 B                0 B
++ First Load JS shared by all            87.5 kB
+  ├ chunks/117-754f967a3459e24a.js       31.8 kB
+  ├ chunks/fd9d1056-fffa46e3e31c51f3.js  53.6 kB
+  └ other shared chunks (total)          2.04 kB
+
+
+○  (Static)  prerendered as static content
+

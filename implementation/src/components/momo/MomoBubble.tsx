@@ -12,8 +12,8 @@ export function MomoBubble({ moment }: { moment: MomoMoment }) {
       {/* eslint-disable-next-line @next/next/no-img-element -- tiny local placeholder SVG; optimization adds nothing here */}
       <img
         className="momo-avatar"
-        src="/assets/momo.svg"
-        alt="Momo, sahabat layang-layang"
+        src="/assets/momo-placeholder/momo.svg"
+        alt="Momo (placeholder)"
         width={44}
         height={52}
       />

@@ -1,18 +1,22 @@
+/// <reference types="vitest" />
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react-swc";
 import { fileURLToPath } from "node:url";
 
 export default defineConfig({
-  plugins: [react()],
+  esbuild: {
+    // Next uses preserve; tests need the automatic runtime (no React import).
+    jsx: "automatic",
+  },
   resolve: {
+    // Mirrors tsconfig paths: "@/*" → repo root of this package.
     alias: {
       "@": fileURLToPath(new URL(".", import.meta.url)),
     },
   },
   test: {
-    environment: "jsdom",
+    environment: "node",
+    environmentMatchGlobs: [["tests/components/**", "jsdom"]],
     include: ["tests/**/*.test.ts", "tests/**/*.test.tsx"],
     setupFiles: ["tests/setup-vitest.ts"],
-    globals: true,
   },
 });

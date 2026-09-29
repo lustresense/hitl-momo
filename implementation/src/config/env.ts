@@ -19,7 +19,7 @@ export const env = {
     return Number.isFinite(n) && n > 0 ? n : 8000;
   },
   get defaultDrawInputMode(): InputModeId {
-    return (process.env.NEXT_PUBLIC_DRAW_INPUT_MODE as InputModeId) ?? "hand";
+    return (process.env.NEXT_PUBLIC_DRAW_INPUT_MODE as InputModeId) ?? "pointer";
   },
   get mediapipeModelUrl(): string {
     return process.env.NEXT_PUBLIC_MEDIAPIPE_MODEL_URL ?? "/models/hand_landmarker.task";

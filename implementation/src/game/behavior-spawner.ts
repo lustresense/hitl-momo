@@ -24,7 +24,7 @@ export function planSpawn(
   scene: SceneSpec,
   canvasHeight: number,
 ): SpawnPlan {
-  const topY = canvasHeight - GROUND_Y_OFFSET;
+  const topY = canvasHeight - GROUND_Y_OFFSET - GROUND_THICKNESS;
   switch (behavior) {
     case "solid":
       return {

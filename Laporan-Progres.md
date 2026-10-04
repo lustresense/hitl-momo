@@ -585,10 +585,12 @@ implementation/
 ├── app/
 │   ├── globals.css              # Aturan tema global, CSS variables, & optimasi responsive viewport
 │   ├── layout.tsx               # Root layout Next.js
-│   └── page.tsx                 # Root entrypoint & bootstrap client mount
+│   ├── page.tsx                 # Root entrypoint & bootstrap client mount
+│   ├── prototype-camera.css     # Tata letak dan tema khusus orientasi kamera
+│   └── prototype-tutorial.css   # Animasi transisi dan tata letak kartu brosur tutorial
 ├── src/
 │   ├── app/
-│   │   ├── SketchbookApp.tsx    # Orkesrtator komponen utama aplikasi
+│   │   ├── SketchbookApp.tsx    # Orkesrtator komponen utama aplikasi (onboarding & levels)
 │   │   ├── app-reducer.ts       # Pure reducer pengelolaan state global
 │   │   └── state-machine.ts     # Validasi transisi finite state machine (7 status diskrit)
 │   ├── components/
@@ -596,6 +598,7 @@ implementation/
 │   │   ├── drawing/             # DrawingScreen & Canvas HTML5 input surface
 │   │   ├── game/                # GameStage viewport KAPLAY
 │   │   ├── momo/                # MomoBubble dialog konteks pendamping
+│   │   ├── onboarding/          # CameraIntro (izin & wave gesture) & TutorialBrochure (kartu 3 tahap)
 │   │   ├── prediction/          # PredictingScreen & Top3Panel visualization
 │   │   └── shared/              # DevBanner & indikator mode pengujian
 │   ├── domain/
@@ -637,17 +640,26 @@ Subsistem input mengombinasikan modalitas pelacakan kamera dan penunjuk kursor:
 - **Penghalusan dan Normalisasi Goresan:** Koordinat goresan diperhalus menggunakan filter *exponential moving average* pada `smoothing.ts` untuk mereduksi *jitter* frekuensi tinggi, kemudian dipetakan ke dalam koordinat bounding box $[0, 1] \times [0, 1]$ pada `normalize.ts` guna menjaga invariansi spasial terlepas dari ukuran fisik kanvas pengguna.
 - **Fallback Kursor/Sentuh:** Modul `pointer-input.ts` menyediakan jalur interaksi alternatif menggunakan mouse atau *touchscreen*, menjamin aplikasi tetap dapat dioperasikan pada perangkat tanpa kamera.
 
-### 4.1.3 Subsistem Finite State Machine (FSM)
-Navigasi dan transisi siklus hidup aplikasi dikendalikan secara deterministik oleh *Finite State Machine* pada `state-machine.ts` dan `app-reducer.ts`. State machine mengelola 7 status diskrit:
-1. `level_select`: Layar pemilihan tahapan modul pembelajaran (*Stage 1, 2, 3*);
+### 4.1.3 Subsistem Orientasi Siswa dan Pengenalan Kamera (Onboarding Pipeline)
+Sebelum memasuki tahapan pemilihan level, sistem menyediakan modul orientasi interaktif dua tahap untuk memastikan kesiapan perangkat keras serta pemahaman konsep interaksi siswa:
+1. **Inisialisasi Kamera dan Privasi (CameraIntro):** Komponen `CameraIntro.tsx` memandu siswa dalam mengaktifkan webcam dan memilih sensor video yang aktif. Guna menjamin privasi siswa SMP, pemrosesan video dilakukan secara *on-device* murni di sisi peramban klien tanpa mengirimkan aliran video maupun citra wajah ke server eksternal. Modul ini mendeteksi gestur lambaian tangan (*wave gesture*) secara otomatis sebagai konfirmasi kesiapan siswa, sekaligus menyediakan tombol lewati (*skip*) bagi perangkat yang mengandalkan input alternatif kursor mouse atau sentuhan.
+2. **Panduan Interaktif Tiga Tahap (TutorialBrochure):** Komponen `TutorialBrochure.tsx` menghadirkan media pembelajaran interaktif bergaya brosur tiga lipatan (*three-panel folded brochure*). Siswa dipandu melalui simulasi animasi kartu yang mendemonstrasikan tiga tahapan interaksi inti: menggambar objek dengan gestur *pinch*, mengevaluasi keluaran prediksi AI, serta mengamati konsekuensi fisik objek di dunia simulasi.
+
+### 4.1.4 Subsistem Finite State Machine (FSM)
+Navigasi dan transisi siklus hidup aplikasi dikendalikan secara deterministik oleh *Finite State Machine* pada `state-machine.ts` dan `app-reducer.ts`. State machine mengelola 7 status diskrit kanonikal:
+1. `level-entry`: Layar pemilihan tahapan modul pembelajaran (*Stage 1, 2, 3*);
 2. `drawing`: Layar kanvas interaktif penangkap goresan sketsa;
 3. `predicting`: Layar proses inferensi model kecerdasan buatan;
-4. `evaluating`: Layar penelaahan Top-3 probabilitas dan pemilihan keputusan HITL (*Accept, Correct, Override, Redraw*);
-5. `gameplay`: Layar eksekusi simulasi fisika 2D mesin KAPLAY.js;
-6. `level_summary`: Layar evaluasi ketercapaian siklus level;
-7. `completed`: Layar penyelesaian penuh tahapan level.
+4. `prediction-error`: Layar penanganan kendala jaringan atau kegagalan inferensi dengan opsi coba lagi (*retry*) atau gambar ulang (*redraw*);
+5. `evaluating`: Layar penelaahan Top-3 probabilitas dan pemilihan keputusan HITL (*Accept, Correct, Override, Redraw*);
+6. `gameplay`: Layar eksekusi simulasi fisika 2D mesin KAPLAY.js;
+7. `complete`: Layar penyelesaian penuh siklus level dan ringkasan interaksi siswa.
 
-Prinsip *immutable state update* diterapkan secara ketat; setiap transisi divalidasi oleh pure reducer, dan setiap aksi yang melanggar aturan transisi FSM (misalnya lompatan langsung dari `drawing` ke `gameplay` tanpa melewati fase `evaluating`) ditolak secara deterministik.
+Alur transisi status FSM dirancang deterministik dengan relasi antar-fase sebagai berikut:
+$$\text{level-entry} \rightarrow \text{drawing} \rightarrow \text{predicting} \rightarrow \text{evaluating} \rightarrow \text{gameplay} \rightarrow (\text{drawing} \mid \text{complete})$$
+dengan percabangan pemulihan galat:
+$$\text{predicting} \rightarrow \text{prediction-error} \rightarrow (\text{predicting} \mid \text{drawing})$$
+Prinsip *immutable state update* diterapkan secara ketat; setiap transisi divalidasi oleh pure reducer, dan setiap aksi yang melanggar aturan transisi FSM (misalnya lompatan langsung dari `drawing` ke `gameplay` tanpa melewati fase `evaluating`) ditolak secara deterministik. Aksi gambar ulang (*redraw*) bertindak sebagai mekanisme pemulihan (*recovery action*) yang mengembalikan status ke fase `drawing` secara aman tanpa meninggalkan status tertahan (*dangling state*).
 
 ---
 
@@ -776,6 +788,7 @@ Berdasarkan sasaran kerja yang ditetapkan pada awal periode penelitian, evaluasi
 | **Implementasi Frontend & FSM** | Arsitektur Next.js 14, 7 status FSM, Reducer immutable | Selesai diimplementasikan secara modular pada direktori `src/` | 100% |
 | **Implementasi Input Multimodal** | Deteksi gestur pinch MediaPipe & normalisasi geometri | Modul `hand-gesture`, `normalize`, & `smoothing` teruji | 100% |
 | **Implementasi Panel Keputusan HITL** | Antarmuka XAI Top-3 & aksi Accept/Correct/Override/Redraw | Komponen `Top3Panel` & `DecisionPanel` selesai dan terverifikasi | 100% |
+| **Implementasi Orientasi Siswa (Onboarding)** | Modul izin webcam on-device & brosur interaktif tiga tahap | Komponen `CameraIntro` & `TutorialBrochure` selesai dan terintegrasi | 100% |
 | **Implementasi Simulasi Permainan 2D** | Runtime KAPLAY.js 3001 & resolusi Solid/Danger/Fallback | Modul `kaplay-runtime`, `spawner`, & `physics` selesai | 100% |
 | **Verifikasi Otomatis Berlapis** | Pengujian statis, pengujian unit, E2E, dan Visual QA | 0 TS errors, 67 unit tests, 19 E2E checks, 31 visual checks PASS | 100% |
 | **Integrasi Endpoint Model Mitra** | Pengikatan adapter HTTP dengan endpoint inferensi live mitra | Modul `partner-http-provider.ts` siap; menunggu server mitra | 80% |
@@ -798,6 +811,7 @@ Dalam proses rekayasa perangkat lunak dan pelaksanaan pengujian otomatis, dijump
 | 5 | **Horizontal Overflow pada Mobile 390px** | Elemen Canvas KAPLAY memiliki atribut lebar inline statis yang memaksa lebar dokumen meregang hingga 837px pada viewport sempit. | Menerapkan aturan CSS responsif `.game-canvas { aspect-ratio: 800/380; max-width: 100% !important; }` pada `globals.css`. |
 | 6 | **Level Collision Bounding Geometry Fix** | Ketidaksesuaian bounding box fisik pada rintangan level yang berpotensi menyebabkan karakter tergelincir atau tembus platform simulasi. | Menerapkan peta verifikasi bounds (*bounds verification map*) yang presisi untuk meregenerasi geometri tabrakan fisik (*solid collider*) objek 2D. |
 | 7 | **Direct-Edit Architecture Recovery Fix** | Terjadinya modifikasi langsung pada modul core runtime simulasi (`behavior-spawner`, `kaplay-runtime`, `level-props`) yang mencederai pemisahan tanggung jawab antarmuka. | Melakukan *recovery refactoring* dengan mengisolasi logic per level ke dalam subfolder terstruktur tanpa merusak *entrypoint* inisialisasi utama (`src/game.js`). |
+| 8 | **Isolasi Artefak Pengujian Pasca Penyelarasan Onboarding** | Berkas pengujian unit eksperimental lama yang merujuk modul kanvas di luar branch kanonikal memicu kegagalan eksekusi test runner Vitest. | Mengisolasi modul sisa ke direktori cadangan dan memfokuskan pengujian murni pada 10 test suite aktif, mempertahankan kelulusan 100% (67/67 kasus uji Vitest lulus). |
 
 ---
 

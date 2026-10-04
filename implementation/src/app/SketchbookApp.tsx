@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LEVELS, getLevel } from "@/src/domain/levels";
 import type { DrawingSurface } from "@/src/input";
 import type { LevelDefinition } from "@/src/domain/levels";
@@ -45,6 +45,47 @@ export function SketchbookApp() {
     c.enterLevel(level);
   }, []);
 
+  const navigateTo = useCallback(
+    (route: string) => {
+      if (typeof window !== "undefined") {
+        window.history.pushState(null, "", route);
+      }
+      if (route.includes("/onboarding/card")) {
+        setOnboarding("tutorial");
+      } else if (route.includes("/canvas")) {
+        setOnboarding("levels");
+        if (LEVELS[0]) enterLevel(LEVELS[0]);
+      } else {
+        setOnboarding("camera");
+      }
+    },
+    [enterLevel],
+  );
+
+  useEffect(() => {
+    function syncRoute() {
+      if (typeof window === "undefined") return;
+      const path = window.location.pathname;
+      if (path.includes("/onboarding/card")) {
+        setOnboarding("tutorial");
+      } else if (path.includes("/canvas")) {
+        setOnboarding("levels");
+        if (!controller && LEVELS[0]) {
+          enterLevel(LEVELS[0]);
+        }
+      } else {
+        setOnboarding("camera");
+        if (path === "/" || path === "") {
+          window.history.replaceState(null, "", "/onboarding/cam");
+        }
+      }
+    }
+
+    syncRoute();
+    window.addEventListener("popstate", syncRoute);
+    return () => window.removeEventListener("popstate", syncRoute);
+  }, [controller, enterLevel]);
+
   const level = useMemo(
     () => (snapshot?.levelId ? getLevel(snapshot.levelId) ?? null : null),
     [snapshot?.levelId],
@@ -60,8 +101,8 @@ export function SketchbookApp() {
       <Shell mode={providerMode} onboarding>
         <CameraIntro
           modelUrl={env.mediapipeModelUrl}
-          onWave={() => setOnboarding("tutorial")}
-          onSkip={() => setOnboarding("tutorial")}
+          onWave={() => navigateTo("/onboarding/card")}
+          onSkip={() => navigateTo("/onboarding/card")}
         />
       </Shell>
     );
@@ -70,7 +111,7 @@ export function SketchbookApp() {
   if (onboarding === "tutorial") {
     return (
       <Shell mode={providerMode} onboarding>
-        <TutorialBrochure onStart={() => setOnboarding("levels")} />
+        <TutorialBrochure onStart={() => navigateTo("/canvas")} />
       </Shell>
     );
   }

@@ -57,7 +57,7 @@ export function TutorialBrochure({ onStart }: TutorialBrochureProps) {
     setActive(next);
   }, []);
 
-  const duration = useCallback((ms: number) => window.matchMedia("(prefers-reduced-motion: reduce)").matches ? Math.min(80, ms) : ms, []);
+  const duration = useCallback((ms: number) => ms, []);
 
   const setSlot = useCallback((index: number, patch: Partial<SlotState>) => {
     const current = slotsRef.current[index]!;
@@ -166,34 +166,41 @@ export function TutorialBrochure({ onStart }: TutorialBrochureProps) {
     redoRef.current = [];
   }, []);
 
+  const discardingRef = useRef(false);
   const discardCurrent = useCallback(async () => {
+    if (discardingRef.current) return;
     const index = activeRef.current;
     const dims = dimsRef.current;
     const token = tokenRef.current;
     if (index < 0 || phaseRef.current !== "open" || !dims) return;
-    updatePhase("discard");
-    const slot = slotRefs.current[index];
-    slot?.classList.remove("is-open");
-    await Promise.all([
-      animateSlot(index, { w: dims.guideW, x: 0, y: 0 }, 620, "cubic-bezier(.32,.02,.26,1)"),
-      animatePanelFold(index, false),
-    ]);
-    if (token !== tokenRef.current) return;
-    await Promise.all([
-      animateSlot(index, { y: Math.min(560, window.innerHeight * .62), rot: index % 2 === 0 ? 5 : -5, opacity: 0 }, 520, "cubic-bezier(.55,.02,.8,.35)"),
-      animateFlip(index, 180, 150),
-    ]);
-    const next = index + 1;
-    updateActive(-1);
-    if (next >= 3) {
-      runningRef.current = false;
-      updatePhase("done");
-      onStartRef.current();
-      return;
+    discardingRef.current = true;
+    try {
+      updatePhase("discard");
+      const slot = slotRefs.current[index];
+      slot?.classList.remove("is-open");
+      await Promise.all([
+        animateSlot(index, { w: dims.guideW, x: 0, y: 0 }, 620, "cubic-bezier(.32,.02,.26,1)"),
+        animatePanelFold(index, false),
+      ]);
+      if (token !== tokenRef.current) return;
+      await Promise.all([
+        animateSlot(index, { y: Math.min(560, window.innerHeight * .62), rot: index % 2 === 0 ? 5 : -5, opacity: 0 }, 520, "cubic-bezier(.55,.02,.8,.35)"),
+        animateFlip(index, 180, 480),
+      ]);
+      const next = index + 1;
+      updateActive(-1);
+      if (next >= 3) {
+        runningRef.current = false;
+        updatePhase("done");
+        onStartRef.current();
+        return;
+      }
+      updatePhase("between");
+      if (!(await wait(700, token)) || token !== tokenRef.current) return;
+      await openCardRef.current(next as CardIndex, token);
+    } finally {
+      discardingRef.current = false;
     }
-    updatePhase("between");
-    if (!(await wait(900, token)) || token !== tokenRef.current) return;
-    await openCardRef.current(next as CardIndex, token);
   }, [animateFlip, animatePanelFold, animateSlot, updateActive, updatePhase, wait]);
 
   const openCard = useCallback(async (index: CardIndex, token: number) => {
@@ -314,7 +321,7 @@ interface BrochureCardProps {
 function BrochureCard({ index, active, phase, ready, onNext, onMotionDone, canvasRef, tool, hasStroke, onTool, onBeginStroke, onMoveStroke, onEndStroke, onClear, onUndo, onRedo, slotRef, innerRef, panelRef }: BrochureCardProps) {
   const isActive = index === active;
   const className = `slot tutorial-card-${index + 1} ${isActive ? "is-focused" : ""} ${active >= 0 && index > active ? "is-subdued" : ""} ${isActive && phase === "open" ? "is-open" : ""}`;
-  return <article ref={slotRef} className={className} data-index={index} aria-label={`Kartu tutorial ${index + 1}`} onClick={() => { if (isActive && phase === "open" && ready) onNext(); }}>
+  return <article ref={slotRef} className={className} data-index={index} aria-label={`Kartu tutorial ${index + 1}`}>
     <div className="card"><div ref={innerRef} className="card-inner">
       <section className={`face front front-accent-${index + 1}`}><div className="front-center"><div className="number">{index + 1}</div></div></section>
       <section className={`face back theme-${index + 1}`}><div className="brochure-track"><section className="panel guide-panel">

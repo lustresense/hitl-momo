@@ -140,7 +140,7 @@ export function CameraIntro({ modelUrl, onWave, onSkip }: CameraIntroProps) {
       setHeadline("Lambaikan Tanganmu!");
       setSubtext(<>Angkat tanganmu setinggi dada dan lambaikan ke kamera buat bangunin Momo.<br />Pastikan tanganmu kelihatan jelas di kotak ya!</>);
       setToggleLabel("Kamera Aktif");
-      onWave();
+      await startCamera(deviceId);
       return;
     }
     stopStream();
@@ -175,7 +175,11 @@ export function CameraIntro({ modelUrl, onWave, onSkip }: CameraIntroProps) {
             </select>
           </div>
         </div>
-        {(previewLabel.includes("Izin") || previewLabel.includes("gagal") || previewLabel.includes("tidak tersedia")) && <button type="button" className="camera-skip" onClick={onSkip}>Lanjut tanpa kamera</button>}
+        <div style={{ marginTop: 20 }}>
+          <button type="button" className="camera-skip" onClick={onSkip}>
+            Lewati &amp; Buka Tutorial Kartu →
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -24,17 +24,17 @@ const WALK_SPEED = 120;
 export async function createKaplayGame(options: KaplayGameOptions): Promise<KaplayGameHandle> {
   const kaplayModule = (await import("kaplay")).default;
 
-  console.error("[KAPLAY] Creating game with behavior:", options.behavior, "label:", options.finalLabel);
+  console.log("[KAPLAY] Creating game with behavior:", options.behavior, "label:", options.finalLabel);
 
   if (kaplayInitialized && kaplayInstance) {
-    console.error("[KAPLAY] Destroying previous instance");
+    console.log("[KAPLAY] Destroying previous instance");
     try { kaplayInstance.quit(); } catch {}
     kaplayInitialized = false;
     kaplayInstance = null;
   }
 
   const kaplay = kaplayModule;
-  console.error("[KAPLAY] Creating game with behavior:", options.behavior, "label:", options.finalLabel);
+  console.log("[KAPLAY] Creating game with behavior:", options.behavior, "label:", options.finalLabel);
 
   const k = kaplay({
     global: false,
@@ -68,20 +68,42 @@ export async function createKaplayGame(options: KaplayGameOptions): Promise<Kapl
   const player = addPlayer(k, 40, groundY, "player");
 
   let settled = false;
-  const report = (outcome: GameOutcome) => { if (settled) return; settled = true; options.onOutcome(outcome); };
+  let timerId: NodeJS.Timeout | null = null;
+  const report = (outcome: GameOutcome) => {
+    if (settled) return;
+    settled = true;
+    if (timerId) clearTimeout(timerId);
+    options.onOutcome(outcome);
+  };
+  timerId = setTimeout(() => {
+    if (!settled) report(plan.kind === "hazard" ? "fail" : "success");
+  }, 6000);
+
+  player.onCollide("goal", () => {
+    report("success");
+  });
+  player.onCollide("hazard-zone", () => {
+    report("fail");
+  });
 
   player.onUpdate(() => {
     if (settled) return;
     player.vel.x = WALK_SPEED;
+    if (player.pos.x >= scene.goalX) {
+      report("success");
+      return;
+    }
     const fell = player.pos.y > 380 + 80;
-    if (fell) { report("fail"); return; }
-    const goalHit = (player as unknown as { isOverlapping: (o: string) => boolean }).isOverlapping("goal");
-    if (goalHit) { report("success"); return; }
-    const hazardHit = (player as unknown as { isOverlapping: (o: string) => boolean }).isOverlapping("hazard-zone");
-    if (hazardHit) { report("fail"); }
+    if (fell) {
+      report("fail");
+      return;
+    }
   });
 
   return {
-    destroy() { try { kaplayInstance?.quit(); } catch {} finally { kaplayInitialized = false; kaplayInstance = null; } }
+    destroy() {
+      if (timerId) clearTimeout(timerId);
+      try { kaplayInstance?.quit(); } catch {} finally { kaplayInitialized = false; kaplayInstance = null; }
+    }
   };
 }

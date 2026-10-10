@@ -1,7 +1,7 @@
 import { FilesetResolver, HandLandmarker, type HandLandmarkerResult } from "@mediapipe/tasks-vision";
 import type { Landmark, StrokeStore } from "./types";
 import type { HandFailureReason, HandInputStatus } from "./types";
-import { evaluateGesture } from "./hand-gesture";
+import { evaluateGesture, type CursorState } from "./hand-gesture";
 import { mapToCanvas } from "./hand-gesture";
 import { PointSmoother } from "./smoothing";
 
@@ -23,6 +23,7 @@ export interface HandDriverOptions {
   wasmRoot?: string;
   onStatus(status: HandInputStatus): void;
   onRender(): void;
+  onCursor?: (cursor: { x: number; y: number; state: "hover" | "near" | "drawing" } | null) => void;
 }
 
 export class HandDrawingDriver {
@@ -97,21 +98,23 @@ export class HandDrawingDriver {
   /** Shared pipeline for camera frames and injected test landmarks. */
   private process(landmarks: Landmark[] | undefined, _timestampMs: number): void {
     const frame = evaluateGesture(landmarks);
-    const { store, canvas, onStatus, onRender } = this.options;
+    const { store, canvas, onStatus, onRender, onCursor } = this.options;
 
     if (frame.state === "lost") {
       // End any open stroke so reacquisition never draws jump lines.
       if (store.hasInk() || this.wasPinched) store.endStroke();
       this.wasPinched = false;
       this.smoother.reset();
+      onCursor?.(null);
       onStatus({ kind: "tracking-lost" });
       onRender();
       return;
     }
 
     onStatus({ kind: frame.pinched ? "drawing" : "ready" });
-    const smoothed = this.smoother.smooth(frame.cursor);
+    const smoothed = this.smoother.smooth(frame.cursor, _timestampMs);
     const pt = mapToCanvas(smoothed, canvas.width, canvas.height);
+    onCursor?.({ x: pt.x, y: pt.y, state: frame.cursorState });
 
     if (frame.pinched && !this.wasPinched) {
       store.beginStroke();
@@ -130,6 +133,7 @@ export class HandDrawingDriver {
     this.running = false;
     cancelAnimationFrame(this.rafId);
     if (this.options.store) this.options.store.endStroke();
+    this.options.onCursor?.(null);
     this.stream?.getTracks().forEach((t) => t.stop());
     this.stream = null;
     this.options.video.srcObject = null;

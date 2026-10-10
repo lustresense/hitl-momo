@@ -2,7 +2,7 @@ import type { DrawingInput } from "../domain/types";
 import { StrokeStore, type HandInputStatus, type InputModeId } from "./types";
 import { attachPointerDriver, strokesToDrawingInput } from "./pointer-input";
 import { HandDrawingDriver } from "./mediapipe-input";
-import { evaluateGesture, mapToCanvas } from "./hand-gesture";
+import { evaluateGesture, mapToCanvas, type CursorState } from "./hand-gesture";
 import { PointSmoother } from "./smoothing";
 
 /**
@@ -20,7 +20,7 @@ export class DrawingSurface {
   readonly store = new StrokeStore();
   private detachPointer: (() => void) | null = null;
   private handDriver: HandDrawingDriver | null = null;
-  private handCursor: { x: number; y: number } | null = null;
+  private cursor: { x: number; y: number; state: "hover" | "near" | "drawing" } | null = null;
   private readonly smoother = new PointSmoother();
 
   constructor(
@@ -58,6 +58,10 @@ export class DrawingSurface {
             this.options.onStatusChange?.(s);
           },
           onRender: () => this.render(),
+          onCursor: (c) => {
+            this.cursor = c;
+            this.render();
+          },
         });
         await this.handDriver.start();
       } catch {
@@ -74,14 +78,22 @@ export class DrawingSurface {
 
   private updateHandCursorFromStatus(status: HandInputStatus): void {
     if (status.kind === "tracking-lost") {
-      this.handCursor = null;
+      this.cursor = null;
       this.smoother.reset();
     }
   }
 
   private attachPointer(): void {
     if (this.detachPointer) return;
-    this.detachPointer = attachPointerDriver(this.canvas, this.store, () => this.render());
+    this.detachPointer = attachPointerDriver(
+      this.canvas,
+      this.store,
+      () => this.render(),
+      (c) => {
+        this.cursor = c;
+        this.render();
+      },
+    );
   }
 
   private async stopHand(): Promise<void> {
@@ -91,7 +103,7 @@ export class DrawingSurface {
       await d.stop();
       this.options.onStatusChange?.({ kind: "idle" });
     }
-    this.handCursor = null;
+    this.cursor = null;
     this.attachPointer();
   }
 
@@ -107,15 +119,16 @@ export class DrawingSurface {
     const frame = evaluateGesture(landmarks);
     if (frame.state === "lost") {
       if (this.store.hasInk()) this.store.endStroke();
-      this.handCursor = null;
+      this.cursor = null;
       this.smoother.reset();
       this.render();
       return;
     }
-    const smoothed = this.smoother.smooth(frame.cursor);
-    this.handCursor = mapToCanvas(smoothed, this.canvas.width, this.canvas.height);
+    const smoothed = this.smoother.smooth(frame.cursor, _ts);
+    const canvasPt = mapToCanvas(smoothed, this.canvas.width, this.canvas.height);
+    this.cursor = { x: canvasPt.x, y: canvasPt.y, state: frame.cursorState };
     if (frame.pinched && !this.lastTestPinch) this.store.beginStroke();
-    if (frame.pinched) this.store.addPoint(this.handCursor);
+    if (frame.pinched) this.store.addPoint(canvasPt);
     else if (this.lastTestPinch) this.store.endStroke();
     this.lastTestPinch = frame.pinched;
     this.render();
@@ -126,7 +139,9 @@ export class DrawingSurface {
   /** Expose smoothed cursor for overlay rendering from gesture pipeline tests. */
   pushTestCursor(p: { x: number; y: number }): void {
     const s = this.smoother.smooth(p);
-    this.handCursor = mapToCanvas(s, this.canvas.width, this.canvas.height);
+    const canvasPt = mapToCanvas(s, this.canvas.width, this.canvas.height);
+    this.cursor = { x: canvasPt.x, y: canvasPt.y, state: "hover" };
+    this.render();
   }
 
   /* ---------------- workspace ops ---------------- */
@@ -176,7 +191,7 @@ export class DrawingSurface {
     drawPaper(ctx);
 
     const { completed, active } = this.store.getStrokes();
-    ctx.strokeStyle = "#23324d";
+    ctx.strokeStyle = "#23211d";
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
     ctx.lineWidth = Math.max(3, Math.round(this.canvas.width / 160));
@@ -189,28 +204,26 @@ export class DrawingSurface {
       ctx.stroke();
     }
 
-    if (this.handCursor) {
-      ctx.strokeStyle = "#2e7d32";
-      ctx.lineWidth = 2;
+    if (this.cursor) {
+      const { x, y, state } = this.cursor;
+      const cssW = this.canvas.clientWidth || (this.canvas.width / (window.devicePixelRatio || 1)) || this.canvas.width;
+      const scale = this.canvas.width / (cssW || 1);
+      const r = 6.5 * scale;
+      ctx.save();
       ctx.beginPath();
-      ctx.arc(this.handCursor.x, this.handCursor.y, 9, 0, Math.PI * 2);
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.fillStyle = state === "drawing" ? "#ffe169" : state === "near" ? "#f59e0b" : "#38bdf8";
+      ctx.fill();
+      ctx.lineWidth = Math.max(2, Math.round(2 * scale));
+      ctx.strokeStyle = "#111111";
       ctx.stroke();
+      ctx.restore();
     }
   }
 }
 
-/** Lined sketchbook paper placeholder — replaceable visual token target. */
+/** Transparent canvas clearing — allows full-bleed CSS sketchbook dot-grid to show through. */
 function drawPaper(ctx: CanvasRenderingContext2D): void {
   const c = ctx.canvas;
   ctx.clearRect(0, 0, c.width, c.height);
-  ctx.fillStyle = "#fdfaf3";
-  ctx.fillRect(0, 0, c.width, c.height);
-  ctx.strokeStyle = "#dfe8f2";
-  ctx.lineWidth = 1;
-  for (let y = 24; y < c.height; y += 24) {
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(c.width, y);
-    ctx.stroke();
-  }
 }

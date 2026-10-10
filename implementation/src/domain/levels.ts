@@ -1,8 +1,8 @@
 ﻿import type { LevelContext } from "./types";
 
 /**
- * DEV / PLACEHOLDER LEVEL DATA â€” temporary fixtures only.
- * Per PRD FR-13 Â§17: no final object lists, confidence bands, traps,
+ * DEV / PLACEHOLDER LEVEL DATA — temporary fixtures only.
+ * Per PRD FR-13 §17: no final object lists, confidence bands, traps,
  * deception scripts, or story text are being invented or finalized here.
  * Stage emphasis follows PRD progression framework.
  */
@@ -29,14 +29,14 @@ export interface LevelDefinition extends LevelContext {
   stageEmphasis: string;
 }
 
-/** Stage 1 â€” Foundation: draw â†’ prediction â†’ decision â†’ consequence. */
+/** Stage 1 — Foundation: draw → prediction → decision → consequence. */
 const STAGE_1: LevelDefinition = makeLevel({
   levelId: "stage-1-foundation",
   stage: 1,
   cyclesRequired: 1,
-  title: "Bab 1 Â· Jembatan Pertama",
+  title: "Bab 1 · Jembatan Pertama",
   task: "Gambar satu objek untuk menyeberangi celah di buku.",
-  stageEmphasis: "Pahami alur dasar: gambar â†’ tebakan AI â†’ keputusanmu â†’ konsekuensi.",
+  stageEmphasis: "Pahami alur dasar: gambar → tebakan AI → keputusanmu → konsekuensi.",
   behaviorMap: {
     papan: "solid",
     batu: "danger",
@@ -44,14 +44,14 @@ const STAGE_1: LevelDefinition = makeLevel({
   vocabulary: ["papan", "batu", "tangga"],
 });
 
-/** Stage 2 â€” Ambiguity/comparison: compare Top-3 + confidence before deciding. */
+/** Stage 2 — Ambiguity/comparison: compare Top-3 + confidence before deciding. */
 const STAGE_2: LevelDefinition = makeLevel({
   levelId: "stage-2-ambiguity",
   stage: 2,
   cyclesRequired: 2,
-  title: "Bab 2 Â· Garis yang Mirip",
+  title: "Bab 2 · Garis yang Mirip",
   task: "Celah lebih lebar. Bandingkan ketiga tebakan sebelum memutuskan.",
-  stageEmphasis: "AI punya beberapa kemungkinan jawaban â€” bandingkan confidence-nya.",
+  stageEmphasis: "AI punya beberapa kemungkinan jawaban — bandingkan confidence-nya.",
   behaviorMap: {
     papan: "solid",
     balok: "solid",
@@ -61,7 +61,7 @@ const STAGE_2: LevelDefinition = makeLevel({
 });
 
 /**
- * Stage 3 â€” Critical validation: in this dev context the rank-1-looking label
+ * Stage 3 — Critical validation: in this dev context the rank-1-looking label
  * maps to danger while another label is solid. This is a CONFIGURABLE
  * demonstration of context-aware mapping, not a finalized trap design.
  */
@@ -69,7 +69,7 @@ const STAGE_3: LevelDefinition = makeLevel({
   levelId: "stage-3-validation",
   stage: 3,
   cyclesRequired: 2,
-  title: "Bab 3 Â· Cek Dulu, Baru Percaya",
+  title: "Bab 3 · Cek Dulu, Baru Percaya",
   task: "Di halaman ini beberapa gambar terlihat mirip. Validasi dulu tebakan AI.",
   stageEmphasis: "Manusia perlu memvalidasi keluaran AI sebelum dipakai.",
   behaviorMap: {
@@ -86,7 +86,7 @@ export function getLevel(levelId: string): LevelDefinition | undefined {
   return LEVELS.find((l) => l.levelId === levelId);
 }
 
-/** Labels the mock provider may emit for a level (Top-3 candidates âŠ† this set). */
+/** Labels the mock provider may emit for a level (Top-3 candidates ⊆ this set). */
 export function providerVocabulary(level: LevelDefinition): string[] {
   return [...new Set([...Object.keys(level.behaviorMap), ...level.vocabulary])];
 }

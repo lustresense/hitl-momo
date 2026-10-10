@@ -17,6 +17,8 @@ export const THUMB_TIP = 4;
 export const WRIST = 0;
 export const MIDDLE_MCP = 9;
 
+export type CursorState = "hover" | "near" | "drawing";
+
 /** Mirrored + clamped normalized position of the index fingertip. */
 export function indexTipNormalized(landmarks: Landmark[]): { x: number; y: number } {
   const tip = landmarks[INDEX_TIP] ?? landmarks[0];
@@ -59,7 +61,13 @@ export function isPinched(landmarks: Landmark[], threshold = 0.42): boolean {
  * only after the pinch gesture is asserted again.
  */
 export type GestureFrame =
-  | { state: "tracking"; cursor: { x: number; y: number }; pinched: boolean }
+  | {
+      state: "tracking";
+      cursor: { x: number; y: number };
+      pinched: boolean;
+      cursorState: CursorState;
+      pinchRatio: number;
+    }
   | { state: "lost" };
 
 export function evaluateGesture(
@@ -68,10 +76,25 @@ export function evaluateGesture(
   if (!landmarks || landmarks.length < MIDDLE_MCP + 1) {
     return { state: "lost" };
   }
+  const thumb = landmarks[THUMB_TIP];
+  const index = landmarks[INDEX_TIP];
+  const wrist = landmarks[WRIST];
+  const middleMcp = landmarks[MIDDLE_MCP];
+  if (!thumb || !index || !wrist || !middleMcp) {
+    return { state: "lost" };
+  }
+  const span = Math.hypot(wrist.x - middleMcp.x, wrist.y - middleMcp.y);
+  const pinch = Math.hypot(thumb.x - index.x, thumb.y - index.y);
+  const pinchRatio = span <= 1e-6 ? 1 : pinch / span;
+  const pinched = pinchRatio < 0.42;
+  const cursorState: CursorState = pinched ? "drawing" : pinchRatio < 0.55 ? "near" : "hover";
+
   return {
     state: "tracking",
     cursor: indexTipNormalized(landmarks),
-    pinched: isPinched(landmarks),
+    pinched,
+    cursorState,
+    pinchRatio,
   };
 }
 

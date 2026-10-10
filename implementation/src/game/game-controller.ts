@@ -17,12 +17,12 @@ export class GameController {
     onOutcome: (outcome: "success" | "fail") => void,
   ): Promise<void> {
     this.unmount();
-    console.error("[GameController] Mounting game with behavior:", behavior, "label:", finalLabel);
+    console.log("[GameController] Mounting game with behavior:", behavior, "label:", finalLabel);
     const { createKaplayGame } = await import("./kaplay-runtime");
     // Re-check after the await: unmount may have been called meanwhile.
     if (this.handle !== null) return;
     this.handle = await createKaplayGame({ canvas, level, behavior, finalLabel, onOutcome });
-    console.error("[GameController] Game mounted successfully");
+    console.log("[GameController] Game mounted successfully");
   }
 
   /** Idempotent teardown (StrictMode double-mount safe). */

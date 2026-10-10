@@ -52,6 +52,8 @@ export function SketchbookApp() {
       }
       if (route.includes("/onboarding/card")) {
         setOnboarding("tutorial");
+      } else if (route.includes("/levels")) {
+        setOnboarding("levels");
       } else if (route.includes("/canvas")) {
         setOnboarding("levels");
         if (LEVELS[0]) enterLevel(LEVELS[0]);
@@ -68,6 +70,8 @@ export function SketchbookApp() {
       const path = window.location.pathname;
       if (path.includes("/onboarding/card")) {
         setOnboarding("tutorial");
+      } else if (path.includes("/levels")) {
+        setOnboarding("levels");
       } else if (path.includes("/canvas")) {
         setOnboarding("levels");
         if (!controller && LEVELS[0]) {
@@ -111,7 +115,10 @@ export function SketchbookApp() {
   if (onboarding === "tutorial") {
     return (
       <Shell mode={providerMode} onboarding>
-        <TutorialBrochure onStart={() => navigateTo("/canvas")} />
+        <TutorialBrochure
+          onStart={() => navigateTo("/levels")}
+          onSkip={() => navigateTo("/levels")}
+        />
       </Shell>
     );
   }
@@ -251,9 +258,7 @@ function Shell({ mode, onboarding = false, children }: { mode: "mock" | "partner
         <DevBanner mode={mode} />
       </header>
       <main id="screens">{children}</main>
-      <footer className="app-footer">
-        <span>DEV / PLACEHOLDER visuals — replaceable via design tokens &amp; asset slots.</span>
-      </footer>
+      <footer className="app-footer" />
     </div>
   );
 }

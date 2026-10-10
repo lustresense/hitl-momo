@@ -65,6 +65,33 @@ describe("hand-gesture mapping (TASK 05 provisional gesture)", () => {
       expect(f.pinched).toBe(false);
       expect(f.cursor.x).toBeGreaterThanOrEqual(0);
       expect(f.cursor.y).toBeGreaterThanOrEqual(0);
+      expect(f.cursorState).toBe("hover");
+    }
+  });
+
+  it("evaluateGesture transitions cursorState through hover -> near -> drawing", () => {
+    // Apart -> hover
+    const fHover = evaluateGesture(hand({ thumb: { x: 0.2, y: 0.55 } }));
+    expect(fHover.state).toBe("tracking");
+    if (fHover.state === "tracking") {
+      expect(fHover.cursorState).toBe("hover");
+      expect(fHover.pinched).toBe(false);
+    }
+
+    // Closer but not yet pinched -> near
+    const fNear = evaluateGesture(hand({ thumb: { x: 0.4, y: 0.52 } }));
+    expect(fNear.state).toBe("tracking");
+    if (fNear.state === "tracking") {
+      expect(fNear.cursorState).toBe("near");
+      expect(fNear.pinched).toBe(false);
+    }
+
+    // Pinched -> drawing
+    const fDrawing = evaluateGesture(hand({ thumb: { x: 0.49, y: 0.51 } }));
+    expect(fDrawing.state).toBe("tracking");
+    if (fDrawing.state === "tracking") {
+      expect(fDrawing.cursorState).toBe("drawing");
+      expect(fDrawing.pinched).toBe(true);
     }
   });
 });

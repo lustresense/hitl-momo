@@ -6,19 +6,30 @@
  * No space/planet theme (revoked), no SaaS-dashboard aesthetic.
  */
 :root {
-  --paper: #fdfaf3;
-  --paper-line: #dfe8f2;
-  --ink: #23324d;
-  --ink-soft: #5b6b85;
-  --card: #ffffff;
-  --accent: #2e7d32;
-  --accent-soft: #f1f6ee;
-  --blue: #1976d2;
-  --orange: #ef6c00;
-  --danger: #c0392b;
+  --paper: #f5efe4;
+  --paper-light: #f7f5ea;
+  --paper-line: rgba(35, 33, 29, 0.14);
+  --ink: #23211d;
+  --ink-strong: #111111;
+  --ink-soft: #756f65;
+  --muted: #756f65;
+  --muted-strong: #4f5646;
+  --card: #f7f5ea;
+  --accent: #ef7a37;
+  --accent-soft: #eff3db;
+  --accent-orange: #ef7a37;
+  --orange-deep: #ba4c10;
+  --green: #c8d9a4;
+  --green-card: #c8d9a4;
+  --green-soft: #eff3db;
+  --green-strong: #4a8c1f;
+  --yellow: #f0d487;
+  --blue: #a8c8d8;
+  --danger: #d94336;
   --warn-bg: #fdecea;
   --chip-bg: #fff3cd;
-  --shadow: 0 10px 24px rgba(35, 50, 77, 0.12);
+  --shadow: 0 2px 2px rgba(55, 31, 13, 0.10), 0 8px 18px rgba(55, 31, 13, 0.12), 0 24px 46px rgba(55, 31, 13, 0.10);
+  --shadow-focus: 0 3px 5px rgba(45, 24, 10, 0.16), 0 14px 30px rgba(45, 24, 10, 0.18), 0 38px 72px rgba(45, 24, 10, 0.17);
   --radius: 14px;
 }
 
@@ -26,12 +37,14 @@
 
 body {
   margin: 0;
-  font-family: "Segoe UI", system-ui, sans-serif;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--ink);
   background:
-    linear-gradient(0deg, rgba(223, 232, 242, 0.35) 1px, transparent 1px) 0 0 / 100% 28px,
-    var(--paper);
+    radial-gradient(circle at 1px 1px, rgba(49, 45, 38, 0.16) 1px, transparent 1.2px) 0 0 / 22px 22px,
+    linear-gradient(180deg, #f8f3ea 0%, #f3ecdf 100%);
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: geometricPrecision;
 }
 
 #app { max-width: 1020px; margin: 0 auto; padding: 16px; }
@@ -51,7 +64,7 @@ body {
 
 .screen {
   background: var(--card);
-  border: 1px solid var(--paper-line);
+  border: 1.5px solid var(--paper-line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
   padding: 20px;
@@ -80,25 +93,58 @@ body {
 .momo { display: flex; align-items: flex-start; gap: 10px; }
 .momo-avatar { border-radius: 12px; flex: 0 0 auto; }
 .momo-bubble {
-  background: var(--accent-soft); border: 1.5px solid var(--accent); color: var(--ink);
+  background: var(--green-soft); border: 1.5px solid var(--green-card); color: var(--ink);
   padding: 10px 12px; border-radius: 12px; font-size: 14px; line-height: 1.45;
 }
 
 .actions, .decision-actions { display: flex; flex-direction: column; gap: 8px; }
 
 .btn {
-  appearance: none; border: 1.5px solid var(--ink); background: #fff; color: var(--ink);
-  font: inherit; font-weight: 600; padding: 10px 14px; min-height: 44px;
-  border-radius: 10px; cursor: pointer;
+  appearance: none;
+  border: 1.5px solid var(--paper-line);
+  background: var(--paper-light);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  padding: 10px 14px;
+  min-height: 44px;
+  border-radius: 12px;
+  cursor: pointer;
+  box-shadow: 0 2px 4px rgba(55, 31, 13, 0.08);
+  transition: all 0.2s cubic-bezier(0.2, 0.75, 0.2, 1);
 }
-.btn:hover { transform: translateY(-1px); box-shadow: var(--shadow); }
+.btn:hover {
+  background: #ffffff;
+  border-color: var(--ink);
+  transform: translateY(-1px);
+}
 .btn-small { padding: 6px 10px; min-height: 36px; font-weight: 500; }
-.btn-primary { background: var(--ink); color: #fff; }
+.btn-primary { background: var(--accent-orange); color: #fff; }
 .btn-success { background: var(--accent); border-color: var(--accent); color: #fff; }
 .btn-accept { border-color: var(--accent); color: var(--accent); }
 .btn-correct { border-color: var(--blue); color: var(--blue); }
 .btn-override { border-color: var(--orange); color: var(--orange); }
-.btn-ghost { border-style: dashed; border-color: var(--ink-soft); color: var(--ink-soft); background: transparent; }
+.btn-ghost {
+  border-style: solid;
+  border-width: 1.5px;
+  border-color: var(--paper-line);
+  color: var(--ink-soft);
+  background: var(--paper-light);
+}
+.btn-ghost:hover {
+  border-color: var(--danger, #dc2626);
+  color: var(--danger, #dc2626);
+}
+.btn-exit {
+  border: 1.5px solid var(--paper-line);
+  color: var(--ink-soft);
+  background: var(--paper-light);
+  margin-top: 4px;
+}
+.btn-exit:hover {
+  border-color: var(--danger, #dc2626);
+  color: var(--danger, #dc2626);
+}
 .redraw-link { align-self: flex-start; }
 .subpanel {
   display: flex; flex-direction: column; gap: 8px;
@@ -108,6 +154,23 @@ body {
 .feedback { min-height: 18px; font-size: 13px; color: var(--danger); margin: 0; }
 
 .mode-switch { display: flex; gap: 8px; flex-wrap: wrap; }
+.mode-switch button {
+  min-height: 40px;
+  padding: 6px 14px;
+  border: 1.5px solid var(--paper-line);
+  background: var(--paper-light);
+  color: var(--ink);
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.mode-switch button.active,
+.mode-switch button[aria-pressed="true"] {
+  background: var(--accent-orange);
+  border-color: var(--accent-orange);
+  color: #ffffff;
+}
 .chip {
   align-self: flex-start; font-size: 12px; color: var(--ink-soft);
   background: #f4f7fb; border: 1px solid var(--paper-line);
@@ -238,3 +301,296 @@ button:focus-visible, a:focus-visible, select:focus-visible {
 .tutorial-draw-canvas { display: block; width: 100%; height: 100%; min-height: 280px; border: 3px solid #1e2126; border-radius: 20px; background: #f7f5ea; cursor: crosshair; touch-action: none; }
 .tutorial-progress { display: flex; justify-content: center; gap: 8px; margin-top: 16px; }.tutorial-progress span { width: 10px; height: 10px; border-radius: 50%; background: #c5bba9; }.tutorial-progress .is-current { background: #df6930; transform: scale(1.25); }.tutorial-progress .is-done { background: #4a8c1f; }
 @media (max-width: 700px) { .camera-intro { padding: 24px 16px; }.camera-eyebrow { margin-bottom: 28px; }.camera-intro h1 { font-size: clamp(36px, 12vw, 50px); }.tutorial-screen { padding: 20px 12px 28px; }.tutorial-card-content { grid-template-columns: 1fr; min-height: 0; }.tutorial-guide { min-height: 250px; border-right: 0; border-bottom: 2px solid #1e2126; }.tutorial-playground { min-height: 300px; }.tutorial-stack { min-height: 620px; }.safety-playground { min-height: 260px; } }
+
+/* SVG 13 Layout Adaptation - Full-bleed viewport canvas & docked trio */
+#app:has(#screen-drawing) {
+  max-width: none !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  position: relative !important;
+  overflow: hidden !important;
+}
+
+#app:has(#screen-drawing) .app-header,
+#app:has(#screen-drawing) .app-footer {
+  display: none !important;
+}
+
+#screen-drawing.drawing-screen-svg {
+  position: relative !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background-color: #eff3db !important;
+  background-image: radial-gradient(circle, #d1d5bc 5px, transparent 5px) !important;
+  background-size: 77px 62px !important;
+  background-position: 0 0 !important;
+  overflow: hidden !important;
+}
+
+.drawing-top-bar {
+  position: absolute !important;
+  top: 28px !important;
+  left: 36px !important;
+  z-index: 10 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 16px !important;
+  pointer-events: auto !important;
+}
+
+.drawing-level-tag {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.level-title-badge {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 800;
+  color: #111;
+  background: #c8d9a4;
+  border: 1.5px solid #111;
+  border-radius: 6px;
+  padding: 2px 8px;
+  display: inline-block;
+  width: fit-content;
+  box-shadow: 2px 2px 0 #111;
+}
+
+.level-task-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: #555;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+#screen-drawing .draw-canvas {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 1 !important;
+  pointer-events: auto !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  display: block !important;
+}
+
+.drawing-dock {
+  position: absolute !important;
+  bottom: 24px !important;
+  left: 0 !important;
+  right: 0 !important;
+  padding: 0 40px !important;
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: flex-end !important;
+  z-index: 10 !important;
+  pointer-events: none !important;
+  gap: 16px;
+}
+
+.dock-module {
+  pointer-events: auto !important;
+  border: 2px solid #111 !important;
+  border-radius: 18px !important;
+  box-shadow: 4px 4px 0 #111 !important;
+  padding: 14px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+}
+
+.dock-actions {
+  background: #b9da8f !important;
+  width: 280px !important;
+  flex: 0 0 280px !important;
+}
+
+.dock-actions .action-bar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.dock-actions .action-bar .btn-submit-momo,
+.dock-actions .action-bar .btn-primary {
+  grid-column: 1 / -1;
+  background: #d86b3d !important;
+  border-color: #111 !important;
+  color: #fff !important;
+}
+
+.dock-actions .action-bar .btn-submit-momo:hover,
+.dock-actions .action-bar .btn-primary:hover {
+  background: #c35c30 !important;
+}
+
+.dock-camera {
+  background: #d96c3f !important;
+  color: #ffffff !important;
+  width: 280px !important;
+  flex: 0 0 280px !important;
+}
+
+.camera-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.camera-title-label {
+  font-weight: 700;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #fff;
+}
+
+.dock-camera .mode-switch .mode-btn {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  border: 1.5px solid #111;
+}
+
+.dock-camera .mode-switch .mode-btn.active {
+  background: #111;
+  color: #fff;
+}
+
+.camera-viewport-box {
+  width: 100%;
+  height: 140px;
+  background: #000000;
+  border-radius: 12px;
+  border: 2px solid #111;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.camera-viewport-box .cam-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  display: block;
+}
+
+.camera-off-placeholder {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 600;
+  color: #eff3db;
+}
+
+.camera-chip-status .chip {
+  background: rgba(255, 255, 255, 0.95);
+  color: #111;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1.5px solid #111;
+  border-radius: 999px;
+  padding: 4px 10px;
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+}
+
+.dock-tools {
+  background: #b9da8f !important;
+  width: 260px !important;
+  flex: 0 0 260px !important;
+}
+
+.dock-module-title {
+  font-weight: 800;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #111;
+}
+
+.tool-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.tool-btn {
+  aspect-ratio: 1;
+  border: 2px solid #111;
+  border-radius: 10px;
+  background: #fff;
+  cursor: default;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 2px 0 #111;
+  user-select: none;
+}
+
+.tool-btn.active {
+  background: #ef7a37;
+  color: #fff;
+}
+
+.tool-btn.disabled-hud,
+.tool-btn:disabled {
+  opacity: 0.45;
+}
+
+.tool-btn.swatch {
+  border-width: 2px;
+}
+
+@media (max-width: 900px) {
+  #app:has(#screen-drawing) {
+    height: auto !important;
+    overflow: auto !important;
+  }
+  #screen-drawing.drawing-screen-svg {
+    height: auto !important;
+    min-height: 100vh !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: auto !important;
+  }
+  .drawing-top-bar {
+    position: static !important;
+    padding: 16px !important;
+  }
+  #screen-drawing .draw-canvas {
+    position: relative !important;
+    height: 480px !important;
+  }
+  .drawing-dock {
+    position: static !important;
+    padding: 16px !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+  }
+  .dock-module {
+    width: 100% !important;
+    flex: auto !important;
+  }
+}

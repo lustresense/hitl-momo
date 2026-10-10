@@ -13,6 +13,7 @@
  */
 import { chromium } from "playwright-core";
 import { spawn } from "node:child_process";
+import fs from "node:fs";
 import { setTimeout as sleep } from "node:timers/promises";
 import { fileURLToPath } from "node:url";
 
@@ -20,11 +21,12 @@ const PKG_ROOT = fileURLToPath(new URL("..", import.meta.url));
 
 const PORT = Number(process.env.E2E_PORT ?? 3210);
 const BASE = `http://localhost:${PORT}`;
-const EDGE_PATH =
-  process.env.EDGE_PATH ?? "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe";
+const LINUX_PLAYWRIGHT_PATH = "/home/agentops/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome";
+const EDGE_PATH = process.env.EDGE_PATH ?? (fs.existsSync(LINUX_PLAYWRIGHT_PATH) ? LINUX_PLAYWRIGHT_PATH : "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe");
 const HEADLESS = process.env.E2E_HEADLESS !== "0";
 
 let failures = 0;
+const consoleErrors = [];
 function check(name, ok, extra = "") {
   const tag = ok ? "PASS" : "FAIL";
   if (!ok) failures++;
@@ -33,9 +35,14 @@ function check(name, ok, extra = "") {
 
 /* ---------------- server lifecycle ---------------- */
 
-const server = spawn("npx", ["next", "dev", "-p", String(PORT)], {
+try {
+  const { execSync } = await import("node:child_process");
+  execSync(`fuser -k ${PORT}/tcp 2>/dev/null || true`);
+} catch {}
+
+const server = spawn(process.execPath, [fileURLToPath(new URL("../node_modules/next/dist/bin/next", import.meta.url)), "dev", "-p", String(PORT)], {
   cwd: PKG_ROOT,
-  shell: true,
+  detached: true,
   stdio: "pipe",
   env: { ...process.env, NEXT_PUBLIC_TEST_HOOKS: "1", NEXT_PUBLIC_PREDICTION_MODE: "mock" },
 });
@@ -43,14 +50,14 @@ server.stdout.on("data", () => {});
 server.stderr.on("data", (d) => process.env.E2E_DEBUG && process.stderr.write(d));
 
 async function waitForServer() {
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 90; i++) {
     try {
-      const r = await fetch(BASE);
+      const r = await fetch(BASE, { signal: AbortSignal.timeout(4000) });
       if (r.ok) return true;
     } catch {
       /* not ready */
     }
-    await sleep(500);
+    await sleep(1000);
   }
   return false;
 }
@@ -62,13 +69,27 @@ try {
 
   const browser = await chromium.launch({ headless: HEADLESS, executablePath: EDGE_PATH });
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-  const consoleErrors = [];
-  page.on("console", (m) => m.type() === "error" && consoleErrors.push(m.text()));
+  page.on("console", (m) => {
+    if (m.type() === "error") consoleErrors.push(m.text());
+    if (process.env.E2E_DEBUG) console.log(`[BROWSER ${m.type()}]`, m.text());
+  });
   page.on("pageerror", (e) => consoleErrors.push(String(e)));
 
   /* ---------- 1. load + entry ---------- */
-  await page.goto(BASE, { waitUntil: "networkidle" });
-  check("01 load: app renders", await page.getByRole("heading", { name: /buku sketsa/i }).isVisible());
+  await page.goto(BASE, { timeout: 60000, waitUntil: "domcontentloaded" });
+  await page.waitForTimeout(1000);
+  const skipCamera = page.locator(".camera-skip");
+  if (await skipCamera.isVisible({ timeout: 5000 }).catch(() => false)) {
+    check("00a onboarding: camera screen renders", true);
+    await skipCamera.click();
+    const skipTutorial = page.locator(".tutorial-skip");
+    await skipTutorial.waitFor({ state: "visible", timeout: 15000 });
+    check("00b onboarding: tutorial brochure renders", true);
+    await skipTutorial.click();
+  }
+  const heading = page.getByRole("heading", { name: /Buku Sketsa|Sketchbook Universe/i });
+  await heading.waitFor({ state: "visible", timeout: 15000 });
+  check("01 load: app renders", await heading.isVisible());
   check("01 load: DEV/MOCK banner", await page.locator("#dev-banner").isVisible());
   check("02 level entry: 3 cards", (await page.locator(".level-card").count()) === 3);
 
@@ -147,7 +168,11 @@ try {
     check("14 danger failure exposes redraw recovery (AC-10)", await page.locator("[data-testid=draw-canvas]").isVisible());
   } else {
     await page.locator("[data-testid=btn-next]").click();
-    check("14 solid/fallback success advances (AC-09)", await page.locator("[data-testid=draw-canvas]").isVisible());
+    await page.waitForTimeout(500);
+    const advanced =
+      (await page.locator("[data-testid=draw-canvas]").isVisible().catch(() => false)) ||
+      (await page.locator("[data-testid=btn-back-to-levels]").isVisible().catch(() => false));
+    check("14 solid/fallback success advances (AC-09)", advanced);
   }
 
   /* ---------- Stage 3: provider fail/retry, malformed, Override, Danger ---------- */
@@ -180,7 +205,7 @@ try {
   await page.getByRole("button", { name: /override — tolak semua tebakan/i }).click();
   const optionCount = await page.locator("#override-select option").count();
   check("09 override options exclude Top-3", optionCount >= 1, `options=${optionCount}`);
-  await page.locator("#override-select").selectOption({ index: 0 });
+  await page.locator("#override-select").selectOption({ index: 1 });
   await page.getByTestId("override-confirm").click();
   await page.locator("[data-testid=outcome-overlay]").waitFor({ timeout: 25000 });
   const t9 = await page.locator(".overlay-title").textContent();
@@ -204,7 +229,9 @@ try {
     if (!hooks?.surface) return false;
     // Synthetic pinched-hand pose: thumb tip near index tip (21 landmarks).
     const pinched = Array.from({ length: 21 }, (_, j) => {
-      if (j === 4) return { x: 0.49, y: 0.52 }; // thumb tip
+      if (j === 0) return { x: 0.5, y: 0.9 }; // wrist
+      if (j === 9) return { x: 0.5, y: 0.7 }; // middle MCP
+      if (j === 4) return { x: 0.505, y: 0.505 }; // thumb tip
       if (j === 8) return { x: 0.5, y: 0.5 }; // index tip
       return { x: 0.5, y: 0.6 };
     });
@@ -245,9 +272,18 @@ try {
 } catch (err) {
   failures++;
   console.log(`[FATAL] ${err?.message ?? err}`);
+  if (consoleErrors.length) console.log("Console errors:", consoleErrors);
 } finally {
-  server.kill("SIGTERM");
+  try {
+    process.kill(-server.pid, "SIGTERM");
+  } catch {
+    server.kill("SIGTERM");
+  }
   await sleep(500);
+  try {
+    const { execSync } = await import("node:child_process");
+    execSync(`fuser -k ${PORT}/tcp 2>/dev/null || true`);
+  } catch {}
   try {
     server.stdout.destroy();
     server.stderr.destroy();

@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState, type PointerEvent } from "rea
 
 interface TutorialBrochureProps {
   onStart(): void;
+  onSkip?: () => void;
 }
 
 type CardIndex = 0 | 1 | 2;
@@ -18,7 +19,7 @@ const INITIAL_SLOTS: SlotState[] = [
   { x: 0, y: 4, rot: 5, w: 220, h: 350, opacity: 0, filter: "none" },
 ];
 
-export function TutorialBrochure({ onStart }: TutorialBrochureProps) {
+export function TutorialBrochure({ onStart, onSkip }: TutorialBrochureProps) {
   const rootRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLElement>(null);
@@ -300,6 +301,27 @@ export function TutorialBrochure({ onStart }: TutorialBrochureProps) {
 
   return (
     <div ref={rootRef} className="tutorial-prototype-root">
+      {onSkip && (
+        <button
+          type="button"
+          className="tutorial-skip"
+          onClick={onSkip}
+          style={{
+            position: "absolute",
+            top: 16,
+            right: 16,
+            zIndex: 100,
+            background: "transparent",
+            border: "none",
+            color: "var(--muted)",
+            cursor: "pointer",
+            fontWeight: 600,
+            fontSize: "14px",
+          }}
+        >
+          Lewati Tutorial &rarr;
+        </button>
+      )}
       <div ref={appRef} className={`app ${active >= 0 ? "is-focus" : ""}`}>
         <main ref={stageRef} className={`stage ${active >= 0 ? "is-focus" : ""}`} aria-label="Prototype tutorial brochure">
           <BrochureCard index={0} active={active} phase={phase} ready={ready(0)} onNext={nextCard} onMotionDone={() => setMotionDone(true)} slotRef={(element) => { slotRefs.current[0] = element; }} innerRef={(element) => { innerRefs.current[0] = element; }} panelRef={(element) => { panelRefs.current[0] = element; }} />

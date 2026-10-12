@@ -230,6 +230,34 @@ class TestAuthModuleUnit(unittest.TestCase):
         with self.assertRaises(CorruptStoreError):
             self.auth_store.is_configured()
 
+        # Salt with whitespace (bytes.fromhex bypass attempt)
+        with open(self.store_path, "w", encoding="utf-8") as f:
+            json.dump({
+                "version": 1,
+                "kdf": "scrypt",
+                "params": SCRYPT_PARAMS,
+                "salt": "aa " * 16,
+                "hash": "b" * 64,
+            }, f)
+        if os.name == "posix":
+            os.chmod(self.store_path, 0o600)
+        with self.assertRaises(CorruptStoreError):
+            self.auth_store.is_configured()
+
+        # Hash with whitespace (bytes.fromhex bypass attempt)
+        with open(self.store_path, "w", encoding="utf-8") as f:
+            json.dump({
+                "version": 1,
+                "kdf": "scrypt",
+                "params": SCRYPT_PARAMS,
+                "salt": "a" * 32,
+                "hash": "bb\n" * 21 + "b",
+            }, f)
+        if os.name == "posix":
+            os.chmod(self.store_path, 0o600)
+        with self.assertRaises(CorruptStoreError):
+            self.auth_store.is_configured()
+
     def test_session_manager_lifecycle(self):
         sm = SessionManager(ttl_seconds=2)
         session = sm.create_session()

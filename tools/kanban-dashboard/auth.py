@@ -148,6 +148,8 @@ class AuthStore:
             raise CorruptStoreError("Salt must be a hex string")
         if len(salt_hex) < 32 or len(salt_hex) > 128 or len(salt_hex) % 2 != 0:
             raise CorruptStoreError(f"Salt length invalid: {len(salt_hex)} hex characters")
+        if not all(c in "0123456789abcdefABCDEF" for c in salt_hex):
+            raise CorruptStoreError("Salt contains invalid characters or whitespace")
         try:
             bytes.fromhex(salt_hex)
         except ValueError as e:
@@ -159,6 +161,8 @@ class AuthStore:
             raise CorruptStoreError("Hash must be a hex string")
         if len(hash_hex) != dklen * 2:
             raise CorruptStoreError(f"Hash length mismatch: expected {dklen * 2} hex chars, got {len(hash_hex)}")
+        if not all(c in "0123456789abcdefABCDEF" for c in hash_hex):
+            raise CorruptStoreError("Hash contains invalid characters or whitespace")
         try:
             bytes.fromhex(hash_hex)
         except ValueError as e:

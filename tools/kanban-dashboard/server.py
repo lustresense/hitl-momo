@@ -5,6 +5,7 @@ import os
 import sys
 from http import HTTPStatus
 from http.server import HTTPServer, BaseHTTPRequestHandler
+from socketserver import ThreadingMixIn
 from typing import Optional, Tuple
 from urllib.parse import parse_qs, urlparse
 
@@ -43,7 +44,8 @@ SECURITY_HEADERS = {
 }
 
 
-class KanbanServer(HTTPServer):
+class KanbanServer(ThreadingMixIn, HTTPServer):
+    daemon_threads = True
     auth_token: Optional[str] = None
     auth_store: AuthStore
     session_manager: SessionManager

@@ -225,7 +225,12 @@ class TestHTTPMethodsAndSecurityHeaders(unittest.TestCase):
 
     # --- Unconfigured auth gate across methods ---
     def test_unconfigured_auth_gate_rejects_all_methods(self):
-        raw_server = create_server(host="127.0.0.1", port=0, auth_token=None)
+        raw_server = create_server(
+            host="127.0.0.1",
+            port=0,
+            auth_token=None,
+            auth_store_path="/tmp/nonexistent_auth_store_for_unconfigured_test.json",
+        )
         raw_port = raw_server.server_port
         raw_thread = threading.Thread(target=raw_server.serve_forever, daemon=True)
         raw_thread.start()

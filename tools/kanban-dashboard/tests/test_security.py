@@ -1,4 +1,5 @@
 import json
+import http.client
 import inspect
 import os
 import sqlite3
@@ -237,7 +238,12 @@ class TestKanbanSecurity(unittest.TestCase):
 
     # 4. Fail-closed when no auth configured across all routes
     def test_unconfigured_auth_fails_closed(self):
-        raw_server = create_server(host="127.0.0.1", port=0, auth_token=None)
+        raw_server = create_server(
+            host="127.0.0.1",
+            port=0,
+            auth_token=None,
+            auth_store_path="/tmp/nonexistent_auth_store_for_unconfigured_test.json",
+        )
         raw_port = raw_server.server_port
         raw_thread = threading.Thread(target=raw_server.serve_forever, daemon=True)
         raw_thread.start()
@@ -376,6 +382,68 @@ class TestKanbanSecurity(unittest.TestCase):
             self.assertIn("pass", handler_src)
         finally:
             sys.stderr = old_stderr
+
+    # 12. HTTPS Redirection and Plaintext HTTP Defense
+    def test_insecure_http_forwarded_get_redirects_to_https(self):
+        # When request arrives from tunnel/proxy marked as http, GET/HEAD must 301 redirect to https
+        conn = http.client.HTTPConnection("127.0.0.1", self.port)
+        conn.request(
+            "GET",
+            "/",
+            headers={
+                "Host": "kanban.momominum.tech",
+                "X-Forwarded-Proto": "http",
+            },
+        )
+        resp = conn.getresponse()
+        resp_body = resp.read()
+        conn.close()
+
+        self.assertEqual(resp.status, 301)
+        self.assertEqual(resp.headers.get("Location"), "https://kanban.momominum.tech/")
+        self.assertEqual(resp.headers.get("Cache-Control"), "no-store")
+
+    def test_insecure_http_forwarded_post_rejected(self):
+        # Plaintext HTTP POST (login/setup) must be rejected to prevent cleartext credential transmission
+        conn = http.client.HTTPConnection("127.0.0.1", self.port)
+        conn.request(
+            "POST",
+            "/api/auth/login",
+            body=json.dumps({"password": "some_password"}),
+            headers={
+                "Host": "kanban.momominum.tech",
+                "X-Forwarded-Proto": "http",
+                "Content-Type": "application/json",
+            },
+        )
+        resp = conn.getresponse()
+        resp_body = resp.read()
+        conn.close()
+
+        self.assertEqual(resp.status, 403)
+        self.assertIn("https", resp_body.decode("utf-8").lower())
+
+    def test_https_forwarded_request_includes_hsts(self):
+        # When request arrives over HTTPS, Strict-Transport-Security must be sent
+        conn = http.client.HTTPConnection("127.0.0.1", self.port)
+        conn.request(
+            "GET",
+            "/",
+            headers={
+                "Host": "kanban.momominum.tech",
+                "X-Forwarded-Proto": "https",
+            },
+        )
+        resp = conn.getresponse()
+        resp.read()
+        conn.close()
+
+        self.assertEqual(resp.status, 200)
+        hsts = resp.headers.get("Strict-Transport-Security")
+        self.assertIsNotNone(hsts)
+        assert hsts is not None
+        self.assertIn("max-age=", hsts)
+        self.assertIn("includesubdomains", hsts.lower())
 
 
 if __name__ == "__main__":

@@ -98,6 +98,56 @@ class TestFrontendDOMSafety(unittest.TestCase):
         self.assertNotIn("sessionStorage", content)
         self.assertNotIn("localStorage", content)
 
+    def test_css_hidden_utility_rules(self):
+        css_path = os.path.join(STATIC_DIR, "style.css")
+        with open(css_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        # Must have standalone .hidden rule with display: none !important
+        self.assertTrue(
+            bool(re.search(r"(?m)^\.hidden\s*\{[^}]*display:\s*none\s*!important", content)),
+            "style.css must define a standalone .hidden rule with display: none !important",
+        )
+        # Must have specific rule ensuring #auth-confirm-group is hidden when .hidden
+        self.assertTrue(
+            bool(re.search(r"(?m)^\.hidden\s*\{[^}]*display:\s*none\s*!important", content) or
+                 re.search(r"#auth-confirm-group\.hidden\s*\{[^}]*display:\s*none", content)),
+            "style.css must guarantee that #auth-confirm-group is hidden when .hidden is applied",
+        )
+
+    def test_versioned_cache_busting_assets(self):
+        html_path = os.path.join(STATIC_DIR, "index.html")
+        with open(html_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        # Static assets must carry version/cache-busting query parameters
+        self.assertRegex(content, r'href="/static/style\.css\?v=[^"]+"')
+        self.assertRegex(content, r'src="/static/app\.js\?v=[^"]+"')
+
+    def test_login_vs_setup_modal_state_in_js(self):
+        js_path = os.path.join(STATIC_DIR, "app.js")
+        with open(js_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        # showLoginModal must hide confirm group and label as Sign In
+        self.assertIn("function showLoginModal(", content)
+        self.assertIn("authConfirmGroup.classList.add('hidden')", content)
+        self.assertIn("authModalTitle.textContent = 'Sign In'", content)
+        self.assertIn("authTokenSubmit.textContent = 'Sign In'", content)
+
+        # showSetupModal must reveal confirm group and label as Create Admin Password
+        self.assertIn("function showSetupModal(", content)
+        self.assertIn("authConfirmGroup.classList.remove('hidden')", content)
+        self.assertIn("authModalTitle.textContent = 'Create Admin Password'", content)
+        self.assertIn("authTokenSubmit.textContent = 'Set Password'", content)
+
+        # checkAuthStatus routes setup_required to showSetupModal and configured to showLoginModal
+        self.assertIn("if (data.setup_required) {", content)
+        self.assertIn("showSetupModal();", content)
+        self.assertIn("showLoginModal();", content)
+
+
+
 
 if __name__ == "__main__":
     unittest.main()

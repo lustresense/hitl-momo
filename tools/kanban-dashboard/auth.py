@@ -433,6 +433,10 @@ def validate_origin(origin_header: Optional[str], host_header: Optional[str]) ->
 
     origin_host = origin_netloc.split(":")[0]
 
+    # Non-loopback public origins must use HTTPS
+    if origin_host not in ("127.0.0.1", "localhost", "::1") and parsed.scheme != "https":
+        return False
+
     # If Host header provided, compare netlocs
     if host_header:
         req_netloc = host_header.strip().lower()

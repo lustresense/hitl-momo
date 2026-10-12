@@ -65,6 +65,10 @@ body.cp {
   border: 0;
 }
 
+.hidden {
+  display: none !important;
+}
+
 /* App Layout */
 .app-layout {
   display: flex;
@@ -686,6 +690,10 @@ body.cp {
 
 .auth-error-msg.hidden {
   display: none;
+}
+
+#auth-confirm-group.hidden {
+  display: none !important;
 }
 
 .modal-actions {

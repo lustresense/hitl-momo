@@ -85,6 +85,8 @@ class KanbanHTTPHandler(BaseHTTPRequestHandler):
         for k, v in SECURITY_HEADERS.items():
             if k.lower() not in sent_headers:
                 self.send_header(k, v)
+        if self._is_secure() and "strict-transport-security" not in sent_headers:
+            self.send_header("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
         super().end_headers()
 
     def send_error(self, code: int, message: Optional[str] = None, explain: Optional[str] = None):
@@ -140,6 +142,13 @@ class KanbanHTTPHandler(BaseHTTPRequestHandler):
         except OSError:
             self._send_error_json(HTTPStatus.NOT_FOUND, "File not found")
 
+    def _send_redirect(self, target_url: str):
+        self.send_response(HTTPStatus.MOVED_PERMANENTLY)
+        self.send_header("Location", target_url)
+        self.send_header("Content-Type", "text/plain; charset=utf-8")
+        self.send_header("Content-Length", "0")
+        self.end_headers()
+
     def _is_loopback_client(self) -> bool:
         client_ip = self.client_address[0]
         return client_ip in ("127.0.0.1", "::1", "localhost")
@@ -147,8 +156,28 @@ class KanbanHTTPHandler(BaseHTTPRequestHandler):
     def _is_secure(self) -> bool:
         if os.environ.get("KANBAN_COOKIE_SECURE") == "1":
             return True
-        proto = self.headers.get("X-Forwarded-Proto", "").strip().lower()
-        return proto == "https"
+        headers = getattr(self, "headers", None)
+        if not headers:
+            return False
+        proto = headers.get("X-Forwarded-Proto", "").strip().lower()
+        if proto == "https":
+            return True
+        cf_visitor = headers.get("CF-Visitor", "").strip().lower()
+        if '"scheme":"https"' in cf_visitor:
+            return True
+        return False
+
+    def _is_insecure_forwarded(self) -> bool:
+        headers = getattr(self, "headers", None)
+        if not headers:
+            return False
+        proto = headers.get("X-Forwarded-Proto", "").strip().lower()
+        if proto == "http":
+            return True
+        cf_visitor = headers.get("CF-Visitor", "").strip().lower()
+        if '"scheme":"http"' in cf_visitor:
+            return True
+        return False
 
     def _get_cookie_val(self, cookie_name: str = SESSION_COOKIE_NAME) -> Optional[str]:
         raw_cookie = self.headers.get("Cookie", "")
@@ -233,13 +262,23 @@ class KanbanHTTPHandler(BaseHTTPRequestHandler):
         return True
 
     def _handle_unsupported_method(self):
+        cmd = getattr(self, "command", "REQUEST")
+        if self._is_insecure_forwarded():
+            if cmd == "HEAD":
+                host = self.headers.get("Host", "").strip() or "kanban.momominum.tech"
+                target_url = f"https://{host}{self.path}"
+                return self._send_redirect(target_url)
+            return self._send_error_json(
+                HTTPStatus.FORBIDDEN,
+                "Forbidden: Insecure HTTP request rejected. Access via HTTPS required.",
+            )
         req_path = getattr(self, "path", "/") or "/"
         parsed = urlparse(req_path)
         query_params = parse_qs(parsed.query)
         if self._auth_precheck(query_params):
             self._send_error_json(
                 HTTPStatus.METHOD_NOT_ALLOWED,
-                f"Method {getattr(self, 'command', 'REQUEST')} not allowed",
+                f"Method {cmd} not allowed",
             )
 
     do_HEAD = _handle_unsupported_method
@@ -260,6 +299,13 @@ class KanbanHTTPHandler(BaseHTTPRequestHandler):
             parsed = urlparse(self.path)
             path = parsed.path
             query_params = parse_qs(parsed.query)
+
+            # Plaintext HTTP defense: reject unencrypted credentials and state mutations
+            if self._is_insecure_forwarded():
+                return self._send_error_json(
+                    HTTPStatus.FORBIDDEN,
+                    "Forbidden: Insecure HTTP request rejected. Access via HTTPS required.",
+                )
 
             # Fail-closed for non-loopback clients
             if not self._is_loopback_client():
@@ -391,6 +437,12 @@ class KanbanHTTPHandler(BaseHTTPRequestHandler):
             parsed = urlparse(self.path)
             path = parsed.path
             query_params = parse_qs(parsed.query)
+
+            # Plaintext HTTP defense: redirect forwarded HTTP to HTTPS
+            if self._is_insecure_forwarded():
+                host = self.headers.get("Host", "").strip() or "kanban.momominum.tech"
+                target_url = f"https://{host}{self.path}"
+                return self._send_redirect(target_url)
 
             # Fail-closed for non-loopback clients across all routes
             if not self._is_loopback_client():

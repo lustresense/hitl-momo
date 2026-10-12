@@ -32,6 +32,14 @@
           <p id="board-subtitle">Read-only view</p>
         </div>
         <div class="board-filters">
+          <div class="filter-group status-filter-group">
+            <button type="button" id="status-filter-btn" class="btn sm filter-btn" aria-expanded="false" aria-controls="status-filter-popover" aria-haspopup="true" aria-label="Filter columns by status">
+              <span class="filter-icon" aria-hidden="true">⊞</span>
+              <span class="filter-label">Status</span>
+              <span id="status-filter-badge" class="badge-count filter-badge">6</span>
+            </button>
+            <div id="status-filter-popover" class="filter-popover hidden" role="region" aria-label="Status filter options" tabindex="-1"></div>
+          </div>
           <div class="filter-group">
             <label for="assignee-filter">Assignee:</label>
             <select id="assignee-filter">

@@ -30,6 +30,8 @@ def verify_local():
     assert resp.status == 200
     assert 'href="/static/style.css?v=1.2.1"' in html
     assert 'src="/static/app.js?v=1.2.1"' in html
+    assert 'id="status-filter-btn"' in html
+    assert 'id="status-filter-popover"' in html
 
     # 3. Static style.css contains .hidden rules
     conn = http.client.HTTPConnection("127.0.0.1", 9200, timeout=5)
@@ -42,6 +44,8 @@ def verify_local():
     assert resp.status == 200
     assert ".hidden {\n  display: none !important;\n}" in css
     assert "#auth-confirm-group.hidden {\n  display: none !important;\n}" in css
+    assert ".col-toggle-btn" in css
+    assert ".filter-popover" in css
 
     # 4. Insecure HTTP forwarding redirects to HTTPS
     conn = http.client.HTTPConnection("127.0.0.1", 9200, timeout=5)
@@ -118,6 +122,8 @@ def verify_public():
     assert resp.status == 200
     assert 'href="/static/style.css?v=1.2.1"' in html
     assert 'src="/static/app.js?v=1.2.1"' in html
+    assert 'id="status-filter-btn"' in html
+    assert 'id="status-filter-popover"' in html
 
     # 3. Public HTTPS style.css?v=1.2.1
     conn_https = http.client.HTTPSConnection("kanban.momominum.tech", timeout=10, context=ctx)
@@ -130,6 +136,8 @@ def verify_public():
     assert resp.status == 200
     assert ".hidden {\n  display: none !important;\n}" in css
     assert "#auth-confirm-group.hidden {\n  display: none !important;\n}" in css
+    assert ".col-toggle-btn" in css
+    assert ".filter-popover" in css
 
     # 4. Public HTTP request redirects to HTTPS
     conn_http = http.client.HTTPConnection("kanban.momominum.tech", timeout=10)

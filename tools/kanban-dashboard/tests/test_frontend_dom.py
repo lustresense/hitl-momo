@@ -146,6 +146,84 @@ class TestFrontendDOMSafety(unittest.TestCase):
         self.assertIn("showSetupModal();", content)
         self.assertIn("showLoginModal();", content)
 
+    def test_status_filter_html_and_accessibility(self):
+        html_path = os.path.join(STATIC_DIR, "index.html")
+        with open(html_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        # Status filter button and popover must exist with correct accessibility attributes
+        self.assertIn('id="status-filter-btn"', content, "Must have status-filter-btn")
+        self.assertIn('aria-controls="status-filter-popover"', content, "Filter button must have aria-controls")
+        self.assertIn('aria-expanded=', content, "Filter button must have aria-expanded")
+        self.assertIn('id="status-filter-popover"', content, "Must have status-filter-popover container")
+        self.assertIn('id="status-filter-badge"', content, "Must have status-filter-badge for active count")
+
+    def test_status_filter_js_implementation(self):
+        js_path = os.path.join(STATIC_DIR, "app.js")
+        with open(js_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        # Check filter logic and DOM elements
+        self.assertIn("status-filter-btn", content)
+        self.assertIn("status-filter-popover", content)
+        self.assertIn("selectedStatuses", content, "State should maintain selectedStatuses set")
+        self.assertIn("empty-filter-state", content, "Must handle empty filter selection state cleanly")
+        self.assertIn("status-filter-todo-btn", content, "Must have one-click To Do only filter action")
+        self.assertIn("status-filter-all-btn", content, "Must have All filter action")
+        self.assertIn("status-filter-clear-btn", content, "Must have Clear filter action")
+
+    def test_mobile_column_toggle_button_attributes(self):
+        js_path = os.path.join(STATIC_DIR, "app.js")
+        with open(js_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        # Check for toggle button creation with required accessibility attributes
+        self.assertIn("col-toggle-btn", content, "Toggle button class must be col-toggle-btn")
+        self.assertIn("aria-expanded", content, "Toggle button must use aria-expanded")
+        self.assertIn("aria-controls", content, "Toggle button must use aria-controls")
+        self.assertIn("aria-label", content, "Toggle button must have meaningful aria-label")
+        self.assertIn("is-collapsed", content, "Collapsed state class is-collapsed must be toggled")
+        self.assertIn("col-tasks-", content, "Task list element must have an ID for aria-controls")
+
+    def test_filter_and_mobile_css(self):
+        css_path = os.path.join(STATIC_DIR, "style.css")
+        with open(css_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        # Check for mobile media queries and responsive overflow prevention
+        self.assertIn("@media (max-width: 860px)", content, "Mobile media query must be present")
+        self.assertIn("overflow-x", content, "Must handle overflow-x to prevent horizontal scrolling")
+        self.assertIn(".col-toggle-btn", content, ".col-toggle-btn selector must be styled")
+        self.assertIn(".filter-popover", content, ".filter-popover selector must be styled")
+        self.assertIn(".empty-filter-state", content, ".empty-filter-state selector must be styled")
+        self.assertIn("prefers-reduced-motion", content, "Must respect prefers-reduced-motion")
+
+    def test_status_filter_runtime_behavior(self):
+        import subprocess
+
+        js_test = os.path.join(os.path.dirname(__file__), "test_filter_behavior.js")
+        proc = subprocess.run(["node", js_test], capture_output=True, text=True)
+        self.assertEqual(proc.returncode, 0, f"Filter runtime test failed:\n{proc.stderr}\n{proc.stdout}")
+
+    def test_column_toggle_runtime_behavior(self):
+        import subprocess
+
+        js_test = os.path.join(os.path.dirname(__file__), "test_toggle_behavior.js")
+        proc = subprocess.run(["node", js_test], capture_output=True, text=True)
+        self.assertEqual(proc.returncode, 0, f"Toggle runtime test failed:\n{proc.stderr}\n{proc.stdout}")
+
+    def test_mobile_responsive_layout_measurements(self):
+        """Verify real layout at 320/360/390 px: scrollWidth <= clientWidth, no clipping reliance, toggles."""
+        import subprocess
+
+        js_test = os.path.join(os.path.dirname(__file__), "test_viewport_overflow.js")
+        proc = subprocess.run(["node", js_test], capture_output=True, text=True, timeout=60)
+        self.assertEqual(
+            proc.returncode,
+            0,
+            f"Responsive viewport layout test failed:\nSTDOUT:\n{proc.stdout}\nSTDERR:\n{proc.stderr}",
+        )
+
 
 
 

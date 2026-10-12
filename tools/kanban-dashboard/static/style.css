@@ -220,6 +220,186 @@ body.cp {
   color: var(--text-2);
 }
 
+/* Status Filter Popover & Controls */
+.status-filter-group {
+  position: relative;
+}
+
+.filter-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: var(--bg-soft);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: var(--r);
+  padding: 6px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.filter-btn:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--accent-2);
+}
+
+.filter-btn[aria-expanded="true"] {
+  border-color: var(--accent);
+  background-color: var(--bg-selected);
+  color: var(--accent);
+}
+
+.filter-btn:focus-visible,
+.filter-btn:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.filter-icon {
+  font-size: 12px;
+  color: var(--text-2);
+}
+
+.filter-badge {
+  background-color: var(--bg-panel);
+  color: var(--accent);
+  border-color: var(--border-strong);
+}
+
+.filter-popover {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  z-index: 60;
+  width: 270px;
+  background-color: var(--bg-panel);
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.filter-popover.hidden {
+  display: none;
+}
+
+.popover-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.popover-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-2);
+}
+
+.popover-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.popover-btn {
+  background: transparent;
+  border: 1px solid var(--border-subtle);
+  border-radius: 4px;
+  color: var(--text-2);
+  font-size: 11px;
+  padding: 2px 7px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.popover-btn:hover {
+  background-color: var(--bg-hover);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.popover-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.status-checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 240px;
+  overflow-y: auto;
+}
+
+.status-checkbox-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 8px;
+  border-radius: var(--r);
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.12s;
+}
+
+.status-checkbox-item:hover {
+  background-color: var(--bg-soft);
+}
+
+.status-checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--text);
+  cursor: pointer;
+  flex: 1;
+}
+
+.status-checkbox-item input[type="checkbox"] {
+  cursor: pointer;
+  accent-color: var(--accent);
+  width: 15px;
+  height: 15px;
+}
+
+/* Empty Filter State */
+.empty-filter-state {
+  grid-column: 1 / -1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 48px 24px;
+  border: 2px dashed var(--border);
+  border-radius: var(--r2);
+  background-color: rgba(25, 45, 53, 0.4);
+  text-align: center;
+}
+
+.empty-filter-state h3 {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.empty-filter-state p {
+  font-size: 13px;
+  color: var(--text-2);
+  max-width: 380px;
+}
+
 /* Mobile Tabs */
 .col-tabs {
   display: none;
@@ -278,6 +458,53 @@ body.cp {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* Column Toggle Button */
+.col-toggle-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  color: var(--text-2);
+  width: 26px;
+  height: 26px;
+  border-radius: var(--r);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  font-size: 13px;
+  line-height: 1;
+  transition: all 0.15s;
+  flex-shrink: 0;
+}
+
+.col-toggle-btn:hover {
+  background-color: var(--bg-soft);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.col-toggle-btn:focus-visible,
+.col-toggle-btn:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+  background-color: var(--bg-soft);
+  color: var(--text);
+}
+
+.col-toggle-icon {
+  display: inline-block;
+  user-select: none;
+  font-size: 11px;
+}
+
+.kanban-col.is-collapsed .col-tasks-list {
+  display: none;
+}
+
+.kanban-col.is-collapsed .col-header {
+  border-bottom: none;
 }
 
 .col-dot {
@@ -563,22 +790,198 @@ body.cp {
 
 /* Responsive adjustments */
 @media (max-width: 860px) {
-  .col-tabs {
+  html,
+  body.cp,
+  .app-layout {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .topbar {
+    padding: 10px 14px;
+    flex-wrap: wrap;
+    gap: 8px 12px;
+  }
+
+  .brand {
+    font-size: 15px;
+  }
+
+  .board-selector {
+    order: 3;
+    width: 100%;
+    flex: 1 1 100%;
+  }
+
+  .board-selector select {
+    width: 100%;
+  }
+
+  .topbar-actions {
+    margin-left: auto;
+    gap: 6px;
+  }
+
+  .board-container {
+    padding: 14px 10px;
+    overflow-x: hidden;
+    width: 100%;
+  }
+
+  .board-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 14px;
+  }
+
+  .board-info h1 {
+    font-size: 20px;
+  }
+
+  .board-filters {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .filter-group {
+    width: 100%;
     display: flex;
+    gap: 8px;
+  }
+
+  .status-filter-group {
+    width: 100%;
+  }
+
+  .status-filter-group .filter-btn {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .filter-popover {
+    width: 100%;
+    max-width: calc(100vw - 20px);
+    left: 0;
+    right: 0;
+  }
+
+  .filter-group label {
+    flex-shrink: 0;
+    min-width: 65px;
+    line-height: 32px;
+  }
+
+  .filter-group select,
+  .filter-group input {
+    width: 100%;
+    flex: 1;
+    min-width: 0;
+  }
+
+  .col-tabs {
+    display: none !important;
   }
 
   .columns-grid {
-    grid-auto-flow: row;
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 100%;
+    min-height: auto;
+    overflow-x: hidden;
   }
 
   .kanban-col {
-    display: none;
+    display: flex !important;
     max-height: none;
+    width: 100%;
+    border-radius: var(--r);
   }
 
-  .kanban-col.active-mobile {
-    display: flex;
+  .col-header {
+    padding: 10px 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .col-toggle-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 14px;
+  }
+
+  .col-tasks-list {
+    padding: 10px;
+    gap: 8px;
+    max-height: 60vh;
+  }
+
+  .task-card {
+    padding: 10px 12px;
+  }
+
+  .drawer-content {
+    max-width: 100%;
+    border-left: none;
+  }
+
+  .drawer-header {
+    padding: 14px 16px;
+  }
+
+  .drawer-body {
+    padding: 16px;
+    gap: 16px;
+  }
+
+  .modal-dialog {
+    padding: 12px;
+  }
+
+  .modal-card {
+    padding: 20px 16px;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 360px) {
+  .board-container {
+    padding: 10px 6px;
+  }
+
+  .topbar {
+    padding: 8px 10px;
+  }
+
+  .col-header {
+    padding: 8px 10px;
+  }
+
+  .col-header h3 {
+    font-size: 12px;
+  }
+
+  .card-title {
+    font-size: 12.5px;
+  }
+
+  .task-card {
+    padding: 8px 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
 

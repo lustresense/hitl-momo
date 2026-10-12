@@ -21,8 +21,10 @@
     assignees: [],
     filterAssignee: '',
     filterSearch: '',
+    selectedStatuses: new Set(KNOWN_STATUSES),
     selectedTaskId: null,
-    activeMobileCol: 'running'
+    activeMobileCol: 'running',
+    collapsedColumns: new Set()
   };
 
   // DOM elements
@@ -32,6 +34,9 @@
   const refreshBtn = document.getElementById('refresh-btn');
   const assigneeFilter = document.getElementById('assignee-filter');
   const searchInput = document.getElementById('search-input');
+  const statusFilterBtn = document.getElementById('status-filter-btn');
+  const statusFilterPopover = document.getElementById('status-filter-popover');
+  const statusFilterBadge = document.getElementById('status-filter-badge');
   const colTabs = document.getElementById('col-tabs');
   const boardColumns = document.getElementById('board-columns');
   const taskDrawer = document.getElementById('task-drawer');
@@ -189,12 +194,61 @@
       renderBoard();
     });
 
+    if (statusFilterBtn && statusFilterPopover) {
+      if (!statusFilterBtn.getAttribute('aria-expanded')) {
+        statusFilterBtn.setAttribute('aria-expanded', 'false');
+      }
+      if (!statusFilterBtn.getAttribute('aria-controls')) {
+        statusFilterBtn.setAttribute('aria-controls', 'status-filter-popover');
+      }
+      if (!statusFilterBtn.getAttribute('aria-haspopup')) {
+        statusFilterBtn.setAttribute('aria-haspopup', 'true');
+      }
+      statusFilterBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isClosed = statusFilterPopover.classList.contains('hidden');
+        if (isClosed) {
+          statusFilterPopover.classList.remove('hidden');
+          statusFilterBtn.setAttribute('aria-expanded', 'true');
+        } else {
+          statusFilterPopover.classList.add('hidden');
+          statusFilterBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+
+      statusFilterPopover.addEventListener('click', (e) => {
+        e.stopPropagation();
+      });
+
+      window.addEventListener('click', (e) => {
+        if (
+          !statusFilterPopover.classList.contains('hidden') &&
+          e.target !== statusFilterBtn &&
+          !statusFilterBtn.contains(e.target) &&
+          e.target !== statusFilterPopover &&
+          !statusFilterPopover.contains(e.target)
+        ) {
+          statusFilterPopover.classList.add('hidden');
+          statusFilterBtn.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+
     drawerOverlay.addEventListener('click', closeDrawer);
     drawerClose.addEventListener('click', closeDrawer);
 
     window.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && !taskDrawer.classList.contains('hidden')) {
-        closeDrawer();
+      if (e.key === 'Escape') {
+        if (statusFilterPopover && !statusFilterPopover.classList.contains('hidden')) {
+          statusFilterPopover.classList.add('hidden');
+          if (statusFilterBtn) {
+            statusFilterBtn.setAttribute('aria-expanded', 'false');
+            statusFilterBtn.focus();
+          }
+        }
+        if (!taskDrawer.classList.contains('hidden')) {
+          closeDrawer();
+        }
       }
     });
   }
@@ -445,6 +499,121 @@
     });
   }
 
+  function renderStatusFilterPopover(grouped) {
+    if (!statusFilterPopover) return;
+    statusFilterPopover.replaceChildren();
+
+    // Popover Header with Title and Quick Actions
+    const header = document.createElement('header');
+    header.className = 'popover-header';
+
+    const title = document.createElement('h4');
+    title.className = 'popover-title';
+    title.textContent = 'Filter Status';
+    header.appendChild(title);
+
+    const actions = document.createElement('div');
+    actions.className = 'popover-actions';
+
+    // All button
+    const allBtn = document.createElement('button');
+    allBtn.type = 'button';
+    allBtn.id = 'status-filter-all-btn';
+    allBtn.className = 'popover-btn';
+    allBtn.textContent = 'All';
+    allBtn.addEventListener('click', (e) => {
+      if (e && e.stopPropagation) e.stopPropagation();
+      state.selectedStatuses = new Set(KNOWN_STATUSES);
+      renderBoard();
+    });
+    actions.appendChild(allBtn);
+
+    // To Do only button
+    const todoBtn = document.createElement('button');
+    todoBtn.type = 'button';
+    todoBtn.id = 'status-filter-todo-btn';
+    todoBtn.className = 'popover-btn';
+    todoBtn.textContent = 'To Do only';
+    todoBtn.addEventListener('click', (e) => {
+      if (e && e.stopPropagation) e.stopPropagation();
+      state.selectedStatuses = new Set(['todo']);
+      renderBoard();
+    });
+    actions.appendChild(todoBtn);
+
+    // Clear button
+    const clearBtn = document.createElement('button');
+    clearBtn.type = 'button';
+    clearBtn.id = 'status-filter-clear-btn';
+    clearBtn.className = 'popover-btn';
+    clearBtn.textContent = 'Clear';
+    clearBtn.addEventListener('click', (e) => {
+      if (e && e.stopPropagation) e.stopPropagation();
+      state.selectedStatuses.clear();
+      renderBoard();
+    });
+    actions.appendChild(clearBtn);
+
+    header.appendChild(actions);
+    statusFilterPopover.appendChild(header);
+
+    // Checkbox list
+    const list = document.createElement('div');
+    list.className = 'status-checkbox-list';
+    list.setAttribute('role', 'group');
+    list.setAttribute('aria-label', 'Status selection');
+
+    KNOWN_STATUSES.forEach((status) => {
+      const isChecked = state.selectedStatuses.has(status);
+      const count = (grouped[status] || []).length;
+      const statusLabel = STATUS_LABELS[status] || status;
+
+      const item = document.createElement('div');
+      item.className = 'status-checkbox-item';
+
+      const label = document.createElement('label');
+      label.className = 'status-checkbox-label';
+      label.setAttribute('for', `status-cb-${status}`);
+
+      const cb = document.createElement('input');
+      cb.type = 'checkbox';
+      cb.id = `status-cb-${status}`;
+      cb.name = 'status-filter';
+      cb.value = status;
+      cb.checked = isChecked;
+
+      cb.addEventListener('change', (e) => {
+        if (e && e.stopPropagation) e.stopPropagation();
+        if (cb.checked) {
+          state.selectedStatuses.add(status);
+        } else {
+          state.selectedStatuses.delete(status);
+        }
+        renderBoard();
+      });
+
+      const dot = document.createElement('span');
+      dot.className = 'col-dot ' + status;
+
+      const text = document.createElement('span');
+      text.textContent = statusLabel;
+
+      label.appendChild(cb);
+      label.appendChild(dot);
+      label.appendChild(text);
+
+      const countBadge = document.createElement('span');
+      countBadge.className = 'badge-count';
+      countBadge.textContent = String(count);
+
+      item.appendChild(label);
+      item.appendChild(countBadge);
+      list.appendChild(item);
+    });
+
+    statusFilterPopover.appendChild(list);
+  }
+
   function renderBoard() {
     const filteredTasks = getFilteredTasks();
 
@@ -462,7 +631,47 @@
       grouped[st].push(task);
     });
 
-    const activeStatuses = Object.keys(grouped);
+    // Update filter badge count
+    if (statusFilterBadge) {
+      statusFilterBadge.textContent = String(state.selectedStatuses.size);
+    }
+
+    // Render filter popover contents
+    renderStatusFilterPopover(grouped);
+
+    // Empty filter selection handling
+    if (state.selectedStatuses.size === 0) {
+      colTabs.replaceChildren();
+      boardColumns.replaceChildren();
+
+      const empty = document.createElement('div');
+      empty.className = 'empty-filter-state';
+      empty.setAttribute('role', 'status');
+
+      const h3 = document.createElement('h3');
+      h3.textContent = 'No statuses selected';
+
+      const p = document.createElement('p');
+      p.textContent = 'Choose at least one status in the filter menu to view tasks.';
+
+      const resetBtn = document.createElement('button');
+      resetBtn.type = 'button';
+      resetBtn.id = 'empty-filter-reset-btn';
+      resetBtn.className = 'btn sm primary';
+      resetBtn.textContent = 'Show All Statuses';
+      resetBtn.addEventListener('click', () => {
+        state.selectedStatuses = new Set(KNOWN_STATUSES);
+        renderBoard();
+      });
+
+      empty.appendChild(h3);
+      empty.appendChild(p);
+      empty.appendChild(resetBtn);
+      boardColumns.appendChild(empty);
+      return;
+    }
+
+    const activeStatuses = KNOWN_STATUSES.filter((s) => state.selectedStatuses.has(s));
 
     renderColTabs(activeStatuses, grouped);
     renderColumns(activeStatuses, grouped);
@@ -490,9 +699,14 @@
 
     statuses.forEach((status) => {
       const tasks = grouped[status] || [];
+      const isCollapsed = state.collapsedColumns.has(status);
       const col = document.createElement('section');
       col.className = 'kanban-col' + (state.activeMobileCol === status ? ' active-mobile' : '');
-      col.setAttribute('aria-label', STATUS_LABELS[status] || status);
+      if (isCollapsed) {
+        col.classList.add('is-collapsed');
+      }
+      const statusLabel = STATUS_LABELS[status] || status;
+      col.setAttribute('aria-label', statusLabel);
 
       // Column Header
       const header = document.createElement('header');
@@ -501,12 +715,47 @@
       const titleGroup = document.createElement('div');
       titleGroup.className = 'col-title-group';
 
+      // Collapse / Expand toggle button (accessible)
+      const toggleBtn = document.createElement('button');
+      toggleBtn.type = 'button';
+      toggleBtn.className = 'col-toggle-btn';
+      toggleBtn.setAttribute('aria-expanded', isCollapsed ? 'false' : 'true');
+      toggleBtn.setAttribute('aria-controls', `col-tasks-${status}`);
+      toggleBtn.setAttribute('aria-label', `${isCollapsed ? 'Expand' : 'Collapse'} ${statusLabel} column`);
+
+      const toggleIcon = document.createElement('span');
+      toggleIcon.className = 'col-toggle-icon';
+      toggleIcon.setAttribute('aria-hidden', 'true');
+      toggleIcon.textContent = isCollapsed ? '▸' : '▾';
+      toggleBtn.appendChild(toggleIcon);
+
       const dot = document.createElement('span');
       dot.className = 'col-dot ' + status;
 
       const h3 = document.createElement('h3');
-      h3.textContent = STATUS_LABELS[status] || status;
+      h3.textContent = statusLabel;
 
+      toggleBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const currentlyCollapsed = state.collapsedColumns.has(status);
+        if (currentlyCollapsed) {
+          state.collapsedColumns.delete(status);
+        } else {
+          state.collapsedColumns.add(status);
+        }
+        const nowCollapsed = !currentlyCollapsed;
+        col.classList.toggle('is-collapsed', nowCollapsed);
+        toggleBtn.setAttribute('aria-expanded', nowCollapsed ? 'false' : 'true');
+        toggleBtn.setAttribute('aria-label', `${nowCollapsed ? 'Expand' : 'Collapse'} ${statusLabel} column`);
+        toggleIcon.textContent = nowCollapsed ? '▸' : '▾';
+      });
+
+      header.addEventListener('click', (e) => {
+        if (e.target === toggleBtn || toggleBtn.contains(e.target)) return;
+        toggleBtn.click();
+      });
+
+      titleGroup.appendChild(toggleBtn);
       titleGroup.appendChild(dot);
       titleGroup.appendChild(h3);
 
@@ -521,6 +770,7 @@
       // Tasks List
       const list = document.createElement('div');
       list.className = 'col-tasks-list';
+      list.id = `col-tasks-${status}`;
 
       if (tasks.length === 0) {
         const empty = document.createElement('div');

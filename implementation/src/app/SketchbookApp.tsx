@@ -14,6 +14,7 @@ import { Top3Panel } from "@/src/components/prediction/Top3Panel";
 import { PredictingScreen } from "@/src/components/prediction/PredictingScreen";
 import { DecisionPanel } from "@/src/components/decision/DecisionPanel";
 import { GameStage } from "@/src/components/game/GameStage";
+import { CameraIntro } from "@/src/components/onboarding/CameraIntro";
 import { TutorialBrochure } from "@/src/components/onboarding/TutorialBrochure";
 import { DrawingScreen } from "@/src/components/drawing/DrawingScreen";
 import { GlobalCamera } from "@/src/components/camera/GlobalCamera";
@@ -31,6 +32,9 @@ export function SketchbookApp() {
   const snapshot = useFlowSnapshot(controller);
 
   const enterLevel = useCallback((level: LevelDefinition) => {
+    if (typeof window !== "undefined") {
+      window.scrollTo(0, 0);
+    }
     const provider = createPredictionProvider(level);
     setProviderMode(env.predictionMode === "partner" && env.predictionEndpoint ? "partner" : "mock");
     // TEST HOOKS ONLY (NEXT_PUBLIC_TEST_HOOKS=1): expose mock controls for E2E.
@@ -48,6 +52,7 @@ export function SketchbookApp() {
     (route: string) => {
       if (typeof window !== "undefined") {
         window.history.pushState(null, "", route);
+        window.scrollTo(0, 0);
       }
       if (route.includes("/onboarding/card")) {
         setOnboarding("tutorial");
@@ -100,8 +105,20 @@ export function SketchbookApp() {
     await controller.submitDrawing(input);
   }
 
-  const isCameraCover = onboarding === "camera";
-  const isOnboarding = onboarding === "camera" || onboarding === "tutorial";
+  if (onboarding === "camera") {
+    return (
+      <Shell mode={providerMode} onboarding>
+        <CameraIntro
+          modelUrl={env.mediapipeModelUrl}
+          onWave={() => navigateTo("/onboarding/card")}
+          onSkip={() => navigateTo("/onboarding/card")}
+        />
+      </Shell>
+    );
+  }
+
+  const isCameraCover = false;
+  const isOnboarding = onboarding === "tutorial";
   const phase = snapshot?.phase ?? "level-entry";
 
   return (
@@ -232,9 +249,9 @@ export function SketchbookApp() {
         </section>
       )}
 
-      {/* PERSISTENT GLOBAL FLOATING CAMERA (Hero on Cover, Floating Bottom on all other pages) */}
+      {/* GLOBAL FLOATING CAMERA (Post-Cover Pages Only) */}
       <GlobalCamera
-        mode={isCameraCover ? "cover" : "floating"}
+        mode="floating"
         modelUrl={env.mediapipeModelUrl}
         onWave={() => navigateTo("/onboarding/card")}
         onSkip={() => navigateTo("/onboarding/card")}

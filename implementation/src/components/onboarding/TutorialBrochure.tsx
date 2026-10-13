@@ -310,7 +310,7 @@ export function TutorialBrochure({ onStart, onSkip }: TutorialBrochureProps) {
             position: "absolute",
             top: 16,
             right: 16,
-            zIndex: 100,
+            zIndex: 1001,
             background: "transparent",
             border: "none",
             color: "var(--muted)",

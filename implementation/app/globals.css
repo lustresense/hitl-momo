@@ -47,7 +47,7 @@ body {
   text-rendering: geometricPrecision;
 }
 
-#app { max-width: 1020px; margin: 0 auto; padding: 16px; }
+#app { max-width: 1020px; margin: 0 auto; padding: 16px 16px 200px; }
 
 .app-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
 .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 18px; }
@@ -361,18 +361,10 @@ button:focus-visible, a:focus-visible, select:focus-visible {
 .app-footer { margin-top: 14px; font-size: 11px; color: var(--ink-soft); }
 
 /* Prototype onboarding owns the viewport; escape the legacy author shell width/padding. */
- .onboarding-app#app {
-   width: 100%; height: 100vh; max-width: none; min-height: 100vh; margin: 0; padding: 0;
-   background:
-     radial-gradient(circle at 1px 1px, rgba(49, 45, 38, 0.16) 1px, transparent 1.2px) 0 0 / 22px 22px,
-     linear-gradient(180deg, #f8f3ea 0%, #f3ecdf 100%);
- }
+ .onboarding-app#app { width: 100%; height: 100vh; max-width: none; min-height: 100vh; margin: 0; padding: 0; background: #eff3db; }
  .onboarding-app .app-header, .onboarding-app .app-footer { display: none; }
  .onboarding-app #screens { width: 100%; height: 100vh; min-height: 100vh; }
-.camera-intro {
-  min-height: 100vh; padding: 32px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #23211d;
-  background: transparent;
-}
+.camera-intro { min-height: 100vh; padding: 32px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #23211d; background: #eff3db; }
 .camera-eyebrow, .tutorial-eyebrow { margin: 0 0 40px; color: #111; font-size: 13px; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; }
 .camera-intro h1, .tutorial-header h1 { margin: 0 0 20px; color: #111; font-size: clamp(40px, 5vw, 58px); line-height: 1.05; letter-spacing: -.045em; }
 .camera-lead { max-width: 520px; margin: 0 0 44px; color: #111; font-size: 15px; font-weight: 600; line-height: 1.55; }
@@ -716,27 +708,46 @@ button:focus-visible, a:focus-visible, select:focus-visible {
 }
 
 /* Global Floating Camera Widget (Post-Cover Pages) */
-.global-camera-host.mode-floating {
-  position: fixed;
-  bottom: 24px;
-  right: 28px;
-  z-index: 9999;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  pointer-events: auto;
-  transition: transform 0.25s cubic-bezier(0.2, 0.75, 0.2, 1), opacity 0.2s ease;
+.global-camera-host.mode-floating,
+.global-camera-host.mode-floating.camera-prototype-root {
+  position: fixed !important;
+  bottom: 24px !important;
+  right: 28px !important;
+  top: auto !important;
+  left: auto !important;
+  width: auto !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  background: transparent !important;
+  z-index: 900 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-end !important;
+  pointer-events: none !important;
+  transition: transform 0.25s cubic-bezier(0.2, 0.75, 0.2, 1), opacity 0.2s ease !important;
 }
 
-.global-camera-host.mode-floating .camera-widget-card {
-  width: min(270px, 84vw);
-  margin: 0;
-  box-shadow: inset 0 0 0 5px rgba(255, 255, 255, 0.15), 4px 4px 0 #111111, 0 20px 40px rgba(55, 31, 13, 0.2);
+.global-camera-host.mode-floating .camera-widget-card,
+.global-camera-host.mode-floating .toggle-card {
+  pointer-events: auto !important;
+  width: min(270px, 84vw) !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  box-shadow: inset 0 0 0 5px rgba(255, 255, 255, 0.15), 4px 4px 0 #111111, 0 20px 40px rgba(55, 31, 13, 0.2) !important;
 }
 
-.global-camera-host.mode-floating.is-collapsed .camera-widget-card {
-  padding: 10px 14px;
-  gap: 6px;
+.global-camera-host.mode-floating.is-collapsed .camera-widget-card,
+.global-camera-host.mode-floating.is-collapsed .toggle-card {
+  width: auto !important;
+  min-width: 170px !important;
+  height: auto !important;
+  min-height: 0 !important;
+  padding: 8px 12px !important;
+  gap: 6px !important;
 }
 
 .camera-floating-header {

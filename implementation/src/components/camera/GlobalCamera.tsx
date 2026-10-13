@@ -36,6 +36,12 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip }: GlobalCameraPro
     return () => stopStream();
   }, []);
 
+  useEffect(() => {
+    if (mode === "floating" && typeof window !== "undefined" && window.innerWidth <= 640) {
+      setIsCollapsed(true);
+    }
+  }, [mode]);
+
   async function populateCameraChoices(preferredId = "") {
     if (!navigator.mediaDevices?.enumerateDevices) return;
     try {
@@ -185,7 +191,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip }: GlobalCameraPro
 
       <div
         key="camera-core-card"
-        className={`camera-widget-card toggle-card camera-prototype-root ${isOn ? "on" : ""} ${hasStream ? "has-stream" : ""}`}
+        className={`camera-widget-card toggle-card ${isOn ? "on" : ""} ${hasStream ? "has-stream" : ""}`}
       >
         {mode === "floating" && (
           <div className="camera-floating-header">

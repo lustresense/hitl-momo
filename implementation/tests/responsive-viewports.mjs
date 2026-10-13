@@ -67,16 +67,17 @@ try {
     // 1. Cover Onboarding
     await page.goto(BASE, { waitUntil: "domcontentloaded" });
     await page.waitForTimeout(600);
-    const cameraWidget = page.locator("[data-testid=global-camera-widget]");
-    assert(`[${vp.width}px] Cover: camera widget visible`, await cameraWidget.isVisible());
-    assert(`[${vp.width}px] Cover: camera widget has mode-cover`, (await cameraWidget.getAttribute("class")).includes("mode-cover"));
+    const coverCamera = page.locator(".camera-prototype-root");
+    assert(`[${vp.width}px] Cover: camera prototype root visible`, await coverCamera.isVisible());
     const skipCamera = page.locator(".camera-skip");
     assert(`[${vp.width}px] Cover: skip button visible and clickable`, await skipCamera.isVisible());
 
     // 2. Tutorial Card Page
     await skipCamera.click();
     await page.waitForTimeout(600);
-    assert(`[${vp.width}px] Tutorial: camera widget transitioned to mode-floating`, (await cameraWidget.getAttribute("class")).includes("mode-floating"));
+    const cameraWidget = page.locator("[data-testid=global-camera-widget]");
+    assert(`[${vp.width}px] Tutorial: floating camera widget visible`, await cameraWidget.isVisible());
+    assert(`[${vp.width}px] Tutorial: camera widget has mode-floating`, (await cameraWidget.getAttribute("class")).includes("mode-floating"));
     const collapseBtn = page.locator("[data-testid=btn-toggle-camera-collapse]");
     assert(`[${vp.width}px] Floating: collapse toggle button visible`, await collapseBtn.isVisible());
     

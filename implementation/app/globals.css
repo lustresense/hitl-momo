@@ -361,18 +361,10 @@ button:focus-visible, a:focus-visible, select:focus-visible {
 .app-footer { margin-top: 14px; font-size: 11px; color: var(--ink-soft); }
 
 /* Prototype onboarding owns the viewport; escape the legacy author shell width/padding. */
- .onboarding-app#app {
-   width: 100%; height: 100vh; max-width: none; min-height: 100vh; margin: 0; padding: 0;
-   background:
-     radial-gradient(circle at 1px 1px, rgba(49, 45, 38, 0.16) 1px, transparent 1.2px) 0 0 / 22px 22px,
-     linear-gradient(180deg, #f8f3ea 0%, #f3ecdf 100%);
- }
+ .onboarding-app#app { width: 100%; height: 100vh; max-width: none; min-height: 100vh; margin: 0; padding: 0; background: #eff3db; }
  .onboarding-app .app-header, .onboarding-app .app-footer { display: none; }
  .onboarding-app #screens { width: 100%; height: 100vh; min-height: 100vh; }
-.camera-intro {
-  min-height: 100vh; padding: 32px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #23211d;
-  background: transparent;
-}
+.camera-intro { min-height: 100vh; padding: 32px 24px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #23211d; background: #eff3db; }
 .camera-eyebrow, .tutorial-eyebrow { margin: 0 0 40px; color: #111; font-size: 13px; font-weight: 800; letter-spacing: .02em; text-transform: uppercase; }
 .camera-intro h1, .tutorial-header h1 { margin: 0 0 20px; color: #111; font-size: clamp(40px, 5vw, 58px); line-height: 1.05; letter-spacing: -.045em; }
 .camera-lead { max-width: 520px; margin: 0 0 44px; color: #111; font-size: 15px; font-weight: 600; line-height: 1.55; }

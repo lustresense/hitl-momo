@@ -31,6 +31,9 @@ export function SketchbookApp() {
   const snapshot = useFlowSnapshot(controller);
 
   const enterLevel = useCallback((level: LevelDefinition) => {
+    if (typeof window !== "undefined") {
+      window.scrollTo(0, 0);
+    }
     const provider = createPredictionProvider(level);
     setProviderMode(env.predictionMode === "partner" && env.predictionEndpoint ? "partner" : "mock");
     // TEST HOOKS ONLY (NEXT_PUBLIC_TEST_HOOKS=1): expose mock controls for E2E.
@@ -48,6 +51,7 @@ export function SketchbookApp() {
     (route: string) => {
       if (typeof window !== "undefined") {
         window.history.pushState(null, "", route);
+        window.scrollTo(0, 0);
       }
       if (route.includes("/onboarding/card")) {
         setOnboarding("tutorial");

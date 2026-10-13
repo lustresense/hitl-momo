@@ -337,7 +337,7 @@ class TestKanbanAPI(unittest.TestCase):
         # Exact allowlisted top-level keys
         self.assertEqual(
             set(task.keys()),
-            {"id", "title", "assignee", "status", "priority", "block_kind", "created_at", "completed_at", "runs", "events"},
+            {"id", "title", "assignee", "status", "priority", "block_kind", "created_at", "completed_at", "runs", "events", "description", "comment_threads"},
         )
         # Verify runs allowlist
         self.assertEqual(len(task["runs"]), 1)

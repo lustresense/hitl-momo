@@ -64,7 +64,21 @@
 
   async function init() {
     setupEventListeners();
+    setupAutoRefresh();
     await checkAuthStatus();
+  }
+
+  function setupAutoRefresh() {
+    if (typeof setInterval === 'function') {
+      const pollTimer = setInterval(() => {
+        if (state.currentBoardSlug) {
+          fetchBoardData(state.currentBoardSlug, true);
+        }
+      }, 15000);
+      if (pollTimer && typeof pollTimer.unref === 'function') {
+        pollTimer.unref();
+      }
+    }
   }
 
   async function checkAuthStatus() {
@@ -443,9 +457,11 @@
     });
   }
 
-  async function fetchBoardData(slug) {
+  async function fetchBoardData(slug, isPolling = false) {
     try {
-      boardSubtitle.textContent = 'Loading tasks...';
+      if (!isPolling) {
+        boardSubtitle.textContent = 'Loading tasks...';
+      }
       const [tasksRes, assigneesRes] = await Promise.all([
         fetchWithAuth(`/api/boards/${slug}/tasks?limit=100`),
         fetchWithAuth(`/api/boards/${slug}/assignees`)
@@ -465,7 +481,9 @@
       renderAssigneeFilter();
       renderBoard();
     } catch (err) {
-      boardSubtitle.textContent = 'Error: ' + err.message;
+      if (!isPolling) {
+        boardSubtitle.textContent = 'Error: ' + err.message;
+      }
     }
   }
 
@@ -894,6 +912,63 @@
     addMetaItem(metaGrid, 'Completed At', formatTimestamp(task.completed_at));
 
     drawerBody.appendChild(metaGrid);
+
+    // Description / Spec Section
+    const descSec = document.createElement('div');
+    descSec.className = 'detail-section';
+    const descH4 = document.createElement('h4');
+    descH4.textContent = 'Description / Spec';
+    descSec.appendChild(descH4);
+
+    const descPre = document.createElement('pre');
+    descPre.className = 'task-description-pre';
+    descPre.textContent = task.description || '(No description provided)';
+    descSec.appendChild(descPre);
+
+    drawerBody.appendChild(descSec);
+
+    // Comments Section (if any comments present)
+    const comments = task.comments_list || task.comment_threads || [];
+    if (comments.length > 0) {
+      const commSec = document.createElement('div');
+      commSec.className = 'detail-section';
+      const commH4 = document.createElement('h4');
+      commH4.textContent = `Comments (${comments.length})`;
+      commSec.appendChild(commH4);
+
+      const commList = document.createElement('div');
+      commList.className = 'task-comments-list';
+
+      comments.forEach((c) => {
+        const item = document.createElement('div');
+        item.className = 'task-comment-item';
+
+        const header = document.createElement('div');
+        header.className = 'task-comment-header';
+
+        const author = document.createElement('span');
+        author.className = 'task-comment-author';
+        author.textContent = c.author ? `@${c.author}` : 'Unknown';
+
+        const time = document.createElement('span');
+        time.className = 'task-comment-time';
+        time.textContent = formatTimestamp(c.created_at);
+
+        header.appendChild(author);
+        header.appendChild(time);
+        item.appendChild(header);
+
+        const bodyEl = document.createElement('div');
+        bodyEl.className = 'task-comment-body';
+        bodyEl.textContent = c.body || '';
+        item.appendChild(bodyEl);
+
+        commList.appendChild(item);
+      });
+
+      commSec.appendChild(commList);
+      drawerBody.appendChild(commSec);
+    }
 
     // Runs Section
     const runsSec = document.createElement('div');

@@ -191,7 +191,7 @@ def get_tasks(
 def get_task_detail(conn: sqlite3.Connection, task_id: str) -> Optional[Dict[str, Any]]:
     cur = conn.cursor()
     cols_sql = ", ".join(SAFE_TASK_COLUMNS)
-    cur.execute(f"SELECT {cols_sql} FROM tasks WHERE id = ?", (task_id,))
+    cur.execute(f"SELECT {cols_sql}, body FROM tasks WHERE id = ?", (task_id,))
     row = cur.fetchone()
     if not row:
         return None
@@ -240,10 +240,31 @@ def get_task_detail(conn: sqlite3.Connection, task_id: str) -> Optional[Dict[str
         for e in cur.fetchall()
     ]
 
-    # Explicitly construct response: exclude comments, raw metadata, body, paths, session IDs
+    # Safe task_comments: id, author, body (mapped to content), created_at
+    cur.execute(
+        """
+        SELECT id, author, body, created_at
+        FROM task_comments
+        WHERE task_id = ?
+        ORDER BY id ASC
+        LIMIT 50
+        """,
+        (task_id,),
+    )
+    comment_threads = [
+        {
+            "id": c["id"],
+            "author": str(c["author"] or ""),
+            "content": str(c["body"] or ""),
+            "created_at": c["created_at"],
+        }
+        for c in cur.fetchall()
+    ]
+
     task = {
         "id": str(row["id"]),
         "title": str(row["title"] or ""),
+        "description": str(row["body"] or ""),
         "assignee": str(row["assignee"]) if row["assignee"] else None,
         "status": str(row["status"] or "unknown"),
         "priority": int(row["priority"]) if row["priority"] is not None else 5,
@@ -252,6 +273,7 @@ def get_task_detail(conn: sqlite3.Connection, task_id: str) -> Optional[Dict[str
         "completed_at": row["completed_at"],
         "runs": runs,
         "events": events,
+        "comment_threads": comment_threads,
     }
 
     return task

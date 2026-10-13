@@ -750,6 +750,63 @@ body.cp {
   color: var(--text);
 }
 
+.task-description-pre {
+  background: var(--bg-soft);
+  font-family: var(--font-mono);
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: var(--text-2);
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  border-radius: var(--r2);
+  padding: 12px;
+  border: 1px solid var(--border);
+  max-height: 480px;
+  overflow-y: auto;
+}
+
+.task-comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.task-comment-item {
+  background: var(--bg-soft);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r);
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.task-comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11.5px;
+}
+
+.task-comment-author {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.task-comment-time {
+  color: var(--text-3);
+  font-size: 11px;
+}
+
+.task-comment-body {
+  font-size: 12.5px;
+  color: var(--text);
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .table-list {
   width: 100%;
   border-collapse: collapse;

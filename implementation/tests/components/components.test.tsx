@@ -3,6 +3,7 @@ import { render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { Top3Panel } from "@/src/components/prediction/Top3Panel";
 import { DecisionPanel } from "@/src/components/decision/DecisionPanel";
 import { PredictingScreen } from "@/src/components/prediction/PredictingScreen";
+import { GlobalCamera } from "@/src/components/camera/GlobalCamera";
 import type { PredictionResult, LevelContext } from "@/src/domain/types";
 
 afterEach(cleanup);
@@ -81,5 +82,43 @@ describe("PredictingScreen (TASK 13 states)", () => {
     expect(onRetry).toHaveBeenCalledTimes(1);
     expect(onRedraw).toHaveBeenCalledTimes(1);
     expect(screen.getByRole("alert").textContent).toContain("provider-unavailable");
+  });
+});
+
+describe("GlobalCamera (Persistent Floating Camera)", () => {
+  it("renders centered hero cover view when mode is cover", () => {
+    const onSkip = vi.fn();
+    render(<GlobalCamera mode="cover" modelUrl="/mock-model.task" onSkip={onSkip} />);
+    const widget = screen.getByTestId("global-camera-widget");
+    expect(widget.className).toContain("mode-cover");
+    expect(screen.getByText(/Jarimu Adalah Kuas Ajaibnya!/i)).toBeTruthy();
+    const skipBtn = screen.getByRole("button", { name: /Lewati & Buka Tutorial Kartu/i });
+    expect(skipBtn).toBeTruthy();
+    fireEvent.click(skipBtn);
+    expect(onSkip).toHaveBeenCalledTimes(1);
+  });
+
+  it("renders docked floating widget with expand/collapse control when mode is floating", () => {
+    render(<GlobalCamera mode="floating" modelUrl="/mock-model.task" />);
+    const widget = screen.getByTestId("global-camera-widget");
+    expect(widget.className).toContain("mode-floating");
+    expect(widget.className).toContain("is-expanded");
+    const collapseBtn = screen.getByTestId("btn-toggle-camera-collapse");
+    expect(collapseBtn.textContent).toBe("▼ Ciutkan");
+    fireEvent.click(collapseBtn);
+    expect(widget.className).toContain("is-collapsed");
+    expect(collapseBtn.textContent).toBe("▲ Buka");
+    fireEvent.click(collapseBtn);
+    expect(widget.className).toContain("is-expanded");
+  });
+
+  it("toggle switch changes camera active state", () => {
+    render(<GlobalCamera mode="floating" modelUrl="/mock-model.task" />);
+    const toggleSwitch = screen.getByTestId("btn-camera-toggle-switch");
+    expect(toggleSwitch.getAttribute("aria-checked")).toBe("false");
+    expect(screen.getByText("Nyalakan Kamera")).toBeTruthy();
+    fireEvent.click(toggleSwitch);
+    expect(toggleSwitch.getAttribute("aria-checked")).toBe("true");
+    expect(screen.getByText("Kamera Aktif")).toBeTruthy();
   });
 });

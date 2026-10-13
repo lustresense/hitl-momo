@@ -8,21 +8,20 @@ import { FlowController } from "./state-machine";
 import { useFlowSnapshot } from "@/src/hooks/use-flow";
 import { createPredictionProvider, env } from "@/src/config/env";
 import { MockPredictionProvider } from "@/src/prediction/mock-prediction-provider";
-import type { DrawingInput } from "@/src/domain/types";
 import { DevBanner } from "@/src/components/shared/DevBanner";
 import { MomoBubble } from "@/src/components/momo/MomoBubble";
 import { Top3Panel } from "@/src/components/prediction/Top3Panel";
 import { PredictingScreen } from "@/src/components/prediction/PredictingScreen";
 import { DecisionPanel } from "@/src/components/decision/DecisionPanel";
 import { GameStage } from "@/src/components/game/GameStage";
-import { CameraIntro } from "@/src/components/onboarding/CameraIntro";
 import { TutorialBrochure } from "@/src/components/onboarding/TutorialBrochure";
 import { DrawingScreen } from "@/src/components/drawing/DrawingScreen";
+import { GlobalCamera } from "@/src/components/camera/GlobalCamera";
 
 /**
- * TASK 01/03 — Application shell (client-only).
+ * TASK 01/03 & UI OVERHAUL — Application shell (client-only).
  * Owns the FlowController instance (single source of truth) and maps phases
- * to screens. No backend calls anywhere; providers are client adapters.
+ * to screens. Persistent global camera widget stays mounted across all routes.
  */
 export function SketchbookApp() {
   const [controller, setController] = useState<FlowController | null>(null);
@@ -100,34 +99,23 @@ export function SketchbookApp() {
     const input = surfaceRef.current.toDrawingInput();
     await controller.submitDrawing(input);
   }
-  if (onboarding === "camera") {
-    return (
-      <Shell mode={providerMode} onboarding>
-        <CameraIntro
-          modelUrl={env.mediapipeModelUrl}
-          onWave={() => navigateTo("/onboarding/card")}
-          onSkip={() => navigateTo("/onboarding/card")}
-        />
-      </Shell>
-    );
-  }
 
-  if (onboarding === "tutorial") {
-    return (
-      <Shell mode={providerMode} onboarding>
+  const isCameraCover = onboarding === "camera";
+  const isOnboarding = onboarding === "camera" || onboarding === "tutorial";
+  const phase = snapshot?.phase ?? "level-entry";
+
+  return (
+    <Shell mode={providerMode} onboarding={isOnboarding}>
+      {/* ONBOARDING TUTORIAL */}
+      {onboarding === "tutorial" && (
         <TutorialBrochure
           onStart={() => navigateTo("/levels")}
           onSkip={() => navigateTo("/levels")}
         />
-      </Shell>
-    );
-  }
+      )}
 
-
-  /* ---------- LEVEL ENTRY / COMPLETE share the root layout ---------- */
-  if (!snapshot || snapshot.phase === "level-entry") {
-    return (
-      <Shell mode={providerMode}>
+      {/* LEVEL ENTRY */}
+      {onboarding === "levels" && (!snapshot || phase === "level-entry") && (
         <section id="screen-level-entry" className="screen" aria-label="Pilih level">
           <h1>Buku Sketsa</h1>
           <p className="lead">
@@ -143,15 +131,10 @@ export function SketchbookApp() {
             ))}
           </div>
         </section>
-      </Shell>
-    );
-  }
+      )}
 
-  const phase = snapshot.phase;
-
-  return (
-    <Shell mode={providerMode}>
-      {phase === "drawing" && level && (
+      {/* DRAWING */}
+      {onboarding === "levels" && snapshot && snapshot.phase === "drawing" && level && (
         <DrawingScreen
           key={level.levelId + String(snapshot.cyclesCompleted)}
           level={level}
@@ -163,11 +146,13 @@ export function SketchbookApp() {
         />
       )}
 
-      {phase === "predicting" && (
+      {/* PREDICTING */}
+      {onboarding === "levels" && phase === "predicting" && (
         <PredictingScreen error={false} detail={null} onRetry={() => undefined} onRedraw={() => undefined} />
       )}
 
-      {phase === "prediction-error" && (
+      {/* PREDICTION ERROR */}
+      {onboarding === "levels" && phase === "prediction-error" && (
         <PredictingScreen
           error
           detail={controller?.errorDetail ?? null}
@@ -176,7 +161,8 @@ export function SketchbookApp() {
         />
       )}
 
-      {phase === "evaluating" && controller?.prediction && level && (
+      {/* EVALUATING */}
+      {onboarding === "levels" && phase === "evaluating" && controller?.prediction && level && (
         <section id="screen-evaluating" className="screen" aria-label="Evaluasi prediksi">
           <div className="screen-head">
             <h2>Tebakan Momo (Top-3)</h2>
@@ -214,7 +200,8 @@ export function SketchbookApp() {
         </section>
       )}
 
-      {phase === "gameplay" && level && snapshot.behavior && snapshot.decision && controller && (
+      {/* GAMEPLAY */}
+      {onboarding === "levels" && phase === "gameplay" && level && snapshot?.behavior && snapshot?.decision && controller && (
         <GameStage
           level={level}
           behavior={snapshot.behavior}
@@ -224,7 +211,8 @@ export function SketchbookApp() {
         />
       )}
 
-      {phase === "complete" && level && snapshot && controller && (
+      {/* COMPLETE */}
+      {onboarding === "levels" && phase === "complete" && level && snapshot && controller && (
         <section id="screen-complete" className="screen" aria-label="Level selesai">
           <h1>Level Selesai</h1>
           <p id="complete-summary" className="lead">
@@ -243,6 +231,14 @@ export function SketchbookApp() {
           </div>
         </section>
       )}
+
+      {/* PERSISTENT GLOBAL FLOATING CAMERA (Hero on Cover, Floating Bottom on all other pages) */}
+      <GlobalCamera
+        mode={isCameraCover ? "cover" : "floating"}
+        modelUrl={env.mediapipeModelUrl}
+        onWave={() => navigateTo("/onboarding/card")}
+        onSkip={() => navigateTo("/onboarding/card")}
+      />
     </Shell>
   );
 }

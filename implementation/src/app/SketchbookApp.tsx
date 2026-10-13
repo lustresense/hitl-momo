@@ -119,6 +119,7 @@ export function SketchbookApp() {
 
   const isCameraCover = false;
   const isOnboarding = onboarding === "tutorial";
+  const isDrawing = onboarding === "levels" && snapshot?.phase === "drawing";
   const phase = snapshot?.phase ?? "level-entry";
 
   return (
@@ -249,13 +250,15 @@ export function SketchbookApp() {
         </section>
       )}
 
-      {/* GLOBAL FLOATING CAMERA (Post-Cover Pages Only) */}
-      <GlobalCamera
-        mode="floating"
-        modelUrl={env.mediapipeModelUrl}
-        onWave={() => navigateTo("/onboarding/card")}
-        onSkip={() => navigateTo("/onboarding/card")}
-      />
+      {/* GLOBAL FLOATING CAMERA (Post-Cover Pages Only, except during drawing canvas) */}
+      {!isDrawing && (
+        <GlobalCamera
+          mode="floating"
+          modelUrl={env.mediapipeModelUrl}
+          onWave={() => navigateTo("/onboarding/card")}
+          onSkip={() => navigateTo("/onboarding/card")}
+        />
+      )}
     </Shell>
   );
 }

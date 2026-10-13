@@ -98,18 +98,13 @@ describe("GlobalCamera (Persistent Floating Camera)", () => {
     expect(onSkip).toHaveBeenCalledTimes(1);
   });
 
-  it("renders docked floating widget with expand/collapse control when mode is floating", () => {
+  it("renders docked floating widget with toggle-card styling when mode is floating", () => {
     render(<GlobalCamera mode="floating" modelUrl="/mock-model.task" />);
     const widget = screen.getByTestId("global-camera-widget");
     expect(widget.className).toContain("mode-floating");
-    expect(widget.className).toContain("is-expanded");
-    const collapseBtn = screen.getByTestId("btn-toggle-camera-collapse");
-    expect(collapseBtn.textContent).toBe("▼ Ciutkan");
-    fireEvent.click(collapseBtn);
-    expect(widget.className).toContain("is-collapsed");
-    expect(collapseBtn.textContent).toBe("▲ Buka");
-    fireEvent.click(collapseBtn);
-    expect(widget.className).toContain("is-expanded");
+    expect(widget.className).toContain("camera-prototype-root");
+    const toggleCard = widget.querySelector(".toggle-card");
+    expect(toggleCard).toBeTruthy();
   });
 
   it("toggle switch changes camera active state", () => {

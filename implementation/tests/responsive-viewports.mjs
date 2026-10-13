@@ -78,15 +78,9 @@ try {
     const cameraWidget = page.locator("[data-testid=global-camera-widget]");
     assert(`[${vp.width}px] Tutorial: floating camera widget visible`, await cameraWidget.isVisible());
     assert(`[${vp.width}px] Tutorial: camera widget has mode-floating`, (await cameraWidget.getAttribute("class")).includes("mode-floating"));
-    const collapseBtn = page.locator("[data-testid=btn-toggle-camera-collapse]");
-    assert(`[${vp.width}px] Floating: collapse toggle button visible`, await collapseBtn.isVisible());
-    
-    // Test collapse toggle
-    const initialCollapsed = (await cameraWidget.getAttribute("class")).includes("is-collapsed");
-    await collapseBtn.click();
-    assert(`[${vp.width}px] Floating: toggle switches collapse state`, (await cameraWidget.getAttribute("class")).includes(initialCollapsed ? "is-expanded" : "is-collapsed"));
-    await collapseBtn.click();
-    assert(`[${vp.width}px] Floating: toggle restores collapse state`, (await cameraWidget.getAttribute("class")).includes(initialCollapsed ? "is-collapsed" : "is-expanded"));
+    assert(`[${vp.width}px] Tutorial: camera widget has camera-prototype-root`, (await cameraWidget.getAttribute("class")).includes("camera-prototype-root"));
+    const toggleSwitch = page.locator("[data-testid=btn-camera-toggle-switch]");
+    assert(`[${vp.width}px] Floating: toggle switch button visible`, await toggleSwitch.isVisible());
 
     const skipTutorial = page.locator(".tutorial-skip");
     assert(`[${vp.width}px] Tutorial: skip button visible`, await skipTutorial.isVisible());
@@ -103,15 +97,21 @@ try {
     const cardBox = await levelCards.first().boundingBox();
     assert(`[${vp.width}px] Level card has dimensions`, cardBox && cardBox.width > 200);
 
-    // Verify camera widget is floating and not covering level cards
+    // Verify camera widget is floating at center bottom
     const widgetBox = await page.locator(".camera-widget-card").boundingBox();
-    assert(`[${vp.width}px] Floating camera sits at bottom corner`, widgetBox && widgetBox.y > 0, JSON.stringify(widgetBox));
+    assert(`[${vp.width}px] Floating camera sits at bottom`, widgetBox && widgetBox.y > 0, JSON.stringify(widgetBox));
 
     // 4. Drawing Canvas Page
     await levelCards.first().click();
     await page.waitForTimeout(600);
     const canvas = page.locator("[data-testid=draw-canvas]");
     assert(`[${vp.width}px] Canvas screen: canvas visible`, await canvas.isVisible());
+
+    // Verify no double camera widget on canvas screen
+    const globalCamOnCanvas = page.locator("[data-testid=global-camera-widget]");
+    assert(`[${vp.width}px] Canvas screen: no duplicate global camera widget`, (await globalCamOnCanvas.count()) === 0);
+    const dockCamOnCanvas = page.locator(".dock-camera");
+    assert(`[${vp.width}px] Canvas screen: dock camera present in bottom dock`, await dockCamOnCanvas.isVisible());
 
     // Check no horizontal overflow on page
     const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);

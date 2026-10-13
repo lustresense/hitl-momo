@@ -69,6 +69,10 @@ body {
   box-shadow: var(--shadow);
   padding: 20px;
 }
+
+#screen-level-entry, .screen, .tutorial-screen {
+  padding-bottom: 300px !important;
+}
 .screen-head h2, .screen h1 { margin: 0 0 6px; }
 .lead { margin: 0 0 14px; color: var(--ink-soft); }
 
@@ -723,7 +727,7 @@ button:focus-visible, a:focus-visible, select:focus-visible {
   margin: 0 !important;
   overflow: visible !important;
   background: transparent !important;
-  z-index: 9999 !important;
+  z-index: 900 !important;
   display: flex !important;
   flex-direction: column !important;
   align-items: center !important;
@@ -731,91 +735,38 @@ button:focus-visible, a:focus-visible, select:focus-visible {
   transition: transform 0.25s cubic-bezier(0.2, 0.75, 0.2, 1), opacity 0.2s ease !important;
 }
 
+.global-camera-host.mode-floating::before,
+.global-camera-host.mode-floating.camera-prototype-root::before {
+  display: none !important;
+}
+
 .global-camera-host.mode-floating .camera-widget-card,
 .global-camera-host.mode-floating .toggle-card {
   pointer-events: auto !important;
-  width: min(290px, 88vw) !important;
+  width: min(280px, 86vw) !important;
   max-width: min(92vw, 680px) !important;
+  box-sizing: border-box !important;
   height: auto !important;
   min-height: 0 !important;
   margin: 0 !important;
-  box-shadow: inset 0 0 0 5px rgba(255, 255, 255, 0.15), 4px 4px 0 #111111, 0 20px 40px rgba(55, 31, 13, 0.2) !important;
-}
-
-.global-camera-host.mode-floating.is-collapsed .camera-widget-card,
-.global-camera-host.mode-floating.is-collapsed .toggle-card {
-  width: auto !important;
-  min-width: 170px !important;
-  height: auto !important;
-  min-height: 0 !important;
-  padding: 8px 12px !important;
-  gap: 6px !important;
-}
-
-.camera-floating-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding-bottom: 6px;
-  border-bottom: 1.5px dashed rgba(255, 250, 240, 0.35);
-  margin-bottom: 4px;
-}
-
-.floating-title-group {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 800;
-  font-size: 13px;
-  color: #fffaf0;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-
-.floating-rec-badge {
-  background: #ff4d4f;
-  color: #fff;
-  font-size: 10px;
-  font-weight: 800;
-  padding: 1px 6px;
-  border-radius: 999px;
-  letter-spacing: 0.05em;
-  box-shadow: 0 0 6px rgba(255, 77, 79, 0.6);
-  animation: pulse-rec 1.4s ease-in-out infinite;
-}
-
-@keyframes pulse-rec {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.5; transform: scale(0.95); }
-}
-
-.camera-collapse-toggle-btn {
-  background: #eff3db;
-  color: #111111;
-  border: 1.5px solid #111111;
-  border-radius: 8px;
-  font-size: 11px;
-  font-weight: 800;
-  padding: 3px 8px;
-  cursor: pointer;
-  box-shadow: 1.5px 1.5px 0 #111111;
-  transition: transform 0.1s ease, background 0.15s ease;
-}
-
-.camera-collapse-toggle-btn:hover {
-  background: #e2ebc7;
-  transform: translateY(-1px);
+  box-shadow: inset 0 0 0 6px rgba(255, 255, 255, 0.15), 4px 4px 0 #111111, 0 20px 40px rgba(55, 31, 13, 0.2) !important;
 }
 
 @media (max-width: 640px) {
+  #app {
+    padding-bottom: 340px !important;
+  }
   .global-camera-host.mode-floating {
-    bottom: 16px !important;
+    bottom: 12px !important;
     left: 50% !important;
     right: auto !important;
     transform: translateX(-50%) !important;
   }
+  .global-camera-host.mode-floating .toggle-card,
   .global-camera-host.mode-floating .camera-widget-card {
     width: min(260px, 86vw) !important;
+    box-sizing: border-box !important;
+    padding: 10px 12px !important;
+    gap: 8px !important;
   }
 }

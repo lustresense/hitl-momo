@@ -21,7 +21,6 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip }: GlobalCameraPro
 
   const [isOn, setIsOn] = useState(false);
   const [hasStream, setHasStream] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(false);
   const [headline, setHeadline] = useState("Jarimu Adalah Kuas Ajaibnya!");
   const [subtext, setSubtext] = useState(
     <>Di dunia buku gambar ini, kamu yang pegang kendali.<br />Cukup gerakin tangan di depan layar buat bantu Momo.<br />Tenang, kamera cuma baca jemarimu dan privasi wajah tetap aman.</>,
@@ -35,12 +34,6 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip }: GlobalCameraPro
     void populateCameraChoices();
     return () => stopStream();
   }, []);
-
-  useEffect(() => {
-    if (mode === "floating" && typeof window !== "undefined" && window.innerWidth <= 640) {
-      setIsCollapsed(true);
-    }
-  }, [mode]);
 
   async function populateCameraChoices(preferredId = "") {
     if (!navigator.mediaDevices?.enumerateDevices) return;
@@ -178,7 +171,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip }: GlobalCameraPro
 
   return (
     <div
-      className={`global-camera-host ${mode === "cover" ? "camera-prototype-root" : ""} mode-${mode} ${isCollapsed ? "is-collapsed" : "is-expanded"}`}
+      className={`global-camera-host camera-prototype-root mode-${mode}`}
       data-testid="global-camera-widget"
     >
       {mode === "cover" && (
@@ -193,29 +186,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip }: GlobalCameraPro
         key="camera-core-card"
         className={`camera-widget-card toggle-card ${isOn ? "on" : ""} ${hasStream ? "has-stream" : ""}`}
       >
-        {mode === "floating" && (
-          <div className="camera-floating-header">
-            <div className="floating-title-group">
-              <span className="floating-cam-icon" aria-hidden="true">📷</span>
-              <span className="floating-cam-title">Kamera</span>
-              {isOn && hasStream && <span className="floating-rec-badge">REC</span>}
-            </div>
-            <button
-              type="button"
-              className="camera-collapse-toggle-btn"
-              onClick={() => setIsCollapsed(!isCollapsed)}
-              aria-label={isCollapsed ? "Bentangkan widget kamera" : "Ciutkan widget kamera"}
-              data-testid="btn-toggle-camera-collapse"
-            >
-              {isCollapsed ? "▲ Buka" : "▼ Ciutkan"}
-            </button>
-          </div>
-        )}
-
-        <div
-          className="video-wrap"
-          style={{ display: isCollapsed && mode === "floating" ? "none" : undefined }}
-        >
+        <div className="video-wrap">
           <video
             ref={videoRef}
             className="camera-video"
@@ -257,32 +228,30 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip }: GlobalCameraPro
           />
         </div>
 
-        {(!isCollapsed || mode === "cover") && (
-          <div className="camera-select-wrap">
-            <select
-              className="camera-select"
-              aria-label="Pilih kamera"
-              value={deviceId}
-              disabled={!devices.length}
-              onClick={(event) => event.stopPropagation()}
-              onKeyDown={(event) => event.stopPropagation()}
-              onChange={(event) => {
-                setDeviceId(event.target.value);
-                if (isOn) void startCamera(event.target.value);
-              }}
-            >
-              {devices.length ? (
-                devices.map((device, index) => (
-                  <option key={device.deviceId} value={device.deviceId}>
-                    {device.label || `Kamera ${index + 1}`}
-                  </option>
-                ))
-              ) : (
-                <option value="">Pilih kamera</option>
-              )}
-            </select>
-          </div>
-        )}
+        <div className="camera-select-wrap">
+          <select
+            className="camera-select"
+            aria-label="Pilih kamera"
+            value={deviceId}
+            disabled={!devices.length}
+            onClick={(event) => event.stopPropagation()}
+            onKeyDown={(event) => event.stopPropagation()}
+            onChange={(event) => {
+              setDeviceId(event.target.value);
+              if (isOn) void startCamera(event.target.value);
+            }}
+          >
+            {devices.length ? (
+              devices.map((device, index) => (
+                <option key={device.deviceId} value={device.deviceId}>
+                  {device.label || `Kamera ${index + 1}`}
+                </option>
+              ))
+            ) : (
+              <option value="">Pilih kamera</option>
+            )}
+          </select>
+        </div>
       </div>
 
       {mode === "cover" && (

@@ -35,10 +35,12 @@ export interface Landmark {
  */
 export class StrokeStore {
   private strokes: RawStroke[] = [];
+  private undone: RawStroke[] = [];
   private active: RawStroke | null = null;
 
   beginStroke(): void {
     if (!this.active) this.active = [];
+    this.undone = [];
   }
 
   addPoint(p: StrokePoint): void {
@@ -52,6 +54,7 @@ export class StrokeStore {
   endStroke(): void {
     if (this.active && this.active.length > 0) {
       this.strokes.push(this.active);
+      this.undone = [];
     }
     this.active = null;
   }
@@ -67,10 +70,28 @@ export class StrokeStore {
 
   /** Optional simple undo (TASK 06): removes the last completed stroke. */
   undo(): boolean {
-    return this.strokes.pop() !== undefined;
+    const popped = this.strokes.pop();
+    if (popped) {
+      this.undone.push(popped);
+      return true;
+    }
+    return false;
+  }
+
+  /** Re-applies the last undone stroke. */
+  redo(): boolean {
+    const restored = this.undone.pop();
+    if (restored) {
+      this.strokes.push(restored);
+      return true;
+    }
+    return false;
   }
 
   clear(): void {
+    if (this.strokes.length > 0) {
+      this.undone.push(...this.strokes);
+    }
     this.strokes = [];
     this.active = null;
   }

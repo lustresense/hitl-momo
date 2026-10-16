@@ -1,16 +1,77 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
+import gsap from "gsap";
+import { setSharedStream } from "../../camera/shared-stream";
 
 export interface GlobalCameraProps {
+  /** "cover" = full centered orange card, "floating" = bottom-left mini PIP. */
   mode: "cover" | "floating";
   modelUrl: string;
   onWave?: () => void;
   onSkip?: () => void;
+  /**
+   * The drawing canvas owns the bottom dock (Aksi Gambar / Kamera / Alat).
+   * Recessing keeps the PIP out of those controls while the component (and its
+   * MediaStream) stays mounted.
+   */
+  recessed?: boolean;
 }
 
-export function GlobalCamera({ mode, modelUrl, onWave, onSkip }: GlobalCameraProps) {
+/** Layout effect is a no-op (and warns) while server-rendering the shell. */
+const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+/** Center -> bottom-left mini PIP morph duration, in seconds. */
+const MORPH_DURATION = 0.6;
+
+interface CardRect {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+}
+
+function readRect(el: HTMLElement | null): CardRect | null {
+  if (!el) return null;
+  const rect = el.getBoundingClientRect();
+  return { top: rect.top, left: rect.left, width: rect.width, height: rect.height };
+}
+
+/**
+ * GSAP FLIP-style morph of the single persistent camera card.
+ * Starts exactly where the card was painted in the previous mode (position +
+ * size), then glides into the current layout box. No-op in jsdom/SSR where
+ * rects are zeroed, and when the user prefers reduced motion.
+ */
+function morphCameraCard(card: HTMLElement, from: CardRect | null, to: CardRect | null): void {
+  if (!from || !to) return;
+  if (from.width < 2 || from.height < 2 || to.width < 2 || to.height < 2) return;
+  if (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches) {
+    return;
+  }
+  const x = from.left - to.left;
+  const y = from.top - to.top;
+  const dw = Math.abs(from.width - to.width);
+  const dh = Math.abs(from.height - to.height);
+  if (Math.abs(x) < 1 && Math.abs(y) < 1 && dw < 1 && dh < 1) return;
+  gsap.killTweensOf(card);
+  gsap.fromTo(
+    card,
+    { width: from.width, height: from.height, x, y },
+    {
+      width: to.width,
+      height: to.height,
+      x: 0,
+      y: 0,
+      duration: MORPH_DURATION,
+      ease: "power2.out",
+      clearProps: "width,height,x,y",
+    },
+  );
+}
+
+export function GlobalCamera({ mode, modelUrl, onWave, onSkip, recessed = false }: GlobalCameraProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const landmarkerRef = useRef<HandLandmarker | null>(null);
@@ -18,8 +79,14 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip }: GlobalCameraPro
   const lastVideoTimeRef = useRef(-1);
   const waveSamplesRef = useRef<Array<{ x: number; time: number }>>([]);
   const waveReportedRef = useRef(false);
+  /** The one camera card node: ref'd so GSAP can morph it between layouts. */
+  const cameraCardRef = useRef<HTMLDivElement>(null);
+  /** Where the card was painted on the previous commit (morph start point). */
+  const lastRectRef = useRef<CardRect | null>(null);
+  const lastPlacementRef = useRef(`${mode}:${recessed ? "recessed" : "pip"}`);
 
   const [isOn, setIsOn] = useState(false);
+  const [drawingInputMode, setDrawingInputMode] = useState<"pointer" | "hand">("pointer");
   const [hasStream, setHasStream] = useState(false);
   const [headline, setHeadline] = useState("Jarimu Adalah Kuas Ajaibnya!");
   const [subtext, setSubtext] = useState(
@@ -33,7 +100,37 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip }: GlobalCameraPro
   useEffect(() => {
     void populateCameraChoices();
     return () => stopStream();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Cover is the only mode that watches for the wake-up wave; stop the detector
+  // as soon as we dock to the PIP so it cannot re-trigger navigation.
+  useEffect(() => {
+    if (mode === "cover") {
+      if (streamRef.current && !landmarkerRef.current) void startWaveTracking();
+      return;
+    }
+    stopWaveTracking();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mode]);
+
+  /**
+   * Single persistent card: every commit records where the card currently sits,
+   * so the next placement change (cover <-> PIP, or PIP -> recessed on canvas)
+   * can be animated from the exact previous position/size with GSAP.
+   */
+  useIsoLayoutEffect(() => {
+    const card = cameraCardRef.current;
+    if (!card) return;
+    const placement = `${mode}:${recessed ? "recessed" : "pip"}`;
+    if (placement !== lastPlacementRef.current) {
+      const from = lastRectRef.current;
+      const to = readRect(card);
+      lastPlacementRef.current = placement;
+      morphCameraCard(card, from, to);
+    }
+    lastRectRef.current = readRect(card);
+  });
 
   async function populateCameraChoices(preferredId = "") {
     if (!navigator.mediaDevices?.enumerateDevices) return;
@@ -49,23 +146,31 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip }: GlobalCameraPro
     }
   }
 
-  function stopStream() {
+  function stopWaveTracking() {
     if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
     rafRef.current = null;
-    streamRef.current?.getTracks().forEach((track) => track.stop());
-    streamRef.current = null;
-    try {
-      videoRef.current?.pause();
-    } catch {
-      // jsdom or unsupported media environment
-    }
-    if (videoRef.current) videoRef.current.srcObject = null;
     try {
       landmarkerRef.current?.close();
     } catch {
       /* best effort */
     }
     landmarkerRef.current = null;
+    lastVideoTimeRef.current = -1;
+    waveSamplesRef.current = [];
+    waveReportedRef.current = false;
+  }
+
+  function stopStream() {
+    stopWaveTracking();
+    streamRef.current?.getTracks().forEach((track) => track.stop());
+    streamRef.current = null;
+    setSharedStream(null);
+    try {
+      videoRef.current?.pause();
+    } catch {
+      // jsdom or unsupported media environment
+    }
+    if (videoRef.current) videoRef.current.srcObject = null;
     setHasStream(false);
   }
 
@@ -79,11 +184,19 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip }: GlobalCameraPro
     try {
       const videoConstraints: MediaTrackConstraints = selectedDevice
         ? { deviceId: { exact: selectedDevice } }
-        : { facingMode: "user" };
+        : { facingMode: "user", aspectRatio: { ideal: 5 / 4 } };
       const stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: false });
-      const video = videoRef.current;
-      if (!video) return;
+      // Publish app-wide: the canvas hand driver reuses this exact stream
+      // instead of opening a second camera (zero double camera).
       streamRef.current = stream;
+      setSharedStream(stream);
+      const video = videoRef.current;
+      if (!video) {
+        // Card node must never be recreated, but guard anyway: keep the stream
+        // alive on the ref so a late <video> attach can still use it.
+        setHasStream(true);
+        return;
+      }
       video.srcObject = stream;
       await video.play().catch(() => undefined);
       setHasStream(true);
@@ -171,96 +284,111 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip }: GlobalCameraPro
 
   return (
     <div
-      className={`global-camera-host camera-prototype-root mode-${mode}`}
+      className={`global-camera-host camera-prototype-root mode-${mode}${recessed ? " is-recessed" : ""}`}
       data-testid="global-camera-widget"
     >
-      {mode === "cover" && (
-        <div className="content">
-          <div className="eyebrow">Sketchbook Universe Present</div>
-          <h1 className="headline">{headline}</h1>
-          <p className="subtext">{subtext}</p>
-        </div>
-      )}
+      {/*
+        Fixed child order (content -> card -> skip block) is deliberate: React
+        keeps the SAME card node (and therefore the same <video> + MediaStream)
+        when the mode flips, so the camera is never re-requested.
+      */}
+      <div className="content">
+        {mode === "cover" && (
+          <>
+            <div className="eyebrow">Sketchbook Universe Present</div>
+            <h1 className="headline">{headline}</h1>
+            <p className="subtext">{subtext}</p>
+          </>
+        )}
 
-      <div
-        key="camera-core-card"
-        className={`camera-widget-card toggle-card ${isOn ? "on" : ""} ${hasStream ? "has-stream" : ""}`}
-      >
-        <div className="video-wrap">
-          <video
-            ref={videoRef}
-            className="camera-video"
-            autoPlay
-            playsInline
-            muted
-            aria-label="Preview kamera"
-          />
-          <div className="video-inner">
+        <div
+          key="camera-core-card"
+          ref={cameraCardRef}
+          data-testid="camera-card"
+          className={`camera-widget-card toggle-card ${isOn ? "on" : ""} ${hasStream ? "has-stream" : ""}`}
+        >
+          <div className="video-wrap">
+            <video
+              ref={videoRef}
+              className="camera-video"
+              autoPlay
+              playsInline
+              muted
+              aria-label="Preview kamera"
+            />
+            <div className="video-inner">
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M23 7l-7 5 7 5V7z" />
+                <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+              </svg>
+              <span className="label">{previewLabel}</span>
+            </div>
             <div className="rec-dot">REC</div>
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
+          </div>
+
+          <div className="toggle-row">
+            <span className="toggle-label" onClick={() => void setCameraState(!isOn)}>
+              {toggleLabel}
+            </span>
+            <button
+              className="toggle-switch"
+              type="button"
+              role="switch"
+              aria-checked={isOn}
+              aria-label={isOn ? "Matikan kamera" : "Nyalakan kamera"}
+              onClick={() => void setCameraState(!isOn)}
+              data-testid="btn-camera-toggle-switch"
+            />
+          </div>
+
+          {recessed && (
+            <div className="global-camera-mode-switch" role="group" aria-label="Mode input gambar">
+              <button type="button" className="mode-btn" data-input-mode="pointer" aria-pressed={drawingInputMode === "pointer"} onClick={() => { setDrawingInputMode("pointer"); window.dispatchEvent(new CustomEvent("drawing-input-mode", { detail: "pointer" })); }}>Pointer</button>
+              <button type="button" className="mode-btn" data-input-mode="hand" aria-pressed={drawingInputMode === "hand"} onClick={() => { setDrawingInputMode("hand"); window.dispatchEvent(new CustomEvent("drawing-input-mode", { detail: "hand" })); }}>Tangan</button>
+            </div>
+          )}
+          <div className="camera-select-wrap">
+            <select
+              className="camera-select"
+              aria-label="Pilih kamera"
+              value={deviceId}
+              disabled={!devices.length}
+              onClick={(event) => event.stopPropagation()}
+              onKeyDown={(event) => event.stopPropagation()}
+              onChange={(event) => {
+                setDeviceId(event.target.value);
+                if (isOn) void startCamera(event.target.value);
+              }}
             >
-              <path d="M23 7l-7 5 7 5V7z" />
-              <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
-            </svg>
-            <span className="label">{previewLabel}</span>
+              {devices.length ? (
+                devices.map((device, index) => (
+                  <option key={device.deviceId} value={device.deviceId}>
+                    {device.label || `Kamera ${index + 1}`}
+                  </option>
+                ))
+              ) : (
+                <option value="">Pilih kamera</option>
+              )}
+            </select>
           </div>
         </div>
 
-        <div className="toggle-row">
-          <span className="toggle-label" onClick={() => void setCameraState(!isOn)}>
-            {toggleLabel}
-          </span>
-          <button
-            className="toggle-switch"
-            type="button"
-            role="switch"
-            aria-checked={isOn}
-            aria-label={isOn ? "Matikan kamera" : "Nyalakan kamera"}
-            onClick={() => void setCameraState(!isOn)}
-            data-testid="btn-camera-toggle-switch"
-          />
-        </div>
-
-        <div className="camera-select-wrap">
-          <select
-            className="camera-select"
-            aria-label="Pilih kamera"
-            value={deviceId}
-            disabled={!devices.length}
-            onClick={(event) => event.stopPropagation()}
-            onKeyDown={(event) => event.stopPropagation()}
-            onChange={(event) => {
-              setDeviceId(event.target.value);
-              if (isOn) void startCamera(event.target.value);
-            }}
-          >
-            {devices.length ? (
-              devices.map((device, index) => (
-                <option key={device.deviceId} value={device.deviceId}>
-                  {device.label || `Kamera ${index + 1}`}
-                </option>
-              ))
-            ) : (
-              <option value="">Pilih kamera</option>
-            )}
-          </select>
-        </div>
+        {mode === "cover" && (
+          <div className="cover-skip-block" style={{ marginTop: 20 }}>
+            <button type="button" className="camera-skip" onClick={onSkip}>
+              Lewati &amp; Pilih Nomor Absen →
+            </button>
+          </div>
+        )}
       </div>
-
-      {mode === "cover" && (
-        <div className="cover-skip-block" style={{ marginTop: 20 }}>
-          <button type="button" className="camera-skip" onClick={onSkip}>
-            Lewati &amp; Buka Tutorial Kartu →
-          </button>
-        </div>
-      )}
     </div>
   );
 }

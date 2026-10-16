@@ -711,18 +711,25 @@ button:focus-visible, a:focus-visible, select:focus-visible {
   }
 }
 
-/* Global Floating Camera Widget (Post-Cover Pages) */
+/* ==========================================================================
+   GLOBAL CAMERA — POST-COVER UNIFIED MINI PIP (5:4 LANDSCAPE)
+   Applied identically across ALL post-cover routes:
+   /onboarding/number, /onboarding/card, /levels, /level1, /level2, /level3
+   ========================================================================== */
 .global-camera-host.mode-floating,
-.global-camera-host.mode-floating.camera-prototype-root {
+.global-camera-host.mode-floating.camera-prototype-root,
+.global-camera-host.mode-floating.is-recessed,
+.global-camera-host.mode-floating.is-recessed.camera-prototype-root {
   position: fixed !important;
-  bottom: 24px !important;
-  left: 50% !important;
-  right: auto !important;
-  transform: translateX(-50%) !important;
   top: auto !important;
+  right: auto !important;
+  bottom: 24px !important;
+  left: 24px !important;
+  transform: none !important;
   width: auto !important;
   height: auto !important;
   min-height: 0 !important;
+  max-height: none !important;
   padding: 0 !important;
   margin: 0 !important;
   overflow: visible !important;
@@ -730,43 +737,553 @@ button:focus-visible, a:focus-visible, select:focus-visible {
   z-index: 900 !important;
   display: flex !important;
   flex-direction: column !important;
-  align-items: center !important;
+  align-items: flex-start !important;
+  justify-content: flex-end !important;
   pointer-events: none !important;
-  transition: transform 0.25s cubic-bezier(0.2, 0.75, 0.2, 1), opacity 0.2s ease !important;
-}
-
-.global-camera-host.mode-floating::before,
-.global-camera-host.mode-floating.camera-prototype-root::before {
-  display: none !important;
-}
-
-.global-camera-host.mode-floating .camera-widget-card,
-.global-camera-host.mode-floating .toggle-card {
-  pointer-events: auto !important;
-  width: min(280px, 86vw) !important;
-  max-width: min(92vw, 680px) !important;
-  box-sizing: border-box !important;
-  height: auto !important;
-  min-height: 0 !important;
-  margin: 0 !important;
-  box-shadow: inset 0 0 0 6px rgba(255, 255, 255, 0.15), 4px 4px 0 #111111, 0 20px 40px rgba(55, 31, 13, 0.2) !important;
 }
 
 @media (max-width: 640px) {
-  #app {
-    padding-bottom: 340px !important;
-  }
-  .global-camera-host.mode-floating {
+  .global-camera-host.mode-floating,
+  .global-camera-host.mode-floating.camera-prototype-root,
+  .global-camera-host.mode-floating.is-recessed,
+  .global-camera-host.mode-floating.is-recessed.camera-prototype-root {
     bottom: 12px !important;
-    left: 50% !important;
-    right: auto !important;
-    transform: translateX(-50%) !important;
+    left: 12px !important;
   }
+}
+
+.global-camera-host.mode-floating::before,
+.global-camera-host.mode-floating.camera-prototype-root::before,
+.global-camera-host.mode-floating.is-recessed::before {
+  display: none !important;
+}
+
+.global-camera-host.mode-floating .content {
+  width: auto !important;
+  display: block !important;
+  text-align: left !important;
+}
+
+.global-camera-host.mode-floating .content > .eyebrow,
+.global-camera-host.mode-floating .content > .headline,
+.global-camera-host.mode-floating .content > .subtext,
+.global-camera-host.mode-floating .cover-skip-block {
+  display: none !important;
+}
+
+/* Card Frame: strictly 5:4 LANDSCAPE (150x120 desktop, 125x100 mobile) */
+.global-camera-host.mode-floating .camera-widget-card,
+.global-camera-host.mode-floating .camera-widget-card.on,
+.global-camera-host.mode-floating .toggle-card,
+.global-camera-host.mode-floating .toggle-card.on,
+.global-camera-host.mode-floating.is-recessed .camera-widget-card,
+.global-camera-host.mode-floating.is-recessed .camera-widget-card.on,
+.global-camera-host.mode-floating.is-recessed .toggle-card,
+.global-camera-host.mode-floating.is-recessed .toggle-card.on {
+  position: relative !important;
+  display: block !important;
+  box-sizing: border-box !important;
+  width: 150px !important;
+  height: 120px !important;
+  aspect-ratio: 5 / 4 !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  overflow: hidden !important;
+  color: #fffaf0 !important;
+  background: #1e2126 !important;
+  border: 3px solid #d0622a !important;
+  border-radius: 14px !important;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+  pointer-events: auto !important;
+}
+
+@media (max-width: 640px) {
+  .global-camera-host.mode-floating .camera-widget-card,
+  .global-camera-host.mode-floating .camera-widget-card.on,
   .global-camera-host.mode-floating .toggle-card,
-  .global-camera-host.mode-floating .camera-widget-card {
-    width: min(260px, 86vw) !important;
-    box-sizing: border-box !important;
-    padding: 10px 12px !important;
-    gap: 8px !important;
+  .global-camera-host.mode-floating .toggle-card.on,
+  .global-camera-host.mode-floating.is-recessed .camera-widget-card,
+  .global-camera-host.mode-floating.is-recessed .camera-widget-card.on,
+  .global-camera-host.mode-floating.is-recessed .toggle-card,
+  .global-camera-host.mode-floating.is-recessed .toggle-card.on {
+    width: 125px !important;
+    height: 100px !important;
+    aspect-ratio: 5 / 4 !important;
   }
+}
+
+/* ZERO SENSOR BANNER OR WATERMARK: No ::before or ::after banners blocking video */
+.global-camera-host.mode-floating .toggle-card::before,
+.global-camera-host.mode-floating .toggle-card::after,
+.global-camera-host.mode-floating .camera-widget-card::before,
+.global-camera-host.mode-floating .camera-widget-card::after,
+.global-camera-host.mode-floating.is-recessed .toggle-card::before,
+.global-camera-host.mode-floating.is-recessed .toggle-card::after,
+.global-camera-host.mode-floating.is-recessed .camera-widget-card::before,
+.global-camera-host.mode-floating.is-recessed .camera-widget-card::after {
+  display: none !important;
+  content: none !important;
+}
+
+/* Video Wrapper fills 100% of the card */
+.global-camera-host.mode-floating .video-wrap,
+.global-camera-host.mode-floating .toggle-card .video-wrap,
+.global-camera-host.mode-floating .toggle-card.on .video-wrap,
+.global-camera-host.mode-floating .camera-widget-card .video-wrap,
+.global-camera-host.mode-floating .camera-widget-card.on .video-wrap,
+.global-camera-host.mode-floating.is-recessed .video-wrap,
+.global-camera-host.mode-floating.is-recessed .toggle-card .video-wrap,
+.global-camera-host.mode-floating.is-recessed .toggle-card.on .video-wrap,
+.global-camera-host.mode-floating.is-recessed .camera-widget-card .video-wrap,
+.global-camera-host.mode-floating.is-recessed .camera-widget-card.on .video-wrap {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  display: block !important;
+  overflow: hidden !important;
+  border: 0 !important;
+  border-radius: inherit !important;
+  background: #1e2126 !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  transform: none !important;
+  aspect-ratio: 5 / 4 !important;
+}
+
+/* Video element fills 100% frame without distortion or cropping */
+.global-camera-host.mode-floating .camera-video,
+.global-camera-host.mode-floating.is-recessed .camera-video {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  aspect-ratio: 5 / 4 !important;
+  object-fit: cover !important;
+  transform: scaleX(-1) !important;
+  border-radius: inherit !important;
+  border: 0 !important;
+}
+
+/* Placeholder when stream is off */
+.global-camera-host.mode-floating .video-inner,
+.global-camera-host.mode-floating .toggle-card .video-inner,
+.global-camera-host.mode-floating.is-recessed .video-inner {
+  position: absolute !important;
+  inset: 0 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  opacity: 1 !important;
+  background: #1e2126 !important;
+  z-index: 1 !important;
+}
+
+.global-camera-host.mode-floating .toggle-card.has-stream .video-inner,
+.global-camera-host.mode-floating .toggle-card.on.has-stream .video-inner,
+.global-camera-host.mode-floating.is-recessed .toggle-card.has-stream .video-inner,
+.global-camera-host.mode-floating.is-recessed .toggle-card.on.has-stream .video-inner {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.global-camera-host.mode-floating .video-inner .label,
+.global-camera-host.mode-floating.is-recessed .video-inner .label {
+  display: none !important;
+}
+
+.global-camera-host.mode-floating .video-inner svg,
+.global-camera-host.mode-floating.is-recessed .video-inner svg {
+  width: 24px !important;
+  height: 24px !important;
+  opacity: 0.6 !important;
+  color: #fffaf0 !important;
+}
+
+/* Compact REC indicator at top right */
+.global-camera-host.mode-floating .rec-dot,
+.global-camera-host.mode-floating.is-recessed .rec-dot {
+  position: absolute !important;
+  top: 6px !important;
+  right: 6px !important;
+  left: auto !important;
+  bottom: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 3px !important;
+  font-size: 7.5px !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+  color: #ff4d4d !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+  padding: 1.5px 4px !important;
+  border-radius: 4px !important;
+  opacity: 0 !important;
+  z-index: 10 !important;
+}
+
+.global-camera-host.mode-floating .rec-dot::before,
+.global-camera-host.mode-floating.is-recessed .rec-dot::before {
+  content: "" !important;
+  display: inline-block !important;
+  width: 5px !important;
+  height: 5px !important;
+  border-radius: 50% !important;
+  background: #ff4d4d !important;
+  box-shadow: 0 0 6px #ff4d4d !important;
+}
+
+.global-camera-host.mode-floating .toggle-card.has-stream .rec-dot,
+.global-camera-host.mode-floating.is-recessed .toggle-card.has-stream .rec-dot {
+  opacity: 1 !important;
+}
+
+/* Toggle switch docks cleanly at bottom right */
+.global-camera-host.mode-floating .toggle-row,
+.global-camera-host.mode-floating.is-recessed .toggle-row {
+  position: absolute !important;
+  right: 4px !important;
+  bottom: 4px !important;
+  left: auto !important;
+  top: auto !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  z-index: 10 !important;
+}
+
+.global-camera-host.mode-floating .toggle-label,
+.global-camera-host.mode-floating.is-recessed .toggle-label {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+  clip-path: inset(50%) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+.global-camera-host.mode-floating .toggle-switch,
+.global-camera-host.mode-floating.is-recessed .toggle-switch {
+  transform: scale(0.72) !important;
+  transform-origin: bottom right !important;
+}
+
+/* Hide selector dropdown and mode switch in floating PIP */
+.global-camera-host.mode-floating .camera-select-wrap,
+.global-camera-host.mode-floating.is-recessed .camera-select-wrap,
+.global-camera-host.mode-floating .global-camera-mode-switch,
+.global-camera-host.mode-floating.is-recessed .global-camera-mode-switch {
+  display: none !important;
+}
+
+/* One continuous post-cover sketchbook paper surface across every route. */
+html:has(.student-number-screen),
+body:has(.student-number-screen),
+html:has(.tutorial-screen),
+body:has(.tutorial-screen),
+html:has(#screen-level-entry),
+body:has(#screen-level-entry),
+html:has(#screen-drawing),
+body:has(#screen-drawing),
+#app:has(.student-number-screen),
+#screens:has(.student-number-screen),
+.student-number-screen,
+#app:has(.tutorial-screen),
+#screens:has(.tutorial-screen),
+.tutorial-screen,
+#app:has(#screen-level-entry),
+#screens:has(#screen-level-entry),
+#screen-level-entry,
+#screen-level-entry > .level-ribbon-page,
+#app:has(#screen-drawing),
+#screens:has(#screen-drawing),
+#screen-drawing {
+  background-color: #f7f2ea !important;
+  background-image: radial-gradient(#d9d0c3 1px, transparent 1px) !important;
+  background-size: 22px 22px !important;
+}
+
+#app:has(#screen-level-entry) .app-header,
+#app:has(#screen-level-entry) .app-footer {
+  display: none !important;
+}
+
+
+/* ==========================================================================
+   DRAWING SCREEN LAYOUT & SVG CANVASES
+   ========================================================================== */
+html:has(#screen-drawing),
+body:has(#screen-drawing),
+#app:has(#screen-drawing),
+#app:has(#screen-drawing) #screens {
+  width: 100vw !important;
+  height: 100vh !important;
+  min-height: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+#screen-drawing.drawing-screen-svg {
+  position: fixed !important;
+  inset: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  overflow: hidden !important;
+}
+
+#screen-drawing .draw-canvas {
+  position: absolute !important;
+  inset: 0 !important;
+  z-index: 2 !important;
+  width: 100% !important;
+  height: 100% !important;
+  background: transparent !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  pointer-events: auto !important;
+  touch-action: none !important;
+}
+
+.drawing-top-bar {
+  position: absolute !important;
+  top: 22px !important;
+  left: 24px !important;
+  z-index: 5 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  gap: 10px !important;
+  pointer-events: auto !important;
+}
+
+.drawing-actions-top {
+  display: flex !important;
+  gap: 8px !important;
+  padding: 9px !important;
+  border: 2px solid #111 !important;
+  border-radius: 14px !important;
+  background: #b9da8f !important;
+  box-shadow: 3px 3px 0 #111 !important;
+}
+
+.drawing-actions-top .btn {
+  min-height: 38px !important;
+  padding: 6px 11px !important;
+  border: 1.5px solid #111 !important;
+  border-radius: 9px !important;
+  box-shadow: 2px 2px 0 #111 !important;
+  white-space: nowrap !important;
+}
+
+.predict-choosable-box {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 6px !important;
+  max-width: 390px !important;
+  padding: 9px 11px !important;
+  border: 2px solid #111 !important;
+  border-radius: 12px !important;
+  background: #fff8e9 !important;
+  box-shadow: 3px 3px 0 #111 !important;
+}
+
+.predict-choosable-title {
+  color: #23211d !important;
+  font-size: 12px !important;
+  font-weight: 900 !important;
+  letter-spacing: .04em !important;
+  text-transform: uppercase !important;
+}
+
+.predict-choosable-candidates {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 6px !important;
+}
+
+.predict-candidate {
+  display: inline-flex !important;
+  gap: 7px !important;
+  align-items: center !important;
+  padding: 6px 8px !important;
+  border: 1.5px solid #23211d !important;
+  border-radius: 8px !important;
+  background: #eff3db !important;
+  color: #23211d !important;
+  font: inherit !important;
+  font-size: 12px !important;
+  font-weight: 800 !important;
+  cursor: pointer !important;
+  box-shadow: 1px 1px 0 #23211d !important;
+}
+
+.predict-candidate.is-selected,
+.predict-candidate[aria-pressed="true"] {
+  background: #ef7a37 !important;
+  color: white !important;
+  transform: translate(1px, 1px) !important;
+  box-shadow: none !important;
+}
+
+.predict-choosable-empty,
+.predict-chosen-label {
+  color: #555 !important;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+}
+
+.drawing-level-tag {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+}
+
+.drawing-momo-top-right {
+  position: absolute !important;
+  top: 22px !important;
+  right: 24px !important;
+  z-index: 5 !important;
+  max-width: min(340px, 35vw) !important;
+}
+
+.drawing-momo-top-right .momo {
+  align-items: center !important;
+}
+
+.drawing-momo-top-right .momo-bubble {
+  border: 2px solid #111 !important;
+  border-radius: 16px !important;
+  background: #eff3db !important;
+  box-shadow: 3px 3px 0 #111 !important;
+}
+
+.drawing-tools-left {
+  position: absolute !important;
+  z-index: 5 !important;
+  top: 50% !important;
+  transform: translateY(-50%) !important;
+  left: 20px !important;
+  width: auto !important;
+  height: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 8px !important;
+  padding: 8px 6px !important;
+  border: 2px solid #111 !important;
+  border-radius: 16px !important;
+  background: #b9da8f !important;
+  box-shadow: 3px 3px 0 #111 !important;
+  user-select: none !important;
+}
+
+.drawing-tools-left .tool-btn-action {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 3px !important;
+  width: 62px !important;
+  min-height: 52px !important;
+  padding: 6px 4px !important;
+  border: 1.5px solid #111 !important;
+  border-radius: 10px !important;
+  background: #eff3db !important;
+  box-shadow: 2px 2px 0 #111 !important;
+  cursor: pointer !important;
+  color: #23211d !important;
+  transition: all 0.12s ease !important;
+  outline: none !important;
+}
+
+.drawing-tools-left .tool-btn-action:hover {
+  background: #fbf7e6 !important;
+  transform: translate(-1px, -1px) !important;
+  box-shadow: 3px 3px 0 #111 !important;
+}
+
+.drawing-tools-left .tool-btn-action:active {
+  transform: translate(1px, 1px) !important;
+  box-shadow: 1px 1px 0 #111 !important;
+}
+
+.drawing-tools-left .tool-btn-action.active {
+  background: #ef7a37 !important;
+  color: #ffffff !important;
+}
+
+.drawing-tools-left .tool-btn-action .tool-icon {
+  width: 24px !important;
+  height: 24px !important;
+  display: block !important;
+  flex-shrink: 0 !important;
+  stroke-width: 2.2px;
+}
+
+.drawing-tools-left .tool-btn-action .tool-label {
+  font-size: 9.5px !important;
+  font-weight: 800 !important;
+  line-height: 1.1 !important;
+  letter-spacing: 0.02em !important;
+  text-align: center !important;
+  pointer-events: none !important;
+}
+
+.drawing-tools-left .tool-btn-action.active .tool-label {
+  color: #ffffff !important;
+}
+
+.drawing-feedback {
+  position: absolute !important;
+  left: 50% !important;
+  bottom: 25px !important;
+  z-index: 4 !important;
+  transform: translateX(-50%) !important;
+}
+
+.drawing-feedback .feedback {
+  min-height: 0 !important;
+  padding: 0 !important;
+}
+
+.drawing-screen-svg .drawing-dock {
+  display: none !important;
+}
+
+#screen-drawing .drawing-exit {
+  position: absolute !important;
+  bottom: 24px !important;
+  right: 24px !important;
+  left: auto !important;
+  top: auto !important;
+  z-index: 10 !important;
+}
+
+#screen-drawing .drawing-tools-left .undo-tool {
+  cursor: pointer !important;
+}
+
+@media (max-width: 760px) {
+  #screen-drawing.drawing-screen-svg { min-height: 100vh !important; }
+  .drawing-top-bar { top: 10px !important; left: 10px !important; gap: 5px !important; }
+  .drawing-actions-top { gap: 4px !important; padding: 5px !important; }
+  .drawing-actions-top .btn { min-height: 34px !important; padding: 4px 7px !important; font-size: 12px !important; }
+  .drawing-momo-top-right { top: 10px !important; right: 10px !important; max-width: 42vw !important; }
+  .drawing-tools-left { left: 8px !important; gap: 6px !important; padding: 6px 4px !important; }
+  .drawing-tools-left .tool-btn-action { width: 52px !important; min-height: 46px !important; padding: 4px 2px !important; gap: 2px !important; }
+  .drawing-tools-left .tool-btn-action .tool-icon { width: 17px !important; height: 17px !important; }
+  .drawing-tools-left .tool-btn-action .tool-label { font-size: 8.5px !important; }
+  #screen-drawing .drawing-exit { bottom: 12px !important; right: 12px !important; }
 }

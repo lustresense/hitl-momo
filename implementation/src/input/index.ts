@@ -14,6 +14,7 @@ export interface DrawingSurfaceOptions {
   initialMode?: InputModeId;
   modelUrl?: string;
   onStatusChange?(status: HandInputStatus): void;
+  onInkChange?(hasInk: boolean): void;
 }
 
 export class DrawingSurface {
@@ -22,10 +23,11 @@ export class DrawingSurface {
   private handDriver: HandDrawingDriver | null = null;
   private cursor: { x: number; y: number; state: "hover" | "near" | "drawing" } | null = null;
   private readonly smoother = new PointSmoother();
+  private lastReportedInk = false;
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
-    private readonly video: HTMLVideoElement,
+    private readonly video: HTMLVideoElement | null,
     private options: DrawingSurfaceOptions = {},
   ) {
     this.resizeForDpr();
@@ -46,6 +48,7 @@ export class DrawingSurface {
       return { kind: "idle" };
     }
     if (!this.handDriver) {
+      if (!this.video) return { kind: "error", reason: "camera-unavailable" };
       try {
         this.detachPointer?.();
         this.handDriver = new HandDrawingDriver({
@@ -57,7 +60,10 @@ export class DrawingSurface {
             this.updateHandCursorFromStatus(s);
             this.options.onStatusChange?.(s);
           },
-          onRender: () => this.render(),
+          onRender: () => {
+            this.render();
+            this.reportInkChange();
+          },
           onCursor: (c) => {
             this.cursor = c;
             this.render();
@@ -88,7 +94,10 @@ export class DrawingSurface {
     this.detachPointer = attachPointerDriver(
       this.canvas,
       this.store,
-      () => this.render(),
+      () => {
+        this.render();
+        this.reportInkChange();
+      },
       (c) => {
         this.cursor = c;
         this.render();
@@ -146,6 +155,13 @@ export class DrawingSurface {
 
   /* ---------------- workspace ops ---------------- */
 
+  private reportInkChange(): void {
+    const hasInk = this.store.hasInk();
+    if (hasInk === this.lastReportedInk) return;
+    this.lastReportedInk = hasInk;
+    this.options.onInkChange?.(hasInk);
+  }
+
   isEmpty(): boolean {
     return !this.store.hasInk();
   }
@@ -153,12 +169,22 @@ export class DrawingSurface {
   clear(): void {
     this.store.clear();
     this.render();
+    this.reportInkChange();
   }
 
   /** Simple undo of last completed stroke (TASK 06 optional feature). */
   undo(): boolean {
     const ok = this.store.undo();
     this.render();
+    this.reportInkChange();
+    return ok;
+  }
+
+  /** Re-applies the last undone stroke. */
+  redo(): boolean {
+    const ok = this.store.redo();
+    this.render();
+    this.reportInkChange();
     return ok;
   }
 

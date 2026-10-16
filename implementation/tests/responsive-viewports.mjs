@@ -97,9 +97,10 @@ try {
     const cardBox = await levelCards.first().boundingBox();
     assert(`[${vp.width}px] Level card has dimensions`, cardBox && cardBox.width > 200);
 
-    // Verify camera widget is floating at center bottom
+    // Verify camera widget is docked bottom-left as a mini PIP (center stays clear)
     const widgetBox = await page.locator(".camera-widget-card").boundingBox();
     assert(`[${vp.width}px] Floating camera sits at bottom`, widgetBox && widgetBox.y > 0, JSON.stringify(widgetBox));
+    assert(`[${vp.width}px] Floating camera docked at bottom-left`, widgetBox && widgetBox.x < 200 && widgetBox.width <= 160, JSON.stringify(widgetBox));
 
     // 4. Drawing Canvas Page
     await levelCards.first().click();
@@ -107,11 +108,22 @@ try {
     const canvas = page.locator("[data-testid=draw-canvas]");
     assert(`[${vp.width}px] Canvas screen: canvas visible`, await canvas.isVisible());
 
-    // Verify no double camera widget on canvas screen
+    // The GlobalCamera is single + persistent: exactly one instance survives the
+    // jump to the canvas (recessed to the top-right so the dock stays clear).
     const globalCamOnCanvas = page.locator("[data-testid=global-camera-widget]");
-    assert(`[${vp.width}px] Canvas screen: no duplicate global camera widget`, (await globalCamOnCanvas.count()) === 0);
+    assert(`[${vp.width}px] Canvas screen: exactly one persistent global camera`, (await globalCamOnCanvas.count()) === 1);
     const dockCamOnCanvas = page.locator(".dock-camera");
     assert(`[${vp.width}px] Canvas screen: dock camera present in bottom dock`, await dockCamOnCanvas.isVisible());
+
+    // PIP must never overlap the drawing dock or the dock actions module.
+    const pipBox = await globalCamOnCanvas.boundingBox();
+    const dockBox = await dockCamOnCanvas.boundingBox();
+    const overlaps = Boolean(
+      pipBox && dockBox &&
+      pipBox.x < dockBox.x + dockBox.width && pipBox.x + pipBox.width > dockBox.x &&
+      pipBox.y < dockBox.y + dockBox.height && pipBox.y + pipBox.height > dockBox.y
+    );
+    assert(`[${vp.width}px] Canvas screen: PIP does not overlap the dock`, !overlaps, JSON.stringify({ pipBox, dockBox }));
 
     // Check no horizontal overflow on page
     const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);

@@ -5,7 +5,7 @@ import { momoLine, type MomoMoment } from "@/src/domain/momo-script";
  * No chat input, no speech, no LLM, never creates objects or decides (lore).
  * Final mascot artwork arrives later via this slot only.
  */
-export function MomoBubble({ moment }: { moment: MomoMoment }) {
+export function MomoBubble({ moment, message }: { moment: MomoMoment; message?: string }) {
   return (
     <div className="momo">
       {/* REPLACEABLE ASSET SLOT — DEV/PLACEHOLDER artwork, do not treat as final. */}
@@ -18,7 +18,7 @@ export function MomoBubble({ moment }: { moment: MomoMoment }) {
         height={52}
       />
       <div className="momo-bubble" role="status">
-        {momoLine(moment)}
+        {message ?? momoLine(moment)}
       </div>
     </div>
   );

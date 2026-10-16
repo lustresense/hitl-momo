@@ -4,6 +4,7 @@ import type { HandFailureReason, HandInputStatus } from "./types";
 import { evaluateGesture, type CursorState } from "./hand-gesture";
 import { mapToCanvas } from "./hand-gesture";
 import { PointSmoother } from "./smoothing";
+import { getSharedStream } from "../camera/shared-stream";
 
 /**
  * TASK 05 — MediaPipe HandLandmarker drawing driver (client-only).
@@ -29,6 +30,8 @@ export interface HandDriverOptions {
 export class HandDrawingDriver {
   private landmarker: HandLandmarker | null = null;
   private stream: MediaStream | null = null;
+  /** True only when THIS driver opened the camera (must then close it too). */
+  private ownsStream = false;
   private rafId = 0;
   private running = false;
   private lastVideoTime = -1;
@@ -44,10 +47,19 @@ export class HandDrawingDriver {
       onStatus({ kind: "initializing" });
 
       // Camera first so permission errors surface before model loading.
-      this.stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
-        audio: false,
-      });
+      // Zero double camera: bind the LIVE stream published by the persistent
+      // GlobalCamera (same lens, no second permission prompt) when available.
+      const shared = getSharedStream();
+      if (shared && shared.getVideoTracks().some((t) => t.readyState === "live")) {
+        this.stream = shared;
+        this.ownsStream = false;
+      } else {
+        this.stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user", width: { ideal: 640 }, height: { ideal: 480 } },
+          audio: false,
+        });
+        this.ownsStream = true;
+      }
       this.options.video.srcObject = this.stream;
       await this.options.video.play().catch(() => undefined);
 
@@ -134,8 +146,11 @@ export class HandDrawingDriver {
     cancelAnimationFrame(this.rafId);
     if (this.options.store) this.options.store.endStroke();
     this.options.onCursor?.(null);
-    this.stream?.getTracks().forEach((t) => t.stop());
+    // Only release tracks we opened; a borrowed (shared) stream stays alive
+    // for its owner (GlobalCamera) and the next hand-mode session.
+    if (this.ownsStream) this.stream?.getTracks().forEach((t) => t.stop());
     this.stream = null;
+    this.ownsStream = false;
     this.options.video.srcObject = null;
     try {
       await this.landmarker?.close();

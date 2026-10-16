@@ -30,3 +30,10 @@ Thumbs.db
 archive/
 scratch/
 .backup-temp/
+.ops/results/
+.worktrees/
+WORKING_STATE_*.md
+backup_*.tar.gz
+leftover_landing_backup/
+implementation/.pytest-cache/
+/tools/kanban-dashboard

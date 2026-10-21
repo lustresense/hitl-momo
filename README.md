@@ -41,3 +41,43 @@ AI:
 
 `archive/` is not active project truth.
 Proposal history and old AI chats must never silently override current governance.
+
+---
+
+## Documentation Index
+
+| File | Purpose |
+|------|---------|
+| [PRD.md](./PRD.md) | Product Requirements Document (konsolidasi dari existing docs) |
+| [SPEC.md](./SPEC.md) | Spec template for new features |
+| [CHANGELOG.md](./CHANGELOG.md) | Decision log (single source of truth untuk keputusan) |
+| [DESIGN_RESEARCH.md](./DESIGN_RESEARCH.md) | Design research & competitive analysis |
+| [BAB_4_Implementasi_dan_Pengujian.md](./BAB_4_Implementasi_dan_Pengujian.md) | Implementation & testing specification |
+| [DESIGN_TOKENS_EXTRACTION.md](./DESIGN_TOKENS_EXTRACTION.md) | Design system tokens |
+| [SECURITY_GATE.md](./SECURITY_GATE.md) | Security requirements & gates |
+| [Laporan-Progres.md](./Laporan-Progres.md) | Academic progress report |
+| [SOURCE_OF_TRUTH.md](./SOURCE_OF_TRUTH.md) | Source of truth definitions |
+| [PROJECT_MEMORY.md](./PROJECT_MEMORY.md) | Project context & memory |
+| [WORKING_CONTEXT.md](./WORKING_CONTEXT.md) | Current working context |
+| [INSTRUCTION.md](./INSTRUCTION.md) | AI agent instructions |
+| [AGENTS.md](./AGENTS.md) | Agent orchestration config |
+
+---
+
+## Development Workflow (Proposed)
+
+1. **Review PRD** → isi open questions (section 7)
+2. **Technical architecture decision** → tentukan stack
+3. **Create SPEC** dari template `SPEC.md` → `SPEC-<feature>.md`
+4. **Implement** dengan TDD
+5. **Validate**: lint, typecheck, test, build
+6. **Commit** conventional commits
+7. **Push** → CI/CD → Deploy
+
+---
+
+## Current Status
+
+**Phase**: Pre-development / Architecture decision needed
+**Blocker**: Open questions di PRD section 7 butuh keputusan Owner
+**Next**: Architecture session → tentukan tech stack → setup repo structure

@@ -14,8 +14,21 @@ let active:KAPLAYCtx|null=null;
 export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHandle>{
  const factory=(await import("kaplay")).default;
  active?.quit();
- const k=factory({global:false,canvas:o.canvas,width:800,height:380,background:[232,239,227],debug:false});active=k;
- const groundY=320,scene=o.level.scene,width=scene.gapWidth+20,height=16;
+ const k = factory({
+   global: false,
+   canvas: o.canvas,
+   width: 800,
+   height: 380,
+   background: [232, 239, 227],
+   debug: false,
+ });active=k;
+ // Draw subtle sketchbook dot-grid on the canvas (22px spacing)
+ for(let gx=11;gx<800;gx+=22){
+   for(let gy=11;gy<380;gy+=22){
+     k.add([k.circle(1.2),k.pos(gx,gy),k.color(49,45,38),k.opacity(.14)]);
+   }
+ }
+ const groundY=320,scene=o.level.scene,width=scene.gapWidth+24,height=8;
  let phase="falling",settled=false,destroyed=false,x=scene.gapStartX-10;
  let input={left:false,right:false,jump:false};let objectBody=false;
  k.setGravity(1600);
@@ -66,8 +79,8 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
  destroy(){if(destroyed)return;destroyed=true;fall.cancel();k.quit();if(active===k)active=null;},
  setInput(i){input=phase==="gameplay"&&!settled?i:{left:false,right:false,jump:false};},
  onFallComplete(){enterPlace();},setPlacement,
- commitPlacementAt(nextX,nextY){if(phase!=="placing"||!isLegalPlacement(nextX,nextY,width,height))return false;x=nextX;obj.pos=k.vec2(nextX,nextY);removeCollider();if(o.behavior==="solid"){obj.use(k.body({isStatic:true}));objectBody=true;}if(o.behavior==="danger")obj.use("hazard");phase="gameplay";resetPlayer();o.onCommitPlacement();return true;},
+ commitPlacementAt(nextX,nextY){if(phase!=="placing"||!isLegalPlacement(nextX,nextY,width,height))return false;x=nextX;obj.pos=k.vec2(nextX,groundY);removeCollider();if(o.behavior==="solid"){obj.use(k.body({isStatic:true}));objectBody=true;}if(o.behavior==="danger")obj.use("hazard");phase="gameplay";resetPlayer();o.onCommitPlacement();return true;},
  retry(){if(phase!=="gameplay")return;stop();resetPlayer();},
- reposition(){if(phase!=="gameplay")return;stop();removeCollider();phase="placing";resetPlayer();o.onReposition();}
+ reposition(){if(phase!=="gameplay")return;stop();removeCollider();phase="placing";obj.pos=k.vec2(x,groundY);resetPlayer();o.onReposition();}
  };
 }

@@ -76,13 +76,13 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
  // Falling visual has area for picking only; no body/collider until confirmed.
  const fall=k.tween(5,groundY,.85,(y)=>{if(!destroyed)obj.pos.y=y;},k.easings.easeOutCubic);fall.onEnd(()=>{if(!destroyed)enterPlace();});
  player.onCollide("hazard",()=>report("fail"));
- player.onCollide("goal",()=>{if(phase==="gameplay"&&player.isGrounded())report("success");});
+ player.onCollide("goal",()=>{if(phase==="gameplay")report("success");});
  k.onUpdate(()=>{
  if(destroyed)return;
  o.canvas.dataset.objectY=String(Math.round(obj.pos.y));o.canvas.dataset.phase=phase;o.canvas.dataset.playerX=String(Math.round(player.pos.x));o.canvas.dataset.playerY=String(Math.round(player.pos.y));o.canvas.dataset.objectX=String(Math.round(x));o.canvas.dataset.objectCount="1";
  if(phase!=="gameplay"||settled){player.pos=k.vec2(40,groundY-40);player.vel=k.vec2(0,0);return;}
- player.move((Number(input.right)-Number(input.left))*180,0);
- if(input.jump&&player.isGrounded())player.jump(500);
+ player.move((Number(input.right)-Number(input.left))*200,0);
+ if(input.jump&&player.isGrounded())player.jump(520);
  const result=worldOutcome({phase,x:player.pos.x,y:player.pos.y,goal:scene.goalX,grounded:player.isGrounded(),hazard:false});if(result)report(result);
  });
  return {

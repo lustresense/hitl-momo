@@ -18,49 +18,84 @@ export function GameStage(props:GameStageProps){
  const [position,setPosition]=useState(props.level.scene.gapStartX-10),[placementY,setPlacementY]=useState(320),[placementError,setPlacementError]=useState("");
  const [mode,setMode]=useState<"camera"|"fallback">("camera"),[status,setStatus]=useState("NUI NOT VERIFIED"),[trackingPaused,setTrackingPaused]=useState(false);
  const [retryKey,setRetryKey]=useState(0),[trackingReady,setTrackingReady]=useState(false);
+ const [heldDirs,setHeldDirs]=useState<string[]>([]);
  const paused=useRef(false),grab=useRef(false),keys=useRef({...NEUTRAL}),dragging=useRef(false);
  const heldPointers=useRef(new Map<number,"left"|"right"|"jump">());
- function sendFallbackInput(){
-  const held=[...heldPointers.current.values()];
-  controller.current?.setInput({left:keys.current.left||held.includes("left"),right:keys.current.right||held.includes("right"),jump:keys.current.jump||held.includes("jump")});
+ const cameraInput=useRef({...NEUTRAL});
+
+ function syncActiveDirs(){
+  const pointerDirs=[...heldPointers.current.values()];
+  const k=keys.current;
+  const active=[...pointerDirs];
+  if(k.left&&!active.includes("left"))active.push("left");
+  if(k.right&&!active.includes("right"))active.push("right");
+  if(k.jump&&!active.includes("jump"))active.push("jump");
+  setHeldDirs(active);
  }
+
+ function sendCombinedInput(){
+  const held=[...heldPointers.current.values()];
+  const k=keys.current;
+  const c=(mode==="camera"&&!paused.current)?cameraInput.current:NEUTRAL;
+  controller.current?.setInput({
+    left:k.left||held.includes("left")||c.left,
+    right:k.right||held.includes("right")||c.right,
+    jump:k.jump||held.includes("jump")||c.jump
+  });
+ }
+
  const currentMode=useRef(mode);currentMode.current=mode;
  const positionRef=useRef(position);positionRef.current=position;
  const {level,behavior,decision,drawingInput,phase}=props;
  function movePlacement(x:number,y:number=320){setPosition(x);setPlacementY(y);positionRef.current=x;const valid=controller.current?.setPlacement(x,y)??false;setPlacementError(valid?"":"Posisi di luar dunia. Geser kembali; objekmu tetap disimpan.");}
+
  useEffect(()=>{
  let cancelled=false;let instance:GameController|null=null;setReady(false);setError("");
  void(async()=>{try{const {GameController}=await import("@/src/game/game-controller");if(cancelled||!canvas.current)return;instance=new GameController();controller.current=instance;
  await instance.mount(canvas.current,level,behavior,decision.finalLabel,drawingInput,
- o=>{if(!cancelled){keys.current={...NEUTRAL};setOutcome(o);}},
+ o=>{if(!cancelled){keys.current={...NEUTRAL};heldPointers.current.clear();cameraInput.current={...NEUTRAL};setHeldDirs([]);setOutcome(o);}},
  ()=>{if(!cancelled)latest.current.onFallComplete();},()=>{if(!cancelled)latest.current.onCommitPlacement();},()=>{if(!cancelled)latest.current.onReposition();});
  if(cancelled){instance.unmount();return;}setReady(true);
  }catch(e){if(!cancelled)setError(e instanceof Error?e.message:String(e));}})();
  return()=>{cancelled=true;instance?.unmount();controller.current=null;};
- // The same classified object and world survive FALL, PLACE, PLAY and recovery.
  // eslint-disable-next-line react-hooks/exhaustive-deps
  },[level.levelId,decision,behavior,drawingInput,retryKey]);
+
  useEffect(()=>{
- keys.current={...NEUTRAL};controller.current?.setInput(NEUTRAL);
- if(!ready||mode!=="fallback"||phase!=="gameplay"||outcome)return;
- const down=(e:KeyboardEvent)=>{if(["ArrowLeft","ArrowRight","KeyA","KeyD","Space"].includes(e.code))e.preventDefault();if(e.code==="ArrowLeft"||e.code==="KeyA")keys.current.left=true;if(e.code==="ArrowRight"||e.code==="KeyD")keys.current.right=true;if(e.code==="Space")keys.current.jump=true;sendFallbackInput();};
- const up=(e:KeyboardEvent)=>{if(e.code==="ArrowLeft"||e.code==="KeyA")keys.current.left=false;if(e.code==="ArrowRight"||e.code==="KeyD")keys.current.right=false;if(e.code==="Space")keys.current.jump=false;sendFallbackInput();};
- const stop=()=>{keys.current={...NEUTRAL};heldPointers.current.clear();controller.current?.setInput(NEUTRAL);};
+ keys.current={...NEUTRAL};heldPointers.current.clear();setHeldDirs([]);
+ sendCombinedInput();
+ if(!ready||phase!=="gameplay"||outcome)return;
+ const down=(e:KeyboardEvent)=>{
+   if(["ArrowLeft","ArrowRight","ArrowUp","KeyA","KeyD","KeyW","Space"].includes(e.code))e.preventDefault();
+   if(e.code==="ArrowLeft"||e.code==="KeyA")keys.current.left=true;
+   if(e.code==="ArrowRight"||e.code==="KeyD")keys.current.right=true;
+   if(e.code==="ArrowUp"||e.code==="KeyW"||e.code==="Space")keys.current.jump=true;
+   syncActiveDirs();
+   sendCombinedInput();
+ };
+ const up=(e:KeyboardEvent)=>{
+   if(e.code==="ArrowLeft"||e.code==="KeyA")keys.current.left=false;
+   if(e.code==="ArrowRight"||e.code==="KeyD")keys.current.right=false;
+   if(e.code==="ArrowUp"||e.code==="KeyW"||e.code==="Space")keys.current.jump=false;
+   syncActiveDirs();
+   sendCombinedInput();
+ };
+ const stop=()=>{keys.current={...NEUTRAL};heldPointers.current.clear();setHeldDirs([]);sendCombinedInput();};
  window.addEventListener("keydown",down);window.addEventListener("keyup",up);window.addEventListener("blur",stop);
  return()=>{window.removeEventListener("keydown",down);window.removeEventListener("keyup",up);window.removeEventListener("blur",stop);stop();};
- // sendFallbackInput reads stable refs, not render state.
  // eslint-disable-next-line react-hooks/exhaustive-deps
- },[ready,mode,phase,outcome]);
+ },[ready,phase,outcome]);
+
  useEffect(()=>{
- controller.current?.setInput(NEUTRAL);grab.current=false;
+ cameraInput.current={...NEUTRAL};grab.current=false;sendCombinedInput();
  if(!ready||mode!=="camera"||outcome||(phase!=="placing"&&phase!=="gameplay"))return;
  let cancelled=false;let driver:import("@/src/input/gameplay-hand-driver").GameplayHandDriver|null=null;
  void(async()=>{const {GameplayHandDriver}=await import("@/src/input/gameplay-hand-driver");if(cancelled)return;
  const video=document.querySelector<HTMLVideoElement>(".global-camera-host .camera-video");if(!video){setStatus("Kamera belum tersedia · NUI NOT VERIFIED");return;}
  driver=new GameplayHandDriver({video,onStatus:s=>{if(!cancelled)setStatus(s+" · NUI NOT VERIFIED");},onFrame:f=>{
  if(cancelled)return;setTrackingReady(f.tracked);
- if(!f.tracked){controller.current?.setInput(NEUTRAL);grab.current=false;if(latest.current.phase==="gameplay"){paused.current=true;setTrackingPaused(true);}return;}
- if(latest.current.phase==="gameplay"){controller.current?.setInput(paused.current?NEUTRAL:f.input);}
+ if(!f.tracked){cameraInput.current={...NEUTRAL};grab.current=false;sendCombinedInput();return;}
+ if(latest.current.phase==="gameplay"){cameraInput.current=paused.current?NEUTRAL:f.input;sendCombinedInput();}
  else if(latest.current.phase==="placing"&&f.cursor){
  if(f.pinched){
     const objWidth = level.scene.gapWidth + 20;
@@ -70,10 +105,10 @@ export function GameStage(props:GameStageProps){
   grab.current = f.pinched;
  }
  }});await driver.start();if(cancelled)void driver.stop();})();
- return()=>{cancelled=true;void driver?.stop();controller.current?.setInput(NEUTRAL);};
- // The driver only routes frames to the currently exclusive PLACE/PLAY mode.
+ return()=>{cancelled=true;void driver?.stop();cameraInput.current={...NEUTRAL};sendCombinedInput();};
  // eslint-disable-next-line react-hooks/exhaustive-deps
  },[ready,mode,phase,outcome,retryKey]);
+
  const legal=isLegalPlacement(position,placementY,level.scene.gapWidth+20,8);
  function pointer(e:React.PointerEvent<HTMLCanvasElement>){
   if(phase!=="placing")return;
@@ -91,7 +126,7 @@ export function GameStage(props:GameStageProps){
       </span>
     </div>
     <div style={{display:"flex",gap:8}}>
-      <button className="btn btn-small" onClick={()=>{keys.current={...NEUTRAL};heldPointers.current.clear();controller.current?.setInput(NEUTRAL);setMode(mode==="camera"?"fallback":"camera");paused.current=false;setTrackingPaused(false);}}>
+      <button className="btn btn-small" onClick={()=>{keys.current={...NEUTRAL};heldPointers.current.clear();cameraInput.current={...NEUTRAL};setHeldDirs([]);sendCombinedInput();setMode(mode==="camera"?"fallback":"camera");paused.current=false;setTrackingPaused(false);}}>
         {mode==="camera"?"Gunakan FALLBACK keyboard/pointer":"Nyalakan Kamera NUI"}
       </button>
       <button className="btn btn-small" onClick={props.onRedraw}>Gambar ulang</button>
@@ -129,25 +164,100 @@ export function GameStage(props:GameStageProps){
   )}
 
   {phase==="gameplay"&&!outcome&&(
-    <div className="stage-floating-controls">
+    <div className="stage-floating-controls" data-testid="gameplay-controls">
+      <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+        <button
+          className={`btn btn-small game-input-button ${heldDirs.includes("left")?"is-pressed":null}`}
+          data-testid="move-left"
+          aria-label="Gerak Kiri"
+          onPointerDown={e=>{
+            e.preventDefault();
+            try{e.currentTarget.setPointerCapture(e.pointerId);}catch{}
+            heldPointers.current.set(e.pointerId,"left");
+            syncActiveDirs();
+            sendCombinedInput();
+          }}
+          onPointerUp={e=>{
+            heldPointers.current.delete(e.pointerId);
+            syncActiveDirs();
+            sendCombinedInput();
+          }}
+          onPointerCancel={e=>{
+            heldPointers.current.delete(e.pointerId);
+            syncActiveDirs();
+            sendCombinedInput();
+          }}
+          onLostPointerCapture={e=>{
+            heldPointers.current.delete(e.pointerId);
+            syncActiveDirs();
+            sendCombinedInput();
+          }}
+          onContextMenu={e=>e.preventDefault()}
+        >
+          ← Kiri
+        </button>
+        <button
+          className={`btn btn-small game-input-button ${heldDirs.includes("right")?"is-pressed":null}`}
+          data-testid="move-right"
+          aria-label="Gerak Kanan"
+          onPointerDown={e=>{
+            e.preventDefault();
+            try{e.currentTarget.setPointerCapture(e.pointerId);}catch{}
+            heldPointers.current.set(e.pointerId,"right");
+            syncActiveDirs();
+            sendCombinedInput();
+          }}
+          onPointerUp={e=>{
+            heldPointers.current.delete(e.pointerId);
+            syncActiveDirs();
+            sendCombinedInput();
+          }}
+          onPointerCancel={e=>{
+            heldPointers.current.delete(e.pointerId);
+            syncActiveDirs();
+            sendCombinedInput();
+          }}
+          onLostPointerCapture={e=>{
+            heldPointers.current.delete(e.pointerId);
+            syncActiveDirs();
+            sendCombinedInput();
+          }}
+          onContextMenu={e=>e.preventDefault()}
+        >
+          Kanan →
+        </button>
+        <button
+          className={`btn btn-small game-input-button btn-primary ${heldDirs.includes("jump")?"is-pressed":null}`}
+          data-testid="move-jump"
+          aria-label="Lompat / Loncat"
+          onPointerDown={e=>{
+            e.preventDefault();
+            try{e.currentTarget.setPointerCapture(e.pointerId);}catch{}
+            heldPointers.current.set(e.pointerId,"jump");
+            syncActiveDirs();
+            sendCombinedInput();
+          }}
+          onPointerUp={e=>{
+            heldPointers.current.delete(e.pointerId);
+            syncActiveDirs();
+            sendCombinedInput();
+          }}
+          onPointerCancel={e=>{
+            heldPointers.current.delete(e.pointerId);
+            syncActiveDirs();
+            sendCombinedInput();
+          }}
+          onLostPointerCapture={e=>{
+            heldPointers.current.delete(e.pointerId);
+            syncActiveDirs();
+            sendCombinedInput();
+          }}
+          onContextMenu={e=>e.preventDefault()}
+        >
+          ↑ Lompat
+        </button>
+      </div>
       <button className="btn btn-small" data-testid="btn-reposition" onClick={reposition}>Geser Ulang Objek</button>
-      {mode==="fallback"&&(
-        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-          {(["left","right","jump"] as const).map(dir=>(
-            <button
-              key={dir}
-              className="btn btn-small game-input-button"
-              data-testid={`move-${dir}`}
-              onPointerDown={e=>{e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);heldPointers.current.set(e.pointerId,dir);sendFallbackInput();}}
-              onPointerUp={e=>{heldPointers.current.delete(e.pointerId);sendFallbackInput();}}
-              onPointerCancel={e=>{heldPointers.current.delete(e.pointerId);sendFallbackInput();}}
-              onLostPointerCapture={e=>{heldPointers.current.delete(e.pointerId);sendFallbackInput();}}
-            >
-              {dir==="left"?"← Kiri":dir==="right"?"Kanan →":"↑ Lompat"}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   )}
 

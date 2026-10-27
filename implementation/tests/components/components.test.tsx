@@ -27,8 +27,8 @@ vi.mock("@/src/input", async (importOriginal) => {
 afterEach(cleanup);
 
 describe("DrawingScreen explicit prediction", () => {
- it("shows DEMO catalog before ink with disabled prediction",()=>{mockHasInk=false;render(<DrawingScreen level={LEVELS[0]} initialMode="pointer" feedback={null} surfaceOut={{current:null}} onSubmit={vi.fn()} onExit={vi.fn()}/>);expect(screen.getByText(/Katalog DEMO/)).toBeTruthy();expect(screen.getByTestId("btn-submit-drawing").hasAttribute("disabled")).toBe(true);expect(screen.queryByLabelText("Tebakan AI")).toBeNull();});
- it("submit requests prediction without selecting catalog intent",()=>{mockHasInk=true;const submit=vi.fn();render(<DrawingScreen level={LEVELS[0]} initialMode="pointer" feedback={null} surfaceOut={{current:null}} onSubmit={submit} onExit={vi.fn()}/>);expect(submit).not.toHaveBeenCalled();fireEvent.click(screen.getByTestId("btn-submit-drawing"));expect(submit).toHaveBeenCalledWith(null);mockHasInk=false;});
+ it("shows DEMO catalog before ink with disabled prediction",()=>{mockHasInk=false;render(<DrawingScreen level={LEVELS[0]!} initialMode="pointer" feedback={null} surfaceOut={{current:null}} onSubmit={vi.fn()} onExit={vi.fn()}/>);expect(screen.getByText(/Katalog DEMO/)).toBeTruthy();expect(screen.getByTestId("btn-submit-drawing").hasAttribute("disabled")).toBe(true);expect(screen.queryByLabelText("Tebakan AI")).toBeNull();});
+ it("submit requests prediction without selecting catalog intent",()=>{mockHasInk=true;const submit=vi.fn();render(<DrawingScreen level={LEVELS[0]!} initialMode="pointer" feedback={null} surfaceOut={{current:null}} onSubmit={submit} onExit={vi.fn()}/>);expect(submit).not.toHaveBeenCalled();fireEvent.click(screen.getByTestId("btn-submit-drawing"));expect(submit).toHaveBeenCalledWith(null);mockHasInk=false;});
 });
 
 describe("StudentRulerSelector", () => {

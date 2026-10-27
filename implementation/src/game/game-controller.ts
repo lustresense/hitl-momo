@@ -1,39 +1,15 @@
-import type { LevelContext, ObjectBehavior } from "../domain/types";
-import type { KaplayGameHandle } from "./kaplay-runtime";
-
-/**
- * TASK 04/15 — Game controller boundary for React.
- * Guarantees a single live KAPLAY instance and deterministic teardown
- * (no duplicate loops/listeners across remounts or repeated cycles).
- * Exposes setInput for player-controlled movement (NUI/keyboard).
- */
+import type {LevelContext,ObjectBehavior,DrawingInput} from "../domain/types";
+import type {KaplayGameHandle} from "./kaplay-runtime";
 export class GameController {
-  private handle: KaplayGameHandle | null = null;
-
-  async mount(
-    canvas: HTMLCanvasElement,
-    level: LevelContext,
-    behavior: ObjectBehavior,
-    finalLabel: string,
-    onOutcome: (outcome: "success" | "fail") => void,
-  ): Promise<void> {
-    this.unmount();
-    console.log("[GameController] Mounting game with behavior:", behavior, "label:", finalLabel);
-    const { createKaplayGame } = await import("./kaplay-runtime");
-    // Re-check after the await: unmount may have been called meanwhile.
-    if (this.handle !== null) return;
-    this.handle = await createKaplayGame({ canvas, level, behavior, finalLabel, onOutcome });
-    console.log("[GameController] Game mounted successfully");
-  }
-
-  /** Forward player input to KAPLAY runtime. */
-  setInput(input: { left: boolean; right: boolean; jump: boolean }): void {
-    this.handle?.setInput(input);
-  }
-
-  /** Idempotent teardown (StrictMode double-mount safe). */
-  unmount(): void {
-    this.handle?.destroy();
-    this.handle = null;
-  }
+ private handle:KaplayGameHandle|null=null;private generation=0;
+ async mount(canvas:HTMLCanvasElement,level:LevelContext,behavior:ObjectBehavior,finalLabel:string,drawingInput:DrawingInput|null,onOutcome:(o:"success"|"fail")=>void,onFallComplete:()=>void,onCommitPlacement:()=>void,onReposition:()=>void){
+ this.unmount();const generation=this.generation;const {createKaplayGame}=await import("./kaplay-runtime");if(this.generation!==generation)return;
+ const handle=await createKaplayGame({canvas,level,behavior,finalLabel,drawingInput,onOutcome,onFallComplete,onCommitPlacement,onReposition});if(this.generation!==generation){handle.destroy();return;}this.handle=handle;
+ }
+ setInput(i:{left:boolean;right:boolean;jump:boolean}){this.handle?.setInput(i);}
+ onFallComplete(){this.handle?.onFallComplete();}
+ setPlacement(x:number):boolean{return this.handle?.setPlacement(x)??false;}
+ commitPlacementAt(x:number):boolean{return this.handle?.commitPlacementAt(x)??false;}
+ retry(){this.handle?.retry();}reposition(){this.handle?.reposition();}
+ unmount(){this.generation++;this.handle?.destroy();this.handle=null;}
 }

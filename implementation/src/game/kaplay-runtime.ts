@@ -1,132 +1,66 @@
-import type { KAPLAYCtx, KAPLAYOpt } from "kaplay";
-import type { LevelContext, ObjectBehavior } from "../domain/types";
-import { planSpawn } from "./behavior-spawner";
-
-let kaplayInitialized = false;
-let kaplayInstance: ReturnType<typeof import("kaplay").default> | null = null;
-
-export type GameOutcome = "success" | "fail";
-
+import type {KAPLAYCtx} from "kaplay";
+import type {LevelContext,ObjectBehavior,DrawingInput} from "../domain/types";
+import {isLegalPlacement,worldOutcome} from "./placement-rules";
+export type GameOutcome="success"|"fail";
 export interface KaplayGameHandle {
-  destroy(): void;
-  /** External input setter for player control (NUI/keyboard). */
-  setInput(input: { left: boolean; right: boolean; jump: boolean }): void;
+ destroy():void;setInput(i:{left:boolean;right:boolean;jump:boolean}):void;
+ onFallComplete():void;commitPlacementAt(x:number):boolean;setPlacement(x:number):boolean;retry():void;reposition():void;
 }
-
 export interface KaplayGameOptions {
-  canvas: HTMLCanvasElement;
-  level: LevelContext;
-  behavior: ObjectBehavior;
-  finalLabel: string;
-  onOutcome(outcome: GameOutcome): void;
+ canvas:HTMLCanvasElement;level:LevelContext;behavior:ObjectBehavior;finalLabel:string;drawingInput:DrawingInput|null;
+ onOutcome(o:GameOutcome):void;onFallComplete():void;onCommitPlacement():void;onReposition():void;
 }
-
-const WALK_SPEED = 200;
-const JUMP_FORCE = -550;
-const GRAVITY = 1600;
-
-export async function createKaplayGame(options: KaplayGameOptions): Promise<KaplayGameHandle> {
-  const kaplayModule = (await import("kaplay")).default;
-
-  console.log("[KAPLAY] Creating game with behavior:", options.behavior, "label:", options.finalLabel);
-
-  if (kaplayInitialized && kaplayInstance) {
-    console.log("[KAPLAY] Destroying previous instance");
-    try { kaplayInstance.quit(); } catch {}
-    kaplayInitialized = false;
-    kaplayInstance = null;
-  }
-
-  const kaplay = kaplayModule;
-  console.log("[KAPLAY] Creating game with behavior:", options.behavior, "label:", options.finalLabel);
-
-  const k = kaplay({
-    global: false,
-    canvas: options.canvas,
-    width: 800,
-    height: 380,
-    background: [253, 250, 243],
-    crisp: true,
-    debug: false,
-  } as KAPLAYOpt);
-
-  kaplayInitialized = true;
-
-  const { level, behavior } = options;
-  const scene = level.scene;
-  const groundY = 380 - 60;
-  const plan = planSpawn(behavior, options.finalLabel, scene, 380);
-
-  const segments = [
-    { start: 0, end: scene.gapStartX },
-    { start: scene.gapStartX + scene.gapWidth, end: Math.max(scene.goalX + 90, scene.gapStartX + scene.gapWidth + 220) },
-  ];
-  if (plan.kind !== "hazard") {
-    segments.splice(1, 0, { start: scene.gapStartX, end: scene.gapStartX + scene.gapWidth });
-  }
-
-  const { addGround, addGoalZone, addSpawnObject, addPlayer } = await import("./entities/level-props");
-  addGround(k, segments, groundY);
-  addGoalZone(k, scene.goalX, groundY);
-  addSpawnObject(k, plan, scene.gapStartX, groundY);
-  const player = addPlayer(k, 40, groundY, "player");
-
-  // Player input state (set externally via setInput)
-  let inputState = { left: false, right: false, jump: false };
-
-  let settled = false;
-  let timerId: NodeJS.Timeout | null = null;
-  const report = (outcome: GameOutcome) => {
-    if (settled) return;
-    settled = true;
-    if (timerId) clearTimeout(timerId);
-    options.onOutcome(outcome);
-  };
-  timerId = setTimeout(() => {
-    if (!settled) report(plan.kind === "hazard" ? "fail" : "success");
-  }, 30000); // Longer timeout since player controls movement
-
-  player.onCollide("goal", () => {
-    report("success");
-  });
-  player.onCollide("hazard-zone", () => {
-    report("fail");
-  });
-
-  player.onUpdate(() => {
-    if (settled) return;
-
-    // Horizontal movement from input
-    let velX = 0;
-    if (inputState.left) velX -= WALK_SPEED;
-    if (inputState.right) velX += WALK_SPEED;
-    player.vel.x = velX;
-
-    // Jump from input
-    if (inputState.jump && player.isGrounded()) {
-      player.jump(JUMP_FORCE);
-    }
-
-    // Check goal reached
-    if (player.pos.x >= scene.goalX && player.isGrounded()) {
-      report("success");
-      return;
-    }
-    // Check fall
-    const fell = player.pos.y > 380 + 80;
-    if (fell) {
-      report("fail");
-      return;
-    }
-  });
-
-  return {
-    destroy() {
-      if (timerId) clearTimeout(timerId);
-      try { kaplayInstance?.quit(); } catch {} finally { kaplayInitialized = false; kaplayInstance = null; }
-    },
-    setInput(input: { left: boolean; right: boolean; jump: boolean }) {
-      inputState = input;
-    },
-  };
+let active:KAPLAYCtx|null=null;
+export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHandle>{
+ const factory=(await import("kaplay")).default;
+ active?.quit();
+ const k=factory({global:false,canvas:o.canvas,width:800,height:380,background:[253,250,243],debug:false});active=k;
+ const groundY=320,scene=o.level.scene,width=scene.gapWidth+20,height=16;
+ let phase="falling",settled=false,destroyed=false,x=scene.gapStartX-10;
+ let input={left:false,right:false,jump:false};let objectBody=false;
+ k.setGravity(1600);
+ for(const seg of [{start:0,end:scene.gapStartX},{start:scene.gapStartX+scene.gapWidth,end:800}])
+ k.add([k.rect(seg.end-seg.start,60),k.pos(seg.start,groundY),k.color(222,210,180),k.area(),k.body({isStatic:true}),"ground"]);
+ k.add([k.rect(26,60),k.pos(scene.goalX,groundY-60),k.area(),k.opacity(.15),k.color(40,170,80),"goal"]);
+ k.add([k.text("GOAL",{size:16}),k.pos(scene.goalX-10,groundY-85),k.color(40,120,60)]);
+ k.add([k.rect(width,8),k.pos(scene.gapStartX-10,groundY+6),k.color(80,180,120),k.opacity(.3)]);
+ const player=k.add([k.rect(24,40),k.pos(40,groundY-40),k.area(),k.body(),k.opacity(0),"player"]);
+ // Stickman graphics attached to the real collision body.
+ player.add([k.circle(7),k.pos(12,7),k.color(35,50,77)]);
+ player.add([k.rect(3,16),k.pos(11,14),k.color(35,50,77)]);
+ for(const points of [[[12,18],[2,26]],[[12,18],[22,26]],[[12,28],[3,40]],[[12,28],[21,40]]])
+ player.add([k.polygon([k.vec2(points[0]![0]!,points[0]![1]!),k.vec2(points[1]![0]!,points[1]![1]!),k.vec2(points[1]![0]!+2,points[1]![1]!)]),k.color(35,50,77)]);
+ const color=o.behavior==="solid"?[141,110,99]:o.behavior==="danger"?[192,57,43]:[140,150,160];
+ const obj=k.add([k.rect(width,height),k.pos(x,5),k.color(color[0]!,color[1]!,color[2]!),k.outline(2,k.rgb(60,50,40)),k.area(),"decided-object"]);
+ const label=obj.add([k.text(o.finalLabel,{size:13}),k.pos(0,-20),k.color(50,40,30)]);
+ void label;
+ if(o.drawingInput){for(const stroke of o.drawingInput.strokes){for(let j=1;j<stroke.length;j++){
+ const a=stroke[j-1]!,b=stroke[j]!;obj.add([k.polygon([k.vec2(a.x*width,a.y*12),k.vec2(b.x*width,b.y*12),k.vec2(b.x*width+1,b.y*12+1)]),k.color(20,20,20)]);
+ }}}
+ function stop(){input={left:false,right:false,jump:false};player.vel=k.vec2(0,0);}
+ function removeCollider(){if(objectBody){obj.unuse("body");objectBody=false;}obj.unuse("hazard");}
+ function resetPlayer(){player.pos=k.vec2(40,groundY-40);player.vel=k.vec2(0,0);settled=false;}
+ function report(result:GameOutcome){if(settled||phase!=="gameplay")return;settled=true;stop();o.onOutcome(result);}
+ function setPlacement(next:number){if(phase!=="placing")return false;const legal=isLegalPlacement(next,width);if(legal){x=next;obj.pos.x=x;}return legal;}
+ function enterPlace(){if(phase!=="falling")return;phase="placing";obj.pos=k.vec2(x,groundY);stop();o.onFallComplete();}
+ // Falling visual has area for picking only; no body/collider until confirmed.
+ const fall=k.tween(5,groundY,.85,(y)=>{if(!destroyed)obj.pos.y=y;},k.easings.easeOutCubic);fall.onEnd(()=>{if(!destroyed)enterPlace();});
+ player.onCollide("hazard",()=>report("fail"));
+ player.onCollide("goal",()=>{if(phase==="gameplay"&&player.isGrounded())report("success");});
+ k.onUpdate(()=>{
+ if(destroyed)return;
+ o.canvas.dataset.objectY=String(Math.round(obj.pos.y));o.canvas.dataset.phase=phase;o.canvas.dataset.playerX=String(Math.round(player.pos.x));o.canvas.dataset.playerY=String(Math.round(player.pos.y));o.canvas.dataset.objectX=String(Math.round(x));o.canvas.dataset.objectCount="1";
+ if(phase!=="gameplay"||settled){player.pos=k.vec2(40,groundY-40);player.vel=k.vec2(0,0);return;}
+ player.move((Number(input.right)-Number(input.left))*180,0);
+ if(input.jump&&player.isGrounded())player.jump(500);
+ const result=worldOutcome({phase,x:player.pos.x,y:player.pos.y,goal:scene.goalX,grounded:player.isGrounded(),hazard:false});if(result)report(result);
+ });
+ return {
+ destroy(){if(destroyed)return;destroyed=true;fall.cancel();k.quit();if(active===k)active=null;},
+ setInput(i){input=phase==="gameplay"&&!settled?i:{left:false,right:false,jump:false};},
+ onFallComplete(){enterPlace();},setPlacement,
+ commitPlacementAt(next){if(phase!=="placing"||!isLegalPlacement(next,width))return false;x=next;obj.pos=k.vec2(x,groundY);removeCollider();if(o.behavior==="solid"){obj.use(k.body({isStatic:true}));objectBody=true;}if(o.behavior==="danger")obj.use("hazard");phase="gameplay";resetPlayer();o.onCommitPlacement();return true;},
+ retry(){if(phase!=="gameplay")return;stop();resetPlayer();},
+ reposition(){if(phase!=="gameplay")return;stop();removeCollider();phase="placing";resetPlayer();o.onReposition();}
+ };
 }

@@ -270,6 +270,7 @@ export function SketchbookApp() {
             <section id="screen-evaluating" className="screen" aria-label="Evaluasi prediksi">
               <div className="screen-head">
                 <h2>Tebakan Momo (Top-3)</h2>
+                <p role="status" data-testid="prediction-source">{providerMode === "mock" ? "DEMO / PREDIKSI SIMULASI — bukan model asli" : "PARTNER API — periksa sumber prediksi"}</p>
                 <p className="lead">Confidence bukan jaminan benar. Kamu yang memutuskan.</p>
               </div>
               <div className="eval-layout">

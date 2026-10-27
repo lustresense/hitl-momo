@@ -50,7 +50,29 @@ export function evaluateGameplayGesture(
     };
   }
 
+  // Check for NaN or invalid numbers in landmarks
+  for (let i = 0; i < 10; i++) {
+    const lm = landmarks[i];
+    if (!lm || Number.isNaN(lm.x) || Number.isNaN(lm.y)) {
+      return {
+        tracked: false,
+        cursor: null,
+        pinched: false,
+        input: { left: false, right: false, jump: false },
+      };
+    }
+  }
+
   const tip = indexTipNormalized(landmarks);
+  if (Number.isNaN(tip.x) || Number.isNaN(tip.y)) {
+    return {
+      tracked: false,
+      cursor: null,
+      pinched: false,
+      input: { left: false, right: false, jump: false },
+    };
+  }
+
   const pinched = isPinched(landmarks, GAMEPLAY_PINCH_THRESHOLD);
   
   // Map mirrored cursor x to discrete left/right movement zones

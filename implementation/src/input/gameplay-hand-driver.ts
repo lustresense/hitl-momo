@@ -59,6 +59,7 @@ export class GameplayHandDriver {
   private initAborted = false;
   private lastVideoTime = -1;
   private lastProcessTime = 0;
+  private generation = 0;
 
   constructor(private readonly options: GameplayHandDriverOptions) {}
 
@@ -72,6 +73,8 @@ export class GameplayHandDriver {
     this.initAborted = false;
     this.lastVideoTime = -1;
     this.lastProcessTime = performance.now();
+    this.generation++;
+    const myGen = this.generation;
 
     try {
       onStatus("initializing");
@@ -90,20 +93,15 @@ export class GameplayHandDriver {
       await video.play().catch(() => undefined);
 
       // Check if init was aborted while awaiting video play
-      if (this.initAborted || !this.running) {
-        this.cleanupVideoOnly();
+      if (this.initAborted || !this.running || this.generation !== myGen) {
+        await this.cleanupLandmarker();
         return;
       }
 
       // Initialize MediaPipe HandLandmarker
       const vision = await FilesetResolver.forVisionTasks(wasmRoot);
 
-      // Check again after FilesetResolver (can be slow)
-      if (this.initAborted || !this.running) {
-        this.cleanupVideoOnly();
-        return;
-      }
-
+      // Continue to create landmarker even if aborted, so it gets properly closed
       this.landmarker = await HandLandmarker.createFromOptions(vision, {
         baseOptions: { modelAssetPath: modelUrl, delegate: "GPU" },
         runningMode: "VIDEO",
@@ -111,9 +109,8 @@ export class GameplayHandDriver {
       });
 
       // Final check before starting loop
-      if (this.initAborted || !this.running) {
+      if (this.initAborted || !this.running || this.generation !== myGen) {
         await this.cleanupLandmarker();
-        this.cleanupVideoOnly();
         return;
       }
 
@@ -125,9 +122,10 @@ export class GameplayHandDriver {
     }
   }
 
-  stop(): Promise<void> | void {
+  async stop(): Promise<void> {
     this.running = false;
     this.initAborted = true;
+    this.generation++;
     cancelAnimationFrame(this.rafId);
     this.rafId = 0;
 
@@ -140,10 +138,10 @@ export class GameplayHandDriver {
     });
 
     // Cleanup landmarker
-    this.cleanupLandmarker();
+    await this.cleanupLandmarker();
 
-    // Cleanup video binding only (do NOT stop borrowed stream)
-    this.cleanupVideoOnly();
+    // Do NOT cleanup video binding - leave borrowed stream intact for shared preview
+    this.stream = null;
   }
 
   private loop = (): void => {
@@ -178,6 +176,7 @@ export class GameplayHandDriver {
         pinched: false,
         input: { left: false, right: false, jump: false },
       });
+      this.cleanupLandmarkerSync();
       return;
     }
 
@@ -207,7 +206,7 @@ export class GameplayHandDriver {
     }
   }
 
-  private cleanupLandmarker(): void {
+  private async cleanupLandmarker(): Promise<void> {
     if (this.landmarker) {
       try {
         this.landmarker.close();
@@ -218,12 +217,15 @@ export class GameplayHandDriver {
     }
   }
 
-  private cleanupVideoOnly(): void {
-    // Only clear video srcObject; do NOT stop borrowed shared stream tracks
-    if (this.options.video) {
-      this.options.video.srcObject = null;
+  private cleanupLandmarkerSync(): void {
+    if (this.landmarker) {
+      try {
+        this.landmarker.close();
+      } catch {
+        // best-effort
+      }
+      this.landmarker = null;
     }
-    this.stream = null;
   }
 
   private classifyError(err: unknown): GameplayStatus {

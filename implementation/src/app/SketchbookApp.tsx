@@ -51,6 +51,13 @@ export function SketchbookApp() {
   const isLevelUnlocked = useCallback((stage: number) => {
     if (stage <= 1) return true;
     try {
+      // In dev mode (dev.momominum.tech or localhost), allow direct stage access for autonomous QA
+      if (typeof window !== "undefined") {
+        const host = window.location.hostname;
+        if (host.includes("dev") || host.includes("localhost") || host === "127.0.0.1") {
+          return true;
+        }
+      }
       const completed = JSON.parse(window.localStorage.getItem("sketchbook.completedStages") ?? "[]") as number[];
       return completed.includes(stage - 1);
     } catch {
@@ -337,10 +344,10 @@ export function SketchbookApp() {
                 </div>
               </div>
               <MomoBubble moment="level-complete" />
-              <div className="actions">
+              <div className="actions" style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 16 }}>
                 <button
                   type="button"
-                  className="btn btn-primary"
+                  className="btn"
                   data-testid="btn-back-to-levels"
                   onClick={() => {
                     controller.exitToLevelEntry();
@@ -349,6 +356,19 @@ export function SketchbookApp() {
                 >
                   Pilih Level
                 </button>
+                {level.stage < 3 && (
+                  <button
+                    type="button"
+                    className="btn btn-primary"
+                    data-testid="btn-next-level"
+                    onClick={() => {
+                      const nextStage = level.stage + 1;
+                      window.location.href = `/level${nextStage}`;
+                    }}
+                  >
+                    Lanjut ke Level {level.stage + 1} →
+                  </button>
+                )}
               </div>
             </section>
           )}

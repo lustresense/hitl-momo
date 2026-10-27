@@ -21,7 +21,7 @@ export function GameStage(props:GameStageProps){
  const currentMode=useRef(mode);currentMode.current=mode;
  const positionRef=useRef(position);positionRef.current=position;
  const {level,behavior,decision,drawingInput,phase}=props;
- function movePlacement(x:number){setPosition(x);positionRef.current=x;const valid=controller.current?.setPlacement(x)??false;setPlacementError(valid?"":"Posisi di luar dunia. Geser kembali; objekmu tetap disimpan.");}
+ function movePlacement(x:number,y:number=320){setPosition(x);positionRef.current=x;const valid=controller.current?.setPlacement(x,y)??false;setPlacementError(valid?"":"Posisi di luar dunia. Geser kembali; objekmu tetap disimpan.");}
  useEffect(()=>{
  let cancelled=false;let instance:GameController|null=null;setReady(false);setError("");
  void(async()=>{try{const {GameController}=await import("@/src/game/game-controller");if(cancelled||!canvas.current)return;instance=new GameController();controller.current=instance;
@@ -54,7 +54,13 @@ export function GameStage(props:GameStageProps){
  if(!f.tracked){controller.current?.setInput(NEUTRAL);grab.current=false;if(latest.current.phase==="gameplay"){paused.current=true;setTrackingPaused(true);}return;}
  if(latest.current.phase==="gameplay"){controller.current?.setInput(paused.current?NEUTRAL:f.input);}
  else if(latest.current.phase==="placing"&&f.cursor){
- if(f.pinched){const x=f.cursor.x*800-(level.scene.gapWidth+20)/2;movePlacement(x);}grab.current=f.pinched;
+ if(f.pinched){
+    const objWidth = level.scene.gapWidth + 20;
+    const x = f.cursor.x * 800 - objWidth / 2;
+    const y = f.cursor.y * 380 - 8;
+    movePlacement(x, y);
+  }
+  grab.current = f.pinched;
  }
  }});await driver.start();if(cancelled)void driver.stop();})();
  return()=>{cancelled=true;void driver?.stop();controller.current?.setInput(NEUTRAL);};
@@ -62,9 +68,9 @@ export function GameStage(props:GameStageProps){
  // eslint-disable-next-line react-hooks/exhaustive-deps
  },[ready,mode,phase,outcome,retryKey]);
  const legal=isLegalPlacement(position,level.scene.gapWidth+20);
- function pointer(e:React.PointerEvent<HTMLCanvasElement>){if(phase!=="placing"||mode!=="fallback")return;const r=e.currentTarget.getBoundingClientRect();movePlacement((e.clientX-r.left)*800/r.width-(level.scene.gapWidth+20)/2);}
+ function pointer(e:React.PointerEvent<HTMLCanvasElement>){if(phase!=="placing"||mode!=="fallback")return;const r=e.currentTarget.getBoundingClientRect();const objWidth = level.scene.gapWidth + 20; const objHeight = 16; movePlacement((e.clientX-r.left)*800/r.width - objWidth/2, (e.clientY-r.top)*380/r.height - objHeight/2);}
  function reposition(){setOutcome(null);controller.current?.reposition();setPosition(Number(canvas.current?.dataset.objectX??position));}
- return <section id="screen-gameplay" className="screen" data-testid="world-stage" style={{position:"relative",padding:"18px 20px 100px",maxWidth:1040,margin:"auto"}}>
+ return <section id="screen-gameplay" className="screen" data-testid="world-stage" style={{position:"relative",padding:"24px 24px 100px"}}>
  <h2>Halaman Sobek · Dunia Stickman</h2><p className="decision-chip">Keputusanmu: {decision.type.toUpperCase()} · “{decision.finalLabel}”{decision.type!=="override"?` (#${decision.sourceRank})`:""}</p>
  <p role="status" data-testid="input-status">{mode==="fallback"?"FALLBACK keyboard/pointer — BUKAN NUI TERVERIFIKASI":status}</p>
  <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:8}}><button className="btn" onClick={()=>{controller.current?.setInput(NEUTRAL);setMode(mode==="camera"?"fallback":"camera");paused.current=false;setTrackingPaused(false);}}>{mode==="camera"?"Gunakan FALLBACK keyboard/pointer":"Coba NUI kamera"}</button><button className="btn" onClick={props.onRedraw}>Gambar ulang (recovery)</button></div>

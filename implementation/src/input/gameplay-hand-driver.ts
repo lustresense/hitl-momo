@@ -77,11 +77,14 @@ export class GameplayHandDriver {
     const myGen = this.generation;
 
     try {
+      console.log('[DRIVER-START] Entry');
       onStatus("initializing");
 
       // Borrow shared stream ONLY — never request new camera access
       const shared = getSharedStream();
+      console.log('[DRIVER-START] shared stream:', !!shared);
       if (!shared || !shared.getVideoTracks().some((t) => t.readyState === "live")) {
+        console.log('[DRIVER-START] shared stream invalid, exiting');
         this.running = false;
         onStatus("camera-unavailable");
         return;
@@ -90,26 +93,49 @@ export class GameplayHandDriver {
 
       // Bind video element to borrowed stream
       video.srcObject = this.stream;
+      console.log('[DRIVER-START] calling video.play()');
       await video.play().catch(() => undefined);
+      console.log('[DRIVER-START] video.play() resolved, initAborted:', this.initAborted);
 
       // Check if init was aborted while awaiting video play
       if (this.initAborted || !this.running || this.generation !== myGen) {
+        console.log('[DRIVER-START] aborted during video play, exiting early');
         await this.cleanupLandmarker();
         return;
       }
 
       // Initialize MediaPipe HandLandmarker
+      console.log('[DRIVER-START] BEFORE FilesetResolver');
       const vision = await FilesetResolver.forVisionTasks(wasmRoot);
+      console.log('AFTER FilesetResolver, initAborted:', this.initAborted, 'running:', this.running);
 
       // Continue to create landmarker even if aborted, so it gets properly closed
-      this.landmarker = await HandLandmarker.createFromOptions(vision, {
-        baseOptions: { modelAssetPath: modelUrl, delegate: "GPU" },
-        runningMode: "VIDEO",
-        numHands: 1,
-      });
+      console.log('BEFORE createFromOptions');
+      let created: HandLandmarker | null = null;
+      try {
+        created = await HandLandmarker.createFromOptions(vision, {
+          baseOptions: { modelAssetPath: modelUrl, delegate: "GPU" },
+          runningMode: "VIDEO",
+          numHands: 1,
+        });
+      } catch (e) {
+        console.log('createFromOptions threw:', e);
+        throw e;
+      }
 
-      // Final check before starting loop
+      console.log('AFTER createFromOptions, created:', created);
+      // If aborted during createFromOptions, close the created landmarker immediately
       if (this.initAborted || !this.running || this.generation !== myGen) {
+        console.log('CLEANING UP LANDMARKER BECAUSE ABORTED', {initAborted: this.initAborted, running: this.running, genMatch: this.generation === myGen, createdExists: !!created});
+        if (created) {
+          console.log('Calling created.close()');
+          try { created.close(); console.log('created.close() done'); } catch (e) { console.log('created.close() error:', e); }
+        }
+        return;
+      }
+      this.landmarker = created;
+      if (this.initAborted || !this.running || this.generation !== myGen) {
+        console.log('CLEANING UP LANDMARKER BECAUSE ABORTED (post-assign)');
         await this.cleanupLandmarker();
         return;
       }
@@ -117,6 +143,7 @@ export class GameplayHandDriver {
       onStatus("tracking");
       this.loop();
     } catch (err) {
+      console.log('CAUGHT ERR IN START:', err);
       await this.stop();
       onStatus(this.classifyError(err));
     }

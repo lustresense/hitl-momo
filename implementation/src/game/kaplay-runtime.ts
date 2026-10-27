@@ -9,6 +9,8 @@ export type GameOutcome = "success" | "fail";
 
 export interface KaplayGameHandle {
   destroy(): void;
+  /** External input setter for player control (NUI/keyboard). */
+  setInput(input: { left: boolean; right: boolean; jump: boolean }): void;
 }
 
 export interface KaplayGameOptions {
@@ -19,7 +21,9 @@ export interface KaplayGameOptions {
   onOutcome(outcome: GameOutcome): void;
 }
 
-const WALK_SPEED = 120;
+const WALK_SPEED = 200;
+const JUMP_FORCE = -550;
+const GRAVITY = 1600;
 
 export async function createKaplayGame(options: KaplayGameOptions): Promise<KaplayGameHandle> {
   const kaplayModule = (await import("kaplay")).default;
@@ -67,6 +71,9 @@ export async function createKaplayGame(options: KaplayGameOptions): Promise<Kapl
   addSpawnObject(k, plan, scene.gapStartX, groundY);
   const player = addPlayer(k, 40, groundY, "player");
 
+  // Player input state (set externally via setInput)
+  let inputState = { left: false, right: false, jump: false };
+
   let settled = false;
   let timerId: NodeJS.Timeout | null = null;
   const report = (outcome: GameOutcome) => {
@@ -77,7 +84,7 @@ export async function createKaplayGame(options: KaplayGameOptions): Promise<Kapl
   };
   timerId = setTimeout(() => {
     if (!settled) report(plan.kind === "hazard" ? "fail" : "success");
-  }, 6000);
+  }, 30000); // Longer timeout since player controls movement
 
   player.onCollide("goal", () => {
     report("success");
@@ -88,11 +95,24 @@ export async function createKaplayGame(options: KaplayGameOptions): Promise<Kapl
 
   player.onUpdate(() => {
     if (settled) return;
-    player.vel.x = WALK_SPEED;
-    if (player.pos.x >= scene.goalX) {
+
+    // Horizontal movement from input
+    let velX = 0;
+    if (inputState.left) velX -= WALK_SPEED;
+    if (inputState.right) velX += WALK_SPEED;
+    player.vel.x = velX;
+
+    // Jump from input
+    if (inputState.jump && player.isGrounded()) {
+      player.jump(JUMP_FORCE);
+    }
+
+    // Check goal reached
+    if (player.pos.x >= scene.goalX && player.isGrounded()) {
       report("success");
       return;
     }
+    // Check fall
     const fell = player.pos.y > 380 + 80;
     if (fell) {
       report("fail");
@@ -104,6 +124,9 @@ export async function createKaplayGame(options: KaplayGameOptions): Promise<Kapl
     destroy() {
       if (timerId) clearTimeout(timerId);
       try { kaplayInstance?.quit(); } catch {} finally { kaplayInitialized = false; kaplayInstance = null; }
-    }
+    },
+    setInput(input: { left: boolean; right: boolean; jump: boolean }) {
+      inputState = input;
+    },
   };
 }

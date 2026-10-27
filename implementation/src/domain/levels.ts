@@ -27,6 +27,15 @@ export interface LevelDefinition extends LevelContext {
   /** Student-facing task line. Placeholder copy, not final story text. */
   task: string;
   stageEmphasis: string;
+  /** Objects the student is allowed to draw for this level (catalog UI). */
+  catalog: Array<{ labelId: string; displayName: string; icon?: string }>;
+  /** Two-block summary copy for level completion. */
+  summary: {
+    /** Gameplay outcome narrative — what the student achieved. */
+    gameplay: string;
+    /** AI literacy reflection — what the student experienced with predictions/decisions. */
+    literacy: string;
+  };
 }
 
 /** Stage 1 — Foundation: draw → prediction → decision → consequence. */
@@ -39,9 +48,21 @@ const STAGE_1: LevelDefinition = makeLevel({
   stageEmphasis: "Pahami alur dasar: gambar → tebakan AI → keputusanmu → konsekuensi.",
   behaviorMap: {
     papan: "solid",
+    balok: "solid",
+    tangga: "solid",
     batu: "danger",
   },
-  vocabulary: ["papan", "batu", "tangga"],
+  vocabulary: ["papan", "batu", "tangga", "balok"],
+  catalog: [
+    { labelId: "balok", displayName: "Balok", icon: "🧱" },
+    { labelId: "papan", displayName: "Papan", icon: "🪵" },
+    { labelId: "batu", displayName: "Batu", icon: "🪨" },
+    { labelId: "tangga", displayName: "Tangga", icon: "🪜" },
+  ],
+  summary: {
+    gameplay: "Kamu berhasil membuat jalur untuk Stickman menyeberangi celah!",
+    literacy: "AI memberi tebakan. Kamu yang memastikan apakah tebakannya sesuai dengan gambarmu dan kebutuhan level.",
+  },
 });
 
 /** Stage 2 — Ambiguity/comparison: compare Top-3 + confidence before deciding. */
@@ -58,6 +79,16 @@ const STAGE_2: LevelDefinition = makeLevel({
     duri: "danger",
   },
   vocabulary: ["papan", "balok", "duri", "tangga"],
+  catalog: [
+    { labelId: "papan", displayName: "Papan", icon: "🪵" },
+    { labelId: "balok", displayName: "Balok", icon: "🧱" },
+    { labelId: "duri", displayName: "Duri", icon: "🌵" },
+    { labelId: "tangga", displayName: "Tangga", icon: "🪜" },
+  ],
+  summary: {
+    gameplay: "Kamu berhasil menemukan jalan ke halaman atas!",
+    literacy: "Bandingkan beberapa kemungkinan tebakan AI, bukan hanya tebakan pertama. Confidence tinggi bukan jaminan benar.",
+  },
 });
 
 /**
@@ -78,6 +109,16 @@ const STAGE_3: LevelDefinition = makeLevel({
     tangga: "solid",
   },
   vocabulary: ["papan", "tali", "tangga", "ember"],
+  catalog: [
+    { labelId: "papan", displayName: "Papan", icon: "🪵" },
+    { labelId: "tali", displayName: "Tali", icon: "🪢" },
+    { labelId: "tangga", displayName: "Tangga", icon: "🪜" },
+    { labelId: "ember", displayName: "Ember", icon: "🪣" },
+  ],
+  summary: {
+    gameplay: "Kamu berhasil keluar dari Lorong Kabut!",
+    literacy: "Confidence tinggi tidak menjamin hasil AI sesuai. Periksa gambarnya dan konsekuensi penggunaannya di level ini.",
+  },
 });
 
 export const LEVELS: LevelDefinition[] = [STAGE_1, STAGE_2, STAGE_3];

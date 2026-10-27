@@ -66,7 +66,7 @@ export function TutorialBrochure({ onStart, onSkip }: TutorialBrochureProps) {
     return unsubscribe;
   }, []);
 
-  const duration = useCallback((ms: number) => (prefersReducedMotion ? 0 : ms), [prefersReducedMotion]);
+  const duration = useCallback((ms: number) => ms, []);
 
   const setSlot = useCallback((index: number, patch: Partial<SlotState>) => {
     const current = slotsRef.current[index]!;
@@ -262,7 +262,7 @@ export function TutorialBrochure({ onStart, onSkip }: TutorialBrochureProps) {
     });
     await Promise.all([0, 1, 2].map(async (index) => {
       // Card 0 at 0ms, card 1 at 180ms, card 2 (digit 3) at 400ms - gentle delay for card 3
-      const delays = prefersReducedMotion ? [0, 0, 0] : [0, 180, 400];
+      const delays = [0, 180, 400];
       await new Promise<void>((resolve) => window.setTimeout(resolve, duration(delays[index]!)));
       await animateSlot(
         index,

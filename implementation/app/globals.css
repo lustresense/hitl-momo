@@ -83,18 +83,19 @@ body {
   max-width: none !important;
   margin: 0 !important;
   padding: 0 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: center !important;
-  align-items: center !important;
   background: #e8efe3 !important;
   background-image: radial-gradient(circle at 1px 1px, rgba(49, 45, 38, 0.16) 1px, transparent 1.2px) !important;
   background-size: 22px 22px !important;
   overflow: hidden !important;
   z-index: 100 !important;
+  display: block !important;
 }
 
 #screen-gameplay .game-canvas {
+  position: absolute !important;
+  top: 50% !important;
+  left: 50% !important;
+  transform: translate(-50%, -50%) !important;
   width: min(96vw, calc(90vh * 800 / 380)) !important;
   height: min(calc(96vw * 380 / 800), 90vh) !important;
   aspect-ratio: 800 / 380 !important;

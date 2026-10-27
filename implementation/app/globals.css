@@ -98,14 +98,13 @@ body {
   transform: translate(-50%, -50%) !important;
   width: 100vw !important;
   height: 100vh !important;
-  object-fit: contain !important;
+  object-fit: fill !important;
   display: block !important;
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
   background: transparent !important;
-  image-rendering: -webkit-optimize-contrast !important;
-  image-rendering: crisp-edges !important;
+  image-rendering: auto !important;
 }
 
 /* Floating minimal UI overlay across the top */
@@ -1363,4 +1362,18 @@ body:has(#screen-drawing),
   .drawing-tools-left .tool-btn-action .tool-icon { width: 17px !important; height: 17px !important; }
   .drawing-tools-left .tool-btn-action .tool-label { font-size: 8.5px !important; }
   #screen-drawing .drawing-exit { bottom: 12px !important; right: 12px !important; }
+}
+
+/* Dunia Stickman only: pointer/touch controls and compact viewport layout. */
+#screen-gameplay .game-canvas, #screen-gameplay .game-input-button { touch-action: none; }
+#screen-gameplay .game-input-button { user-select: none; -webkit-user-select: none; min-width: 52px; }
+#screen-gameplay .game-control-keys { margin: 0; font-size: 11px; text-align: center; }
+@media (max-width: 600px) {
+ #screen-gameplay .stage-floating-header { left: 10px; right: 10px; top: 10px; flex-wrap: wrap; gap: 8px; }
+ #screen-gameplay .stage-floating-header > div { flex-wrap: wrap; gap: 6px !important; }
+ #screen-gameplay .stage-floating-header h2 { font-size: 15px !important; }
+ #screen-gameplay .stage-floating-header .btn { font-size: 11px; }
+ #screen-gameplay .stage-floating-controls { bottom: 42px; max-width: calc(100vw - 16px); width: max-content; flex-wrap: wrap; justify-content: center; gap: 6px; padding: 8px; border-radius: 14px; }
+ #screen-gameplay .stage-floating-controls > span { font-size: 11px !important; }
+ #screen-gameplay .stage-input-status-chip { bottom: 4px !important; right: 4px !important; max-width: calc(100vw - 8px); font-size: 9px !important; }
 }

@@ -3,6 +3,7 @@ import {useEffect,useRef,useState} from "react";
 import type {LevelDefinition} from "@/src/domain/levels";
 import type {HumanDecision,ObjectBehavior,DrawingInput} from "@/src/domain/types";
 import type {GameController} from "@/src/game/game-controller";
+import {worldViewport,screenToWorld} from "@/src/game/world-viewport";
 import {isLegalPlacement} from "@/src/game/placement-rules";
 export interface GameStageProps {
  level:LevelDefinition;behavior:ObjectBehavior;decision:HumanDecision;drawingInput:DrawingInput|null;
@@ -18,6 +19,11 @@ export function GameStage(props:GameStageProps){
  const [mode,setMode]=useState<"camera"|"fallback">("camera"),[status,setStatus]=useState("NUI NOT VERIFIED"),[trackingPaused,setTrackingPaused]=useState(false);
  const [retryKey,setRetryKey]=useState(0),[trackingReady,setTrackingReady]=useState(false);
  const paused=useRef(false),grab=useRef(false),keys=useRef({...NEUTRAL}),dragging=useRef(false);
+ const heldPointers=useRef(new Map<number,"left"|"right"|"jump">());
+ function sendFallbackInput(){
+  const held=[...heldPointers.current.values()];
+  controller.current?.setInput({left:keys.current.left||held.includes("left"),right:keys.current.right||held.includes("right"),jump:keys.current.jump||held.includes("jump")});
+ }
  const currentMode=useRef(mode);currentMode.current=mode;
  const positionRef=useRef(position);positionRef.current=position;
  const {level,behavior,decision,drawingInput,phase}=props;
@@ -37,11 +43,13 @@ export function GameStage(props:GameStageProps){
  useEffect(()=>{
  keys.current={...NEUTRAL};controller.current?.setInput(NEUTRAL);
  if(!ready||mode!=="fallback"||phase!=="gameplay"||outcome)return;
- const down=(e:KeyboardEvent)=>{if(["ArrowLeft","ArrowRight","KeyA","KeyD","Space"].includes(e.code))e.preventDefault();if(e.code==="ArrowLeft"||e.code==="KeyA")keys.current.left=true;if(e.code==="ArrowRight"||e.code==="KeyD")keys.current.right=true;if(e.code==="Space")keys.current.jump=true;controller.current?.setInput(keys.current);};
- const up=(e:KeyboardEvent)=>{if(e.code==="ArrowLeft"||e.code==="KeyA")keys.current.left=false;if(e.code==="ArrowRight"||e.code==="KeyD")keys.current.right=false;if(e.code==="Space")keys.current.jump=false;controller.current?.setInput(keys.current);};
- const stop=()=>{keys.current={...NEUTRAL};controller.current?.setInput(NEUTRAL);};
+ const down=(e:KeyboardEvent)=>{if(["ArrowLeft","ArrowRight","KeyA","KeyD","Space"].includes(e.code))e.preventDefault();if(e.code==="ArrowLeft"||e.code==="KeyA")keys.current.left=true;if(e.code==="ArrowRight"||e.code==="KeyD")keys.current.right=true;if(e.code==="Space")keys.current.jump=true;sendFallbackInput();};
+ const up=(e:KeyboardEvent)=>{if(e.code==="ArrowLeft"||e.code==="KeyA")keys.current.left=false;if(e.code==="ArrowRight"||e.code==="KeyD")keys.current.right=false;if(e.code==="Space")keys.current.jump=false;sendFallbackInput();};
+ const stop=()=>{keys.current={...NEUTRAL};heldPointers.current.clear();controller.current?.setInput(NEUTRAL);};
  window.addEventListener("keydown",down);window.addEventListener("keyup",up);window.addEventListener("blur",stop);
  return()=>{window.removeEventListener("keydown",down);window.removeEventListener("keyup",up);window.removeEventListener("blur",stop);stop();};
+ // sendFallbackInput reads stable refs, not render state.
+ // eslint-disable-next-line react-hooks/exhaustive-deps
  },[ready,mode,phase,outcome]);
  useEffect(()=>{
  controller.current?.setInput(NEUTRAL);grab.current=false;
@@ -56,9 +64,8 @@ export function GameStage(props:GameStageProps){
  else if(latest.current.phase==="placing"&&f.cursor){
  if(f.pinched){
     const objWidth = level.scene.gapWidth + 20;
-    const x = f.cursor.x * 800 - objWidth / 2;
-    const y = f.cursor.y * 380 - 8;
-    movePlacement(x, y);
+    const rect=canvas.current?.getBoundingClientRect();
+    if(rect){const point=screenToWorld(f.cursor.x*rect.width,f.cursor.y*rect.height,worldViewport(rect.width,rect.height));movePlacement(point.x-objWidth/2,point.y-4);}
   }
   grab.current = f.pinched;
  }
@@ -68,7 +75,12 @@ export function GameStage(props:GameStageProps){
  // eslint-disable-next-line react-hooks/exhaustive-deps
  },[ready,mode,phase,outcome,retryKey]);
  const legal=isLegalPlacement(position,placementY,level.scene.gapWidth+20,8);
- function pointer(e:React.PointerEvent<HTMLCanvasElement>){if(phase!=="placing")return;const r=e.currentTarget.getBoundingClientRect();const objWidth = level.scene.gapWidth + 24; const objHeight = 8; movePlacement((e.clientX-r.left)*800/r.width - objWidth/2, (e.clientY-r.top)*380/r.height - objHeight/2);}
+ function pointer(e:React.PointerEvent<HTMLCanvasElement>){
+  if(phase!=="placing")return;
+  const r=e.currentTarget.getBoundingClientRect(),point=screenToWorld(e.clientX-r.left,e.clientY-r.top,worldViewport(r.width,r.height));
+  movePlacement(point.x-(level.scene.gapWidth+24)/2,point.y-4);
+ }
+
  function reposition(){setOutcome(null);controller.current?.reposition();setPosition(Number(canvas.current?.dataset.objectX??position));setPlacementY(Number(canvas.current?.dataset.objectY??320));}
  return <section id="screen-gameplay" className="screen" data-testid="world-stage">
   <div className="stage-floating-header">
@@ -79,7 +91,7 @@ export function GameStage(props:GameStageProps){
       </span>
     </div>
     <div style={{display:"flex",gap:8}}>
-      <button className="btn btn-small" onClick={()=>{controller.current?.setInput(NEUTRAL);setMode(mode==="camera"?"fallback":"camera");paused.current=false;setTrackingPaused(false);}}>
+      <button className="btn btn-small" onClick={()=>{keys.current={...NEUTRAL};heldPointers.current.clear();controller.current?.setInput(NEUTRAL);setMode(mode==="camera"?"fallback":"camera");paused.current=false;setTrackingPaused(false);}}>
         {mode==="camera"?"Gunakan FALLBACK keyboard/pointer":"Nyalakan Kamera NUI"}
       </button>
       <button className="btn btn-small" onClick={props.onRedraw}>Gambar ulang</button>
@@ -120,17 +132,18 @@ export function GameStage(props:GameStageProps){
     <div className="stage-floating-controls">
       <button className="btn btn-small" data-testid="btn-reposition" onClick={reposition}>Geser Ulang Objek</button>
       {mode==="fallback"&&(
-        <div style={{display:"flex",gap:6}}>
-          {["left","right"].map(dir=>(
+        <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+          {(["left","right","jump"] as const).map(dir=>(
             <button
               key={dir}
-              className="btn btn-small"
+              className="btn btn-small game-input-button"
               data-testid={`move-${dir}`}
-              onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);controller.current?.setInput({...NEUTRAL,[dir]:true});}}
-              onPointerUp={()=>controller.current?.setInput(NEUTRAL)}
-              onPointerCancel={()=>controller.current?.setInput(NEUTRAL)}
+              onPointerDown={e=>{e.preventDefault();e.currentTarget.setPointerCapture(e.pointerId);heldPointers.current.set(e.pointerId,dir);sendFallbackInput();}}
+              onPointerUp={e=>{heldPointers.current.delete(e.pointerId);sendFallbackInput();}}
+              onPointerCancel={e=>{heldPointers.current.delete(e.pointerId);sendFallbackInput();}}
+              onLostPointerCapture={e=>{heldPointers.current.delete(e.pointerId);sendFallbackInput();}}
             >
-              {dir==="left"?"← Kiri":"Kanan →"}
+              {dir==="left"?"← Kiri":dir==="right"?"Kanan →":"↑ Lompat"}
             </button>
           ))}
         </div>

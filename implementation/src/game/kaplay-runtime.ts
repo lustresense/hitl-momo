@@ -1,4 +1,5 @@
 import type {KAPLAYCtx} from "kaplay";
+import {worldViewport} from "./world-viewport";
 import type {LevelContext,ObjectBehavior,DrawingInput} from "../domain/types";
 import {isLegalPlacement,worldOutcome} from "./placement-rules";
 export type GameOutcome="success"|"fail";
@@ -14,16 +15,23 @@ let active:KAPLAYCtx|null=null;
 export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHandle>{
  const factory=(await import("kaplay")).default;
  active?.quit();
-  const pixelDensity = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
+  const pixelDensity = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
  const k = await factory({
    global: false,
    canvas: o.canvas,
-   width: 800,
-   height: 380,
     pixelDensity,
    background: [232, 239, 227],
    debug: false,
  });active=k;
+ function fitViewport(){
+  const rect=o.canvas.getBoundingClientRect();
+  const v=worldViewport(rect.width,rect.height,pixelDensity);
+  k.camScale(k.vec2(v.scale,v.scale));k.camPos(k.vec2(400,190));
+  o.canvas.dataset.worldScale=String(v.scale);o.canvas.dataset.worldOffsetX=String(v.offsetX);o.canvas.dataset.worldOffsetY=String(v.offsetY);
+ }
+ fitViewport();
+ k.onResize(fitViewport);
+
  // Draw subtle sketchbook dot-grid on the canvas (22px spacing)
  for(let gx=11;gx<800;gx+=22){
    for(let gy=11;gy<380;gy+=22){

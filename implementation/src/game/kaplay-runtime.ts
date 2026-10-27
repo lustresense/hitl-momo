@@ -14,11 +14,13 @@ let active:KAPLAYCtx|null=null;
 export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHandle>{
  const factory=(await import("kaplay")).default;
  active?.quit();
+  const pixelDensity = typeof window !== "undefined" ? Math.min(window.devicePixelRatio || 1, 2) : 1;
  const k = await factory({
    global: false,
    canvas: o.canvas,
    width: 800,
    height: 380,
+    pixelDensity,
    background: [232, 239, 227],
    debug: false,
  });active=k;
@@ -79,8 +81,8 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
  destroy(){if(destroyed)return;destroyed=true;fall.cancel();k.quit();if(active===k)active=null;},
  setInput(i){input=phase==="gameplay"&&!settled?i:{left:false,right:false,jump:false};},
  onFallComplete(){enterPlace();},setPlacement,
- commitPlacementAt(nextX,nextY){if(phase!=="placing"||!isLegalPlacement(nextX,nextY,width,height))return false;x=nextX;obj.pos=k.vec2(nextX,groundY);removeCollider();if(o.behavior==="solid"){obj.use(k.body({isStatic:true}));objectBody=true;}if(o.behavior==="danger")obj.use("hazard");phase="gameplay";resetPlayer();o.onCommitPlacement();return true;},
+ commitPlacementAt(nextX,nextY){if(phase!=="placing"||!isLegalPlacement(nextX,nextY,width,height))return false;x=nextX;obj.pos=k.vec2(nextX,nextY);removeCollider();if(o.behavior==="solid"){obj.use(k.body({isStatic:true}));objectBody=true;}if(o.behavior==="danger")obj.use("hazard");phase="gameplay";resetPlayer();o.onCommitPlacement();return true;},
  retry(){if(phase!=="gameplay")return;stop();resetPlayer();},
- reposition(){if(phase!=="gameplay")return;stop();removeCollider();phase="placing";obj.pos=k.vec2(x,groundY);resetPlayer();o.onReposition();}
+ reposition(){if(phase!=="gameplay")return;stop();removeCollider();phase="placing";obj.pos=k.vec2(x,o.canvas.dataset.objectY?Number(o.canvas.dataset.objectY):groundY);resetPlayer();o.onReposition();}
  };
 }

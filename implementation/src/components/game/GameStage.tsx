@@ -14,14 +14,14 @@ export function GameStage(props:GameStageProps){
  const latest=useRef(props);latest.current=props;
  const canvas=useRef<HTMLCanvasElement>(null),controller=useRef<GameController|null>(null);
  const [ready,setReady]=useState(false),[error,setError]=useState(""),[outcome,setOutcome]=useState<"success"|"fail"|null>(null);
- const [position,setPosition]=useState(props.level.scene.gapStartX-10),[placementError,setPlacementError]=useState("");
+ const [position,setPosition]=useState(props.level.scene.gapStartX-10),[placementY,setPlacementY]=useState(320),[placementError,setPlacementError]=useState("");
  const [mode,setMode]=useState<"camera"|"fallback">("camera"),[status,setStatus]=useState("NUI NOT VERIFIED"),[trackingPaused,setTrackingPaused]=useState(false);
  const [retryKey,setRetryKey]=useState(0),[trackingReady,setTrackingReady]=useState(false);
  const paused=useRef(false),grab=useRef(false),keys=useRef({...NEUTRAL}),dragging=useRef(false);
  const currentMode=useRef(mode);currentMode.current=mode;
  const positionRef=useRef(position);positionRef.current=position;
  const {level,behavior,decision,drawingInput,phase}=props;
- function movePlacement(x:number,y:number=320){setPosition(x);positionRef.current=x;const valid=controller.current?.setPlacement(x,y)??false;setPlacementError(valid?"":"Posisi di luar dunia. Geser kembali; objekmu tetap disimpan.");}
+ function movePlacement(x:number,y:number=320){setPosition(x);setPlacementY(y);positionRef.current=x;const valid=controller.current?.setPlacement(x,y)??false;setPlacementError(valid?"":"Posisi di luar dunia. Geser kembali; objekmu tetap disimpan.");}
  useEffect(()=>{
  let cancelled=false;let instance:GameController|null=null;setReady(false);setError("");
  void(async()=>{try{const {GameController}=await import("@/src/game/game-controller");if(cancelled||!canvas.current)return;instance=new GameController();controller.current=instance;
@@ -37,8 +37,8 @@ export function GameStage(props:GameStageProps){
  useEffect(()=>{
  keys.current={...NEUTRAL};controller.current?.setInput(NEUTRAL);
  if(!ready||mode!=="fallback"||phase!=="gameplay"||outcome)return;
- const down=(e:KeyboardEvent)=>{if(["ArrowLeft","ArrowRight","KeyA","KeyD","Space"].includes(e.code))e.preventDefault();if(e.code==="ArrowLeft"||e.code==="KeyA")keys.current.left=true;if(e.code==="ArrowRight"||e.code==="KeyD")keys.current.right=true;controller.current?.setInput(keys.current);};
- const up=(e:KeyboardEvent)=>{if(e.code==="ArrowLeft"||e.code==="KeyA")keys.current.left=false;if(e.code==="ArrowRight"||e.code==="KeyD")keys.current.right=false;controller.current?.setInput(keys.current);};
+ const down=(e:KeyboardEvent)=>{if(["ArrowLeft","ArrowRight","KeyA","KeyD","Space"].includes(e.code))e.preventDefault();if(e.code==="ArrowLeft"||e.code==="KeyA")keys.current.left=true;if(e.code==="ArrowRight"||e.code==="KeyD")keys.current.right=true;if(e.code==="Space")keys.current.jump=true;controller.current?.setInput(keys.current);};
+ const up=(e:KeyboardEvent)=>{if(e.code==="ArrowLeft"||e.code==="KeyA")keys.current.left=false;if(e.code==="ArrowRight"||e.code==="KeyD")keys.current.right=false;if(e.code==="Space")keys.current.jump=false;controller.current?.setInput(keys.current);};
  const stop=()=>{keys.current={...NEUTRAL};controller.current?.setInput(NEUTRAL);};
  window.addEventListener("keydown",down);window.addEventListener("keyup",up);window.addEventListener("blur",stop);
  return()=>{window.removeEventListener("keydown",down);window.removeEventListener("keyup",up);window.removeEventListener("blur",stop);stop();};
@@ -67,9 +67,9 @@ export function GameStage(props:GameStageProps){
  // The driver only routes frames to the currently exclusive PLACE/PLAY mode.
  // eslint-disable-next-line react-hooks/exhaustive-deps
  },[ready,mode,phase,outcome,retryKey]);
- const legal=isLegalPlacement(position,304,level.scene.gapWidth+20,16);
+ const legal=isLegalPlacement(position,placementY,level.scene.gapWidth+20,8);
  function pointer(e:React.PointerEvent<HTMLCanvasElement>){if(phase!=="placing")return;const r=e.currentTarget.getBoundingClientRect();const objWidth = level.scene.gapWidth + 24; const objHeight = 8; movePlacement((e.clientX-r.left)*800/r.width - objWidth/2, (e.clientY-r.top)*380/r.height - objHeight/2);}
- function reposition(){setOutcome(null);controller.current?.reposition();setPosition(Number(canvas.current?.dataset.objectX??position));}
+ function reposition(){setOutcome(null);controller.current?.reposition();setPosition(Number(canvas.current?.dataset.objectX??position));setPlacementY(Number(canvas.current?.dataset.objectY??320));}
  return <section id="screen-gameplay" className="screen" data-testid="world-stage">
   <div className="stage-floating-header">
     <div style={{display:"flex",alignItems:"center",gap:12}}>
@@ -108,7 +108,7 @@ export function GameStage(props:GameStageProps){
         className="btn btn-primary btn-small"
         data-testid="btn-confirm-placement"
         disabled={!ready||!legal}
-        onClick={()=>{if(!controller.current?.commitPlacementAt(position))setPlacementError("Penempatan tidak legal. Objek tidak hilang.");}}
+        onClick={()=>{if(!controller.current?.commitPlacementAt(position, placementY))setPlacementError("Penempatan tidak legal. Objek tidak hilang.");}}
       >
         Konfirmasi Posisi
       </button>
@@ -154,7 +154,15 @@ export function GameStage(props:GameStageProps){
     </div>
   )}
 
-  <p role="status" data-testid="input-status" style={{display:"none"}}>{mode==="fallback"?"FALLBACK keyboard/pointer — BUKAN NUI TERVERIFIKASI":status}</p>
+  <div className="stage-input-status-chip" style={{position:"absolute",bottom:12,right:16,zIndex:150,fontSize:11,fontWeight:600,padding:"4px 8px",borderRadius:4,background:"rgba(255,255,255,0.85)",border:"1px solid rgba(0,0,0,0.15)",color:"#333",pointerEvents:"none"}}>
+    <span role="status" data-testid="input-status">{mode==="fallback"?"FALLBACK pointer/keyboard — BUKAN NUI TERVERIFIKASI":status}</span>
+  </div>
+  {trackingPaused&&mode==="camera"&&phase==="gameplay"&&(
+    <div style={{position:"absolute",top:60,left:"50%",transform:"translateX(-50%)",zIndex:250,background:"rgba(255,255,255,0.95)",border:"1px solid #111",padding:"8px 16px",borderRadius:8,display:"flex",gap:8,alignItems:"center"}}>
+      <span style={{fontSize:13,fontWeight:700,color:"#d94336"}}>Tangan Terputus · Tracking Ditahan</span>
+      <button className="btn btn-small btn-primary" onClick={()=>{paused.current=false;setTrackingPaused(false);}}>Lanjutkan Gerakan</button>
+    </div>
+  )}
   <p data-testid="world-phase" style={{display:"none"}}>{phase==="falling"?"FALL_ANIMATION":phase==="placing"?"PLACE":"PLAY"}</p>
 </section>;
 }

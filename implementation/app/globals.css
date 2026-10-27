@@ -96,14 +96,14 @@ body {
   top: 50% !important;
   left: 50% !important;
   transform: translate(-50%, -50%) !important;
-  width: min(96vw, calc(90vh * 800 / 380)) !important;
-  height: min(calc(96vw * 380 / 800), 90vh) !important;
-  aspect-ratio: 800 / 380 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  object-fit: contain !important;
   display: block !important;
-  border: 2px solid rgba(35, 33, 29, 0.22) !important;
-  border-radius: 12px !important;
-  box-shadow: 0 4px 24px rgba(55, 31, 13, 0.12) !important;
-  background: #e8efe3 !important;
+  border: none !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  background: transparent !important;
   image-rendering: -webkit-optimize-contrast !important;
   image-rendering: crisp-edges !important;
 }

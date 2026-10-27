@@ -16,6 +16,10 @@ export interface GameStageProps {
   decision: HumanDecision;
   onOutcomeReported(outcome: "success" | "fail"): void;
   onRedraw(): void;
+  /** Called when student confirms object placement (PLACING phase). */
+  onCommitPlacement?(): void;
+  /** Current phase from FlowController. */
+  phase: "placing" | "gameplay" | "complete";
 }
 
 export function GameStage({ level, behavior, decision, onOutcomeReported, onRedraw }: GameStageProps) {
@@ -134,3 +138,100 @@ export function GameStage({ level, behavior, decision, onOutcomeReported, onRedr
     </section>
   );
 }
+
+// Keyboard/NUI input handler for player-controlled movement
+function GameplayCanvas({ canvasRef, controller, onOutcome }: {
+  canvasRef: React.RefObject<HTMLCanvasElement>;
+  controller: import("@/src/game/game-controller").GameController | null;
+  onOutcome: (outcome: "success" | "fail") => void;
+}) {
+  const inputRef = useRef({ left: false, right: false, jump: false });
+  const frameRef = useRef<number>();
+
+  useEffect(() => {
+    if (!controller) return;
+    
+    // Send input to game loop
+    const sendInput = () => {
+      controller.setInput(inputRef.current);
+      frameRef.current = requestAnimationFrame(sendInput);
+    };
+    frameRef.current = requestAnimationFrame(sendInput);
+    
+    // Keyboard handlers
+    const handleKeyDown = (e: KeyboardEvent) => {
+      switch (e.code) {
+        case "ArrowLeft":
+        case "KeyA":
+          inputRef.current.left = true;
+          break;
+        case "ArrowRight":
+        case "KeyD":
+          inputRef.current.right = true;
+          break;
+        case "ArrowUp":
+        case "Space":
+        case "KeyW":
+          e.preventDefault();
+          inputRef.current.jump = true;
+          break;
+      }
+    };
+    
+    const handleKeyUp = (e: KeyboardEvent) => {
+      switch (e.code) {
+        case "ArrowLeft":
+        case "KeyA":
+          inputRef.current.left = false;
+          break;
+        case "ArrowRight":
+        case "KeyD":
+          inputRef.current.right = false;
+          break;
+        case "ArrowUp":
+        case "Space":
+        case "KeyW":
+          inputRef.current.jump = false;
+          break;
+      }
+    };
+    
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+    
+    // Touch fallback for mobile testing
+    const handleTouchStart = (e: TouchEvent) => {
+      const touch = e.touches[0];
+      if (!touch) return;
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      const x = touch.clientX - rect.left;
+      if (x < rect.width / 3) inputRef.current.left = true;
+      else if (x > rect.width * 2 / 3) inputRef.current.right = true;
+      else inputRef.current.jump = true;
+    };
+    const handleTouchEnd = () => {
+      inputRef.current.left = false;
+      inputRef.current.right = false;
+      inputRef.current.jump = false;
+    };
+    
+    canvasRef.current?.addEventListener("touchstart", handleTouchStart, { passive: false });
+    canvasRef.current?.addEventListener("touchend", handleTouchEnd);
+    canvasRef.current?.addEventListener("touchcancel", handleTouchEnd);
+    
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+      canvasRef.current?.removeEventListener("touchstart", handleTouchStart);
+      canvasRef.current?.removeEventListener("touchend", handleTouchEnd);
+      canvasRef.current?.removeEventListener("touchcancel", handleTouchEnd);
+      if (frameRef.current) cancelAnimationFrame(frameRef.current);
+      // Reset input on unmount
+      controller?.setInput({ left: false, right: false, jump: false });
+    };
+  }, [controller, canvasRef]);
+
+  return null; // Canvas is rendered by parent, this just handles input
+}
+

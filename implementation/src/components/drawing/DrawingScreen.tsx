@@ -20,17 +20,15 @@ export interface DrawingScreenProps {
   surfaceOut: { current: DrawingSurface | null };
   onSubmit(chosenPrediction: string | null): void;
   onExit(): void;
+  active?: boolean;
 }
 
-export function DrawingScreen({ level, initialMode, feedback, surfaceOut, onSubmit, onExit }: DrawingScreenProps) {
+export function DrawingScreen({ level, initialMode, feedback, surfaceOut, onSubmit, onExit, active = true }: DrawingScreenProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [chosenPrediction, setChosenPrediction] = useState<string | null>(null);
+  const [inputMode, setInputMode] = useState<InputModeId>(initialMode);
   const [hasInk, setHasInk] = useState(false);
-  const predictionConfidences = [85, 60, 35];
-  const candidates = level.vocabulary.slice(0, 3).map((label, index) => ({
-    label,
-    confidence: predictionConfidences[index],
-  }));
+  // Use catalog for allowed objects; show all catalog items as drawable hints
+  const catalogItems = level.catalog ?? level.vocabulary.map(v => ({ labelId: v, displayName: v }));
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -72,39 +70,36 @@ export function DrawingScreen({ level, initialMode, feedback, surfaceOut, onSubm
   async function switchMode(next: InputModeId) {
     const surface = surfaceOut.current;
     if (!surface) return;
+    setInputMode(next);
     await surface.setMode(next);
   }
 
   useEffect(() => {
     const onMode = (event: Event) => {
       const next = (event as CustomEvent<InputModeId>).detail;
-      if (next === "pointer" || next === "hand") void surfaceOut.current?.setMode(next);
+      if (active && (next === "pointer" || next === "hand")) { setInputMode(next); void surfaceOut.current?.setMode(next); }
     };
     window.addEventListener("drawing-input-mode", onMode);
     return () => window.removeEventListener("drawing-input-mode", onMode);
-  }, [surfaceOut]);
+  }, [surfaceOut, active]);
+
+
+  useEffect(() => {
+    // Hidden canvas retains its strokes; only DRAW owns the tracking driver.
+    if (!active) void surfaceOut.current?.setMode("pointer");
+  }, [active, surfaceOut]);
 
   const momoMoment: MomoMoment = feedback === "empty-drawing" ? "drawing-empty" : "drawing-cue";
 
   return (
-    <section id="screen-drawing" className="screen drawing-screen-svg" aria-label="Menggambar">
+    <section hidden={!active} style={{ display: active ? undefined : "none" }} id="screen-drawing" className="screen drawing-screen-svg" aria-label="Menggambar">
       <header className="drawing-top-bar">
-        <div className="predict-choosable-box" aria-label="Tebakan AI">
-          <strong className="predict-choosable-title">Tebakan AI</strong>
-          <div className="predict-choosable-candidates" role="group" aria-label="Pilih tebakan AI">
-            {hasInk && candidates.length ? candidates.map(({ label, confidence }, index) => (
-              <button
-                type="button"
-                key={label}
-                className={`predict-candidate${chosenPrediction === label ? " is-selected" : ""}`}
-                aria-pressed={chosenPrediction === label}
-                onClick={() => setChosenPrediction(label)}
-              >
-                <span>#{index + 1} {label}</span><span>{confidence}%</span>
-              </button>
-            )) : <span className="predict-choosable-empty">Mulai menggambar... AI siap menebak</span>}
+        <div className="predict-choosable-box" aria-label="Katalog objek">
+          <strong className="predict-choosable-title">Katalog DEMO · placeholder</strong>
+          <p>Contoh objek untuk digambar, bukan hasil prediksi. Manifest model partner belum tersedia.</p>
+          <div className="predict-choosable-candidates" role="list" aria-label="Objek yang boleh digambar">
+            {catalogItems.map(({ labelId, displayName, icon }) => <span role="listitem" key={labelId}>{icon} {displayName} · </span>)}
           </div>
-          {chosenPrediction && <span className="predict-chosen-label">Pilihanmu: {chosenPrediction}</span>}
         </div>
       </header>
 
@@ -182,6 +177,12 @@ export function DrawingScreen({ level, initialMode, feedback, surfaceOut, onSubm
         </p>
       </div>
 
+      <div style={{position:"absolute",bottom:20,left:"50%",transform:"translateX(-50%)",zIndex:20,display:"flex",gap:8,flexWrap:"wrap"}}>
+        <button type="button" className="btn" onClick={() => void switchMode(inputMode === "hand" ? "pointer" : "hand")}>
+          {inputMode === "hand" ? "Kamera DRAW · coba pointer" : "FALLBACK pointer · coba kamera"}
+        </button>
+        <button type="button" className="btn btn-primary" data-testid="btn-submit-drawing" disabled={!hasInk || !active} onClick={() => onSubmit(null)}>Tebak Gambarku</button>
+      </div>
       <canvas
         ref={canvasRef}
         width={1920}

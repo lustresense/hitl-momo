@@ -5,6 +5,7 @@ import type { KaplayGameHandle } from "./kaplay-runtime";
  * TASK 04/15 — Game controller boundary for React.
  * Guarantees a single live KAPLAY instance and deterministic teardown
  * (no duplicate loops/listeners across remounts or repeated cycles).
+ * Exposes setInput for player-controlled movement (NUI/keyboard).
  */
 export class GameController {
   private handle: KaplayGameHandle | null = null;
@@ -23,6 +24,11 @@ export class GameController {
     if (this.handle !== null) return;
     this.handle = await createKaplayGame({ canvas, level, behavior, finalLabel, onOutcome });
     console.log("[GameController] Game mounted successfully");
+  }
+
+  /** Forward player input to KAPLAY runtime. */
+  setInput(input: { left: boolean; right: boolean; jump: boolean }): void {
+    this.handle?.setInput(input);
   }
 
   /** Idempotent teardown (StrictMode double-mount safe). */

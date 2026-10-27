@@ -188,19 +188,9 @@ export function SketchbookApp() {
     }
   }, [snapshot?.phase, snapshot?.levelId]);
 
-  async function handleSubmitDrawing(chosenPrediction: string | null) {
-    if (!controller || !surfaceRef.current) return;
-    const input = surfaceRef.current.toDrawingInput();
-    await controller.submitDrawing(input);
-    if (controller.getSnapshot().phase !== "evaluating" || !chosenPrediction || !controller.prediction) return;
-    const rank = controller.prediction.candidates.findIndex((candidate) => candidate.label === chosenPrediction);
-    try {
-      if (rank === 0) controller.decideAccept();
-      else if (rank === 1 || rank === 2) controller.decideCorrect((rank + 1) as 2 | 3);
-      else controller.decideOverride(chosenPrediction);
-    } catch {
-      // The drawing flow remains usable if a stale candidate is no longer valid.
-    }
+  async function handleSubmitDrawing() {
+    if (!controller || !surfaceRef.current || controller.getSnapshot().phase !== "drawing") return;
+    await controller.submitDrawing(surfaceRef.current.toDrawingInput());
   }
 
   const isCameraCover = onboarding === "camera";
@@ -244,14 +234,15 @@ export function SketchbookApp() {
           )}
 
           {/* DRAWING */}
-          {onboarding === "levels" && snapshot && snapshot.phase === "drawing" && level && (
+          {onboarding === "levels" && snapshot && phase !== "level-entry" && level && (
             <DrawingScreen
               key={level.levelId + String(snapshot.cyclesCompleted)}
               level={level}
               initialMode={env.defaultDrawInputMode}
               feedback={controller?.feedback ?? null}
               surfaceOut={surfaceRef}
-              onSubmit={(chosenPrediction) => void handleSubmitDrawing(chosenPrediction)}
+              active={phase === "drawing"}
+              onSubmit={() => void handleSubmitDrawing()}
               onExit={() => {
                 controller?.exitToLevelEntry();
                 if (typeof window !== "undefined") window.history.pushState(null, "", "/levels");
@@ -314,23 +305,36 @@ export function SketchbookApp() {
           )}
 
           {/* GAMEPLAY */}
-          {onboarding === "levels" && phase === "gameplay" && level && snapshot?.behavior && snapshot?.decision && controller && (
+          {onboarding === "levels" && (phase === "falling" || phase === "placing" || phase === "gameplay") && level && snapshot?.behavior && snapshot?.decision && controller && (
             <GameStage
               level={level}
               behavior={snapshot.behavior}
               decision={snapshot.decision}
               onOutcomeReported={(o) => controller.reportGameplayOutcome(o)}
               onRedraw={() => controller.requestRedraw("gameplay")}
+              onCommitPlacement={() => controller.commitPlacement()}
+              onFallComplete={() => controller.completeFall()}
+              drawingInput={controller.drawingInput}
+              onReposition={() => controller.repositionObject()}
+              phase={phase}
             />
           )}
 
-          {/* COMPLETE */}
+          {/* COMPLETE — Two-block summary: Gameplay + AI Literacy */}
           {onboarding === "levels" && phase === "complete" && level && snapshot && controller && (
             <section id="screen-complete" className="screen" aria-label="Level selesai">
               <h1>Level Selesai</h1>
-              <p id="complete-summary" className="lead">
-                {level.title} selesai dalam {snapshot.cyclesCompleted} siklus keputusan.
-              </p>
+              <div className="summary-two-block">
+                <div className="summary-block summary-gameplay">
+                  <h2>Hasil gameplay</h2>
+                  <p>{level.summary?.gameplay ?? "Kamu berhasil menyelesaikan level ini!"}</p>
+                </div>
+                <div className="summary-block summary-literacy">
+                  <h2>Literasi AI</h2>
+                  <p>Keputusan terakhir: {snapshot.decision?.type ?? "—"}, label {snapshot.decision?.finalLabel ?? "—"}. </p>
+                  <p>{level.summary?.literacy ?? "AI memberi saran, kamu yang memutuskan."}</p>
+                </div>
+              </div>
               <MomoBubble moment="level-complete" />
               <div className="actions">
                 <button

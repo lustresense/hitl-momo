@@ -70,9 +70,15 @@ const STAGE_2: LevelDefinition = makeLevel({
   levelId: "stage-2-ambiguity",
   stage: 2,
   cyclesRequired: 2,
-  title: "Bab 2 · Garis yang Mirip",
-  task: "Celah lebih lebar. Bandingkan ketiga tebakan sebelum memutuskan.",
-  stageEmphasis: "AI punya beberapa kemungkinan jawaban — bandingkan confidence-nya.",
+  title: "Bab 2 · Menara Lipatan",
+  task: "Halaman terlipat ke atas. Susun pijakan agar Stickman mencapai dataran yang lebih tinggi.",
+  stageEmphasis: "Bandingkan Top-3 dan confidence — jangan berasumsi ranking pertama selalu yang paling tepat.",
+  scene: {
+    groundEndX: 300,
+    gapStartX: 300,
+    gapWidth: 180,
+    goalX: 680,
+  },
   behaviorMap: {
     papan: "solid",
     balok: "solid",
@@ -93,16 +99,21 @@ const STAGE_2: LevelDefinition = makeLevel({
 
 /**
  * Stage 3 — Critical validation: in this dev context the rank-1-looking label
- * maps to danger while another label is solid. This is a CONFIGURABLE
- * demonstration of context-aware mapping, not a finalized trap design.
+ * maps to danger while another label is solid. Context-aware mapping.
  */
 const STAGE_3: LevelDefinition = makeLevel({
   levelId: "stage-3-validation",
   stage: 3,
-  cyclesRequired: 2,
-  title: "Bab 3 · Cek Dulu, Baru Percaya",
-  task: "Di halaman ini beberapa gambar terlihat mirip. Validasi dulu tebakan AI.",
-  stageEmphasis: "Manusia perlu memvalidasi keluaran AI sebelum dipakai.",
+  cyclesRequired: 1,
+  title: "Bab 3 · Lorong Kabut Penghapus",
+  task: "Lorong berkabut tebal. Pilih objek yang tepat agar aman melewati rute penuh bahaya.",
+  stageEmphasis: "Validasi konsekuensi sebelum memutuskan — label benar belum tentu penempatannya aman di konteks ini.",
+  scene: {
+    groundEndX: 280,
+    gapStartX: 280,
+    gapWidth: 220,
+    goalX: 720,
+  },
   behaviorMap: {
     tali: "danger",
     papan: "solid",

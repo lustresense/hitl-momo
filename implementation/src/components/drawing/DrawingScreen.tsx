@@ -24,6 +24,7 @@ export interface DrawingScreenProps {
 }
 
 export function DrawingScreen({ level, initialMode, feedback, surfaceOut, onSubmit, onExit, active = true }: DrawingScreenProps) {
+  const [catalogOpen, setCatalogOpen] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [inputMode, setInputMode] = useState<InputModeId>(initialMode);
   const [hasInk, setHasInk] = useState(false);
@@ -94,9 +95,21 @@ export function DrawingScreen({ level, initialMode, feedback, surfaceOut, onSubm
   return (
     <section hidden={!active} style={{ display: active ? undefined : "none" }} id="screen-drawing" className="screen drawing-screen-svg" aria-label="Menggambar">
       <header className="drawing-top-bar">
-        <div className="predict-choosable-box" aria-label="Katalog objek">
-          <strong className="predict-choosable-title">Katalog DEMO · placeholder</strong>
-          <p>Contoh objek untuk digambar, bukan hasil prediksi. Manifest model partner belum tersedia.</p>
+        <div className={`predict-choosable-box ${catalogOpen ? "is-open" : "is-collapsed"}`} aria-label="Katalog objek">
+          <div className="predict-choosable-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <strong className="predict-choosable-title">Katalog DEMO · placeholder</strong>
+            <button
+              type="button"
+              className="catalog-toggle-btn"
+              aria-expanded={catalogOpen}
+              aria-label={catalogOpen ? "Tutup katalog" : "Buka katalog objek"}
+              onClick={() => setCatalogOpen((prev) => !prev)}
+              style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", fontSize: 13, textDecoration: "underline", padding: "2px 6px" }}
+            >
+              {catalogOpen ? "Tutup ▲" : "Buka ▼"}
+            </button>
+          </div>
+          <p className="catalog-desc">Contoh objek untuk digambar, bukan hasil prediksi. Manifest model partner belum tersedia.</p>
           <div className="predict-choosable-candidates" role="list" aria-label="Objek yang boleh digambar">
             {catalogItems.map(({ labelId, displayName, icon }) => <span role="listitem" key={labelId}>{icon} {displayName} · </span>)}
           </div>
@@ -184,13 +197,29 @@ export function DrawingScreen({ level, initialMode, feedback, surfaceOut, onSubm
         <button type="button" className="btn btn-primary" data-testid="btn-submit-drawing" disabled={!hasInk || !active} onClick={() => onSubmit(null)}>Tebak Gambarku</button>
       </div>
       <style jsx>{`
+        .catalog-toggle-btn { display: none; }
         @media(max-width:600px){
-          .drawing-top-bar{left:12px!important;right:12px!important;top:8px!important;width:auto!important;max-width:none!important;}
-          .predict-choosable-box{padding:8px!important;font-size:12px!important;}
-          .predict-choosable-box p{margin:4px 0!important;}
+          .catalog-toggle-btn { display: inline-block !important; }
+          .drawing-top-bar{left:8px!important;right:8px!important;top:8px!important;width:auto!important;max-width:none!important;}
+          .predict-choosable-box{padding:6px 10px!important;font-size:11px!important;}
+          .predict-choosable-box.is-collapsed .catalog-desc,
+          .predict-choosable-box.is-collapsed .predict-choosable-candidates { display: none !important; }
+          .predict-choosable-box.is-open .catalog-desc { display: block !important; margin: 4px 0 !important; }
+          .predict-choosable-box.is-open .predict-choosable-candidates { display: flex !important; flex-wrap: wrap !important; gap: 4px !important; }
           .drawing-momo-top-right{display:none!important;}
-          .drawing-submit-controls{left:16px!important;right:16px!important;bottom:100px!important;transform:none!important;width:auto!important;justify-content:center!important;}
-          .drawing-submit-controls button{font-size:12px!important;padding:10px!important;}
+          /* Place submit controls at top-right on mobile so bottom-left camera never overlaps */
+          .drawing-submit-controls{
+            top: auto !important;
+            bottom: 24px !important;
+            left: auto !important;
+            right: 16px !important;
+            transform: none !important;
+            width: auto !important;
+            flex-direction: column !important;
+            align-items: flex-end !important;
+            z-index: 950 !important;
+          }
+          .drawing-submit-controls button{font-size:12px!important;padding:8px 14px!important;box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;}
         }
       `}</style>
       <canvas

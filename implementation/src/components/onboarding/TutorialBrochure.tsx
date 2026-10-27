@@ -252,12 +252,31 @@ export function TutorialBrochure({ onStart, onSkip }: TutorialBrochureProps) {
       if (innerRefs.current[index]) innerRefs.current[index]!.style.transform = "rotateY(0deg)";
       if (panelRefs.current[index]) panelRefs.current[index]!.style.transform = "rotateY(0deg)";
     });
-    await Promise.all([0, 1, 2].map(async (index) => { await new Promise<void>((resolve) => window.setTimeout(resolve, duration(index * 90))); await animateSlot(index, { x: 0, y: index * 4 - 4, rot: [-4, 2, 5][index], opacity: 1 }, 620, "cubic-bezier(.18,.92,.24,1)"); }));
-    if (!(await wait(320, token))) return;
+    await Promise.all([0, 1, 2].map(async (index) => {
+      // Much slower stagger: card 0 at 0ms, card 1 at 260ms, card 2 (digit 3) at 600ms
+      const delays = [0, 260, 600];
+      await new Promise<void>((resolve) => window.setTimeout(resolve, duration(delays[index]!)));
+      await animateSlot(
+        index,
+        { x: 0, y: index * 4 - 4, rot: [-4, 2, 5][index], opacity: 1 },
+        1300,
+        "cubic-bezier(.16, .84, .24, 1)"
+      );
+    }));
+    if (!(await wait(700, token))) return;
     updatePhase("spread");
     const xs = [-dims.spreadGap, 0, dims.spreadGap];
-    await Promise.all([0, 1, 2].map((index) => animateSlot(index, { x: xs[index], y: 0, rot: [-5, 0, 5][index], opacity: 1, filter: "none" }, 760, "cubic-bezier(.18,.86,.18,1)")));
-    if (!(await wait(420, token))) return;
+    await Promise.all(
+      [0, 1, 2].map((index) =>
+        animateSlot(
+          index,
+          { x: xs[index], y: 0, rot: [-5, 0, 5][index], opacity: 1, filter: "none" },
+          1100,
+          "cubic-bezier(.18, .86, .18, 1)"
+        )
+      )
+    );
+    if (!(await wait(600, token))) return;
     await openCardRef.current(0, token);
   }, [animateSlot, calculateDims, duration, resetInteractions, setSlot, updateActive, updatePhase, wait]);
 

@@ -100,15 +100,24 @@ describe("GameplayHandDriver lifecycle regression", () => {
       onStatus,
     });
 
+    console.log('[TEST] Calling driver.start()');
     const startPromise = driver.start();
+    console.log('[TEST] driver.start() called, onStatus calls:', onStatus.mock.calls);
     expect(onStatus).toHaveBeenCalledWith("initializing");
 
-    // Call stop while FilesetResolver is pending
+    // Wait for driver to reach FilesetResolver by polling the console log
+    // We'll use a small delay to let the driver progress past video.play()
+    await new Promise(r => setTimeout(r, 50));
+    console.log('[TEST] Delay passed, calling driver.stop()');
     await driver.stop();
+    console.log('[TEST] driver.stop() completed');
 
     // Now resolve FilesetResolver
+    console.log('[TEST] Resolving vision promise');
     resolveVision({});
+    console.log('[TEST] Awaiting startPromise');
     await startPromise;
+    console.log('[TEST] startPromise completed');
 
     // Must NOT have transitioned to tracking
     expect(onStatus).not.toHaveBeenCalledWith("tracking");

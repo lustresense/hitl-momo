@@ -73,6 +73,30 @@ body {
 #screen-level-entry, .screen, .tutorial-screen {
   padding-bottom: 300px !important;
 }
+
+/* Gameplay Stage: Centered Content Card (NOT fullscreen) - FORCE ENFORCE */
+#screen-gameplay.screen {
+  max-width: 860px !important;
+  width: 860px !important;
+  margin: 24px auto !important;
+  padding: 24px !important;
+  background: var(--paper-light) !important;
+  background-image: radial-gradient(circle at 1px 1px, rgba(49, 45, 38, 0.16) 1px, transparent 1.2px) !important;
+  background-size: 22px 22px !important;
+  border: 2px solid rgba(35, 33, 29, 0.18) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 2px 6px rgba(55, 31, 13, 0.08), 0 8px 24px rgba(55, 31, 13, 0.10) !important;
+  padding-bottom: 100px !important;
+  box-sizing: border-box !important;
+}
+
+/* Ensure the canvas inside doesn't stretch beyond card */
+#screen-gameplay .game-canvas {
+  max-width: 100% !important;
+  width: 100% !important;
+  height: auto !important;
+  display: block !important;
+}
 .screen-head h2, .screen h1 { margin: 0 0 6px; }
 .lead { margin: 0 0 14px; color: var(--ink-soft); }
 
@@ -270,17 +294,27 @@ body {
 
 .game-canvas, #game-canvas {
   display: block; width: 100%; height: auto;
-  border: 1px solid var(--paper-line); border-radius: 10px; background: #fff;
+  border: 2px solid rgba(35, 33, 29, 0.28);
+  border-radius: 12px;
+  background: #e8efe3;
+  background-image: radial-gradient(circle at 1px 1px, rgba(49, 45, 38, 0.16) 1px, transparent 1.2px);
+  background-size: 22px 22px;
+  box-shadow: 0 2px 4px rgba(55, 31, 13, 0.08), 0 8px 24px rgba(55, 31, 13, 0.10);
 }
 .decision-chip {
-  display: inline-block; padding: 4px 10px; border-radius: 999px;
-  background: #eef3fb; border: 1px solid #c9d8ee; font-size: 13px; margin: 0 0 10px;
+  display: inline-block; padding: 6px 14px; border-radius: 999px;
+  background: var(--paper-light); border: 1.5px solid var(--paper-line);
+  color: var(--ink-strong); font-weight: 600; font-size: 13px; margin: 0 0 12px;
+  box-shadow: 0 1px 3px rgba(55, 31, 13, 0.06);
 }
 .overlay {
   margin: -120px auto 0; max-width: 420px;
-  background: rgba(255, 255, 255, 0.97); border: 2px solid var(--ink);
-  border-radius: var(--radius); padding: 18px; text-align: center; position: relative;
-  box-shadow: var(--shadow);
+  background: var(--paper-light);
+  background-image: radial-gradient(circle at 1px 1px, rgba(49, 45, 38, 0.16) 1px, transparent 1.2px);
+  background-size: 22px 22px;
+  border: 2px solid var(--ink);
+  border-radius: var(--radius); padding: 20px; text-align: center; position: relative;
+  box-shadow: var(--shadow-focus);
 }
 .overlay-passive { opacity: 0.85; }
 .overlay-title { font-size: 20px; font-weight: 800; margin: 0 0 6px; }

@@ -8,8 +8,8 @@ export class GameController {
  }
  setInput(i:{left:boolean;right:boolean;jump:boolean}){this.handle?.setInput(i);}
  onFallComplete(){this.handle?.onFallComplete();}
- setPlacement(x:number):boolean{return this.handle?.setPlacement(x)??false;}
- commitPlacementAt(x:number):boolean{return this.handle?.commitPlacementAt(x)??false;}
+ setPlacement(x:number,y:number=320):boolean{return this.handle?.setPlacement(x,y)??false;}
+ commitPlacementAt(x:number,y:number=320):boolean{return this.handle?.commitPlacementAt(x,y)??false;}
  retry(){this.handle?.retry();}reposition(){this.handle?.reposition();}
  unmount(){this.generation++;this.handle?.destroy();this.handle=null;}
 }

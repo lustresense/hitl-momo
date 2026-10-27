@@ -14,7 +14,7 @@ let active:KAPLAYCtx|null=null;
 export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHandle>{
  const factory=(await import("kaplay")).default;
  active?.quit();
- const k = factory({
+ const k = await factory({
    global: false,
    canvas: o.canvas,
    width: 800,

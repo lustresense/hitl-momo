@@ -67,24 +67,94 @@ export function GameStage(props:GameStageProps){
  // The driver only routes frames to the currently exclusive PLACE/PLAY mode.
  // eslint-disable-next-line react-hooks/exhaustive-deps
  },[ready,mode,phase,outcome,retryKey]);
- const legal=isLegalPlacement(position,level.scene.gapWidth+20);
- function pointer(e:React.PointerEvent<HTMLCanvasElement>){if(phase!=="placing"||mode!=="fallback")return;const r=e.currentTarget.getBoundingClientRect();const objWidth = level.scene.gapWidth + 20; const objHeight = 16; movePlacement((e.clientX-r.left)*800/r.width - objWidth/2, (e.clientY-r.top)*380/r.height - objHeight/2);}
+ const legal=isLegalPlacement(position,304,level.scene.gapWidth+20,16);
+ function pointer(e:React.PointerEvent<HTMLCanvasElement>){if(phase!=="placing")return;const r=e.currentTarget.getBoundingClientRect();const objWidth = level.scene.gapWidth + 24; const objHeight = 8; movePlacement((e.clientX-r.left)*800/r.width - objWidth/2, (e.clientY-r.top)*380/r.height - objHeight/2);}
  function reposition(){setOutcome(null);controller.current?.reposition();setPosition(Number(canvas.current?.dataset.objectX??position));}
- return <section id="screen-gameplay" className="screen" data-testid="world-stage" style={{position:"relative",padding:"24px 24px 100px"}}>
- <h2>Halaman Sobek · Dunia Stickman</h2><p className="decision-chip">Keputusanmu: {decision.type.toUpperCase()} · “{decision.finalLabel}”{decision.type!=="override"?` (#${decision.sourceRank})`:""}</p>
- <p role="status" data-testid="input-status">{mode==="fallback"?"FALLBACK keyboard/pointer — BUKAN NUI TERVERIFIKASI":status}</p>
- <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:8}}><button className="btn" onClick={()=>{controller.current?.setInput(NEUTRAL);setMode(mode==="camera"?"fallback":"camera");paused.current=false;setTrackingPaused(false);}}>{mode==="camera"?"Gunakan FALLBACK keyboard/pointer":"Coba NUI kamera"}</button><button className="btn" onClick={props.onRedraw}>Gambar ulang (recovery)</button></div>
- <p data-testid="world-phase">{phase==="falling"?"FALL_ANIMATION · karya turun; collider belum aktif":phase==="placing"?"PLACE · geser objek, lalu konfirmasi penempatan":"PLAY · gerakkan Stickman hingga menyentuh bendera goal"}</p>
- <canvas ref={canvas} width={800} height={380} className="game-canvas" data-testid="game-canvas" aria-label="Dunia Stickman 2D" style={{width:"100%",height:"auto",display:"block",touchAction:"none"}}
- onPointerDown={e=>{if(mode!=="fallback"||phase!=="placing")return;dragging.current=true;e.currentTarget.setPointerCapture(e.pointerId);pointer(e);}}
- onPointerMove={e=>{if(dragging.current)pointer(e);}} onPointerUp={()=>{dragging.current=false;}} onPointerCancel={()=>{dragging.current=false;}}/>
- {error&&<div role="alert">Runtime gagal: {error}<button onClick={()=>setRetryKey(x=>x+1)}>Coba Lagi</button></div>}
- {phase==="placing"&&!error&&<div data-testid="placement-controls"><label>Posisi objek horizontal <input data-testid="placement-slider" aria-label="Posisi objek horizontal" type="range" min={-200} max={800} value={position} onChange={e=>movePlacement(Number(e.target.value))}/></label>
- <p role="alert">{placementError}</p><button className="btn btn-primary" data-testid="btn-confirm-placement" disabled={!ready||!legal} onClick={()=>{if(!controller.current?.commitPlacementAt(position))setPlacementError("Penempatan tidak legal. Objek tidak hilang.");}}>Konfirmasi Posisi</button></div>}
- {phase==="gameplay"&&!outcome&&<div><button className="btn" data-testid="btn-reposition" onClick={reposition}>Geser Ulang Objek</button>
- {mode==="fallback"&&<div aria-label="Kontrol FALLBACK">{["left","right"].map(dir=><button key={dir} className="btn" data-testid={`move-${dir}`} onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);controller.current?.setInput({...NEUTRAL,[dir]:true});}} onPointerUp={()=>controller.current?.setInput(NEUTRAL)} onPointerCancel={()=>controller.current?.setInput(NEUTRAL)}>{dir==="left"?"Kiri":"Kanan"}</button>)}</div>}</div>}
- {trackingPaused&&mode==="camera"&&phase==="gameplay"&&!outcome&&<div role="alert">Tracking hilang, Stickman berhenti.<button className="btn" disabled={!trackingReady} onClick={()=>{paused.current=false;setTrackingPaused(false);}}>Lanjut setelah tracking pulih</button></div>}
- {outcome&&<div data-testid="outcome-overlay" role="status"><h3 className="overlay-title">{outcome==="success"?"Berhasil menyeberang!":"Gagal · kembali ke checkpoint"}</h3>
- {outcome==="success"?<button className="btn" data-testid="btn-next" onClick={()=>props.onOutcomeReported("success")}>Lihat ringkasan</button>:<><button className="btn" data-testid="btn-retry-cycle" onClick={()=>{controller.current?.retry();setOutcome(null);}}>Coba dari checkpoint</button><button className="btn" data-testid="btn-reposition" onClick={reposition}>Reposisi objek yang sama</button></>}</div>}
- </section>;
+ return <section id="screen-gameplay" className="screen" data-testid="world-stage">
+  <div className="stage-floating-header">
+    <div style={{display:"flex",alignItems:"center",gap:12}}>
+      <h2 style={{margin:0,fontSize:18,fontWeight:800,color:"#111111"}}>Dunia Stickman</h2>
+      <span className="decision-chip" style={{margin:0}}>
+        {decision.type.toUpperCase()} · “{decision.finalLabel}”{decision.type!=="override"?` (#${decision.sourceRank})`:""}
+      </span>
+    </div>
+    <div style={{display:"flex",gap:8}}>
+      <button className="btn btn-small" onClick={()=>{controller.current?.setInput(NEUTRAL);setMode(mode==="camera"?"fallback":"camera");paused.current=false;setTrackingPaused(false);}}>
+        {mode==="camera"?"Gunakan FALLBACK keyboard/pointer":"Nyalakan Kamera NUI"}
+      </button>
+      <button className="btn btn-small" onClick={props.onRedraw}>Gambar ulang</button>
+    </div>
+  </div>
+
+  <canvas
+    ref={canvas}
+    width={800}
+    height={380}
+    className="game-canvas"
+    data-testid="game-canvas"
+    aria-label="Dunia Stickman 2D"
+    onPointerDown={e=>{if(phase!=="placing")return;dragging.current=true;e.currentTarget.setPointerCapture(e.pointerId);pointer(e);}}
+    onPointerMove={e=>{if(dragging.current)pointer(e);}}
+    onPointerUp={()=>{dragging.current=false;}}
+    onPointerCancel={()=>{dragging.current=false;}}
+  />
+
+  {phase==="placing"&&!error&&(
+    <div className="stage-floating-controls" data-testid="placement-controls" style={{flexDirection:"column",gap:8,alignItems:"center",padding:"12px 20px"}}>
+      <span style={{fontSize:13,fontWeight:600,color:"#23211d",textAlign:"center"}}>
+        Geser objek (drag) ke atas jurang, lalu tekan Konfirmasi
+      </span>
+      <button
+        className="btn btn-primary btn-small"
+        data-testid="btn-confirm-placement"
+        disabled={!ready||!legal}
+        onClick={()=>{if(!controller.current?.commitPlacementAt(position))setPlacementError("Penempatan tidak legal. Objek tidak hilang.");}}
+      >
+        Konfirmasi Posisi
+      </button>
+      {placementError&&<span style={{color:"#d94336",fontSize:12,fontWeight:600}}>{placementError}</span>}
+    </div>
+  )}
+
+  {phase==="gameplay"&&!outcome&&(
+    <div className="stage-floating-controls">
+      <button className="btn btn-small" data-testid="btn-reposition" onClick={reposition}>Geser Ulang Objek</button>
+      {mode==="fallback"&&(
+        <div style={{display:"flex",gap:6}}>
+          {["left","right"].map(dir=>(
+            <button
+              key={dir}
+              className="btn btn-small"
+              data-testid={`move-${dir}`}
+              onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);controller.current?.setInput({...NEUTRAL,[dir]:true});}}
+              onPointerUp={()=>controller.current?.setInput(NEUTRAL)}
+              onPointerCancel={()=>controller.current?.setInput(NEUTRAL)}
+            >
+              {dir==="left"?"← Kiri":"Kanan →"}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  )}
+
+  {outcome&&(
+    <div className="overlay" data-testid="outcome-overlay" style={{position:"absolute",top:"45%",left:"50%",transform:"translate(-50%,-50%)",zIndex:300}}>
+      <h3 className="overlay-title">{outcome==="success"?"Berhasil menyeberang!":"Gagal · kembali ke checkpoint"}</h3>
+      <div className="overlay-actions">
+        {outcome==="success"?(
+          <button className="btn btn-primary" data-testid="btn-next" onClick={()=>props.onOutcomeReported("success")}>Lihat ringkasan</button>
+        ):(
+          <>
+            <button className="btn" data-testid="btn-retry-cycle" onClick={()=>{controller.current?.retry();setOutcome(null);}}>Coba dari checkpoint</button>
+            <button className="btn" data-testid="btn-reposition" onClick={reposition}>Reposisi objek yang sama</button>
+          </>
+        )}
+      </div>
+    </div>
+  )}
+
+  <p role="status" data-testid="input-status" style={{display:"none"}}>{mode==="fallback"?"FALLBACK keyboard/pointer — BUKAN NUI TERVERIFIKASI":status}</p>
+  <p data-testid="world-phase" style={{display:"none"}}>{phase==="falling"?"FALL_ANIMATION":phase==="placing"?"PLACE":"PLAY"}</p>
+</section>;
 }

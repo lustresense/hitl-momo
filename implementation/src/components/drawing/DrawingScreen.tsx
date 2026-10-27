@@ -177,12 +177,22 @@ export function DrawingScreen({ level, initialMode, feedback, surfaceOut, onSubm
         </p>
       </div>
 
-      <div style={{position:"absolute",bottom:20,left:"50%",transform:"translateX(-50%)",zIndex:20,display:"flex",gap:8,flexWrap:"wrap"}}>
+      <div className="drawing-submit-controls" style={{position:"absolute",bottom:20,left:"50%",transform:"translateX(-50%)",zIndex:20,display:"flex",gap:8,flexWrap:"wrap"}}>
         <button type="button" className="btn" onClick={() => void switchMode(inputMode === "hand" ? "pointer" : "hand")}>
           {inputMode === "hand" ? "Kamera DRAW · coba pointer" : "FALLBACK pointer · coba kamera"}
         </button>
         <button type="button" className="btn btn-primary" data-testid="btn-submit-drawing" disabled={!hasInk || !active} onClick={() => onSubmit(null)}>Tebak Gambarku</button>
       </div>
+      <style jsx>{`
+        @media(max-width:600px){
+          .drawing-top-bar{left:12px!important;right:12px!important;top:8px!important;width:auto!important;max-width:none!important;}
+          .predict-choosable-box{padding:8px!important;font-size:12px!important;}
+          .predict-choosable-box p{margin:4px 0!important;}
+          .drawing-momo-top-right{display:none!important;}
+          .drawing-submit-controls{left:16px!important;right:16px!important;bottom:100px!important;transform:none!important;width:auto!important;justify-content:center!important;}
+          .drawing-submit-controls button{font-size:12px!important;padding:10px!important;}
+        }
+      `}</style>
       <canvas
         ref={canvasRef}
         width={1920}

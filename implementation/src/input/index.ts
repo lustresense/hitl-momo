@@ -217,6 +217,8 @@ export class DrawingSurface {
     drawPaper(ctx);
 
     const { completed, active } = this.store.getStrokes();
+    this.canvas.dataset.strokeCount = String(completed.length + (active ? 1 : 0));
+    this.canvas.dataset.pointCount = String(completed.reduce((n, stroke) => n + stroke.length, 0) + (active?.length ?? 0));
     ctx.strokeStyle = "#23211d";
     ctx.lineCap = "round";
     ctx.lineJoin = "round";

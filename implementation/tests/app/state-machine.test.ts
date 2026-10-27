@@ -40,7 +40,7 @@ describe("FlowController — PRD §13 vertical slice (TASK 02/03)", () => {
     await ctx.flow.submitDrawing(INK);
   }
 
-  it("AC-01/02/03/07 happy path accept → placing → gameplay → complete (stage 1)", async () => {
+  it("AC-01/02/03/07 happy path accept → falling → placing → gameplay → complete (stage 1)", async () => {
     await drawAndSubmit();
     expect(ctx.flow.phase).toBe("evaluating");
     expect(ctx.flow.prediction?.candidates).toHaveLength(3);
@@ -49,9 +49,12 @@ describe("FlowController — PRD §13 vertical slice (TASK 02/03)", () => {
     expect(() => ctx.flow.reportGameplayOutcome("success")).toThrow(InvalidTransitionError);
 
     ctx.flow.decideAccept();
-    expect(ctx.flow.phase).toBe("placing");
+    expect(ctx.flow.phase).toBe("falling");
     expect(ctx.flow.decision).toMatchObject({ type: "accept", sourceRank: 1 });
     expect(ctx.flow.behavior).toBe("solid");
+
+    ctx.flow.completeFall();
+    expect(ctx.flow.phase).toBe("placing");
 
     ctx.flow.commitPlacement();
     expect(ctx.flow.phase).toBe("gameplay");
@@ -68,6 +71,8 @@ describe("FlowController — PRD §13 vertical slice (TASK 02/03)", () => {
       await c.flow.submitDrawing(INK);
       c.flow.decideCorrect(rank);
       expect(c.flow.decision).toMatchObject({ type: "correct", sourceRank: rank });
+      expect(c.flow.phase).toBe("falling");
+      c.flow.completeFall();
       expect(c.flow.phase).toBe("placing");
       c.flow.commitPlacement();
       expect(c.flow.phase).toBe("gameplay");
@@ -86,7 +91,8 @@ describe("FlowController — PRD §13 vertical slice (TASK 02/03)", () => {
     const alt = ["papan", "batu", "tangga", "tali"].find((v) => !top3.includes(v))!;
     ctx.flow.decideOverride(alt);
     expect(ctx.flow.decision).toEqual({ type: "override", finalLabel: alt });
-    expect(ctx.flow.phase).toBe("placing");
+    expect(ctx.flow.phase).toBe("falling");
+    ctx.flow.completeFall();
     ctx.flow.commitPlacement();
     expect(ctx.flow.phase).toBe("gameplay");
   });
@@ -142,6 +148,7 @@ describe("FlowController — PRD §13 vertical slice (TASK 02/03)", () => {
     }
     c.flow.decideOverride("tali");
     expect(c.flow.behavior).toBe("danger");
+    c.flow.completeFall();
     c.flow.commitPlacement();
     c.flow.reportGameplayOutcome("fail");
     expect(c.flow.phase).toBe("drawing");
@@ -155,6 +162,7 @@ describe("FlowController — PRD §13 vertical slice (TASK 02/03)", () => {
     let top3 = c.flow.prediction!.candidates.map((x) => x.label);
     let alt = ["papan", "batu", "tangga", "tali"].find((v) => !top3.includes(v))!;
     c.flow.decideOverride(alt);
+    c.flow.completeFall();
     c.flow.commitPlacement();
     c.flow.reportGameplayOutcome("success");
     expect(c.flow.phase).toBe("drawing");
@@ -162,6 +170,7 @@ describe("FlowController — PRD §13 vertical slice (TASK 02/03)", () => {
 
     await c.flow.submitDrawing(INK);
     c.flow.decideAccept();
+    c.flow.completeFall();
     c.flow.commitPlacement();
     c.flow.reportGameplayOutcome("success");
     expect(c.flow.phase).toBe("complete");
@@ -181,16 +190,18 @@ describe("FlowController — PRD §13 vertical slice (TASK 02/03)", () => {
     ctx.flow.enterLevel(ctx.level);
     await ctx.flow.submitDrawing(INK);
     ctx.flow.decideAccept();
+    ctx.flow.completeFall();
     ctx.flow.commitPlacement();
     ctx.flow.reportGameplayOutcome("success");
     unsub();
     ctx.flow.exitToLevelEntry();
-    expect(count).toBeGreaterThanOrEqual(5); // enter, predicting, evaluating, placing, gameplay, outcome...
+    expect(count).toBeGreaterThanOrEqual(6); // enter, predicting, evaluating, falling, placing, gameplay, outcome...
   });
 
   it("emits typed interaction events on the seam (FR-18)", async () => {
     await drawAndSubmit();
     ctx.flow.decideAccept();
+    ctx.flow.completeFall();
     ctx.flow.commitPlacement();
     ctx.flow.reportGameplayOutcome("success");
     const kinds = ctx.events.map((e) => e.kind);
@@ -212,5 +223,23 @@ describe("FlowController — PRD §13 vertical slice (TASK 02/03)", () => {
       expect(Object.keys(lv.behaviorMap).length).toBeGreaterThan(0);
       expect(lv.scene.goalX).toBeGreaterThan(0);
     }
+  });
+
+  it("falling phase allows redraw back to drawing", async () => {
+    await drawAndSubmit();
+    ctx.flow.decideAccept();
+    expect(ctx.flow.phase).toBe("falling");
+    ctx.flow.requestRedraw("evaluation");
+    expect(ctx.flow.phase).toBe("drawing");
+  });
+
+  it("placing phase allows reposition back to placing from gameplay", async () => {
+    await drawAndSubmit();
+    ctx.flow.decideAccept();
+    ctx.flow.completeFall();
+    ctx.flow.commitPlacement();
+    expect(ctx.flow.phase).toBe("gameplay");
+    ctx.flow.repositionObject();
+    expect(ctx.flow.phase).toBe("placing");
   });
 });

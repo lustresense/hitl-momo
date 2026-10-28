@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { TouchEvent } from "react";
-import { StageArtwork } from "./StageArtwork";
+import { StageWorld } from "./StageWorld";
 import { STAGE_SCENES } from "./scene-metadata";
 import styles from "./stage-preview.module.css";
 
@@ -108,9 +108,7 @@ export function StagePreview() {
           data-slide={scene.index} data-active={scene.index === index} role="group" aria-roledescription="slide"
           aria-label={`Slide ${scene.index + 1}: ${scene.level === null ? "" : `Level ${scene.level} - `}${scene.title}`}
           aria-hidden={scene.index !== index}>
-          <div className={`${styles.artwork} ${scene.index === 0 ? styles.overview : ""}`}>
-            <StageArtwork scene={scene.index} />
-          </div>
+          <StageWorld scene={scene.index} className={styles.world} />
           {scene.level !== null && <div className={styles.ribbon} aria-hidden="true">Level {scene.level}</div>}
           {scene.level !== null && <div className={styles["paper-title"]}>{scene.title}</div>}
           {scene.caption !== null && <div className={styles["paper-caption"]}>{scene.caption}</div>}

@@ -2,6 +2,16 @@
 
 Code changes only. The root CHANGELOG.md remains the PA decision log.
 
+## [0.0.5] - 2026-10-29
+
+### Changed
+- Feature branch `visual/react-stage-preview`: separated reusable16:9 `StageWorld` from slideshow/debug presentation. Clean `/preview/world/0..3` surfaces contain SVG art only; title/ribbon/caption assets remain preview-only, not permanent student HUD. No gameplay route integration.
+- Original SVG art/atmosphere/metadata untouched; motion/reduced-motion moved to world-scoped CSS without redesign.
+
+### Verified
+- WSL typecheck/lint/build PASS,142unit tests/24files PASS; existing warning unchanged. Four1920x1080 React screenshots without overlays; four pixel-exact source-art comparisons; zero console/page errors;16:9/responsive/IDs/motion/reduced/keyboard isolation checked. Six old routes render-smoked, not full gameplay E2E.
+- Cleanup secured by local-only commit after Owner acceptance; no push/merge/deploy. No KAPLAY/physics/collider/AI/HITL/camera/backend/level changes, no deployment. Details `docs/stage-visual-reference/CLEANUP_VERIFICATION.md`.
+
 ## [0.0.4] - 2026-10-28
 
 ### Added

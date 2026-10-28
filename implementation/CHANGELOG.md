@@ -2,6 +2,18 @@
 
 Code changes only. The root CHANGELOG.md remains the PA decision log.
 
+## [0.0.4] - 2026-10-28
+
+### Added
+- Isolated `/preview/stages` React viewer with four inline SVG scenes from Owner HTML; scoped per-instance SVG definitions, separate atmosphere component, original decorative cloud/fog motion and reduced-motion support.
+- Viewer-only keyboard, swipe, fullscreen and accessible navigation; CSS-module isolation. Portrait native-ratio landscape band preserves both stage endpoints; safe-area header separation fixes source mobile overlap.
+- SVG metadata/viewBox/no-raster/reference/SSR tests and preserved source/handoff/design-system plus integration contract.
+
+### Verification and scope
+- Parent WSL gates: typecheck, 136 unit tests across 23 files, lint and production static build passed; final CSS rebuild passed. Existing TutorialBrochure hook warning remains.
+- React browser: 4 scenes x 1920x1080, 1366x768, 390x844 DPR2; zero console/page errors; matching ordered SVG geometry/colors/transforms, actual motion, reduced motion, keyboard/swipe/fullscreen/refresh and scoped IDs checked. Six existing routes passed render smoke; not a full gameplay E2E rerun.
+- Worktree-only feature branch; no original gameplay routes/global styles/KAPLAY/colliders/AI/HITL/camera/backend/database/win-fail changes. No deployment or production change. Google Fonts runtime network dependency retained from source; physical Safari/iPhone unverified.
+
 ## [0.0.3] - 2026-10-27
 
 ### Enhanced

@@ -2,6 +2,16 @@
 
 Dokumen ini adalah catatan keputusan proyek yang dipakai untuk mencegah konteks lama atau jawaban AI mengambil alih keputusan terbaru.
 
+## [0.0.8] - 2026-10-29 — Desktop framing L1/L3 (local preview)
+
+- Desktop landscape L1/L3: remove height-limited surface width; full viewport-width 16:9 art and physics canvas remain aligned. L2 and portrait rules unchanged.
+- Root cause: `width:min(100vw,177.7777778dvh)` created 53.33 px side gutters at 1280×660 and 320 px at 2560×1080.
+- Changed `implementation/src/components/game/game-stage.module.css` and minimal left boundary in `implementation/src/game/kaplay-runtime.ts`; regression tests in `implementation/tests/game/runtime-integration.test.ts`. Art, density, jump520, gravity1600 and level collision geometry unchanged.
+- Desktop screenshot/DOM acceptance: L1/L3 at 1280×660,1440×900,1920×1080,2560×1080: 8/8 full-width, initial actor/goal visible, uniform 16:9, geometry identical, DPR2 retained, zero page errors.
+- Gates: 196/196 unit tests (five new boundary/scope cases), typecheck, lint (existing hook warning), static export 16 routes PASS.
+- L1 desktop left boundary: real ArrowLeft reproduced sprite crop/fall at x<0. Added sprite-aware clamp with 2-world-pixel inset after fixed-step movement. Unit test RED (spriteLeft=-37.55), GREEN; L2/L3/portrait/legacy unchanged. Final real-browser boundary and sequential acceptance recorded separately.
+- Build generated in isolated WSL scratch; static preview assets copied in-place preserving server cwd/process; previous c9b5899 build copied to scratch recovery folder. No service restart/port/tunnel/production change. No commit/push.
+
 ## [0.0.7] - 2026-10-29 — Batch stabilization Level 1–3 — VERIFIED LOKAL
 
 - **Area:** Stabilisasi gameplay dan rendering fisik Level 1–3 pada visual React StageWorld sandbox.

@@ -134,6 +134,9 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
   k.onFixedUpdate(()=>{
    if(destroyed||phase!=="gameplay"||settled)return;
    player.move((Number(input.right)-Number(input.left))*200,0);
+   // Desktop L1 starts at world x=0; keep the rendered sprite inside its left edge.
+   if(o.level.stage===1&&globalThis.innerWidth>=761&&globalThis.innerWidth>globalThis.innerHeight)
+    player.pos.x=Math.max(player.pos.x,STICKMAN_ASSET.foot.x*sceneScale-12+2);
    if(input.jump&&player.isGrounded())player.jump(520);
   });
   k.onUpdate(()=>{

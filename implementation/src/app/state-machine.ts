@@ -40,6 +40,8 @@ export class InvalidTransitionError extends Error {
 export interface FlowOptions {
   provider: PredictionProvider;
   sink?: InteractionEventSink;
+  /** Integrated worlds finish at the goal; legacy callers retain cycle pacing. */
+  goalCompletesLevel?: boolean;
 }
 
 export type FlowFeedback = "empty-drawing" | "prediction-failed" | null;
@@ -70,11 +72,13 @@ export class FlowController {
 
   private readonly provider: PredictionProvider;
   private readonly sink: InteractionEventSink;
+  private readonly goalCompletesLevel: boolean;
   private readonly listeners = new Set<Listener>();
 
   constructor(options: FlowOptions) {
     this.provider = options.provider;
     this.sink = options.sink ?? noopSink;
+    this.goalCompletesLevel = options.goalCompletesLevel ?? false;
   }
 
   /* ---------------- React subscription ---------------- */
@@ -281,7 +285,7 @@ export class FlowController {
     }
 
     this.cyclesCompleted += 1;
-    if (this.cyclesCompleted >= level.cyclesRequired) {
+    if (this.goalCompletesLevel || this.cyclesCompleted >= level.cyclesRequired) {
       this.emit({ kind: "cycle_completed", levelId: level.levelId, cyclesUsed: this.cyclesCompleted });
       // Keep decision and behavior on snapshot for summary block in parent
       this.phase = "complete";

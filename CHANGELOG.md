@@ -2,6 +2,25 @@
 
 Dokumen ini adalah catatan keputusan proyek yang dipakai untuk mencegah konteks lama atau jawaban AI mengambil alih keputusan terbaru.
 
+## [0.0.6] - 2026-10-29 — Prototype integration — VERIFIED (G1-G6 COMPLETE)
+
+- **Area:** Integrasi gameplay KAPLAY 3 Level pada visual React StageWorld yang disetujui.
+- **Status:** VERIFIED LOKAL (G1-G6 Lolos); bukan release atau klaim kesiapan produksi.
+- **Hasil Integrasi Tiga Level (KAPLAY Asli):**
+  - **Level 1 (Halaman yang Sobek):** Jurang sesuai geometri SVG tebing kiri/kanan, penempatan multi-objek solid tanpa kuota, simulasi falling, collision fisik KAPLAY, kontrol keyboard/pointer, fail/retry dan reposition objek identitas tetap, goal reached menyeberang jurang.
+  - **Level 2 (Menara Lipatan):** Traversal vertikal nyata dengan perancah 3 pijakan (`96,160`, `222,142`, `260,110`), lompatan bertingkat presisi ke puncak bendera tanpa manipulasi gravitasi (1600) atau jump force (520).
+  - **Level 3 (Lorong Kabut Penghapus):** Pemilihan rute atas vs bawah, hazard lantai statis terbukti memicu fail sebelum killY jika jatuh, objek 'unresolved' (ember) terbukti non-solid dan jatuh, rute atas terbukti playable sampai goal height-aware (`y <= 192`).
+- **Arsitektur & Kontrak Bersama:**
+  - Profil integrasi 800 × 450 berbasis affine transform `s = max(800/490, 450/325)` dengan centered slice. Profil legacy 800 × 380 tetap utuh.
+  - Satu Stickman aktif (SVG preview disembunyikan saat mode gameplay, digantikan body fisik KAPLAY ber-skin artwork SVG yang sama).
+  - Background scenery murni React `StageWorld`, foreground canvas KAPLAY transparan (`background: [0,0,0,0]`).
+- **Kualitas & Regresi (G6):**
+  - 184 unit tests PASS (29 test files), typecheck PASS (incremental false), lint PASS, Next.js build PASS.
+  - 14/14 browser recovery & mobile checks PASS (`check_recovery.py`): retry, reposition, blur stop, mobile portrait 390×844 tanpa overflow horizontal, touch coordinates accurate, 44px min targets.
+  - Full sequential E2E (Level 1 -> 2 -> 3 -> Summary) PASS tanpa debug hooks atau mock state (`final_flow.py`).
+  - Visual regression preview 4 scene tetap 100% identik dan motion CSS tetap aktif (`cleanup_qa.py`).
+- **Batas:** Tanpa NUI/MediaPipe/kamera, model AI asli, backend partner, atau deploy production. Tidak ada push/merge.
+
 ## Cara pakai
 
 - Baca bagian **Keputusan Aktif** sebelum mengerjakan proposal, desain, kode, atau presentasi.

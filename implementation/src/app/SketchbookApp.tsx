@@ -14,6 +14,7 @@ import { Top3Panel } from "@/src/components/prediction/Top3Panel";
 import { PredictingScreen } from "@/src/components/prediction/PredictingScreen";
 import { DecisionPanel } from "@/src/components/decision/DecisionPanel";
 import { GameStage } from "@/src/components/game/GameStage";
+import { CreationStore, type WorldCreation } from "@/src/game/creation-store";
 import { TutorialBrochure } from "@/src/components/onboarding/TutorialBrochure";
 import { StudentRulerSelector } from "@/src/components/onboarding/StudentRulerSelector";
 import { DrawingScreen } from "@/src/components/drawing/DrawingScreen";
@@ -34,6 +35,12 @@ export function SketchbookApp() {
   const routeGuardActive = useRef(false);
   const surfaceRef = useRef<DrawingSurface | null>(null);
   const snapshot = useFlowSnapshot(controller);
+  // Survives GameStage unmounts during redraw/add/prediction; never browser-persisted.
+  const creationsRef = useRef(new CreationStore());
+  const [drawingRevision,setDrawingRevision]=useState(0);
+  const handleCreationsChange = useCallback((items: WorldCreation[]) => {
+    creationsRef.current.replace(items);
+  }, []);
 
   // PULL-DOWN TRANSITION: keep the level-entry stage mounted (and inert) for a
   // beat while #screen-drawing slides down over it, so the page swap has no
@@ -88,7 +95,8 @@ export function SketchbookApp() {
       w.__skbMock = provider;
     }
     const sink: InteractionEventSink = createDevConsoleSink();
-    const c = new FlowController({ provider, sink });
+    const c = new FlowController({ provider, sink, goalCompletesLevel: true });
+    creationsRef.current.enterLevel(level.levelId);
     setController(c);
     c.enterLevel(level);
   }, [isLevelUnlocked]);
@@ -153,6 +161,7 @@ export function SketchbookApp() {
         }
         setOnboarding("levels");
         if (controller?.getSnapshot().levelId) controller.exitToLevelEntry();
+        creationsRef.current.clear();
       } else if (route.kind === "number") {
         setRouteNotice(null);
         setOnboarding("number");
@@ -241,9 +250,9 @@ export function SketchbookApp() {
           )}
 
           {/* DRAWING */}
-          {onboarding === "levels" && snapshot && phase !== "level-entry" && level && (
+          {onboarding === "levels" && snapshot && phase === "drawing" && level && (
             <DrawingScreen
-              key={level.levelId + String(snapshot.cyclesCompleted)}
+              key={level.levelId + String(snapshot.cyclesCompleted) + ":" + drawingRevision}
               level={level}
               initialMode={env.defaultDrawInputMode}
               feedback={controller?.feedback ?? null}
@@ -252,6 +261,7 @@ export function SketchbookApp() {
               onSubmit={() => void handleSubmitDrawing()}
               onExit={() => {
                 controller?.exitToLevelEntry();
+                creationsRef.current.clear();
                 if (typeof window !== "undefined") window.history.pushState(null, "", "/levels");
               }}
             />
@@ -315,6 +325,10 @@ export function SketchbookApp() {
           {/* GAMEPLAY */}
           {onboarding === "levels" && (phase === "falling" || phase === "placing" || phase === "gameplay") && level && snapshot?.behavior && snapshot?.decision && controller && (
             <GameStage
+              integrated={true}
+              creations={creationsRef.current.snapshot()}
+              onCreationsChange={handleCreationsChange}
+              onCreateAnotherObject={() => {setDrawingRevision(n=>n+1);controller.requestRedraw("gameplay");}}
               level={level}
               behavior={snapshot.behavior}
               decision={snapshot.decision}
@@ -351,6 +365,7 @@ export function SketchbookApp() {
                   data-testid="btn-back-to-levels"
                   onClick={() => {
                     controller.exitToLevelEntry();
+                    creationsRef.current.clear();
                     window.history.pushState(null, "", "/levels");
                   }}
                 >

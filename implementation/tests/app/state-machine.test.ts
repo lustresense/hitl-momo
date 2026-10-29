@@ -243,3 +243,33 @@ describe("FlowController — PRD §13 vertical slice (TASK 02/03)", () => {
     expect(ctx.flow.phase).toBe("placing");
   });
 });
+
+
+describe("FlowController — optional goal completion", () => {
+  it.each(LEVELS)("completes $levelId after one reported goal success when opted in", async level => {
+    const provider = new MockPredictionProvider({ vocabulary: level.vocabulary, stage: level.stage, latencyMs: 0 });
+    const flow = new FlowController({ provider, goalCompletesLevel: true });
+    flow.enterLevel(level);
+    await flow.submitDrawing(INK);
+    flow.decideAccept();
+    flow.completeFall();
+    flow.commitPlacement();
+    flow.reportGameplayOutcome("success");
+    expect(flow.phase).toBe("complete");
+    expect(flow.cyclesCompleted).toBe(1);
+  });
+
+  it("does not complete on failure when opted in", async () => {
+    const level = getLevel("stage-2-ambiguity")!;
+    const provider = new MockPredictionProvider({ vocabulary: level.vocabulary, stage: level.stage, latencyMs: 0 });
+    const flow = new FlowController({ provider, goalCompletesLevel: true });
+    flow.enterLevel(level);
+    await flow.submitDrawing(INK);
+    flow.decideAccept();
+    flow.completeFall();
+    flow.commitPlacement();
+    flow.reportGameplayOutcome("fail");
+    expect(flow.phase).toBe("drawing");
+    expect(flow.cyclesCompleted).toBe(0);
+  });
+});

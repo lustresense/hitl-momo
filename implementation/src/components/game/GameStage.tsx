@@ -5,7 +5,13 @@ import type {HumanDecision,ObjectBehavior,DrawingInput} from "@/src/domain/types
 import type {GameController} from "@/src/game/game-controller";
 import {worldViewport,screenToWorld} from "@/src/game/world-viewport";
 import {isLegalPlacement} from "@/src/game/placement-rules";
+import {StageWorld} from '../stage-preview/StageWorld';
+import {getStageGeometry} from '@/src/game/stage-geometry';
+import {clientToPhysics} from '@/src/game/stage-transform';
+import type {WorldCreation} from '@/src/game/creation-store';
+import styles from './game-stage.module.css';
 export interface GameStageProps {
+ integrated?:boolean;creations?:WorldCreation[];onCreationsChange?:(items:WorldCreation[])=>void;onCreateAnotherObject?:()=>void;
  level:LevelDefinition;behavior:ObjectBehavior;decision:HumanDecision;drawingInput:DrawingInput|null;
  phase:"falling"|"placing"|"gameplay"|"complete";
  onOutcomeReported(o:"success"|"fail"):void;onRedraw():void;onFallComplete():void;onCommitPlacement():void;onReposition():void;
@@ -14,9 +20,10 @@ const NEUTRAL={left:false,right:false,jump:false};
 export function GameStage(props:GameStageProps){
  const latest=useRef(props);latest.current=props;
  const canvas=useRef<HTMLCanvasElement>(null),controller=useRef<GameController|null>(null);
- const [ready,setReady]=useState(false),[error,setError]=useState(""),[outcome,setOutcome]=useState<"success"|"fail"|null>(null);
+ const geometry=props.integrated?getStageGeometry(props.level.stage):null;
+  const [ready,setReady]=useState(false),[error,setError]=useState(""),[outcome,setOutcome]=useState<"success"|"fail"|null>(null);
  const [position,setPosition]=useState(props.level.scene.gapStartX-10),[placementY,setPlacementY]=useState(320),[placementError,setPlacementError]=useState("");
- const [mode,setMode]=useState<"camera"|"fallback">("camera"),[status,setStatus]=useState("NUI NOT VERIFIED"),[trackingPaused,setTrackingPaused]=useState(false);
+ const [mode,setMode]=useState<"camera"|"fallback">(props.integrated?"fallback":"camera"),[status,setStatus]=useState("NUI NOT VERIFIED"),[trackingPaused,setTrackingPaused]=useState(false);
  const [retryKey,setRetryKey]=useState(0),[trackingReady,setTrackingReady]=useState(false);
  const [heldDirs,setHeldDirs]=useState<string[]>([]);
  const paused=useRef(false),grab=useRef(false),keys=useRef({...NEUTRAL}),dragging=useRef(false);
@@ -54,7 +61,7 @@ export function GameStage(props:GameStageProps){
  void(async()=>{try{const {GameController}=await import("@/src/game/game-controller");if(cancelled||!canvas.current)return;instance=new GameController();controller.current=instance;
  await instance.mount(canvas.current,level,behavior,decision.finalLabel,drawingInput,
  o=>{if(!cancelled){keys.current={...NEUTRAL};heldPointers.current.clear();cameraInput.current={...NEUTRAL};setHeldDirs([]);setOutcome(o);}},
- ()=>{if(!cancelled)latest.current.onFallComplete();},()=>{if(!cancelled)latest.current.onCommitPlacement();},()=>{if(!cancelled)latest.current.onReposition();});
+ ()=>{if(!cancelled){if(props.integrated&&canvas.current){setPosition(Number(canvas.current.dataset.objectX??0));setPlacementY(Number(canvas.current.dataset.objectY??0));}latest.current.onFallComplete();}},()=>{if(!cancelled)latest.current.onCommitPlacement();},()=>{if(!cancelled)latest.current.onReposition();},{integrated:props.integrated,creations:props.creations,onCreationsChange:(items:WorldCreation[])=>latest.current.onCreationsChange?.(items)});
  if(cancelled){instance.unmount();return;}setReady(true);
  }catch(e){if(!cancelled)setError(e instanceof Error?e.message:String(e));}})();
  return()=>{cancelled=true;instance?.unmount();controller.current=null;};
@@ -98,9 +105,9 @@ export function GameStage(props:GameStageProps){
  if(latest.current.phase==="gameplay"){cameraInput.current=paused.current?NEUTRAL:f.input;sendCombinedInput();}
  else if(latest.current.phase==="placing"&&f.cursor){
  if(f.pinched){
-    const objWidth = level.scene.gapWidth + 20;
+    const objWidth = geometry?.object.w ?? level.scene.gapWidth + 20;
     const rect=canvas.current?.getBoundingClientRect();
-    if(rect){const point=screenToWorld(f.cursor.x*rect.width,f.cursor.y*rect.height,worldViewport(rect.width,rect.height));movePlacement(point.x-objWidth/2,point.y-4);}
+    if(rect){const point=geometry?clientToPhysics({x:f.cursor.x*rect.width,y:f.cursor.y*rect.height},{left:0,top:0,width:rect.width,height:rect.height},geometry):screenToWorld(f.cursor.x*rect.width,f.cursor.y*rect.height,worldViewport(rect.width,rect.height));movePlacement(point.x-objWidth/2,point.y-(geometry?.object.h??8)/2);}
   }
   grab.current = f.pinched;
  }
@@ -109,15 +116,15 @@ export function GameStage(props:GameStageProps){
  // eslint-disable-next-line react-hooks/exhaustive-deps
  },[ready,mode,phase,outcome,retryKey]);
 
- const legal=isLegalPlacement(position,placementY,level.scene.gapWidth+20,8);
+ const legal=geometry?position>=0&&placementY>=0&&position+geometry.object.w<=800&&placementY+geometry.object.h<=450:isLegalPlacement(position,placementY,level.scene.gapWidth+20,8);
  function pointer(e:React.PointerEvent<HTMLCanvasElement>){
   if(phase!=="placing")return;
-  const r=e.currentTarget.getBoundingClientRect(),point=screenToWorld(e.clientX-r.left,e.clientY-r.top,worldViewport(r.width,r.height));
-  movePlacement(point.x-(level.scene.gapWidth+24)/2,point.y-4);
+  const r=e.currentTarget.getBoundingClientRect(),point=geometry?clientToPhysics({x:e.clientX,y:e.clientY},r,geometry):screenToWorld(e.clientX-r.left,e.clientY-r.top,worldViewport(r.width,r.height));
+  movePlacement(point.x-(geometry?.object.w??level.scene.gapWidth+24)/2,point.y-(geometry?.object.h??8)/2);
  }
 
  function reposition(){setOutcome(null);controller.current?.reposition();setPosition(Number(canvas.current?.dataset.objectX??position));setPlacementY(Number(canvas.current?.dataset.objectY??320));}
- return <section id="screen-gameplay" className="screen" data-testid="world-stage">
+ return <section id="screen-gameplay" className={props.integrated?styles.root:"screen"} data-testid="world-stage">
   <div className="stage-floating-header">
     <div style={{display:"flex",alignItems:"center",gap:12}}>
       <h2 style={{margin:0,fontSize:18,fontWeight:800,color:"#111111"}}>Dunia Stickman</h2>
@@ -126,18 +133,20 @@ export function GameStage(props:GameStageProps){
       </span>
     </div>
     <div style={{display:"flex",gap:8}}>
-      <button className="btn btn-small" onClick={()=>{keys.current={...NEUTRAL};heldPointers.current.clear();cameraInput.current={...NEUTRAL};setHeldDirs([]);sendCombinedInput();setMode(mode==="camera"?"fallback":"camera");paused.current=false;setTrackingPaused(false);}}>
+      {!props.integrated&&<button className="btn btn-small" onClick={()=>{keys.current={...NEUTRAL};heldPointers.current.clear();cameraInput.current={...NEUTRAL};setHeldDirs([]);sendCombinedInput();setMode(mode==="camera"?"fallback":"camera");paused.current=false;setTrackingPaused(false);}}>
         {mode==="camera"?"Gunakan FALLBACK keyboard/pointer":"Nyalakan Kamera NUI"}
-      </button>
+      </button>}
       <button className="btn btn-small" onClick={props.onRedraw}>Gambar ulang</button>
     </div>
   </div>
 
+  <div className={props.integrated?styles.surface:undefined}>
+  {props.integrated&&<StageWorld scene={level.stage} gameplay/>}
   <canvas
     ref={canvas}
     width={800}
-    height={380}
-    className="game-canvas"
+    height={props.integrated?450:380}
+    className={props.integrated?styles.canvas:"game-canvas"}
     data-testid="game-canvas"
     aria-label="Dunia Stickman 2D"
     onPointerDown={e=>{if(phase!=="placing")return;dragging.current=true;e.currentTarget.setPointerCapture(e.pointerId);pointer(e);}}
@@ -145,6 +154,10 @@ export function GameStage(props:GameStageProps){
     onPointerUp={()=>{dragging.current=false;}}
     onPointerCancel={()=>{dragging.current=false;}}
   />
+  </div>
+  {error&&<p role="alert">{error}</p>}
+  {props.integrated&&phase==="gameplay"&&!outcome&&<button className={styles.create} data-testid="btn-create-object" onClick={props.onCreateAnotherObject}>Ciptakan objek lagi</button>}
+  {props.integrated&&(props.creations?.length??0)>0&&phase==="gameplay"&&<div className={styles.objects}>{props.creations?.map((c,i)=><button key={c.id} data-testid={`reposition-${i}`} onClick={()=>{if(controller.current?.selectCreation(c.id)){setOutcome(null);setPosition(c.x);setPlacementY(c.y);}}}>Geser {c.label} {i+1}</button>)}</div>}
 
   {phase==="placing"&&!error&&(
     <div className="stage-floating-controls" data-testid="placement-controls" style={{flexDirection:"column",gap:8,alignItems:"center",padding:"12px 20px"}}>
@@ -155,7 +168,7 @@ export function GameStage(props:GameStageProps){
         className="btn btn-primary btn-small"
         data-testid="btn-confirm-placement"
         disabled={!ready||!legal}
-        onClick={()=>{if(!controller.current?.commitPlacementAt(position, placementY))setPlacementError("Penempatan tidak legal. Objek tidak hilang.");}}
+        onClick={()=>{if(controller.current?.commitPlacementAt(position, placementY)){setOutcome(null);}else{setPlacementError("Penempatan tidak legal. Objek tidak hilang.");}}}
       >
         Konfirmasi Posisi
       </button>
@@ -277,9 +290,10 @@ export function GameStage(props:GameStageProps){
     </div>
   )}
 
-  <div className="stage-input-status-chip" style={{position:"absolute",bottom:12,right:16,zIndex:150,fontSize:11,fontWeight:600,padding:"4px 8px",borderRadius:4,background:"rgba(255,255,255,0.85)",border:"1px solid rgba(0,0,0,0.15)",color:"#333",pointerEvents:"none"}}>
+  {!props.integrated&&<div className="stage-input-status-chip" style={{position:"absolute",bottom:12,right:16,zIndex:150,fontSize:11,fontWeight:600,padding:"4px 8px",borderRadius:4,background:"rgba(255,255,255,0.85)",border:"1px solid rgba(0,0,0,0.15)",color:"#333",pointerEvents:"none"}}>
     <span role="status" data-testid="input-status">{mode==="fallback"?"FALLBACK pointer/keyboard — BUKAN NUI TERVERIFIKASI":status}</span>
   </div>
+  }
   {trackingPaused&&mode==="camera"&&phase==="gameplay"&&(
     <div style={{position:"absolute",top:60,left:"50%",transform:"translateX(-50%)",zIndex:250,background:"rgba(255,255,255,0.95)",border:"1px solid #111",padding:"8px 16px",borderRadius:8,display:"flex",gap:8,alignItems:"center"}}>
       <span style={{fontSize:13,fontWeight:700,color:"#d94336"}}>Tangan Terputus · Tracking Ditahan</span>

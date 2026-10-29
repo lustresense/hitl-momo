@@ -1,10 +1,12 @@
 import { useId } from 'react';
+import { STICKMAN_DEFINITION } from '../../game/assets/stickman-svg';
 import { StageAtmosphere } from './StageAtmosphere';
 import { STAGE_SCENES, type SceneIndex } from './scene-metadata';
 
 interface StageArtworkProps {
   scene: SceneIndex;
   className?: string;
+  gameplay?: boolean;
 }
 
 function ArtworkDefinitions({ prefix }: { prefix: string }) {
@@ -25,9 +27,9 @@ function ArtworkDefinitions({ prefix }: { prefix: string }) {
       <pattern id={`${prefix}-spk`} width="22" height="46" patternUnits="userSpaceOnUse">
         <path d="M1 46L11 12L21 46Z" fill="#cfcabb" stroke="#1e2126" strokeWidth="1.6" />
       </pattern>
-      <g id={`${prefix}-man`} fill="none" stroke="#1e2126" strokeWidth="2.4" strokeLinecap="round">
-        <circle cx="0" cy="-36" r="8" fill="#fff" />
-        <path d="M0-28V-12M0-12L-7 0M0-12L7 0M0-25L-8-16M0-25L8-18" />
+      <g id={`${prefix}-man`} fill={STICKMAN_DEFINITION.fill} stroke={STICKMAN_DEFINITION.stroke} strokeWidth={STICKMAN_DEFINITION.strokeWidth} strokeLinecap={STICKMAN_DEFINITION.strokeLinecap}>
+        <circle {...STICKMAN_DEFINITION.circle} />
+        <path d={STICKMAN_DEFINITION.path} />
       </g>
       <g id={`${prefix}-flag`}>
         <path d="M0 0V-52" stroke="#1e2126" strokeWidth="3.5" strokeLinecap="round" />
@@ -54,7 +56,7 @@ function ArtworkDefinitions({ prefix }: { prefix: string }) {
   );
 }
 
-function SceneLayers({ scene, prefix }: { scene: SceneIndex; prefix: string }) {
+function SceneLayers({ scene, prefix, gameplay }: { scene: SceneIndex; prefix: string; gameplay: boolean }) {
   switch (scene) {
     case 0:
       return (
@@ -77,7 +79,7 @@ function SceneLayers({ scene, prefix }: { scene: SceneIndex; prefix: string }) {
           <path d="M220 536l14-34l24-8l12 42M250 510l10-46l22 8-4 38M300 536l8-26l30-10l6 36M345 518l4-40h20l6 40M380 536l10-30l28 6l8 24M430 520l6-50l12-4l6 54M470 536l22-26l30 8M505 520l14-24l20 40M240 536l30-22M330 536l30-16" />
           <path d="M200 536h350" stroke="#555" strokeWidth="3" />
         </g>
-        <use data-asset-role="character-preview" href={`#${prefix}-man`} transform="translate(116 334) scale(1.75)" />
+        {!gameplay && <use data-asset-role="character-preview" href={`#${prefix}-man`} transform="translate(116 334) scale(1.75)" />}
         <use data-asset-role="goal-preview" href={`#${prefix}-flag`} transform="translate(668 334) scale(1.5)" />
         <use href={`#${prefix}-spark`} transform="translate(150 232) rotate(-20) scale(.9)" />
         <use href={`#${prefix}-spark`} transform="translate(722 252) scale(.9)" />
@@ -100,7 +102,7 @@ function SceneLayers({ scene, prefix }: { scene: SceneIndex; prefix: string }) {
         <g fill="none" stroke="#8a867b" strokeWidth="1.6" strokeLinecap="round">
           <path d="M170 325l12-34l22-10l10 44M205 306l14-28l20 6l6 36M235 325l24-30l24 6l8 24M290 318l10-24l22 14" />
         </g>
-        <use data-asset-role="character-preview" href={`#${prefix}-man`} transform="translate(42 198) scale(1.1)" />
+        {!gameplay && <use data-asset-role="character-preview" href={`#${prefix}-man`} transform="translate(42 198) scale(1.1)" />}
         <use data-asset-role="goal-preview" href={`#${prefix}-flag`} transform="translate(458 192)" />
         </>
       );
@@ -128,7 +130,7 @@ function SceneLayers({ scene, prefix }: { scene: SceneIndex; prefix: string }) {
         <g stroke="#1e2126" strokeWidth="2.4" fill="none">
           <path d="M349 140V325M366 140V325M349 162h17M349 186h17M349 210h17M349 234h17M349 258h17M349 282h17M349 306h17" />
         </g>
-        <use data-asset-role="character-preview" href={`#${prefix}-man`} transform="translate(77 190) scale(1.1)" />
+        {!gameplay && <use data-asset-role="character-preview" href={`#${prefix}-man`} transform="translate(77 190) scale(1.1)" />}
         <use data-asset-role="goal-preview" href={`#${prefix}-flag`} transform="translate(379 66) scale(.75)" />
         </>
       );
@@ -149,7 +151,7 @@ function SceneLayers({ scene, prefix }: { scene: SceneIndex; prefix: string }) {
           <path d="M18 250l22-4l6 26l-22 5zM428 214l26-6l8 28l-26 6z" fill="#f3ead2" strokeWidth="1.4" />
         </g>
         <rect x="132" y="282" width="236" height="43" fill={`url(#${prefix}-spk)`} />
-        <use data-asset-role="character-preview" href={`#${prefix}-man`} transform="translate(48 198) scale(1.1)" />
+        {!gameplay && <use data-asset-role="character-preview" href={`#${prefix}-man`} transform="translate(48 198) scale(1.1)" />}
         <use data-asset-role="goal-preview" href={`#${prefix}-flag`} transform="translate(436 160)" />
         </>
       );
@@ -157,7 +159,7 @@ function SceneLayers({ scene, prefix }: { scene: SceneIndex; prefix: string }) {
 }
 
 /** Inline vector port; useId scopes every definition and reference per mount. */
-export function StageArtwork({ scene, className }: StageArtworkProps) {
+export function StageArtwork({ scene, className, gameplay = false }: StageArtworkProps) {
   const id = useId();
   const prefix = `stage-${id.replace(/[^a-zA-Z0-9_-]/g, (character) => `_${character.codePointAt(0)!.toString(16)}_`)}`;
   const title = STAGE_SCENES[scene].title;
@@ -172,7 +174,7 @@ export function StageArtwork({ scene, className }: StageArtworkProps) {
     >
       <title id={`${prefix}-title`}>{title}</title>
       <ArtworkDefinitions prefix={prefix} />
-      <SceneLayers scene={scene} prefix={prefix} />
+      <SceneLayers scene={scene} prefix={prefix} gameplay={gameplay} />
     </svg>
   );
 }

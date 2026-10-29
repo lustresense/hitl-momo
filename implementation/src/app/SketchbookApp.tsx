@@ -213,7 +213,14 @@ export function SketchbookApp() {
   const isNumberSelection = onboarding === "number";
   const isOnboarding = onboarding === "tutorial" || isNumberSelection;
   const isDrawing = onboarding === "levels" && snapshot?.phase === "drawing";
+
   const phase = snapshot?.phase ?? "level-entry";
+  const isDrawingFlow =
+    onboarding === "levels" &&
+    (phase === "drawing" ||
+      phase === "predicting" ||
+      phase === "prediction-error" ||
+      phase === "evaluating");
   const isLevelEntry = onboarding === "levels" && ((!snapshot || phase === "level-entry") || entryHold);
 
   return (
@@ -249,8 +256,8 @@ export function SketchbookApp() {
             </section>
           )}
 
-          {/* DRAWING */}
-          {onboarding === "levels" && snapshot && phase === "drawing" && level && (
+          {/* DRAWING (Hosts Drawing Canvas & Floating Top-3 HITL Popup) */}
+          {snapshot && isDrawingFlow && level && (
             <DrawingScreen
               key={level.levelId + String(snapshot.cyclesCompleted) + ":" + drawingRevision}
               level={level}
@@ -258,6 +265,39 @@ export function SketchbookApp() {
               feedback={controller?.feedback ?? null}
               surfaceOut={surfaceRef}
               active={phase === "drawing"}
+              phase={phase}
+              prediction={controller?.prediction ?? null}
+              errorDetail={controller?.errorDetail ?? null}
+              predictionMode={providerMode}
+              onAccept={() => {
+                try {
+                  controller?.decideAccept();
+                } catch {
+                  /* guarded by phase */
+                }
+              }}
+              onCorrect={(rank) => {
+                try {
+                  controller?.decideCorrect(rank);
+                } catch {
+                  /* guarded */
+                }
+              }}
+              onOverride={(label) => {
+                try {
+                  controller?.decideOverride(label);
+                } catch {
+                  /* DecisionError shown by picker validation */
+                }
+              }}
+              onRedraw={() => {
+                if (phase === "prediction-error") {
+                  controller?.redrawFromError();
+                } else {
+                  controller?.requestRedraw("evaluation");
+                }
+              }}
+              onRetry={() => void controller?.retryPrediction()}
               onSubmit={() => void handleSubmitDrawing()}
               onExit={() => {
                 controller?.exitToLevelEntry();
@@ -265,61 +305,6 @@ export function SketchbookApp() {
                 if (typeof window !== "undefined") window.history.pushState(null, "", "/levels");
               }}
             />
-          )}
-
-          {/* PREDICTING */}
-          {onboarding === "levels" && phase === "predicting" && (
-            <PredictingScreen error={false} detail={null} onRetry={() => undefined} onRedraw={() => undefined} />
-          )}
-
-          {/* PREDICTION ERROR */}
-          {onboarding === "levels" && phase === "prediction-error" && (
-            <PredictingScreen
-              error
-              detail={controller?.errorDetail ?? null}
-              onRetry={() => void controller?.retryPrediction()}
-              onRedraw={() => controller?.redrawFromError()}
-            />
-          )}
-
-          {/* EVALUATING */}
-          {onboarding === "levels" && phase === "evaluating" && controller?.prediction && level && (
-            <section id="screen-evaluating" className="screen" aria-label="Evaluasi prediksi">
-              <div className="screen-head">
-                <h2>Tebakan Momo (Top-3)</h2>
-                <p role="status" data-testid="prediction-source">{providerMode === "mock" ? "DEMO / PREDIKSI SIMULASI — bukan model asli" : "PARTNER API — periksa sumber prediksi"}</p>
-                <p className="lead">Confidence bukan jaminan benar. Kamu yang memutuskan.</p>
-              </div>
-              <div className="eval-layout">
-                <Top3Panel result={controller.prediction} />
-                <DecisionPanel
-                  prediction={controller.prediction}
-                  level={level}
-                  onAccept={() => {
-                    try {
-                      controller.decideAccept();
-                    } catch {
-                      /* guarded by phase; UI reflects state */
-                    }
-                  }}
-                  onCorrect={(rank) => {
-                    try {
-                      controller.decideCorrect(rank);
-                    } catch {
-                      /* guarded */
-                    }
-                  }}
-                  onOverride={(label) => {
-                    try {
-                      controller.decideOverride(label);
-                    } catch {
-                      /* DecisionError shown by picker validation upstream */
-                    }
-                  }}
-                  onRedraw={() => controller.requestRedraw("evaluation")}
-                />
-              </div>
-            </section>
           )}
 
           {/* GAMEPLAY */}

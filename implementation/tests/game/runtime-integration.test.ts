@@ -120,12 +120,12 @@ function physicsHarness() {
   return { k, objects, labels, advanceFixed(n = 1) { for (let i = 0; i < n; i++) { objects.forEach(o => o.tick()); fixedUpdates.forEach(f => f()); } }, advanceRender() { updates.forEach(f => f()); }, advance(n = 1) { for (let i = 0; i < n; i++) { objects.forEach(o => o.tick()); fixedUpdates.forEach(f => f()); updates.forEach(f => f()); } } };
 }
 
-async function startPhysics(integrated = true) {
+async function startPhysics(integrated = true, stage = 1) {
   const h = physicsHarness(); engine.current = h;
   const canvas = { dataset: {} as Record<string, string>, getBoundingClientRect: () => ({ width: 800, height: 450 }) };
   const outcome = vi.fn();
   const handle = await createKaplayGame({
-    integrated, canvas: canvas as unknown as HTMLCanvasElement, level: LEVELS[0]!,
+    integrated, canvas: canvas as unknown as HTMLCanvasElement, level: LEVELS[stage - 1]!,
     behavior: "solid", finalLabel: "papan", drawingInput: null,
     onOutcome: outcome, onFallComplete() {}, onCommitPlacement() {}, onReposition() {},
   });
@@ -226,5 +226,44 @@ describe("contextual hazard feedback", () => {
     expect(h.outcome).toHaveBeenCalledTimes(1);
     expect(h.outcome).toHaveBeenCalledWith("fail", "Jatuh ke lantai duri!");
     h.handle.destroy();
+  });
+});
+
+
+describe("L1 desktop left framing boundary", () => {
+  it("keeps the complete sprite inside the left edge; right input still moves", async () => {
+    vi.stubGlobal("innerWidth", 1280); vi.stubGlobal("innerHeight", 660);
+    try {
+      const h = await startPhysics();
+      h.handle.onFallComplete(); expect(h.handle.commitPlacementAt(340, 40)).toBe(true);
+      h.player.pos.x = 12;
+      h.handle.setInput({left: true, right: false, jump: false});
+      h.advanceFixed(10);
+      const spriteLeft = h.player.pos.x + 12 - 12 * 1.1 * 800 / 490;
+      expect(spriteLeft).toBeGreaterThanOrEqual(2 - 1e-9);
+      const boundaryX = h.player.pos.x;
+      h.handle.setInput({left: false, right: true, jump: false}); h.advanceFixed();
+      expect(h.player.pos.x).toBeGreaterThan(boundaryX);
+      h.handle.destroy();
+    } finally { vi.unstubAllGlobals(); }
+  });
+});
+
+
+describe("desktop left boundary scope", () => {
+  it.each([
+    [false, 1, 1280, 660],
+    [true, 1, 390, 844],
+    [true, 2, 1280, 660],
+    [true, 3, 1280, 660],
+  ])("leaves legacy, portrait, and other levels unchanged (%s,%s,%s,%s)", async (integrated, stage, width, height) => {
+    vi.stubGlobal("innerWidth", width); vi.stubGlobal("innerHeight", height);
+    try {
+      const h = await startPhysics(integrated, stage);
+      h.handle.onFallComplete(); expect(h.handle.commitPlacementAt(340, 40)).toBe(true);
+      h.player.pos.x = 12; h.handle.setInput({left: true, right: false, jump: false}); h.advanceFixed();
+      expect(h.player.pos.x).toBe(integrated ? 8 : 12); // Legacy movement runs on render cadence, unchanged.
+      h.handle.destroy();
+    } finally { vi.unstubAllGlobals(); }
   });
 });

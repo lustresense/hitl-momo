@@ -21,7 +21,7 @@ export function GameStage(props:GameStageProps){
  const latest=useRef(props);latest.current=props;
  const canvas=useRef<HTMLCanvasElement>(null),controller=useRef<GameController|null>(null);
  const geometry=props.integrated?getStageGeometry(props.level.stage):null;
-  const [ready,setReady]=useState(false),[error,setError]=useState(""),[outcome,setOutcome]=useState<"success"|"fail"|null>(null);
+  const [ready,setReady]=useState(false),[error,setError]=useState(""),[outcome,setOutcome]=useState<"success"|"fail"|null>(null),[failReason,setFailReason]=useState("");
  const [position,setPosition]=useState(props.level.scene.gapStartX-10),[placementY,setPlacementY]=useState(320),[placementError,setPlacementError]=useState("");
  const [mode,setMode]=useState<"camera"|"fallback">(props.integrated?"fallback":"camera"),[status,setStatus]=useState("NUI NOT VERIFIED"),[trackingPaused,setTrackingPaused]=useState(false);
  const [retryKey,setRetryKey]=useState(0),[trackingReady,setTrackingReady]=useState(false);
@@ -60,7 +60,7 @@ export function GameStage(props:GameStageProps){
  let cancelled=false;let instance:GameController|null=null;setReady(false);setError("");
  void(async()=>{try{const {GameController}=await import("@/src/game/game-controller");if(cancelled||!canvas.current)return;instance=new GameController();controller.current=instance;
  await instance.mount(canvas.current,level,behavior,decision.finalLabel,drawingInput,
- o=>{if(!cancelled){keys.current={...NEUTRAL};heldPointers.current.clear();cameraInput.current={...NEUTRAL};setHeldDirs([]);setOutcome(o);}},
+ (o,reason)=>{if(!cancelled){keys.current={...NEUTRAL};heldPointers.current.clear();cameraInput.current={...NEUTRAL};setHeldDirs([]);setOutcome(o);if(reason)setFailReason(reason);}},
  ()=>{if(!cancelled){if(props.integrated&&canvas.current){setPosition(Number(canvas.current.dataset.objectX??0));setPlacementY(Number(canvas.current.dataset.objectY??0));}latest.current.onFallComplete();}},()=>{if(!cancelled)latest.current.onCommitPlacement();},()=>{if(!cancelled)latest.current.onReposition();},{integrated:props.integrated,creations:props.creations,onCreationsChange:(items:WorldCreation[])=>latest.current.onCreationsChange?.(items)});
  if(cancelled){instance.unmount();return;}setReady(true);
  }catch(e){if(!cancelled)setError(e instanceof Error?e.message:String(e));}})();
@@ -123,7 +123,7 @@ export function GameStage(props:GameStageProps){
   movePlacement(point.x-(geometry?.object.w??level.scene.gapWidth+24)/2,point.y-(geometry?.object.h??8)/2);
  }
 
- function reposition(){setOutcome(null);controller.current?.reposition();setPosition(Number(canvas.current?.dataset.objectX??position));setPlacementY(Number(canvas.current?.dataset.objectY??320));}
+ function reposition(){setOutcome(null);setFailReason("");controller.current?.reposition();setPosition(Number(canvas.current?.dataset.objectX??position));setPlacementY(Number(canvas.current?.dataset.objectY??320));}
  return <section id="screen-gameplay" className={props.integrated?styles.root:"screen"} data-testid="world-stage">
   <div className="stage-floating-header">
     <div style={{display:"flex",alignItems:"center",gap:12}}>
@@ -277,12 +277,13 @@ export function GameStage(props:GameStageProps){
   {outcome&&(
     <div className="overlay" data-testid="outcome-overlay" style={{position:"absolute",top:"45%",left:"50%",transform:"translate(-50%,-50%)",zIndex:300}}>
       <h3 className="overlay-title">{outcome==="success"?"Berhasil menyeberang!":"Gagal · kembali ke checkpoint"}</h3>
+      {outcome==="fail"&&failReason&&<p data-testid="fail-reason" style={{margin:"4px 0 14px",fontSize:13,color:"#666",fontWeight:600,textAlign:"center"}}>{failReason}</p>}
       <div className="overlay-actions">
         {outcome==="success"?(
           <button className="btn btn-primary" data-testid="btn-next" onClick={()=>props.onOutcomeReported("success")}>Lihat ringkasan</button>
         ):(
           <>
-            <button className="btn" data-testid="btn-retry-cycle" onClick={()=>{controller.current?.retry();setOutcome(null);}}>Coba dari checkpoint</button>
+            <button className="btn" data-testid="btn-retry-cycle" onClick={()=>{controller.current?.retry();setOutcome(null);setFailReason("");}}>Coba dari checkpoint</button>
             <button className="btn" data-testid="btn-reposition" onClick={reposition}>Reposisi objek yang sama</button>
           </>
         )}

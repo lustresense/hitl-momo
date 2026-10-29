@@ -200,3 +200,31 @@ it("applies integrated input every fixed step, never as a low-FPS render burst",
   expect(Number(h.canvas.dataset.playerX)).toBeCloseTo(beforeRender);
   h.handle.destroy();
 });
+
+
+describe("contextual hazard feedback", () => {
+  it("identifies the committed danger creation without changing failure physics", async () => {
+    const h = await startPhysics();
+    h.handle.onFallComplete();
+    expect(h.handle.commitPlacementAt(340, 40)).toBe(true);
+    h.player.trigger("collide:hazard", { creationBehavior: "danger", label: "tali" });
+    expect(h.outcome).toHaveBeenCalledTimes(1);
+    expect(h.outcome).toHaveBeenCalledWith("fail", "Menyentuh objek berbahaya (tali)!");
+    expect(h.canvas.dataset.failReason).toBe("Menyentuh objek berbahaya (tali)!");
+    h.advance(100);
+    expect(h.player.vel.y).toBe(0);
+    h.handle.retry();
+    expect(h.canvas.dataset.failReason).toBeUndefined();
+    expect(h.canvas.dataset.outcome).toBeUndefined();
+    h.handle.destroy();
+  });
+  it("distinguishes a static spike floor from a danger creation", async () => {
+    const h = await startPhysics();
+    h.handle.onFallComplete();
+    expect(h.handle.commitPlacementAt(340, 40)).toBe(true);
+    h.player.trigger("collideUpdate:hazard", { geometryId: "floor-spike" });
+    expect(h.outcome).toHaveBeenCalledTimes(1);
+    expect(h.outcome).toHaveBeenCalledWith("fail", "Jatuh ke lantai duri!");
+    h.handle.destroy();
+  });
+});

@@ -82,6 +82,7 @@ const STAGE_2: LevelDefinition = makeLevel({
   behaviorMap: {
     papan: "solid",
     balok: "solid",
+    tangga: "solid",
     duri: "danger",
   },
   vocabulary: ["papan", "balok", "duri", "tangga"],

@@ -6,9 +6,11 @@
  * No space/planet theme (revoked), no SaaS-dashboard aesthetic.
  */
 :root {
-  --paper: #f5efe4;
+  --paper: #f7f5ea;
   --paper-light: #f7f5ea;
   --paper-line: rgba(35, 33, 29, 0.14);
+  --paper-dots: rgba(49, 45, 38, 0.16);
+  --dot-grid-pattern: radial-gradient(circle at 1px 1px, var(--paper-dots) 1px, transparent 1.2px) 0 0 / 22px 22px, var(--paper);
   --ink: #23211d;
   --ink-strong: #111111;
   --ink-soft: #756f65;
@@ -39,9 +41,8 @@ body {
   margin: 0;
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--ink);
-  background:
-    radial-gradient(circle at 1px 1px, rgba(49, 45, 38, 0.16) 1px, transparent 1.2px) 0 0 / 22px 22px,
-    linear-gradient(180deg, #f8f3ea 0%, #f3ecdf 100%);
+  background: var(--dot-grid-pattern);
+  background-attachment: fixed;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   text-rendering: geometricPrecision;
@@ -520,9 +521,7 @@ button:focus-visible, a:focus-visible, select:focus-visible {
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
-  background:
-    radial-gradient(circle at 1px 1px, rgba(49, 45, 38, 0.16) 1px, transparent 1.2px) 0 0 / 22px 22px,
-    linear-gradient(180deg, #f8f3ea 0%, #f3ecdf 100%) !important;
+  background: transparent !important;
   overflow: hidden !important;
 }
 
@@ -1059,32 +1058,8 @@ button:focus-visible, a:focus-visible, select:focus-visible {
   display: none !important;
 }
 
-/* One continuous post-cover sketchbook paper surface across every route. */
-html:has(.student-number-screen),
-body:has(.student-number-screen),
-html:has(.tutorial-screen),
-body:has(.tutorial-screen),
-html:has(#screen-level-entry),
-body:has(#screen-level-entry),
-html:has(#screen-drawing),
-body:has(#screen-drawing),
-#app:has(.student-number-screen),
-#screens:has(.student-number-screen),
-.student-number-screen,
-#app:has(.tutorial-screen),
-#screens:has(.tutorial-screen),
-.tutorial-screen,
-#app:has(#screen-level-entry),
-#screens:has(#screen-level-entry),
-#screen-level-entry,
-#screen-level-entry > .level-ribbon-page,
-#app:has(#screen-drawing),
-#screens:has(#screen-drawing),
-#screen-drawing {
-  background-color: #f7f2ea !important;
-  background-image: radial-gradient(#d9d0c3 1px, transparent 1px) !important;
-  background-size: 22px 22px !important;
-}
+/* Page wrappers reveal one document paper layer. */
+html, #screens, #screen-level-entry { background: transparent !important; }
 
 #app:has(#screen-level-entry) .app-header,
 #app:has(#screen-level-entry) .app-footer {
@@ -1378,4 +1353,25 @@ body:has(#screen-drawing),
  #screen-gameplay .stage-floating-controls { bottom: 190px; max-width: calc(100vw - 16px); width: max-content; flex-wrap: wrap; justify-content: center; gap: 6px; padding: 8px; border-radius: 14px; }
  #screen-gameplay .stage-floating-controls > span { font-size: 11px !important; }
  #screen-gameplay .stage-input-status-chip { bottom: 4px !important; right: 4px !important; max-width: calc(100vw - 8px); font-size: 9px !important; }
+}
+
+/* Interior paper belongs to the document, not the current screen. */
+body {
+  background: var(--dot-grid-pattern) !important;
+  background-attachment: fixed !important;
+}
+#app,
+#app.onboarding-app,
+body #app:has(#screen-level-entry),
+body #app:has(#screen-drawing),
+.tutorial-screen,
+#screen-drawing,
+#screen-evaluating,
+#screen-summary,
+.level-ribbon-page {
+  background: transparent !important;
+}
+/* Cover retains its existing green treatment; do not share interior paper. */
+#app.onboarding-app:has(.camera-prototype-root.mode-cover) {
+  background: #eff3db !important;
 }

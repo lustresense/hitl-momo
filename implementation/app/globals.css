@@ -1220,12 +1220,14 @@ body:has(#screen-drawing),
   box-shadow: 3px 3px 0 #111 !important;
 }
 
+.drawing-tools-right,
 .drawing-tools-left {
   position: absolute !important;
   z-index: 5 !important;
   top: 50% !important;
   transform: translateY(-50%) !important;
-  left: 20px !important;
+  right: 20px !important;
+  left: auto !important;
   width: auto !important;
   height: auto !important;
   display: flex !important;
@@ -1240,6 +1242,7 @@ body:has(#screen-drawing),
   user-select: none !important;
 }
 
+.drawing-tools-right .tool-btn-action,
 .drawing-tools-left .tool-btn-action {
   display: flex !important;
   flex-direction: column !important;
@@ -1259,22 +1262,26 @@ body:has(#screen-drawing),
   outline: none !important;
 }
 
+.drawing-tools-right .tool-btn-action:hover,
 .drawing-tools-left .tool-btn-action:hover {
   background: #fbf7e6 !important;
   transform: translate(-1px, -1px) !important;
   box-shadow: 3px 3px 0 #111 !important;
 }
 
+.drawing-tools-right .tool-btn-action:active,
 .drawing-tools-left .tool-btn-action:active {
   transform: translate(1px, 1px) !important;
   box-shadow: 1px 1px 0 #111 !important;
 }
 
+.drawing-tools-right .tool-btn-action.active,
 .drawing-tools-left .tool-btn-action.active {
   background: #ef7a37 !important;
   color: #ffffff !important;
 }
 
+.drawing-tools-right .tool-btn-action .tool-icon,
 .drawing-tools-left .tool-btn-action .tool-icon {
   width: 24px !important;
   height: 24px !important;
@@ -1283,6 +1290,7 @@ body:has(#screen-drawing),
   stroke-width: 2.2px;
 }
 
+.drawing-tools-right .tool-btn-action .tool-label,
 .drawing-tools-left .tool-btn-action .tool-label {
   font-size: 9.5px !important;
   font-weight: 800 !important;
@@ -1292,6 +1300,7 @@ body:has(#screen-drawing),
   pointer-events: none !important;
 }
 
+.drawing-tools-right .tool-btn-action.active .tool-label,
 .drawing-tools-left .tool-btn-action.active .tool-label {
   color: #ffffff !important;
 }
@@ -1322,6 +1331,7 @@ body:has(#screen-drawing),
   z-index: 10 !important;
 }
 
+#screen-drawing .drawing-tools-right .undo-tool,
 #screen-drawing .drawing-tools-left .undo-tool {
   cursor: pointer !important;
 }
@@ -1332,9 +1342,13 @@ body:has(#screen-drawing),
   .drawing-actions-top { gap: 4px !important; padding: 5px !important; }
   .drawing-actions-top .btn { min-height: 34px !important; padding: 4px 7px !important; font-size: 12px !important; }
   .drawing-momo-top-right { top: 10px !important; right: 10px !important; max-width: 42vw !important; }
+  .drawing-tools-right { right: 8px !important; left: auto !important; gap: 6px !important; padding: 6px 4px !important; }
   .drawing-tools-left { left: 8px !important; gap: 6px !important; padding: 6px 4px !important; }
+  .drawing-tools-right .tool-btn-action { width: 52px !important; min-height: 46px !important; padding: 4px 2px !important; gap: 2px !important; }
   .drawing-tools-left .tool-btn-action { width: 52px !important; min-height: 46px !important; padding: 4px 2px !important; gap: 2px !important; }
+  .drawing-tools-right .tool-btn-action .tool-icon { width: 17px !important; height: 17px !important; }
   .drawing-tools-left .tool-btn-action .tool-icon { width: 17px !important; height: 17px !important; }
+  .drawing-tools-right .tool-btn-action .tool-label { font-size: 8.5px !important; }
   .drawing-tools-left .tool-btn-action .tool-label { font-size: 8.5px !important; }
   #screen-drawing .drawing-exit { bottom: 12px !important; right: 12px !important; }
 }
@@ -1375,3 +1389,175 @@ body #app:has(#screen-drawing),
 #app.onboarding-app:has(.camera-prototype-root.mode-cover) {
   background: #eff3db !important;
 }
+
+/* ========================================================
+ * HITL Top-3 Floating Prediction Popup (Tactile Papercraft)
+ * ======================================================== */
+.prediction-hitl-popup {
+  position: absolute !important;
+  top: 24px !important;
+  left: 28px !important;
+  width: min(440px, calc(100vw - 56px)) !important;
+  max-height: calc(100vh - 48px) !important;
+  overflow-y: auto !important;
+  z-index: 100 !important;
+  background: #fffaf0 !important;
+  border: 2px solid #111111 !important;
+  border-radius: 18px !important;
+  box-shadow: 4px 4px 0 #111111 !important;
+  padding: 18px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 14px !important;
+  font-family: inherit !important;
+  pointer-events: auto !important;
+  box-sizing: border-box !important;
+}
+
+.prediction-hitl-popup.is-predicting {
+  width: min(340px, calc(100vw - 56px)) !important;
+  align-items: center !important;
+  text-align: center !important;
+  padding: 24px 20px !important;
+  gap: 12px !important;
+}
+
+.prediction-hitl-popup.is-error {
+  width: min(380px, calc(100vw - 56px)) !important;
+  border-color: #d94336 !important;
+  gap: 12px !important;
+}
+
+.prediction-hitl-popup .popup-header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.prediction-hitl-popup .popup-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.prediction-hitl-popup .popup-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 800;
+  color: #111111;
+  letter-spacing: -0.02em;
+}
+
+.prediction-hitl-popup .popup-lead {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: #756f65;
+  line-height: 1.4;
+}
+
+.prediction-hitl-popup .popup-desc {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #4f5646;
+}
+
+.prediction-hitl-popup .popup-badge {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid #111;
+}
+
+.prediction-hitl-popup .popup-badge.dev-badge {
+  background: #fff3cd;
+  border-color: #e0c36a;
+  color: #6b5518;
+}
+
+.prediction-hitl-popup .popup-badge.error-badge {
+  background: #fdecea;
+  border-color: #d94336;
+  color: #d94336;
+}
+
+.prediction-hitl-popup .popup-actions-error {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+  width: 100%;
+}
+
+.prediction-hitl-popup .popup-actions-error .btn {
+  flex: 1;
+}
+
+.prediction-hitl-popup .popup-candidates .top3 {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prediction-hitl-popup .popup-candidates .top3-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border: 1.5px solid #111;
+  border-radius: 10px;
+  background: #f7f5ea;
+  box-shadow: 2px 2px 0 #111;
+}
+
+.prediction-hitl-popup .popup-candidates .top3-item.top3-item-rank1 {
+  background: #eff3db;
+  border: 2px solid #4a8c1f;
+  box-shadow: 2px 2px 0 #4a8c1f;
+}
+
+.rank1-badge {
+  display: inline-block;
+  margin-left: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  background: #4a8c1f;
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 999px;
+  vertical-align: middle;
+}
+
+.prediction-hitl-popup .popup-decision .decision-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.prediction-hitl-popup .decision-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.prediction-hitl-popup .decision-tab {
+  flex: 1;
+  font-size: 11px;
+  padding: 8px 6px;
+  text-align: center;
+}
+
+.prediction-hitl-popup .btn-wujudkan-objek,
+.prediction-hitl-popup [data-testid="btn-wujudkan-objek"] {
+  width: 100%;
+  font-size: 14px;
+  padding: 10px 16px;
+}
+

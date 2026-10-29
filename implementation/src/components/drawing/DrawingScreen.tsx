@@ -2,16 +2,11 @@
 import { useEffect, useRef, useState } from "react";
 import type { LevelDefinition } from "@/src/domain/levels";
 import type { MomoMoment } from "@/src/domain/momo-script";
+import type { PredictionResult } from "@/src/domain/types";
 import { DrawingSurface } from "@/src/input";
 import type { InputModeId } from "@/src/input/types";
 import { MomoBubble } from "../momo/MomoBubble";
-
-const REASONS: Record<string, string> = {
-  "permission-denied": "Izin kamera ditolak — kembali ke mode pointer.",
-  "camera-unavailable": "Kamera tidak tersedia — kembali ke mode pointer.",
-  "model-error": "Aset model MediaPipe gagal dimuat — kembali ke mode pointer.",
-  "tracker-error": "Pelacak tangan bermasalah — kembali ke mode pointer.",
-};
+import { Top3PredictionPopup } from "../prediction/Top3PredictionPopup";
 
 export interface DrawingScreenProps {
   level: LevelDefinition;
@@ -21,15 +16,38 @@ export interface DrawingScreenProps {
   onSubmit(chosenPrediction: string | null): void;
   onExit(): void;
   active?: boolean;
+  phase?: "drawing" | "predicting" | "evaluating" | "prediction-error";
+  prediction?: PredictionResult | null;
+  errorDetail?: string | null;
+  predictionMode?: "mock" | "partner";
+  onAccept?: () => void;
+  onCorrect?: (rank: 2 | 3) => void;
+  onOverride?: (label: string) => void;
+  onRedraw?: () => void;
+  onRetry?: () => void;
 }
 
-export function DrawingScreen({ level, initialMode, feedback, surfaceOut, onSubmit, onExit, active = true }: DrawingScreenProps) {
-  const [catalogOpen, setCatalogOpen] = useState(false);
+export function DrawingScreen({
+  level,
+  initialMode,
+  feedback,
+  surfaceOut,
+  onSubmit,
+  onExit,
+  active = true,
+  phase = "drawing",
+  prediction = null,
+  errorDetail = null,
+  predictionMode = "mock",
+  onAccept = () => void 0,
+  onCorrect = () => void 0,
+  onOverride = () => void 0,
+  onRedraw = () => void 0,
+  onRetry = () => void 0,
+}: DrawingScreenProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [inputMode, setInputMode] = useState<InputModeId>(initialMode);
   const [hasInk, setHasInk] = useState(false);
-  // Use catalog for allowed objects; show all catalog items as drawable hints
-  const catalogItems = level.catalog ?? level.vocabulary.map(v => ({ labelId: v, displayName: v }));
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -78,45 +96,31 @@ export function DrawingScreen({ level, initialMode, feedback, surfaceOut, onSubm
   useEffect(() => {
     const onMode = (event: Event) => {
       const next = (event as CustomEvent<InputModeId>).detail;
-      if (active && (next === "pointer" || next === "hand")) { setInputMode(next); void surfaceOut.current?.setMode(next); }
+      if (active && (next === "pointer" || next === "hand")) {
+        setInputMode(next);
+        void surfaceOut.current?.setMode(next);
+      }
     };
     window.addEventListener("drawing-input-mode", onMode);
     return () => window.removeEventListener("drawing-input-mode", onMode);
   }, [surfaceOut, active]);
 
-
   useEffect(() => {
-    // Hidden canvas retains its strokes; only DRAW owns the tracking driver.
     if (!active) void surfaceOut.current?.setMode("pointer");
   }, [active, surfaceOut]);
 
   const momoMoment: MomoMoment = feedback === "empty-drawing" ? "drawing-empty" : "drawing-cue";
+  const isDrawingFlow = active || phase === "predicting" || phase === "evaluating" || phase === "prediction-error";
 
   return (
-    <section hidden={!active} style={{ display: active ? undefined : "none" }} id="screen-drawing" className="screen drawing-screen-svg" aria-label="Menggambar">
-      <header className="drawing-top-bar">
-        <div className={`predict-choosable-box ${catalogOpen ? "is-open" : "is-collapsed"}`} aria-label="Katalog objek">
-          <div className="predict-choosable-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <strong className="predict-choosable-title">Katalog DEMO · placeholder</strong>
-            <button
-              type="button"
-              className="catalog-toggle-btn"
-              aria-expanded={catalogOpen}
-              aria-label={catalogOpen ? "Tutup katalog" : "Buka katalog objek"}
-              onClick={() => setCatalogOpen((prev) => !prev)}
-              style={{ background: "none", border: "none", color: "inherit", cursor: "pointer", fontSize: 13, textDecoration: "underline", padding: "2px 6px" }}
-            >
-              {catalogOpen ? "Tutup ▲" : "Buka ▼"}
-            </button>
-          </div>
-          <p className="catalog-desc">Contoh objek untuk digambar, bukan hasil prediksi. Manifest model partner belum tersedia.</p>
-          <div className="predict-choosable-candidates" role="list" aria-label="Objek yang boleh digambar">
-            {catalogItems.map(({ labelId, displayName, icon }) => <span role="listitem" key={labelId}>{icon} {displayName} · </span>)}
-          </div>
-        </div>
-      </header>
-
-      <aside className="drawing-tools-left" role="toolbar" aria-label="Alat menggambar">
+    <section
+      hidden={!isDrawingFlow}
+      style={{ display: isDrawingFlow ? undefined : "none" }}
+      id="screen-drawing"
+      className="screen drawing-screen-svg"
+      aria-label="Menggambar"
+    >
+      <aside className="drawing-tools-right" role="toolbar" aria-label="Alat menggambar" style={{ display: phase === "drawing" ? undefined : "none" }}>
         <button
           type="button"
           className="tool-btn tool-btn-action active"
@@ -182,33 +186,69 @@ export function DrawingScreen({ level, initialMode, feedback, surfaceOut, onSubm
         </button>
       </aside>
 
-      <button type="button" className="btn btn-small btn-exit drawing-exit" onClick={onExit}>Keluar Level</button>
-      <div className="drawing-momo-top-right"><MomoBubble moment={momoMoment} /></div>
+      <button type="button" className="btn btn-small btn-exit drawing-exit" onClick={onExit}>
+        Keluar Level
+      </button>
+      <div className="drawing-momo-top-right">
+        <MomoBubble moment={momoMoment} />
+      </div>
       <div className="drawing-feedback">
         <p id="drawing-feedback" className="feedback" role="alert">
           {feedback === "empty-drawing" ? "Gambar masih kosong — gambar sesuatu dulu." : ""}
         </p>
       </div>
 
-      <div className="drawing-submit-controls" style={{position:"absolute",bottom:20,left:"50%",transform:"translateX(-50%)",zIndex:20,display:"flex",gap:8,flexWrap:"wrap"}}>
+      <div
+        className="drawing-submit-controls"
+        style={{
+          position: "absolute",
+          bottom: 20,
+          left: "50%",
+          transform: "translateX(-50%)",
+          zIndex: 20,
+          display: "flex",
+          gap: 8,
+          flexWrap: "wrap",
+          opacity: phase === "drawing" ? 1 : 0.4,
+          pointerEvents: phase === "drawing" ? "auto" : "none",
+        }}
+      >
         <button type="button" className="btn" onClick={() => void switchMode(inputMode === "hand" ? "pointer" : "hand")}>
           {inputMode === "hand" ? "Kamera DRAW · coba pointer" : "FALLBACK pointer · coba kamera"}
         </button>
-        <button type="button" className="btn btn-primary" data-testid="btn-submit-drawing" disabled={!hasInk || !active} onClick={() => onSubmit(null)}>Tebak Gambarku</button>
+        <button
+          type="button"
+          className="btn btn-primary btn-submit-momo"
+          data-testid="btn-submit-drawing"
+          disabled={!hasInk || !active || phase !== "drawing"}
+          onClick={() => onSubmit(null)}
+        >
+          Tebak Gambarku
+        </button>
       </div>
+
+      {/* FLOATING TOP-3 HITL POPUP (Top-Left, floating above canvas) */}
+      {phase && phase !== "drawing" && (
+        <Top3PredictionPopup
+          phase={phase}
+          prediction={prediction}
+          errorDetail={errorDetail}
+          predictionMode={predictionMode}
+          level={level}
+          onAccept={onAccept}
+          onCorrect={onCorrect}
+          onOverride={onOverride}
+          onRedraw={onRedraw}
+          onRetry={onRetry}
+        />
+      )}
+
       <style jsx>{`
-        .catalog-toggle-btn { display: none; }
-        @media(max-width:600px){
-          .catalog-toggle-btn { display: inline-block !important; }
-          .drawing-top-bar{left:8px!important;right:8px!important;top:8px!important;width:auto!important;max-width:none!important;}
-          .predict-choosable-box{padding:6px 10px!important;font-size:11px!important;}
-          .predict-choosable-box.is-collapsed .catalog-desc,
-          .predict-choosable-box.is-collapsed .predict-choosable-candidates { display: none !important; }
-          .predict-choosable-box.is-open .catalog-desc { display: block !important; margin: 4px 0 !important; }
-          .predict-choosable-box.is-open .predict-choosable-candidates { display: flex !important; flex-wrap: wrap !important; gap: 4px !important; }
-          .drawing-momo-top-right{display:none!important;}
-          /* Place submit controls at top-right on mobile so bottom-left camera never overlaps */
-          .drawing-submit-controls{
+        @media (max-width: 600px) {
+          .drawing-momo-top-right {
+            display: none !important;
+          }
+          .drawing-submit-controls {
             top: auto !important;
             bottom: 24px !important;
             left: auto !important;
@@ -219,7 +259,11 @@ export function DrawingScreen({ level, initialMode, feedback, surfaceOut, onSubm
             align-items: flex-end !important;
             z-index: 950 !important;
           }
-          .drawing-submit-controls button{font-size:12px!important;padding:8px 14px!important;box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;}
+          .drawing-submit-controls button {
+            font-size: 12px !important;
+            padding: 8px 14px !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+          }
         }
       `}</style>
       <canvas
@@ -227,7 +271,8 @@ export function DrawingScreen({ level, initialMode, feedback, surfaceOut, onSubm
         width={1920}
         height={1080}
         className="draw-canvas"
-        aria-label="Kanvas menggambar Jembatan Pertama"
+        style={{ pointerEvents: active ? "auto" : "none" }}
+        aria-label="Kanvas menggambar"
         data-testid="draw-canvas"
       />
     </section>

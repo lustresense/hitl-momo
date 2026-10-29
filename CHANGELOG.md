@@ -2,6 +2,27 @@
 
 Dokumen ini adalah catatan keputusan proyek yang dipakai untuk mencegah konteks lama atau jawaban AI mengambil alih keputusan terbaru.
 
+## [0.0.9] - 2026-10-29 — Top-3 HITL Prediction Floating Popup on Drawing Screen (branch feat/hitl-prediction-popup)
+
+- **Komponen & Arsitektur:** Mengubah presentasi UI hasil prediksi Top-3 AI dan keputusan Human-in-the-Loop (HITL) dari sebelumnya berupa halaman/section PROBE terpisah (section#screen-evaluating) menjadi popup/panel floating (Top3PredictionPopup) di area kiri atas Drawing Screen (top: 24px; left: 28px; width: min(440px, calc(100vw - 56px))).
+- **Pembersihan Panel Katalog:** Menghilangkan presentasi panel kotak katalog placeholder (`Katalog DEMO · placeholder`) dari `DrawingScreen`. Area kiri atas kanvas pada state DRAWING kini 100% kosong dan bersih, kanvas terlihat penuh. Saat PREDICTING/EVALUATING, hanya popup Top-3 yang muncul tanpa ada tumpukan UI lama di belakangnya. Pasca-Redraw terbukti tidak memunculkan kembali katalog. Kontrak `level.catalog` dan `level.vocabulary` di domain tetap utuh untuk kebutuhan dropdown Override.
+- **Integritas Kanvas:** Drawing Screen dan kanvas utama (100vw x 100vh) tetap ter-mount dan terlihat di belakang popup; goresan siswa tidak hilang saat prediksi diminta. Selama fase predicting dan evaluating, interaksi pointer pada kanvas dibekukan (pointerEvents: none) untuk mencegah goresan tak sengaja.
+- **Root Cause PROBE Terpisah:** Di SketchbookApp.tsx, fase drawing, predicting, dan evaluating sebelumnya diperlakukan mutually exclusive sehingga DrawingScreen di-unmount saat memasuki evaluasi dan digantikan oleh section#screen-evaluating fullscreen. Diperbaiki dengan menyatukan lifecycle isDrawingFlow (drawing, predicting, prediction-error, evaluating) di dalam DrawingScreen.
+- **Kontrak HITL Terpenuhi:**
+  - Menampilkan 3 kandidat berperingkat (#1, #2, #3), nama label, bar confidence, dan persentase numerik. Peringkat 1 ditandai visual dengan badge ⭐ Utama.
+  - Chip sumber prediksi: DEMO / PREDIKSI SIMULASI (mock) atau PARTNER API.
+  - Tiga cabang keputusan: Accept (kandidat #1), Correct (kandidat #2 atau #3), Override (pilihan kosa kata legal level).
+  - Aksi komit terpisah via tombol Wujudkan Objek! (btn-wujudkan-objek) yang memicu transisi ke falling -> placing -> gameplay di GameStage.
+  - Pemulihan Redraw / Gambar ulang (revisi) mengembalikan siswa ke mode gambar tanpa membuat objek palsu. Tombol keyboard Escape juga memicu pembatalan/redraw secara aman.
+- **Verifikasi & Quality Gates:**
+  - Unit tests: 205/205 PASS (31 test files, termasuk 9 tes komprehensif baru di top3-prediction-popup.test.tsx).
+  - Typecheck: PASS (tsc --noEmit).
+  - Lint: PASS (next lint).
+  - Build: PASS (Next.js SSG 16 static routes).
+  - Playwright E2E Browser: 1920x1080 dan 1366x768 (zero horizontal overflow: scrollWidth == innerWidth == 1366).
+  - Alur sequential Level 1, Level 2, dan Level 3 terbukti lolos dari gambar -> prediksi -> popup -> komit -> GameStage.
+- **Keamanan & Isolasi:** Dikerjakan di worktree terisolasi /home/user_06/sandboxes/sketchbook-react-hitl-popup pada branch feat/hitl-prediction-popup. Source preview port 5555 dan remote origin tidak tersentuh.
+
 ## [0.0.8] - 2026-10-29 — Desktop framing L1/L3 (local preview)
 
 - Desktop landscape L1/L3: remove height-limited surface width; full viewport-width 16:9 art and physics canvas remain aligned. L2 and portrait rules unchanged.

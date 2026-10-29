@@ -14,7 +14,7 @@ export interface KaplayGameHandle {
 export interface KaplayGameOptions {
  integrated?:boolean;creations?:WorldCreation[];onCreationsChange?:(items:WorldCreation[])=>void;
  canvas:HTMLCanvasElement;level:LevelContext;behavior:ObjectBehavior;finalLabel:string;drawingInput:DrawingInput|null;
- onOutcome(o:GameOutcome):void;onFallComplete():void;onCommitPlacement():void;onReposition():void;
+ onOutcome(o:GameOutcome,reason?:string):void;onFallComplete():void;onCommitPlacement():void;onReposition():void;
 }
 let active:KAPLAYCtx|null=null;
 let fontGeneration=0;
@@ -22,10 +22,11 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
  const factory=(await import("kaplay")).default;
  active?.quit();
   const pixelDensity = typeof window !== "undefined" ? window.devicePixelRatio || 1 : 1;
+  const effectivePixelDensity = o.integrated ? Math.max(2, pixelDensity) : pixelDensity;
  const k = await factory({
    global: false,
    canvas: o.canvas,
-    pixelDensity:o.integrated?Math.max(2,pixelDensity):pixelDensity,
+   pixelDensity: effectivePixelDensity,
    ...(o.integrated?{width:800,height:450,stretch:true,letterbox:true,texFilter:"linear" as const}:{}),
    background: o.integrated?[0,0,0,0]:[232,239,227],
    debug: false,
@@ -67,8 +68,9 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
   void spriteAsset.then(()=>{if(!destroyed)player.add([k.sprite(spriteName),k.pos(12-STICKMAN_ASSET.foot.x*sceneScale,40-STICKMAN_ASSET.foot.y*sceneScale),k.scale(sceneScale/textureScale)]);});
   function drawCreation(item:WorldCreation,committed:boolean):SceneObject{
    const rgb=item.behavior==="solid"?[170,130,85]:item.behavior==="danger"?[195,92,52]:[140,150,160];
-   const art=k.add([k.rect(item.w,item.h),k.pos(item.x,item.y),k.color(rgb[0]!,rgb[1]!,rgb[2]!),k.outline(2,k.rgb(26,26,26)),"creation",{creationId:item.id}]);
-   art.add([k.text(item.label,{size:13,font:labelFont}),k.pos(0,-20),k.color(50,40,30)]);
+   const art=k.add([k.rect(item.w,item.h),k.pos(item.x,item.y),k.color(rgb[0]!,rgb[1]!,rgb[2]!),k.outline(2,k.rgb(26,26,26)),"creation",{creationId:item.id,label:item.label,creationBehavior:item.behavior}]);
+   const displayLabel=item.behavior==="danger"?`${item.label} (bahaya)`:item.behavior==="solid"?item.label:`${item.label} (unresolved)`;
+   art.add([k.text(displayLabel,{size:13,font:labelFont}),k.pos(0,-20),k.color(item.behavior==="danger"?180:50,40,30)]);
    for(const stroke of item.drawingInput?.strokes??[])for(let j=1;j<stroke.length;j++){
     const a=stroke[j-1]!,b=stroke[j]!;
     art.add([k.polygon([k.vec2(a.x*item.w,a.y*item.h),k.vec2(b.x*item.w,b.y*item.h),k.vec2(b.x*item.w+1,b.y*item.h+1)]),k.color(20,20,20)]);
@@ -83,6 +85,7 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
   function stop(){input={left:false,right:false,jump:false};player.vel=k.vec2(0,0);player.isStatic=true;player.paused=true;}
   function resetPlayer(){
    delete o.canvas.dataset.outcome;
+   delete o.canvas.dataset.failReason;
    player.pos=k.vec2(geometry.spawn.x-12,geometry.spawn.y-40);
    // A fresh body clears stale interpolation and platform state after a retry.
    player.unuse("body");player.use(k.body({isStatic:phase!=="gameplay"}));player.paused=phase!=="gameplay";settled=false;
@@ -93,11 +96,25 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
   function enterPlace(){if(phase!=="falling")return;phase="placing";pendingArt.pos=k.vec2(pending.x,pending.y);stop();telemetry();o.onFallComplete();}
   const fall=k.tween(5,pending.y,.85,y=>{if(!destroyed && phase==="falling")pendingArt.pos.y=y;},k.easings.easeOutCubic);
   fall.onEnd(()=>{if(!destroyed)enterPlace();});
-  function report(result:GameOutcome){if(settled||phase!=="gameplay")return;settled=true;stop();o.canvas.dataset.outcome=result;telemetry();o.onOutcome(result);}
-  player.onCollide("hazard",()=>report("fail"));
+  function report(result:GameOutcome,reason?:string){
+   if(settled||phase!=="gameplay")return;
+   settled=true;stop();o.canvas.dataset.outcome=result;
+   if(reason)o.canvas.dataset.failReason=reason;
+   telemetry();o.onOutcome(result,reason);
+  }
+  const hazardContact=(hazardObj?:any)=>{
+   let reason="Menabrak rintangan bahaya!";
+   if(hazardObj?.creationBehavior==="danger"){
+    reason=`Menyentuh objek berbahaya (${hazardObj.label || "bahaya"})!`;
+   }else if(hazardObj?.geometryId?.includes("spike")){
+    reason="Jatuh ke lantai duri!";
+   }
+   report("fail",reason);
+  };
+  player.onCollide("hazard",hazardContact);
   const goalContact=()=>{if(integratedGoalReached({x:player.pos.x,y:player.pos.y,w:24,h:40},geometry.goal))report("success");};
   player.onCollide("goal",goalContact);player.onCollideUpdate("goal",goalContact);
-  player.onCollideUpdate("hazard",()=>report("fail"));
+  player.onCollideUpdate("hazard",hazardContact);
   function setPlacement(x:number,y:number){
    if(phase!=="placing"||!integratedPlacementAllowed({...pending,x,y},geometry,snapshot(),pending.id))return false;
    pending={...pending,x,y};pendingArt.pos=k.vec2(x,y);telemetry();return true;
@@ -121,7 +138,7 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
   });
   k.onUpdate(()=>{
    if(destroyed)return;
-   if(phase==="gameplay"&&!settled&&player.pos.y>geometry.killY)report("fail");
+   if(phase==="gameplay"&&!settled&&player.pos.y>geometry.killY)report("fail","Jatuh ke jurang!");
    telemetry();
   });
   telemetry();

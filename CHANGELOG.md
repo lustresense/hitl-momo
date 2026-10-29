@@ -2,6 +2,27 @@
 
 Dokumen ini adalah catatan keputusan proyek yang dipakai untuk mencegah konteks lama atau jawaban AI mengambil alih keputusan terbaru.
 
+## [0.0.7] - 2026-10-29 — Batch stabilization Level 1–3 — VERIFIED LOKAL
+
+- **Area:** Stabilisasi gameplay dan rendering fisik Level 1–3 pada visual React StageWorld sandbox.
+- **Status:** VERIFIED LOKAL (bukan rilis produksi, tanpa push/merge).
+- **Hasil Stabilisasi:**
+  - **Tangga L2 Solid Terbukti:** Override STAGE_2 mapping tangga disetel Solid, konsisten dengan tutorial. Uji kontak fisik Playwright membuktikan pendaratan presisi (`playerFootY = 220.92`), standing stabil (12 sampel, `grounded: true`, `velY = 0`), lompat lepas dari tangga (`velY = -392`, `grounded: false`, ketinggian mencapai 143.63), dan reland. Rekaman video: `tangga-physical-acceptance/video/`.
+  - **Tali L3 Contextual Hazard:** Tetap danger dengan pesan kegagalan kontekstual (`Menyentuh objek berbahaya (tali)!`) melalui overlay outcome eksisting, tanpa popup baru.
+  - **Single Global Interior Grid:** Background dot-grid notebook disatukan pada root body/halaman interior. Duplikasi grid lokal pada halaman-halaman dihapus. Treatment hijau cover kamera onboarding (`.camera-prototype-wrapper.mode-cover`) tetap utuh.
+  - **Ketajaman Rendering Retina & Layar:** Perhitungan resolusi internal KAPLAY dikoreksi ke `Math.max(window.devicePixelRatio, 2)` murni, tanpa mengalikan ulang rasio lebar kontainer CSS yang sebelumnya menyebabkan alokasi canvas berlebih. Tekstur aset dipulihkan tajam (`textureScale = 8`).
+- **Verifikasi & Regresi Lengkap:**
+  - Unit tests: 191/191 PASS (30 test files, termasuk tes regresi hazard dan density baru).
+  - Typecheck: PASS (`tsc --noEmit --incremental false`).
+  - Lint: PASS (Next.js ESLint nol error, satu warning hook eksisting).
+  - Build: PASS (16 static routes ter-generate).
+  - Mobile & recovery: 14/14 checks PASS (`check_recovery.py`).
+  - Render & surface acceptance: 26/26 checks PASS lintas Desktop, Retina, dan Mobile (`render_acceptance.py`).
+- **Status Backup:**
+  - Backup lokal: Bundle Git pemulihan `82c15d5` dan manifest evidence tersimpan di `/home/user_06/projects/backups/sketchbook-react-visual-first/`.
+  - Backup cloud remote: Duplicacy Rev 21 (11:36 WIB) terverifikasi BELUM memuat bundle/manifest baru karena dibuat sebelum arsip; menunggu tick jadwal berikutnya.
+- **Batas Tindakan:** Tanpa push remote, merge branch, atau deploy produksi. Port preview 5555 dan tunnel tidak dimodifikasi.
+
 ## [0.0.6] - 2026-10-29 — Prototype integration — VERIFIED (G1-G6 COMPLETE)
 
 - **Area:** Integrasi gameplay KAPLAY 3 Level pada visual React StageWorld yang disetujui.

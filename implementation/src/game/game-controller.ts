@@ -2,7 +2,7 @@ import type {LevelContext,ObjectBehavior,DrawingInput} from "../domain/types";
 import type {KaplayGameHandle,KaplayGameOptions} from "./kaplay-runtime";
 export class GameController {
  private handle:KaplayGameHandle|null=null;private generation=0;
- async mount(canvas:HTMLCanvasElement,level:LevelContext,behavior:ObjectBehavior,finalLabel:string,drawingInput:DrawingInput|null,onOutcome:(o:"success"|"fail")=>void,onFallComplete:()=>void,onCommitPlacement:()=>void,onReposition:()=>void,options:Partial<Pick<KaplayGameOptions,"integrated"|"creations"|"onCreationsChange">>={}){
+ async mount(canvas:HTMLCanvasElement,level:LevelContext,behavior:ObjectBehavior,finalLabel:string,drawingInput:DrawingInput|null,onOutcome:(o:"success"|"fail",reason?:string)=>void,onFallComplete:()=>void,onCommitPlacement:()=>void,onReposition:()=>void,options:Partial<Pick<KaplayGameOptions,"integrated"|"creations"|"onCreationsChange">>={}){
  this.unmount();const generation=this.generation;const {createKaplayGame}=await import("./kaplay-runtime");if(this.generation!==generation)return;
  const handle=await createKaplayGame({canvas,level,behavior,finalLabel,drawingInput,onOutcome,onFallComplete,onCommitPlacement,onReposition,...options});if(this.generation!==generation){handle.destroy();return;}this.handle=handle;
  }

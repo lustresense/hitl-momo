@@ -2,6 +2,41 @@
 
 Dokumen ini adalah catatan keputusan proyek yang dipakai untuk mencegah konteks lama atau jawaban AI mengambil alih keputusan terbaru.
 
+## [0.0.11] - 2026-10-30 — Koreksi Temporal Momo Motion, Natural Predicting & Kamera Stationary (Deployed to dev.momominum.tech)
+
+- **Target Tunggal Momo:** Menghilangkan target perantara (x=384) saat PREDICTING. Target horizontal Momo kini langsung dihitung dari geometri aktual popup Top-3 (440px -> x=484, gap 16px) sejak pertama kali tombol Tebak Gambarku ditekan. Nol koreksi posisi sekunder saat beralih ke EVALUATING.
+- **Natural Predicting Experience & Copy Prototype:**
+  - Panel loading besar bertuliskan "Momo sedang menebak..." dihilangkan dari presentasi visual (`Top3PredictionPopup` return `null` pada `phase === "predicting"`).
+  - Momo sendiri yang berbicara dengan copy ramah pendamping anak SMP:
+    - DRAW: "Gambar objekmu dulu, ya. Nanti aku coba tebak!"
+    - PREDICTING: "Hmm... ini gambar apa, ya?"
+    - EVALUATING: "Aku punya tiga tebakan. Coba lihat dulu, yuk!"
+    - PREDICTION ERROR: "Hmm, aku belum bisa membaca gambarmu. Mau coba lagi?"
+  - State internal predicting, async inference guard, abort, error, retry, dan redraw tetap utuh tanpa delay palsu.
+- **Transisi Visual & Zero Overlap:** Presentasi UI hasil evaluasi ditahan sampai perpindahan Momo selesai (via `transitionEnd` atau immediate pada `prefers-reduced-motion`). Popup Top-3 tidak pernah me-render di depan lintasan Momo dan Momo tidak pernah menyapu panel Top-3.
+- **Root Cause & Fix Bug Kamera Meluncur:**
+  - Root cause: `GlobalCamera.tsx` menjalankan GSAP FLIP (`morphCameraCard`) antar placement perubahan state (`${mode}:${recessed}`). Saat masuk Drawing Screen dari Onboarding/Cover, cache layout sebelumnya di-morph ke posisi PIP kiri bawah sehingga kamera terlihat meluncur dari tengah ke kiri bawah.
+  - Fix: Scoped guard di `GlobalCamera.tsx` — saat `mode === "floating"`, batalkan tween GSAP (`gsap.killTweensOf`) dan clear props transform sebelum paint. Kamera kini 100% diam di anchor kiri bawah (`x=24, y=936`) sejak frame pertama Drawing Screen, terbukti secara matematis lewat rekaman RAF (min x = max x = 24).
+- **Label Provenance Konsisten:** Badge sumber prediksi menampilkan "DEMO / PREDIKSI SIMULASI" secara jujur di bubble Momo dan popup Top-3 sejak fase prediksi dimulai hingga hasil tampil saat mode mock.
+- **Verifikasi Temporal RAF (Playwright Browser):**
+  - Kamera: 0px glide sepanjang alur (min_x: 24, max_x: 24, min_y: 936, max_y: 936).
+  - Momo: 1 target konvergen (x=484, gap 16px dari popup right 468).
+  - Overlap: 0 frame terdeteksi.
+  - Multi-viewport: 1920x1080, 1366x768, 1280x720 semua gap 16px.
+  - Reduced-motion: `transition: none`, immediate settled.
+  - Full gates: 223/223 unit test PASS (33 files), typecheck exit 0, lint exit 0, SSG build exit 0.
+- **Status Operasional:** Deployed to dev.momominum.tech (port 5555). Git commit & backup bundle tersimpan lokal. Remote push belum dijalankan.
+
+## [0.0.10] - 2026-10-30 — State-based Momo positioning & motion (Owner review, belum deploy)
+
+- Momo pada DRAW/REDRAW di kiri atas; saat PREDICTING/EVALUATING/error mengikuti geometri tepi kanan popup dengan gap 16px. Bukan anchor kanan viewport.
+- Satu instance Momo dan bubble; CSS transform transition singkat, tanpa dependency motion tambahan. Preferensi reduced-motion meniadakan perpindahan animasi.
+- Bubble memakai konteks fase existing, tidak menentukan label/confidence/keputusan siswa. Aset/ukuran/wujud Momo tetap.
+- Canvas Drawing Flow dipertahankan; override pointer-events scoped mempertahankan pembekuan input selama prediksi/evaluasi melawan CSS baseline `!important`.
+- Popup Top-3, kamera kiri bawah, toolbar kanan, global dot-grid, gameplay dan Summary tidak dirombak.
+- Verifikasi final: 216/216 unit (32 files), typecheck/lint/build exit 0; lint warning baseline TutorialBrochure.tsx:289 tetap. Browser Chromium: 4 desktop + reduced-motion, 9/9 Accept/Correct/Override Level 1–3 sampai PLAY, nol console/page error. Gap popup–Momo 16px; transition 240ms, reduced-motion none; avatar/canvas tetap. Screenshot, video 1920×1080 7.32s dan JSON metrics disimpan pada evidence VM `/home/agentops/.hermes/cache/momo-state-motion/`. Bukan bukti model partner/Safari/kamera fisik.
+- Perubahan hanya pada worktree `feat/momo-state-motion`; tidak commit/push/merge/deploy. Live dev tetap batch `d0c1c35`.
+
 ## [0.0.9] - 2026-10-29 — Top-3 HITL Prediction Floating Popup on Drawing Screen (branch feat/hitl-prediction-popup)
 
 - **Komponen & Arsitektur:** Mengubah presentasi UI hasil prediksi Top-3 AI dan keputusan Human-in-the-Loop (HITL) dari sebelumnya berupa halaman/section PROBE terpisah (section#screen-evaluating) menjadi popup/panel floating (Top3PredictionPopup) di area kiri atas Drawing Screen (top: 24px; left: 28px; width: min(440px, calc(100vw - 56px))).

@@ -32,24 +32,7 @@ export function Top3PredictionPopup({
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onRedraw]);
 
-  if (phase === "predicting") {
-    return (
-      <div
-        className="prediction-hitl-popup is-predicting"
-        role="status"
-        aria-live="polite"
-        aria-label="Proses prediksi AI"
-        data-testid="popup-predicting"
-      >
-        <div className="popup-badge dev-badge">AI PARTNER</div>
-        <h3 className="popup-title">Momo sedang menebak...</h3>
-        <p className="popup-desc">Menganalisis goresan gambar di kanvas</p>
-        <div className="loading-bar" aria-hidden="true">
-          <div className="loading-fill" />
-        </div>
-      </div>
-    );
-  }
+  if (phase === "predicting") return null;
 
   if (phase === "prediction-error") {
     return (

@@ -1201,24 +1201,7 @@ body:has(#screen-drawing),
   gap: 3px !important;
 }
 
-.drawing-momo-top-right {
-  position: absolute !important;
-  top: 22px !important;
-  right: 24px !important;
-  z-index: 5 !important;
-  max-width: min(340px, 35vw) !important;
-}
 
-.drawing-momo-top-right .momo {
-  align-items: center !important;
-}
-
-.drawing-momo-top-right .momo-bubble {
-  border: 2px solid #111 !important;
-  border-radius: 16px !important;
-  background: #eff3db !important;
-  box-shadow: 3px 3px 0 #111 !important;
-}
 
 .drawing-tools-right,
 .drawing-tools-left {
@@ -1318,6 +1301,43 @@ body:has(#screen-drawing),
   padding: 0 !important;
 }
 
+.drawing-momo-companion {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: auto !important;
+  z-index: 101 !important;
+  pointer-events: none !important;
+  transition: transform 400ms cubic-bezier(0.22, 1, 0.36, 1) !important;
+}
+
+.drawing-momo-companion .momo {
+  align-items: flex-start !important;
+}
+
+.drawing-momo-companion .momo-bubble {
+  border: 2px solid #111 !important;
+  border-radius: 16px !important;
+  background: #eff3db !important;
+  box-shadow: 3px 3px 0 #111 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawing-momo-companion {
+    transition: none !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .drawing-momo-companion {
+    display: none !important;
+  }
+}
+
+#screen-drawing[data-drawing-active="false"] .draw-canvas {
+  pointer-events: none !important;
+}
+
 .drawing-screen-svg .drawing-dock {
   display: none !important;
 }
@@ -1341,7 +1361,6 @@ body:has(#screen-drawing),
   .drawing-top-bar { top: 10px !important; left: 10px !important; gap: 5px !important; }
   .drawing-actions-top { gap: 4px !important; padding: 5px !important; }
   .drawing-actions-top .btn { min-height: 34px !important; padding: 4px 7px !important; font-size: 12px !important; }
-  .drawing-momo-top-right { top: 10px !important; right: 10px !important; max-width: 42vw !important; }
   .drawing-tools-right { right: 8px !important; left: auto !important; gap: 6px !important; padding: 6px 4px !important; }
   .drawing-tools-left { left: 8px !important; gap: 6px !important; padding: 6px 4px !important; }
   .drawing-tools-right .tool-btn-action { width: 52px !important; min-height: 46px !important; padding: 4px 2px !important; gap: 2px !important; }
@@ -1351,6 +1370,7 @@ body:has(#screen-drawing),
   .drawing-tools-right .tool-btn-action .tool-label { font-size: 8.5px !important; }
   .drawing-tools-left .tool-btn-action .tool-label { font-size: 8.5px !important; }
   #screen-drawing .drawing-exit { bottom: 12px !important; right: 12px !important; }
+  /* narrow fallback retained - .drawing-momo-companion display:none already above */
 }
 
 /* Dunia Stickman only: pointer/touch controls and compact viewport layout. */
@@ -1393,7 +1413,8 @@ body #app:has(#screen-drawing),
 /* ========================================================
  * HITL Top-3 Floating Prediction Popup (Tactile Papercraft)
  * ======================================================== */
-.prediction-hitl-popup {
+.prediction-hitl-popup,
+.prediction-hitl-geometry {
   position: absolute !important;
   top: 24px !important;
   left: 28px !important;
@@ -1561,3 +1582,20 @@ body #app:has(#screen-drawing),
   padding: 10px 16px;
 }
 
+
+/* Measure the accepted result box before it is presented; never a loading card. */
+.prediction-hitl-geometry {
+  visibility: hidden !important;
+  pointer-events: none !important;
+  height: 1px !important;
+  min-height: 0 !important;
+  padding-block: 0 !important;
+  border-block-width: 0 !important;
+}
+.momo-prediction-source {
+  display: block;
+  margin: 6px 0 0 54px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #6b5518;
+}

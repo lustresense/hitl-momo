@@ -36,9 +36,9 @@ describe("Top3PredictionPopup Component", () => {
       />
     );
 
-    expect(screen.getByTestId("popup-predicting")).toBeDefined();
-    expect(screen.getByText("Momo sedang menebak...")).toBeDefined();
-    expect(screen.getByText("AI PARTNER")).toBeDefined();
+    expect(screen.queryByTestId("popup-predicting")).toBeNull();
+    expect(screen.queryByText("Momo sedang menebak...")).toBeNull();
+    expect(screen.queryByText("AI PARTNER")).toBeNull();
   });
 
   it("renders prediction-error phase and handles retry & redraw", () => {

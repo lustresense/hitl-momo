@@ -6,16 +6,30 @@ import { validatePredictionResponse } from "./validation";
  * ============================================================================
  * MODEL INTEGRATION CONTRACT — Types, Schemas, and Verification Helpers
  * ============================================================================
- * Single source of truth for the partner classifier wire contract.
- * Author-side validation, mock fixtures, and tests all derive from here.
+ * [DRAFT / PENDING PARTNER CONFIRMATION — Handshake Nov 1, 2026]
+ *
+ * NOTE: The schemas, constants, and validation rules below represent author-side
+ * prototype assumptions for initial scaffolding and testing.
+ * They are NOT rigid constraints on the partner classifier model or backend.
+ *
+ * The validator is designed to be forgiving:
+ * 1. Labels: Accepts ANY non-empty string. Not constrained to 7 prototype labels.
+ * 2. Confidence: Accepts any number in [0.0, 1.0]. Does NOT enforce sum=1.0.
+ * 3. Fallback: Unknown labels resolve gracefully to gameplay fallback.
  */
 
-/** Wire request payload sent to partner endpoint (exact JSON shape). */
+/**
+ * [DRAFT / PENDING PARTNER] Wire request payload sent to partner endpoint.
+ * Normalization ([0..1] bounding box + aspectRatio) is an author-side convention.
+ */
 export interface PartnerRequestPayload {
   drawing: DrawingInput;
 }
 
-/** Wire response payload expected from partner endpoint (exact JSON shape). */
+/**
+ * [DRAFT / PENDING PARTNER] Wire response payload expected from partner endpoint.
+ * Default prototype expectation is Top-3 candidates with confidence in [0, 1].
+ */
 export interface PartnerResponsePayload {
   candidates: [
     { label: string; confidence: number },
@@ -24,17 +38,40 @@ export interface PartnerResponsePayload {
   ];
 }
 
-/** Canonical confidence bounds (inclusive). */
+/**
+ * [DRAFT / PENDING PARTNER] Canonical confidence bounds (inclusive).
+ * Author validator accepts [0.0, 1.0]. Sum=1.0 is recommended but NOT enforced.
+ */
 export const CONFIDENCE_MIN = 0;
 export const CONFIDENCE_MAX = 1;
 
-/** Exact candidate count required by contract. */
+/**
+ * [DRAFT / PENDING PARTNER] Candidate count expected by author prototype UI.
+ * Subject to partner confirmation on Nov 1.
+ */
 export const REQUIRED_CANDIDATE_COUNT = 3;
 
 /**
+ * [DRAFT / PENDING PARTNER] Prototype vocabulary used author-side.
+ * This is an author-side reference vocabulary, NOT a restriction on partner model.
+ */
+export const PROTOTYPE_VOCABULARY = [
+  "balok",
+  "batu",
+  "duri",
+  "ember",
+  "papan",
+  "tali",
+  "tangga",
+] as const;
+
+/**
  * Validates a partner response payload at runtime.
- * Throws PredictionError with reason "malformed-response" on any violation.
- * This is the SAME validator used by PartnerHttpPredictionProvider.
+ * Forgiving validation:
+ * - Checks candidates array exists and has length 3.
+ * - Checks label is a non-empty string (any string accepted, not limited to prototype vocabulary).
+ * - Checks confidence is a number in [0, 1] (does NOT require sum=1.0).
+ * Throws PredictionError with reason "malformed-response" on fatal structural violation.
  */
 export function validatePartnerResponse(payload: unknown): PartnerResponsePayload {
   return validatePredictionResponse(payload) as PartnerResponsePayload;
@@ -150,7 +187,7 @@ export function isMockProvider(provider: unknown): provider is { getMode(): stri
 }
 
 /**
- * Contract version marker (increment on breaking wire changes).
+ * [DRAFT / PENDING PARTNER] Contract version marker.
  * Partner should echo this in response header or body when agreed.
  */
 export const CONTRACT_VERSION = "1.0.0-draft";

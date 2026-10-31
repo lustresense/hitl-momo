@@ -19,7 +19,7 @@ import { fileURLToPath } from "node:url";
 
 const PKG_ROOT = fileURLToPath(new URL("..", import.meta.url));
 
-const PORT = Number(process.env.E2E_PORT ?? 3210);
+const PORT = Number(process.env.E2E_PORT ?? 3344);
 const BASE = `http://localhost:${PORT}`;
 const LINUX_PLAYWRIGHT_PATH = "/home/agentops/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome";
 const EDGE_PATH = process.env.EDGE_PATH ?? (fs.existsSync(LINUX_PLAYWRIGHT_PATH) ? LINUX_PLAYWRIGHT_PATH : "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe");
@@ -82,9 +82,14 @@ try {
   if (await skipCamera.isVisible({ timeout: 5000 }).catch(() => false)) {
     check("00a onboarding: camera screen renders", true);
     await skipCamera.click();
+    const confirmStudent = page.locator("button.student-number-confirm");
+    if (await confirmStudent.isVisible({ timeout: 5000 }).catch(() => false)) {
+      check("00b onboarding: student number selector renders", true);
+      await confirmStudent.click();
+    }
     const skipTutorial = page.locator(".tutorial-skip");
     await skipTutorial.waitFor({ state: "visible", timeout: 15000 });
-    check("00b onboarding: tutorial brochure renders", true);
+    check("00c onboarding: tutorial brochure renders", true);
     await skipTutorial.click();
   }
   const heading = page.getByRole("heading", { name: /Buku Sketsa|Sketchbook Universe/i });

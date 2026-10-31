@@ -130,8 +130,15 @@ try {
   check("16 stage-1 complete reached", true);
 
   /* ---------- Stage 2: Correct #2, Correct #3, Redraw, repeat cycle ---------- */
-  await page.locator("[data-testid=btn-back-to-levels]").click();
+  // Transition to Bab 2 after Stage 1 complete
+  const backBtn = page.locator("[data-testid=btn-back-to-levels], button:has-text('Pilihan Level'), button:has-text('Kembali')").first();
+  if (await backBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
+    await backBtn.click();
+  }
+  await page.locator(".level-card").nth(1).waitFor({ state: "visible", timeout: 10000 });
   await page.locator(".level-card").nth(1).click();
+  await page.getByRole("heading", { name: /bab 2/i }).waitFor({ timeout: 25000 });
+  await page.waitForTimeout(500);
 
   await drawPointer();
   await submitAndAwaitTop3();

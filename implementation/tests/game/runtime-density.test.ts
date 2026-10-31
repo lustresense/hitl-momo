@@ -100,7 +100,7 @@ describe("runtime density initialization & textureScale", () => {
     loadedSprites.length = 0;
     const h = await startPhysics(true, 800, 450);
     expect(loadedSprites.length).toBeGreaterThan(0);
-    const sprite = loadedSprites[loadedSprites.length - 1]!;
+    const sprite = (loadedSprites.find(s => s.name.includes("stickman")) ?? loadedSprites[0])!;
     // STICKMAN_ASSET.width = 24, STICKMAN_ASSET.height = 48.
     // 24 * 8 = 192, 48 * 8 = 384
     expect(decodeURIComponent(sprite.url)).toContain('width="192"');

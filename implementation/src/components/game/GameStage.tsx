@@ -22,7 +22,7 @@ export function GameStage(props:GameStageProps){
  const canvas=useRef<HTMLCanvasElement>(null),controller=useRef<GameController|null>(null);
  const geometry=props.integrated?getStageGeometry(props.level.stage):null;
   const [ready,setReady]=useState(false),[error,setError]=useState(""),[outcome,setOutcome]=useState<"success"|"fail"|null>(null),[failReason,setFailReason]=useState("");
- const [position,setPosition]=useState(props.level.scene.gapStartX-10),[placementY,setPlacementY]=useState(320),[placementError,setPlacementError]=useState("");
+ const [position,setPosition]=useState(props.integrated?360:props.level.scene.gapStartX-10),[placementY,setPlacementY]=useState(props.integrated?300:320),[placementError,setPlacementError]=useState("");
  const [mode,setMode]=useState<"camera"|"fallback">(props.integrated?"fallback":"camera"),[status,setStatus]=useState("NUI NOT VERIFIED"),[trackingPaused,setTrackingPaused]=useState(false);
  const [retryKey,setRetryKey]=useState(0),[trackingReady,setTrackingReady]=useState(false);
  const [heldDirs,setHeldDirs]=useState<string[]>([]);
@@ -44,21 +44,29 @@ export function GameStage(props:GameStageProps){
   const held=[...heldPointers.current.values()];
   const k=keys.current;
   const c=(mode==="camera"&&!paused.current)?cameraInput.current:NEUTRAL;
+  const override=(typeof window!=="undefined"?(window as any).__skbOverrideInput:null)??NEUTRAL;
   controller.current?.setInput({
-    left:k.left||held.includes("left")||c.left,
-    right:k.right||held.includes("right")||c.right,
-    jump:k.jump||held.includes("jump")||c.jump
+    left:k.left||held.includes("left")||c.left||override.left,
+    right:k.right||held.includes("right")||c.right||override.right,
+    jump:k.jump||held.includes("jump")||c.jump||override.jump
   });
+ }
+
+ if (typeof window !== "undefined") {
+  (window as any).__skbSetInput = (inp: { left?: boolean; right?: boolean; jump?: boolean } | null) => {
+    (window as any).__skbOverrideInput = inp ?? NEUTRAL;
+    sendCombinedInput();
+  };
  }
 
  const currentMode=useRef(mode);currentMode.current=mode;
  const positionRef=useRef(position);positionRef.current=position;
  const {level,behavior,decision,drawingInput,phase}=props;
- function movePlacement(x:number,y:number=320){setPosition(x);setPlacementY(y);positionRef.current=x;const valid=controller.current?.setPlacement(x,y)??false;setPlacementError(valid?"":"Posisi di luar dunia. Geser kembali; objekmu tetap disimpan.");}
+ function movePlacement(x:number,y:number=320){setPosition(x);setPlacementY(y);positionRef.current=x;const valid=controller.current?.setPlacement(x,y)??false;setPlacementError(valid?"":"Posisi di luar dunia. Geser kembali; objekmu tetap disimpan.");} if (typeof window !== "undefined") { (window as any).__skbMovePlacement = (x: number, y: number) => movePlacement(x, y); }
 
  useEffect(()=>{
  let cancelled=false;let instance:GameController|null=null;setReady(false);setError("");
- void(async()=>{try{const {GameController}=await import("@/src/game/game-controller");if(cancelled||!canvas.current)return;instance=new GameController();controller.current=instance;
+ void(async()=>{try{const {GameController}=await import("@/src/game/game-controller");if(cancelled||!canvas.current)return;instance=new GameController();controller.current=instance;if(typeof window!=="undefined")(window as any).__skbGameController=instance;
  await instance.mount(canvas.current,level,behavior,decision.finalLabel,drawingInput,
  (o,reason)=>{if(!cancelled){keys.current={...NEUTRAL};heldPointers.current.clear();cameraInput.current={...NEUTRAL};setHeldDirs([]);setOutcome(o);if(reason)setFailReason(reason);}},
  ()=>{if(!cancelled){if(props.integrated&&canvas.current){setPosition(Number(canvas.current.dataset.objectX??0));setPlacementY(Number(canvas.current.dataset.objectY??0));}latest.current.onFallComplete();}},()=>{if(!cancelled)latest.current.onCommitPlacement();},()=>{if(!cancelled)latest.current.onReposition();},{integrated:props.integrated,creations:props.creations,onCreationsChange:(items:WorldCreation[])=>latest.current.onCreationsChange?.(items)});
@@ -168,7 +176,7 @@ export function GameStage(props:GameStageProps){
         className="btn btn-primary btn-small"
         data-testid="btn-confirm-placement"
         disabled={!ready||!legal}
-        onClick={()=>{if(controller.current?.commitPlacementAt(position, placementY)){setOutcome(null);}else{setPlacementError("Penempatan tidak legal. Objek tidak hilang.");}}}
+        onClick={()=>{const finalX = Number(canvas.current?.dataset.objectX ?? position); const finalY = Number(canvas.current?.dataset.objectY ?? placementY); if(controller.current?.commitPlacementAt(finalX, finalY)){setOutcome(null);}else{setPlacementError("Penempatan tidak legal. Objek tidak hilang.");}}}
       >
         Konfirmasi Posisi
       </button>

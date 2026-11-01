@@ -252,7 +252,7 @@ export function SketchbookApp() {
               data-entry-hold={entryHold ? "" : undefined}
             >
               <h1 className="visually-hidden">Sketchbook Universe</h1>
-              <LevelRibbonBookmark levels={LEVELS} onSelectLevel={selectLevel} />
+              <LevelRibbonBookmark levels={LEVELS} onSelectLevel={selectLevel} isLevelUnlocked={isLevelUnlocked} />
             </section>
           )}
 

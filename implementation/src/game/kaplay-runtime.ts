@@ -66,7 +66,7 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
   const svg=stickmanSvg().replace(/width="[^"]+" height="[^"]+"/,`width="${STICKMAN_ASSET.width*textureScale}" height="${STICKMAN_ASSET.height*textureScale}"`);
   const spriteName=`integrated-stickman-${o.level.stage}`;
   const spriteAsset=k.loadSprite(spriteName,`data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`);
-  void spriteAsset.then(()=>{if(!destroyed)player.add([k.sprite(spriteName),k.pos(12-STICKMAN_ASSET.foot.x*sceneScale,40-STICKMAN_ASSET.foot.y*sceneScale),k.scale(sceneScale/textureScale)]);});
+  void spriteAsset.then(()=>{if(!destroyed && player?.exists?.() && player.pos)player.add([k.sprite(spriteName),k.pos(12-STICKMAN_ASSET.foot.x*sceneScale,40-STICKMAN_ASSET.foot.y*sceneScale),k.scale(sceneScale/textureScale)]);});
   function drawCreation(item:WorldCreation,committed:boolean):SceneObject{
    const rgb=item.behavior==="solid"?[170,130,85]:item.behavior==="danger"?[195,92,52]:[140,150,160];
    const art=k.add([k.rect(item.w,item.h),k.pos(item.x,item.y),k.color(rgb[0]!,rgb[1]!,rgb[2]!),k.outline(2,k.rgb(26,26,26)),"creation",{creationId:item.id,label:item.label,creationBehavior:item.behavior}]);
@@ -104,8 +104,9 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
    player.unuse("body");player.use(k.body({isStatic:phase!=="gameplay"}));player.paused=phase!=="gameplay";player.isStatic=phase!=="gameplay";settled=false;
   }
   function telemetry(){
-   if(destroyed) return; const pa = pendingArt;
-   Object.assign(o.canvas.dataset,{rendererMode:"integrated",phase,playerX:String(player.pos.x),playerY:String(player.pos.y),playerFootX:String(player.pos.x+12),playerFootY:String(player.pos.y+40),playerWidth:"24",playerHeight:"40",playerVelocityX:String(player.vel.x),playerVelocityY:String(player.vel.y),grounded:String(player.isGrounded()),objectX:pa?String(pa.pos.x):0,objectY:pa?String(pa.pos.y):0,objectWidth:String(pending.w),objectHeight:String(pending.h),objectId:pending.id,objectCount:String(creations.size+(phase==="gameplay"||creations.has(pending.id)?0:1)),committedCount:String(creations.size),creations:JSON.stringify(snapshot()),geometry:JSON.stringify(geometry),settled:String(settled)});
+   if(destroyed || !player?.exists?.() || !player.pos) return;
+   const pa = (pendingArt?.exists?.() && pendingArt.pos) ? pendingArt : null;
+   Object.assign(o.canvas.dataset,{rendererMode:"integrated",phase,playerX:String(player.pos.x),playerY:String(player.pos.y),playerFootX:String(player.pos.x+12),playerFootY:String(player.pos.y+40),playerWidth:"24",playerHeight:"40",playerVelocityX:String(player.vel?.x ?? 0),playerVelocityY:String(player.vel?.y ?? 0),grounded:String(Boolean(player.isGrounded?.())),objectX:pa?.pos?.x != null ? String(pa.pos.x) : "0",objectY:pa?.pos?.y != null ? String(pa.pos.y) : "0",objectWidth:String(pending.w),objectHeight:String(pending.h),objectId:pending.id,objectCount:String(creations.size+(phase==="gameplay"||creations.has(pending.id)?0:1)),committedCount:String(creations.size),creations:JSON.stringify(snapshot()),geometry:JSON.stringify(geometry),settled:String(settled)});
   }
   function enterPlace(){if(phase!=="falling")return;phase="placing";pendingArt.pos=k.vec2(pending.x,pending.y);stop();telemetry();o.onFallComplete();}
   const fall=k.tween(5,pending.y,.85,y=>{if(!destroyed && phase==="falling")pendingArt.pos.y=y;},k.easings.easeOutCubic);
@@ -146,15 +147,15 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
   }
   // Input shares the body's fixed cadence; render stalls must not batch movement.
   k.onFixedUpdate(()=>{
-   if(destroyed||phase!=="gameplay"||settled)return;
+   if(destroyed||!player?.exists?.()||!player.pos||phase!=="gameplay"||settled)return;
    player.move((Number(Boolean(input.right))-Number(Boolean(input.left)))*200,0);
    // Desktop L1 starts at world x=0; keep the rendered sprite inside its left edge.
    if(o.level.stage===1&&globalThis.innerWidth>=761&&globalThis.innerWidth>globalThis.innerHeight)
     player.pos.x=Math.max(player.pos.x,STICKMAN_ASSET.foot.x*sceneScale-12+2);
-   if(input.jump&&player.isGrounded())player.jump(520);
+   if(input.jump&&player.isGrounded?.())player.jump(520);
   });
   k.onUpdate(()=>{
-   if(destroyed)return;
+   if(destroyed||!player?.exists?.()||!player.pos)return;
    if(phase==="gameplay"&&!settled&&player.pos.y>geometry.killY)report("fail","Jatuh ke jurang!");
    telemetry();
   });
@@ -232,12 +233,12 @@ obj.add([k.polygon([k.vec2(a.x*width,a.y*12),k.vec2(b.x*width,b.y*12),k.vec2(b.x
  player.onCollide("hazard",()=>report("fail"));
  player.onCollide("goal",()=>{if(phase==="gameplay")report("success");});
  k.onUpdate(()=>{
- if(destroyed)return;
+ if(destroyed||!player?.exists?.()||!obj?.exists?.()||!player.pos||!obj.pos)return;
  o.canvas.dataset.objectY=String(Math.round(obj.pos.y));o.canvas.dataset.phase=phase;o.canvas.dataset.playerX=String(Math.round(player.pos.x));o.canvas.dataset.playerY=String(Math.round(player.pos.y));o.canvas.dataset.objectX=String(Math.round(x));o.canvas.dataset.objectCount="1";
  if(phase!=="gameplay"||settled)return;
  player.move((Number(Boolean(input.right))-Number(Boolean(input.left)))*200,0);
- if(input.jump&&player.isGrounded())player.jump(520);
- const result=worldOutcome({phase,x:player.pos.x,y:player.pos.y,goal:scene.goalX,grounded:player.isGrounded(),hazard:false});if(result)report(result);
+ if(input.jump&&player.isGrounded?.())player.jump(520);
+ const result=worldOutcome({phase,x:player.pos.x,y:player.pos.y,goal:scene.goalX,grounded:Boolean(player.isGrounded?.()),hazard:false});if(result)report(result);
  });
  return {
  destroy(){if(destroyed)return;destroyed=true;fall.cancel();k.quit();if(active===k)active=null;},

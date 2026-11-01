@@ -318,7 +318,7 @@ export function SketchbookApp() {
               behavior={snapshot.behavior}
               decision={snapshot.decision}
               onOutcomeReported={(o) => controller.reportGameplayOutcome(o)}
-              onRedraw={() => controller.requestRedraw("gameplay")}
+              onRedraw={() => {setDrawingRevision(n=>n+1);controller.requestRedraw("gameplay");}}
               onCommitPlacement={() => controller.commitPlacement()}
               onFallComplete={() => controller.completeFall()}
               drawingInput={controller.drawingInput}

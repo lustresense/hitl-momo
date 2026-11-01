@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { LevelContext, PredictionResult } from "@/src/domain/types";
 
 export interface DecisionPanelProps {
@@ -30,6 +30,12 @@ export function DecisionPanel({
   const [picker, setPicker] = useState<"none" | "correct" | "override">("none");
   const [overrideError, setOverrideError] = useState<string | null>(null);
   const [selected, setSelected] = useState<SelectedDecision>(null);
+
+  useEffect(() => {
+    committed.current = false;
+    setLocked(false);
+    setSelected(null);
+  }, [prediction]);
 
   const overrideOptions = useMemo(() => {
     const top3 = new Set(prediction.candidates.map((c) => c.label));

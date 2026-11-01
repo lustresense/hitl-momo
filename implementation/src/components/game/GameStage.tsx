@@ -293,6 +293,7 @@ export function GameStage(props:GameStageProps){
           <>
             <button className="btn" data-testid="btn-retry-cycle" onClick={()=>{controller.current?.retry();setOutcome(null);setFailReason("");}}>Coba dari checkpoint</button>
             <button className="btn" data-testid="btn-reposition" onClick={reposition}>Reposisi objek yang sama</button>
+            <button className="btn" data-testid="btn-redraw-gameplay" onClick={props.onRedraw}>Gambar ulang</button>
           </>
         )}
       </div>

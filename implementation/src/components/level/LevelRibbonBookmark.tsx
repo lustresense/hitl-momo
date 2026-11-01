@@ -8,6 +8,7 @@ import type { LevelDefinition } from "@/src/domain/levels";
 export interface LevelRibbonBookmarkProps {
   levels: LevelDefinition[];
   onSelectLevel: (level: LevelDefinition) => void;
+  isLevelUnlocked?: (stage: number) => boolean;
 }
 
 const WIDTH = 176;
@@ -65,7 +66,7 @@ function setLength(element: HTMLButtonElement, length: number) {
   content.style.transform = `translateY(${(length - height) / 2}px)`;
 }
 
-export function LevelRibbonBookmark({ levels, onSelectLevel }: LevelRibbonBookmarkProps) {
+export function LevelRibbonBookmark({ levels, onSelectLevel, isLevelUnlocked }: LevelRibbonBookmarkProps) {
   const shelfRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<DragState | null>(null);
   const suppressClickRef = useRef(false);
@@ -179,7 +180,7 @@ export function LevelRibbonBookmark({ levels, onSelectLevel }: LevelRibbonBookma
       </svg>
       <div ref={shelfRef} className="ribbon-shelf ribbon-rack level-list level-ribbons-container level-ribbon-shelf" role="group" aria-label="Daftar level" data-testid="level-list">
         {levels.map((level, index) => {
-          const locked = index !== 0;
+          const locked = isLevelUnlocked ? !isLevelUnlocked(level.stage) : (index !== 0);
           const { width, height } = typeof window === "undefined" ? { width: WIDTH, height: HEIGHT } : dimensions();
           return <button key={level.levelId} type="button" className={`ribbon-slot level-card level-ribbon${locked ? " is-locked ribbon-locked ribbon-rolled-scroll" : " is-playable ribbon-unlocked"}` } data-testid={`level-card-${level.stage}`} data-level-id={`level-${level.stage}`} data-stage={level.stage} aria-label={`Level ${level.stage}${locked ? " terkunci" : ""}`} onPointerDown={(event) => beginDrag(event, level, locked)} onClick={(event: ReactMouseEvent<HTMLButtonElement>) => {
             if (suppressClickRef.current) { suppressClickRef.current = false; return; }

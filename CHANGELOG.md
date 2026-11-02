@@ -2,6 +2,18 @@
 
 Dokumen ini adalah catatan keputusan proyek yang dipakai untuk mencegah konteks lama atau jawaban AI mengambil alih keputusan terbaru.
 
+## [0.0.12] - 2026-11-02 — Perbaikan Visual Viewport, Pembukaan Alur Level Ribbon & Teardown Kaplay Zero Error (Milestone efbb3cb)
+
+- **Perbaikan Ground Viewport Gap:** Memperpanjang path SVG tebing kiri dan kanan di `src/components/stage-preview/StageArtwork.tsx` (`v220H0z` dan `v220H356z`) sehingga menutup void gap vertikal ~112px saat diskalakan pada rasio 16:9, dengan tetap menjaga `viewBox="0 0 490 325"` dan kepatuhan uji visual.
+- **Wiring Unlock Level Ribbon:** Menghubungkan prop `isLevelUnlocked` dari `SketchbookApp.tsx` ke `LevelRibbonBookmark.tsx`. Bab 2 dan Bab 3 kini dapat diakses secara organik melalui kartu level siswa tanpa perlu bypass URL `page.goto`.
+- **Eliminasi Root Cause Teardown Kaplay:** Menambahkan existence check `player?.exists?.() && player.pos` pada loader sprite asinkron, callback tween, serta telemetri di `src/game/kaplay-runtime.ts` untuk mengeliminasi exception `null.x` saat unmount secara murni tanpa filter regex.
+- **Verifikasi E2E Playwright & Video Penuh:** Menghasilkan rekaman video fresh 61.44 detik (`page@4132cb92...webm`) yang merekam alur penuh dari Onboarding -> L1 WIN -> L2 WIN -> L3 WIN -> Menu Cerita (3 Bab Terbuka). E2E Playwright lulus 19/19 checks dengan 0 critical console error.
+- **Kepatuhan Regresi & Backup Cloud:** 252/252 unit test passing (100%), typecheck 0 error. Git bundle dibuat dan terverifikasi bit-for-bit lewat rehearsal cloud restore Duplicacy Revision 41 di target `gcd://PA BACKUP/WSL`.
+
+# Changelog Keputusan — PA Sketchbook Universe / AI HITL
+
+Dokumen ini adalah catatan keputusan proyek yang dipakai untuk mencegah konteks lama atau jawaban AI mengambil alih keputusan terbaru.
+
 ## [0.0.11] - 2026-10-30 — Koreksi Temporal Momo Motion, Natural Predicting & Kamera Stationary (Deployed to dev.momominum.tech)
 
 - **Target Tunggal Momo:** Menghilangkan target perantara (x=384) saat PREDICTING. Target horizontal Momo kini langsung dihitung dari geometri aktual popup Top-3 (440px -> x=484, gap 16px) sejak pertama kali tombol Tebak Gambarku ditekan. Nol koreksi posisi sekunder saat beralih ke EVALUATING.

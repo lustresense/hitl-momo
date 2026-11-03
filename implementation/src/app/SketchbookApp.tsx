@@ -18,6 +18,8 @@ import { CreationStore, type WorldCreation } from "@/src/game/creation-store";
 import { TutorialBrochure } from "@/src/components/onboarding/TutorialBrochure";
 import { StudentRulerSelector } from "@/src/components/onboarding/StudentRulerSelector";
 import { DrawingScreen } from "@/src/components/drawing/DrawingScreen";
+import { getMissionConfigForLevel } from "@/src/domain/mission-config";
+import { DEFAULT_CHARACTER_NAME, formatCharacterText, resolveCharacterDisplayName } from "@/src/config/character-tokens";
 import { GlobalCamera } from "@/src/components/camera/GlobalCamera";
 import { LevelRibbonBookmark } from "@/src/components/level/LevelRibbonBookmark";
 import { LOCKED_LEVEL_NOTICE, resolveAppRoute } from "./route-guard";
@@ -28,6 +30,7 @@ import { LOCKED_LEVEL_NOTICE, resolveAppRoute } from "./route-guard";
  * to screens. Persistent global camera widget stays mounted across all routes.
  */
 export function SketchbookApp() {
+  const characterDisplayName = resolveCharacterDisplayName(process.env.NEXT_PUBLIC_CHARACTER_DISPLAY_NAME ?? DEFAULT_CHARACTER_NAME);
   const [controller, setController] = useState<FlowController | null>(null);
   const [providerMode, setProviderMode] = useState<"mock" | "partner">(env.predictionMode);
   const [onboarding, setOnboarding] = useState<"camera" | "number" | "tutorial" | "levels">("camera");
@@ -38,6 +41,8 @@ export function SketchbookApp() {
   // Survives GameStage unmounts during redraw/add/prediction; never browser-persisted.
   const creationsRef = useRef(new CreationStore());
   const [drawingRevision,setDrawingRevision]=useState(0);
+  const missionSeenLevels = useRef(new Set<string>());
+  const [missionOpen, setMissionOpen] = useState(false);
   const handleCreationsChange = useCallback((items: WorldCreation[]) => {
     creationsRef.current.replace(items);
   }, []);
@@ -97,6 +102,10 @@ export function SketchbookApp() {
     const sink: InteractionEventSink = createDevConsoleSink();
     const c = new FlowController({ provider, sink, goalCompletesLevel: true });
     creationsRef.current.enterLevel(level.levelId);
+    if (!missionSeenLevels.current.has(level.levelId)) {
+      missionSeenLevels.current.add(level.levelId);
+      setMissionOpen(true);
+    }
     setController(c);
     c.enterLevel(level);
   }, [isLevelUnlocked]);
@@ -238,6 +247,7 @@ export function SketchbookApp() {
           {/* ONBOARDING TUTORIAL */}
           {onboarding === "tutorial" && (
             <TutorialBrochure
+              characterDisplayName={characterDisplayName}
               onStart={() => navigateTo("/levels")}
               onSkip={() => navigateTo("/levels")}
             />
@@ -261,6 +271,10 @@ export function SketchbookApp() {
             <DrawingScreen
               key={level.levelId + String(snapshot.cyclesCompleted) + ":" + drawingRevision}
               level={level}
+              missionConfig={getMissionConfigForLevel(level)}
+              missionOpen={missionOpen}
+              onOpenMission={() => setMissionOpen(true)}
+              onCloseMission={() => setMissionOpen(false)}
               initialMode={env.defaultDrawInputMode}
               feedback={controller?.feedback ?? null}
               surfaceOut={surfaceRef}
@@ -311,6 +325,7 @@ export function SketchbookApp() {
           {onboarding === "levels" && (phase === "falling" || phase === "placing" || phase === "gameplay") && level && snapshot?.behavior && snapshot?.decision && controller && (
             <GameStage
               integrated={true}
+              characterDisplayName={characterDisplayName}
               creations={creationsRef.current.snapshot()}
               onCreationsChange={handleCreationsChange}
               onCreateAnotherObject={() => {setDrawingRevision(n=>n+1);controller.requestRedraw("gameplay");}}
@@ -334,7 +349,7 @@ export function SketchbookApp() {
               <div className="summary-two-block">
                 <div className="summary-block summary-gameplay">
                   <h2>Hasil gameplay</h2>
-                  <p>{level.summary?.gameplay ?? "Kamu berhasil menyelesaikan level ini!"}</p>
+                  <p>{formatCharacterText(level.summary?.gameplay ?? "Kamu berhasil menyelesaikan level ini!", characterDisplayName)}</p>
                 </div>
                 <div className="summary-block summary-literacy">
                   <h2>Literasi AI</h2>

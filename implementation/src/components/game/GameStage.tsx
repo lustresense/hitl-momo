@@ -10,8 +10,9 @@ import {getStageGeometry} from '@/src/game/stage-geometry';
 import {clientToPhysics} from '@/src/game/stage-transform';
 import type {WorldCreation} from '@/src/game/creation-store';
 import styles from './game-stage.module.css';
+import { resolveCharacterDisplayName } from "@/src/config/character-tokens";
 export interface GameStageProps {
- integrated?:boolean;creations?:WorldCreation[];onCreationsChange?:(items:WorldCreation[])=>void;onCreateAnotherObject?:()=>void;
+ characterDisplayName?:string|null;integrated?:boolean;creations?:WorldCreation[];onCreationsChange?:(items:WorldCreation[])=>void;onCreateAnotherObject?:()=>void;
  level:LevelDefinition;behavior:ObjectBehavior;decision:HumanDecision;drawingInput:DrawingInput|null;
  phase:"falling"|"placing"|"gameplay"|"complete";
  onOutcomeReported(o:"success"|"fail"):void;onRedraw():void;onFallComplete():void;onCommitPlacement():void;onReposition():void;
@@ -19,6 +20,7 @@ export interface GameStageProps {
 const NEUTRAL={left:false,right:false,jump:false};
 export function GameStage(props:GameStageProps){
  const latest=useRef(props);latest.current=props;
+ const characterName=resolveCharacterDisplayName(props.characterDisplayName);
  const canvas=useRef<HTMLCanvasElement>(null),controller=useRef<GameController|null>(null);
  const geometry=props.integrated?getStageGeometry(props.level.stage):null;
   const [ready,setReady]=useState(false),[error,setError]=useState(""),[outcome,setOutcome]=useState<"success"|"fail"|null>(null),[failReason,setFailReason]=useState("");
@@ -135,7 +137,7 @@ export function GameStage(props:GameStageProps){
  return <section id="screen-gameplay" className={props.integrated?styles.root:"screen"} data-testid="world-stage">
   <div className="stage-floating-header">
     <div style={{display:"flex",alignItems:"center",gap:12}}>
-      <h2 style={{margin:0,fontSize:18,fontWeight:800,color:"#111111"}}>Dunia Stickman</h2>
+      <h2 style={{margin:0,fontSize:18,fontWeight:800,color:"#111111"}}>Dunia {characterName}</h2>
       <span className="decision-chip" style={{margin:0}}>
         {decision.type.toUpperCase()} · “{decision.finalLabel}”{decision.type!=="override"?` (#${decision.sourceRank})`:""}
       </span>
@@ -156,7 +158,7 @@ export function GameStage(props:GameStageProps){
     height={props.integrated?450:380}
     className={props.integrated?styles.canvas:"game-canvas"}
     data-testid="game-canvas"
-    aria-label="Dunia Stickman 2D"
+    aria-label={`Dunia ${characterName} 2D`}
     onPointerDown={e=>{if(phase!=="placing")return;dragging.current=true;e.currentTarget.setPointerCapture(e.pointerId);pointer(e);}}
     onPointerMove={e=>{if(dragging.current)pointer(e);}}
     onPointerUp={()=>{dragging.current=false;}}

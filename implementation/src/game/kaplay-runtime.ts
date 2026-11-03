@@ -2,10 +2,12 @@ import { generateSketchDataUri } from "./sketch-renderer";
 import {stickmanSvg,STICKMAN_ASSET} from "./assets/stickman-svg";
 import type {WorldCreation} from "./creation-store";
 import {getStageGeometry, type Rect, type StageGeometry} from "./stage-geometry";
-import type {KAPLAYCtx,GameObj,PosComp} from "kaplay";
+import type {KAPLAYCtx,GameObj,PosComp,SpriteComp} from "kaplay";
 import {worldViewport} from "./world-viewport";
 import type {LevelContext,ObjectBehavior,DrawingInput} from "../domain/types";
 import {isLegalPlacement,worldOutcome} from "./placement-rules";
+import {buildCharacterAKeyframeManifest,CharacterRuntimeBridge} from "./character/character-runtime-bridge";
+import {kaplayAssetToPromise,recoverCharacterSpriteLoad} from "./character/character-load-recovery";
 export type GameOutcome="success"|"fail";
 export interface KaplayGameHandle {
  selectCreation?(id:string):boolean;
@@ -66,7 +68,24 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
   const svg=stickmanSvg().replace(/width="[^"]+" height="[^"]+"/,`width="${STICKMAN_ASSET.width*textureScale}" height="${STICKMAN_ASSET.height*textureScale}"`);
   const spriteName=`integrated-stickman-${o.level.stage}`;
   const spriteAsset=k.loadSprite(spriteName,`data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`);
-  void spriteAsset.then(()=>{if(!destroyed && player?.exists?.() && player.pos)player.add([k.sprite(spriteName),k.pos(12-STICKMAN_ASSET.foot.x*sceneScale,40-STICKMAN_ASSET.foot.y*sceneScale),k.scale(sceneScale/textureScale)]);});
+  const characterManifest=buildCharacterAKeyframeManifest(textureScale);
+  const characterSprites=new Map(characterManifest.map(frame=>[frame.frameId,`integrated-character-${o.level.stage}-${frame.frameId}`]));
+  const characterLoads=characterManifest.map(frame=>k.loadSprite(characterSprites.get(frame.frameId)!,frame.dataUri));
+  const characterBridge=new CharacterRuntimeBridge();
+  let characterSprite:GameObj<PosComp & SpriteComp>|null=null;
+  void recoverCharacterSpriteLoad(kaplayAssetToPromise(spriteAsset).then(()=>undefined),Promise.all(characterLoads.map(asset=>kaplayAssetToPromise(asset).then(()=>undefined)))).then(characterLoaded=>{
+   if(destroyed || !player?.exists?.() || !player.pos)return;
+   if(characterLoaded){
+    characterSprite=player.add([k.sprite(characterSprites.get(characterBridge.getCurrentFrameId())!),k.pos(12-STICKMAN_ASSET.foot.x*sceneScale,40-STICKMAN_ASSET.foot.y*sceneScale),k.scale(sceneScale/textureScale)]);
+   }else{
+    o.canvas.dataset.characterRenderer="legacy-fallback";
+    characterSprite=player.add([k.sprite(spriteName),k.pos(12-STICKMAN_ASSET.foot.x*sceneScale,40-STICKMAN_ASSET.foot.y*sceneScale),k.scale(sceneScale/textureScale)]);
+   }
+  }).catch(error=>{
+   if(destroyed)return;
+   o.canvas.dataset.characterLoadError=error instanceof Error?error.message:String(error);
+   console.error("Character A and legacy fallback sprite load failed",error);
+  });
   function drawCreation(item:WorldCreation,committed:boolean):SceneObject{
    const rgb=item.behavior==="solid"?[170,130,85]:item.behavior==="danger"?[195,92,52]:[140,150,160];
    const art=k.add([k.rect(item.w,item.h),k.pos(item.x,item.y),k.color(rgb[0]!,rgb[1]!,rgb[2]!),k.outline(2,k.rgb(26,26,26)),"creation",{creationId:item.id,label:item.label,creationBehavior:item.behavior}]);
@@ -147,7 +166,14 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
   }
   // Input shares the body's fixed cadence; render stalls must not batch movement.
   k.onFixedUpdate(()=>{
-   if(destroyed||!player?.exists?.()||!player.pos||phase!=="gameplay"||settled)return;
+   if(destroyed||!player?.exists?.()||!player.pos)return;
+   characterBridge.update({x:player.pos.x,y:player.pos.y,vx:player.vel?.x??0,vy:player.vel?.y??0,grounded:Boolean(player.isGrounded?.()),facing:characterBridge.getFacing(),terminalPhase:settled?(o.canvas.dataset.outcome==="success"?"win":"fail"):undefined},1/60);
+   const nextCharacterSprite=characterSprites.get(characterBridge.getCurrentFrameId());
+   if(characterSprite?.exists?.()){
+    if(nextCharacterSprite)characterSprite.sprite=nextCharacterSprite;
+    characterSprite.flipX=characterBridge.getFacing()===-1;
+   }
+   if(phase!=="gameplay"||settled)return;
    player.move((Number(Boolean(input.right))-Number(Boolean(input.left)))*200,0);
    // Desktop L1 starts at world x=0; keep the rendered sprite inside its left edge.
    if(o.level.stage===1&&globalThis.innerWidth>=761&&globalThis.innerWidth>globalThis.innerHeight)
@@ -161,7 +187,7 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
   });
   telemetry();
   return {
-   destroy(){if(destroyed)return;destroyed=true;fall.cancel();k.quit();if(active===k)active=null;},
+   destroy(){if(destroyed)return;destroyed=true;characterBridge.dispose();fall.cancel();k.quit();if(active===k)active=null;},
    setInput(i){input=phase==="gameplay"&&!settled?{left:Boolean(i?.left),right:Boolean(i?.right),jump:Boolean(i?.jump)}:{left:false,right:false,jump:false};},
    onFallComplete(){enterPlace();},setPlacement,selectCreation,
    commitPlacementAt(x,y){

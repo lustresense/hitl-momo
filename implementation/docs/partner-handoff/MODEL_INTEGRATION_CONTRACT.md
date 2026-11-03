@@ -1,6 +1,6 @@
 # Model Integration Contract — Partner Classifier ↔ Author Side
 
-## Status: FROZEN (Contract v1.0.0-draft — Handoff 1 November)
+## Status: DRAFT (Contract v1.0.0-draft — Handoff 1 November)
 This document defines the wire-level contract between the author-side application and the partner classifier model/backend. It serves as the single source of truth for request/response wire schema, error handling, normalization rules, and MOCK vs REAL provider separation.
 
 ---
@@ -43,7 +43,7 @@ The author side constructs and validates `DrawingInput` before transmission.
 }
 ```
 
-### Geometry & Normalization Contract (Author-Side Guarantee) ⚠️ **[DRAFT / PENDING PARTNER CONFIRMATION]**
+### Geometry & Normalization Contract (Proposed/Expected Convention — Not Enforced in Validator) ⚠️ **[DRAFT / PENDING PARTNER CONFIRMATION]**
 1. **Coordinate space:** Unit interval `[0.0, 1.0]` inclusive along both axes (`x` and `y`).
 2. **Translation:** Strokes are translated so bounding box minimum `(minX, minY) = (0.0, 0.0)`.
 3. **Scaling:** Strokes are scaled so bounding box maximum `(maxX, maxY) = (1.0, 1.0)`.
@@ -57,7 +57,7 @@ The author side constructs and validates `DrawingInput` before transmission.
 ## 2. Response Wire Format (Partner → Author)
 
 ### Success (HTTP 200 OK)
-Partner must respond with exact Top-3 prediction candidates ordered by confidence (descending).
+Partner must respond with exact Top-3 prediction candidates (ordering by confidence descending is expected but not validated by author-side validator).
 
 ```json
 {
@@ -79,6 +79,8 @@ Partner must respond with exact Top-3 prediction candidates ordered by confidenc
 *Note:* If partner response violates any rule above, author throws `PredictionError(reason: "malformed-response")`. The author app **never fabricates fallback prediction data** (PRD FR-02).
 
 > ⚠️ **[DRAFT / PENDING PARTNER CONFIRMATION]**: The exact-3-candidate requirement, confidence range `[0,1]`, and trimming behavior are author-side validation choices. Partner may propose different candidate count (e.g., Top-5), different confidence encoding (logits, softmax sum=1), or different label encoding (indices + lookup). Author validator is forgiving — it accepts any `label: string` (not restricted to the 7-label prototype vocabulary) and any `confidence: number` in `[0,1]`.
+
+### Expected Format: Top-3 by confidence descending (ordering not validated by author-side validator) ⚠️ **[DRAFT / PENDING PARTNER CONFIRMATION]**
 
 ### Prototype Vocabulary (Author-Side Only) ⚠️ **[DRAFT / PENDING PARTNER CONFIRMATION]**
 The following 7 labels are used in author-side mock fixtures and level behavior mapping. **This is NOT a constraint on partner model output vocabulary.** Partner may use any label set; unknown labels resolve to `fallback` behavior gracefully.
@@ -123,7 +125,7 @@ balok, batu, duri, ember, papan, tali, tangga
 
 The following items are marked as **DRAFT** and require explicit partner sign-off during the 1 November handoff meeting:
 
-1. **[DRAFT] Authentication Header:** Default is unauthenticated or pre-shared bearer token (`Authorization: Bearer <token>`). Awaiting partner spec.
+1. **[DRAFT] Authentication Header:** Default is unauthenticated or pre-shared bearer token (`Authorization: Bearer ***`). Awaiting partner spec.
 2. **[DRAFT] Latency SLA Budget:** Author default client timeout is 8000 ms. Recommended target: `< 1500 ms` p95.
 3. **[DRAFT] Model Version Metadata:** Author proposes optional response header `X-Model-Version: <sha/tag>` or optional candidate-level metadata. Currently ignored by author validator.
 4. **[DRAFT] Confidence Summation:** Softmax output summing to 1.0 is recommended but not strictly enforced by author validator (only individual range `[0, 1]` is enforced).

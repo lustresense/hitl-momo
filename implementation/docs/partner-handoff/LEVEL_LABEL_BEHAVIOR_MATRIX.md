@@ -62,6 +62,8 @@ Apabila model partner mengembalikan label yang tidak terdaftar dalam behaviorMap
 3. UI menampilkan indikator visual netral/peringatan tanpa merusak siklus permainan.
 4. Game tidak akan crash atau menolak response prediksi valid partner sekalipun label belum dipetakan.
 
+**UNKNOWN LABEL RESOLVES TO INERT 'unresolved'; PLAYABLE FALLBACK NOT IMPLEMENTED; STAGE 3 'ember' SPECIAL CASE DOCUMENTED SEPARATELY**
+
 ---
 
 ## 5. Union Vocabulary Prototype (Referensi Author-Side, Bukan Kewajiban Partner)
@@ -71,3 +73,5 @@ Himpunan label prototype author-side saat ini:
 ["balok", "batu", "duri", "ember", "papan", "tali", "tangga"]
 ```
 *Catatan:* Daftar di atas adalah referensi awal dari author side. Partner dapat mengajukan perubahan, penambahan, atau pengurangan label pada rapat handoff 1 November.
+
+**VOCABULARY/EFFECTS → AUTHOR-SIDE FIXTURES (DRAFT); PARTNER MODEL VOCABULARY UNCONFIRMED**

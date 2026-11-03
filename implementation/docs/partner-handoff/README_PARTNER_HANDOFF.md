@@ -1,12 +1,15 @@
 # Partner Handoff — Sketchbook Universe Model Adapter
 
-## Freeze Status: 1 November 2026 Ready
+## Draft Status: 1 November 2026 — Alignment Material
 Dokumen ini merupakan ringkasan resmi serah terima teknis (partner handoff) antara tim pengembang gameplay/author-side dan tim AI Model Classifier Partner.
 
 ---
 
 ## ⚠️ PEMBERITAHUAN STATUS: DRAFT / PENDING PARTNER CONFIRMATION
 Seluruh asumsi integrasi (skema request/response, vocabulary 7 label, normalisasi, SLA latensi, error mapping) merupakan **spesifikasi awal prototype author-side**. Tim partner belum mengonfirmasi batasan-batasan tersebut secara final. Author app dibangun dengan prinsip **forgiving validator & graceful fallback** agar tidak membatasi arsitektur atau keputusan backend partner.
+
+**ALIGNMENT MATERIAL FOR PARTNER REVIEW; NOT A SIGNED CONTRACT**  
+**LAST REVIEWED: 2026-11-02** (not freeze date)
 
 ---
 
@@ -39,7 +42,7 @@ Seluruh asumsi integrasi (skema request/response, vocabulary 7 label, normalisas
 
 Berikut adalah 10 butir diskusi dan kesepakatan terbuka yang diagendakan untuk rapat 1 November:
 
-1. **[DRAFT] Authentication Scheme:** Header `Authorization: Bearer <token>` vs API Key vs unauthenticated internal VPC.
+1. **[DRAFT] Authentication Scheme:** Header `Authorization: Bearer *** vs API Key vs unauthenticated internal VPC.
 2. **[DRAFT] Latency SLA Budget:** Target p95 < 1500 ms dan author client timeout 8000 ms.
 3. **[DRAFT] Coordinate Space & Normalization:** Bounding box `[0..1]` dengan preservasi `aspectRatio` vs input raw pixel vs matriks gambar bitmap raster.
 4. **[DRAFT] Candidate Cardinality:** Wajib tepat 3 kandidat vs Top-K variabel (Top-1 s.d. Top-5).
@@ -59,7 +62,7 @@ Berikut adalah 10 butir diskusi dan kesepakatan terbuka yang diagendakan untuk r
 | `docs/partner-handoff/MODEL_INTEGRATION_CONTRACT.md` | Spesifikasi detail payload request/response wire schema, SLA, aturan normalisasi, dan penanganan error. | [DRAFT / PENDING PARTNER] |
 | `docs/partner-handoff/LEVEL_LABEL_BEHAVIOR_MATRIX.md` | Matriks pemetaan label model ke perilaku dunia fisik (*Solid*, *Danger*, *Fallback*) untuk Stage 1–3. | [DRAFT / Subject to Alignment] |
 | `src/prediction/model-contract.ts` | Definisi TypeScript, skema validasi runtime, konstanta batas, dan helper verifikasi kontrak. | [Prototype Contract] |
-| `tests/prediction/partner-contract.test.ts` | Rangkaian pengujian otomatis untuk memverifikasi kepatuhan terhadap kontrak wire-level. | [Verified 100% Pass] |
+| `tests/prediction/partner-contract.test.ts` | Rangkaian pengujian otomatis untuk memverifikasi kepatuhan terhadap kontrak wire-level. | [CLAIMED 100% Pass — NOT RE-RUN IN AUDIT] |
 
 ---
 

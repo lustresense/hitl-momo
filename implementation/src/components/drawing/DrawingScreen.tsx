@@ -3,6 +3,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { LevelDefinition } from "@/src/domain/levels";
 import type { MomoMoment } from "@/src/domain/momo-script";
 import type { PredictionResult } from "@/src/domain/types";
+import type { MissionConfig } from "@/src/domain/mission-config";
+import { MissionBriefing } from "../mission/MissionBriefing";
 import { DrawingSurface } from "@/src/input";
 import type { InputModeId } from "@/src/input/types";
 import { MomoBubble } from "../momo/MomoBubble";
@@ -25,6 +27,10 @@ export interface DrawingScreenProps {
   onOverride?: (label: string) => void;
   onRedraw?: () => void;
   onRetry?: () => void;
+  missionConfig?: MissionConfig;
+  missionOpen?: boolean;
+  onOpenMission?: () => void;
+  onCloseMission?: () => void;
 }
 
 export function DrawingScreen({
@@ -44,6 +50,10 @@ export function DrawingScreen({
   onOverride = () => void 0,
   onRedraw = () => void 0,
   onRetry = () => void 0,
+  missionConfig,
+  missionOpen = false,
+  onOpenMission = () => void 0,
+  onCloseMission = () => void 0,
 }: DrawingScreenProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [inputMode, setInputMode] = useState<InputModeId>(initialMode);
@@ -254,6 +264,23 @@ export function DrawingScreen({
         </button>
       </aside>
 
+      {missionConfig && (
+        <>
+          <button
+            type="button"
+            className="btn btn-small"
+            aria-label="Petunjuk Misi"
+            onClick={onOpenMission}
+            style={{
+              zIndex: 20,
+              position: "relative",
+            }}
+          >
+            Petunjuk Misi
+          </button>
+          <MissionBriefing isOpen={missionOpen} config={missionConfig} onStartDrawing={onCloseMission} onClose={onCloseMission} />
+        </>
+      )}
       <button type="button" className="btn btn-small btn-exit drawing-exit" onClick={onExit}>
         Keluar Level
       </button>

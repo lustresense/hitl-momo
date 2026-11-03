@@ -2,10 +2,12 @@
 
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
 import { getPrefersReducedMotion, subscribePrefersReducedMotion } from "./tutorial-motion";
+import { resolveCharacterDisplayName } from "@/src/config/character-tokens";
 
 interface TutorialBrochureProps {
   onStart(): void;
   onSkip?: () => void;
+  characterDisplayName?: string | null;
 }
 
 type CardIndex = 0 | 1 | 2;
@@ -20,7 +22,8 @@ const INITIAL_SLOTS: SlotState[] = [
   { x: 0, y: 4, rot: 5, w: 220, h: 350, opacity: 0, filter: "none" },
 ];
 
-export function TutorialBrochure({ onStart, onSkip }: TutorialBrochureProps) {
+export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: TutorialBrochureProps) {
+  const characterName = resolveCharacterDisplayName(characterDisplayName);
   const rootRef = useRef<HTMLDivElement>(null);
   const appRef = useRef<HTMLDivElement>(null);
   const stageRef = useRef<HTMLElement>(null);
@@ -351,9 +354,9 @@ export function TutorialBrochure({ onStart, onSkip }: TutorialBrochureProps) {
       )}
       <div ref={appRef} className={`app ${active >= 0 ? "is-focus" : ""}`}>
         <main ref={stageRef} className={`stage ${active >= 0 ? "is-focus" : ""}`} aria-label="Prototype tutorial brochure">
-          <BrochureCard index={0} active={active} phase={phase} ready={ready(0)} onNext={nextCard} onMotionDone={() => setMotionDone(true)} slotRef={(element) => { slotRefs.current[0] = element; }} innerRef={(element) => { innerRefs.current[0] = element; }} panelRef={(element) => { panelRefs.current[0] = element; }} />
-          <BrochureCard index={1} active={active} phase={phase} ready={ready(1)} onNext={nextCard} slotRef={(element) => { slotRefs.current[1] = element; }} innerRef={(element) => { innerRefs.current[1] = element; }} panelRef={(element) => { panelRefs.current[1] = element; }} />
-          <BrochureCard index={2} active={active} phase={phase} ready={ready(2)} onNext={nextCard} canvasRef={canvasRef} tool={tool} hasStroke={hasStroke} onTool={setTool} onBeginStroke={beginStroke} onMoveStroke={moveStroke} onEndStroke={endStroke} onClear={clearDrawing} onUndo={undoDrawing} onRedo={redoDrawing} slotRef={(element) => { slotRefs.current[2] = element; }} innerRef={(element) => { innerRefs.current[2] = element; }} panelRef={(element) => { panelRefs.current[2] = element; }} />
+          <BrochureCard index={0} active={active} phase={phase} ready={ready(0)} onNext={nextCard} onMotionDone={() => setMotionDone(true)} slotRef={(element) => { slotRefs.current[0] = element; }} innerRef={(element) => { innerRefs.current[0] = element; }} panelRef={(element) => { panelRefs.current[0] = element; }} characterName={characterName} />
+          <BrochureCard index={1} active={active} phase={phase} ready={ready(1)} onNext={nextCard} slotRef={(element) => { slotRefs.current[1] = element; }} innerRef={(element) => { innerRefs.current[1] = element; }} panelRef={(element) => { panelRefs.current[1] = element; }} characterName={characterName} />
+          <BrochureCard index={2} active={active} phase={phase} ready={ready(2)} onNext={nextCard} canvasRef={canvasRef} tool={tool} hasStroke={hasStroke} onTool={setTool} onBeginStroke={beginStroke} onMoveStroke={moveStroke} onEndStroke={endStroke} onClear={clearDrawing} onUndo={undoDrawing} onRedo={redoDrawing} slotRef={(element) => { slotRefs.current[2] = element; }} innerRef={(element) => { innerRefs.current[2] = element; }} panelRef={(element) => { panelRefs.current[2] = element; }} characterName={characterName} />
         </main>
       </div>
     </div>
@@ -365,17 +368,18 @@ interface BrochureCardProps {
   onMotionDone?: () => void; canvasRef?: React.RefObject<HTMLCanvasElement>; tool?: Tool; hasStroke?: boolean; onTool?: (tool: Tool) => void;
   onBeginStroke?: (event: PointerEvent<HTMLCanvasElement>) => void; onMoveStroke?: (event: PointerEvent<HTMLCanvasElement>) => void; onEndStroke?: (event: PointerEvent<HTMLCanvasElement>) => void;
   onClear?: () => void; onUndo?: () => void; onRedo?: () => void; slotRef(element: HTMLElement | null): void; innerRef(element: HTMLDivElement | null): void; panelRef(element: HTMLDivElement | null): void;
+  characterName: string;
 }
 
-function BrochureCard({ index, active, phase, ready, onNext, onMotionDone, canvasRef, tool, hasStroke, onTool, onBeginStroke, onMoveStroke, onEndStroke, onClear, onUndo, onRedo, slotRef, innerRef, panelRef }: BrochureCardProps) {
+function BrochureCard({ index, active, phase, ready, onNext, onMotionDone, canvasRef, tool, hasStroke, onTool, onBeginStroke, onMoveStroke, onEndStroke, onClear, onUndo, onRedo, slotRef, innerRef, panelRef, characterName }: BrochureCardProps) {
   const isActive = index === active;
   const className = `slot tutorial-card-${index + 1} ${isActive ? "is-focused" : ""} ${active >= 0 && index > active ? "is-subdued" : ""} ${isActive && phase === "open" ? "is-open" : ""}`;
   return <article ref={slotRef} className={className} data-index={index} aria-label={`Kartu tutorial ${index + 1}`}>
     <div className="card"><div ref={innerRef} className="card-inner">
       <section className={`face front front-accent-${index + 1}`}><div className="front-center"><div className="number">{index + 1}</div></div></section>
       <section className={`face back theme-${index + 1}`}><div className="brochure-track"><section className="panel guide-panel">
-        {index === 0 && <><h2 className="guide-title">Kenalin Stickman</h2><p className="guide-copy">Dia mau jalan lewatin lembaran buku gambar ini, tapi jalurnya buntu. Coba gerakin tanganmu ke kanan atau kiri buat ajak dia jalan!</p><button className={`brochure-cta ${ready ? "is-ready" : ""}`} type="button" disabled={!ready} onClick={(event) => { event.stopPropagation(); onNext(); }}>Lanjut</button></>}
-        {index === 1 && <><h2 className="guide-title">Pijakan Aman vs Bahaya</h2><p className="guide-copy">Gambarlah benda padat kayak balok atau tangga biar Stickman bisa lewat. Hindari benda tajam kayak duri atau pisau biar buku gak sobek!</p><button className="brochure-cta is-ready" type="button" onClick={(event) => { event.stopPropagation(); onNext(); }}>Lanjut</button></>}
+        {index === 0 && <><h2 className="guide-title">Kenalin {characterName}</h2><p className="guide-copy">Dia mau jalan lewatin lembaran buku gambar ini, tapi jalurnya buntu. Coba gerakin tanganmu ke kanan atau kiri buat ajak dia jalan!</p><button className={`brochure-cta ${ready ? "is-ready" : ""}`} type="button" disabled={!ready} onClick={(event) => { event.stopPropagation(); onNext(); }}>Lanjut</button></>}
+        {index === 1 && <><h2 className="guide-title">Pijakan Aman vs Bahaya</h2><p className="guide-copy">Gambarlah benda padat kayak balok atau tangga biar {characterName} bisa lewat. Hindari benda tajam kayak duri atau pisau biar buku gak sobek!</p><button className="brochure-cta is-ready" type="button" onClick={(event) => { event.stopPropagation(); onNext(); }}>Lanjut</button></>}
         {index === 2 && <><h2 className="guide-title">Tes Coret &amp; Gestur Jarimu</h2><p className="guide-copy">Coba bikin garis bebas di kanvas ini. Gunakan gestur jarimu: 🤏 Coret, ✊ Hapus, ✌️ Undo, dan 🖐️ Redo. Udah siap?</p><button className={`brochure-cta ${ready ? "is-ready" : ""}`} type="button" disabled={!ready} onClick={(event) => { event.stopPropagation(); onNext(); }}>Mulai Level 1</button></>}
       </section><section ref={panelRef} className="panel play-panel">
         {index === 0 && <MotionPlayground onComplete={onMotionDone!} />}

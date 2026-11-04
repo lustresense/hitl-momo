@@ -134,7 +134,7 @@ export function solve(w: World): SolveResult {
 function finish(seen: Map<string, { prev: string | null; via: string; s: Sim }>, k: string, _tail: string, _w: World): SolveResult {
   const path: string[] = [];
   let cur: string | null = k;
-  while (cur) { const n = seen.get(cur)!; path.unshift(`${n.via} -> end x=${n.s.x.toFixed(0)} y=${n.s.y.toFixed(0)}`); cur = n.prev; }
+  while (cur) { const n: { prev: string | null; via: string; s: Sim } = seen.get(cur)!; path.unshift(`${n.via} -> end x=${n.s.x.toFixed(0)} y=${n.s.y.toFixed(0)}`); cur = n.prev; }
   return { solvable: true, path, windows: [] };
 }
 

@@ -27,6 +27,10 @@ export function MissionBriefing({
   const skipBtnRef = useRef<HTMLButtonElement>(null);
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
 
+  // Parents pass inline handlers; keep the latest in refs so the listener effect only depends on isOpen.
+  const dismissRef = useRef<() => void>(() => undefined);
+  const tabRef = useRef<(e: KeyboardEvent) => void>(() => undefined);
+
   // Close handler: falls back to onClose or onStartDrawing
   const handleDismiss = () => {
     if (onClose) {
@@ -75,32 +79,35 @@ export function MissionBriefing({
     }
   };
 
+  dismissRef.current = handleDismiss;
+  tabRef.current = handleTabKey;
+
   // Keyboard navigation, Escape handling, and focus trap
   useEffect(() => {
     if (!isOpen) return;
-
-    // Store previously focused element
-    previouslyFocusedRef.current = document.activeElement as HTMLElement;
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
         event.stopPropagation();
-        handleDismiss();
+        dismissRef.current();
       }
     };
+    const handleTab = (event: KeyboardEvent) => tabRef.current(event);
 
     window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keydown", handleTabKey);
+    window.addEventListener("keydown", handleTab);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keydown", handleTabKey);
+      window.removeEventListener("keydown", handleTab);
     };
-  }, [isOpen, onClose, onStartDrawing]);
+  }, [isOpen]);
 
   // Initial focus on primary action when opened
   useEffect(() => {
     if (isOpen) {
+      // Capture the opener ONLY on the closed->open edge (re-renders used to overwrite it with the dialog's own button).
+      previouslyFocusedRef.current = document.activeElement as HTMLElement;
       primaryBtnRef.current?.focus();
     } else if (previouslyFocusedRef.current && previouslyFocusedRef.current.isConnected) {
       // Restore focus to previously focused element when closed

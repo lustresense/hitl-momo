@@ -15,6 +15,7 @@ fs.mkdirSync(OUT, { recursive: true });
 const steps = [];
 const log = (msg, detail) => { const row = { t: new Date().toISOString(), msg, ...(detail !== undefined ? { detail } : {}) }; steps.push(row); console.log(`[${row.t.slice(11, 23)}] ${msg}${detail !== undefined ? " " + JSON.stringify(detail) : ""}`); };
 const gameplayAttempts = [];
+const hookCheck = [];
 
 const { server, base } = await startStaticServer();
 const { browser, context, page, errors } = await launch({ videoDir: process.env.NO_VIDEO ? undefined : OUT });
@@ -103,6 +104,9 @@ async function runLevel(stage) {
     log(`L${stage}c${ci + 1}: placement via mouse drag`, { wantedTopLeft: [cycle.x, cycle.y], got: [+placed.after.objectX.toFixed(1), +placed.after.objectY.toFixed(1)] });
     await confirmPlacement(page);
     await shot(`L${stage}-c${ci + 1}-02-gameplay`);
+    const leaked = await page.evaluate(() => Object.keys(window).filter(k => k.startsWith("__skb")));
+    if (leaked.length) throw new Error(`test/bypass hooks present in production bundle: ${leaked.join(",")}`);
+    hookCheck.push({ stage, cycle: ci + 1, skbGlobals: leaked });
     if (ci < plan.cycles.length - 1) {
       // Partial proof on the first object: student tests it, then asks for another object.
       const partial = plan.steps.slice(0, stage === 2 ? 2 : 1);
@@ -162,7 +166,7 @@ try {
 const videoPath = await page.video()?.path().catch(() => null);
 await context.close(); await browser.close(); server.close();
 const criticalErrors = errors.filter(e => !/favicon|Download the React DevTools/i.test(e.text));
-const report = { run: RUN, result, failure, git: gitInfo(), levels: LEVELS, prediction: "MOCK", input: "trusted Playwright mouse+keyboard; read-only telemetry", gameplayAttempts, consoleAndPageErrors: criticalErrors, steps, video: videoPath && fs.existsSync(videoPath) ? { file: path.basename(videoPath), bytes: fs.statSync(videoPath).size, sha256: sha256(videoPath) } : null };
+const report = { run: RUN, result, failure, git: gitInfo(), levels: LEVELS, prediction: "MOCK", input: "trusted Playwright mouse+keyboard; read-only telemetry", gameplayAttempts, productionBypassHookCheck: hookCheck, consoleAndPageErrors: criticalErrors, steps, video: videoPath && fs.existsSync(videoPath) ? { file: path.basename(videoPath), bytes: fs.statSync(videoPath).size, sha256: sha256(videoPath) } : null };
 writeJson(path.join(OUT, "evidence.json"), report);
 console.log(`RESULT ${result}  attempts=${JSON.stringify(gameplayAttempts)}  consoleErrors=${criticalErrors.length}  out=${OUT}`);
 process.exit(result === "PASS" ? 0 : 1);

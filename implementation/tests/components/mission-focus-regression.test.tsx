@@ -114,7 +114,25 @@ describe("MissionBriefing Focus Trap & Restore Regression", () => {
     const onClose = vi.fn();
     const onStartDrawing = vi.fn();
 
-    const { container } = render(
+    const { container, rerender } = render(
+      <div>
+        <button id="trigger-btn" data-testid="trigger">
+          Open Briefing
+        </button>
+        <MissionBriefing
+          isOpen={false}
+          config={config1}
+          onStartDrawing={onStartDrawing}
+          onClose={onClose}
+        />
+      </div>
+    );
+
+    const triggerBtn = container.querySelector("#trigger-btn") as HTMLButtonElement;
+    triggerBtn.focus();
+    expect(getActiveElement()).toBe(triggerBtn);
+
+    rerender(
       <div>
         <button id="trigger-btn" data-testid="trigger">
           Open Briefing
@@ -127,14 +145,23 @@ describe("MissionBriefing Focus Trap & Restore Regression", () => {
         />
       </div>
     );
-
-    const triggerBtn = container.querySelector("#trigger-btn") as HTMLButtonElement;
-    triggerBtn.focus();
-    expect(getActiveElement()).toBe(triggerBtn);
-
     // Close the modal via onClose
     const closeBtn = screen.getByRole("button", { name: /Tutup Petunjuk Misi/i });
     fireEvent.click(closeBtn);
+    expect(onClose).toHaveBeenCalledTimes(1);
+    rerender(
+      <div>
+        <button id="trigger-btn" data-testid="trigger">
+          Open Briefing
+        </button>
+        <MissionBriefing
+          isOpen={false}
+          config={config1}
+          onStartDrawing={onStartDrawing}
+          onClose={onClose}
+        />
+      </div>
+    );
 
     // Focus should restore to trigger button
     expect(getActiveElement()).toBe(triggerBtn);
@@ -144,7 +171,25 @@ describe("MissionBriefing Focus Trap & Restore Regression", () => {
     const onClose = vi.fn();
     const onStartDrawing = vi.fn();
 
-    const { container } = render(
+    const { container, rerender } = render(
+      <div>
+        <button id="trigger-btn-2" data-testid="trigger2">
+          Open Briefing
+        </button>
+        <MissionBriefing
+          isOpen={false}
+          config={config1}
+          onStartDrawing={onStartDrawing}
+          onClose={onClose}
+        />
+      </div>
+    );
+
+    const triggerBtn = container.querySelector("#trigger-btn-2") as HTMLButtonElement;
+    triggerBtn.focus();
+    expect(getActiveElement()).toBe(triggerBtn);
+
+    rerender(
       <div>
         <button id="trigger-btn-2" data-testid="trigger2">
           Open Briefing
@@ -157,14 +202,23 @@ describe("MissionBriefing Focus Trap & Restore Regression", () => {
         />
       </div>
     );
-
-    const triggerBtn = container.querySelector("#trigger-btn-2") as HTMLButtonElement;
-    triggerBtn.focus();
-    expect(getActiveElement()).toBe(triggerBtn);
-
     // Close the modal via Skip button
     const skipBtn = screen.getByRole("button", { name: /Lewati/i });
     fireEvent.click(skipBtn);
+    expect(onClose).toHaveBeenCalledTimes(1);
+    rerender(
+      <div>
+        <button id="trigger-btn-2" data-testid="trigger2">
+          Open Briefing
+        </button>
+        <MissionBriefing
+          isOpen={false}
+          config={config1}
+          onStartDrawing={onStartDrawing}
+          onClose={onClose}
+        />
+      </div>
+    );
 
     // Focus should restore to trigger button
     expect(getActiveElement()).toBe(triggerBtn);
@@ -174,7 +228,25 @@ describe("MissionBriefing Focus Trap & Restore Regression", () => {
     const onClose = vi.fn();
     const onStartDrawing = vi.fn();
 
-    const { container } = render(
+    const { container, rerender } = render(
+      <div>
+        <button id="trigger-btn-3" data-testid="trigger3">
+          Open Briefing
+        </button>
+        <MissionBriefing
+          isOpen={false}
+          config={config1}
+          onStartDrawing={onStartDrawing}
+          onClose={onClose}
+        />
+      </div>
+    );
+
+    const triggerBtn = container.querySelector("#trigger-btn-3") as HTMLButtonElement;
+    triggerBtn.focus();
+    expect(getActiveElement()).toBe(triggerBtn);
+
+    rerender(
       <div>
         <button id="trigger-btn-3" data-testid="trigger3">
           Open Briefing
@@ -187,13 +259,22 @@ describe("MissionBriefing Focus Trap & Restore Regression", () => {
         />
       </div>
     );
-
-    const triggerBtn = container.querySelector("#trigger-btn-3") as HTMLButtonElement;
-    triggerBtn.focus();
-    expect(getActiveElement()).toBe(triggerBtn);
-
     // Close the modal via Escape
     fireEvent.keyDown(window, { key: "Escape", code: "Escape" });
+    expect(onClose).toHaveBeenCalledTimes(1);
+    rerender(
+      <div>
+        <button id="trigger-btn-3" data-testid="trigger3">
+          Open Briefing
+        </button>
+        <MissionBriefing
+          isOpen={false}
+          config={config1}
+          onStartDrawing={onStartDrawing}
+          onClose={onClose}
+        />
+      </div>
+    );
 
     // Focus should restore to trigger button
     expect(getActiveElement()).toBe(triggerBtn);

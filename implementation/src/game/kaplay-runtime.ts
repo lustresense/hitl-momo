@@ -21,6 +21,9 @@ export interface KaplayGameOptions {
 }
 let active:KAPLAYCtx|null=null;
 let fontGeneration=0;
+export function resolveHorizontalMovementIntent(input:{left:boolean;right:boolean},gameplay:boolean,settled:boolean):number {
+ return gameplay&&!settled?(Number(Boolean(input.right))-Number(Boolean(input.left)))*200:0;
+}
 export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHandle>{
  const factory=(await import("kaplay")).default;
  active?.quit();
@@ -167,14 +170,15 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
   // Input shares the body's fixed cadence; render stalls must not batch movement.
   k.onFixedUpdate(()=>{
    if(destroyed||!player?.exists?.()||!player.pos)return;
-   characterBridge.update({x:player.pos.x,y:player.pos.y,vx:player.vel?.x??0,vy:player.vel?.y??0,grounded:Boolean(player.isGrounded?.()),facing:characterBridge.getFacing(),terminalPhase:settled?(o.canvas.dataset.outcome==="success"?"win":"fail"):undefined},1/60);
+   const resolvedVx=resolveHorizontalMovementIntent(input,phase==="gameplay",settled);
+   characterBridge.update({x:player.pos.x,y:player.pos.y,vx:player.vel?.x??0,vy:player.vel?.y??0,resolvedVx,grounded:Boolean(player.isGrounded?.()),facing:characterBridge.getFacing(),terminalPhase:settled?(o.canvas.dataset.outcome==="success"?"win":"fail"):undefined},1/60);
    const nextCharacterSprite=characterSprites.get(characterBridge.getCurrentFrameId());
    if(characterSprite?.exists?.()){
     if(nextCharacterSprite)characterSprite.sprite=nextCharacterSprite;
     characterSprite.flipX=characterBridge.getFacing()===-1;
    }
    if(phase!=="gameplay"||settled)return;
-   player.move((Number(Boolean(input.right))-Number(Boolean(input.left)))*200,0);
+   player.move(resolvedVx,0);
    // Desktop L1 starts at world x=0; keep the rendered sprite inside its left edge.
    if(o.level.stage===1&&globalThis.innerWidth>=761&&globalThis.innerWidth>globalThis.innerHeight)
     player.pos.x=Math.max(player.pos.x,STICKMAN_ASSET.foot.x*sceneScale-12+2);

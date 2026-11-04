@@ -21,7 +21,7 @@ const log = (step, detail = "") => { const row={at:new Date().toISOString(),step
 async function main() {
  const source = path.join(ROOT,"src/game/kaplay-runtime.ts");
  const { execFileSync } = await import("node:child_process");
- const commit = execFileSync("git",["rev-parse","HEAD"],{cwd:"/home/user_06/sandboxes/sketchbook-can-recovery-20261103/implementation",encoding:"utf8"}).trim();
+ const commit = execFileSync("git",["rev-parse","HEAD"],{cwd:ROOT,encoding:"utf8"}).trim();
  log("run-start", {run:RUN, commit, sourceSha256:sha(source), runtime:process.version, port:PORT, prediction:"MOCK fixture if configured by application; no API/direct route invocation"});
  // Dedicated port; use this recovery checkout’s default .next output.
  const nextBin=path.join(ROOT,"node_modules/next/dist/bin/next");
@@ -30,7 +30,7 @@ async function main() {
  log("server-process",{pid:server.pid,command:process.execPath,port:PORT});
  let up=false; for(let i=0;i<75;i++){if(server.exitCode!==null) throw Error(`next exited ${server.exitCode}`); try{const r=await fetch(BASE,{signal:AbortSignal.timeout(1500)}); if(r.ok){up=true;break}}catch{} await sleep(800)}
  if(!up) throw Error("dedicated Next server not ready");
- const bin="/home/user_06/.cache/ms-playwright/chromium-1248/chrome-linux64/chrome";
+ const bin=process.env.CHROMIUM_PATH||"/opt/pw-browsers/chromium";
  browser=await chromium.launch({headless:true,...(fs.existsSync(bin)?{executablePath:bin}:{})});
  context=await browser.newContext({viewport:{width:1280,height:720},recordVideo:{dir:OUT,size:{width:1280,height:720}}});
  const page=await context.newPage();

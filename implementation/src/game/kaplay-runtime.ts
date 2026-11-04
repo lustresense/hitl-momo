@@ -7,6 +7,7 @@ import {worldViewport} from "./world-viewport";
 import type {LevelContext,ObjectBehavior,DrawingInput} from "../domain/types";
 import {isLegalPlacement,worldOutcome} from "./placement-rules";
 import {buildCharacterAKeyframeManifest,CharacterRuntimeBridge} from "./character/character-runtime-bridge";
+import {JumpAssist} from "./jump-assist";
 import {kaplayAssetToPromise,recoverCharacterSpriteLoad} from "./character/character-load-recovery";
 export type GameOutcome="success"|"fail";
 export interface KaplayGameHandle {
@@ -45,6 +46,7 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
   type SceneObject=GameObj<PosComp>;
   let phase:"falling"|"placing"|"gameplay"="falling",settled=false,destroyed=false;
   let input={left:false,right:false,jump:false};
+  const jumpAssist=new JumpAssist();
   const clone=(item:WorldCreation):WorldCreation=>({...item,drawingInput:item.drawingInput?{...item.drawingInput,strokes:item.drawingInput.strokes.map(s=>s.map(p=>({...p})))}:null});
   const creations=new Map((o.creations??[]).map(item=>[item.id,clone(item)]));
   const rendered=new Map<string,SceneObject>();
@@ -117,8 +119,9 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
   }
   for(const item of creations.values())rendered.set(item.id,drawCreation(item,true));
   pendingArt=drawCreation({...pending,y:5},false);
-  function stop(){input={left:false,right:false,jump:false};player.vel=k.vec2(0,0);player.isStatic=true;player.paused=true;}
+  function stop(){input={left:false,right:false,jump:false};jumpAssist.reset();player.vel=k.vec2(0,0);player.isStatic=true;player.paused=true;}
   function resetPlayer(){
+   jumpAssist.reset();
    delete o.canvas.dataset.outcome;
    delete o.canvas.dataset.failReason;
    player.pos=k.vec2(geometry.spawn.x-12,geometry.spawn.y-40);
@@ -182,7 +185,7 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
    // Desktop L1 starts at world x=0; keep the rendered sprite inside its left edge.
    if(o.level.stage===1&&globalThis.innerWidth>=761&&globalThis.innerWidth>globalThis.innerHeight)
     player.pos.x=Math.max(player.pos.x,STICKMAN_ASSET.foot.x*sceneScale-12+2);
-   if(input.jump&&player.isGrounded?.())player.jump(520);
+   if(jumpAssist.step(Boolean(player.isGrounded?.()),input.jump))player.jump(520);
   });
   k.onUpdate(()=>{
    if(destroyed||!player?.exists?.()||!player.pos)return;

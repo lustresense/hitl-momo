@@ -1,6 +1,8 @@
 "use client";
+import { Icon } from "../shared/Icon";
+
 /**
- * TASK 03/13 — Predicting (loading) and prediction-error states.
+ * Predicting (loading) and prediction-error states.
  * Every failure offers explicit recovery: retry keeps the drawing,
  * redraw returns to the canvas. Nothing is fabricated on failure.
  */
@@ -14,26 +16,25 @@ export interface PredictingScreenProps {
 export function PredictingScreen({ error, detail, onRetry, onRedraw }: PredictingScreenProps) {
   return (
     <section id="screen-predicting" className="screen" aria-label="Memproses prediksi">
-      <h2>{error ? "Prediksi gagal" : "Momo sedang membaca pola…"}</h2>
+      <h2>{error ? "Tebakan gagal" : "Momo sedang membaca"}</h2>
       {!error && (
-        <>
-          <p className="lead">Memproses gambar menuju prediksi.</p>
-          <div className="loading-bar" aria-hidden="true">
-            <div className="loading-fill" />
-          </div>
-        </>
+        <div className="loading-bar" aria-hidden="true">
+          <div className="loading-fill" />
+        </div>
       )}
       {error && (
         <div className="error-box" role="alert" data-testid="prediction-error">
           <p>
-            Penyedia prediksi tidak dapat menyelesaikan permintaan
-            {detail ? ` (${detail})` : ""}. Tidak ada hasil yang dikarang — coba lagi atau gambar ulang.
+            Gambarmu aman. Coba lagi atau gambar ulang.
+            {detail ? ` (${detail})` : ""}
           </p>
           <button type="button" className="btn btn-primary" data-testid="btn-retry-prediction" onClick={onRetry}>
-            Coba Lagi
+            <Icon name="retry" size={20} />
+            Coba lagi
           </button>
           <button type="button" className="btn" data-testid="btn-redraw-from-error" onClick={onRedraw}>
-            Gambar Ulang
+            <Icon name="brush" size={20} />
+            Gambar ulang
           </button>
         </div>
       )}

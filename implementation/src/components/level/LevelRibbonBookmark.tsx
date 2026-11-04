@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent } from "react";
 import { gsap } from "gsap";
 import type { LevelDefinition } from "@/src/domain/levels";
+import { Icon } from "../shared/Icon";
 
 export interface LevelRibbonBookmarkProps {
   levels: LevelDefinition[];
@@ -38,9 +39,6 @@ interface DragState {
 function outerPath(width: number, length: number) {
   return `M2 2H${width - 2}V${length - 2}L${width / 2} ${length - 2 - NOTCH}L2 ${length - 2}Z`;
 }
-function innerPath(width: number, length: number) {
-  return `M14 14H${width - 14}V${length - 14}L${width / 2} ${length - 14 - NOTCH + 8}L14 ${length - 14}Z`;
-}
 function dimensions() {
   return typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia("(max-width: 600px)").matches
     ? { width: MOBILE_WIDTH, height: MOBILE_HEIGHT }
@@ -54,15 +52,13 @@ function setLength(element: HTMLButtonElement, length: number) {
   const { width, height } = dimensions();
   const svg = element.querySelector<SVGSVGElement>(".ribbon-shape");
   const outer = svg?.querySelector<SVGPathElement>(".ribbon-outer");
-  const inner = svg?.querySelector<SVGPathElement>(".ribbon-inner");
   const content = element.querySelector<HTMLElement>(".ribbon-content");
   const state = getState(element);
   state.length = length;
-  if (!svg || !outer || !inner || !content) return;
+  if (!svg || !outer || !content) return;
   svg.style.height = `${length}px`;
   svg.setAttribute("viewBox", `0 0 ${width} ${length}`);
   outer.setAttribute("d", outerPath(width, length));
-  inner.setAttribute("d", innerPath(width, length));
   content.style.transform = `translateY(${(length - height) / 2}px)`;
 }
 
@@ -86,7 +82,7 @@ export function LevelRibbonBookmark({ levels, onSelectLevel, isLevelUnlocked }: 
     state.busy = true;
     const { height } = dimensions();
     gsap.killTweensOf(state);
-    setStatusAnimated(`Bab ${level.stage} dimulai ✓`);
+    setStatusAnimated(`Level ${level.stage} mulai`);
     onSelectLevel(level);
     const timeline = gsap.timeline({ onComplete: () => {
       setLength(element, height);
@@ -118,7 +114,7 @@ export function LevelRibbonBookmark({ levels, onSelectLevel, isLevelUnlocked }: 
       gsap.to(state, { length: dimensions().height, duration: 0.5, ease: "elastic.out(1, 0.5)", onUpdate: () => setLength(drag.element, state.length) });
       if (!cancelled && drag.raw > 6) {
         gsap.timeline().to(drag.element, { x: -8, duration: 0.07 }).to(drag.element, { x: 8, duration: 0.08 }).to(drag.element, { x: -6, duration: 0.07 }).to(drag.element, { x: 4, duration: 0.06 }).to(drag.element, { x: 0, duration: 0.06 });
-        setStatusAnimated(`Level ${drag.level.stage} masih terkunci`);
+        setStatusAnimated(`Level ${drag.level.stage} terkunci`);
       }
       return;
     }
@@ -156,7 +152,7 @@ export function LevelRibbonBookmark({ levels, onSelectLevel, isLevelUnlocked }: 
       const pull = locked ? Math.min(drag.raw * LOCK_RESIST, LOCK_MAX) : Math.min(PULL_MAX, drag.raw <= 40 ? drag.raw : 40 + (drag.raw - 40) * 0.45);
       setLength(element, dimensions().height + pull);
       const ready = !locked && drag.raw >= THRESHOLD;
-      if (ready !== drag.armed) { drag.armed = ready; setStatusAnimated(ready ? "Lepas untuk mulai" : ""); }
+      if (ready !== drag.armed) { drag.armed = ready; setStatusAnimated(ready ? "Lepas" : ""); }
     };
     drag.up = () => releaseSession(false);
     drag.cancel = () => releaseSession(true);
@@ -170,40 +166,33 @@ export function LevelRibbonBookmark({ levels, onSelectLevel, isLevelUnlocked }: 
   }, [releaseSession, setStatusAnimated]);
 
   return (
-    <section className="level-ribbon-page" aria-label="Pilih bab cerita">
+    <section className="level-ribbon-page" aria-label="Pilih level">
       <div className="level-ribbon-brand">Sketchbook Universe</div>
-      <svg className="ribbon-gradient-defs" aria-hidden="true" focusable="false">
-        <defs>
-          <linearGradient id="gOr" x1="0" y1="0" x2=".55" y2="1"><stop offset="0" stopColor="#e47b45"/><stop offset=".55" stopColor="#d0622a"/><stop offset="1" stopColor="#bf5418"/></linearGradient>
-          <linearGradient id="gGrey" x1="0" y1="0" x2=".55" y2="1"><stop offset="0" stopColor="#d6d0c6"/><stop offset=".55" stopColor="#b3ada2"/><stop offset="1" stopColor="#918b80"/></linearGradient>
-        </defs>
-      </svg>
       <div ref={shelfRef} className="ribbon-shelf ribbon-rack level-list level-ribbons-container level-ribbon-shelf" role="group" aria-label="Daftar level" data-testid="level-list">
         {levels.map((level, index) => {
           const locked = isLevelUnlocked ? !isLevelUnlocked(level.stage) : (index !== 0);
           const { width, height } = typeof window === "undefined" ? { width: WIDTH, height: HEIGHT } : dimensions();
           return <button key={level.levelId} type="button" className={`ribbon-slot level-card level-ribbon${locked ? " is-locked ribbon-locked ribbon-rolled-scroll" : " is-playable ribbon-unlocked"}` } data-testid={`level-card-${level.stage}`} data-level-id={`level-${level.stage}`} data-stage={level.stage} aria-label={`Level ${level.stage}${locked ? " terkunci" : ""}`} onPointerDown={(event) => beginDrag(event, level, locked)} onClick={(event: ReactMouseEvent<HTMLButtonElement>) => {
             if (suppressClickRef.current) { suppressClickRef.current = false; return; }
-            if (locked) { setStatusAnimated(`Level ${level.stage} masih terkunci`); return; }
+            if (locked) { setStatusAnimated(`Level ${level.stage} terkunci`); return; }
             if (dragRef.current) return;
             launch(event.currentTarget, level);
           }} onKeyDown={(event) => {
             if (event.key !== "Enter" && event.key !== " ") return;
             event.preventDefault();
-            if (locked) setStatusAnimated(`Level ${level.stage} masih terkunci`);
+            if (locked) setStatusAnimated(`Level ${level.stage} terkunci`);
             else launch(event.currentTarget, level);
           }}>
-            <svg className="ribbon-shape" viewBox={`0 0 ${width} ${height}`} aria-hidden="true">
-              <path className="ribbon-outer" d={outerPath(width, height)} fill={locked ? "url(#gGrey)" : "url(#gOr)"} stroke="#1a1a1a" strokeWidth="3" strokeLinejoin="round"/>
-              <path className="ribbon-inner" d={innerPath(width, height)} fill="none" stroke={locked ? "rgba(40,36,30,.28)" : "rgba(255,230,200,.4)"} strokeWidth="1.5" strokeDasharray="5 5"/>
+            <svg className="ribbon-shape" viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" aria-hidden="true">
+              <path className="ribbon-outer" d={outerPath(width, height)} strokeWidth="2.5" strokeLinejoin="round"/>
             </svg>
-            <span className="ribbon-content"><span className={`ribbon-play${locked ? " lock" : ""}`} aria-hidden="true">{locked ? <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"/></svg> : <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>}</span><span className="ribbon-label">Level {level.stage}</span></span>
+            <span className="ribbon-content"><span className={`ribbon-play${locked ? " lock" : ""}`} aria-hidden="true">{locked ? <svg viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10" rx="2.5" fill="currentColor"/><path d="M8 11V8a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round"/></svg> : <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>}</span><span className="ribbon-label">Level {level.stage}</span><Icon name="down" size={26} className={`icon ribbon-grip${locked ? " is-hidden" : ""}`} /></span>
           </button>;
         })}
       </div>
       <div className="ribbon-heading">
-        <h2>Pilih Bab Cerita</h2>
-        <p>Tarik pita Level 1 ke bawah untuk mulai menggambar</p>
+        <h2>Pilih level</h2>
+        <p className="ribbon-hint"><Icon name="down" size={20} />Tarik pita ke bawah</p>
         <div ref={statusRef} className="ribbon-status" role="status" aria-live="polite">{status}</div>
       </div>
     </section>

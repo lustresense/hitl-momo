@@ -1,12 +1,12 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import type { Top3PredictionPopupProps } from "./top3-popup-types";
 import { Top3Panel } from "./Top3Panel";
-import { DecisionPanel } from "../decision/DecisionPanel";
+import { DecisionPanel, type DecisionSelection } from "../decision/DecisionPanel";
+import { Icon } from "../shared/Icon";
 
 /**
- * Top-3 HITL Prediction Floating Popup.
- * Floats in the top-left area over the active drawing canvas.
+ * Top-3 HITL panel. Sits at the right edge so the student's drawing stays visible next to it.
  * Does NOT open a new page, route, or fullscreen modal.
  */
 export function Top3PredictionPopup({
@@ -21,7 +21,9 @@ export function Top3PredictionPopup({
   onRedraw,
   onRetry,
 }: Top3PredictionPopupProps) {
-  // Accessibility: Esc key cancels popup and safely returns to drawing without committing
+  const [selection, setSelection] = useState<DecisionSelection>(null);
+
+  // Accessibility: Esc cancels the panel and safely returns to drawing without committing
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
       if (e.key === "Escape") {
@@ -39,28 +41,22 @@ export function Top3PredictionPopup({
       <div
         className="prediction-hitl-popup is-error"
         role="alert"
-        aria-label="Kendala prediksi AI"
+        aria-label="Tebakan gagal"
         data-testid="popup-error"
       >
-        <div className="popup-badge error-badge">KENDALA PREDIKSI</div>
-        <h3 className="popup-title">Gagal menebak gambar</h3>
-        <p className="popup-desc">{errorDetail || "Terjadi kesalahan pada layanan prediksi."}</p>
+        <div className="popup-header">
+          <h3 className="popup-title">Tebakan gagal</h3>
+        </div>
+        <p className="popup-lead">Gambarmu aman. Coba lagi atau gambar ulang.</p>
+        <p className="popup-desc">{errorDetail || "Layanan prediksi tidak merespons."}</p>
         <div className="popup-actions-error">
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={onRetry}
-            data-testid="btn-retry-prediction"
-          >
-            Coba Lagi
+          <button type="button" className="btn btn-primary" onClick={onRetry} data-testid="btn-retry-prediction">
+            <Icon name="retry" size={20} />
+            Coba lagi
           </button>
-          <button
-            type="button"
-            className="btn btn-ghost"
-            onClick={onRedraw}
-            data-testid="btn-redraw-error"
-          >
-            Revisi Gambar
+          <button type="button" className="btn" onClick={onRedraw} data-testid="btn-redraw-error">
+            <Icon name="brush" size={20} />
+            Gambar ulang
           </button>
         </div>
       </div>
@@ -76,34 +72,28 @@ export function Top3PredictionPopup({
       className="prediction-hitl-popup is-evaluating"
       role="dialog"
       aria-modal="false"
-      aria-label="Hasil Prediksi Top-3 dan Keputusan"
+      aria-label="Tebakan Momo dan keputusanmu"
       data-testid="popup-evaluating"
     >
       <div className="popup-header">
-        <div className="popup-title-row">
-          <h3 className="popup-title">Tebakan Momo (Top-3)</h3>
-          <span className="popup-badge dev-badge" data-testid="prediction-source">
-            {predictionMode === "mock" ? "DEMO / PREDIKSI SIMULASI" : "PARTNER API"}
-          </span>
-        </div>
-        <p className="popup-lead">Confidence bukan jaminan benar. Kamu yang memutuskan.</p>
+        <h3 className="popup-title">Tebakan Momo</h3>
+        <span className="demo-chip" data-testid="prediction-source">
+          {predictionMode === "mock" ? "Demo / simulasi" : "Uji model mitra"}
+        </span>
       </div>
+      <p className="popup-lead">Tebakan, bukan jawaban pasti.</p>
 
-      <div className="popup-candidates">
-        <Top3Panel result={prediction} />
-      </div>
+      <Top3Panel result={prediction} chosenRank={selection?.rank ?? null} />
 
-      <div className="popup-decision">
-        <DecisionPanel
-          prediction={prediction}
-          level={level}
-          onAccept={onAccept}
-          onCorrect={onCorrect}
-          onOverride={onOverride}
-          onRedraw={onRedraw}
-        />
-      </div>
+      <DecisionPanel
+        prediction={prediction}
+        level={level}
+        onAccept={onAccept}
+        onCorrect={onCorrect}
+        onOverride={onOverride}
+        onRedraw={onRedraw}
+        onSelectionChange={setSelection}
+      />
     </div>
   );
 }
-

@@ -75,11 +75,15 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
   const characterSprites=new Map(characterManifest.map(frame=>[frame.frameId,`integrated-character-${o.level.stage}-${frame.frameId}`]));
   const characterLoads=characterManifest.map(frame=>k.loadSprite(characterSprites.get(frame.frameId)!,frame.dataUri));
   const characterBridge=new CharacterRuntimeBridge();
+  const characterTransform=characterBridge.computeVisualTransform({colliderWidth:24,colliderHeight:40,sceneScale,textureScale});
   let characterSprite:GameObj<PosComp & SpriteComp>|null=null;
   void recoverCharacterSpriteLoad(kaplayAssetToPromise(spriteAsset).then(()=>undefined),Promise.all(characterLoads.map(asset=>kaplayAssetToPromise(asset).then(()=>undefined)))).then(characterLoaded=>{
    if(destroyed || !player?.exists?.() || !player.pos)return;
    if(characterLoaded){
-    characterSprite=player.add([k.sprite(characterSprites.get(characterBridge.getCurrentFrameId())!),k.pos(12-STICKMAN_ASSET.foot.x*sceneScale,40-STICKMAN_ASSET.foot.y*sceneScale),k.scale(sceneScale/textureScale)]);
+    // Character A is a 208x391 rig: size it from the collider (feet on body bottom), not the 24x48 legacy stickman.
+    characterSprite=player.add([k.sprite(characterSprites.get(characterBridge.getCurrentFrameId())!),k.pos(characterTransform.offsetX,characterTransform.offsetY),k.scale(characterTransform.scale)]);
+    o.canvas.dataset.characterRenderer="character-a";
+    o.canvas.dataset.characterRenderHeight=String(characterTransform.spriteHeight*characterTransform.scale);
    }else{
     o.canvas.dataset.characterRenderer="legacy-fallback";
     characterSprite=player.add([k.sprite(spriteName),k.pos(12-STICKMAN_ASSET.foot.x*sceneScale,40-STICKMAN_ASSET.foot.y*sceneScale),k.scale(sceneScale/textureScale)]);
@@ -95,21 +99,17 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
    const displayLabel=item.behavior==="danger"?`${item.label} (bahaya)`:item.behavior==="solid"?item.label:`${item.label} (unresolved)`;
    art.add([k.text(displayLabel,{size:13,font:labelFont}),k.pos(0,-20),k.color(item.behavior==="danger"?180:50,40,30)]);
 
-   // Authentic student hand-drawn sketch sprite
+   // Authentic student hand-drawn sketch sprite (single, uniformly scaled copy; supersampled 4x for crisp lines)
    const spriteName=`creation-sketch-${item.id}`;
-   const spriteUri=generateSketchDataUri(item.drawingInput,{width:item.w,height:item.h,behavior:item.behavior,label:item.label});
+   const sketchPixelScale=4;
+   const spriteUri=generateSketchDataUri(item.drawingInput,{width:item.w,height:item.h,behavior:item.behavior,label:item.label,pixelScale:sketchPixelScale});
    const spriteAsset=k.loadSprite(spriteName,spriteUri);
    void spriteAsset.then(()=>{
     if(!destroyed && (!art.exists || art.exists())){
-     art.add([k.sprite(spriteName),k.pos(0,0)]);
+     art.add([k.sprite(spriteName),k.pos(0,0),k.scale(1/sketchPixelScale)]);
     }
    });
 
-   // Vector stroke overlay for high-contrast crisp line definition
-   for(const stroke of item.drawingInput?.strokes??[])for(let j=1;j<stroke.length;j++){
-    const a=stroke[j-1],b=stroke[j]; if(!a || !b || a.x == null || b.x == null) continue;
-    art.add([k.polygon([k.vec2(a.x*item.w,a.y*item.h),k.vec2(b.x*item.w,b.y*item.h),k.vec2(b.x*item.w+1,b.y*item.h+1)]),k.color(20,20,20)]);
-   }
    if(committed && item.behavior!=="unresolved")art.use(area(item.w,item.h));
    if(committed && item.behavior==="solid")art.use(k.body({isStatic:true}));
    if(committed && item.behavior==="danger")art.use("hazard");

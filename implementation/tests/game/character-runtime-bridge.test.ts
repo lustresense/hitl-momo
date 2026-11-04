@@ -219,3 +219,16 @@ describe("CharacterRuntimeBridge - Lifecycle & Disposal", () => {
     expect(bridge.getCurrentFrameId()).toBe("STAND");
   });
 });
+
+describe("CharacterRuntimeBridge - runtime sizing regression", () => {
+  it("renders Character A at collider-relative size (not the 24x48 stickman scale)", () => {
+    const bridge = new CharacterRuntimeBridge();
+    const sceneScale = 1.1 * 800 / 490, textureScale = 8;
+    const t = bridge.computeVisualTransform({ colliderWidth: 24, colliderHeight: 40, sceneScale, textureScale });
+    const renderedHeight = t.spriteHeight * t.scale;
+    // Figure stands on the collider bottom and is at most ~2x the collider height (scene-scaled), never ~700 world units.
+    expect(renderedHeight).toBeCloseTo(40 * sceneScale, 0);
+    expect(renderedHeight).toBeLessThan(40 * 2.5);
+    expect(t.offsetY + renderedHeight).toBeCloseTo(40, 0);
+  });
+});

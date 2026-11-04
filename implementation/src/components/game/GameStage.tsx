@@ -9,6 +9,7 @@ import {StageWorld} from '../stage-preview/StageWorld';
 import {getStageGeometry} from '@/src/game/stage-geometry';
 import {clientToPhysics} from '@/src/game/stage-transform';
 import type {WorldCreation} from '@/src/game/creation-store';
+import {env} from "@/src/config/env";
 import styles from './game-stage.module.css';
 import { resolveCharacterDisplayName } from "@/src/config/character-tokens";
 export interface GameStageProps {
@@ -46,7 +47,7 @@ export function GameStage(props:GameStageProps){
   const held=[...heldPointers.current.values()];
   const k=keys.current;
   const c=(mode==="camera"&&!paused.current)?cameraInput.current:NEUTRAL;
-  const override=(typeof window!=="undefined"?(window as any).__skbOverrideInput:null)??NEUTRAL;
+  const override=(env.testHooksEnabled&&typeof window!=="undefined"?(window as any).__skbOverrideInput:null)??NEUTRAL;
   controller.current?.setInput({
     left:k.left||held.includes("left")||c.left||override.left,
     right:k.right||held.includes("right")||c.right||override.right,
@@ -54,7 +55,8 @@ export function GameStage(props:GameStageProps){
   });
  }
 
- if (typeof window !== "undefined") {
+ // Test-only bypass hooks: never installed in a production build (NEXT_PUBLIC_TEST_HOOKS must be "1").
+ if (env.testHooksEnabled && typeof window !== "undefined") {
   (window as any).__skbSetInput = (inp: { left?: boolean; right?: boolean; jump?: boolean } | null) => {
     (window as any).__skbOverrideInput = inp ?? NEUTRAL;
     sendCombinedInput();
@@ -64,11 +66,11 @@ export function GameStage(props:GameStageProps){
  const currentMode=useRef(mode);currentMode.current=mode;
  const positionRef=useRef(position);positionRef.current=position;
  const {level,behavior,decision,drawingInput,phase}=props;
- function movePlacement(x:number,y:number=320){setPosition(x);setPlacementY(y);positionRef.current=x;const valid=controller.current?.setPlacement(x,y)??false;setPlacementError(valid?"":"Posisi di luar dunia. Geser kembali; objekmu tetap disimpan.");} if (typeof window !== "undefined") { (window as any).__skbMovePlacement = (x: number, y: number) => movePlacement(x, y); }
+ function movePlacement(x:number,y:number=320){setPosition(x);setPlacementY(y);positionRef.current=x;const valid=controller.current?.setPlacement(x,y)??false;setPlacementError(valid?"":"Posisi di luar dunia. Geser kembali; objekmu tetap disimpan.");} if (env.testHooksEnabled && typeof window !== "undefined") { (window as any).__skbMovePlacement = (x: number, y: number) => movePlacement(x, y); }
 
  useEffect(()=>{
  let cancelled=false;let instance:GameController|null=null;setReady(false);setError("");
- void(async()=>{try{const {GameController}=await import("@/src/game/game-controller");if(cancelled||!canvas.current)return;instance=new GameController();controller.current=instance;if(typeof window!=="undefined")(window as any).__skbGameController=instance;
+ void(async()=>{try{const {GameController}=await import("@/src/game/game-controller");if(cancelled||!canvas.current)return;instance=new GameController();controller.current=instance;if(env.testHooksEnabled&&typeof window!=="undefined")(window as any).__skbGameController=instance;
  await instance.mount(canvas.current,level,behavior,decision.finalLabel,drawingInput,
  (o,reason)=>{if(!cancelled){keys.current={...NEUTRAL};heldPointers.current.clear();cameraInput.current={...NEUTRAL};setHeldDirs([]);setOutcome(o);if(reason)setFailReason(reason);}},
  ()=>{if(!cancelled){if(props.integrated&&canvas.current){setPosition(Number(canvas.current.dataset.objectX??0));setPlacementY(Number(canvas.current.dataset.objectY??0));}latest.current.onFallComplete();}},()=>{if(!cancelled)latest.current.onCommitPlacement();},()=>{if(!cancelled)latest.current.onReposition();},{integrated:props.integrated,creations:props.creations,onCreationsChange:(items:WorldCreation[])=>latest.current.onCreationsChange?.(items)});

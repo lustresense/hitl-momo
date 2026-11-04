@@ -119,7 +119,9 @@ export async function drawScribble(page, shape = "block") {
   }
 }
 
-export async function submitAndDecide(page, { prefer = "balok", log = () => {} } = {}) {
+/** mode: "auto" (Accept/Correct/Override as needed to reach `prefer`), "accept" (rank 1 whatever it is),
+ *  "override" (reject Top-3 and pick the first of `prefer` list present in the override vocabulary). */
+export async function submitAndDecide(page, { prefer = "balok", mode = "auto", log = () => {} } = {}) {
   const submit = page.locator("[data-testid=btn-submit-drawing]");
   await submit.waitFor({ state: "visible", timeout: 10000 });
   await submit.click();
@@ -128,7 +130,15 @@ export async function submitAndDecide(page, { prefer = "balok", log = () => {} }
   log(`Top-3 (MOCK provider): ${JSON.stringify(labels)}`);
   const rank = labels.findIndex(x => x.toLowerCase() === prefer) + 1;
   let decision;
-  if (rank === 1) { await page.getByRole("button", { name: /accept — terima peringkat 1/i }).click(); decision = { type: "Accept", rank, label: prefer }; }
+  if (mode === "accept") { await page.getByRole("button", { name: /accept — terima peringkat 1/i }).click(); decision = { type: "Accept", rank: 1, label: labels[0] }; }
+  else if (mode === "override") {
+    await page.getByRole("button", { name: /override — tolak semua tebakan/i }).click();
+    const opts = await page.locator("#override-select option").evaluateAll(xs => xs.map(x => x.value).filter(Boolean));
+    const wanted = [].concat(prefer).find(p => opts.includes(p)) ?? opts[0];
+    await page.locator("#override-select").selectOption(wanted); await page.getByTestId("override-confirm").click();
+    decision = { type: "Override", label: wanted, optionsOffered: opts };
+  }
+  else if (rank === 1) { await page.getByRole("button", { name: /accept — terima peringkat 1/i }).click(); decision = { type: "Accept", rank, label: prefer }; }
   else if (rank > 1) { await page.getByRole("button", { name: /correct — pilih peringkat lain/i }).click(); await page.locator(`[data-testid=correct-picker] [data-rank="${rank}"]`).click(); decision = { type: "Correct", rank, label: prefer }; }
   else { await page.getByRole("button", { name: /override — tolak semua tebakan/i }).click(); await page.locator("#override-select").selectOption(prefer); await page.getByTestId("override-confirm").click(); decision = { type: "Override", label: prefer }; }
   log(`decision: ${JSON.stringify(decision)}`);
@@ -136,8 +146,8 @@ export async function submitAndDecide(page, { prefer = "balok", log = () => {} }
 }
 
 /** Drag the pending object (visible on canvas) to a world-space target centre. Trusted mouse only. */
-export async function placeByDrag(page, targetCx, targetCy) {
-  await page.locator("[data-testid=btn-wujudkan-objek]").click();
+export async function placeByDrag(page, targetCx, targetCy, { create = true } = {}) {
+  if (create) await page.locator("[data-testid=btn-wujudkan-objek]").click();
   const game = page.locator("[data-testid=game-canvas]");
   await page.waitForFunction(() => document.querySelector("[data-testid=game-canvas]")?.dataset.phase === "placing", null, { timeout: 15000 });
   const gb = await game.boundingBox();

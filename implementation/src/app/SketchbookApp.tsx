@@ -156,6 +156,14 @@ export function SketchbookApp() {
           enterLevel(route.level);
         }
       } else if (route.kind === "levels") {
+        // A running prediction cannot be abandoned (FlowController invariant). Browser Back used to throw an
+        // uncaught InvalidTransitionError here and leave the URL on /levels with the UI stuck in "predicting".
+        const running = controller?.getSnapshot();
+        if (running?.phase === "predicting") {
+          const active = LEVELS.find((l) => l.levelId === running.levelId);
+          if (active) window.history.pushState(null, "", `/level${active.stage}`);
+          return;
+        }
         if (route.notice) {
           routeGuardActive.current = true;
           window.history.replaceState(null, "", "/levels");
@@ -328,11 +336,13 @@ export function SketchbookApp() {
               characterDisplayName={characterDisplayName}
               creations={creationsRef.current.snapshot()}
               onCreationsChange={handleCreationsChange}
-              onCreateAnotherObject={() => {setDrawingRevision(n=>n+1);controller.requestRedraw("gameplay");}}
+              onCreateAnotherObject={() => {setDrawingRevision(n=>n+1);controller.requestRedraw("create_another");}}
               level={level}
               behavior={snapshot.behavior}
               decision={snapshot.decision}
               onOutcomeReported={(o) => controller.reportGameplayOutcome(o)}
+              onOutcomeObserved={(o) => controller.recordGameplayAttempt(o)}
+              onRetry={() => controller.recordGameplayRetry()}
               onRedraw={() => {setDrawingRevision(n=>n+1);controller.requestRedraw("gameplay");}}
               onCommitPlacement={() => controller.commitPlacement()}
               onFallComplete={() => controller.completeFall()}

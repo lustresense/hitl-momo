@@ -66,11 +66,17 @@ export class HandDrawingDriver {
       const vision = await FilesetResolver.forVisionTasks(
         this.options.wasmRoot ?? "/mediapipe/wasm",
       );
-      this.landmarker = await HandLandmarker.createFromOptions(vision, {
+      const landmarker = await HandLandmarker.createFromOptions(vision, {
         baseOptions: { modelAssetPath: this.options.modelUrl, delegate: "GPU" },
         runningMode: "VIDEO",
         numHands: 1,
       });
+      if (!this.running) {
+        // stop() raced the async start: do not leave an orphan landmarker behind.
+        try { await landmarker.close(); } catch { /* best-effort */ }
+        return;
+      }
+      this.landmarker = landmarker;
 
       onStatus({ kind: "ready" });
       this.loop();
@@ -148,10 +154,12 @@ export class HandDrawingDriver {
     this.options.onCursor?.(null);
     // Only release tracks we opened; a borrowed (shared) stream stays alive
     // for its owner (GlobalCamera) and the next hand-mode session.
+    const releasedOwnStream = this.ownsStream;
     if (this.ownsStream) this.stream?.getTracks().forEach((t) => t.stop());
     this.stream = null;
     this.ownsStream = false;
-    this.options.video.srcObject = null;
+    // The video element is the shared GlobalCamera preview: only detach it when we opened the stream.
+    if (releasedOwnStream) this.options.video.srcObject = null;
     try {
       await this.landmarker?.close();
     } catch {

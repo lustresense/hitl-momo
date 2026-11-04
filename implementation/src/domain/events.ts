@@ -1,4 +1,4 @@
-﻿/**
+/**
  * FR-18: Typed interaction-event seam for future partner logging.
  * This is NOT the production event/database schema (explicitly unlocked).
  * The sink is injected at bootstrap; the dev default is console/no-op.
@@ -11,6 +11,12 @@ export type InteractionEvent =
   | { kind: "redraw_requested"; levelId: string; from: "evaluation" | "error" | "gameplay" }
   | { kind: "gameplay_result"; levelId: string; outcome: "success" | "fail"; behavior: "solid" | "danger" | "unresolved" }
   | { kind: "cycle_completed"; levelId: string; cyclesUsed: number }
+  /** Student asked for ANOTHER object while the first stays in the world (not a recovery/Redraw). */
+  | { kind: "another_object_requested"; levelId: string }
+  /** Student restarted the run from the checkpoint after a failure (same objects). */
+  | { kind: "gameplay_retry"; levelId: string }
+  /** Student picked an already-placed object up again to move it. */
+  | { kind: "object_repositioned"; levelId: string }
   | { kind: "provider_error"; levelId: string; reason: string };
 
 /** Partner-side logging backend will implement this seam later. */

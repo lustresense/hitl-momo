@@ -39,14 +39,16 @@ export function startStaticServer(dir = path.join(ROOT, "out"), port = 0) {
   return new Promise(resolve => server.listen(port, "127.0.0.1", () => resolve({ server, port: server.address().port, base: `http://127.0.0.1:${server.address().port}` })));
 }
 
-export async function launch({ videoDir, viewport = { width: 1280, height: 720 }, deviceScaleFactor = 1 } = {}) {
+export async function launch({ videoDir, viewport = { width: 1280, height: 720 }, deviceScaleFactor = 1, extraArgs = [], permissions } = {}) {
   const exe = process.env.CHROMIUM_PATH || (fs.existsSync("/opt/pw-browsers/chromium") ? "/opt/pw-browsers/chromium" : undefined);
-  const browser = await chromium.launch({ headless: true, ...(exe ? { executablePath: exe } : {}), args: ["--no-sandbox"] });
-  const context = await browser.newContext({ viewport, deviceScaleFactor, ...(videoDir ? { recordVideo: { dir: videoDir, size: viewport } } : {}) });
+  const browser = await chromium.launch({ headless: true, ...(exe ? { executablePath: exe } : {}), args: ["--no-sandbox", ...extraArgs] });
+  const context = await browser.newContext({ viewport, deviceScaleFactor, ...(permissions ? { permissions } : {}), ...(videoDir ? { recordVideo: { dir: videoDir, size: viewport } } : {}) });
   const page = await context.newPage();
   const errors = [];
   page.on("console", m => { if (m.type() === "error") errors.push({ type: "console", text: m.text() }); });
   page.on("pageerror", e => errors.push({ type: "pageerror", text: String(e) }));
+  page.__consoleLog = [];
+  page.on("console", m => page.__consoleLog.push(`${m.type()}: ${m.text()}`.slice(0, 300)));
   return { browser, context, page, errors };
 }
 

@@ -116,7 +116,7 @@ export function DecisionPanel({
         {picker === "override" && (
           <div className="subpanel" data-testid="override-picker">
             <label htmlFor="override-select">Label yang dimaksud:</label>
-            <select id="override-select" defaultValue="">
+            <select id="override-select" defaultValue="" onChange={() => { if (selected?.kind === "override") setSelected(null); }}>
               <option value="" disabled>
                 — pilih label —
               </option>

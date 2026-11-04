@@ -51,6 +51,7 @@ export class DrawingSurface {
       if (!this.video) return { kind: "error", reason: "camera-unavailable" };
       try {
         this.detachPointer?.();
+        this.detachPointer = null; // must be nulled or attachPointer() later no-ops and pointer drawing stays dead
         this.handDriver = new HandDrawingDriver({
           canvas: this.canvas,
           video: this.video,
@@ -59,6 +60,9 @@ export class DrawingSurface {
           onStatus: (s) => {
             this.updateHandCursorFromStatus(s);
             this.options.onStatusChange?.(s);
+            // The hand driver swallows its own start errors (permission denied, model/tracker failure).
+            // Never leave the student without any input: fall back to pointer, keep the error visible.
+            if (s.kind === "error") void this.fallbackToPointer();
           },
           onRender: () => {
             this.render();
@@ -103,6 +107,14 @@ export class DrawingSurface {
         this.render();
       },
     );
+  }
+
+  private async fallbackToPointer(): Promise<void> {
+    const d = this.handDriver;
+    this.handDriver = null;
+    try { await d?.stop(); } catch { /* best-effort */ }
+    this.cursor = null;
+    this.attachPointer();
   }
 
   private async stopHand(): Promise<void> {

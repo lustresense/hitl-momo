@@ -35,6 +35,15 @@ export function validatePredictionResponse(value: unknown): PredictionResult {
     }
     return { label: label.trim(), confidence };
   });
+  const labels = new Set(parsed.map((c) => c.label));
+  if (labels.size !== parsed.length) {
+    throw new PredictionError("malformed-response", "Label kandidat tidak boleh duplikat dalam Top-3.");
+  }
+  for (let i = 1; i < parsed.length; i++) {
+    if (parsed[i]!.confidence > parsed[i - 1]!.confidence) {
+      throw new PredictionError("malformed-response", "Kandidat harus berurutan dari confidence tertinggi (peringkat 1) ke terendah.");
+    }
+  }
   return {
     candidates: parsed as [PredictionResult["candidates"][0], PredictionResult["candidates"][1], PredictionResult["candidates"][2]],
   };

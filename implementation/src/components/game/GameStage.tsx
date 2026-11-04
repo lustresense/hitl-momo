@@ -16,7 +16,7 @@ export interface GameStageProps {
  characterDisplayName?:string|null;integrated?:boolean;creations?:WorldCreation[];onCreationsChange?:(items:WorldCreation[])=>void;onCreateAnotherObject?:()=>void;
  level:LevelDefinition;behavior:ObjectBehavior;decision:HumanDecision;drawingInput:DrawingInput|null;
  phase:"falling"|"placing"|"gameplay"|"complete";
- onOutcomeReported(o:"success"|"fail"):void;onRedraw():void;onFallComplete():void;onCommitPlacement():void;onReposition():void;
+ onOutcomeReported(o:"success"|"fail"):void;onOutcomeObserved?(o:"success"|"fail"):void;onRetry?():void;onRedraw():void;onFallComplete():void;onCommitPlacement():void;onReposition():void;
 }
 const NEUTRAL={left:false,right:false,jump:false};
 export function GameStage(props:GameStageProps){
@@ -72,7 +72,7 @@ export function GameStage(props:GameStageProps){
  let cancelled=false;let instance:GameController|null=null;setReady(false);setError("");
  void(async()=>{try{const {GameController}=await import("@/src/game/game-controller");if(cancelled||!canvas.current)return;instance=new GameController();controller.current=instance;if(env.testHooksEnabled&&typeof window!=="undefined")(window as any).__skbGameController=instance;
  await instance.mount(canvas.current,level,behavior,decision.finalLabel,drawingInput,
- (o,reason)=>{if(!cancelled){keys.current={...NEUTRAL};heldPointers.current.clear();cameraInput.current={...NEUTRAL};setHeldDirs([]);setOutcome(o);if(reason)setFailReason(reason);}},
+ (o,reason)=>{if(!cancelled){keys.current={...NEUTRAL};heldPointers.current.clear();cameraInput.current={...NEUTRAL};setHeldDirs([]);setOutcome(o);if(reason)setFailReason(reason);latest.current.onOutcomeObserved?.(o);}},
  ()=>{if(!cancelled){if(props.integrated&&canvas.current){setPosition(Number(canvas.current.dataset.objectX??0));setPlacementY(Number(canvas.current.dataset.objectY??0));}latest.current.onFallComplete();}},()=>{if(!cancelled)latest.current.onCommitPlacement();},()=>{if(!cancelled)latest.current.onReposition();},{integrated:props.integrated,creations:props.creations,onCreationsChange:(items:WorldCreation[])=>latest.current.onCreationsChange?.(items)});
  if(cancelled){instance.unmount();return;}setReady(true);
  }catch(e){if(!cancelled)setError(e instanceof Error?e.message:String(e));}})();
@@ -295,7 +295,7 @@ export function GameStage(props:GameStageProps){
           <button className="btn btn-primary" data-testid="btn-next" onClick={()=>props.onOutcomeReported("success")}>Lihat ringkasan</button>
         ):(
           <>
-            <button className="btn" data-testid="btn-retry-cycle" onClick={()=>{controller.current?.retry();setOutcome(null);setFailReason("");}}>Coba dari checkpoint</button>
+            <button className="btn" data-testid="btn-retry-cycle" onClick={()=>{controller.current?.retry();setOutcome(null);setFailReason("");props.onRetry?.();}}>Coba dari checkpoint</button>
             <button className="btn" data-testid="btn-reposition" onClick={reposition}>Reposisi objek yang sama</button>
             <button className="btn" data-testid="btn-redraw-gameplay" onClick={props.onRedraw}>Gambar ulang</button>
           </>

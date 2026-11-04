@@ -89,7 +89,9 @@ export async function onboardToLevels(page, base, log = () => {}) {
 }
 
 export async function enterLevel(page, stage, log = () => {}) {
-  await page.locator(".level-card").nth(stage - 1).click();
+  // "Lanjut ke Level N" does a full page load straight into /levelN; otherwise pick the card.
+  const direct = await page.locator("[data-testid=draw-canvas]").waitFor({ state: "visible", timeout: 4000 }).then(() => true, () => false);
+  if (!direct) await page.locator(".level-card").nth(stage - 1).click();
   const mission = page.locator("[role=dialog][aria-modal=true]");
   await page.locator("[data-testid=draw-canvas]").waitFor({ state: "visible", timeout: 15000 });
   if (await mission.isVisible().catch(() => false)) {

@@ -22,7 +22,7 @@ const PKG_ROOT = fileURLToPath(new URL("..", import.meta.url));
 const PORT = Number(process.env.E2E_PORT ?? 3344);
 const BASE = `http://localhost:${PORT}`;
 const LINUX_PLAYWRIGHT_PATH = "/home/agentops/.cache/ms-playwright/chromium-1234/chrome-linux64/chrome";
-const EDGE_PATH = process.env.EDGE_PATH ?? (fs.existsSync(LINUX_PLAYWRIGHT_PATH) ? LINUX_PLAYWRIGHT_PATH : "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe");
+const EDGE_PATH = process.env.EDGE_PATH ?? process.env.CHROMIUM_PATH ?? (fs.existsSync("/opt/pw-browsers/chromium") ? "/opt/pw-browsers/chromium" : fs.existsSync(LINUX_PLAYWRIGHT_PATH) ? LINUX_PLAYWRIGHT_PATH : "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe");
 const HEADLESS = process.env.E2E_HEADLESS !== "0";
 
 let failures = 0;
@@ -103,6 +103,9 @@ try {
     const canvas = page.locator("[data-testid=draw-canvas]");
     await canvas.waitFor({ state: "visible", timeout: 10000 });
     await page.waitForTimeout(400);
+    // Mission Briefing modal (added after this suite was written) overlays the canvas on first level entry.
+    const dlg = page.locator("[role=dialog][aria-modal=true]");
+    if (await dlg.isVisible().catch(() => false)) { await dlg.getByRole("button", { name: /mulai|lewati/i }).first().click(); await dlg.waitFor({ state: "hidden", timeout: 5000 }).catch(() => {}); }
 
     // Guaranteed stroke injection via test hooks
     await page.evaluate(() => {
@@ -398,6 +401,8 @@ try {
   check("hand landmark injection produces stroke activity (TASK 05 automated part)", handOk);
 
   /* ---------- Keyboard smoke ---------- */
+  const dismissMission = async () => { const d = page.locator("[role=dialog][aria-modal=true]"); if (await d.isVisible().catch(() => false)) { await d.getByRole("button", { name: /mulai|lewati/i }).first().click(); await d.waitFor({ state: "hidden", timeout: 5000 }).catch(() => {}); } };
+  await dismissMission();
   await page.keyboard.press("Escape").catch(() => undefined);
   const exitToLevels = page.locator("button.drawing-exit, button:has-text('Keluar Level'), [data-testid=btn-back-to-levels]").first();
   if (await exitToLevels.isVisible({ timeout: 5000 }).catch(() => false)) await exitToLevels.click();
@@ -406,6 +411,7 @@ try {
   await page.keyboard.press("Enter");
   await page.waitForTimeout(1000);
   const kbOk = await page.locator("[data-testid=draw-canvas]").isVisible();
+  await dismissMission();
   const exitAgain = page.locator("button.drawing-exit, button:has-text('Keluar Level'), [data-testid=btn-back-to-levels]").first();
   if (await exitAgain.isVisible({ timeout: 5000 }).catch(() => false)) await exitAgain.click();
   check("18 keyboard smoke: focus + Enter opens level", kbOk);

@@ -4,10 +4,11 @@ Folder ini menampung elemen-elemen **Buku Progres PA**: bahan yang dipakai di bu
 
 | Berkas | Isi |
 |---|---|
-| `karakter-thinman-momo.html` | Halaman HTML mandiri (tanpa internet) berisi **dua papan persegi 1:1**, satu per karakter, tanpa scroll di dalam papan. Desktop (16:9): dua papan kiri-kanan; HP: atas-bawah. Papan Thinman: karakter besar di kiri; tampak kiri/kanan/depan/belakang; animasi lari, loncat, lari + loncat (tombol arah kanan/kiri); 6 pose rig. Papan Momo: Momo besar di kiri; 12 ekspresi (penanda dipakai / di skrip / belum); gerak (mengambang, kepak, terbang); palet. Di bawah papan: catatan cara kerja dan tabel pemakaian ekspresi (bukan bagian papan). |
-| `karakter-thinman-1x1.png`, `karakter-momo-1x1.png` | Papan diam 2400 × 2400 px untuk PPT dan Word. |
-| `karakter-thinman-1x1.mp4`, `karakter-momo-1x1.mp4` | Papan beranimasi 1080 × 1080 untuk PPT (Thinman ganti arah tiap 4 detik; Momo berganti ke-12 ekspresi tiap 2,2 detik). |
-| `karakter-thinman-1x1.gif`, `karakter-momo-1x1.gif` | Versi GIF 540 px untuk Word. |
+| `karakter/` (satu folder berisi semua berkas di bawah) | Semua keluaran karakter: HTML, PNG, MP4, GIF. |
+| `karakter/karakter-thinman-momo.html` | Halaman HTML mandiri (tanpa internet) berisi **dua papan persegi 1:1**, satu per karakter, tanpa scroll di dalam papan. Desktop (16:9): dua papan kiri-kanan; HP: atas-bawah. Papan Thinman: karakter besar di kiri; tampak kiri/kanan/depan/belakang; animasi lari, loncat, lari + loncat (tombol arah kanan/kiri); 6 pose rig. Papan Momo: Momo besar di kiri; 12 ekspresi (penanda dipakai / di skrip / belum); gerak (mengambang, kepak, terbang); palet. Di bawah papan: catatan cara kerja dan tabel pemakaian ekspresi (bukan bagian papan). |
+| `karakter/karakter-thinman-1x1.png`, `karakter/karakter-momo-1x1.png` | Papan diam 2400 × 2400 px untuk PPT dan Word. |
+| `karakter/karakter-thinman-1x1.mp4`, `karakter/karakter-momo-1x1.mp4` | Papan beranimasi 1080 × 1080 untuk PPT (Thinman ganti arah tiap 4 detik; Momo berganti ke-12 ekspresi tiap 2,2 detik). |
+| `karakter/karakter-thinman-1x1.gif`, `karakter/karakter-momo-1x1.gif` | Versi GIF 540 px untuk Word. |
 
 Papan dirancang pada kanvas tetap 1200 × 1200 yang diskalakan (seperti slide), sehingga tampilannya identik di ukuran berapa pun dan tidak terpotong saat ditempel.
 

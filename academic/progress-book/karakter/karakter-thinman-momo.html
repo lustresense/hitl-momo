@@ -218,7 +218,7 @@ let last = performance.now();
 /* ---------- Momo ---------- */
 const MOMO_ASPECT = S.MOMO_ASPECT;
 function mount(container, h, expr, opts){ const s = document.createElement("span"); s.className = "momo-host"; s.style.height = h + "px"; s.style.width = (h * MOMO_ASPECT) + "px"; container.appendChild(s); const e = new S.MomoEngine(s, opts || {}); e.set(expr, true); return {s, e}; }
-const heroHost = $("#momo-hero"); heroHost.style.height = "470px"; heroHost.style.width = (470 * MOMO_ASPECT) + "px";
+const heroHost = $("#momo-hero"); heroHost.style.height = "400px"; heroHost.style.width = (400 * MOMO_ASPECT) + "px"; // wings swing past the artwork box: keep margin so they are never clipped
 const hero = new S.MomoEngine(heroHost); hero.set("Tenang", true);
 const X = {
   Senang:{k:"ok", w:"Cerita awal level, petunjuk misi", r:"Lompatan kecil, sayap mengepak"},
@@ -239,7 +239,7 @@ const tiles = [];
 S.EXPRESSIONS.forEach(name => {
   const b = el(`<button class="tile" aria-pressed="false"><div class="v" style="align-items:center"></div><div class="n"><span>${name}</span><i class="sdot ${X[name].k}"></i></div></button>`);
   $("#exp-grid").appendChild(b);
-  const h = 140; mount($(".v", b), h, name, {});
+  const h = 112; mount($(".v", b), h, name, {});
   tiles.push({name, b}); b.onclick = () => { stopAuto(); select(name); };
   $("#exp-table").appendChild(el(`<tr><td>${name}</td><td>${lbl[X[name].k]}</td><td>${X[name].w}</td><td>${X[name].r}</td></tr>`));
 });
@@ -254,9 +254,9 @@ function stopAuto(){ if (timer) { clearInterval(timer); timer = null; } }
 if (auto && solo === "momo") timer = setInterval(() => { idx = (idx + 1) % S.EXPRESSIONS.length; select(S.EXPRESSIONS[idx]); }, 2200);
 heroHost.onclick = () => hero.flap();
 function motion(title, build){ const c = el(`<div class="tile"><div class="v" style="align-items:center"></div><div class="n">${title}</div></div>`); $("#momo-anims").appendChild(c); build($(".v", c)); }
-motion("Mengambang", v => mount(v, 150, "Tenang"));
-motion("Kepak sayap", v => { const m = mount(v, 150, "Semangat"); setInterval(() => m.e.flap(), 2600); });
-motion("Terbang", v => { const m = mount(v, 130, "Senang", {trackMotion:true}); S.gsap.fromTo(m.s, {x:-110}, {x:110, duration:1.7, ease:"sine.inOut", yoyo:true, repeat:-1}); });
+motion("Mengambang", v => mount(v, 125, "Tenang"));
+motion("Kepak sayap", v => { const m = mount(v, 125, "Semangat"); setInterval(() => m.e.flap(), 2600); });
+motion("Terbang", v => { const m = mount(v, 115, "Senang", {trackMotion:true}); S.gsap.fromTo(m.s, {x:-45}, {x:45, duration:1.7, ease:"sine.inOut", yoyo:true, repeat:-1}); });
 [["#2E0D06","Tinta"],["#E4551B","Oranye"],["#B2DB8E","Hijau"]].forEach(([c, n]) => $("#momo-pal").appendChild(el(`<span><i style="background:${c}"></i>${n}</span>`)));
 })();
 </script>

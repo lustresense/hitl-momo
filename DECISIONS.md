@@ -124,6 +124,12 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 
 ## Entri Perubahan Terbaru
 
+### D-20261105-20 — Aktif (instruksi eksplisit Owner) — Push revisi 0.0.14 ke branch `can`
+- Keputusan/ubahannya: Owner menyuruh push ("gas push") setelah wing fix (D-20261105-17), audit semua Momo, dan Momo sebagai pemandu (D-20261105-19). Push ke `origin/can` memakai environment sesi ini. Commit tetap atas nama Owner (`Farchan Deano Muhammad`, M-008); GitHub bisa menampilkan "Unverified" karena tidak ditandatangani, dan itu sengaja diterima: author tidak direset ke Claude. Push hanya terjadi karena perintah eksplisit ini; aturan "jangan push tanpa diminta" tetap berlaku untuk sesi berikutnya.
+- Mengubah entri lama: tidak ada.
+- Bukti: perintah Owner 2026-11-05; commit `eb27fb6`, `7466ca3`, `7a836b9` dan commit catatan ini.
+- Dampak: remote `can` memuat semua kerja sesi ini; sesi baru yang di-clone dari remote ikut melihatnya.
+
 ### D-20261105-19 — Aktif (instruksi eksplisit Owner, M-016) — Momo memandu setiap halaman, dimulai dari cover
 - Keputusan/ubahannya: **Momo memandu semua sesi dan halaman**, bukan hanya di dalam level. **Cover (kamera):** Momo tidur di cover (mata tertutup, Zzz). Kamera menyala = Momo bangun kaget (loncat dan kepak), lalu menyapa dengan satu sayap (dada-dada), menyebut dirinya, lalu memandu ke langkah berikutnya: "pilih nomor absenmu pakai penggaris" dengan satu isyarat jempol. **Alasan kamera menyala = bangun:** NUI belum ada; kelak yang membangunkan Momo adalah lambaian tangan (pelacak lambaian tetap jalan; lambaian sekarang berarti "lanjut"). **Halaman berikutnya:** penggaris (Momo menjelaskan, dan bingung kalau nomor sudah diambil), tutorial tiga kartu (Momo mengikuti apa yang dilakukan siswa: ajak Thinman jalan, lalu "Thinman sampai", lalu pijakan aman dan bahaya, lalu coret dan mundur, lalu "kamu sudah siap"), daftar level (menunjuk bab terbaru yang terbuka), lalu cerita intro, halaman gambar, dunia, menang dan gagal yang sudah dipandu Momo (D-20261105-12/13). Momo tetap tampilan saja: tidak menerima input, tidak memutuskan, tidak membuat objek (invarian lore). Gaya: chat satu bubble per giliran, tanpa teks dalam kurung (D-20261105-14). Sayap tetap menempel saat menyapa (D-20261105-17): hanya ujung sayap kiri yang naik-turun.
 - Mengubah entri lama: memperluas D-20261105-12/13 (Momo sebagai pemandu) ke cover, penggaris, tutorial, dan daftar level; menggantikan teks panduan statis cover yang hanya berupa judul dan subteks.

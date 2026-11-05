@@ -57,6 +57,6 @@ export function wingTransform(side: WingSide, angleDeg: number): string {
   const k = shearFactor(f.dTip, angleDeg);
   const a = 1 + k * f.ux * f.nx, c = k * f.ux * f.ny, b = k * f.uy * f.nx, d = 1 + k * f.uy * f.ny;
   const e = f.a[0] - a * f.a[0] - c * f.a[1], g = f.a[1] - b * f.a[0] - d * f.a[1];
-  const r = (n: number) => n.toFixed(4);
+  const r = (n: number) => n.toFixed(8);
   return `matrix(${r(a)} ${r(b)} ${r(c)} ${r(d)} ${r(e)} ${r(g)})`;
 }

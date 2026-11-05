@@ -49,6 +49,9 @@ Visual + flow pass on branch `can` (frontend/game). Owner mandate M-012 in `proj
 ### Tests
 - vitest 549/549, tsc, lint, build; E2E normal-journey (L1-L3 with real progression), recovery 16/16, hand-control 6/6, MediaPipe probe pass. Evidence: `docs/execution/evidence/ui-pass-2026-11-05/`.
 
+### Revision round 4 (Momo wings)
+- Fixed: Momo's cloth wings looked cut off while animating. They were rotated about a pivot about 90 art units below the apex, so the apex (the corner attached to the body) lifted off. New `src/components/momo/momo-wing.ts` applies a shear along the attach edge: the apex and the whole attach edge never move, only the lower tips go up (negative angle) and down (positive), at most 56 art units. `momo-engine.ts` uses it for every Momo (chat, drawing, intro, world, character book). The flap kick is now symmetric for both wings. Test: `tests/components/momo-wing.test.ts` (apex and edge fixed at all angles, tips move vertically, clamped). Owner mandate M-015, decision D-20261105-17.
+
 ## [0.0.13] - 2026-11-05
 
 Integrated execution pass on branch `claude/pa-sketchbook-universe-fs0dbf` (baseline `54ebec1`). Product decisions behind it: `DECISIONS.md` D-20261105-01..10.

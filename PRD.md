@@ -20,7 +20,7 @@
 ## 2. CURRENT STATE (Dari docs existing)
 
 ### Core Documentation
-- **CHANGELOG.md** — Decision log dengan protokol semi-otomatis
+- **DECISIONS.md** — Decision log dengan protokol semi-otomatis
 - **DESIGN_RESEARCH.md** — Research desain, kompetisi, user needs
 - **BAB_4_Implementasi_dan_Pengujian.md** — Implementasi & testing detail
 - **DESIGN_TOKENS_EXTRACTION.md** — Design system tokens
@@ -79,7 +79,7 @@ sketchbook-universe/
 ├── turbo.json               # Turborepo (if monorepo)
 ├── PRD.md                   # This file
 ├── SPEC.md                  # Spec template
-├── CHANGELOG.md             # Existing (decision log)
+├── DECISIONS.md             # Existing (decision log)
 ├── README.md
 └── AGENTS.md                # Existing
 ```
@@ -161,7 +161,7 @@ sketchbook-universe/
 
 | File | Purpose |
 |------|---------|
-| [CHANGELOG.md](./CHANGELOG.md) | Decision log (single source of truth untuk keputusan) |
+| [DECISIONS.md](./DECISIONS.md) | Decision log (single source of truth untuk keputusan) |
 | [DESIGN_RESEARCH.md](./DESIGN_RESEARCH.md) | Design research, competitive analysis |
 | [BAB_4_Implementasi_dan_Pengujian.md](./BAB_4_Implementasi_dan_Pengujian.md) | Implementation & testing spec |
 | [DESIGN_TOKENS_EXTRACTION.md](./DESIGN_TOKENS_EXTRACTION.md) | Design system tokens |

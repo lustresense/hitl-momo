@@ -1,7 +1,7 @@
 # Project Memory — Durable Bootstrap
 
 > AI-maintained, human-readable, **non-authoritative context**.
-> Verify product decisions against `CHANGELOG.md`.
+> Verify product decisions against `DECISIONS.md`.
 
 Keep this file small. It is the Hermes-inspired "hot durable memory" layer; detailed experience belongs in ECC memory.
 
@@ -56,7 +56,7 @@ Without a new explicit decision, do not restore:
 
 ## Repository memory architecture
 
-- `INSTRUCTION.md`, `CHANGELOG.md`, `SOURCE_OF_TRUTH.md`, `AGENTS.md` = governed control layer.
+- `INSTRUCTION.md`, `DECISIONS.md`, `SOURCE_OF_TRUTH.md`, `AGENTS.md` = governed control layer.
 - `PROJECT_MEMORY.md` = compact durable AI memory.
 - `WORKING_CONTEXT.md` = current-session continuation state.
 - `.ecc/memory/` = long-term unreviewed context/handoffs/lessons.

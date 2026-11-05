@@ -37,9 +37,10 @@ The user retains final approval.
 
 Before substantial work:
 
+0. If `NOW.md` exists, read it first (one-page current state; header `Base ancestry`).
 1. Read `INSTRUCTION.md`.
 2. Read `SOURCE_OF_TRUTH.md`.
-3. Read `CHANGELOG.md`.
+3. Read `DECISIONS.md`.
 4. Read `PROJECT_MEMORY.md`.
 5. Read `WORKING_CONTEXT.md`.
 6. Read `docs/team/TEAM_OPERATING_MODEL.md` and `docs/team/ROLE_PROTOCOL.md`.
@@ -49,10 +50,21 @@ Before substantial work:
 
 Do not bootstrap from `archive/`.
 
+## Scope of an implementation session
+
+When the task is about the app, the working scope is the `implementation/` folder. Read `implementation/AGENTS.md`. Proposals, research and meeting folders are context only and are not needed for coding.
+
+## Where things live
+
+- `DECISIONS.md` = product/PA decision log (was `CHANGELOG.md`).
+- `project/OWNER_MANDATES.md` = every Owner instruction, in the Owner's words.
+- `implementation/CHANGELOG.md` = technical changes per version.
+- `NOW.md` = latest state.
+
 ## Authority
 
 - Latest explicit user instruction outranks repository summaries.
-- `CHANGELOG.md` governs PA/product decisions.
+- `DECISIONS.md` governs PA/product decisions.
 - Current source/tests govern claims about actual implementation.
 - Direct lecturer/user transcript outranks AI-generated meeting summaries.
 - R&D handoffs and PRDs specify work but cannot silently override a newer governed decision.
@@ -71,7 +83,7 @@ A delegated **WORKER** should write task/result artifacts instead.
 
 Nobody may silently modify:
 - `INSTRUCTION.md`;
-- `CHANGELOG.md`;
+- `DECISIONS.md`;
 - `SOURCE_OF_TRUTH.md`;
 - `AGENTS.md`.
 

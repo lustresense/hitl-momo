@@ -16,7 +16,7 @@ Last updated: 2026-11-05 (sesi eksekusi teknis; diperbarui oleh IT ORCHESTRATOR 
 
 - `CAN(USER)` = Project Owner / Product & R&D Lead / Final Approver. Ujang = infrastruktur, `can`, backup, deploy (jangan disentuh).
 - Direct IT harness tanpa role delegasi = orchestrator; `ROLE: WORKER` eksplisit = worker. Worker mengembalikan hasil; orchestrator mempromosikan state tervalidasi.
-- Governance (`INSTRUCTION.md`, `CHANGELOG.md`, `SOURCE_OF_TRUTH.md`, `AGENTS.md`) hanya diubah dengan persetujuan Owner. Entri 0.0.13 di CHANGELOG ditulis atas permintaan eksplisit Owner (nomor versi usulan).
+- Governance (`INSTRUCTION.md`, `DECISIONS.md`, `SOURCE_OF_TRUTH.md`, `AGENTS.md`) hanya diubah dengan persetujuan Owner. Sejak 2026-11-05 `CHANGELOG.md` diganti nama `DECISIONS.md` atas instruksi Owner (D-20261105-10); perubahan teknis ada di `implementation/CHANGELOG.md`.
 
 ## Current implementation state (verified from source/tests)
 

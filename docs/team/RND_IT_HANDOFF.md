@@ -11,4 +11,4 @@ IT reconciles it against current governance before implementation.
 IT creates a concise review artifact under `.ops/outbox/rnd/` containing state, changes, evidence/tests, blockers, and R&D decisions required.
 The user uploads that file to R&D.
 
-A handoff is not automatically a `CHANGELOG.md` decision. CAN(USER) remains final approver.
+A handoff is not automatically a `DECISIONS.md` decision. CAN(USER) remains final approver.

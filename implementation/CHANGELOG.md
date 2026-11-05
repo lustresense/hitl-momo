@@ -1,6 +1,145 @@
 # Implementation Changelog
 
-Code changes only. The root CHANGELOG.md remains the PA decision log.
+Technical changes only, newest first (old version -> new version). Product decisions live in the root `DECISIONS.md`; the Owner's instructions in `project/OWNER_MANDATES.md`.
+
+Entries 0.0.6-0.0.12 were moved here on 2026-11-05 from the root file that used to be called `CHANGELOG.md` (it mixed release notes with the decision log). `package.json` still says 0.2.0: align it with this numbering only when the Owner approves.
+
+## [0.0.13] - 2026-11-05
+
+Integrated execution pass on branch `claude/pa-sketchbook-universe-fs0dbf` (baseline `54ebec1`). Product decisions behind it: `DECISIONS.md` D-20261105-01..10.
+
+### Added
+- Honest real-input E2E (`e2e/normal-journey.mjs`, `recovery-paths.mjs`, `hand-control-probe.mjs`, `mediapipe-probe.mjs`) with a shared harness and read-only telemetry; level solvability model (`tests/game/level-reachability.ts`).
+- Animated Momo (Owner artwork, 12 expressions) as `MomoEngine` + `MomoAvatar` (gsap), mapped to moments.
+- `InputArbiter` (pure conflict rules), GPU->CPU landmarker fallback, shared wave tracker, opt-in "Kontrol tangan" in gameplay.
+- Event pipeline (`src/events/*`: envelope, console / ring-buffer / HTTP-batch sinks) and hardened partner adapter (provenance, strict validation, non-secret headers). Real model/backend: not available (partner).
+- `JumpAssist` coyote time + jump buffer (100 ms), pending Owner ratification.
+- "Masukkan ke dunia" offer, in-world success pop-up with scrim, single "Gambar lagi" button, Mouse|Kamera switch.
+
+### Changed
+- HITL commit-on-tap (no "Wujudkan Objek"); Top-3 popup 440 -> 300 px; Thinman visual scale 0.88; plain-language provenance labels.
+- Modular layout: `GameStage` 404 -> 188 lines, `SketchbookApp` 409 -> 161, `DrawingScreen` 412 -> 178, `kaplay-runtime` 294 -> 40 (+ `src/game/runtime/*`), `globals.css` split into 13 ordered partials. No behaviour or appearance change.
+
+### Fixed
+- Character A sprite ~17x too large; student sketch squashed 6.7x and drawn twice; `window.__skb*` bypass hooks shipped in production (now only with `NEXT_PUBLIC_TEST_HOOKS=1`).
+- Pointer drawing dead after hand mode; fail/retry/reposition events never logged; unsorted/duplicate Top-3 accepted; browser Back during prediction threw; mojibake in Momo/decision strings; Mission Briefing focus restore; hidden failing vitest suite (`owner-build-manifest`).
+
+### Verified (MOCK prediction; real hand/webcam NOT TESTED)
+- 548/548 unit tests, `tsc`, lint (1 old warning), build; E2E journey L1-L3 + recovery 16/16 + hand-control 6/6 + MediaPipe init (fake camera). Evidence: `docs/execution/evidence/final-383c3bc/`.
+
+## [0.0.12] - 2026-11-02 — Perbaikan Visual Viewport, Pembukaan Alur Level Ribbon & Teardown Kaplay Zero Error (Milestone efbb3cb)
+
+- **Perbaikan Ground Viewport Gap:** Memperpanjang path SVG tebing kiri dan kanan di `src/components/stage-preview/StageArtwork.tsx` (`v220H0z` dan `v220H356z`) sehingga menutup void gap vertikal ~112px saat diskalakan pada rasio 16:9, dengan tetap menjaga `viewBox="0 0 490 325"` dan kepatuhan uji visual.
+- **Wiring Unlock Level Ribbon:** Menghubungkan prop `isLevelUnlocked` dari `SketchbookApp.tsx` ke `LevelRibbonBookmark.tsx`. Bab 2 dan Bab 3 kini dapat diakses secara organik melalui kartu level siswa tanpa perlu bypass URL `page.goto`.
+- **Eliminasi Root Cause Teardown Kaplay:** Menambahkan existence check `player?.exists?.() && player.pos` pada loader sprite asinkron, callback tween, serta telemetri di `src/game/kaplay-runtime.ts` untuk mengeliminasi exception `null.x` saat unmount secara murni tanpa filter regex.
+- **Verifikasi E2E Playwright & Video Penuh:** Menghasilkan rekaman video fresh 61.44 detik (`page@4132cb92...webm`) yang merekam alur penuh dari Onboarding -> L1 WIN -> L2 WIN -> L3 WIN -> Menu Cerita (3 Bab Terbuka). E2E Playwright lulus 19/19 checks dengan 0 critical console error.
+- **Kepatuhan Regresi & Backup Cloud:** 252/252 unit test passing (100%), typecheck 0 error. Git bundle dibuat dan terverifikasi bit-for-bit lewat rehearsal cloud restore Duplicacy Revision 41 di target `gcd://PA BACKUP/WSL`.
+
+## [0.0.11] - 2026-10-30 — Koreksi Temporal Momo Motion, Natural Predicting & Kamera Stationary (Deployed to dev.momominum.tech)
+
+- **Target Tunggal Momo:** Menghilangkan target perantara (x=384) saat PREDICTING. Target horizontal Momo kini langsung dihitung dari geometri aktual popup Top-3 (440px -> x=484, gap 16px) sejak pertama kali tombol Tebak Gambarku ditekan. Nol koreksi posisi sekunder saat beralih ke EVALUATING.
+- **Natural Predicting Experience & Copy Prototype:**
+  - Panel loading besar bertuliskan "Momo sedang menebak..." dihilangkan dari presentasi visual (`Top3PredictionPopup` return `null` pada `phase === "predicting"`).
+  - Momo sendiri yang berbicara dengan copy ramah pendamping anak SMP:
+    - DRAW: "Gambar objekmu dulu, ya. Nanti aku coba tebak!"
+    - PREDICTING: "Hmm... ini gambar apa, ya?"
+    - EVALUATING: "Aku punya tiga tebakan. Coba lihat dulu, yuk!"
+    - PREDICTION ERROR: "Hmm, aku belum bisa membaca gambarmu. Mau coba lagi?"
+  - State internal predicting, async inference guard, abort, error, retry, dan redraw tetap utuh tanpa delay palsu.
+- **Transisi Visual & Zero Overlap:** Presentasi UI hasil evaluasi ditahan sampai perpindahan Momo selesai (via `transitionEnd` atau immediate pada `prefers-reduced-motion`). Popup Top-3 tidak pernah me-render di depan lintasan Momo dan Momo tidak pernah menyapu panel Top-3.
+- **Root Cause & Fix Bug Kamera Meluncur:**
+  - Root cause: `GlobalCamera.tsx` menjalankan GSAP FLIP (`morphCameraCard`) antar placement perubahan state (`${mode}:${recessed}`). Saat masuk Drawing Screen dari Onboarding/Cover, cache layout sebelumnya di-morph ke posisi PIP kiri bawah sehingga kamera terlihat meluncur dari tengah ke kiri bawah.
+  - Fix: Scoped guard di `GlobalCamera.tsx` — saat `mode === "floating"`, batalkan tween GSAP (`gsap.killTweensOf`) dan clear props transform sebelum paint. Kamera kini 100% diam di anchor kiri bawah (`x=24, y=936`) sejak frame pertama Drawing Screen, terbukti secara matematis lewat rekaman RAF (min x = max x = 24).
+- **Label Provenance Konsisten:** Badge sumber prediksi menampilkan "DEMO / PREDIKSI SIMULASI" secara jujur di bubble Momo dan popup Top-3 sejak fase prediksi dimulai hingga hasil tampil saat mode mock.
+- **Verifikasi Temporal RAF (Playwright Browser):**
+  - Kamera: 0px glide sepanjang alur (min_x: 24, max_x: 24, min_y: 936, max_y: 936).
+  - Momo: 1 target konvergen (x=484, gap 16px dari popup right 468).
+  - Overlap: 0 frame terdeteksi.
+  - Multi-viewport: 1920x1080, 1366x768, 1280x720 semua gap 16px.
+  - Reduced-motion: `transition: none`, immediate settled.
+  - Full gates: 223/223 unit test PASS (33 files), typecheck exit 0, lint exit 0, SSG build exit 0.
+- **Status Operasional:** Deployed to dev.momominum.tech (port 5555). Git commit & backup bundle tersimpan lokal. Remote push belum dijalankan.
+
+## [0.0.10] - 2026-10-30 — State-based Momo positioning & motion (Owner review, belum deploy)
+
+- Momo pada DRAW/REDRAW di kiri atas; saat PREDICTING/EVALUATING/error mengikuti geometri tepi kanan popup dengan gap 16px. Bukan anchor kanan viewport.
+- Satu instance Momo dan bubble; CSS transform transition singkat, tanpa dependency motion tambahan. Preferensi reduced-motion meniadakan perpindahan animasi.
+- Bubble memakai konteks fase existing, tidak menentukan label/confidence/keputusan siswa. Aset/ukuran/wujud Momo tetap.
+- Canvas Drawing Flow dipertahankan; override pointer-events scoped mempertahankan pembekuan input selama prediksi/evaluasi melawan CSS baseline `!important`.
+- Popup Top-3, kamera kiri bawah, toolbar kanan, global dot-grid, gameplay dan Summary tidak dirombak.
+- Verifikasi final: 216/216 unit (32 files), typecheck/lint/build exit 0; lint warning baseline TutorialBrochure.tsx:289 tetap. Browser Chromium: 4 desktop + reduced-motion, 9/9 Accept/Correct/Override Level 1–3 sampai PLAY, nol console/page error. Gap popup–Momo 16px; transition 240ms, reduced-motion none; avatar/canvas tetap. Screenshot, video 1920×1080 7.32s dan JSON metrics disimpan pada evidence VM `/home/agentops/.hermes/cache/momo-state-motion/`. Bukan bukti model partner/Safari/kamera fisik.
+- Perubahan hanya pada worktree `feat/momo-state-motion`; tidak commit/push/merge/deploy. Live dev tetap batch `d0c1c35`.
+
+## [0.0.9] - 2026-10-29 — Top-3 HITL Prediction Floating Popup on Drawing Screen (branch feat/hitl-prediction-popup)
+
+- **Komponen & Arsitektur:** Mengubah presentasi UI hasil prediksi Top-3 AI dan keputusan Human-in-the-Loop (HITL) dari sebelumnya berupa halaman/section PROBE terpisah (section#screen-evaluating) menjadi popup/panel floating (Top3PredictionPopup) di area kiri atas Drawing Screen (top: 24px; left: 28px; width: min(440px, calc(100vw - 56px))).
+- **Pembersihan Panel Katalog:** Menghilangkan presentasi panel kotak katalog placeholder (`Katalog DEMO · placeholder`) dari `DrawingScreen`. Area kiri atas kanvas pada state DRAWING kini 100% kosong dan bersih, kanvas terlihat penuh. Saat PREDICTING/EVALUATING, hanya popup Top-3 yang muncul tanpa ada tumpukan UI lama di belakangnya. Pasca-Redraw terbukti tidak memunculkan kembali katalog. Kontrak `level.catalog` dan `level.vocabulary` di domain tetap utuh untuk kebutuhan dropdown Override.
+- **Integritas Kanvas:** Drawing Screen dan kanvas utama (100vw x 100vh) tetap ter-mount dan terlihat di belakang popup; goresan siswa tidak hilang saat prediksi diminta. Selama fase predicting dan evaluating, interaksi pointer pada kanvas dibekukan (pointerEvents: none) untuk mencegah goresan tak sengaja.
+- **Root Cause PROBE Terpisah:** Di SketchbookApp.tsx, fase drawing, predicting, dan evaluating sebelumnya diperlakukan mutually exclusive sehingga DrawingScreen di-unmount saat memasuki evaluasi dan digantikan oleh section#screen-evaluating fullscreen. Diperbaiki dengan menyatukan lifecycle isDrawingFlow (drawing, predicting, prediction-error, evaluating) di dalam DrawingScreen.
+- **Kontrak HITL Terpenuhi:**
+  - Menampilkan 3 kandidat berperingkat (#1, #2, #3), nama label, bar confidence, dan persentase numerik. Peringkat 1 ditandai visual dengan badge ⭐ Utama.
+  - Chip sumber prediksi: DEMO / PREDIKSI SIMULASI (mock) atau PARTNER API.
+  - Tiga cabang keputusan: Accept (kandidat #1), Correct (kandidat #2 atau #3), Override (pilihan kosa kata legal level).
+  - Aksi komit terpisah via tombol Wujudkan Objek! (btn-wujudkan-objek) yang memicu transisi ke falling -> placing -> gameplay di GameStage.
+  - Pemulihan Redraw / Gambar ulang (revisi) mengembalikan siswa ke mode gambar tanpa membuat objek palsu. Tombol keyboard Escape juga memicu pembatalan/redraw secara aman.
+- **Verifikasi & Quality Gates:**
+  - Unit tests: 205/205 PASS (31 test files, termasuk 9 tes komprehensif baru di top3-prediction-popup.test.tsx).
+  - Typecheck: PASS (tsc --noEmit).
+  - Lint: PASS (next lint).
+  - Build: PASS (Next.js SSG 16 static routes).
+  - Playwright E2E Browser: 1920x1080 dan 1366x768 (zero horizontal overflow: scrollWidth == innerWidth == 1366).
+  - Alur sequential Level 1, Level 2, dan Level 3 terbukti lolos dari gambar -> prediksi -> popup -> komit -> GameStage.
+- **Keamanan & Isolasi:** Dikerjakan di worktree terisolasi /home/user_06/sandboxes/sketchbook-react-hitl-popup pada branch feat/hitl-prediction-popup. Source preview port 5555 dan remote origin tidak tersentuh.
+
+## [0.0.8] - 2026-10-29 — Desktop framing L1/L3 (local preview)
+
+- Desktop landscape L1/L3: remove height-limited surface width; full viewport-width 16:9 art and physics canvas remain aligned. L2 and portrait rules unchanged.
+- Root cause: `width:min(100vw,177.7777778dvh)` created 53.33 px side gutters at 1280×660 and 320 px at 2560×1080.
+- Changed `implementation/src/components/game/game-stage.module.css` and minimal left boundary in `implementation/src/game/kaplay-runtime.ts`; regression tests in `implementation/tests/game/runtime-integration.test.ts`. Art, density, jump520, gravity1600 and level collision geometry unchanged.
+- Desktop screenshot/DOM acceptance: L1/L3 at 1280×660,1440×900,1920×1080,2560×1080: 8/8 full-width, initial actor/goal visible, uniform 16:9, geometry identical, DPR2 retained, zero page errors.
+- Gates: 196/196 unit tests (five new boundary/scope cases), typecheck, lint (existing hook warning), static export 16 routes PASS.
+- L1 desktop left boundary: real ArrowLeft reproduced sprite crop/fall at x<0. Added sprite-aware clamp with 2-world-pixel inset after fixed-step movement. Unit test RED (spriteLeft=-37.55), GREEN; L2/L3/portrait/legacy unchanged. Final real-browser boundary and sequential acceptance recorded separately.
+- Build generated in isolated WSL scratch; static preview assets copied in-place preserving server cwd/process; previous c9b5899 build copied to scratch recovery folder. No service restart/port/tunnel/production change. No commit/push.
+
+## [0.0.7] - 2026-10-29 — Batch stabilization Level 1–3 — VERIFIED LOKAL
+
+- **Area:** Stabilisasi gameplay dan rendering fisik Level 1–3 pada visual React StageWorld sandbox.
+- **Status:** VERIFIED LOKAL (bukan rilis produksi, tanpa push/merge).
+- **Hasil Stabilisasi:**
+  - **Tangga L2 Solid Terbukti:** Override STAGE_2 mapping tangga disetel Solid, konsisten dengan tutorial. Uji kontak fisik Playwright membuktikan pendaratan presisi (`playerFootY = 220.92`), standing stabil (12 sampel, `grounded: true`, `velY = 0`), lompat lepas dari tangga (`velY = -392`, `grounded: false`, ketinggian mencapai 143.63), dan reland. Rekaman video: `tangga-physical-acceptance/video/`.
+  - **Tali L3 Contextual Hazard:** Tetap danger dengan pesan kegagalan kontekstual (`Menyentuh objek berbahaya (tali)!`) melalui overlay outcome eksisting, tanpa popup baru.
+  - **Single Global Interior Grid:** Background dot-grid notebook disatukan pada root body/halaman interior. Duplikasi grid lokal pada halaman-halaman dihapus. Treatment hijau cover kamera onboarding (`.camera-prototype-wrapper.mode-cover`) tetap utuh.
+  - **Ketajaman Rendering Retina & Layar:** Perhitungan resolusi internal KAPLAY dikoreksi ke `Math.max(window.devicePixelRatio, 2)` murni, tanpa mengalikan ulang rasio lebar kontainer CSS yang sebelumnya menyebabkan alokasi canvas berlebih. Tekstur aset dipulihkan tajam (`textureScale = 8`).
+- **Verifikasi & Regresi Lengkap:**
+  - Unit tests: 191/191 PASS (30 test files, termasuk tes regresi hazard dan density baru).
+  - Typecheck: PASS (`tsc --noEmit --incremental false`).
+  - Lint: PASS (Next.js ESLint nol error, satu warning hook eksisting).
+  - Build: PASS (16 static routes ter-generate).
+  - Mobile & recovery: 14/14 checks PASS (`check_recovery.py`).
+  - Render & surface acceptance: 26/26 checks PASS lintas Desktop, Retina, dan Mobile (`render_acceptance.py`).
+- **Status Backup:**
+  - Backup lokal: Bundle Git pemulihan `82c15d5` dan manifest evidence tersimpan di `/home/user_06/projects/backups/sketchbook-react-visual-first/`.
+  - Backup cloud remote: Duplicacy Rev 21 (11:36 WIB) terverifikasi BELUM memuat bundle/manifest baru karena dibuat sebelum arsip; menunggu tick jadwal berikutnya.
+- **Batas Tindakan:** Tanpa push remote, merge branch, atau deploy produksi. Port preview 5555 dan tunnel tidak dimodifikasi.
+
+## [0.0.6] - 2026-10-29 — Prototype integration — VERIFIED (G1-G6 COMPLETE)
+
+- **Area:** Integrasi gameplay KAPLAY 3 Level pada visual React StageWorld yang disetujui.
+- **Status:** VERIFIED LOKAL (G1-G6 Lolos); bukan release atau klaim kesiapan produksi.
+- **Hasil Integrasi Tiga Level (KAPLAY Asli):**
+  - **Level 1 (Halaman yang Sobek):** Jurang sesuai geometri SVG tebing kiri/kanan, penempatan multi-objek solid tanpa kuota, simulasi falling, collision fisik KAPLAY, kontrol keyboard/pointer, fail/retry dan reposition objek identitas tetap, goal reached menyeberang jurang.
+  - **Level 2 (Menara Lipatan):** Traversal vertikal nyata dengan perancah 3 pijakan (`96,160`, `222,142`, `260,110`), lompatan bertingkat presisi ke puncak bendera tanpa manipulasi gravitasi (1600) atau jump force (520).
+  - **Level 3 (Lorong Kabut Penghapus):** Pemilihan rute atas vs bawah, hazard lantai statis terbukti memicu fail sebelum killY jika jatuh, objek 'unresolved' (ember) terbukti non-solid dan jatuh, rute atas terbukti playable sampai goal height-aware (`y <= 192`).
+- **Arsitektur & Kontrak Bersama:**
+  - Profil integrasi 800 × 450 berbasis affine transform `s = max(800/490, 450/325)` dengan centered slice. Profil legacy 800 × 380 tetap utuh.
+  - Satu Stickman aktif (SVG preview disembunyikan saat mode gameplay, digantikan body fisik KAPLAY ber-skin artwork SVG yang sama).
+  - Background scenery murni React `StageWorld`, foreground canvas KAPLAY transparan (`background: [0,0,0,0]`).
+- **Kualitas & Regresi (G6):**
+  - 184 unit tests PASS (29 test files), typecheck PASS (incremental false), lint PASS, Next.js build PASS.
+  - 14/14 browser recovery & mobile checks PASS (`check_recovery.py`): retry, reposition, blur stop, mobile portrait 390×844 tanpa overflow horizontal, touch coordinates accurate, 44px min targets.
+  - Full sequential E2E (Level 1 -> 2 -> 3 -> Summary) PASS tanpa debug hooks atau mock state (`final_flow.py`).
+  - Visual regression preview 4 scene tetap 100% identik dan motion CSS tetap aktif (`cleanup_qa.py`).
+- **Batas:** Tanpa NUI/MediaPipe/kamera, model AI asli, backend partner, atau deploy production. Tidak ada push/merge.
 
 ## [0.0.5] - 2026-10-29
 

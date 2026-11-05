@@ -6,6 +6,32 @@ Technical changes only, newest first (old version -> new version). Product decis
 
 Entries 0.0.6-0.0.12 were moved here on 2026-11-05 from the root file that used to be called `CHANGELOG.md` (it mixed release notes with the decision log). `package.json` still says 0.2.0: align it with this numbering only when the Owner approves.
 
+## [0.0.15] - 2026-11-05
+
+Momo pass on branch `can`. Owner mandates M-015 (wings) and M-016 (Momo guides every page). Decisions: D-20261105-17 (wings), D-20261105-19 (guide), progress log in the root `DECISIONS.md`.
+
+### Fixed
+- `src/components/momo/momo-wing.ts` (new) and `momo-engine.ts`: Momo's cloth wings looked cut off while animating. They were rotated about a pivot about 90 art units below the apex, so the apex (the corner attached to the body) lifted off. Now the wing is sheared along its attach edge: the apex and the whole attach edge never move, only the lower tips go up (negative angle) and down (positive), at most 56 art units (the wave may go to 50 degrees). Applies to every Momo (chat, drawing, intro, world, character book). The flap kick is now symmetric for both wings. Matrix printed with 8 decimals (4 decimals moved the apex by 0.02 units).
+
+### Added
+- `src/components/momo/MomoGuide.tsx` and `app/styles/100-guide.css` (imported in `app/globals.css`): Momo docked bottom-right as a chat, one bubble at a time; on phones her words stand above her head and she is smaller.
+- `src/domain/guide-script.ts`: what Momo says on the cover, ruler, tutorial (6 moments) and level list. No parentheses.
+- `MomoEngine.sleep()` (eyes shut, slow breathing) and `MomoEngine.wave()` (one wing waves hello); props `sleeping` and `waveKey` on `MomoAvatar` and `MomoChat`; `MomoChat` hides extras when there are no lines.
+- `GlobalCamera` prop `waveStartDelayMs` (default 3.4 s).
+- `e2e/audit-momo-wings.mjs` (every animation frame in the real app) and `e2e/guide-flow.mjs` (14 checks, records video).
+- Evidence: `docs/execution/evidence/momo-wings-2026-11-05/`, `docs/execution/evidence/momo-guide-2026-11-05/`.
+
+### Changed
+- `src/components/camera/GlobalCamera.tsx` (cover): Momo sleeps with floating Zzz until the camera is on, then wakes startled (hop and flap), settles, waves with one wing, says "Halo! Aku Momo.", points to the ruler and offers one thumb cue (`cover-continue`). The old skip button stays (hidden on phones once she is awake). The wave detector waits `waveStartDelayMs` after the camera is on so loading the hand model cannot stall the wake-up animation; a wave still means "continue". The wave does not wake her yet (no NUI).
+- `StudentRulerSelector.tsx`: Momo explains the ruler and is confused when the number is taken.
+- `TutorialBrochure.tsx`: Momo follows the student: walk, Thinman arrived, safe or sharp, draw and undo, ready.
+- `src/app/screens/LevelEntryScreen.tsx`: Momo points at the newest unlocked chapter.
+
+### Tests
+- New: `tests/components/momo-wing.test.ts` (apex and edge fixed at all angles, tips move vertically, clamped), `tests/components/momo-wing-engine.test.ts` (live engine, all 12 expressions, flap, tracked movement), `tests/domain/guide-script.test.ts`.
+- Changed: `tests/components/global-camera-stationary.test.tsx` and `tests/camera/global-camera-lifecycle.test.tsx` stub `MomoGuide` (they mock gsap without timelines); lifecycle also passes `waveStartDelayMs={0}`.
+- Gates: vitest 558/558, tsc, lint, build; E2E journey L1-L3, recovery 16/16, hand-control 6/6, MediaPipe probe, wing audit (apex moved at most 0.0002 units over 1734 samples, tips travelled the full 56), guide flow 14/14.
+
 ## [0.0.14] - 2026-11-05
 
 Visual + flow pass on branch `can` (frontend/game). Owner mandate M-012 in `project/OWNER_MANDATES.md`. Palette, dots, outlines and hard shadows unchanged (M-003).
@@ -48,20 +74,6 @@ Visual + flow pass on branch `can` (frontend/game). Owner mandate M-012 in `proj
 
 ### Tests
 - vitest 549/549, tsc, lint, build; E2E normal-journey (L1-L3 with real progression), recovery 16/16, hand-control 6/6, MediaPipe probe pass. Evidence: `docs/execution/evidence/ui-pass-2026-11-05/`.
-
-### Revision round 4 (Momo wings)
-- Fixed: Momo's cloth wings looked cut off while animating. They were rotated about a pivot about 90 art units below the apex, so the apex (the corner attached to the body) lifted off. New `src/components/momo/momo-wing.ts` applies a shear along the attach edge: the apex and the whole attach edge never move, only the lower tips go up (negative angle) and down (positive), at most 56 art units. `momo-engine.ts` uses it for every Momo (chat, drawing, intro, world, character book). The flap kick is now symmetric for both wings. Test: `tests/components/momo-wing.test.ts` (apex and edge fixed at all angles, tips move vertically, clamped). Owner mandate M-015, decision D-20261105-17.
-- Verified for every Momo in the app: `MomoEngine` is the only Momo renderer (all of `MomoAvatar`, `MomoChat`, `MomoBubble`, intro, world, drawing cue, win/fail use it), so the fix applies everywhere. New `tests/components/momo-wing-engine.test.ts` drives the live engine through all 12 expressions, flap and tracked movement and asserts the apex, attach edge and its midpoint stay fixed. New `e2e/audit-momo-wings.mjs` samples every animation frame in the real app (intro story with flap and camera rise, drawing, prediction, decision): 1486 wing samples, the apex moved at most 0.0002 art units (rounding) while the tips travelled the full 56. Matrix printed with 8 decimals (4 decimals moved the apex by 0.02 units). Evidence: `docs/execution/evidence/momo-wings-2026-11-05/momo-wings-real-app.mp4`.
-
-### Revision round 5 (Momo guides every page)
-- Added: `src/components/momo/MomoGuide.tsx`, Momo docked in the bottom-right corner as a chat (one bubble at a time; on phones her words stand above her head so they clear the camera window); `src/domain/guide-script.ts` holds what she says on each page (no parentheses). `app/styles/100-guide.css`.
-- Added: `MomoEngine.sleep()` (eyes shut, slow breathing) and `MomoEngine.wave()` (greets with one wing: the screen-left wing tip lifts and swings; the apex stays attached, the wave may bend the tip up to 50 degrees instead of the everyday 32). `MomoAvatar`/`MomoChat` props `sleeping` and `waveKey`. `momo-wing.ts` limit raised to 50 degrees.
-- Changed: cover (`GlobalCamera`): Momo sleeps with floating Zzz until the camera is on, then wakes startled (hop and flap), settles and waves, says "Halo! Aku Momo.", points to the ruler and offers one thumb cue (`cover-continue`). The old skip button stays (hidden on phones once she is awake). The wave detector no longer starts at the same moment as the camera: it waits `waveStartDelayMs` (3.4 s) so loading the hand model cannot stall the wake-up animation; a wave still means "continue". The wave is not what wakes her yet (no NUI).
-- Changed: ruler (`StudentRulerSelector`), tutorial (`TutorialBrochure`: she follows the student: walk, Thinman arrived, safe or sharp, draw and undo, ready) and level list (`LevelEntryScreen`: points at the newest unlocked chapter) now each have Momo as guide.
-- Tests: `tests/domain/guide-script.test.ts`; the two GlobalCamera suites stub `MomoGuide` (they mock gsap without timelines) and pass `waveStartDelayMs={0}`. New `e2e/guide-flow.mjs` (14 checks, fake camera, trusted mouse, records video): cover asleep, wakes, greets, ruler, three tutorial cards reacting to the student, level list. Evidence: `docs/execution/evidence/momo-guide-2026-11-05/`. Owner mandate M-016, decision D-20261105-19.
-
-### Release note
-- 0.0.14 (rounds 4 and 5: Momo wings attached in every animation, Momo guides every page) pushed to `origin/can` on 2026-11-05 on the Owner's explicit instruction (D-20261105-20). Commits keep the Owner identity (M-008) and show as Unverified on GitHub by choice.
 
 ## [0.0.13] - 2026-11-05
 

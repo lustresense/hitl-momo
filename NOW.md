@@ -17,7 +17,7 @@ Diperbarui: 2026-11-05. Satu halaman: keadaan paling baru. Keputusan: `DECISIONS
 5. Alur HITL baru: keputusan langsung berlaku, "Masukkan ke dunia", pop-up sukses di dalam dunia.
 
 ## Menunggu
-- Owner: nama + email commit (variabel `GIT_AUTHOR_*` baru terbaca di sesi baru), lalu persetujuan push; prompt revisi besar.
+- Owner: persetujuan push (nama branch GitHub usulan `pa/frontend-integrated-2026-11`; pilihan evidence: apa adanya atau bersih); prompt revisi besar. Identitas commit sudah beres: 45 commit atas nama Owner, tanpa baris Claude.
 - Ujang: baca laporan progres; konfirmasi format `NOW.md` (di sini hanya header "Base ancestry" yang diketahui).
 
 ## Peringatan

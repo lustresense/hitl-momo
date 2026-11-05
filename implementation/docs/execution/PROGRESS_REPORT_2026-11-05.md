@@ -63,7 +63,7 @@ Sesi AI berikutnya cukup memakai folder `implementation` plus berkas di root (ch
 | Evaluasi siswa | Belum ada; tidak dikarang |
 | Momo yang benar-benar bergerak maju-mundur sendiri | Belum dikerjakan (baru ukuran per momen) |
 | Coyote time ratifikasi; hapus objek; akhir permainan setelah L3 | Menunggu keputusan Owner |
-| Penulisan ulang author commit + push | Menunggu nama/email commit Owner dan persetujuan push |
+| Push ke GitHub | Menunggu persetujuan Owner. Author commit sudah atas nama Owner (noreply GitHub), tanpa baris Claude |
 
 ## 7. Cara melihat sendiri
 ```bash

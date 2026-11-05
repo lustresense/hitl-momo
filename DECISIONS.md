@@ -123,6 +123,14 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 
 ## Entri Perubahan Terbaru
 
+### D-20261105-21 — Aktif (instruksi eksplisit Owner, M-017) — Aturan DECISIONS.md dan implementation/CHANGELOG.md
+- Teknis: `implementation/CHANGELOG.md` 0.0.15 (Docs).
+- Keputusan/ubahannya: `DECISIONS.md` (root) berisi **keputusan dari Owner** saja. `implementation/CHANGELOG.md` berisi **setiap perubahan di dalam folder `implementation/`**. Kebanyakan keputusan Owner mengubah `implementation/` (teknis, folder, kode), jadi keputusan dan changelog **saling terhubung**: tiap keputusan menulis baris "Teknis:" ke versi changelog, tiap versi changelog menulis baris "Decision:" ke ID keputusan. Panduan di atas kedua berkas ditulis ulang dengan aturan ini, dan semua entri D-20261105-01..21 serta versi 0.0.13..0.0.15 sudah dihubungkan.
+- Catatan Owner: **Owner marah besar** karena AI tidak membaca berkas dan salah menangkap aturan ini berkali-kali (catatan teknis tenggelam di versi lama; catatan push dimasukkan ke changelog; panduan berkas tidak jelas). Pelajaran untuk AI berikutnya: baca panduan di atas `DECISIONS.md` dan `implementation/CHANGELOG.md` sebelum mencatat; catatan baru di changelog selalu di versi paling atas; jangan masukkan hal di luar `implementation/` ke changelog.
+- Mengubah entri lama: memperjelas D-20261105-10 (pembagian dokumen) dan header kedua berkas.
+- Bukti: instruksi Owner 2026-11-05 (M-017).
+- Dampak: cara semua AI mencatat kerja di repo ini.
+
 ### D-20261105-20 — Aktif (instruksi eksplisit Owner) — Push revisi 0.0.14 ke branch `can`
 - Teknis: tidak ada (alur kerja).
 - Keputusan/ubahannya: Owner menyuruh push ("gas push") setelah wing fix (D-20261105-17), audit semua Momo, dan Momo sebagai pemandu (D-20261105-19). Push ke `origin/can` memakai environment sesi ini. Commit tetap atas nama Owner (`Farchan Deano Muhammad`, M-008); GitHub bisa menampilkan "Unverified" karena tidak ditandatangani, dan itu sengaja diterima: author tidak direset ke Claude. Push hanya terjadi karena perintah eksplisit ini; aturan "jangan push tanpa diminta" tetap berlaku untuk sesi berikutnya.

@@ -1,28 +1,24 @@
-# Final Verification (tested commit `ddbd7ba3a8c400a9786dd5b9d1c1e262b703ca95`)
+# Final Verification (tested commit `66c224e`)
 
-Source tree under test = `ddbd7ba` (git status: only `docs/execution/**` untracked at run time; `src/**` clean). Evidence folder: `docs/execution/evidence/final-ddbd7ba/`.
+Source tree under test = `66c224e` (`src/**` clean; only evidence files untracked at run time). Evidence: `docs/execution/evidence/final-66c224e/`.
+Supersedes the earlier verification of `ddbd7ba` (that run predates the UI flow change below).
 
 | Gate | Result | Notes |
 |---|---|---|
-| Unit/regression (`vitest run`) | **PASS** 356/356 tests, 55/55 files | baseline 329 tests / 48 of 49 files (1 suite hidden-FAIL) |
+| Unit/regression (`vitest run`) | **PASS** 543/543 tests, 70/70 files | |
 | Typecheck (`tsc --noEmit`) | **PASS** exit 0 | |
-| Lint (`next lint`) | **PASS** exit 0, 1 warning | `TutorialBrochure.tsx:292` (pre-existing); MissionBriefing warning fixed |
-| Build (`next build`, static export, `NEXT_PUBLIC_TEST_HOOKS=0`) | **PASS** 13 routes | |
-| Browser E2E — honest journey Onboarding→L1→L2→L3→Summary (trusted mouse/keyboard, telemetry read-only) | **PASS**, each level WON on attempt 1; 0 console/page errors; no `window.__skb*` global at runtime | `journey/evidence.json`, `journey/page@5991…webm` (92.5 s, 1280×720, sha256 `d9f14230…c4cc49`), 18 screenshots |
-| Browser E2E — recovery paths (fall→retry→win; danger→Redraw→reposition→win) | **PASS** 14/14 | `recovery/evidence.json`, video 83.3 s |
-| Legacy hook-based functional suite (`e2e/run.mjs`, uses `NEXT_PUBLIC_TEST_HOOKS=1`) | **PASS** all checks (23 + keyboard/responsive) | functional only; not gameplay proof |
-| MediaPipe init/lifecycle (Chromium **fake** camera) | **PASS**: wasm + `hand_landmarker.task` fetched 200, graph started, hand mode engaged, pointer drawing works afterwards | `mediapipe/evidence.json` |
-| MediaPipe with a **real hand / physical webcam** | **NOT TESTED** (no hardware) | pinch accuracy, mirroring, GPU delegate on school hardware unknown |
-| Prediction provider | **MOCK** (deterministic fixture) | REAL model: partner |
-| Logging | **MOCK/DEV console only** | REAL logging/DB/dashboard: partner |
-| Safari/Firefox/mobile, low-end device FPS | **NOT TESTED** | sandbox renders ≈15.8 fps |
+| Lint (`next lint`) | **PASS** exit 0, 1 pre-existing warning | `TutorialBrochure.tsx:292` |
+| Build (`next build`, static export, `NEXT_PUBLIC_TEST_HOOKS=0`) | **PASS** | |
+| Browser E2E: honest journey Onboarding → L1 → L2 → L3 (trusted mouse/keyboard; success pop-up in the world; next level / level list) | **PASS**, each level WON on attempt 1, 0 console/page errors, no `window.__skb*` at runtime | `journey/evidence.json`, `journey/page@*.webm` (15.5 MB), screenshots incl. `*-04-success-popup-in-world.png` |
+| Browser E2E: recovery paths + new flow checks (compact Top-3 ≤ 340 px, exactly 3 decisions + separate Redraw, no "Wujudkan Objek", decision → "Masukkan ke dunia" offer, fall → retry → win, hazard → Redraw → reposition → win) | **PASS** 16/16 | `recovery/evidence.json`, video |
+| MediaPipe init/lifecycle with Chromium **fake** camera (wasm + model load, hand mode, back to pointer and draw) | **PASS** | `mediapipe/evidence.json` |
+| Opt-in "Kontrol tangan" in gameplay with fake camera (keyboard still drives, no stuck input, toggle back) | **PASS** 6/6 | `hand-control/evidence.json` |
+| Real hand / physical webcam | **NOT TESTED** | |
+| Prediction provider / logging backend | **MOCK** / **BLOCKED (partner)** | |
+| `e2e/run.mjs` (legacy hook-based suite) | **NOT MAINTAINED**, not run | written for the old "Wujudkan Objek" / full-screen summary flow |
+| Safari/Firefox/mobile, low-end device FPS | **NOT TESTED** | sandbox ≈ 15.8 fps |
 
-Reproduce:
-```bash
-cd implementation && npm ci && NEXT_PUBLIC_TEST_HOOKS=0 npx next build
-# video needs an ffmpeg matching playwright-core (sandbox: PLAYWRIGHT_BROWSERS_PATH with ffmpeg-1013 -> system ffmpeg)
-node e2e/normal-journey.mjs      # serves ./out itself, honest L1-L3 journey + video
-node e2e/recovery-paths.mjs
-node e2e/mediapipe-probe.mjs
-npx vitest run && npx tsc --noEmit && npx next lint
-```
+## UI flow as verified
+Top-3 popup (300 px) → tap Terima / pilih peringkat (Pilih lain) / confirm label (Bukan semua) = decision is made and the object is created → "Masukkan ke dunia" offer (sketch preview) → placement (Momo follows the dragged object) → gameplay → success pop-up inside the world (Momo walks in from the top and celebrates) with Lanjut / Pilih level. The visual system (palette, dots, outlines, shadows) is the original one; a colour/typography redesign was tried and **rejected by the Owner** (kept only on branch `backup/ui-redesign-rejected`).
+
+Reproduce: see `RUN_GUIDE.md`.

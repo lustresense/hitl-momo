@@ -11,7 +11,7 @@ Entries 0.0.6-0.0.12 were moved here on 2026-11-05 from the root file that used 
 
 ## [0.0.15] - 2026-11-05
 
-Decision: D-20261105-17 (wings), D-20261105-19 (Momo guides every page). Mandates M-015, M-016. Branch `can`.
+Decision: D-20261105-17 (wings), D-20261105-19 (Momo guides every page), D-20261105-21 (docs rule). Mandates M-015, M-016. Branch `can`.
 
 ### Fixed
 - `src/components/momo/momo-wing.ts` (new) and `momo-engine.ts`: Momo's cloth wings looked cut off while animating. They were rotated about a pivot about 90 art units below the apex, so the apex (the corner attached to the body) lifted off. Now the wing is sheared along its attach edge: the apex and the whole attach edge never move, only the lower tips go up (negative angle) and down (positive), at most 56 art units (the wave may go to 50 degrees). Applies to every Momo (chat, drawing, intro, world, character book). The flap kick is now symmetric for both wings. Matrix printed with 8 decimals (4 decimals moved the apex by 0.02 units).
@@ -34,6 +34,9 @@ Decision: D-20261105-17 (wings), D-20261105-19 (Momo guides every page). Mandate
 - New: `tests/components/momo-wing.test.ts` (apex and edge fixed at all angles, tips move vertically, clamped), `tests/components/momo-wing-engine.test.ts` (live engine, all 12 expressions, flap, tracked movement), `tests/domain/guide-script.test.ts`.
 - Changed: `tests/components/global-camera-stationary.test.tsx` and `tests/camera/global-camera-lifecycle.test.tsx` stub `MomoGuide` (they mock gsap without timelines); lifecycle also passes `waveStartDelayMs={0}`.
 - Gates: vitest 558/558, tsc, lint, build; E2E journey L1-L3, recovery 16/16, hand-control 6/6, MediaPipe probe, wing audit (apex moved at most 0.0002 units over 1734 samples, tips travelled the full 56), guide flow 14/14.
+
+### Docs
+- `CHANGELOG.md` (this file): guide at the top rewritten. Every change inside `implementation/` goes here, newest version on top; every version opens with a `Decision:` line naming the Owner decision it carries out; nothing outside `implementation/` (pushes, `academic/`, `project/`) is logged here. 0.0.13 and 0.0.14 got their `Decision:` lines. The Owner was very angry that this rule was missed (D-20261105-21, M-017).
 
 ## [0.0.14] - 2026-11-05
 

@@ -222,14 +222,14 @@ describe("DrawingScreen Momo state-based positioning - NEW CONTRACT", () => {
 
 describe("DrawingScreen reduced CSS media query", () => {
   it("has @media (prefers-reduced-motion: reduce) with transition: none in globals.css", () => {
-    const cssPath = path.join(process.cwd(), "app/globals.css");
+    const cssPath = path.join(process.cwd(), "app/styles/70-drawing-screen.css");
     const cssContent = fs.readFileSync(cssPath, "utf-8");
     expect(cssContent).toContain("@media (prefers-reduced-motion: reduce)");
     expect(cssContent).toContain("transition: none");
   });
 
   it("has .drawing-momo-companion transition: none in reduced motion block", () => {
-    const cssPath = path.join(process.cwd(), "app/globals.css");
+    const cssPath = path.join(process.cwd(), "app/styles/70-drawing-screen.css");
     const cssContent = fs.readFileSync(cssPath, "utf-8");
     // Match the specific reduced-motion block containing .drawing-momo-companion
     const regex = /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[^}]*\.drawing-momo-companion[^}]*transition:\s*none/;

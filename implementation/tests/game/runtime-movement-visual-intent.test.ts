@@ -5,14 +5,14 @@ import { CharacterRuntimeBridge } from "@/src/game/character/character-runtime-b
 
 describe("runtime visual movement intent", () => {
   it("wires one resolved intent through live fixed-step bridge and player.move", () => {
-    const source = readFileSync(new URL("../../src/game/kaplay-runtime.ts", import.meta.url), "utf8");
-    const start = source.indexOf("k.onFixedUpdate(()=>{");
-    const end = source.indexOf("k.onUpdate(()=>{", start);
+    const source = readFileSync(new URL("../../src/game/runtime/integrated-scene.ts", import.meta.url), "utf8");
+    const start = source.indexOf("private fixedStep()");
+    const end = source.indexOf("private update()", start);
     const fixedStep = source.slice(start, end);
     expect(fixedStep).toBeTruthy();
-    expect(fixedStep).toMatch(/const resolvedVx=resolveHorizontalMovementIntent\(/);
-    expect(fixedStep).toMatch(/characterBridge\.update\(\{[^}]*resolvedVx/);
-    expect(fixedStep).toMatch(/player\.move\(resolvedVx,0\)/);
+    expect(fixedStep).toMatch(/const resolvedVx\s*=\s*resolveHorizontalMovementIntent\(/);
+    expect(fixedStep).toMatch(/characterBridge\.update\(\s*\{[^}]*resolvedVx/);
+    expect(fixedStep).toMatch(/player\.move\(resolvedVx,\s*0\)/);
   });
 
   it("animates and faces from the same horizontal input passed to player.move", () => {

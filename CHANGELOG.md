@@ -2,6 +2,38 @@
 
 Dokumen ini adalah catatan keputusan proyek yang dipakai untuk mencegah konteks lama atau jawaban AI mengambil alih keputusan terbaru.
 
+## [0.0.13] - 2026-11-05 — Eksekusi teknis terintegrasi: gameplay L1-L3 terbukti, alur HITL baru, Momo animasi, modularisasi (DITULIS ATAS PERMINTAAN OWNER; nomor versi = usulan)
+
+Sumber: instruksi eksplisit Owner (CAN) di sesi eksekusi 2026-11-04/05. Branch kerja lokal `claude/pa-sketchbook-universe-fs0dbf` (baseline `54ebec1`, belum di-push). Detail permintaan per permintaan: `implementation/docs/execution/SESSION_HANDOFF.md`. Bukti: `implementation/docs/execution/evidence/final-383c3bc/` dan `FINAL_VERIFICATION.md`.
+
+### Aktif (instruksi eksplisit Owner)
+- **D-20261105-01 Sistem visual tidak boleh diubah.** Warna oranye/hijau, dots di belakang, outline dan bayangan yang sekarang DIKUNCI oleh Owner. "Anti-slop" = perbaikan detail (teks lebih sedikit, tempat/alur lebih intuitif), BUKAN ganti palet/tipografi. Redesign palet "squared notebook" ditolak (disimpan lokal di branch `claude/tolol`, tidak dipakai).
+- **D-20261105-02 Keputusan HITL langsung berlaku.** Tombol "Wujudkan Objek" dihapus. Terima = langsung membuat objek; Pilih lain = ketuk peringkat 2/3; Bukan semua = pilih label lalu "Pakai". Setelah keputusan muncul pop-up kecil "Masukkan ke dunia" (preview sketsa asli siswa) sebelum dunia berjalan. Redraw tetap jalur pemulihan di luar tiga keputusan.
+- **D-20261105-03 Panel "Tebakan Momo" dikecilkan** (440 -> 300 px), tiga aksi satu baris; Momo ditempatkan tepat di sampingnya.
+- **D-20261105-04 Layar ringkasan penuh diganti pop-up di dalam dunia game.** Saat berhasil: Momo masuk dari atas ke tengah dan merayakan, kartu "Selamat, berhasil!" (hasil gameplay + keputusan + 1 kalimat literasi) dengan Lanjut / Pilih level; latar digelapkan, hanya Momo dan kartu yang terang.
+- **D-20261105-05 Momo = artwork animasi milik Owner** (file `momo-ekspresi_1.html`, 12 ekspresi) menggantikan placeholder. Momo adalah maskot interaktif yang lebih besar dari Thinman: 150 px (gambar/Top-3), 170-210 px (menempatkan/bermain, mengikuti objek yang digeser, bisa diketuk), 300 px (merayakan); tidak dikurung kotak. Thinman diperkecil sedikit (skala visual 0.88, collider tidak berubah).
+- **D-20261105-06 Tombol "Gambar ulang" + "Ciptakan objek lagi" digabung** jadi satu "Gambar lagi" (setelah gagal tercatat sebagai redraw, selain itu sebagai objek tambahan). "Petunjuk misi" dipindah ke kanan atas. Pilihan input jadi satu kontrol "Mouse | Kamera".
+- **D-20261105-07 Label asal prediksi memakai kalimat biasa** ("Mode demo: tebakan masih simulasi", "Demo: tebakan simulasi") menggantikan "DEV / MOCK — BUKAN KELUARAN MODEL SUNGGUHAN" dan "DEMO / PREDIKSI SIMULASI". Tetap jujur bahwa tebakan MOCK. (Merevisi butir "Label Provenance Konsisten" di 0.0.11.)
+- **D-20261105-08 Kode frontend dimodularisasi** tanpa mengubah perilaku/tampilan (GameStage 404->188 baris, SketchbookApp 409->161, DrawingScreen 412->178, runtime KAPLAY 294->40 + `src/game/runtime/*`, globals.css jadi 13 partial berurutan).
+- **D-20261105-09 Isolasi kerja:** tidak ada push/merge/deploy ke `can` tanpa persetujuan Owner; Ujang tetap pemilik infrastruktur/`can`/backup/deploy.
+
+### Direvisi
+- Komit eksplisit lewat tombol CTA "Wujudkan Objek" (alur Probe 0.0.9-0.0.11) -> diganti D-20261105-02.
+- Gestur "Genggam / 2 Jari / 3 Jari" yang tertulis di toolbar tidak pernah diimplementasikan; teksnya dihapus dari UI (hanya pinch-gambar yang nyata).
+
+### Terbukti (browser, input mouse/keyboard asli, prediksi MOCK)
+- Onboarding -> L1 -> L2 (dua objek) -> L3 menang pada percobaan pertama; jalur gagal -> retry -> menang dan objek berbahaya -> Redraw -> geser -> menang. 548/548 unit test, tsc, lint, build lulus. Klaim "full journey" di 0.0.12 memakai `window.__skbMovePlacement` (bypass) dan TIDAK dianggap bukti gameplay; hook uji kini hanya ada bila `NEXT_PUBLIC_TEST_HOOKS=1`.
+- Lompatan kedua L1 yang "gagal" ternyata masalah timing automation + tidak adanya coyote time, bukan bug physics.
+
+### Belum dikunci / butuh keputusan
+- **Coyote time + jump buffer 100 ms** sudah diimplementasikan (bukti trajektori Fase 0) tetapi belum diratifikasi Owner; matikan dengan konstanta 0 di `src/game/jump-assist.ts`.
+- Perilaku "maju-mundur" Momo yang benar-benar bergerak sendiri (mengikuti Thinman, mendekat/menjauh layar) baru berupa perubahan ukuran per momen.
+- Tidak ada fitur hapus objek (hanya "Geser"); gameplay terintegrasi tidak memakai input tangan kecuali opt-in "Kontrol tangan"; akhir permainan setelah Level 3 belum ada.
+- Nomor versi 0.0.13 hanya usulan; belum menaikkan `package.json` (0.2.0).
+
+### BLOCKED (bukan di tangan sisi frontend/game)
+- Model klasifikasi REAL, endpoint/auth/skema/vocabulary/versi model, logging backend/DB/dashboard, kebijakan consent/PII: Partner PA (lihat `PARTNER_CONTRACT_ACTUAL.md`). Tangan/webcam fisik: butuh hardware + penguji. Evaluasi siswa: belum ada, tidak dikarang.
+
 ## [0.0.12] - 2026-11-02 — Perbaikan Visual Viewport, Pembukaan Alur Level Ribbon & Teardown Kaplay Zero Error (Milestone efbb3cb)
 
 - **Perbaikan Ground Viewport Gap:** Memperpanjang path SVG tebing kiri dan kanan di `src/components/stage-preview/StageArtwork.tsx` (`v220H0z` dan `v220H356z`) sehingga menutup void gap vertikal ~112px saat diskalakan pada rasio 16:9, dengan tetap menjaga `viewBox="0 0 490 325"` dan kepatuhan uji visual.

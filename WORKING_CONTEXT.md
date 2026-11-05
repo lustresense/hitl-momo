@@ -1,70 +1,43 @@
 # Working Context
 
-Last updated: 2026-08-27
+Last updated: 2026-11-05 (sesi eksekusi teknis; diperbarui oleh IT ORCHESTRATOR atas permintaan Owner)
 
-## Active objective
+## NOW (baca ini dulu)
 
-UI Redesign campaign complete and reconciled. All implementation cards reviewed and verified. Engineering state is green. Next phase: CAN visual audit of the new Unified Research Dashboard and MediaPipe camera manual QA.
+- **Branch kerja:** `claude/pa-sketchbook-universe-fs0dbf` (lokal, BELUM di-push; baseline `54ebec1`; `can` tidak disentuh). Rincian lengkap + prompt lanjut sesi: `implementation/docs/execution/SESSION_HANDOFF.md`.
+- **Status:** prototype playable end-to-end dengan prediksi MOCK. Onboarding -> L1 -> L2 (2 objek) -> L3 menang dengan input mouse/keyboard asli; jalur gagal/retry/Redraw/geser terbukti. 548/548 unit test, tsc, lint, build, E2E journey + recovery (16/16) + hand-control (6/6, kamera palsu) + MediaPipe init lulus (commit teruji `383c3bc`, evidence `implementation/docs/execution/evidence/final-383c3bc/`).
+- **Yang paling baru dikerjakan:** (1) Momo = artwork animasi Owner, besar dan bebas, lebih besar dari Thinman; (2) panel Top-3 dikecilkan, keputusan langsung berlaku, pop-up "Masukkan ke dunia", pop-up sukses di dalam dunia dengan latar digelapkan; (3) tombol "Gambar lagi" digabung, "Petunjuk misi" ke kanan atas, switch Mouse|Kamera, label demo kalimat biasa; (4) modularisasi kode tanpa perubahan perilaku; (5) rapikan branch jadi satu.
+- **Menunggu Owner:** nama+email commit (agar Claude tidak tercatat sebagai kontributor), nama branch GitHub (usulan `pa/frontend-integrated-2026-11`), pilihan evidence (apa adanya / bersih), izin tulis ulang riwayat lokal, lalu persetujuan push. Owner juga akan memberi "prompt revisi besar" berikutnya.
+- **PERINGATAN:** commit hanya ada di container sesi ini. Sesi baru = clone baru dari remote -> kerja ini HILANG kalau belum di-push (atau diekspor). Jangan ganti sesi sebelum push disetujui.
 
-## Current operating model
+## Operating model
 
-- `CAN(USER)` is Project Owner / Product & R&D Lead / Final Approver.
-- R&D AI prepares requirements, research reasoning, PRDs, and audits.
-- Dola produces visual R&D/references.
-- Direct IT harness with no delegated role is an orchestrator.
-- Explicit `ROLE: WORKER` makes the current session a worker.
-- Workers return results; orchestrators promote validated project-state/memory updates.
+- `CAN(USER)` = Project Owner / Product & R&D Lead / Final Approver. Ujang = infrastruktur, `can`, backup, deploy (jangan disentuh).
+- Direct IT harness tanpa role delegasi = orchestrator; `ROLE: WORKER` eksplisit = worker. Worker mengembalikan hasil; orchestrator mempromosikan state tervalidasi.
+- Governance (`INSTRUCTION.md`, `CHANGELOG.md`, `SOURCE_OF_TRUTH.md`, `AGENTS.md`) hanya diubah dengan persetujuan Owner. Entri 0.0.13 di CHANGELOG ditulis atas permintaan eksplisit Owner (nomor versi usulan).
 
-See `docs/team/`.
+## Current implementation state (verified from source/tests)
 
-## Current implementation state (verified from source)
+- Next.js 14 static export, React 18, KAPLAY 3001 (gameplay), `@mediapipe/tasks-vision` (tangan), gsap (Momo + ribbon), vitest, playwright-core. Arsitektur aktual: `implementation/docs/execution/ARCHITECTURE_ACTUAL.md`. Cara menjalankan: `RUN_GUIDE.md`.
+- Sistem visual (oranye/hijau/dots/outline) DIKUNCI Owner; jangan ganti palet/tipografi/background. Redesign yang ditolak ada di branch lokal `claude/tolol`.
+- Prediksi: MOCK (`MockPredictionProvider`, label "Demo: tebakan simulasi"). `PartnerHttpProvider` adalah adapter saja, belum ada model/endpoint nyata.
+- Logging: sink DEV console; sink HTTP batch (offline/retry) mati kecuali `NEXT_PUBLIC_EVENT_ENDPOINT` diisi; tanpa stroke dan nomor absen secara default.
+- Input: pointer; MediaPipe pinch untuk menggambar; gameplay: keyboard / tombol layar / opt-in "Kontrol tangan" lewat `InputArbiter`. Tangan nyata BELUM diuji.
+- Gameplay: coyote time + jump buffer 100 ms (belum diratifikasi Owner).
 
-- **Framework:** Next.js 14.2.35 (App Router, static export) — present in source, not yet a governed decision.
-- **UI:** React 18.3.1 + TypeScript 5.6 (strict)
-- **Design System:** Applied 'Junior Illustrator's Field Desk' design with custom CSS tokens, tactile buttons, dossier grid, stamp badges, and Momo comic bubble (from task t_cfd4898e).
-- **Game engine:** KAPLAY.js 3001 (client-only, `global: false`)
-- **Hand tracking:** `@mediapipe/tasks-vision` 0.10 (HandLandmarker, pinch gesture)
-- **Testing:** Vitest 2.1 + Playwright-core (E2E)
-- **Lint:** ESLint + next/core-web-vitals
+## Open items (urut kira-kira prioritas)
 
-These are current implementation choices made by workers; they are not yet ratified as final product/engineering decisions.
-
-## Known verification failures
-
-- ~~Typecheck: FAIL — TS2882~~ **FIXED** (added CSS module declaration)
-- ~~Tests: 1 failed out of 10~~ **RESOLVED** (component test restored; 10/10 test files pass, 67/67 tests)
-- ~~E2E: Not yet run (Linux environment, requires manual)~~ **RESOLVED** (E2E 19/19 checks PASS, exit 0)
-- ~~Final browser/visual QA: Not run~~ **RESOLVED** (19 screenshots, all core flows verified, mobile viewport fix applied)
-- ~~UI Redesign: Not applied~~ **APPLIED** (complete "Junior Illustrator's Field Desk" design system, all 10 anti-slop tells eliminated, typecheck/tests/lint/build/E2E PASS)
-- ~~Reconciliation: Pending~~ **COMPLETE** (all 6 implementation cards reviewed and promoted)
-- **MediaPipe camera:** Code integrated but physical camera verification pending (manual QA)
-- **CAN visual audit:** Pending — review new design system in browser at http://100.115.156.202:3000
-
-## Immediate next steps
-
-- **Evidence correction:** Genuine fallback/danger screenshots verified and accepted; false claims retracted. Corrected evidence at `.ops/results/t_abac7f8e/screenshots/`.
-1. **CAN visual audit** — review the "Junior Illustrator's Field Desk" design system in browser (http://100.115.156.202:3000)
-2. **Physical camera (MediaPipe) manual QA** — webcam test
-3. After approval: final screenshots for proposal and academic presentation materials
-
-## Preview
-
-- **NetBird URL:** http://100.115.156.202:3000
-- **Cloudflare tunnel:** intentionally removed
-- **Screenshots:** `.ops/results/t_a5a6455c/screenshots/` (10 states, desktop & mobile)
-
-## Backup
-
-Backup is intentionally **copy-only**, not mirror-sync:
-- use rclone `copy`;
-- preview with `--dry-run`;
-- never use `rclone sync` from project tooling;
-- remote-only/stale files are not automatically deleted.
-
-See `docs/backup/BACKUP_POLICY.md`.
+1. Push aman ke GitHub (branch baru, bukan `can`) + identitas commit (lihat NOW).
+2. Revisi besar dari Owner (prompt belum diterima saat catatan ini ditulis).
+3. Momo "maju-mundur" yang benar-benar bergerak (mengikuti Thinman/menjauh-mendekat layar); saat ini hanya ukuran per momen.
+4. Ratifikasi coyote time; fitur hapus objek; akhir permainan setelah L3; layout 390 px belum dicek di HP.
+5. Bersihkan sisa: class `null` di DirectionButton, `src/app/app-reducer.ts` kemungkinan tak terpakai, `e2e/run.mjs` LEGACY.
+6. BLOCKED: model nyata/logging backend (partner), webcam fisik (hardware), evaluasi siswa (Owner).
 
 ## Unresolved product/engineering items
 
-Use `project/OPEN_QUESTIONS.md`.
+Gunakan `project/OPEN_QUESTIONS.md`. Jangan menyimpulkan stack final, penggunaan kamera, arsitektur classifier, skema database, manipulasi confidence, kontrol karakter final, atau skrip level final.
 
-Do not infer final stack, MediaPipe/camera use, classifier architecture, database schema, confidence manipulation, character controls, or final level scripts.
+## Backup
+
+Backup bersifat copy-only (rclone `copy`, `--dry-run` dulu, jangan `rclone sync`). Lihat `docs/backup/BACKUP_POLICY.md`.

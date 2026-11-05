@@ -4,6 +4,8 @@ Last updated: 2026-11-05 (sesi eksekusi teknis; diperbarui oleh IT ORCHESTRATOR 
 
 ## NOW (baca ini dulu)
 
+> Versi satu halaman yang selalu diperbarui: **`NOW.md`** di root repo. Bagian di bawah adalah ringkasannya.
+
 - **Branch kerja:** `claude/pa-sketchbook-universe-fs0dbf` (lokal, BELUM di-push; baseline `54ebec1`; `can` tidak disentuh). Rincian lengkap + prompt lanjut sesi: `implementation/docs/execution/SESSION_HANDOFF.md`.
 - **Status:** prototype playable end-to-end dengan prediksi MOCK. Onboarding -> L1 -> L2 (2 objek) -> L3 menang dengan input mouse/keyboard asli; jalur gagal/retry/Redraw/geser terbukti. 548/548 unit test, tsc, lint, build, E2E journey + recovery (16/16) + hand-control (6/6, kamera palsu) + MediaPipe init lulus (commit teruji `383c3bc`, evidence `implementation/docs/execution/evidence/final-383c3bc/`).
 - **Yang paling baru dikerjakan:** (1) Momo = artwork animasi Owner, besar dan bebas, lebih besar dari Thinman; (2) panel Top-3 dikecilkan, keputusan langsung berlaku, pop-up "Masukkan ke dunia", pop-up sukses di dalam dunia dengan latar digelapkan; (3) tombol "Gambar lagi" digabung, "Petunjuk misi" ke kanan atas, switch Mouse|Kamera, label demo kalimat biasa; (4) modularisasi kode tanpa perubahan perilaku; (5) rapikan branch jadi satu.

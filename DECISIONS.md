@@ -142,7 +142,7 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 - Teknis: tidak ada (alur kerja).
 - Keputusan/ubahannya: Owner menyuruh push ("gas push") setelah wing fix (D-20261105-17), audit semua Momo, dan Momo sebagai pemandu (D-20261105-19). Push ke `origin/can` memakai environment sesi ini. Commit tetap atas nama Owner (`Farchan Deano Muhammad`, M-008); GitHub bisa menampilkan "Unverified" karena tidak ditandatangani, dan itu sengaja diterima: author tidak direset ke Claude. Push hanya terjadi karena perintah eksplisit ini; aturan "jangan push tanpa diminta" tetap berlaku untuk sesi berikutnya.
 - Mengubah entri lama: tidak ada.
-- Bukti: perintah Owner 2026-11-05 (tidak dicatat di `implementation/CHANGELOG.md` karena bukan perubahan isi `implementation/`); commit `eb27fb6`, `7466ca3`, `7a836b9` dan commit catatan ini.
+- Bukti: perintah Owner 2026-11-05 (tidak dicatat di `implementation/CHANGELOG.md` karena bukan perubahan isi `implementation/`); commit `46d2330`, `eb3c053`, `5c05cc3` dan commit catatan ini.
 - Dampak: remote `can` memuat semua kerja sesi ini; sesi baru yang di-clone dari remote ikut melihatnya.
 
 ### D-20261105-19 — Aktif (instruksi eksplisit Owner, M-016) — Momo memandu setiap halaman, dimulai dari cover

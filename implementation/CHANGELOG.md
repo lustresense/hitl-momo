@@ -43,6 +43,9 @@ Visual + flow pass on branch `can` (frontend/game). Owner mandate M-012 in `proj
 - Student ruler rebuilt: flat orange, ink ticks and labels, plain needle; the legacy gradient button skin removed (shared button used). Camera widget soft shadow replaced by a hard one.
 - Reference: neobrutalism guides agree on thick borders, flat fills and hard offset shadows on components (e.g. neubrutalism.com guide, designstudiouiux, daisyui trends), and warn that shadowing everything flattens hierarchy.
 
+### Docs
+- This file's header now states what belongs here (every change inside `implementation/`) versus the root `DECISIONS.md` (decisions and documents outside `implementation/`). No code change.
+
 ### Tests
 - vitest 549/549, tsc, lint, build; E2E normal-journey (L1-L3 with real progression), recovery 16/16, hand-control 6/6, MediaPipe probe pass. Evidence: `docs/execution/evidence/ui-pass-2026-11-05/`.
 

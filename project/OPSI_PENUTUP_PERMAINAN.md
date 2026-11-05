@@ -1,6 +1,6 @@
 # Opsi Penutup Permainan Setelah Level 3
 
-Status: **usulan untuk didiskusikan dengan dosen pembimbing**. Belum dikunci, dan belum ada perubahan pada aplikasi.
+Status: **RISET**. Bahan diskusi dengan dosen pembimbing; belum ada keputusan dan belum ada perubahan pada aplikasi.
 Disusun: 2026-11-05. Pemilik keputusan: CAN (Owner). Kandidat keputusan terkait ada di bagian 7.
 
 ## 1. Kondisi saat ini
@@ -111,7 +111,7 @@ Hierarki pengalaman yang berlaku (DECISIONS.md, Keputusan Aktif): **Interaksi �
 > ⚠️ **Kandidat perubahan keputusan terdeteksi**
 > - **Ringkasan:** Menetapkan penutup permainan setelah Level 3. Usulan: gabungan A dan B (Thinman berjalan sendiri di atas benda gambaran siswa dengan ikon keputusan), C ditunda dengan pengaman.
 > - **Entri lama yang mungkin terdampak:** butir "Level" di `DECISIONS.md` (detail skrip level belum dikunci), Lore Momo (Momo hanya menebak dan mendorong, tidak memutuskan), dan butir terbuka "akhir permainan setelah L3" di `NOW.md`.
-> - **Status bukti:** belum cukup bukti. Preferensi Owner (A digabung B) sudah dinyatakan, tetapi menunggu diskusi dengan dosen.
+> - **Status:** RISET. Preferensi Owner (A digabung B) adalah bahan kajian, bukan keputusan; menunggu diskusi dengan dosen.
 > - **Tindakan:** `DECISIONS.md` perlu ditinjau setelah diskusi. Ketik `AUDIT SEKARANG` untuk Patch Keputusan Usulan.
 
 ## 10. Sumber

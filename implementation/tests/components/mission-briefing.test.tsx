@@ -12,7 +12,7 @@ describe("MissionBriefing Component", () => {
   if (!level1) throw new Error("Missing level 1 fixture");
   const config1 = getMissionConfigForLevel(level1);
 
-  it("renders system attribution, title, goal, CONTOH DEMO badge, and examples", () => {
+  it("renders title, goal and example objects as Momo chat", () => {
     const onStartDrawing = vi.fn();
     render(
       <MissionBriefing
@@ -22,14 +22,12 @@ describe("MissionBriefing Component", () => {
       />
     );
 
-    // Attribution
-    expect(screen.getByText("SISTEM")).toBeTruthy();
     // Title
     expect(screen.getByRole("heading", { name: /Bantu Thinman menyeberang!/i })).toBeTruthy();
     // Instruction / Goal
     expect(screen.getByText(/Di depan ada celah/i)).toBeTruthy();
-    // Demo badge
-    expect(screen.getByText(/CONTOH DEMO/i)).toBeTruthy();
+    // Momo speaks the hint
+    expect(screen.getByTestId("mission-chat").textContent).toContain("Momo");
     // Examples (papan, balok, tangga derived from L1)
     expect(screen.getByText(/Balok/i)).toBeTruthy();
     expect(screen.getByText(/Papan/i)).toBeTruthy();

@@ -22,6 +22,14 @@ export function useLevelSession(route: Pick<RouteState, "setRouteNotice" | "redi
   const eventSinkRef = useRef<ReturnType<typeof createEventSink> | null>(null);
   const missionSeenLevels = useRef(new Set<string>());
   const [missionOpen, setMissionOpen] = useState(false);
+  /** The level whose story intro is playing (first entry per level per session). */
+  const [introLevel, setIntroLevel] = useState<LevelDefinition | null>(null);
+  /** The drawing page under the intro becomes visible just before the intro fades out (no blank frame). */
+  const [introRevealed, setIntroRevealed] = useState(false);
+  const revealDrawing = useCallback(() => setIntroRevealed(true), []);
+  const finishIntro = useCallback(() => setIntroLevel(null), []);
+  /** The first entry into a level per session plays Momo's story intro. */
+  const willPlayIntro = useCallback((level: LevelDefinition) => !missionSeenLevels.current.has(level.levelId), []);
 
   useEffect(
     () => () => {
@@ -63,7 +71,8 @@ export function useLevelSession(route: Pick<RouteState, "setRouteNotice" | "redi
       creationsRef.current.enterLevel(level.levelId);
       if (!missionSeenLevels.current.has(level.levelId)) {
         missionSeenLevels.current.add(level.levelId);
-        setMissionOpen(true);
+        setIntroRevealed(false);
+        setIntroLevel(level);
       }
       setController(flow);
       flow.enterLevel(level);
@@ -75,6 +84,8 @@ export function useLevelSession(route: Pick<RouteState, "setRouteNotice" | "redi
   const exitToLevels = useCallback(() => {
     controller?.exitToLevelEntry();
     creationsRef.current.clear();
+    setIntroLevel(null);
+    setMissionOpen(false);
     if (typeof window !== "undefined") window.history.pushState(null, "", "/levels");
   }, [controller]);
 
@@ -84,6 +95,11 @@ export function useLevelSession(route: Pick<RouteState, "setRouteNotice" | "redi
     creationsRef,
     missionOpen,
     setMissionOpen,
+    introLevel,
+    introRevealed,
+    revealDrawing,
+    finishIntro,
+    willPlayIntro,
     handleCreationsChange,
     enterLevel,
     exitToLevels,

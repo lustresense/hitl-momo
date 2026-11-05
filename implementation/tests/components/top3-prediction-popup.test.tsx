@@ -86,7 +86,7 @@ describe("Top3PredictionPopup Component", () => {
     );
 
     expect(screen.getByTestId("popup-evaluating")).toBeDefined();
-    expect(screen.getByText("Tebakan Momo (Top-3)")).toBeDefined();
+    expect(screen.getByText("Tebakan Momo")).toBeDefined();
     expect(screen.getByTestId("prediction-source").textContent).toContain("Demo: tebakan simulasi");
 
     // Check all 3 candidates
@@ -141,7 +141,7 @@ describe("Top3PredictionPopup Component", () => {
     expect(onCorrect).not.toHaveBeenCalled(); // opening the picker is not a decision
 
     // Tapping candidate #2 is the decision
-    fireEvent.click(screen.getByText(/#2 /));
+    fireEvent.click(document.querySelector('.correct-option[data-rank="2"]') as HTMLElement);
     expect(onCorrect).toHaveBeenCalledTimes(1);
     expect(onCorrect).toHaveBeenCalledWith(2);
   });

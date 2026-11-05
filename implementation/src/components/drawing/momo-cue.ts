@@ -8,7 +8,7 @@ export type DrawingPhase = "drawing" | "predicting" | "evaluating" | "prediction
 export interface MomoCue {
   moment: MomoMoment;
   /** `undefined` lets the bubble use its own default line for the moment. */
-  message: string | undefined;
+  message: string | string[] | undefined;
 }
 
 export function resolveMomoCue(feedback: string | null, visualPhase: DrawingPhase): MomoCue {
@@ -19,7 +19,10 @@ export function resolveMomoCue(feedback: string | null, visualPhase: DrawingPhas
     case "predicting":
       return { moment: "predicting", message: "Hmm... ini gambar apa, ya?" };
     case "evaluating":
-      return { moment: "top3-compare", message: "Aku punya tiga tebakan. Coba lihat dulu, yuk!" };
+      return {
+        moment: "top3-compare",
+        message: ["Aku punya tiga tebakan. Bandingkan dulu, ya.", "Persen bukan jaminan benar. Kamu yang memutuskan."],
+      };
     default:
       return { moment: "provider-error", message: "Hmm, aku belum bisa membaca gambarmu. Mau coba lagi?" };
   }

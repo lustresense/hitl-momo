@@ -145,91 +145,6 @@ body:has(#screen-drawing),
 
 
 
-.drawing-tools-right,
-.drawing-tools-left {
-  position: absolute !important;
-  z-index: 5 !important;
-  top: 50% !important;
-  transform: translateY(-50%) !important;
-  right: 20px !important;
-  left: auto !important;
-  width: auto !important;
-  height: auto !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  gap: 8px !important;
-  padding: 8px 6px !important;
-  border: 2px solid #111 !important;
-  border-radius: 16px !important;
-  background: #b9da8f !important;
-  box-shadow: 3px 3px 0 #111 !important;
-  user-select: none !important;
-}
-
-.drawing-tools-right .tool-btn-action,
-.drawing-tools-left .tool-btn-action {
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 3px !important;
-  width: 62px !important;
-  min-height: 52px !important;
-  padding: 6px 4px !important;
-  border: 1.5px solid #111 !important;
-  border-radius: 10px !important;
-  background: #eff3db !important;
-  box-shadow: 2px 2px 0 #111 !important;
-  cursor: pointer !important;
-  color: #23211d !important;
-  transition: all 0.12s ease !important;
-  outline: none !important;
-}
-
-.drawing-tools-right .tool-btn-action:hover,
-.drawing-tools-left .tool-btn-action:hover {
-  background: #fbf7e6 !important;
-  transform: translate(-1px, -1px) !important;
-  box-shadow: 3px 3px 0 #111 !important;
-}
-
-.drawing-tools-right .tool-btn-action:active,
-.drawing-tools-left .tool-btn-action:active {
-  transform: translate(1px, 1px) !important;
-  box-shadow: 1px 1px 0 #111 !important;
-}
-
-.drawing-tools-right .tool-btn-action.active,
-.drawing-tools-left .tool-btn-action.active {
-  background: #ef7a37 !important;
-  color: #ffffff !important;
-}
-
-.drawing-tools-right .tool-btn-action .tool-icon,
-.drawing-tools-left .tool-btn-action .tool-icon {
-  width: 24px !important;
-  height: 24px !important;
-  display: block !important;
-  flex-shrink: 0 !important;
-  stroke-width: 2.2px;
-}
-
-.drawing-tools-right .tool-btn-action .tool-label,
-.drawing-tools-left .tool-btn-action .tool-label {
-  font-size: 9.5px !important;
-  font-weight: 800 !important;
-  line-height: 1.1 !important;
-  letter-spacing: 0.02em !important;
-  text-align: center !important;
-  pointer-events: none !important;
-}
-
-.drawing-tools-right .tool-btn-action.active .tool-label,
-.drawing-tools-left .tool-btn-action.active .tool-label {
-  color: #ffffff !important;
-}
-
 .drawing-feedback {
   position: absolute !important;
   left: 50% !important;
@@ -257,13 +172,6 @@ body:has(#screen-drawing),
   align-items: flex-start !important;
 }
 
-.drawing-momo-companion .momo-bubble {
-  border: 2px solid #111 !important;
-  border-radius: 16px !important;
-  background: #eff3db !important;
-  box-shadow: 3px 3px 0 #111 !important;
-}
-
 @media (prefers-reduced-motion: reduce) {
   .drawing-momo-companion {
     transition: none !important;
@@ -284,34 +192,9 @@ body:has(#screen-drawing),
   display: none !important;
 }
 
-#screen-drawing .drawing-exit {
-  position: absolute !important;
-  bottom: 24px !important;
-  right: 24px !important;
-  left: auto !important;
-  top: auto !important;
-  z-index: 10 !important;
-}
-
-#screen-drawing .drawing-tools-right .undo-tool,
-#screen-drawing .drawing-tools-left .undo-tool {
-  cursor: pointer !important;
-}
-
 @media (max-width: 760px) {
   #screen-drawing.drawing-screen-svg { min-height: 100vh !important; }
   .drawing-top-bar { top: 10px !important; left: 10px !important; gap: 5px !important; }
   .drawing-actions-top { gap: 4px !important; padding: 5px !important; }
   .drawing-actions-top .btn { min-height: 34px !important; padding: 4px 7px !important; font-size: 12px !important; }
-  .drawing-tools-right { right: 8px !important; left: auto !important; gap: 6px !important; padding: 6px 4px !important; }
-  .drawing-tools-left { left: 8px !important; gap: 6px !important; padding: 6px 4px !important; }
-  .drawing-tools-right .tool-btn-action { width: 52px !important; min-height: 46px !important; padding: 4px 2px !important; gap: 2px !important; }
-  .drawing-tools-left .tool-btn-action { width: 52px !important; min-height: 46px !important; padding: 4px 2px !important; gap: 2px !important; }
-  .drawing-tools-right .tool-btn-action .tool-icon { width: 17px !important; height: 17px !important; }
-  .drawing-tools-left .tool-btn-action .tool-icon { width: 17px !important; height: 17px !important; }
-  .drawing-tools-right .tool-btn-action .tool-label { font-size: 8.5px !important; }
-  .drawing-tools-left .tool-btn-action .tool-label { font-size: 8.5px !important; }
-  #screen-drawing .drawing-exit { bottom: 12px !important; right: 12px !important; }
-  /* narrow fallback retained - .drawing-momo-companion display:none already above */
 }
-

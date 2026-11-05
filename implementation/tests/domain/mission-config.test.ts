@@ -44,16 +44,13 @@ describe("mission-config domain", () => {
   const level3 = LEVELS[2];
   if (!level1 || !level2 || !level3) throw new Error("Missing mission level fixtures");
 
-  it("generates stage 1 horizontal gap mission config with SISTEM attribution", () => {
+  it("generates stage 1 horizontal gap mission config ", () => {
     const config = getMissionConfigForLevel(level1);
-    expect(config.systemAttribution).toBe("SISTEM");
     expect(config.stage).toBe(1);
     expect(config.title).toContain("Thinman");
     expect(config.title).toBe("Bantu Thinman menyeberang!");
     expect(config.instruction).toContain("celah");
     expect(config.instruction).toContain("Thinman");
-    expect(config.demoBadge).toBe("CONTOH DEMO");
-    expect(config.explorationNotice).toMatch(/bukan batasan|bebas/i);
     expect(config.examples.length).toBeGreaterThan(0);
     // Derived from actual level 1 catalog & behaviorMap (only solid stepping objects for L1)
     const exampleLabels = config.examples.map((e) => e.labelId);

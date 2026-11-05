@@ -1,10 +1,10 @@
 /**
- * PULL-DOWN TRANSITION: keeps the level-entry stage mounted (and inert) for a beat while
- * #screen-drawing slides down over it, so the page swap has no blank flash behind the incoming screen.
+ * PULL-DOWN TRANSITION: keeps the level-entry stage mounted (and inert) for a beat while the level intro page
+ * falls over it, so the page swap has no blank flash behind the incoming screen.
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const ENTRY_HOLD_MS = 800;
+const ENTRY_HOLD_MS = 1300;
 
 export function useEntryHold() {
   const [entryHold, setEntryHold] = useState(false);

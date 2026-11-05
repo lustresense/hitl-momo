@@ -10,7 +10,6 @@
 .drawing-momo-companion .momo { align-items: flex-end !important; }
 
 .world-momo { max-width: min(420px, calc(100vw - 32px)); }
-.world-momo .momo-bubble { font-size: 14px; margin-bottom: 18px; }
 .world-momo-play, .world-momo-fail { left: 20px; top: 84px; }
 .world-momo-play .momo-art, .world-momo-fail .momo-art { pointer-events: auto; cursor: pointer; }
 .world-momo-place { left: 20px; top: 84px; }
@@ -23,15 +22,7 @@
 @keyframes world-dim { from { opacity: 0; } to { opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .world-win::before { animation: none; } .momo-art { transition: none; } }
 
-.mission-hint-btn { position: absolute; top: 16px; right: 16px; z-index: 130; }
 
-.input-switch { display: inline-flex; border: 2px solid #111111; border-radius: 12px; overflow: hidden; background: #fffaf0; box-shadow: 2px 2px 0 #111111; }
-.input-switch button { appearance: none; border: 0; background: transparent; font: inherit; font-weight: 700; color: #111111; padding: 8px 14px; min-height: 40px; cursor: pointer; }
-.input-switch button + button { border-left: 2px solid #111111; }
-.input-switch button[aria-pressed="true"] { background: #111111; color: #fffaf0; }
-.input-switch button:focus-visible { outline: 3px solid #df6930; outline-offset: -3px; }
 
 /* Plain sentence case for provenance labels; world Momo bubble sits beside her, not under her tail. */
 .dev-banner, .popup-badge, .popup-badge.dev-badge, .momo-prediction-source { text-transform: none !important; letter-spacing: 0 !important; }
-.world-momo .momo { align-items: flex-start; }
-.world-momo .momo-bubble { margin-top: 24px; margin-bottom: 0; }

@@ -5,13 +5,13 @@ import type { DrawingSurface } from "@/src/input";
 import { useFlowSnapshot } from "@/src/hooks/use-flow";
 import { env } from "@/src/config/env";
 import { MomoBubble } from "@/src/components/momo/MomoBubble";
+import { LevelIntro } from "@/src/components/level/LevelIntro";
 import { TutorialBrochure } from "@/src/components/onboarding/TutorialBrochure";
 import { StudentRulerSelector } from "@/src/components/onboarding/StudentRulerSelector";
 import { GlobalCamera } from "@/src/components/camera/GlobalCamera";
 import { DEFAULT_CHARACTER_NAME, resolveCharacterDisplayName } from "@/src/config/character-tokens";
 import { isLevelUnlocked } from "./level-progress";
 import { useEntryHold } from "./hooks/useEntryHold";
-import { useLevelCompletion } from "./hooks/useLevelCompletion";
 import { useLevelSession } from "./hooks/useLevelSession";
 import { useRouteState } from "./hooks/useRouteState";
 import { useRouteSync } from "./hooks/useRouteSync";
@@ -43,15 +43,15 @@ export function SketchbookApp() {
     () => (snapshot?.levelId ? getLevel(snapshot.levelId) ?? null : null),
     [snapshot?.levelId],
   );
-  useLevelCompletion(snapshot);
 
-  const { enterLevel } = session;
+  const { enterLevel, willPlayIntro } = session;
   const selectLevel = useCallback(
     (selected: LevelDefinition) => {
-      startEntryHold();
+      // The level list stays under the falling intro page only when an intro plays.
+      if (willPlayIntro(selected)) startEntryHold();
       enterLevel(selected);
     },
-    [startEntryHold, enterLevel],
+    [startEntryHold, enterLevel, willPlayIntro],
   );
 
   async function handleSubmitDrawing() {
@@ -69,6 +69,7 @@ export function SketchbookApp() {
     onboarding === "levels" &&
     (phase === "drawing" || phase === "predicting" || phase === "prediction-error" || phase === "evaluating");
   const isLevelEntry = onboarding === "levels" && (!snapshot || phase === "level-entry" || entryHold);
+  const introActive = Boolean(session.introLevel && !session.introRevealed && snapshot?.levelId === session.introLevel.levelId);
   const isGameplay =
     onboarding === "levels" && (phase === "falling" || phase === "placing" || phase === "gameplay");
 
@@ -103,6 +104,7 @@ export function SketchbookApp() {
 
           {/* Hosts the drawing canvas and the floating Top-3 HITL popup. */}
           {snapshot && isDrawingFlow && level && (
+            <div className="drawing-flow-host" data-intro={introActive ? "true" : undefined}>
             <DrawingFlowScreen
               level={level}
               snapshot={snapshot}
@@ -111,12 +113,22 @@ export function SketchbookApp() {
               providerMode={session.providerMode}
               surfaceRef={surfaceRef}
               drawingRevision={drawingRevision}
-              // Wait for the level ribbons to leave before the briefing opens (they used to overlap for ~0.8 s).
-              missionOpen={session.missionOpen && !entryHold}
+              missionOpen={session.missionOpen}
               onOpenMission={() => session.setMissionOpen(true)}
               onCloseMission={() => session.setMissionOpen(false)}
               onSubmit={() => void handleSubmitDrawing()}
               onExit={session.exitToLevels}
+            />
+            </div>
+          )}
+
+          {session.introLevel && snapshot?.levelId === session.introLevel.levelId && isDrawingFlow && (
+            <LevelIntro
+              key={session.introLevel.levelId}
+              level={session.introLevel}
+              characterDisplayName={characterDisplayName}
+              onReveal={session.revealDrawing}
+              onFinish={session.finishIntro}
             />
           )}
 
@@ -137,7 +149,7 @@ export function SketchbookApp() {
       )}
 
       {routeNotice && (
-        <div role="alert" data-testid="route-guard-notice">
+        <div role="alert" data-testid="route-guard-notice" className="route-notice">
           <MomoBubble moment="level-entry" message={routeNotice} />
         </div>
       )}

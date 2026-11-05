@@ -1,5 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import type { MissionConfig } from "../../domain/mission-config";
+import { MomoChat } from "../momo/MomoChat";
+import { Icon, objectIconFor } from "../ui/Icon";
 import styles from "./MissionBriefing.module.css";
 
 export interface MissionBriefingProps {
@@ -11,9 +13,9 @@ export interface MissionBriefingProps {
 }
 
 /**
- * SISTEM-attributed pre-canvas mission guidance modal dialog.
- * Explicitly separate from Momo dialog and independent of Top-3 floating card.
- * Accessible with role="dialog", aria-modal="true", escape handling, focus trap, focus return.
+ * Mission hint, told by Momo as chat with the helpful objects as icons (no walls of text).
+ * Independent of the Top-3 card. Accessible with role="dialog", aria-modal="true", escape handling,
+ * focus trap and focus return.
  */
 export function MissionBriefing({
   isOpen,
@@ -137,65 +139,47 @@ export function MissionBriefing({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        aria-describedby={descId}
         className={styles.modalCard}
       >
-        <div className={styles.header}>
-          <span className={styles.systemBadge}>{config.systemAttribution}</span>
-          <button
-            ref={closeBtnRef}
-            type="button"
-            className={styles.closeButton}
-            onClick={handleDismiss}
-            aria-label="Tutup Petunjuk Misi"
-          >
-            ×
-          </button>
-        </div>
+        <button
+          ref={closeBtnRef}
+          type="button"
+          className={styles.closeButton}
+          onClick={handleDismiss}
+          aria-label="Tutup Petunjuk Misi"
+        >
+          <Icon name="close" size={20} stroke={3} />
+        </button>
 
-        <h2 id={titleId} className={styles.title}>
+        <h2 id={titleId} className="visually-hidden">
           {config.title}
         </h2>
 
-        <p id={descId} className={styles.instruction}>
-          {config.instruction}
-        </p>
-
-        {config.examples.length > 0 && (
-          <div className={styles.examplesSection}>
-            <div className={styles.examplesHeader}>
-              <span className={styles.demoBadge}>{config.demoBadge}</span>
-              <span className={styles.examplesSubtitle}>
-                Benda yang bisa membantu:
-              </span>
-            </div>
-            <ul className={styles.examplesList}>
+        <MomoChat
+          lines={[config.title, config.instruction]}
+          mood="Senang"
+          avatarHeight={150}
+          typing={false}
+          testId="mission-chat"
+        >
+          {config.examples.length > 0 && (
+            <ul className={styles.examplesList} aria-label="Benda yang bisa membantu">
               {config.examples.map((item) => (
                 <li key={item.labelId} className={styles.exampleChip}>
-                  {item.icon && <span className={item.icon}>{item.icon}</span>}
+                  <Icon name={objectIconFor(item.labelId)} size={26} stroke={2.2} />
                   <span>{item.displayName}</span>
                 </li>
               ))}
             </ul>
-            <p className={styles.explorationNote}>{config.explorationNotice}</p>
-          </div>
-        )}
+          )}
+        </MomoChat>
 
         <div className={styles.actions}>
-          <button
-            ref={skipBtnRef}
-            type="button"
-            className={styles.skipButton}
-            onClick={handleDismiss}
-          >
+          <button ref={skipBtnRef} type="button" className="nb-btn nb-btn--ghost btn-small" onClick={handleDismiss}>
             Lewati
           </button>
-          <button
-            ref={primaryBtnRef}
-            type="button"
-            className={styles.primaryButton}
-            onClick={onStartDrawing}
-          >
+          <button ref={primaryBtnRef} type="button" className="nb-btn nb-btn--primary" onClick={onStartDrawing}>
+            <Icon name="pencil" size={20} />
             {config.primaryCtaLabel}
           </button>
         </div>

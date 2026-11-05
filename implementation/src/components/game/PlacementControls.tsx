@@ -1,14 +1,7 @@
 /**
  * Floating placement controls: confirm the object position and show why a position is rejected.
  */
-const containerStyle = {
-  flexDirection: "column",
-  gap: 8,
-  alignItems: "center",
-  padding: "12px 20px",
-} as const;
-
-const errorStyle = { color: "#d94336", fontSize: 12, fontWeight: 600 } as const;
+import { Icon } from "../ui/Icon";
 
 export interface PlacementControlsProps {
   confirmDisabled: boolean;
@@ -18,16 +11,17 @@ export interface PlacementControlsProps {
 
 export function PlacementControls({ confirmDisabled, placementError, onConfirm }: PlacementControlsProps) {
   return (
-    <div className="stage-floating-controls" data-testid="placement-controls" style={containerStyle}>
+    <div className="stage-floating-controls placement-controls" data-testid="placement-controls">
       <button
-        className="btn btn-primary btn-small"
+        className="nb-btn nb-btn--green"
         data-testid="btn-confirm-placement"
         disabled={confirmDisabled}
         onClick={onConfirm}
       >
-        Konfirmasi Posisi
+        <Icon name="check" size={22} stroke={3} />
+        Taruh di sini
       </button>
-      {placementError && <span style={errorStyle}>{placementError}</span>}
+      {placementError && <span className="placement-controls__error">{placementError}</span>}
     </div>
   );
 }

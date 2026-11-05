@@ -11,6 +11,8 @@ import { MissionBriefing } from "../mission/MissionBriefing";
 import type { DrawingSurface } from "@/src/input";
 import type { InputModeId } from "@/src/input/types";
 import { MomoBubble } from "../momo/MomoBubble";
+import { Icon } from "../ui/Icon";
+import { SkyBackdrop } from "../ui/SkyBackdrop";
 import { Top3PredictionPopup } from "../prediction/Top3PredictionPopup";
 import { DrawingActions } from "./DrawingActions";
 import { DrawingToolbar } from "./DrawingToolbar";
@@ -84,6 +86,7 @@ export function DrawingScreen({
       aria-label="Menggambar"
       data-drawing-active={active ? "true" : "false"}
     >
+      <SkyBackdrop />
       <DrawingToolbar
         visible={phase === "drawing"}
         onClear={() => surfaceOut.current?.clear()}
@@ -91,23 +94,26 @@ export function DrawingScreen({
         onRedo={() => surfaceOut.current?.redo()}
       />
 
-      {missionConfig && (
-        <>
+      <div className="drawing-corner">
+        {missionConfig && (
           <button
             type="button"
-            className="btn btn-small mission-hint-btn"
+            className="nb-iconbtn nb-iconbtn--accent mission-hint-btn"
             data-testid="btn-mission-hint"
             aria-label="Petunjuk Misi"
+            title="Petunjuk misi"
             onClick={onOpenMission}
           >
-            Petunjuk misi
+            <Icon name="bulb" size={26} stroke={2.2} />
           </button>
-          <MissionBriefing isOpen={missionOpen} config={missionConfig} onStartDrawing={onCloseMission} onClose={onCloseMission} />
-        </>
+        )}
+        <button type="button" className="nb-iconbtn drawing-exit" aria-label="Keluar Level" title="Keluar level" onClick={onExit}>
+          <Icon name="exit" size={24} stroke={2.2} />
+        </button>
+      </div>
+      {missionConfig && (
+        <MissionBriefing isOpen={missionOpen} config={missionConfig} onStartDrawing={onCloseMission} onClose={onCloseMission} />
       )}
-      <button type="button" className="btn btn-small btn-exit drawing-exit" onClick={onExit}>
-        Keluar Level
-      </button>
       <div
         ref={companionRef}
         className="drawing-momo-companion"
@@ -122,15 +128,10 @@ export function DrawingScreen({
 
           zIndex: 101,
           pointerEvents: "none",
-          width: `min(340px, ${momoLayout.available}px)`,
+          width: `min(480px, ${momoLayout.available}px)`,
         }}
       >
-        <MomoBubble moment={momoCue.moment} message={momoCue.message} avatarHeight={150} />
-        {isProbe && (
-          <span className="momo-prediction-source" data-testid="momo-prediction-source">
-            {predictionMode === "mock" ? "Demo: tebakan simulasi" : "Model partner"}
-          </span>
-        )}
+        <MomoBubble moment={momoCue.moment} message={momoCue.message} avatarHeight={170} typing />
       </div>
       {/* Empty, inaccessible measuring box shares the actual result CSS geometry. */}
       <div ref={geometryRef} className="prediction-hitl-geometry" data-geometry-probe="true" aria-hidden="true" />

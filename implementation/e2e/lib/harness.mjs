@@ -91,19 +91,21 @@ export async function onboardToLevels(page, base, log = () => {}) {
 }
 
 export async function enterLevel(page, stage, log = () => {}) {
-  // "Lanjut ke Level N" does a full page load straight into /levelN; otherwise pick the card.
-  const direct = await page.locator("[data-testid=draw-canvas]").waitFor({ state: "visible", timeout: 4000 }).then(() => true, () => false);
-  if (!direct) await page.locator(".level-card").nth(stage - 1).click();
-  const mission = page.locator("[role=dialog][aria-modal=true]");
-  await page.locator("[data-testid=draw-canvas]").waitFor({ state: "visible", timeout: 15000 });
-  // The briefing opens once the level ribbons have left (~0.8 s), so wait for it instead of sampling once.
-  if (await mission.waitFor({ state: "visible", timeout: 3000 }).then(() => true, () => false)) {
-    log(`L${stage}: mission briefing visible`);
-    const start = mission.getByRole("button", { name: /mulai/i });
-    if (await start.isVisible().catch(() => false)) await start.click(); else await mission.getByRole("button", { name: /Lewati/i }).click();
-    await mission.waitFor({ state: "hidden", timeout: 5000 });
-    log(`L${stage}: mission briefing dismissed`);
+  // After a win the app returns to the level list by itself; pick the card (a click auto-pulls the bookmark).
+  const card = page.locator(".level-card").nth(stage - 1);
+  await card.waitFor({ state: "visible", timeout: 20000 });
+  await page.waitForFunction(i => document.querySelectorAll(".level-card")[i]?.dataset.state !== "locked", stage - 1, { timeout: 8000 });
+  await card.click();
+  await page.locator("[data-testid=draw-canvas]").waitFor({ state: "attached", timeout: 15000 });
+  // First entry per level plays Momo's story intro; skip it with the visible control (a student can too).
+  const intro = page.locator("[data-testid=level-intro]");
+  if (await intro.waitFor({ state: "visible", timeout: 6000 }).then(() => true, () => false)) {
+    log(`L${stage}: story intro visible`);
+    await page.locator("[data-testid=intro-skip]").click();
+    await intro.waitFor({ state: "detached", timeout: 5000 });
+    log(`L${stage}: story intro skipped`);
   }
+  await page.locator("[data-testid=draw-canvas]").waitFor({ state: "visible", timeout: 15000 });
 }
 
 /** Student-like freehand scribble with trusted mouse events. `shape` varies strokes. */

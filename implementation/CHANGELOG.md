@@ -4,6 +4,30 @@ Technical changes only, newest first (old version -> new version). Product decis
 
 Entries 0.0.6-0.0.12 were moved here on 2026-11-05 from the root file that used to be called `CHANGELOG.md` (it mixed release notes with the decision log). `package.json` still says 0.2.0: align it with this numbering only when the Owner approves.
 
+## [0.0.14] - 2026-11-05
+
+Visual + flow pass on branch `can` (frontend/game). Owner mandate M-012 in `project/OWNER_MANDATES.md`. Palette, dots, outlines and hard shadows unchanged (M-003).
+
+### Added
+- One shared kit: `src/components/ui/Icon.tsx` (single icon language, hand-gesture glyphs, object glyphs, no emoji), `SkyBackdrop`, and `app/styles/96-98-kit-*.css` (one button, card, chip, toolbar). Demo notice is one tape label (`config/demo.ts` flag, remove with the mock).
+- `MomoChat`: Momo as a chat contact (name pill, bubbles with typing beat). Used for drawing cue, world, mission hint, intro, win and fail.
+- `LevelIntro` + `domain/world-intro-script.ts`: the pulled bookmark drops the world page, Momo tells where Thinman must go, then flies up while the camera follows into the sky drawing page. Skippable, once per level per session.
+- New level list (`LevelRibbonBookmark` rewrite): spiral binding, ribbons with states open/done/locked, ring pull with "tek" notches, snap + sway before the page falls, click auto-pulls, unlock animation for the ribbon a win just opened, thumb gesture cue.
+- New tutorial (`TutorialBrochure` rewrite, GSAP, transform-only): deal, fan, fly, flip, unfold; closed cards pile left (done) and right (next); new SVG illustrations; card 3 is a gesture practice with ticks.
+- `?unlock=all` (per tab) QA shortcut replaces the old "localhost opens every level" rule, so real progression is what gets tested.
+
+### Changed
+- Win = Momo chat inside the dimmed world, then the level list opens by itself (thumb cue skips the wait). No "next level"/"pilih level" buttons. Fail = Momo chat with three icon actions.
+- HUD: icon+word chips, no parenthesised text ("batu (bahaya)", "(#1)", "(Top-3)", "(86%)" removed); hint is an icon button; Top-3 card uses rank medals + star; in-world labels are pills (danger marked with "!").
+- Mission Briefing is now Momo chat with object icons (no "SISTEM"/"CONTOH DEMO"; fields removed from `MissionConfig`).
+
+### Fixed
+- Level 2 never unlocked reliably: progress was written by an effect that could miss the `complete` phase. It is now written synchronously when the win is shown (`SuccessPopup.onWin`).
+- Level-select layout overlapped the brand header; the demo label sat behind the world.
+
+### Tests
+- vitest 549/549, tsc, lint, build; E2E normal-journey (L1-L3 with real progression), recovery 16/16, hand-control 6/6, MediaPipe probe pass. Evidence: `docs/execution/evidence/ui-pass-2026-11-05/`.
+
 ## [0.0.13] - 2026-11-05
 
 Integrated execution pass on branch `claude/pa-sketchbook-universe-fs0dbf` (baseline `54ebec1`). Product decisions behind it: `DECISIONS.md` D-20261105-01..10.

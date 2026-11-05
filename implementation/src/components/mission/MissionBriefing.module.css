@@ -1,201 +1,31 @@
-/* Scoped styles for MissionBriefing modal dialog */
+/* Mission hint: Momo chat on a paper sheet. Same tokens as the rest of the kit (see app/styles/96-kit-base.css). */
 .backdrop {
-  position: fixed;
-  inset: 0;
-  background-color: rgba(15, 23, 42, 0.65);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 9999;
-  padding: 16px;
-  animation: fadeIn 0.2s ease-out;
+  position: fixed; inset: 0; z-index: 2000;
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+  background: rgba(17, 17, 17, 0.45);
+  animation: fade .2s ease-out both;
 }
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 .modalCard {
-  background: #ffffff;
-  color: #1e293b;
-  border-radius: 16px;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2), 0 8px 10px -6px rgba(0, 0, 0, 0.15);
-  max-width: 520px;
-  width: 100%;
-  padding: 24px;
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  border: 2px solid #e2e8f0;
+  position: relative; width: min(560px, 100%); max-height: calc(100vh - 32px); overflow: auto;
+  display: flex; flex-direction: column; gap: 14px; padding: 22px 22px 18px;
+  background: var(--nb-paper); border: var(--nb-border) solid var(--nb-ink); border-radius: 20px; box-shadow: 6px 6px 0 var(--nb-ink);
+  animation: rise .32s var(--nb-ease-pop) both;
 }
-
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.systemBadge {
-  background-color: #e0e7ff;
-  color: #3730a3;
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  padding: 4px 10px;
-  border-radius: 9999px;
-  text-transform: uppercase;
-}
-
 .closeButton {
-  background: transparent;
-  border: none;
-  font-size: 20px;
-  line-height: 1;
-  cursor: pointer;
-  color: #64748b;
-  padding: 4px 8px;
-  border-radius: 6px;
+  position: absolute; top: 10px; right: 10px; z-index: 2;
+  display: grid; place-items: center; width: 38px; height: 38px; padding: 0;
+  color: var(--nb-ink); background: var(--nb-paper); border: 2px solid var(--nb-ink); border-radius: 12px; box-shadow: 2px 2px 0 var(--nb-ink); cursor: pointer;
 }
-
-.closeButton:hover,
-.closeButton:focus-visible {
-  background-color: #f1f5f9;
-  color: #0f172a;
-  outline: 2px solid #3b82f6;
-}
-
-.title {
-  margin: 0;
-  font-size: 20px;
-  font-weight: 700;
-  color: #0f172a;
-  line-height: 1.3;
-}
-
-.instruction {
-  margin: 0;
-  font-size: 14px;
-  color: #334155;
-  line-height: 1.5;
-}
-
-.examplesSection {
-  background-color: #f8fafc;
-  border-radius: 12px;
-  padding: 12px 14px;
-  border: 1px solid #e2e8f0;
-}
-
-.examplesHeader {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 8px;
-}
-
-.demoBadge {
-  background-color: #fef3c7;
-  color: #92400e;
-  font-size: 10px;
-  font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 4px;
-  letter-spacing: 0.04em;
-}
-
-.examplesSubtitle {
-  font-size: 12px;
-  color: #64748b;
-  font-weight: 500;
-}
-
-.examplesList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
+.closeButton:hover { background: #fff; transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--nb-ink); }
+.closeButton:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--nb-ink); }
+.closeButton:focus-visible { outline: 3px solid var(--nb-sky); outline-offset: 3px; }
+.examplesList { display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 0; padding: 0; list-style: none; }
 .exampleChip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background-color: #ffffff;
-  border: 1px solid #cbd5e1;
-  padding: 6px 10px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #1e293b;
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 8px;
+  font-weight: 800; font-size: 14px; color: var(--nb-ink);
+  background: var(--nb-leaf); border: 2px solid var(--nb-ink); border-radius: 12px; box-shadow: 2px 2px 0 var(--nb-ink);
 }
-
-.exampleIcon {
-  font-size: 14px;
-}
-
-.explorationNote {
-  margin: 8px 0 0 0;
-  font-size: 11px;
-  color: #64748b;
-  font-style: italic;
-  line-height: 1.4;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 10px;
-  margin-top: 8px;
-}
-
-.skipButton {
-  background-color: transparent;
-  border: 1px solid #cbd5e1;
-  color: #475569;
-  font-size: 14px;
-  font-weight: 600;
-  padding: 8px 16px;
-  border-radius: 8px;
-  cursor: pointer;
-}
-
-.skipButton:hover,
-.skipButton:focus-visible {
-  background-color: #f1f5f9;
-  color: #0f172a;
-  outline: 2px solid #94a3b8;
-}
-
-.primaryButton {
-  background-color: #2563eb;
-  color: #ffffff;
-  border: none;
-  font-size: 14px;
-  font-weight: 600;
-  padding: 8px 20px;
-  border-radius: 8px;
-  cursor: pointer;
-  box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2);
-}
-
-.primaryButton:hover,
-.primaryButton:focus-visible {
-  background-color: #1d4ed8;
-  outline: 2px solid #60a5fa;
-}
-
-/* Reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-  .backdrop {
-    animation: none;
-  }
-}
+.actions { display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes rise { from { opacity: 0; transform: translateY(14px) scale(.96); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .backdrop, .modalCard { animation: none; } }

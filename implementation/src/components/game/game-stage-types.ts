@@ -46,7 +46,8 @@ export interface GameStageProps {
   phase: StagePhase;
   onOutcomeReported(o: StageOutcome): void;
   summary?: GameSummary;
-  onNextLevel?(): void;
+  /** Fired once when the win is shown: record progress here. */
+  onLevelWon?(): void;
   onBackToLevels?(): void;
   onOutcomeObserved?(o: StageOutcome): void;
   onRetry?(): void;

@@ -1,20 +1,22 @@
 /**
- * Floating header of the world stage: world title, the student's decision chip and the
- * hand-control / draw-again buttons.
+ * World HUD, top row. Left: whose world this is and what the student decided (icon + the label only).
+ * Right: hand-control toggle and "Gambar lagi". Everything is icon + short word; no parenthesised hints.
  */
+import { Icon, type IconName } from "../ui/Icon";
 import type { HumanDecision } from "@/src/domain/types";
 import type { InputMode } from "./game-stage-types";
 
-const DECISION_VERB: Record<HumanDecision["type"], string> = {
+const DECISION_ICON: Record<HumanDecision["type"], IconName> = {
+  accept: "check",
+  correct: "swap",
+  override: "pencil",
+};
+
+const DECISION_NAME: Record<HumanDecision["type"], string> = {
   accept: "Terima",
   correct: "Pilih lain",
   override: "Bukan ketiganya",
 };
-
-const titleRowStyle = { display: "flex", alignItems: "center", gap: 12 } as const;
-const titleStyle = { margin: 0, fontSize: 18, fontWeight: 800, color: "#111111" } as const;
-const chipStyle = { margin: 0 } as const;
-const actionsStyle = { display: "flex", gap: 8 } as const;
 
 export interface StageHeaderProps {
   characterName: string;
@@ -40,31 +42,43 @@ export function StageHeader({
 }: StageHeaderProps) {
   const cameraOn = mode === "camera";
   return (
-    <div className="stage-floating-header">
-      <div style={titleRowStyle}>
-        <h2 style={titleStyle}>Dunia {characterName}</h2>
-        <span className="decision-chip" style={chipStyle}>
-          {DECISION_VERB[decision.type]}: “{decision.finalLabel}”
-          {decision.type !== "override" ? ` (#${decision.sourceRank})` : ""}
+    <div className="stage-floating-header hud">
+      <div className="hud-plate nb-card">
+        <span className="hud-plate__mark" aria-hidden="true">
+          <Icon name="thinman" size={22} stroke={2.4} />
+        </span>
+        <h2 className="hud-plate__title">Dunia {characterName}</h2>
+        <span className="hud-plate__sep" aria-hidden="true" />
+        <span
+          className="nb-chip nb-chip--leaf decision-chip"
+          title={`${DECISION_NAME[decision.type]}${decision.type !== "override" ? `, peringkat ${decision.sourceRank}` : ""}`}
+        >
+          <span className="nb-chip__badge" aria-hidden="true">
+            <Icon name={DECISION_ICON[decision.type]} size={13} stroke={3.2} />
+          </span>
+          {decision.finalLabel}
         </span>
       </div>
-      <div style={actionsStyle}>
+      <div className="hud-actions">
         {integrated && (handAvailable || cameraOn) && (
           <button
-            className="btn btn-small"
+            className="nb-btn btn-small"
             data-testid="btn-hand-control"
             aria-pressed={cameraOn}
             onClick={onToggleHandControl}
           >
+            <Icon name={cameraOn ? "pointer" : "hand-draw"} size={20} />
             {cameraOn ? "Pakai keyboard" : "Kontrol tangan"}
           </button>
         )}
         {!integrated && (
-          <button className="btn btn-small" onClick={onToggleCameraNui}>
-            {cameraOn ? "Gunakan FALLBACK keyboard/pointer" : "Nyalakan Kamera NUI"}
+          <button className="nb-btn btn-small" onClick={onToggleCameraNui}>
+            <Icon name="camera" size={20} />
+            {cameraOn ? "Pakai keyboard atau pointer" : "Nyalakan kamera"}
           </button>
         )}
-        <button className="btn btn-small" data-testid="btn-draw-again" onClick={onDrawAgain}>
+        <button className="nb-btn nb-btn--primary btn-small" data-testid="btn-draw-again" onClick={onDrawAgain}>
+          <Icon name="pencil" size={20} />
           Gambar lagi
         </button>
       </div>

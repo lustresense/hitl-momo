@@ -25,9 +25,11 @@ try {
   await page.locator("button.student-number-confirm").click();
   await page.locator(".tutorial-skip").click({ timeout: 30000 });
   await page.locator(".level-card").first().click();
-  const mission = page.locator("[role=dialog][aria-modal=true]");
+  await page.locator("[data-testid=draw-canvas]").waitFor({ state: "attached", timeout: 15000 });
+  // The first entry plays Momo's story intro; skip it like a student can.
+  const intro = page.locator("[data-testid=level-intro]");
+  if (await intro.waitFor({ state: "visible", timeout: 6000 }).then(() => true, () => false)) { await page.locator("[data-testid=intro-skip]").click(); await intro.waitFor({ state: "detached", timeout: 5000 }); }
   await page.locator("[data-testid=draw-canvas]").waitFor({ timeout: 15000 });
-  if (await mission.waitFor({ state: "visible", timeout: 3000 }).then(() => true, () => false)) await mission.getByRole("button", { name: /mulai/i }).click();
   const modeBtn = page.getByTestId("btn-input-hand");
   out.stages.modeButtonVisible = await modeBtn.isVisible().catch(() => false);
   if (out.stages.modeButtonVisible) {

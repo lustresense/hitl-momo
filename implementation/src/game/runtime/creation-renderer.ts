@@ -17,11 +17,14 @@ const BEHAVIOR_COLOR = {
   other: [140, 150, 160],
 } as const;
 
+/** The label is just the word; what the object does is told by the chip's colour and a warning mark, never by brackets. */
 function labelFor(item: WorldCreation): string {
-  if (item.behavior === "danger") return `${item.label} (bahaya)`;
-  if (item.behavior === "solid") return item.label;
-  return `${item.label} (unresolved)`;
+  return item.label;
 }
+
+const INK = [17, 17, 17] as const;
+const PAPER = [255, 250, 240] as const;
+const WARN = [239, 122, 55] as const;
 
 export function createCreationRenderer(k: KAPLAYCtx, labelFont: string, isDestroyed: () => boolean) {
   /** `committed` creations get collision: solid = static body, danger = hazard, unresolved = none. */
@@ -40,11 +43,22 @@ export function createCreationRenderer(k: KAPLAYCtx, labelFont: string, isDestro
       "creation",
       { creationId: item.id, label: item.label, creationBehavior: item.behavior },
     ]);
-    art.add([
-      k.text(labelFor(item), { size: 13, font: labelFont }),
-      k.pos(0, -20),
-      k.color(item.behavior === "danger" ? 180 : 50, 40, 30),
+    // Label chip above the object: paper pill with an ink outline; danger gets an orange chip and a "!" mark.
+    const text = labelFor(item);
+    const size = 14;
+    // Proportional-font estimate: avoids a measuring pass and keeps the pill snug for short words.
+    const textWidth = text.length * size * 0.58;
+    const marked = item.behavior === "danger";
+    const pillW = Math.round(textWidth + 18 + (marked ? 18 : 0));
+    const pillH = 22;
+    const chip = art.add([
+      k.rect(pillW, pillH, { radius: 7 }),
+      k.pos(Math.round((item.w - pillW) / 2), -pillH - 8),
+      k.color(marked ? WARN[0] : PAPER[0], marked ? WARN[1] : PAPER[1], marked ? WARN[2] : PAPER[2]),
+      k.outline(2, k.rgb(INK[0], INK[1], INK[2])),
     ]);
+    if (marked) chip.add([k.text("!", { size: 15, font: labelFont }), k.pos(7, 3), k.color(INK[0], INK[1], INK[2])]);
+    chip.add([k.text(text, { size, font: labelFont }), k.pos(marked ? 24 : 9, 3), k.color(INK[0], INK[1], INK[2])]);
 
     // Authentic student hand-drawn sketch sprite (single, uniformly scaled copy).
     const spriteName = `creation-sketch-${item.id}`;

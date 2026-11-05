@@ -13,7 +13,9 @@ import type { LevelDefinition } from "@/src/domain/levels";
 import { introLines } from "@/src/domain/world-intro-script";
 import { MomoChat } from "../momo/MomoChat";
 import { StageWorld } from "../stage-preview/StageWorld";
+import { getStageGeometry } from "@/src/game/stage-geometry";
 import { Icon } from "../ui/Icon";
+import { ThinmanArt } from "../ui/ThinmanArt";
 import { SkyBackdrop } from "../ui/SkyBackdrop";
 
 /** How long the finished story stays before Momo flies up on her own. */
@@ -49,6 +51,7 @@ export function LevelIntro({ level, characterDisplayName, onReveal, onFinish }: 
   const [storyDone, setStoryDone] = useState(false);
   const [flap, setFlap] = useState(0);
   const lines = introLines(level.stage, characterDisplayName);
+  const spawn = getStageGeometry(level.stage as 1 | 2 | 3).spawn;
 
   const finish = useCallback(() => {
     if (finishedRef.current) return;
@@ -135,7 +138,11 @@ export function LevelIntro({ level, characterDisplayName, onReveal, onFinish }: 
         </div>
         <div className="intro-world">
           <div className="intro-world__art">
-            <StageWorld scene={level.stage} />
+            <StageWorld scene={level.stage} gameplay />
+            <ThinmanArt
+              className="intro-thinman"
+              style={{ left: `${(spawn.x / 800) * 100}%`, top: `${(spawn.y / 450) * 100}%` }}
+            />
           </div>
         </div>
       </div>

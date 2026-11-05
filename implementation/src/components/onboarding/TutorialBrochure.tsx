@@ -11,8 +11,8 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type PointerEvent } from "react";
 import { gsap } from "gsap";
 import { resolveCharacterDisplayName } from "@/src/config/character-tokens";
-import { STICKMAN_DEFINITION } from "@/src/game/assets/stickman-svg";
 import { Icon, type IconName } from "../ui/Icon";
+import { ThinmanArt, type ThinmanPose } from "../ui/ThinmanArt";
 import { getPrefersReducedMotion, subscribePrefersReducedMotion } from "./tutorial-motion";
 
 interface TutorialBrochureProps {
@@ -23,7 +23,6 @@ interface TutorialBrochureProps {
 
 type CardIndex = 0 | 1 | 2;
 type Tool = "draw" | "erase";
-type Pose = "stand" | "walkA" | "walkB" | "hop" | "ouch";
 
 interface Layout {
   gw: number; // guide page width (final)
@@ -50,34 +49,6 @@ function computeLayout(): Layout {
 
 const FAN_ROT = [-5, 1.5, 5.5];
 
-/* ---------- Thinman, the same figure as in the game ---------- */
-function Thinman({ pose = "stand", className }: { pose?: Pose; className?: string }) {
-  const s = STICKMAN_DEFINITION;
-  const legs: Record<Pose, string> = {
-    stand: "M0-12L-7 0M0-12L7 0",
-    walkA: "M0-12L-10 -1M0-12L6 0",
-    walkB: "M0-12L-4 0M0-12L11 -2",
-    hop: "M0-12L-5 -4M0-12L5 -4",
-    ouch: "M0-12L-9 0M0-12L9 0",
-  };
-  const arms: Record<Pose, string> = {
-    stand: "M0-25L-8-16M0-25L8-18",
-    walkA: "M0-25L-9-18M0-25L8-14",
-    walkB: "M0-25L-8-14M0-25L9-18",
-    hop: "M0-25L-10-33M0-25L10-33",
-    ouch: "M0-25L-11-30M0-25L11-30",
-  };
-  return (
-    <svg className={className} viewBox="-14 -46 28 48" aria-hidden="true" focusable="false">
-      <g fill={s.fill} stroke={s.stroke} strokeWidth={s.strokeWidth} strokeLinecap="round" strokeLinejoin="round">
-        <circle {...s.circle} />
-        <path d={`M0-28V-12${legs[pose].replace("M0-12", "M0-12")}${arms[pose]}`} />
-        {pose === "ouch" ? <path d="M-3.5-37l2 2M-1.5-37l-2 2M3.5-37l2 2M5.5-37l-2 2" strokeWidth="1.2" /> : <path d="M-3-35.5h0M3-35.5h0" strokeWidth="2.2" />}
-      </g>
-    </svg>
-  );
-}
-
 function Flag({ waving }: { waving: boolean }) {
   return (
     <svg className={`tut-flag${waving ? " is-waving" : ""}`} viewBox="0 0 60 80" aria-hidden="true" focusable="false">
@@ -92,7 +63,7 @@ function WalkPlayground({ onComplete }: { onComplete(): void }) {
   const [pos, setPos] = useState(14);
   const [moved, setMoved] = useState(false);
   const done = pos >= 76;
-  const stride = Math.floor(pos / 5) % 2 === 0 ? "walkA" : "walkB";
+  const stride: ThinmanPose = Math.floor(pos / 5) % 2 === 0 ? "walkA" : "walkB";
   function move(event: PointerEvent<HTMLDivElement>) {
     const rect = event.currentTarget.getBoundingClientRect();
     const next = Math.max(10, Math.min(78, ((event.clientX - rect.left) / rect.width) * 100));
@@ -115,7 +86,7 @@ function WalkPlayground({ onComplete }: { onComplete(): void }) {
       </svg>
       <div className="tut-walk__trail" style={{ width: `${Math.max(0, pos - 14)}%` }} aria-hidden="true" />
       <div className="tut-walk__man" style={{ left: `${pos}%` }}>
-        <Thinman pose={moved ? stride : "stand"} />
+        <ThinmanArt pose={moved ? stride : "stand"} />
       </div>
       <div className="tut-walk__flag">
         <Flag waving={done} />
@@ -155,7 +126,7 @@ function SafetyPlayground() {
           </g>
         </svg>
         <div className="tut-zone__man tut-zone__man--hop">
-          <Thinman pose="hop" />
+          <ThinmanArt pose="hop" />
         </div>
         </div>
       </section>
@@ -180,7 +151,7 @@ function SafetyPlayground() {
           </g>
         </svg>
         <div className="tut-zone__man tut-zone__man--ouch">
-          <Thinman pose="ouch" />
+          <ThinmanArt pose="ouch" />
         </div>
         </div>
       </section>

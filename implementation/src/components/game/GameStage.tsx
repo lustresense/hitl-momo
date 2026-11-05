@@ -10,6 +10,8 @@ import {getStageGeometry} from '@/src/game/stage-geometry';
 import {clientToPhysics} from '@/src/game/stage-transform';
 import type {WorldCreation} from '@/src/game/creation-store';
 import {env} from "@/src/config/env";
+import {InputArbiter} from "@/src/input/arbiter";
+import {getSharedStream} from "@/src/camera/shared-stream";
 import styles from './game-stage.module.css';
 import { resolveCharacterDisplayName } from "@/src/config/character-tokens";
 import { Icon } from "../shared/Icon";
@@ -33,6 +35,10 @@ export function GameStage(props:GameStageProps){
  const paused=useRef(false),grab=useRef(false),keys=useRef({...NEUTRAL}),dragging=useRef(false);
  const heldPointers=useRef(new Map<number,"left"|"right"|"jump">());
  const cameraInput=useRef({...NEUTRAL});
+ // Conflict rules (manual beats hand on left/right, hand lost/stale => neutral, blur releases) live in the pure arbiter.
+ const arb=useRef<InputArbiter|null>(null);
+ if(!arb.current)arb.current=new InputArbiter("gameplay");
+ const [handAvailable,setHandAvailable]=useState(false);
 
  function syncActiveDirs(){
   const pointerDirs=[...heldPointers.current.values()];
@@ -47,12 +53,18 @@ export function GameStage(props:GameStageProps){
  function sendCombinedInput(){
   const held=[...heldPointers.current.values()];
   const k=keys.current;
-  const c=(mode==="camera"&&!paused.current)?cameraInput.current:NEUTRAL;
+  const a=arb.current!;
+  for(const d of ["left","right","jump"] as const){
+   a.dispatch({type:"key",dir:d,down:Boolean(k[d])});
+   a.dispatch({type:"button",dir:d,down:held.includes(d)});
+  }
+  a.dispatch({type:"set-hand-enabled",enabled:mode==="camera"&&!paused.current});
+  const c=a.output();
   const override=(env.testHooksEnabled&&typeof window!=="undefined"?(window as any).__skbOverrideInput:null)??NEUTRAL;
   controller.current?.setInput({
-    left:k.left||held.includes("left")||c.left||override.left,
-    right:k.right||held.includes("right")||c.right||override.right,
-    jump:k.jump||held.includes("jump")||c.jump||override.jump
+    left:c.left||override.left,
+    right:c.right||override.right,
+    jump:c.jump||override.jump
   });
  }
 
@@ -80,6 +92,29 @@ export function GameStage(props:GameStageProps){
  return()=>{cancelled=true;instance?.unmount();controller.current=null;};
  // eslint-disable-next-line react-hooks/exhaustive-deps
  },[level.levelId,decision,behavior,drawingInput,retryKey]);
+
+ useEffect(()=>{
+  arb.current!.dispatch({type:"set-phase",phase:phase==="placing"?"placing":"gameplay"});
+  sendCombinedInput();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+ },[phase]);
+
+ // Hand frames older than 300 ms count as lost: the arbiter must be ticked while hand control is on.
+ useEffect(()=>{
+  if(mode!=="camera")return;
+  const id=window.setInterval(()=>{arb.current!.tick();sendCombinedInput();},100);
+  return()=>window.clearInterval(id);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+ },[mode]);
+
+ // Hand control is opt-in and only offered while the shared camera stream is live (no second permission prompt).
+ useEffect(()=>{
+  if(!props.integrated)return;
+  const check=()=>setHandAvailable(Boolean(getSharedStream()?.getVideoTracks().some(t=>t.readyState==="live")));
+  check();
+  const id=window.setInterval(check,1000);
+  return()=>window.clearInterval(id);
+ },[props.integrated]);
 
  useEffect(()=>{
  keys.current={...NEUTRAL};heldPointers.current.clear();setHeldDirs([]);
@@ -112,10 +147,11 @@ export function GameStage(props:GameStageProps){
  let cancelled=false;let driver:import("@/src/input/gameplay-hand-driver").GameplayHandDriver|null=null;
  void(async()=>{const {GameplayHandDriver}=await import("@/src/input/gameplay-hand-driver");if(cancelled)return;
  const video=document.querySelector<HTMLVideoElement>(".global-camera-host .camera-video");if(!video){setStatus("Kamera belum tersedia · NUI NOT VERIFIED");return;}
- driver=new GameplayHandDriver({video,onStatus:s=>{if(!cancelled)setStatus(s+" · NUI NOT VERIFIED");},onFrame:f=>{
+ driver=new GameplayHandDriver({video,onStatus:s=>{if(cancelled)return;setStatus(s==="tracking"?"Tangan terbaca":s==="tracking-lost"?"Tangan tidak terlihat":s==="initializing"?"Menyiapkan kamera":"Kamera gagal, pakai keyboard");if(s==="camera-unavailable"){arb.current!.dispatch({type:"camera",status:"revoked"});setMode("fallback");sendCombinedInput();}},onDiagnostic:d=>{if(cancelled)return;if(d.message)setStatus(d.message);else if(d.delegate)setStatus("Tangan ("+d.delegate+")");},onFrame:f=>{
  if(cancelled)return;setTrackingReady(f.tracked);
+ arb.current!.dispatch({type:"hand-frame",frame:{tracked:f.tracked,cursor:f.cursor?{x:f.cursor.x,y:f.cursor.y}:null,pinched:f.pinched,input:f.input}});
  if(!f.tracked){cameraInput.current={...NEUTRAL};grab.current=false;sendCombinedInput();return;}
- if(latest.current.phase==="gameplay"){cameraInput.current=paused.current?NEUTRAL:f.input;sendCombinedInput();}
+ if(latest.current.phase==="gameplay"){sendCombinedInput();}
  else if(latest.current.phase==="placing"&&f.cursor){
  if(f.pinched){
     const objWidth = geometry?.object.w ?? level.scene.gapWidth + 20;
@@ -147,6 +183,9 @@ export function GameStage(props:GameStageProps){
       </span>
     </div>
     <div className="stage-actions">
+      {props.integrated&&(handAvailable||mode==="camera")&&<button className="btn btn-small" data-testid="btn-hand-control" aria-pressed={mode==="camera"} onClick={()=>{keys.current={...NEUTRAL};heldPointers.current.clear();cameraInput.current={...NEUTRAL};setHeldDirs([]);paused.current=false;setTrackingPaused(false);setMode(mode==="camera"?"fallback":"camera");setStatus("Menyiapkan kamera");arb.current!.dispatch({type:"set-hand-enabled",enabled:mode!=="camera"});sendCombinedInput();}}>
+        {mode==="camera"?"Pakai keyboard":"Kontrol tangan"}
+      </button>}
       {!props.integrated&&<button className="btn btn-small" onClick={()=>{keys.current={...NEUTRAL};heldPointers.current.clear();cameraInput.current={...NEUTRAL};setHeldDirs([]);sendCombinedInput();setMode(mode==="camera"?"fallback":"camera");paused.current=false;setTrackingPaused(false);}}>
         {mode==="camera"?"Pakai keyboard":"Pakai kamera"}
       </button>}
@@ -307,6 +346,9 @@ export function GameStage(props:GameStageProps){
     </div>
   )}
 
+  {props.integrated&&mode==="camera"&&<div className="stage-input-status-chip chip" style={{position:"absolute",bottom:12,right:16,zIndex:150,pointerEvents:"none"}}>
+    <span role="status" data-testid="input-status">{status} (uji coba)</span>
+  </div>}
   {!props.integrated&&<div className="stage-input-status-chip chip" style={{position:"absolute",bottom:12,right:16,zIndex:150,pointerEvents:"none"}}>
     <span role="status" data-testid="input-status">{mode==="fallback"?"Mode keyboard (bukan kamera)":status}</span>
   </div>

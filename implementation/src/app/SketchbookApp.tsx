@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { LEVELS, getLevel } from "@/src/domain/levels";
 import type { DrawingSurface } from "@/src/input";
 import type { LevelDefinition } from "@/src/domain/levels";
-import { createDevConsoleSink, type InteractionEventSink } from "@/src/domain/events";
+import { createEventSink } from "@/src/events";
 import { FlowController } from "./state-machine";
 import { useFlowSnapshot } from "@/src/hooks/use-flow";
 import { createPredictionProvider, env } from "@/src/config/env";
@@ -38,6 +38,8 @@ export function SketchbookApp() {
   const snapshot = useFlowSnapshot(controller);
   // Survives GameStage unmounts during redraw/add/prediction; never browser-persisted.
   const creationsRef = useRef(new CreationStore());
+  const eventSinkRef = useRef<ReturnType<typeof createEventSink> | null>(null);
+  useEffect(() => () => { eventSinkRef.current?.flush(); eventSinkRef.current?.dispose(); }, []);
   const [drawingRevision,setDrawingRevision]=useState(0);
   const missionSeenLevels = useRef(new Set<string>());
   const [missionOpen, setMissionOpen] = useState(false);
@@ -97,7 +99,10 @@ export function SketchbookApp() {
       const w = window as unknown as Record<string, unknown>;
       w.__skbMock = provider;
     }
-    const sink: InteractionEventSink = createDevConsoleSink();
+    eventSinkRef.current?.flush();
+    eventSinkRef.current?.dispose();
+    const sink = createEventSink();
+    eventSinkRef.current = sink;
     const c = new FlowController({ provider, sink, goalCompletesLevel: true });
     creationsRef.current.enterLevel(level.levelId);
     if (!missionSeenLevels.current.has(level.levelId)) {

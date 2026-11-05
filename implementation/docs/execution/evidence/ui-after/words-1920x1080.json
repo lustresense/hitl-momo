@@ -1,0 +1,21 @@
+{
+ "01-camera": 49,
+ "02-number": 21,
+ "03-tutorial": 50,
+ "03b-tutorial-open": 50,
+ "03c-tutorial-card1-done": 50,
+ "04-levels": 20,
+ "05-mission": 61,
+ "06-drawing-empty": 20,
+ "07-drawing-ink": 20,
+ "08-predicting": 48,
+ "09-top3": 48,
+ "10-correct-picker": 54,
+ "11-override-picker": 49,
+ "12-accepted-ready": 48,
+ "13-placement": 18,
+ "14-placement-dragged": 18,
+ "15-gameplay": 20,
+ "16-fail-overlay": 23,
+ "17-success-overlay": 23
+}

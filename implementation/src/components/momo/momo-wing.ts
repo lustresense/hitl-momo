@@ -27,6 +27,8 @@ export const WING_GEOMETRY: Record<WingSide, WingGeometry> = {
 export const WING_MAX_SHIFT = 56;
 /** Angle (degrees) that maps to WING_MAX_SHIFT. */
 export const WING_FULL_ANGLE = 32;
+/** The wing never bends past this angle (the wave hello may go beyond the everyday 32). */
+export const WING_LIMIT_ANGLE = 50;
 
 function frame(side: WingSide) {
   const { a, b, tip } = WING_GEOMETRY[side];
@@ -47,7 +49,7 @@ export function wingPoint(side: WingSide, angleDeg: number, p: readonly [number,
 }
 
 function shearFactor(dTip: number, angleDeg: number): number {
-  const t = Math.max(-WING_FULL_ANGLE, Math.min(WING_FULL_ANGLE, angleDeg)) / WING_FULL_ANGLE;
+  const t = Math.max(-WING_LIMIT_ANGLE, Math.min(WING_LIMIT_ANGLE, angleDeg)) / WING_FULL_ANGLE;
   return (t * WING_MAX_SHIFT) / dTip;
 }
 

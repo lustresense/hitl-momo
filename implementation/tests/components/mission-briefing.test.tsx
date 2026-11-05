@@ -12,7 +12,7 @@ describe("MissionBriefing Component", () => {
   if (!level1) throw new Error("Missing level 1 fixture");
   const config1 = getMissionConfigForLevel(level1);
 
-  it("renders system attribution, title, goal, CONTOH DEMO badge, and examples", () => {
+  it("renders system attribution, title, one short line, example chips and exploration note", () => {
     const onStartDrawing = vi.fn();
     render(
       <MissionBriefing
@@ -27,15 +27,19 @@ describe("MissionBriefing Component", () => {
     // Title
     expect(screen.getByRole("heading", { name: /Bantu Thinman menyeberang!/i })).toBeTruthy();
     // Instruction / Goal
-    expect(screen.getByText(/Di depan ada celah/i)).toBeTruthy();
-    // Demo badge
-    expect(screen.getByText(/CONTOH DEMO/i)).toBeTruthy();
+    expect(screen.getByText(/menutup celah/i)).toBeTruthy();
+    // Examples are labelled and the student is told other objects are fine
+    expect(screen.getByText("Contoh")).toBeTruthy();
+    expect(screen.getByText(/Bebas gambar yang lain/i)).toBeTruthy();
     // Examples (papan, balok, tangga derived from L1)
     expect(screen.getByText(/Balok/i)).toBeTruthy();
     expect(screen.getByText(/Papan/i)).toBeTruthy();
     expect(screen.getByText(/Tangga/i)).toBeTruthy();
     // Primary CTA
-    const startBtn = screen.getByRole("button", { name: /Mulai Menggambar/i });
+    const startBtn = screen.getByTestId("btn-mission-start");
+    expect(startBtn.textContent).toContain("Mulai");
+    expect(screen.getByTestId("btn-mission-skip")).toBeTruthy();
+    expect(screen.getByTestId("mission-dialog").getAttribute("aria-modal")).toBe("true");
     expect(startBtn).toBeTruthy();
 
     fireEvent.click(startBtn);

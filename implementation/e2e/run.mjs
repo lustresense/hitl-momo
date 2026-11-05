@@ -78,16 +78,16 @@ try {
   /* ---------- 1. load + entry ---------- */
   await page.goto(BASE, { timeout: 60000, waitUntil: "domcontentloaded" });
   await page.waitForTimeout(1000);
-  const skipCamera = page.locator(".camera-skip");
+  const skipCamera = page.locator("[data-testid=camera-skip], .camera-skip").first();
   if (await skipCamera.isVisible({ timeout: 5000 }).catch(() => false)) {
     check("00a onboarding: camera screen renders", true);
     await skipCamera.click();
-    const confirmStudent = page.locator("button.student-number-confirm");
+    const confirmStudent = page.getByTestId("student-number-confirm");
     if (await confirmStudent.isVisible({ timeout: 5000 }).catch(() => false)) {
       check("00b onboarding: student number selector renders", true);
       await confirmStudent.click();
     }
-    const skipTutorial = page.locator(".tutorial-skip");
+    const skipTutorial = page.getByTestId("tutorial-skip");
     await skipTutorial.waitFor({ state: "visible", timeout: 15000 });
     check("00c onboarding: tutorial brochure renders", true);
     await skipTutorial.click();
@@ -96,7 +96,7 @@ try {
   await heading.waitFor({ state: "visible", timeout: 15000 });
   check("01 load: app renders", await heading.isVisible());
   check("01 load: DEV/MOCK banner", (await page.locator("#dev-banner").count()) > 0);
-  check("02 level entry: 3 cards", (await page.locator(".level-card").count()) === 3);
+  check("02 level entry: 3 cards", (await page.locator("[data-testid^=level-card-]").count()) === 3);
 
   /* ---------- helpers ---------- */
   async function drawPointer() {
@@ -104,8 +104,8 @@ try {
     await canvas.waitFor({ state: "visible", timeout: 10000 });
     await page.waitForTimeout(400);
     // Mission Briefing modal (added after this suite was written) overlays the canvas on first level entry.
-    const dlg = page.locator("[role=dialog][aria-modal=true]");
-    if (await dlg.isVisible().catch(() => false)) { await dlg.getByRole("button", { name: /mulai|lewati/i }).first().click(); await dlg.waitFor({ state: "hidden", timeout: 5000 }).catch(() => {}); }
+    const dlg = page.getByTestId("mission-dialog");
+    if (await dlg.isVisible().catch(() => false)) { await dlg.locator("[data-testid=btn-mission-start], [data-testid=btn-mission-skip]").first().click(); await dlg.waitFor({ state: "hidden", timeout: 5000 }).catch(() => {}); }
 
     // Guaranteed stroke injection via test hooks
     await page.evaluate(() => {
@@ -161,7 +161,7 @@ try {
     await playToOutcome(page);
   }
   async function submitAndAwaitTop3() {
-    const btn = page.locator("[data-testid=btn-submit-drawing], button:has-text('Tebak Gambarku')").first();
+    const btn = page.getByTestId("btn-submit-drawing");
     await btn.waitFor({ state: "visible", timeout: 10000 });
     let clicked = false;
     for (let i = 0; i < 20; i++) {
@@ -181,7 +181,7 @@ try {
         }
       });
     }
-    await page.getByRole("heading", { name: /tebakan momo/i }).waitFor({ timeout: 15000 });
+    await page.getByTestId("popup-evaluating").waitFor({ timeout: 15000 });
   }
   function mockMode(m) {
     return page.evaluate((mode) => window.__skbMock?.setMode(mode), m);
@@ -224,15 +224,15 @@ try {
   }
 
   /* ---------- Stage 1 happy path: pointer → Accept → Solid → complete ---------- */
-  await page.locator(".level-card").first().click();
+  await page.getByTestId("level-card-1").click();
   check("03 pointer drawing canvas visible", await page.locator("[data-testid=draw-canvas]").isVisible());
   await drawPointer();
   await submitAndAwaitTop3();
   check("04 mock prediction reached Top-3 screen", true);
-  check("05 Top-3 exactly 3 items", (await page.locator(".top3-item").count()) === 3);
+  check("05 Top-3 exactly 3 items", (await page.locator("[data-testid^=top3-item-]").count()) === 3);
 
   // Select Accept (rank 1) to enable Wujudkan Objek button
-  await page.getByRole("button", { name: /accept — terima peringkat 1/i }).click();
+  await page.getByTestId("btn-accept").click();
   await confirmPlacementAndPlay({ x: 340, y: 280 });
   await page.locator("[data-testid=outcome-overlay]").waitFor({ timeout: 20000 });
   const cState = await page.evaluate(() => {
@@ -250,7 +250,7 @@ try {
     };
   });
   console.log("STAGE 1 TELEMETRY AT OUTCOME:", cState);
-  const s1Title = await page.locator(".overlay-title").textContent();
+  const s1Title = await page.getByTestId("outcome-title").textContent();
   check("06 Accept → Solid success consequence (AC-03/09)", /berhasil/i.test(s1Title ?? ""), s1Title ?? "");
   await page.locator("[data-testid=btn-next]").click();
   await page.getByRole("heading", { name: /level selesai/i }).waitFor({ timeout: 8000 });
@@ -258,26 +258,26 @@ try {
 
   /* ---------- Stage 2: Correct #2, Correct #3, Redraw, repeat cycle ---------- */
   // Transition to Bab 2 after Stage 1 complete
-  const nextLevelBtn = page.locator("[data-testid=btn-next-level], button:has-text('Lanjut ke Level 2')").first();
+  const nextLevelBtn = page.getByTestId("btn-next-level");
   if (await nextLevelBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
     await nextLevelBtn.click();
   } else {
-    const backBtn = page.locator("[data-testid=btn-back-to-levels], button:has-text('Pilihan Level'), button:has-text('Kembali')").first();
+    const backBtn = page.getByTestId("btn-back-to-levels");
     if (await backBtn.isVisible({ timeout: 5000 }).catch(() => false)) await backBtn.click();
-    await page.locator(".level-card").nth(1).waitFor({ state: "visible", timeout: 10000 });
-    await page.locator(".level-card").nth(1).click();
+    await page.getByTestId("level-card-2").waitFor({ state: "visible", timeout: 10000 });
+    await page.getByTestId("level-card-2").click();
   }
   await page.waitForTimeout(2000);
 
   await drawPointer();
   await submitAndAwaitTop3();
-  await page.getByRole("button", { name: /correct — pilih peringkat lain/i }).click();
-  await page.getByRole("button", { name: /#2 ·/i }).click(); // explicit rank 2
+  await page.getByTestId("btn-correct").click();
+  await page.locator("[data-testid=correct-picker] [data-rank=\"2\"]").click(); // explicit rank 2
   await confirmPlacementAndPlay({ x: 180, y: 70 });
   await page.locator("[data-testid=outcome-overlay]").waitFor({ timeout: 20000 });
   check("07 Correct #2 resolves into gameplay (AC-04)", true);
   // Fallback/solid/failure all route back to drawing for the next cycle:
-  const t2 = await page.locator(".overlay-title").textContent();
+  const t2 = await page.getByTestId("outcome-title").textContent();
   const retryBtnVis = await page.locator("[data-testid=btn-retry-cycle]").isVisible().catch(() => false);
   const nextBtnVis = await page.locator("[data-testid=btn-next]").isVisible().catch(() => false);
   const redrawBtnVis = await page.locator("[data-testid=btn-redraw-gameplay]").isVisible().catch(() => false);
@@ -298,7 +298,7 @@ try {
   // Redraw from evaluation (AC-08): draw, submit, then redraw before deciding.
   await drawPointer();
   await submitAndAwaitTop3();
-  await page.getByRole("button", { name: /gambar ulang \(revisi\)/i }).click();
+  await page.getByTestId("btn-redraw").click();
   await page.waitForTimeout(500);
   check("10 redraw from evaluation returns to canvas", await page.locator("[data-testid=draw-canvas]").isVisible());
 
@@ -308,14 +308,14 @@ try {
   console.log("STAGE 2 ATTEMPT 2: SUBMITTING...");
   await submitAndAwaitTop3();
   console.log("STAGE 2 ATTEMPT 2: PICKING CORRECT #3...");
-  await page.getByRole("button", { name: /correct — pilih peringkat lain/i }).click();
-  await page.getByRole("button", { name: /#3 ·/i }).click();
+  await page.getByTestId("btn-correct").click();
+  await page.locator("[data-testid=correct-picker] [data-rank=\"3\"]").click();
   console.log("STAGE 2 ATTEMPT 2: CONFIRMING PLACEMENT...");
   await confirmPlacementAndPlay({ x: 280, y: 120 });
   console.log("STAGE 2 ATTEMPT 2: WAITING FOR OUTCOME OVERLAY...");
   await page.locator("[data-testid=outcome-overlay]").waitFor({ timeout: 20000 });
   check("08 Correct #3 resolves into gameplay (AC-05)", true);
-  const t3 = await page.locator(".overlay-title").textContent();
+  const t3 = await page.getByTestId("outcome-title").textContent();
   if (/gagal/i.test(t3 ?? "")) {
     await page.locator("[data-testid=btn-redraw-gameplay]").click(); // danger recovery route
     check("14 danger failure exposes redraw recovery (AC-10)", await page.locator("[data-testid=draw-canvas]").isVisible());
@@ -333,7 +333,7 @@ try {
   await page.locator("[data-testid=draw-canvas]").waitFor({ state: "visible", timeout: 10000 });
 
   // Empty-submit validation.
-  const emptySubmitBtn = page.locator("[data-testid=btn-submit-drawing], button:has-text('Tebak Gambarku')").first();
+  const emptySubmitBtn = page.getByTestId("btn-submit-drawing");
   const isSubmitDisabled = await emptySubmitBtn.isDisabled().catch(() => false);
   if (!isSubmitDisabled) {
     await emptySubmitBtn.click({ force: true, timeout: 2000 }).catch(() => {});
@@ -357,17 +357,17 @@ try {
 
   await mockMode("normal");
   await page.getByTestId("btn-retry-prediction").click();
-  await page.getByRole("heading", { name: /tebakan momo/i }).waitFor({ timeout: 10000 });
+  await page.getByTestId("popup-evaluating").waitFor({ timeout: 10000 });
 
   // Override picker excludes Top-3 labels; confirm resolves non-Top-3 label.
-  await page.getByRole("button", { name: /override — tolak semua tebakan/i }).click();
-  const optionCount = await page.locator("#override-select option").count();
+  await page.getByTestId("btn-override").click();
+  const optionCount = await page.getByTestId("override-select").locator("option").count();
   check("09 override options exclude Top-3", optionCount >= 1, `options=${optionCount}`);
-  await page.locator("#override-select").selectOption({ index: 1 });
+  await page.getByTestId("override-select").selectOption({ index: 1 });
   await page.getByTestId("override-confirm").click();
   await confirmPlacementAndPlay({ x: 200, y: 150 });
   await page.locator("[data-testid=outcome-overlay]").waitFor({ timeout: 25000 });
-  const t9 = await page.locator(".overlay-title").textContent();
+  const t9 = await page.getByTestId("outcome-title").textContent();
   if (/gagal/i.test(t9 ?? "")) {
     await page.locator("[data-testid=btn-redraw-gameplay]").click();
     check(
@@ -401,18 +401,18 @@ try {
   check("hand landmark injection produces stroke activity (TASK 05 automated part)", handOk);
 
   /* ---------- Keyboard smoke ---------- */
-  const dismissMission = async () => { const d = page.locator("[role=dialog][aria-modal=true]"); if (await d.isVisible().catch(() => false)) { await d.getByRole("button", { name: /mulai|lewati/i }).first().click(); await d.waitFor({ state: "hidden", timeout: 5000 }).catch(() => {}); } };
+  const dismissMission = async () => { const d = page.getByTestId("mission-dialog"); if (await d.isVisible().catch(() => false)) { await d.locator("[data-testid=btn-mission-start], [data-testid=btn-mission-skip]").first().click(); await d.waitFor({ state: "hidden", timeout: 5000 }).catch(() => {}); } };
   await dismissMission();
   await page.keyboard.press("Escape").catch(() => undefined);
-  const exitToLevels = page.locator("button.drawing-exit, button:has-text('Keluar Level'), [data-testid=btn-back-to-levels]").first();
+  const exitToLevels = page.locator("button.drawing-exit, [data-testid=btn-back-to-levels]").first();
   if (await exitToLevels.isVisible({ timeout: 5000 }).catch(() => false)) await exitToLevels.click();
-  await page.locator(".level-card").first().waitFor({ state: "visible", timeout: 10000 });
-  await page.locator(".level-card").first().focus();
+  await page.getByTestId("level-card-1").waitFor({ state: "visible", timeout: 10000 });
+  await page.getByTestId("level-card-1").focus();
   await page.keyboard.press("Enter");
   await page.waitForTimeout(1000);
   const kbOk = await page.locator("[data-testid=draw-canvas]").isVisible();
   await dismissMission();
-  const exitAgain = page.locator("button.drawing-exit, button:has-text('Keluar Level'), [data-testid=btn-back-to-levels]").first();
+  const exitAgain = page.locator("button.drawing-exit, [data-testid=btn-back-to-levels]").first();
   if (await exitAgain.isVisible({ timeout: 5000 }).catch(() => false)) await exitAgain.click();
   check("18 keyboard smoke: focus + Enter opens level", kbOk);
 

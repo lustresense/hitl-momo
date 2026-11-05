@@ -12,6 +12,7 @@ import type {WorldCreation} from '@/src/game/creation-store';
 import {env} from "@/src/config/env";
 import styles from './game-stage.module.css';
 import { resolveCharacterDisplayName } from "@/src/config/character-tokens";
+import { Icon } from "../shared/Icon";
 export interface GameStageProps {
  characterDisplayName?:string|null;integrated?:boolean;creations?:WorldCreation[];onCreationsChange?:(items:WorldCreation[])=>void;onCreateAnotherObject?:()=>void;
  level:LevelDefinition;behavior:ObjectBehavior;decision:HumanDecision;drawingInput:DrawingInput|null;
@@ -66,7 +67,7 @@ export function GameStage(props:GameStageProps){
  const currentMode=useRef(mode);currentMode.current=mode;
  const positionRef=useRef(position);positionRef.current=position;
  const {level,behavior,decision,drawingInput,phase}=props;
- function movePlacement(x:number,y:number=320){setPosition(x);setPlacementY(y);positionRef.current=x;const valid=controller.current?.setPlacement(x,y)??false;setPlacementError(valid?"":"Posisi di luar dunia. Geser kembali; objekmu tetap disimpan.");} if (env.testHooksEnabled && typeof window !== "undefined") { (window as any).__skbMovePlacement = (x: number, y: number) => movePlacement(x, y); }
+ function movePlacement(x:number,y:number=320){setPosition(x);setPlacementY(y);positionRef.current=x;const valid=controller.current?.setPlacement(x,y)??false;setPlacementError(valid?"":"Di luar dunia. Seret lagi, objekmu aman.");} if (env.testHooksEnabled && typeof window !== "undefined") { (window as any).__skbMovePlacement = (x: number, y: number) => movePlacement(x, y); }
 
  useEffect(()=>{
  let cancelled=false;let instance:GameController|null=null;setReady(false);setError("");
@@ -138,21 +139,22 @@ export function GameStage(props:GameStageProps){
  function reposition(){setOutcome(null);setFailReason("");controller.current?.reposition();setPosition(Number(canvas.current?.dataset.objectX??position));setPlacementY(Number(canvas.current?.dataset.objectY??320));}
  return <section id="screen-gameplay" className={props.integrated?styles.root:"screen"} data-testid="world-stage">
   <div className="stage-floating-header">
-    <div style={{display:"flex",alignItems:"center",gap:12}}>
-      <h2 style={{margin:0,fontSize:18,fontWeight:800,color:"#111111"}}>Dunia {characterName}</h2>
-      <span className="decision-chip" style={{margin:0}}>
-        {decision.type.toUpperCase()} · “{decision.finalLabel}”{decision.type!=="override"?` (#${decision.sourceRank})`:""}
+    <div className="stage-title">
+      <h2>Dunia {characterName}</h2>
+      <span className="decision-chip" data-testid="decision-chip" aria-label={`Pilihanmu: ${decision.finalLabel}`}>
+        <Icon name={decision.type==="accept"?"check":decision.type==="correct"?"swap":"pen"} size={16}/>
+        <mark>{decision.finalLabel}</mark>
       </span>
     </div>
-    <div style={{display:"flex",gap:8}}>
+    <div className="stage-actions">
       {!props.integrated&&<button className="btn btn-small" onClick={()=>{keys.current={...NEUTRAL};heldPointers.current.clear();cameraInput.current={...NEUTRAL};setHeldDirs([]);sendCombinedInput();setMode(mode==="camera"?"fallback":"camera");paused.current=false;setTrackingPaused(false);}}>
-        {mode==="camera"?"Gunakan FALLBACK keyboard/pointer":"Nyalakan Kamera NUI"}
+        {mode==="camera"?"Pakai keyboard":"Pakai kamera"}
       </button>}
-      <button className="btn btn-small" onClick={props.onRedraw}>Gambar ulang</button>
+      <button className="btn btn-small" onClick={props.onRedraw}><Icon name="brush" size={18}/>Gambar ulang</button>
     </div>
   </div>
 
-  <div className={props.integrated?styles.surface:undefined}>
+ <div className={props.integrated?styles.surface:undefined}>
   {props.integrated&&<StageWorld scene={level.stage} gameplay/>}
   <canvas
     ref={canvas}
@@ -167,24 +169,24 @@ export function GameStage(props:GameStageProps){
     onPointerCancel={()=>{dragging.current=false;}}
   />
   </div>
-  {error&&<p role="alert">{error}</p>}
-  {props.integrated&&phase==="gameplay"&&!outcome&&<button className={styles.create} data-testid="btn-create-object" onClick={props.onCreateAnotherObject}>Ciptakan objek lagi</button>}
-  {props.integrated&&(props.creations?.length??0)>0&&phase==="gameplay"&&<div className={styles.objects}>{props.creations?.map((c,i)=><button key={c.id} data-testid={`reposition-${i}`} onClick={()=>{if(controller.current?.selectCreation(c.id)){setOutcome(null);setPosition(c.x);setPlacementY(c.y);}}}>Geser {c.label} {i+1}</button>)}</div>}
+  {error&&<p role="alert" className="feedback">{error}</p>}
+  {props.integrated&&phase==="gameplay"&&(!outcome||(props.creations?.length??0)>0)&&<div className="stage-object-tray">
+    {!outcome&&<button className={`btn btn-small ${styles.create}`} data-testid="btn-create-object" onClick={props.onCreateAnotherObject}><Icon name="plus" size={18}/>Objek baru</button>}
+    {(props.creations?.length??0)>0&&<div className={styles.objects}>{props.creations?.map((c,i)=><button key={c.id} className="btn btn-small" data-testid={`reposition-${i}`} aria-label={`Pindahkan ${c.label} ${i+1}`} onClick={()=>{if(controller.current?.selectCreation(c.id)){setOutcome(null);setPosition(c.x);setPlacementY(c.y);}}}><Icon name="move" size={16}/>{c.label} {i+1}</button>)}</div>}
+  </div>}
 
   {phase==="placing"&&!error&&(
-    <div className="stage-floating-controls" data-testid="placement-controls" style={{flexDirection:"column",gap:8,alignItems:"center",padding:"12px 20px"}}>
-      <span style={{fontSize:13,fontWeight:600,color:"#23211d",textAlign:"center"}}>
-        Geser objek (drag) ke atas jurang, lalu tekan Konfirmasi
-      </span>
+    <div className="stage-floating-controls" data-testid="placement-controls">
+      <span className="placement-hint">Seret objek ke posisi</span>
       <button
-        className="btn btn-primary btn-small"
+        className="btn btn-primary btn-lg"
         data-testid="btn-confirm-placement"
         disabled={!ready||!legal}
-        onClick={()=>{const finalX = Number(canvas.current?.dataset.objectX ?? position); const finalY = Number(canvas.current?.dataset.objectY ?? placementY); if(controller.current?.commitPlacementAt(finalX, finalY)){setOutcome(null);}else{setPlacementError("Penempatan tidak legal. Objek tidak hilang.");}}}
+        onClick={()=>{const finalX = Number(canvas.current?.dataset.objectX ?? position); const finalY = Number(canvas.current?.dataset.objectY ?? placementY); if(controller.current?.commitPlacementAt(finalX, finalY)){setOutcome(null);}else{setPlacementError("Posisi belum sah. Seret ke tempat lain.");}}}
       >
-        Konfirmasi Posisi
+        <Icon name="check" size={22}/>Taruh di sini
       </button>
-      {placementError&&<span style={{color:"#d94336",fontSize:12,fontWeight:600}}>{placementError}</span>}
+      {placementError&&<span className="placement-error" role="alert">{placementError}</span>}
     </div>
   )}
 
@@ -194,7 +196,7 @@ export function GameStage(props:GameStageProps){
         <button
           className={`btn btn-small game-input-button ${heldDirs.includes("left")?"is-pressed":null}`}
           data-testid="move-left"
-          aria-label="Gerak Kiri"
+          aria-label="Gerak kiri"
           onPointerDown={e=>{
             e.preventDefault();
             try{e.currentTarget.setPointerCapture(e.pointerId);}catch{}
@@ -219,12 +221,12 @@ export function GameStage(props:GameStageProps){
           }}
           onContextMenu={e=>e.preventDefault()}
         >
-          ← Kiri
+          <Icon name="left" size={26}/>Kiri
         </button>
         <button
           className={`btn btn-small game-input-button ${heldDirs.includes("right")?"is-pressed":null}`}
           data-testid="move-right"
-          aria-label="Gerak Kanan"
+          aria-label="Gerak kanan"
           onPointerDown={e=>{
             e.preventDefault();
             try{e.currentTarget.setPointerCapture(e.pointerId);}catch{}
@@ -249,12 +251,12 @@ export function GameStage(props:GameStageProps){
           }}
           onContextMenu={e=>e.preventDefault()}
         >
-          Kanan →
+          <Icon name="right" size={26}/>Kanan
         </button>
         <button
           className={`btn btn-small game-input-button btn-primary ${heldDirs.includes("jump")?"is-pressed":null}`}
           data-testid="move-jump"
-          aria-label="Lompat / Loncat"
+          aria-label="Lompat"
           onPointerDown={e=>{
             e.preventDefault();
             try{e.currentTarget.setPointerCapture(e.pointerId);}catch{}
@@ -279,39 +281,40 @@ export function GameStage(props:GameStageProps){
           }}
           onContextMenu={e=>e.preventDefault()}
         >
-          ↑ Lompat
+          <Icon name="up" size={26}/>Lompat
         </button>
       </div>
-      <button className="btn btn-small" data-testid="btn-reposition" onClick={reposition}>Geser Ulang Objek</button>
+      <button className="btn" data-testid="btn-reposition" onClick={reposition}><Icon name="move" size={20}/>Pindah objek</button>
     </div>
   )}
 
   {outcome&&(
-    <div className="overlay" data-testid="outcome-overlay" style={{position:"absolute",top:"45%",left:"50%",transform:"translate(-50%,-50%)",zIndex:300}}>
-      <h3 className="overlay-title">{outcome==="success"?"Berhasil menyeberang!":"Gagal · kembali ke checkpoint"}</h3>
-      {outcome==="fail"&&failReason&&<p data-testid="fail-reason" style={{margin:"4px 0 14px",fontSize:13,color:"#666",fontWeight:600,textAlign:"center"}}>{failReason}</p>}
+    <div className={`overlay outcome ${outcome==="success"?"is-success":"is-fail"}`} data-testid="outcome-overlay" role="alert">
+      <span className="outcome-badge"><Icon name={outcome==="success"?"check":"x"} size={30} strokeWidth={3}/></span>
+      <h3 className="overlay-title" data-testid="outcome-title">{outcome==="success"?"Berhasil!":"Gagal"}</h3>
+      {outcome==="fail"&&failReason&&<p className="fail-reason" data-testid="fail-reason">{failReason}</p>}
       <div className="overlay-actions">
         {outcome==="success"?(
-          <button className="btn btn-primary" data-testid="btn-next" onClick={()=>props.onOutcomeReported("success")}>Lihat ringkasan</button>
+          <button className="btn btn-primary btn-lg" data-testid="btn-next" onClick={()=>props.onOutcomeReported("success")}>Lanjut</button>
         ):(
           <>
-            <button className="btn" data-testid="btn-retry-cycle" onClick={()=>{controller.current?.retry();setOutcome(null);setFailReason("");props.onRetry?.();}}>Coba dari checkpoint</button>
-            <button className="btn" data-testid="btn-reposition" onClick={reposition}>Reposisi objek yang sama</button>
-            <button className="btn" data-testid="btn-redraw-gameplay" onClick={props.onRedraw}>Gambar ulang</button>
+            <button className="btn btn-primary" data-testid="btn-retry-cycle" onClick={()=>{controller.current?.retry();setOutcome(null);setFailReason("");props.onRetry?.();}}><Icon name="retry" size={20}/>Coba lagi</button>
+            <button className="btn" data-testid="btn-reposition" onClick={reposition}><Icon name="move" size={20}/>Pindah objek</button>
+            <button className="btn" data-testid="btn-redraw-gameplay" onClick={props.onRedraw}><Icon name="brush" size={20}/>Gambar ulang</button>
           </>
         )}
       </div>
     </div>
   )}
 
-  {!props.integrated&&<div className="stage-input-status-chip" style={{position:"absolute",bottom:12,right:16,zIndex:150,fontSize:11,fontWeight:600,padding:"4px 8px",borderRadius:4,background:"rgba(255,255,255,0.85)",border:"1px solid rgba(0,0,0,0.15)",color:"#333",pointerEvents:"none"}}>
-    <span role="status" data-testid="input-status">{mode==="fallback"?"FALLBACK pointer/keyboard — BUKAN NUI TERVERIFIKASI":status}</span>
+  {!props.integrated&&<div className="stage-input-status-chip chip" style={{position:"absolute",bottom:12,right:16,zIndex:150,pointerEvents:"none"}}>
+    <span role="status" data-testid="input-status">{mode==="fallback"?"Mode keyboard (bukan kamera)":status}</span>
   </div>
   }
   {trackingPaused&&mode==="camera"&&phase==="gameplay"&&(
-    <div style={{position:"absolute",top:60,left:"50%",transform:"translateX(-50%)",zIndex:250,background:"rgba(255,255,255,0.95)",border:"1px solid #111",padding:"8px 16px",borderRadius:8,display:"flex",gap:8,alignItems:"center"}}>
-      <span style={{fontSize:13,fontWeight:700,color:"#d94336"}}>Tangan Terputus · Tracking Ditahan</span>
-      <button className="btn btn-small btn-primary" onClick={()=>{paused.current=false;setTrackingPaused(false);}}>Lanjutkan Gerakan</button>
+    <div className="overlay" style={{top:96,transform:"translateX(-50%)"}}>
+      <span className="fail-reason">Tangan tidak terlihat.</span>
+      <button className="btn btn-small btn-primary" onClick={()=>{paused.current=false;setTrackingPaused(false);}}>Lanjutkan</button>
     </div>
   )}
   <p data-testid="world-phase" style={{display:"none"}}>{phase==="falling"?"FALL_ANIMATION":phase==="placing"?"PLACE":"PLAY"}</p>

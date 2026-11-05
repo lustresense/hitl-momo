@@ -35,6 +35,12 @@ Visual + flow pass on branch `can` (frontend/game). Owner mandate M-012 in `proj
 - KAPLAY default black loading screen suppressed (a black flash over the world).
 - Intro skip is a small icon button. Evidence: `docs/execution/evidence/ui-pass-2026-11-05/` (screenshots + two videos).
 
+### Revision round 3 (neo-brutalism done properly)
+- Shadows belong to elements, never to text: every `text-shadow` / `-webkit-text-stroke` removed (cover headline, ribbon numbers, tutorial card numbers, student number). Big numbers are flat ink (or flat green/red for the student number).
+- Hard shadow only on the main containers and primary buttons; nested items (toolbar tools, Top-3 rows, chips, badges, example chips, hand circles) are flat with a border. Flat fills: confidence bars are solid, no gradients or glossy blobs.
+- Student ruler rebuilt: flat orange, ink ticks and labels, plain needle; the legacy gradient button skin removed (shared button used). Camera widget soft shadow replaced by a hard one.
+- Reference: neobrutalism guides agree on thick borders, flat fills and hard offset shadows on components (e.g. neubrutalism.com guide, designstudiouiux, daisyui trends), and warn that shadowing everything flattens hierarchy.
+
 ### Tests
 - vitest 549/549, tsc, lint, build; E2E normal-journey (L1-L3 with real progression), recovery 16/16, hand-control 6/6, MediaPipe probe pass. Evidence: `docs/execution/evidence/ui-pass-2026-11-05/`.
 

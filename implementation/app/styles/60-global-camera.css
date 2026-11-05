@@ -85,7 +85,7 @@
   background: #1e2126 !important;
   border: 3px solid #d0622a !important;
   border-radius: 14px !important;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+  box-shadow: 4px 4px 0 #111 !important;
   pointer-events: auto !important;
 }
 

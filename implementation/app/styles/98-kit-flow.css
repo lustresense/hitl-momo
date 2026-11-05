@@ -33,10 +33,10 @@
 
 .bm-content { position: absolute; left: 0; right: 0; top: 26px; display: flex; flex-direction: column; align-items: center; gap: 2px; pointer-events: none; }
 .bm-tag { font-size: 13px; font-weight: 900; letter-spacing: .18em; text-indent: .18em; color: var(--nb-ink); }
-.bm-number { font-size: clamp(64px, 12vh, 96px); font-weight: 900; line-height: .95; color: #fffaf0; -webkit-text-stroke: 3px var(--nb-ink); paint-order: stroke fill; text-shadow: 4px 4px 0 var(--nb-ink); }
-.bm-locked .bm-number { color: #efeadb; }
+.bm-number { font-size: clamp(64px, 12vh, 96px); font-weight: 900; line-height: .95; color: var(--nb-ink); }
+.bm-locked .bm-number { font-size: clamp(64px, 12vh, 96px); font-weight: 900; line-height: .95; color: var(--nb-ink); }
 .bm-name { max-width: calc(var(--bm-w, 170px) - 36px); margin-top: 4px; font-size: 14px; font-weight: 900; line-height: 1.15; color: var(--nb-ink); }
-.bm-badge { display: grid; place-items: center; width: 48px; height: 48px; margin-top: 12px; color: var(--nb-ink); background: var(--nb-paper); border: 2.5px solid var(--nb-ink); border-radius: 50%; box-shadow: 3px 3px 0 var(--nb-ink); }
+.bm-badge { display: grid; place-items: center; width: 48px; height: 48px; margin-top: 12px; color: var(--nb-ink); background: var(--nb-paper); border: 2.5px solid var(--nb-ink); border-radius: 50%; }
 .bm-done .bm-badge { background: var(--nb-green); color: #fffaf0; }
 .bm-locked .bm-badge { background: #efeadb; }
 .bm-ribbon.is-armed .bm-badge { background: var(--nb-green); color: #fffaf0; }
@@ -60,7 +60,7 @@
 .bm-ribbon.is-pulling .bm-body, .bm-ribbon.is-armed .bm-body { animation: none; }
 @keyframes bm-sway { 0%, 100% { transform: rotate(-1.1deg); } 50% { transform: rotate(1.1deg); } }
 .bm-hint { display: flex; flex-direction: column; align-items: center; gap: 2px; margin-top: 14px; color: var(--nb-ink); pointer-events: none; animation: bm-hint 1.7s ease-in-out infinite; }
-.bm-hint__hand { display: grid; place-items: center; width: 52px; height: 52px; background: var(--nb-paper); border: 2.5px solid var(--nb-ink); border-radius: 50%; box-shadow: 3px 3px 0 var(--nb-ink); }
+.bm-hint__hand { display: grid; place-items: center; width: 52px; height: 52px; background: var(--nb-paper); border: 2.5px solid var(--nb-ink); border-radius: 50%; }
 @keyframes bm-hint { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(10px); } }
 
 /* Unlock burst */
@@ -75,7 +75,7 @@
 @media (max-width: 600px) {
   .bm-brand { display: none; }
   .bm-shelf { gap: 14px; }
-  .bm-number { font-size: 48px; }
+  .bm-number { font-size: clamp(64px, 12vh, 96px); font-weight: 900; line-height: .95; color: var(--nb-ink); }
   .bm-name { font-size: 12px; }
   .bm-badge { width: 38px; height: 38px; margin-top: 8px; }
 }

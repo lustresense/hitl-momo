@@ -22,7 +22,7 @@
 .exampleChip {
   display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 8px;
   font-weight: 800; font-size: 14px; color: var(--nb-ink);
-  background: var(--nb-leaf); border: 2px solid var(--nb-ink); border-radius: 12px; box-shadow: 2px 2px 0 var(--nb-ink);
+  background: var(--nb-leaf); border: 2px solid var(--nb-ink); border-radius: 12px;
 }
 .sheet > :global(.gesture-cue) { align-self: flex-start; margin-left: 150px; }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }

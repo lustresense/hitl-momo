@@ -283,7 +283,8 @@ export function SketchbookApp() {
               key={level.levelId + String(snapshot.cyclesCompleted) + ":" + drawingRevision}
               level={level}
               missionConfig={getMissionConfigForLevel(level)}
-              missionOpen={missionOpen}
+              // Wait for the level ribbons to leave before the briefing opens (they used to overlap for ~0.8 s).
+              missionOpen={missionOpen && !entryHold}
               onOpenMission={() => setMissionOpen(true)}
               onCloseMission={() => setMissionOpen(false)}
               initialMode={env.defaultDrawInputMode}

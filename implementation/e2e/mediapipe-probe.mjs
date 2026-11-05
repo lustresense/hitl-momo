@@ -27,7 +27,7 @@ try {
   await page.locator(".level-card").first().click();
   const mission = page.locator("[role=dialog][aria-modal=true]");
   await page.locator("[data-testid=draw-canvas]").waitFor({ timeout: 15000 });
-  if (await mission.isVisible().catch(() => false)) await mission.getByRole("button", { name: /mulai/i }).click();
+  if (await mission.waitFor({ state: "visible", timeout: 3000 }).then(() => true, () => false)) await mission.getByRole("button", { name: /mulai/i }).click();
   const modeBtn = page.getByRole("button", { name: /pakai kamera/i });
   out.stages.modeButtonVisible = await modeBtn.isVisible().catch(() => false);
   if (out.stages.modeButtonVisible) {

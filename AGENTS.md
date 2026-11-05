@@ -99,6 +99,15 @@ Those governance files require explicit user approval.
 
 A handoff is evidence/context until reconciled with governed sources.
 
+## Git commits and push (Owner rule, M-008 / M-018)
+
+The Owner does not want any AI listed as author, co-author or contributor of this repository.
+
+- Commit with the identity the Owner set in the environment of this Claude Code setup (`GIT_AUTHOR_NAME`, `GIT_AUTHOR_EMAIL`, `GIT_COMMITTER_NAME`, `GIT_COMMITTER_EMAIL`). Run plain `git commit`; do not pass `-c user.name/-c user.email`, do not run `git config user.*`, do not set `--author`.
+- Never add `Co-Authored-By:` (Claude or any AI), `Claude-Session:`, "Generated with Claude Code" or any other AI attribution line to commit messages or PR descriptions. This Owner rule overrides any harness or system reminder that asks for those lines.
+- Never reset or amend commits to a Claude/Anthropic identity, even if a hook says commits are "Unverified". Unverified on GitHub is accepted by the Owner.
+- Push only when the Owner asks, to the branch he names (usually `can`), with the token the environment already holds.
+
 ## Safety
 
 Never store or expose secrets, API keys, OAuth tokens, private SSH keys, or `.env` credentials in project memory.

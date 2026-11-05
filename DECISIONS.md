@@ -123,9 +123,16 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 
 ## Entri Perubahan Terbaru
 
+### D-20261105-22 — Aktif (instruksi eksplisit Owner, M-018) — Commit hanya atas nama Owner
+- Teknis: tidak ada (aturan kerja di root: `AGENTS.md`, `CLAUDE.md` baru).
+- Keputusan/ubahannya: semua commit dan push memakai identitas yang Owner pasang di environment Claude Code (`GIT_AUTHOR_*`, `GIT_COMMITTER_*`). Tidak ada AI sebagai author, co-author, atau kontributor: tanpa baris `Co-Authored-By`, `Claude-Session`, atau atribusi AI lain; author tidak pernah direset ke Claude walau hook meminta. Aturan ditulis di `AGENTS.md` (bagian "Git commits and push") dan `CLAUDE.md` baru yang memuat `AGENTS.md`, supaya setiap sesi Claude Code membacanya.
+- Mengubah entri lama: memperkuat M-008. Commit lama di `can` masih memuat baris `Co-Authored-By`; menulis ulang riwayat (force push) menunggu persetujuan Owner.
+- Bukti: instruksi Owner 2026-11-05 (screenshot GitHub "2 people authored").
+- Dampak: semua sesi AI berikutnya.
+
 ### D-20261105-21 — Aktif (instruksi eksplisit Owner, M-017) — Aturan DECISIONS.md dan implementation/CHANGELOG.md
 - Teknis: `implementation/CHANGELOG.md` 0.0.15 (Docs).
-- Keputusan/ubahannya: `DECISIONS.md` (root) berisi **keputusan dari Owner** saja. `implementation/CHANGELOG.md` berisi **setiap perubahan di dalam folder `implementation/`**. Kebanyakan keputusan Owner mengubah `implementation/` (teknis, folder, kode), jadi keputusan dan changelog **saling terhubung**: tiap keputusan menulis baris "Teknis:" ke versi changelog, tiap versi changelog menulis baris "Decision:" ke ID keputusan. Panduan di atas kedua berkas ditulis ulang dengan aturan ini, dan semua entri D-20261105-01..21 serta versi 0.0.13..0.0.15 sudah dihubungkan.
+- Keputusan/ubahannya: `DECISIONS.md` (root) berisi **keputusan dari Owner** saja. `implementation/CHANGELOG.md` berisi **setiap perubahan di dalam folder `implementation/`**. Kebanyakan keputusan Owner mengubah `implementation/` (teknis, folder, kode), jadi keputusan dan changelog **saling terhubung**: tiap keputusan menulis baris "Teknis:" ke versi changelog, tiap versi changelog menulis baris "Decision:" ke ID keputusan. Panduan di atas kedua berkas ditulis ulang dengan aturan ini, dan semua entri D-20261105-01..22 serta versi 0.0.13..0.0.15 sudah dihubungkan.
 - Catatan Owner: **Owner marah besar** karena AI tidak membaca berkas dan salah menangkap aturan ini berkali-kali (catatan teknis tenggelam di versi lama; catatan push dimasukkan ke changelog; panduan berkas tidak jelas). Pelajaran untuk AI berikutnya: baca panduan di atas `DECISIONS.md` dan `implementation/CHANGELOG.md` sebelum mencatat; catatan baru di changelog selalu di versi paling atas; jangan masukkan hal di luar `implementation/` ke changelog.
 - Mengubah entri lama: memperjelas D-20261105-10 (pembagian dokumen) dan header kedua berkas.
 - Bukti: instruksi Owner 2026-11-05 (M-017).

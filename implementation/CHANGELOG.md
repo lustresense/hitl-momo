@@ -60,6 +60,9 @@ Visual + flow pass on branch `can` (frontend/game). Owner mandate M-012 in `proj
 - Changed: ruler (`StudentRulerSelector`), tutorial (`TutorialBrochure`: she follows the student: walk, Thinman arrived, safe or sharp, draw and undo, ready) and level list (`LevelEntryScreen`: points at the newest unlocked chapter) now each have Momo as guide.
 - Tests: `tests/domain/guide-script.test.ts`; the two GlobalCamera suites stub `MomoGuide` (they mock gsap without timelines) and pass `waveStartDelayMs={0}`. New `e2e/guide-flow.mjs` (14 checks, fake camera, trusted mouse, records video): cover asleep, wakes, greets, ruler, three tutorial cards reacting to the student, level list. Evidence: `docs/execution/evidence/momo-guide-2026-11-05/`. Owner mandate M-016, decision D-20261105-19.
 
+### Release note
+- 0.0.14 (rounds 4 and 5: Momo wings attached in every animation, Momo guides every page) pushed to `origin/can` on 2026-11-05 on the Owner's explicit instruction (D-20261105-20). Commits keep the Owner identity (M-008) and show as Unverified on GitHub by choice.
+
 ## [0.0.13] - 2026-11-05
 
 Integrated execution pass on branch `claude/pa-sketchbook-universe-fs0dbf` (baseline `54ebec1`). Product decisions behind it: `DECISIONS.md` D-20261105-01..10.

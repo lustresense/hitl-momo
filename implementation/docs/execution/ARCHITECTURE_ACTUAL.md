@@ -11,8 +11,8 @@ Static-export Next.js 14 app (no server code) + React 18 + KAPLAY 3001 (gameplay
 | Input | `src/input/*`, `src/camera/*` | `DrawingSurface` (pointer + MediaPipe pinch), normalisation to unit-square strokes, `InputArbiter` (pure conflict rules), camera stream sharing, GPU→CPU landmarker fallback |
 | Prediction | `src/prediction/*` | `PredictionProvider` interface, `MockPredictionProvider` (default, MOCK), `PartnerHttpProvider` (adapter), strict `validation.ts`, provenance |
 | Events | `src/events/*`, `src/domain/events.ts` | envelope (+ids, schema `draft-0`), console / ring-buffer / HTTP-batch sinks; HTTP off unless `NEXT_PUBLIC_EVENT_ENDPOINT` |
-| Game runtime | `src/game/*` | stage geometry (L1 gap, L2 vertical/2 objects, L3 hazard), KAPLAY runtime, placement rules, sketch renderer (student strokes → object sprite), Character A, `JumpAssist` (coyote/buffer 100 ms) |
-| UI | `src/components/*`, `app/*.css` | screens and design system |
+| Game runtime | `src/game/*`, `src/game/runtime/*` (`kaplay-runtime.ts` is a facade) | stage geometry (L1 gap, L2 vertical/2 objects, L3 hazard), KAPLAY runtime, placement rules, sketch renderer (student strokes → object sprite), Character A, `JumpAssist` (coyote/buffer 100 ms) |
+| UI | `src/components/*` (thin composition roots + `hooks/` + presentational parts: e.g. `game/{StageHeader,EnterWorldPopup,WorldMomo,SuccessPopup,FailOverlay,...}`), `src/app/{hooks,screens}`, `app/styles/*.css` (ordered partials imported by `app/globals.css`) | screens, animated Momo (`components/momo/*`), design system |
 | Config | `src/config/env.ts` | `NEXT_PUBLIC_*` getters + provider factory (never falls back from a broken partner config to MOCK) |
 
 ## Data flow

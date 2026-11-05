@@ -210,11 +210,11 @@ export function DrawingScreen({
         }}
       >
         <div className="segmented" role="group" aria-label="Cara menggambar">
-          <button type="button" aria-pressed={inputMode === "pointer"} onClick={() => void switchMode("pointer")}>
+          <button type="button" data-testid="btn-input-pointer" aria-pressed={inputMode === "pointer"} onClick={() => void switchMode("pointer")}>
             <Icon name="mouse" size={18} />
             Mouse
           </button>
-          <button type="button" aria-pressed={inputMode === "hand"} onClick={() => void switchMode("hand")}>
+          <button type="button" data-testid="btn-input-hand" aria-pressed={inputMode === "hand"} onClick={() => void switchMode("hand")}>
             <Icon name="camera" size={18} />
             Kamera
           </button>

@@ -10,9 +10,6 @@ import { createPredictionProvider, env } from "@/src/config/env";
 import { MockPredictionProvider } from "@/src/prediction/mock-prediction-provider";
 import { DevBanner } from "@/src/components/shared/DevBanner";
 import { MomoBubble } from "@/src/components/momo/MomoBubble";
-import { Top3Panel } from "@/src/components/prediction/Top3Panel";
-import { PredictingScreen } from "@/src/components/prediction/PredictingScreen";
-import { DecisionPanel } from "@/src/components/decision/DecisionPanel";
 import { GameStage } from "@/src/components/game/GameStage";
 import { CreationStore, type WorldCreation } from "@/src/game/creation-store";
 import { TutorialBrochure } from "@/src/components/onboarding/TutorialBrochure";
@@ -21,6 +18,7 @@ import { DrawingScreen } from "@/src/components/drawing/DrawingScreen";
 import { getMissionConfigForLevel } from "@/src/domain/mission-config";
 import { DEFAULT_CHARACTER_NAME, formatCharacterText, resolveCharacterDisplayName } from "@/src/config/character-tokens";
 import { GlobalCamera } from "@/src/components/camera/GlobalCamera";
+import { Icon } from "@/src/components/shared/Icon";
 import { LevelRibbonBookmark } from "@/src/components/level/LevelRibbonBookmark";
 import { LOCKED_LEVEL_NOTICE, resolveAppRoute } from "./route-guard";
 
@@ -352,48 +350,56 @@ export function SketchbookApp() {
             />
           )}
 
-          {/* COMPLETE — Two-block summary: Gameplay + AI Literacy */}
+          {/* COMPLETE — Two-block summary: what happened in the game + what the student decided */}
           {onboarding === "levels" && phase === "complete" && level && snapshot && controller && (
             <section id="screen-complete" className="screen" aria-label="Level selesai">
-              <h1>Level Selesai</h1>
-              <div className="summary-two-block">
-                <div className="summary-block summary-gameplay">
-                  <h2>Hasil gameplay</h2>
-                  <p>{formatCharacterText(level.summary?.gameplay ?? "Kamu berhasil menyelesaikan level ini!", characterDisplayName)}</p>
+              <div className="summary-sheet">
+                <h1>Level selesai</h1>
+                <div className="summary-two-block">
+                  <div className="summary-block summary-gameplay">
+                    <h2>Hasilmu</h2>
+                    <p>{formatCharacterText(level.summary?.gameplay ?? "Kamu berhasil menyelesaikan level ini!", characterDisplayName)}</p>
+                  </div>
+                  <div className="summary-block summary-literacy">
+                    <h2>Keputusanmu</h2>
+                    {snapshot.decision ? (
+                      <p className="decision-recap" data-testid="decision-recap">
+                        <Icon name={snapshot.decision.type === "accept" ? "check" : snapshot.decision.type === "correct" ? "swap" : "pen"} size={20} />
+                        <span>{DECISION_VERB[snapshot.decision.type]}</span>
+                        <mark>{snapshot.decision.finalLabel}</mark>
+                      </p>
+                    ) : null}
+                    <p className="note">{level.summary?.literacy ?? "AI memberi saran, kamu yang memutuskan."}</p>
+                  </div>
                 </div>
-                <div className="summary-block summary-literacy">
-                  <h2>Literasi AI</h2>
-                  <p>Keputusan terakhir: {snapshot.decision?.type ?? "—"}, label {snapshot.decision?.finalLabel ?? "—"}. </p>
-                  <p>{level.summary?.literacy ?? "AI memberi saran, kamu yang memutuskan."}</p>
-                </div>
-              </div>
-              <MomoBubble moment="level-complete" />
-              <div className="actions" style={{ display: "flex", gap: 12, justifyContent: "center", marginTop: 16 }}>
-                <button
-                  type="button"
-                  className="btn"
-                  data-testid="btn-back-to-levels"
-                  onClick={() => {
-                    controller.exitToLevelEntry();
-                    creationsRef.current.clear();
-                    window.history.pushState(null, "", "/levels");
-                  }}
-                >
-                  Pilih Level
-                </button>
-                {level.stage < 3 && (
+                <MomoBubble moment="level-complete" />
+                <div className="summary-actions">
                   <button
                     type="button"
-                    className="btn btn-primary"
-                    data-testid="btn-next-level"
+                    className="btn btn-lg"
+                    data-testid="btn-back-to-levels"
                     onClick={() => {
-                      const nextStage = level.stage + 1;
-                      window.location.href = `/level${nextStage}`;
+                      controller.exitToLevelEntry();
+                      creationsRef.current.clear();
+                      window.history.pushState(null, "", "/levels");
                     }}
                   >
-                    Lanjut ke Level {level.stage + 1} →
+                    Pilih level
                   </button>
-                )}
+                  {level.stage < 3 && (
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-lg"
+                      data-testid="btn-next-level"
+                      onClick={() => {
+                        const nextStage = level.stage + 1;
+                        window.location.href = `/level${nextStage}`;
+                      }}
+                    >
+                      Level {level.stage + 1}
+                    </button>
+                  )}
+                </div>
               </div>
             </section>
           )}
@@ -402,7 +408,7 @@ export function SketchbookApp() {
       )}
 
       {routeNotice && (
-        <div role="alert" data-testid="route-guard-notice">
+        <div role="alert" className="route-notice" data-testid="route-guard-notice">
           <MomoBubble moment="level-entry" message={routeNotice} />
         </div>
       )}
@@ -425,18 +431,13 @@ export function SketchbookApp() {
   );
 }
 
+const DECISION_VERB = { accept: "Terima", correct: "Pilih lain", override: "Ganti sendiri" } as const;
+
 function Shell({ mode, onboarding = false, children }: { mode: "mock" | "partner"; onboarding?: boolean; children: React.ReactNode }) {
   return (
     <div id="app" className={onboarding ? "onboarding-app" : undefined}>
-      <header className="app-header">
-        <div className="brand">
-          <span className="brand-mark" aria-hidden="true" />
-          <span className="brand-name">Sketchbook Universe</span>
-        </div>
-        <DevBanner mode={mode} />
-      </header>
       <main id="screens">{children}</main>
-      <footer className="app-footer" />
+      <DevBanner mode={mode} />
     </div>
   );
 }

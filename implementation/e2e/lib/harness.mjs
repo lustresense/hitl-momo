@@ -80,26 +80,27 @@ export const takeFrames = page => page.evaluate(() => { const f = window.__rec?.
 
 export async function onboardToLevels(page, base, log = () => {}) {
   await page.goto(base, { waitUntil: "domcontentloaded", timeout: 45000 });
-  const skip = page.locator(".camera-skip");
+  // camera-skip lives in the camera widget (other worker): testid when present, class as fallback.
+  const skip = page.locator("[data-testid=camera-skip], .camera-skip").first();
   await skip.waitFor({ state: "visible", timeout: 30000 });
   await skip.click();
   try { await page.waitForURL(u => u.pathname === "/onboarding/number", { timeout: 4000 }); }
   catch { await skip.click().catch(() => {}); await page.waitForURL(u => u.pathname === "/onboarding/number", { timeout: 8000 }); }
-  await page.locator("button.student-number-confirm").click(); log("onboarding: student number confirmed");
-  await page.locator(".tutorial-skip").click({ timeout: 30000 }); log("onboarding: tutorial skipped via visible button");
-  await page.locator(".level-card").first().waitFor({ state: "visible", timeout: 30000 });
+  await page.getByTestId("student-number-confirm").click(); log("onboarding: student number confirmed");
+  await page.getByTestId("tutorial-skip").click({ timeout: 30000 }); log("onboarding: tutorial skipped via visible button");
+  await page.getByTestId("level-card-1").waitFor({ state: "visible", timeout: 30000 });
 }
 
 export async function enterLevel(page, stage, log = () => {}) {
   // "Lanjut ke Level N" does a full page load straight into /levelN; otherwise pick the card.
   const direct = await page.locator("[data-testid=draw-canvas]").waitFor({ state: "visible", timeout: 4000 }).then(() => true, () => false);
-  if (!direct) await page.locator(".level-card").nth(stage - 1).click();
-  const mission = page.locator("[role=dialog][aria-modal=true]");
+  if (!direct) await page.getByTestId(`level-card-${stage}`).click();
+  const mission = page.getByTestId("mission-dialog");
   await page.locator("[data-testid=draw-canvas]").waitFor({ state: "visible", timeout: 15000 });
   if (await mission.isVisible().catch(() => false)) {
     log(`L${stage}: mission briefing visible`);
-    const start = mission.getByRole("button", { name: /mulai/i });
-    if (await start.isVisible().catch(() => false)) await start.click(); else await mission.getByRole("button", { name: /Lewati/i }).click();
+    const start = mission.getByTestId("btn-mission-start");
+    if (await start.isVisible().catch(() => false)) await start.click(); else await mission.getByTestId("btn-mission-skip").click();
     await mission.waitFor({ state: "hidden", timeout: 5000 });
     log(`L${stage}: mission briefing dismissed`);
   }
@@ -123,26 +124,27 @@ export async function drawScribble(page, shape = "block") {
 
 /** mode: "auto" (Accept/Correct/Override as needed to reach `prefer`), "accept" (rank 1 whatever it is),
  *  "override" (reject Top-3 and pick the first of `prefer` list present in the override vocabulary). */
-export async function submitAndDecide(page, { prefer = "balok", mode = "auto", log = () => {} } = {}) {
+export async function submitAndDecide(page, { prefer = "balok", mode = "auto", log = () => {}, beforeDecide } = {}) {
   const submit = page.locator("[data-testid=btn-submit-drawing]");
   await submit.waitFor({ state: "visible", timeout: 10000 });
   await submit.click();
-  await page.getByRole("heading", { name: /tebakan momo/i }).waitFor({ timeout: 15000 });
-  const labels = (await page.locator(".top3-item .label").allTextContents()).map(x => x.replace(/⭐.*$/s, "").trim());
+  await page.getByTestId("popup-evaluating").waitFor({ timeout: 15000 });
+  const labels = (await page.getByTestId("top3-label").allTextContents()).map(x => x.trim());
   log(`Top-3 (MOCK provider): ${JSON.stringify(labels)}`);
+  if (beforeDecide) await beforeDecide(labels);
   const rank = labels.findIndex(x => x.toLowerCase() === prefer) + 1;
   let decision;
-  if (mode === "accept") { await page.getByRole("button", { name: /accept — terima peringkat 1/i }).click(); decision = { type: "Accept", rank: 1, label: labels[0] }; }
+  if (mode === "accept") { await page.getByTestId("btn-accept").click(); decision = { type: "Accept", rank: 1, label: labels[0] }; }
   else if (mode === "override") {
-    await page.getByRole("button", { name: /override — tolak semua tebakan/i }).click();
-    const opts = await page.locator("#override-select option").evaluateAll(xs => xs.map(x => x.value).filter(Boolean));
+    await page.getByTestId("btn-override").click();
+    const opts = await page.getByTestId("override-select").locator("option").evaluateAll(xs => xs.map(x => x.value).filter(Boolean));
     const wanted = [].concat(prefer).find(p => opts.includes(p)) ?? opts[0];
-    await page.locator("#override-select").selectOption(wanted); await page.getByTestId("override-confirm").click();
+    await page.getByTestId("override-select").selectOption(wanted); await page.getByTestId("override-confirm").click();
     decision = { type: "Override", label: wanted, optionsOffered: opts };
   }
-  else if (rank === 1) { await page.getByRole("button", { name: /accept — terima peringkat 1/i }).click(); decision = { type: "Accept", rank, label: prefer }; }
-  else if (rank > 1) { await page.getByRole("button", { name: /correct — pilih peringkat lain/i }).click(); await page.locator(`[data-testid=correct-picker] [data-rank="${rank}"]`).click(); decision = { type: "Correct", rank, label: prefer }; }
-  else { await page.getByRole("button", { name: /override — tolak semua tebakan/i }).click(); await page.locator("#override-select").selectOption(prefer); await page.getByTestId("override-confirm").click(); decision = { type: "Override", label: prefer }; }
+  else if (rank === 1) { await page.getByTestId("btn-accept").click(); decision = { type: "Accept", rank, label: prefer }; }
+  else if (rank > 1) { await page.getByTestId("btn-correct").click(); await page.locator(`[data-testid=correct-picker] [data-rank="${rank}"]`).click(); decision = { type: "Correct", rank, label: prefer }; }
+  else { await page.getByTestId("btn-override").click(); await page.getByTestId("override-select").selectOption(prefer); await page.getByTestId("override-confirm").click(); decision = { type: "Override", label: prefer }; }
   log(`decision: ${JSON.stringify(decision)}`);
   return { labels, decision };
 }

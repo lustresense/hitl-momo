@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { LevelContext, PredictionResult } from "@/src/domain/types";
+import { Icon } from "../shared/Icon";
 
 export interface DecisionPanelProps {
   prediction: PredictionResult;
@@ -9,14 +10,21 @@ export interface DecisionPanelProps {
   onCorrect(rank: 2 | 3): void;
   onOverride(label: string): void;
   onRedraw(): void;
+  /** Lets the Top-3 slips mirror the student's pending choice (highlighter on the chosen rank). */
+  onSelectionChange?(selection: DecisionSelection): void;
 }
 
-type SelectedDecision =
-  | { kind: "accept" }
+export type DecisionSelection =
+  | { kind: "accept"; rank: 1; label: string }
   | { kind: "correct"; rank: 2 | 3; label: string }
-  | { kind: "override"; label: string }
+  | { kind: "override"; rank: null; label: string }
   | null;
 
+/**
+ * Three decisions only (Accept / Correct rank 2|3 / Override outside Top-3).
+ * Redraw is a recovery path and stays visually outside the decision group.
+ * Pencil = what the machine said; ink = what the student chose.
+ */
 export function DecisionPanel({
   prediction,
   level,
@@ -24,12 +32,13 @@ export function DecisionPanel({
   onCorrect,
   onOverride,
   onRedraw,
+  onSelectionChange,
 }: DecisionPanelProps) {
   const committed = useRef(false);
   const [locked, setLocked] = useState(false);
   const [picker, setPicker] = useState<"none" | "correct" | "override">("none");
   const [overrideError, setOverrideError] = useState<string | null>(null);
-  const [selected, setSelected] = useState<SelectedDecision>(null);
+  const [selected, setSelected] = useState<DecisionSelection>(null);
 
   useEffect(() => {
     committed.current = false;
@@ -37,11 +46,18 @@ export function DecisionPanel({
     setSelected(null);
   }, [prediction]);
 
+  const notify = useRef(onSelectionChange);
+  notify.current = onSelectionChange;
+  useEffect(() => {
+    notify.current?.(selected);
+  }, [selected]);
+
   const overrideOptions = useMemo(() => {
     const top3 = new Set(prediction.candidates.map((c) => c.label));
     return level.vocabulary.filter((v) => !top3.has(v));
   }, [level.vocabulary, prediction]);
 
+  const first = prediction.candidates[0];
   const r2 = prediction.candidates[1];
   const r3 = prediction.candidates[2];
 
@@ -49,39 +65,60 @@ export function DecisionPanel({
     if (!selected || committed.current) return;
     committed.current = true;
     setLocked(true);
-    if (selected.kind === "accept") {
-      onAccept();
-    } else if (selected.kind === "correct") {
-      onCorrect(selected.rank);
-    } else if (selected.kind === "override") {
-      onOverride(selected.label);
-    }
+    if (selected.kind === "accept") onAccept();
+    else if (selected.kind === "correct") onCorrect(selected.rank);
+    else onOverride(selected.label);
   };
 
   return (
-    <aside className="side-panel">
-      <div className="decision-actions">
+    <div className="decision-panel">
+      <div className="decision-actions" role="group" aria-label="Keputusanmu">
         <button
           type="button"
-          className={`btn btn-accept${selected?.kind === "accept" ? " is-selected" : ""}`}
+          className={`btn decision-btn btn-accept${selected?.kind === "accept" ? " is-selected" : ""}`}
+          data-testid="btn-accept"
+          aria-label="Terima tebakan peringkat 1"
+          aria-pressed={selected?.kind === "accept"}
+          disabled={locked}
           onClick={() => {
-            setSelected({ kind: "accept" });
+            if (first) setSelected({ kind: "accept", rank: 1, label: first.label });
             setPicker("none");
           }}
         >
-          Accept — terima peringkat 1 ({prediction.candidates[0]?.label})
+          <Icon name="check" size={24} />
+          Terima
         </button>
 
         <button
           type="button"
-          className={`btn btn-correct${selected?.kind === "correct" ? " is-selected" : ""}`}
+          className={`btn decision-btn btn-correct${selected?.kind === "correct" ? " is-selected" : ""}`}
+          data-testid="btn-correct"
+          aria-label="Pilih lain: peringkat 2 atau 3"
           aria-expanded={picker === "correct"}
+          disabled={locked}
           onClick={() => setPicker((p) => (p === "correct" ? "none" : "correct"))}
         >
-          Correct — pilih peringkat lain
+          <Icon name="swap" size={24} />
+          Pilih lain
         </button>
-        {picker === "correct" && (
-          <div className="subpanel" data-testid="correct-picker">
+
+        <button
+          type="button"
+          className={`btn decision-btn btn-override${selected?.kind === "override" ? " is-selected" : ""}`}
+          data-testid="btn-override"
+          aria-label="Bukan ketiganya: tolak semua tebakan"
+          aria-expanded={picker === "override"}
+          disabled={locked}
+          onClick={() => setPicker((p) => (p === "override" ? "none" : "override"))}
+        >
+          <Icon name="pen" size={24} />
+          Bukan ketiganya
+        </button>
+      </div>
+
+      {picker === "correct" && (
+        <div className="subpanel" data-testid="correct-picker" role="group" aria-label="Pilih peringkat 2 atau 3">
+          <div className="pick-row">
             {[2, 3].map((rank) => {
               const cand = rank === 2 ? r2 : r3;
               if (!cand) return null;
@@ -92,33 +129,37 @@ export function DecisionPanel({
                   type="button"
                   className={`btn correct-option${isChosen ? " is-selected" : ""}`}
                   data-rank={rank}
-                  onClick={() => {
-                    setSelected({ kind: "correct", rank: rank as 2 | 3, label: cand.label });
-
-                  }}
+                  data-testid={`correct-option-${rank}`}
+                  aria-pressed={isChosen}
+                  onClick={() => setSelected({ kind: "correct", rank: rank as 2 | 3, label: cand.label })}
                 >
-                  #{rank} · {cand.label} ({Math.round(cand.confidence * 100)}%)
+                  <span className="pick-rank">#{rank}</span>
+                  <span className="pick-label">{cand.label}</span>
+                  <span className="visually-hidden">{Math.round(cand.confidence * 100)} persen</span>
                 </button>
               );
             })}
-            <p className="hint">Pilih satu peringkat secara eksplisit.</p>
           </div>
-        )}
+        </div>
+      )}
 
-        <button
-          type="button"
-          className={`btn btn-override${selected?.kind === "override" ? " is-selected" : ""}`}
-          aria-expanded={picker === "override"}
-          onClick={() => setPicker((p) => (p === "override" ? "none" : "override"))}
-        >
-          Override — tolak semua tebakan
-        </button>
-        {picker === "override" && (
-          <div className="subpanel" data-testid="override-picker">
-            <label htmlFor="override-select">Label yang dimaksud:</label>
-            <select id="override-select" defaultValue="" onChange={() => { if (selected?.kind === "override") setSelected(null); }}>
+      {picker === "override" && (
+        <div className="subpanel" data-testid="override-picker">
+          <label htmlFor="override-select" className="visually-hidden">
+            Benda yang dimaksud
+          </label>
+          <div className="override-row">
+            <select
+              id="override-select"
+              data-testid="override-select"
+              defaultValue=""
+              onChange={() => {
+                setOverrideError(null);
+                if (selected?.kind === "override") setSelected(null);
+              }}
+            >
               <option value="" disabled>
-                — pilih label —
+                Pilih benda
               </option>
               {overrideOptions.map((v) => (
                 <option key={v} value={v}>
@@ -134,52 +175,45 @@ export function DecisionPanel({
                 const el = document.getElementById("override-select") as HTMLSelectElement | null;
                 const value = el?.value ?? "";
                 if (!value || !overrideOptions.includes(value)) {
-                  setOverrideError("Pilih salah satu label terlebih dahulu.");
+                  setOverrideError("Pilih salah satu benda dulu.");
                   return;
                 }
                 setOverrideError(null);
-                setSelected({ kind: "override", label: value });
-
+                setSelected({ kind: "override", rank: null, label: value });
               }}
             >
-              Konfirmasi Override
+              Pilih
             </button>
-            <p className="feedback" role="alert">
-              {overrideError}
-            </p>
-            <p className="hint">Override berarti tidak ada tebakan yang sesuai.</p>
           </div>
-        )}
-      </div>
+          <p className="feedback" role="alert">
+            {overrideError}
+          </p>
+          {selected?.kind === "override" && (
+            <span className="chosen-note" role="status">
+              <Icon name="pen" size={16} />
+              {selected.label}
+            </span>
+          )}
+        </div>
+      )}
 
-      {/* CTA Wujudkan Objek */}
-      <div className="decision-commit-container" style={{ marginTop: "1rem" }}>
+      <div className="decision-commit">
         <button
           type="button"
-          className="btn btn-cta-wujudkan"
+          className="btn btn-primary btn-lg btn-block"
           data-testid="btn-wujudkan-objek"
           disabled={!selected || locked}
           onClick={handleCommit}
-          style={{
-            width: "100%",
-            padding: "0.75rem 1rem",
-            fontWeight: "bold",
-            fontSize: "1.1rem",
-            backgroundColor: selected ? "#2e7d32" : "#ccc",
-            color: "#fff",
-            border: "none",
-            borderRadius: "4px",
-            cursor: selected ? "pointer" : "not-allowed"
-          }}
         >
-          ✨ Wujudkan Objek
+          Wujudkan objek
         </button>
       </div>
 
       {/* Redraw = recovery route, deliberately outside the three decisions. */}
-      <button type="button" className="btn btn-ghost redraw-link" onClick={onRedraw}>
-        Gambar ulang (revisi)
+      <button type="button" className="btn btn-quiet btn-small redraw-link" data-testid="btn-redraw" onClick={onRedraw}>
+        <Icon name="brush" size={18} />
+        Gambar ulang
       </button>
-    </aside>
+    </div>
   );
 }

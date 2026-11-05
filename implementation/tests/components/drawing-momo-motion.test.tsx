@@ -60,91 +60,62 @@ function mockSectionRect(left = 0, top = 0, right = 1920, bottom = 1080) {
   return { left, top, right, bottom, width: right - left, height: bottom - top, x: left, y: top, toJSON: () => ({}) };
 }
 
-describe("DrawingScreen Momo state-based positioning - NEW CONTRACT", () => {
-  let originalGetBoundingClientRect: typeof Element.prototype.getBoundingClientRect;
-
+describe("DrawingScreen Momo companion (static anchor, short pencil lines)", () => {
   beforeEach(() => {
     vi.stubGlobal("ResizeObserver", RealResizeObserver);
     RealResizeObserver._instances = [];
-    originalGetBoundingClientRect = Element.prototype.getBoundingClientRect;
   });
 
   afterEach(() => {
     cleanup();
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
-    Element.prototype.getBoundingClientRect = originalGetBoundingClientRect;
   });
 
-  it("shows Momo at draw anchor (x28 y24) in drawing phase with NEW copy", () => {
+  it("shows Momo in the drawing phase with one short line", () => {
     render(<DrawingScreen {...defaultProps} phase="drawing" />);
     const companion = document.querySelector(".drawing-momo-companion");
     expect(companion).not.toBeNull();
     expect(companion?.getAttribute("data-phase")).toBe("drawing");
-    expect((companion as HTMLElement).style.transform).toContain("translate(28px, 24px)");
-    expect(screen.getByText("Gambar objekmu dulu, ya. Nanti aku coba tebak!")).not.toBeNull();
+    expect(screen.getByText("Gambar dulu, ya.")).not.toBeNull();
+    expect(document.querySelector(".momo-loader")).toBeNull();
   });
 
-  it("moves Momo to popup.right+16 using EVALUATING geometry (440px) in predicting phase with NEW copy", () => {
-    Element.prototype.getBoundingClientRect = vi.fn().mockImplementation(function(this: Element) {
-      if (this.classList.contains("prediction-hitl-geometry")) return mockRect(468, 24); // evaluating width 440 + 28 = 468
-      if (this.id === "screen-drawing") return mockSectionRect();
-      return originalGetBoundingClientRect.call(this);
-    });
-
+  it("predicting: Momo reads and a pencil loader shows; the Top-3 panel is not shown yet", () => {
     render(<DrawingScreen {...defaultProps} phase="predicting" />);
-    const companion = document.querySelector(".drawing-momo-companion");
-    expect(companion?.getAttribute("data-phase")).toBe("predicting");
-    expect(screen.getByText("Hmm... ini gambar apa, ya?")).not.toBeNull();
-    // x = geometryProbe.right(468) - section.left(0) + 16 = 484, y = 24
-    expect((companion as HTMLElement).style.transform).toContain("translate(484px, 24px)");
+    expect(document.querySelector(".drawing-momo-companion")?.getAttribute("data-phase")).toBe("predicting");
+    expect(screen.getByText("Aku baca dulu…")).not.toBeNull();
+    expect(document.querySelector(".momo-loader")).not.toBeNull();
+    expect(screen.queryByTestId("popup-evaluating")).toBeNull();
   });
 
-  it("moves Momo to popup.right+16 using EVALUATING geometry in evaluating phase with NEW copy", () => {
-    Element.prototype.getBoundingClientRect = vi.fn().mockImplementation(function(this: Element) {
-      if (this.classList.contains("prediction-hitl-geometry")) return mockRect(468, 24); // evaluating width
-      if (this.id === "screen-drawing") return mockSectionRect();
-      return originalGetBoundingClientRect.call(this);
-    });
-
+  it("evaluating: Top-3 panel appears immediately beside the drawing; Momo stays put", () => {
     render(<DrawingScreen {...defaultProps} phase="evaluating" prediction={mockPrediction} />);
-    const companion = document.querySelector(".drawing-momo-companion");
-    expect(companion?.getAttribute("data-phase")).toBe("evaluating");
-    expect(screen.getByText("Aku punya tiga tebakan. Coba lihat dulu, yuk!")).not.toBeNull();
-    expect((companion as HTMLElement).style.transform).toContain("translate(484px, 24px)");
+    expect(document.querySelector(".drawing-momo-companion")?.getAttribute("data-phase")).toBe("evaluating");
+    expect(screen.getByText("Ini tebakanku. Kamu yang memutuskan.")).not.toBeNull();
+    expect(screen.getByTestId("popup-evaluating")).not.toBeNull();
+    expect(document.querySelector(".momo-loader")).toBeNull();
   });
 
-  it("moves Momo to popup.right+16 using EVALUATING geometry in prediction-error phase with NEW copy", () => {
-    Element.prototype.getBoundingClientRect = vi.fn().mockImplementation(function(this: Element) {
-      if (this.classList.contains("prediction-hitl-geometry")) return mockRect(468, 24); // evaluating width
-      if (this.id === "screen-drawing") return mockSectionRect();
-      return originalGetBoundingClientRect.call(this);
-    });
-
-    render(<DrawingScreen {...defaultProps} phase="prediction-error" />);
-    const companion = document.querySelector(".drawing-momo-companion");
-    expect(companion?.getAttribute("data-phase")).toBe("prediction-error");
-    expect(screen.getByText("Hmm, aku belum bisa membaca gambarmu. Mau coba lagi?")).not.toBeNull();
-    expect((companion as HTMLElement).style.transform).toContain("translate(484px, 24px)");
+  it("prediction-error: Momo apologises in one line and the panel offers retry + redraw", () => {
+    render(<DrawingScreen {...defaultProps} phase="prediction-error" errorDetail="Network timeout" />);
+    expect(screen.getByText("Aku gagal membaca. Coba lagi?")).not.toBeNull();
+    expect(screen.getByTestId("popup-error")).not.toBeNull();
+    expect(screen.getByTestId("btn-retry-prediction")).not.toBeNull();
   });
 
-  it("updates bubble message per phase via .momo-bubble with NEW copy", () => {
+  it("updates bubble message per phase via .momo-bubble", () => {
     const { rerender } = render(<DrawingScreen {...defaultProps} phase="drawing" />);
-    expect(screen.getByText("Gambar objekmu dulu, ya. Nanti aku coba tebak!")).not.toBeNull();
+    expect(screen.getByText("Gambar dulu, ya.")).not.toBeNull();
 
     rerender(<DrawingScreen {...defaultProps} phase="predicting" />);
-    expect(screen.getByText("Hmm... ini gambar apa, ya?")).not.toBeNull();
+    expect(screen.getByText("Aku baca dulu…")).not.toBeNull();
 
     rerender(<DrawingScreen {...defaultProps} phase="evaluating" prediction={mockPrediction} />);
-    expect(document.querySelector("[data-testid=popup-evaluating]")).toBeNull();
-    const companion = document.querySelector(".drawing-momo-companion")!;
-    const end = new Event("transitionend", { bubbles: true });
-    Object.defineProperty(end, "propertyName", { value: "transform" });
-    fireEvent(companion, end);
-    expect(screen.getByText("Aku punya tiga tebakan. Coba lihat dulu, yuk!")).not.toBeNull();
+    expect(screen.getByText("Ini tebakanku. Kamu yang memutuskan.")).not.toBeNull();
 
     rerender(<DrawingScreen {...defaultProps} phase="prediction-error" />);
-    expect(screen.getByText("Hmm, aku belum bisa membaca gambarmu. Mau coba lagi?")).not.toBeNull();
+    expect(screen.getByText("Aku gagal membaca. Coba lagi?")).not.toBeNull();
   });
 
   it("single Momo DOM element persists across phase changes (img identity)", () => {
@@ -163,76 +134,40 @@ describe("DrawingScreen Momo state-based positioning - NEW CONTRACT", () => {
     expect(container.querySelector(".momo-avatar")).toBe(momoImg);
   });
 
-  it("popup geometry change via ResizeObserver callback updates layout", () => {
-    Element.prototype.getBoundingClientRect = vi.fn().mockImplementation(function(this: Element) {
-      if (this.classList.contains("prediction-hitl-geometry")) return mockRect(468, 24);
-      if (this.id === "screen-drawing") return mockSectionRect();
-      return originalGetBoundingClientRect.call(this);
-    });
-
-    const { container } = render(<DrawingScreen {...defaultProps} phase="predicting" />);
-    const companion = container.querySelector(".drawing-momo-companion");
-    expect((companion as HTMLElement).style.transform).toContain("translate(484px, 24px)");
-
-    // Simulate popup resize: change right edge to 600
-    Element.prototype.getBoundingClientRect = vi.fn().mockImplementation(function(this: Element) {
-      if (this.classList.contains("prediction-hitl-geometry")) return mockRect(600, 24);
-      if (this.id === "screen-drawing") return mockSectionRect();
-      return originalGetBoundingClientRect.call(this);
-    });
-
-    // Trigger ResizeObserver callback on the instance wrapped in act
-    const instance = RealResizeObserver._instances[0];
-    act(() => {
-      instance?.trigger();
-    });
-
-    // Layout should update: x = 600 - 0 + 16 = 616
-    expect((companion as HTMLElement).style.transform).toContain("translate(616px, 24px)");
+  it("Momo never offers decisions: its bubble is text only", () => {
+    render(<DrawingScreen {...defaultProps} phase="evaluating" prediction={mockPrediction} />);
+    const companion = document.querySelector(".drawing-momo-companion")!;
+    expect(companion.querySelectorAll("button, input, select, textarea")).toHaveLength(0);
   });
 
-  it("cleanup disconnects ResizeObserver and removes window resize listener on unmount", () => {
-    const disconnectSpy = vi.fn();
-    vi.stubGlobal("ResizeObserver", class {
-      observe = vi.fn();
-      unobserve = vi.fn();
-      disconnect = disconnectSpy;
-      constructor() {}
-    });
-
-    const removeEventListenerSpy = vi.spyOn(window, "removeEventListener");
-    const { unmount } = render(<DrawingScreen {...defaultProps} phase="predicting" />);
-    unmount();
-    expect(disconnectSpy).toHaveBeenCalled();
-    expect(removeEventListenerSpy).toHaveBeenCalledWith("resize", expect.any(Function));
-  });
-
-  it("copy by .momo-bubble text content with NEW copy", () => {
-    render(<DrawingScreen {...defaultProps} phase="drawing" />);
-    const bubble = document.querySelector(".momo-bubble");
-    expect(bubble).not.toBeNull();
-    expect(bubble?.textContent).toContain("Gambar objekmu dulu, ya. Nanti aku coba tebak!");
-  });
-
-  it("empty-drawing feedback retains existing cue", () => {
+  it("empty-drawing feedback tells what happened and what to do", () => {
     render(<DrawingScreen {...defaultProps} feedback="empty-drawing" phase="drawing" />);
-    expect(screen.getByText("Gambar masih kosong — gambar sesuatu dulu.")).not.toBeNull();
+    expect(screen.getByRole("alert").textContent).toBe("Kanvas masih kosong. Gambar dulu.");
+    expect(screen.getByText("Kanvasnya masih kosong.")).not.toBeNull();
+  });
+
+  it("does not advertise unimplemented gesture hints (only pinch-to-draw exists)", () => {
+    const { container } = render(<DrawingScreen {...defaultProps} phase="drawing" />);
+    const text = (container.textContent ?? "") + [...container.querySelectorAll("[aria-label],[title]")].map((e) => `${e.getAttribute("aria-label")} ${e.getAttribute("title")}`).join(" ");
+    expect(text).not.toMatch(/genggam|2 jari|3 jari|gesture|gestur/i);
   });
 });
 
 describe("DrawingScreen reduced CSS media query", () => {
-  it("has @media (prefers-reduced-motion: reduce) with transition: none in globals.css", () => {
-    const cssPath = path.join(process.cwd(), "app/globals.css");
-    const cssContent = fs.readFileSync(cssPath, "utf-8");
+  const css = () => fs.readFileSync(path.join(process.cwd(), "app/globals.css"), "utf-8");
+
+  it("has @media (prefers-reduced-motion: reduce) that switches animations off", () => {
+    const cssContent = css();
     expect(cssContent).toContain("@media (prefers-reduced-motion: reduce)");
-    expect(cssContent).toContain("transition: none");
+    const block = cssContent.slice(cssContent.indexOf("@media (prefers-reduced-motion: reduce)"));
+    expect(block).toMatch(/animation:\s*none/);
+    expect(block).toContain("transition: none");
   });
 
-  it("has .drawing-momo-companion transition: none in reduced motion block", () => {
-    const cssPath = path.join(process.cwd(), "app/globals.css");
-    const cssContent = fs.readFileSync(cssPath, "utf-8");
-    // Match the specific reduced-motion block containing .drawing-momo-companion
-    const regex = /@media\s*\(prefers-reduced-motion:\s*reduce\)\s*\{[^}]*\.drawing-momo-companion[^}]*transition:\s*none/;
-    expect(regex.test(cssContent)).toBe(true);
+  it("covers the Momo companion and the Top-3 bars inside the reduced-motion block", () => {
+    const cssContent = css();
+    const block = cssContent.slice(cssContent.indexOf("@media (prefers-reduced-motion: reduce)"));
+    expect(block).toContain(".drawing-momo-companion");
+    expect(block).toMatch(/\*,\s*\*::before,\s*\*::after\s*\{[^}]*animation:\s*none/);
   });
 });

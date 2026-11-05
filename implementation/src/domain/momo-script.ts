@@ -1,8 +1,9 @@
-﻿/**
+/**
  * FR-14: Momo is a contextual companion / pattern reader.
  * It may show short state-driven text bubbles. It must NEVER create the
  * student's object, decide for the student, or imply it can (lore invariant).
- * All lines are placeholder copy â€” final Momo visual/voice remains unlocked.
+ * Lines stay under ~8 words: students should not have to read.
+ * All lines are placeholder copy; final Momo visual/voice remains unlocked.
  */
 
 export type MomoMoment =
@@ -24,21 +25,21 @@ export type MomoMoment =
 
 /** Placeholder guidance lines keyed by app state. */
 const LINES: Record<MomoMoment, string> = {
-  "level-entry": "Halo! Aku Momo. Aku bisa membaca pola gambarmu â€” tapi aku tidak bisa menggambar. Kamu satu-satunya Illustrator di sini.",
-  "drawing-cue": "Gambar objekmu di kanvas. Aku akan menebak apa yang kamu buat.",
-  "drawing-empty": "Kanvasnya masih kosong. Gambar sesuatu dulu ya.",
-  predicting: "Sedang kubaca pola goresanmuâ€¦",
-  "provider-error": "Aku gagal membaca polanya sekarang. Tidak masalah â€” coba lagi atau gambar ulang.",
-  "top3-compare": "Ini tiga tebakanku dengan tingkat keyakinannya. Confidence bukan jaminan benar â€” bandingkan dulu.",
-  "decision-accepted": "Kamu setuju dengan tebakan peringkat 1. Keputusan bagus kalau kamu sudah yakin.",
-  "decision-corrected": "Kamu memilih tebakan lain dari Top-3. Bagus, kamu membandingkan dulu.",
-  "decision-overridden": "Kamu menolak semua tebankan dan memilih sendiri. Kamu yang paling tahu ciptaanmu.",
-  "solid-consequence": "Objekmu jadi pijakan yang kokoh. Silakan lewat!",
-  "danger-consequence": "Objek itu berbahaya di halaman iniâ€¦ hati-hati!",
-  "fallback-consequence": "Hmm, aku belum tahu perilaku objek ini. Kuberikan versi netral dulu.",
-  "cycle-success": "Berhasil! Kamu bisa mengulang siklus atau lanjut.",
-  "cycle-fail": "Tidak apa-apa gagal. Coba putuskan lagi, atau gambar ulang objekmu.",
-  "level-complete": "Bab ini selesai! Keputusanmu tadi yang menentukan jalannya cerita.",
+  "level-entry": "Halo! Aku Momo. Aku membaca, kamu menggambar.",
+  "drawing-cue": "Gambar dulu, ya.",
+  "drawing-empty": "Kanvasnya masih kosong.",
+  predicting: "Aku baca dulu…",
+  "provider-error": "Aku gagal membaca. Coba lagi?",
+  "top3-compare": "Ini tebakanku. Kamu yang memutuskan.",
+  "decision-accepted": "Kamu setuju dengan tebakan pertama.",
+  "decision-corrected": "Kamu memilih tebakan lain.",
+  "decision-overridden": "Kamu memilih sendiri.",
+  "solid-consequence": "Kokoh! Silakan lewat.",
+  "danger-consequence": "Awas, objek ini berbahaya.",
+  "fallback-consequence": "Aku belum tahu objek ini. Kupakai versi netral.",
+  "cycle-success": "Berhasil!",
+  "cycle-fail": "Tidak apa-apa. Coba lagi.",
+  "level-complete": "Bab selesai! Keputusanmu yang menentukan.",
 };
 
 export function momoLine(moment: MomoMoment): string {

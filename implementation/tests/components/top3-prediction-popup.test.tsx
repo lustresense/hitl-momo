@@ -86,8 +86,8 @@ describe("Top3PredictionPopup Component", () => {
     );
 
     expect(screen.getByTestId("popup-evaluating")).toBeDefined();
-    expect(screen.getByText("Tebakan Momo (Top-3)")).toBeDefined();
-    expect(screen.getByTestId("prediction-source").textContent).toContain("DEMO / PREDIKSI SIMULASI");
+    expect(screen.getByRole("heading", { name: "Tebakan Momo" })).toBeDefined();
+    expect(screen.getByTestId("prediction-source").textContent).toBe("Demo / simulasi");
 
     // Check all 3 candidates
     expect(screen.getByText("jembatan")).toBeDefined();
@@ -97,8 +97,9 @@ describe("Top3PredictionPopup Component", () => {
     expect(screen.getByText("balok")).toBeDefined();
     expect(screen.getByText("45%")).toBeDefined();
 
-    // Check rank 1 badge
-    expect(screen.getByLabelText("Pilihan Utama")).toBeDefined();
+    // Rank 1 slip is marked, nothing is chosen until the student decides
+    expect(screen.getByTestId("top3-item-1").className).toContain("is-rank1");
+    expect(screen.getByTestId("top3-item-1").className).not.toContain("is-chosen");
   });
 
   it("commits Accept decision when CTA is clicked", () => {
@@ -117,7 +118,8 @@ describe("Top3PredictionPopup Component", () => {
       />
     );
 
-    fireEvent.click(screen.getByText(/Accept —/));
+    fireEvent.click(screen.getByTestId("btn-accept"));
+    expect(screen.getByTestId("top3-item-1").className).toContain("is-chosen");
     fireEvent.click(screen.getByTestId("btn-wujudkan-objek"));
     expect(onAccept).toHaveBeenCalledTimes(1);
   });
@@ -138,11 +140,12 @@ describe("Top3PredictionPopup Component", () => {
       />
     );
 
-    // Switch to Correct tab
-    fireEvent.click(screen.getByText(/Correct —/));
+    // Open the Correct picker
+    fireEvent.click(screen.getByTestId("btn-correct"));
 
-    // Select candidate #2 (papan)
-    fireEvent.click(screen.getByText(/#2 ·/));
+    // Select candidate #2 (papan); the slip is highlighted but nothing is committed yet
+    fireEvent.click(screen.getByTestId("correct-option-2"));
+    expect(screen.getByTestId("top3-item-2").className).toContain("is-chosen");
     expect(onCorrect).not.toHaveBeenCalled();
 
     // Commit via CTA
@@ -167,11 +170,11 @@ describe("Top3PredictionPopup Component", () => {
       />
     );
 
-    // Switch to Override tab
-    fireEvent.click(screen.getByText(/Override —/));
+    // Open the Override picker
+    fireEvent.click(screen.getByTestId("btn-override"));
 
-    // Select vocabulary item
-    fireEvent.change(screen.getByLabelText("Label yang dimaksud:"), { target: { value: "tangga" } });
+    // Select vocabulary item (outside Top-3)
+    fireEvent.change(screen.getByTestId("override-select"), { target: { value: "tangga" } });
     fireEvent.click(screen.getByTestId("override-confirm"));
     expect(onOverride).not.toHaveBeenCalled();
 
@@ -197,7 +200,7 @@ describe("Top3PredictionPopup Component", () => {
       />
     );
 
-    fireEvent.click(screen.getByText(/Gambar ulang/));
+    fireEvent.click(screen.getByTestId("btn-redraw"));
     expect(onRedraw).toHaveBeenCalledTimes(1);
   });
 

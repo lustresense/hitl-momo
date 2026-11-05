@@ -503,3 +503,73 @@
     font-weight:800;
     display:none;
   }@media (max-width:760px){.tutorial-prototype-root .app{padding:14px 12px 18px}.tutorial-prototype-root .stage{height:68vh;min-height:390px}.tutorial-prototype-root .controls{align-items:flex-start;gap:10px}.tutorial-prototype-root .play{min-width:96px;height:44px;padding:0 16px}.tutorial-prototype-root .status{font-size:12px}.tutorial-prototype-root .panel{padding:24px 20px 22px}.tutorial-prototype-root .panel h2{font-size:26px}.tutorial-prototype-root .panel h3{font-size:19px}.tutorial-prototype-root .panel p{font-size:12px}.tutorial-prototype-root .step span{font-size:11px}}@media (prefers-reduced-motion:reduce){.tutorial-prototype-root *,.tutorial-prototype-root *::before,.tutorial-prototype-root *::after{scroll-behavior:auto!important}}
+/* ==========================================================================
+   Skin layer (notebook palette). Geometry, 3D transforms and sizes above are
+   driven by TutorialBrochure.tsx and stay untouched; only material changes here.
+   ========================================================================== */
+.tutorial-prototype-root {
+  /* the prototype scope re-declares these names; pin them back to the notebook palette */
+  --paper: #f3f6f8; --ink: #111111; --blue: #1b4bd1; --green: #14774f; --muted: #4b5058; --accent: #1b4bd1;
+  font-family: var(--font-ui);
+}
+.tutorial-prototype-root .app::before { background: rgba(17, 17, 17, 0.18); backdrop-filter: none; -webkit-backdrop-filter: none; }
+.tutorial-prototype-root .stage::after { display: none; }
+.tutorial-prototype-root .stage.is-focus .slot.is-subdued { filter: brightness(0.85) !important; }
+.tutorial-prototype-root .face { border: 2px solid var(--ink); border-radius: 8px; box-shadow: none; background: var(--white); }
+.tutorial-prototype-root .slot.is-focused .front,
+.tutorial-prototype-root .slot.is-focused .back { box-shadow: none; }
+.tutorial-prototype-root .front,
+.tutorial-prototype-root .front-accent-1,
+.tutorial-prototype-root .front-accent-2,
+.tutorial-prototype-root .front-accent-3 { background: var(--blue); box-shadow: none; color: var(--white); }
+.tutorial-prototype-root .front::before,
+.tutorial-prototype-root .front::after { display: none; }
+.tutorial-prototype-root .number { font-family: var(--font-ui); font-weight: 800; letter-spacing: -0.04em; line-height: 1; text-shadow: none; color: var(--white); }
+.tutorial-prototype-root .back { background: var(--white); box-shadow: none; }
+.tutorial-prototype-root .guide-panel { background: var(--white); border-right: 2px solid var(--ink); color: var(--ink); padding: 32px 26px 26px; }
+.tutorial-prototype-root .guide-title { font-family: var(--font-ui); font-size: clamp(24px, 2.4vw, 32px); line-height: 1.12; letter-spacing: -0.015em; font-weight: 700; color: var(--ink); max-width: none; }
+.tutorial-prototype-root .guide-copy { margin-top: 14px; font: 400 22px/1.2 var(--font-hand); color: var(--pencil); max-width: 22ch; }
+.tutorial-prototype-root .brochure-cta { background: var(--blue); border: 2px solid var(--blue); color: var(--white); min-height: 52px; border-radius: var(--r-ctl); font: 600 17px/1 var(--font-ui); transition: none; }
+.tutorial-prototype-root .brochure-cta:hover:not(:disabled) { transform: none; }
+.tutorial-prototype-root .brochure-cta:hover:not(:disabled) { background: var(--blue-dark); border-color: var(--blue-dark); }
+.tutorial-prototype-root .brochure-cta:disabled { opacity: 1; background: transparent; border-color: var(--rule); color: var(--pencil-fill); }
+.tutorial-prototype-root .play-panel {
+  background:
+    linear-gradient(var(--grid) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px) 0 0 / 24px 24px,
+    var(--paper);
+  box-shadow: none;
+}
+.tutorial-prototype-root .play-panel::after { display: none; }
+.tutorial-prototype-root .motion-playground { background: transparent; }
+.tutorial-prototype-root .motion-floor { background: var(--ink); height: 4px; }
+.tutorial-prototype-root .motion-finish::before { background: var(--ink); }
+.tutorial-prototype-root .motion-finish::after { background: var(--blue); border: 3px solid var(--ink); border-left: 0; }
+.tutorial-prototype-root .motion-arrows { display: inline-flex; align-items: center; gap: 8px; font: 400 26px/1 var(--font-hand); letter-spacing: 0; color: var(--pencil); }
+.tutorial-prototype-root .motion-success { border: 2px solid var(--ink); border-radius: 50%; background: var(--green); color: var(--white); }
+.tutorial-prototype-root .safety-split { background: transparent; }
+.tutorial-prototype-root .safety-zone + .safety-zone { border-left: 2px solid var(--pencil); }
+.tutorial-prototype-root .zone-badge { border: 0; border-radius: 999px; padding: 8px 14px; font: 600 16px/1 var(--font-ui); }
+.tutorial-prototype-root .safe-zone .zone-badge { background: var(--green); color: var(--white); }
+.tutorial-prototype-root .danger-zone .zone-badge { background: var(--red); color: var(--white); }
+.tutorial-prototype-root .wood-block { background: var(--green); border: 3px solid var(--ink); box-shadow: none; }
+.tutorial-prototype-root .ladder { border-left-color: var(--ink); border-right-color: var(--ink); }
+.tutorial-prototype-root .spikes i { border-bottom-color: var(--red); filter: none; }
+.tutorial-prototype-root .knife { background: var(--red); border-color: var(--ink); box-shadow: none; }
+.tutorial-prototype-root .tear-line { border: 3px solid var(--red); }
+.tutorial-prototype-root .draw-canvas-wrap { border: 2px solid var(--ink); border-radius: 8px; background: var(--white); }
+.tutorial-prototype-root .gesture-toolbar { grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.tutorial-prototype-root .gesture-btn {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-height: 60px; padding: 6px 2px; border: 2px solid var(--ink); border-radius: var(--r-ctl);
+  background: var(--white); color: var(--ink); box-shadow: none; font-family: var(--font-ui); cursor: pointer;
+}
+.tutorial-prototype-root .gesture-btn span { margin: 0; font-size: 13px; font-weight: 500; white-space: nowrap; }
+.tutorial-prototype-root .gesture-btn:hover { background: var(--blue-wash); }
+.tutorial-prototype-root .gesture-btn.is-active { background: var(--mark); color: var(--ink); }
+.tutorial-skip { position: absolute; top: 48px; right: 12px; z-index: 1001; background: var(--white); }
+
+@media (max-width: 700px) {
+  .tutorial-prototype-root .guide-copy { font-size: 20px; }
+  .tutorial-prototype-root .gesture-btn span { font-size: 12px; }
+}

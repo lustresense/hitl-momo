@@ -51,10 +51,18 @@ try {
   // ---------- A) L1 fall -> retry -> win ----------
   await enterLevel(page, 1, m => log(m));
   await drawScribble(page);
-  const top3 = await page.getByRole("heading", { name: /tebakan momo/i }).count();
-  await submitAndDecide(page, { prefer: plans["1"].cycles[0].label, log: m => log(m) });
-  check("Top-3 decision panel has exactly Accept/Correct/Override (+ separate Redraw), Redraw is not a 4th decision",
-    await page.getByRole("button", { name: /accept — terima/i }).count() === 1 && await page.getByRole("button", { name: /correct — pilih/i }).count() >= 0 && await page.getByRole("button", { name: /override — tolak/i }).count() >= 0);
+  await submitAndDecide(page, { prefer: plans["1"].cycles[0].label, log: m => log(m), beforeDecide: async labels => {
+    const group = page.getByRole("group", { name: "Keputusanmu" });
+    check("Top-3 panel shows exactly 3 answers", labels.length === 3 && await page.locator("[data-testid^=top3-item-]").count() === 3, labels);
+    check("Top-3 decision group has exactly Accept/Correct/Override; Redraw is a separate recovery button, not a 4th decision",
+      await group.getByRole("button").count() === 3 && await group.getByTestId("btn-accept").count() === 1 && await group.getByTestId("btn-correct").count() === 1 && await group.getByTestId("btn-override").count() === 1
+      && await group.getByTestId("btn-redraw").count() === 0 && await page.getByTestId("btn-redraw").count() === 1);
+    await page.getByTestId("btn-correct").click();
+    const ranks = await page.locator("[data-testid=correct-picker] [data-rank]").evaluateAll(xs => xs.map(x => x.getAttribute("data-rank")));
+    check("Correct picker offers ranks 2 and 3 only", JSON.stringify(ranks) === JSON.stringify(["2", "3"]), ranks);
+    await page.getByTestId("btn-correct").click();
+  } });
+  // (the Top-3 panel is gone after the decision; re-check the structure on the second cycle below)
   await placeByDrag(page, ...toCentre(plans["1"].cycles[0])); await confirmPlacement(page);
   await page.keyboard.down("ArrowRight");
   const t0 = Date.now(); let m;
@@ -76,7 +84,7 @@ try {
   // ---------- B) L3 danger -> fail -> Redraw -> win ----------
   await page.locator("[data-testid=btn-next]").click(); await sleep(800);
   await page.locator("[data-testid=btn-back-to-levels]").click();
-  await page.locator(".level-card").nth(2).waitFor({ state: "visible", timeout: 15000 });
+  await page.getByTestId("level-card-3").waitFor({ state: "visible", timeout: 15000 });
   await enterLevel(page, 3, m => log(m));
   await drawScribble(page, "spike");
   // HITL: the student chooses the DANGER label "tali" from the Top-3 via Correct.
@@ -96,7 +104,7 @@ try {
   await drawScribble(page, "block");
   const d2 = await submitAndDecide(page, { prefer: "papan", log: m => log(m) });
   check("B: second cycle (after Redraw) reached solid label 'papan'", d2.decision.label === "papan", d2.decision);
-  const chip = await page.locator(".decision-chip").first().textContent({ timeout: 3000 }).catch(() => null);
+  const chip = await page.getByTestId("decision-chip").textContent({ timeout: 3000 }).catch(() => null);
   await shot("B-03-second-decision");
   await placeByDrag(page, ...toCentre(plans["3"].cycles[0]));
   let legalNow = await page.locator("[data-testid=btn-confirm-placement]").isEnabled();

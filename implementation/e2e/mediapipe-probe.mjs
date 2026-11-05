@@ -15,28 +15,28 @@ page.on("requestfailed", r => net.push({ url: r.url().replace(base, ""), failed:
 const out = { run: RUN, git: gitInfo(), fakeCamera: true, stages: {} };
 try {
   await page.goto(base, { waitUntil: "domcontentloaded" });
-  const toggle = page.getByRole("switch", { name: /nyalakan kamera/i });
+  const toggle = page.locator("[data-testid=btn-camera-toggle-switch]");
   await toggle.waitFor({ state: "visible", timeout: 20000 });
   await toggle.click();
   await sleep(6000);
   out.stages.cameraIntro = { bodyText: (await page.locator("body").innerText()).slice(0, 600), videoPlaying: await page.evaluate(() => { const v = document.querySelector("video"); return v ? { readyState: v.readyState, hasStream: !!v.srcObject, w: v.videoWidth, h: v.videoHeight } : null; }) };
   await page.screenshot({ path: path.join(OUT, "01-camera-intro.png") });
-  await page.locator(".camera-skip").click();
-  await page.locator("button.student-number-confirm").click();
-  await page.locator(".tutorial-skip").click({ timeout: 30000 });
-  await page.locator(".level-card").first().click();
-  const mission = page.locator("[role=dialog][aria-modal=true]");
+  await page.locator("[data-testid=camera-skip], .camera-skip").first().click();
+  await page.getByTestId("student-number-confirm").click();
+  await page.getByTestId("tutorial-skip").click({ timeout: 30000 });
+  await page.getByTestId("level-card-1").click();
+  const mission = page.getByTestId("mission-dialog");
   await page.locator("[data-testid=draw-canvas]").waitFor({ timeout: 15000 });
-  if (await mission.isVisible().catch(() => false)) await mission.getByRole("button", { name: /mulai/i }).click();
-  const modeBtn = page.getByRole("button", { name: /coba kamera/i });
+  if (await mission.isVisible().catch(() => false)) await mission.getByTestId("btn-mission-start").click();
+  const modeBtn = page.getByTestId("btn-input-hand");
   out.stages.modeButtonVisible = await modeBtn.isVisible().catch(() => false);
   if (out.stages.modeButtonVisible) {
     await modeBtn.click();
     await sleep(9000);
-    out.stages.handModeAfter9s = { buttonText: await page.getByRole("button", { name: /coba (pointer|kamera)/i }).first().textContent().catch(() => null), bodyStatusLines: (await page.locator("body").innerText()).split("\n").filter(l => /kamera|tangan|tracker|model|izin|NUI|siap|tracking/i.test(l)).slice(0, 12) };
+    out.stages.handModeAfter9s = { handPressed: await page.getByTestId("btn-input-hand").getAttribute("aria-pressed").catch(() => null), bodyStatusLines: (await page.locator("body").innerText()).split("\n").filter(l => /kamera|tangan|tracker|model|izin|NUI|siap|tracking/i.test(l)).slice(0, 12) };
     await page.screenshot({ path: path.join(OUT, "02-hand-mode.png") });
     // Back to pointer and draw: regression for the pointer-recovery fix.
-    await page.getByRole("button", { name: /coba pointer/i }).click().catch(() => {});
+    await page.getByTestId("btn-input-pointer").click().catch(() => {});
     await sleep(800);
     const canvas = page.locator("[data-testid=draw-canvas]"); const b = await canvas.boundingBox();
     await page.mouse.move(b.x + 300, b.y + 300); await page.mouse.down(); await page.mouse.move(b.x + 420, b.y + 360, { steps: 6 }); await page.mouse.up();

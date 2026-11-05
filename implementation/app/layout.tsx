@@ -3,9 +3,9 @@ import "./globals.css";
 import "./level-ribbon-bookmark.css";
 
 export const metadata: Metadata = {
-  title: "Sketchbook Universe — DEV BUILD (author-side)",
+  title: "Sketchbook Universe (demo)",
   description:
-    "Simulasi literasi AI Human-in-the-Loop untuk siswa SMP. DEV build: prediksi memakai provider mock/partner adapter, bukan model final.",
+    "Game literasi AI untuk siswa SMP: gambar, lihat tebakan AI, lalu putuskan sendiri. Build demo: prediksi masih simulasi.",
 };
 
 export const viewport: Viewport = {

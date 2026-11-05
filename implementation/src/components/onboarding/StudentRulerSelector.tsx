@@ -2,6 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { KeyboardEvent, PointerEvent, WheelEvent } from "react";
+import { MomoGuide } from "../momo/MomoGuide";
+import { NUMBER_STEP, NUMBER_TAKEN_STEP } from "@/src/domain/guide-script";
 import "./StudentRulerSelector.css";
 
 const MAX = 30;
@@ -217,6 +219,7 @@ export function StudentRulerSelector({
           Lanjut ke Tutorial
         </button>
       </div>
+      <MomoGuide step={isTaken ? NUMBER_TAKEN_STEP : NUMBER_STEP} startDelay={700} testId="number-momo" />
     </section>
   );
 }

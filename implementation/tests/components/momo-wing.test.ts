@@ -27,6 +27,7 @@ describe("Momo wing shear", () => {
 
   it("is the identity at rest and clamps extreme angles", () => {
     expect(wingTransform("L", 0)).toBe("matrix(1.00000000 0.00000000 0.00000000 1.00000000 0.00000000 0.00000000)");
-    expect(wingTransform("R", 500)).toBe(wingTransform("R", 32));
+    expect(wingTransform("R", 500)).toBe(wingTransform("R", 50));
+    expect(wingTransform("R", -500)).toBe(wingTransform("R", -50));
   });
 });

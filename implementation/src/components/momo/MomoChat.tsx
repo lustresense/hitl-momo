@@ -26,6 +26,8 @@ export interface MomoChatProps {
   avatarHeight?: number;
   trackMotion?: boolean;
   flapKey?: number;
+  waveKey?: number;
+  sleeping?: boolean;
   /** Show the typing dots before each line. Off = lines appear immediately. */
   typing?: boolean;
   /** Wait this long before the first line starts (e.g. while Momo is still flying in). */
@@ -53,6 +55,8 @@ export function MomoChat({
   avatarHeight = 96,
   trackMotion = false,
   flapKey,
+  waveKey,
+  sleeping,
   typing = true,
   startDelay = 0,
   stack = false,
@@ -104,10 +108,10 @@ export function MomoChat({
 
   const finished = index >= list.length - 1;
   const visible = stack ? list.slice(0, index + 1) : typingNow ? [] : index >= 0 ? [list[index]!] : [];
-  const showExtras = children && (extrasFrom === "first" ? index >= 0 : finished);
+  const showExtras = children && list.length > 0 && (extrasFrom === "first" ? index >= 0 : finished);
   return (
     <div className={`momo-chat momo-chat--${side}${className ? " " + className : ""}`} data-testid={testId} data-finished={finished ? "true" : "false"}>
-      <MomoAvatar className="momo-chat__avatar" expression={mood} height={avatarHeight} trackMotion={trackMotion} flapKey={flapKey} />
+      <MomoAvatar className="momo-chat__avatar" expression={mood} height={avatarHeight} trackMotion={trackMotion} flapKey={flapKey} waveKey={waveKey} sleeping={sleeping} />
       <div className="momo-chat__col">
         <div className="momo-chat__thread" role="status" aria-live="polite">
           {visible.map((line, i) => (

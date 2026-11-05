@@ -12,6 +12,8 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState, type Pointer
 import { gsap } from "gsap";
 import { resolveCharacterDisplayName } from "@/src/config/character-tokens";
 import { Icon, type IconName } from "../ui/Icon";
+import { MomoGuide } from "../momo/MomoGuide";
+import { tutorialStep, type TutorialMoment } from "@/src/domain/guide-script";
 import { ThinmanArt, type ThinmanPose } from "../ui/ThinmanArt";
 import { getPrefersReducedMotion, subscribePrefersReducedMotion } from "./tutorial-motion";
 
@@ -471,6 +473,15 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
     if (open === index && ready(index)) goNext(index);
   };
 
+  // Momo guides each card. While a card is folding shut the last thing she said stays (no flicker back to the start).
+  const momentRef = useRef<TutorialMoment>("deal");
+  const moment: TutorialMoment =
+    open === 0 ? (walked ? "walk-done" : "walk")
+    : open === 1 ? "safety"
+    : open === 2 ? (ready(2) ? "gesture-done" : "gesture")
+    : momentRef.current;
+  momentRef.current = moment;
+
   const pages: Array<{ title: string; copy: string; cta: string; ctaIcon: IconName }> = [
     { title: `Kenalin ${characterName}`, copy: "Dia mau menyeberangi buku gambar ini. Geser tanganmu ke kanan dan kiri buat ajak dia jalan ke bendera.", cta: "Lanjut", ctaIcon: "arrow-right" },
     { title: "Pijakan aman, atau bahaya", copy: `Gambar benda padat kayak balok atau tangga biar ${characterName} bisa lewat. Hindari benda tajam kayak duri atau pisau biar bukunya nggak sobek.`, cta: "Lanjut", ctaIcon: "arrow-right" },
@@ -548,6 +559,7 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
           );
         })}
       </main>
+      <MomoGuide step={tutorialStep(moment, characterName)} startDelay={moment === "deal" ? 900 : 250} testId="tutorial-momo" />
     </div>
   );
 }

@@ -124,6 +124,12 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 
 ## Entri Perubahan Terbaru
 
+### D-20261105-19 — Aktif (instruksi eksplisit Owner, M-016) — Momo memandu setiap halaman, dimulai dari cover
+- Keputusan/ubahannya: **Momo memandu semua sesi dan halaman**, bukan hanya di dalam level. **Cover (kamera):** Momo tidur di cover (mata tertutup, Zzz). Kamera menyala = Momo bangun kaget (loncat dan kepak), lalu menyapa dengan satu sayap (dada-dada), menyebut dirinya, lalu memandu ke langkah berikutnya: "pilih nomor absenmu pakai penggaris" dengan satu isyarat jempol. **Alasan kamera menyala = bangun:** NUI belum ada; kelak yang membangunkan Momo adalah lambaian tangan (pelacak lambaian tetap jalan; lambaian sekarang berarti "lanjut"). **Halaman berikutnya:** penggaris (Momo menjelaskan, dan bingung kalau nomor sudah diambil), tutorial tiga kartu (Momo mengikuti apa yang dilakukan siswa: ajak Thinman jalan, lalu "Thinman sampai", lalu pijakan aman dan bahaya, lalu coret dan mundur, lalu "kamu sudah siap"), daftar level (menunjuk bab terbaru yang terbuka), lalu cerita intro, halaman gambar, dunia, menang dan gagal yang sudah dipandu Momo (D-20261105-12/13). Momo tetap tampilan saja: tidak menerima input, tidak memutuskan, tidak membuat objek (invarian lore). Gaya: chat satu bubble per giliran, tanpa teks dalam kurung (D-20261105-14). Sayap tetap menempel saat menyapa (D-20261105-17): hanya ujung sayap kiri yang naik-turun.
+- Mengubah entri lama: memperluas D-20261105-12/13 (Momo sebagai pemandu) ke cover, penggaris, tutorial, dan daftar level; menggantikan teks panduan statis cover yang hanya berupa judul dan subteks.
+- Bukti: instruksi Owner 2026-11-05; `implementation/e2e/guide-flow.mjs` (14 pemeriksaan) dan video di `implementation/docs/execution/evidence/momo-guide-2026-11-05/`; `implementation/CHANGELOG.md` 0.0.14 round 5.
+- Dampak: copy Momo di `implementation/src/domain/guide-script.ts` (placeholder seperti lainnya; suara final belum dikunci). Layout HP 390 px untuk cover masih kasar (bubble menutup sebagian kartu kamera).
+
 ### D-20261105-18 — Rekap klasifikasi percakapan sesi 2026-11-05 (Owner minta diklasifikasikan sendiri)
 Satu tabel supaya AI lain tahu mana yang sudah keputusan, mana yang masih riset, dan di mana jejaknya. Detail tiap butir ada di entri yang ditunjuk; tabel ini tidak mengubah status apa pun.
 
@@ -137,6 +143,7 @@ Satu tabel supaya AI lain tahu mana yang sudah keputusan, mana yang masih riset,
 | Penutup permainan setelah Level 3: Opsi A + B (objek pilihan siswa + kategori Solid/Danger); Opsi C ditunda; kekhawatiran gambar tidak pantas | **RISET, belum dikunci**; jangan diimplementasikan sebelum `SETUJUI D-20261105-15` | D-20261105-15, `project/OPSI_PENUTUP_PERMAINAN.md` |
 | Buku progres PA: dua papan 1:1 (Thinman, Momo), PNG/MP4/GIF/HTML dalam satu folder | Aktif | D-20261105-16, M-014, `academic/progress-book/` |
 | Sayap Momo tidak boleh terlihat putus di animasi mana pun; hanya ujung bawah yang bergerak | Aktif | D-20261105-17, M-015 |
+| Momo tidur di cover, bangun saat kamera menyala (kelak lambaian), menyapa dada-dada satu sayap, dan memandu semua halaman | Aktif | D-20261105-19, M-016 |
 | Aturan dokumen: keputusan dan dokumen di luar `implementation/` ke `DECISIONS.md`; perubahan di dalam `implementation/` ke `implementation/CHANGELOG.md` | Aktif (aturan kerja) | header `DECISIONS.md`, header `implementation/CHANGELOG.md` |
 | Push ke GitHub hanya jika Owner minta eksplisit; commit memakai identitas Owner | Aktif (aturan kerja) | M-008 |
 | Belum ada: model prediksi nyata, logging backend, layout 390 px di HP, ratifikasi coyote time, hapus objek | Terbuka | `NOW.md` bagian Masih terbuka |

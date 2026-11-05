@@ -83,7 +83,7 @@ const PARTS = ["root", "tA", "tB", "tC", "bow", "fL", "fR", "brL", "brR", "mS", 
 
 export class MomoEngine {
   private g: Record<(typeof PARTS)[number], SVGElement>;
-  private P = { x: 0, y: 0, r: 0, sx: 1, sy: 1, fl: 0, fr: 0, bf: 0 };
+  private P = { x: 0, y: 0, r: 0, sx: 1, sy: 1, fl: 0, fr: 0, bf: 0, wv: 0 };
   private F: Num = { ...FD };
   private mo: Num = { ...MD };
   private bl = 1;
@@ -95,6 +95,7 @@ export class MomoEngine {
   private killers: Array<() => void> = [];
   private rt: gsap.core.Animation | null = null;
   private ft: gsap.core.Timeline | null = null;
+  private wt: gsap.core.Timeline | null = null;
   private bt: gsap.core.Animation | null = null;
   private lastRect: { x: number; y: number } | null = null;
   private tick: (time: number, deltaMs: number) => void;
@@ -150,6 +151,22 @@ export class MomoEngine {
     s.fL.v += k[0]!; s.fR.v += k[0]!; s.t1.v += k[1]!; s.t2.v += k[1]! * 0.6; s.bow.v += k[1]! * 0.5;
   }
 
+  /** Asleep: eyes shut, slow breathing from the Ngantuk motion. Waking up is `set(expression)`. */
+  sleep(): void {
+    this.set("Ngantuk");
+    gsap.to(this.F, { el: 0, er: 0, os: 0.3, duration: 0.6, ease: "sine.inOut", overwrite: "auto" });
+  }
+
+  /** Greets with one wing: the screen-left wing tip lifts high and swings a few times (a wave hello), the body leans into it. */
+  wave(): void {
+    this.wt?.kill();
+    this.wt = gsap.timeline()
+      .to(this.P, { r: -4, duration: 0.25, ease: "sine.out" }, 0)
+      .to(this.P, { wv: -48, duration: 0.22, ease: "power2.out" }, 0)
+      .to(this.P, { wv: -6, duration: 0.2, ease: "sine.inOut", yoyo: true, repeat: 7 }, ">")
+      .to(this.P, { wv: 0, r: 0, duration: 0.4, ease: "sine.out" }, ">");
+  }
+
   /** Flap the cloth wings once (used when Momo arrives or celebrates). */
   flap(): void {
     this.ft?.kill();
@@ -192,7 +209,7 @@ export class MomoEngine {
       spring(sp.bow, -0.25 * R + 0.35 * sp.t1.a + sw * 0.35 * Math.sin(TAU * tt / 2.2), k, c, h);
     }
     tf(g.root, X, Y, R, P.sx, P.sy, 695, 640);
-    g.fL.setAttribute("transform", wingTransform("L", sp.fL.a)); g.fR.setAttribute("transform", wingTransform("R", sp.fR.a));
+    g.fL.setAttribute("transform", wingTransform("L", cl(sp.fL.a, -32, 32) + P.wv)); g.fR.setAttribute("transform", wingTransform("R", cl(sp.fR.a, -32, 32)));
     tf(g.tA, 0, 0, cl(sp.t1.a, -22, 22), 1, 1, J.j0[0], J.j0[1]); tf(g.tB, 0, 0, cl(sp.t2.a, -22, 22), 1, 1, J.j1[0], J.j1[1]); tf(g.tC, 0, 0, cl(sp.t3.a, -22, 22), 1, 1, J.j2[0], J.j2[1]);
     tf(g.bow, 0, 0, cl(sp.bow.a, -25, 25), 1, 1, 690, 1350);
     // face: eye travel is clamped so the pupils never leave the outline
@@ -211,7 +228,7 @@ export class MomoEngine {
   destroy(): void {
     this.destroyed = true;
     gsap.ticker.remove(this.tick);
-    this.rt?.kill(); this.ft?.kill(); this.bt?.kill();
+    this.rt?.kill(); this.ft?.kill(); this.wt?.kill(); this.bt?.kill();
     gsap.killTweensOf([this.F, this.mo, this.P, this]);
     this.killers.forEach((k) => k());
     this.killers = [];

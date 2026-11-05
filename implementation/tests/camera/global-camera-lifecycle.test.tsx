@@ -9,6 +9,8 @@ vi.mock("gsap", () => {
   const g = { fromTo: vi.fn(), killTweensOf: vi.fn(), to: vi.fn(), set: vi.fn() };
   return { default: g, ...g };
 });
+// The cover Momo has its own gsap engine; these tests are about the camera lifecycle only.
+vi.mock("@/src/components/momo/MomoGuide", () => ({ MomoGuide: () => null }));
 vi.mock("@mediapipe/tasks-vision", () => ({
   FilesetResolver: { forVisionTasks: vi.fn() },
   HandLandmarker: { createFromOptions: vi.fn() },
@@ -179,7 +181,7 @@ describe("GlobalCamera: GPU -> CPU delegate fallback is surfaced", () => {
     const lm = { detectForVideo: vi.fn(() => ({ landmarks: [] })), close: vi.fn() };
     vi.mocked(HandLandmarker.createFromOptions).mockRejectedValueOnce(new Error("no webgl")).mockResolvedValueOnce(lm as never);
     getUserMedia.mockResolvedValue(fakeStream().stream);
-    render(<GlobalCamera mode="cover" modelUrl="/m" />);
+    render(<GlobalCamera mode="cover" modelUrl="/m" waveStartDelayMs={0} />);
     fireEvent.click(toggle());
     await tick();
     await tick();
@@ -207,7 +209,7 @@ describe("GlobalCamera: wave loop robustness + cleanup", () => {
     vi.mocked(HandLandmarker.createFromOptions).mockResolvedValue(lm as never);
     getUserMedia.mockResolvedValue(fakeStream().stream);
     const onWave = vi.fn();
-    render(<GlobalCamera mode="cover" modelUrl="/m" onWave={onWave} />);
+    render(<GlobalCamera mode="cover" modelUrl="/m" waveStartDelayMs={0} onWave={onWave} />);
     fireEvent.click(toggle());
     await tick();
     await tick();
@@ -226,7 +228,7 @@ describe("GlobalCamera: wave loop robustness + cleanup", () => {
     vi.mocked(HandLandmarker.createFromOptions).mockResolvedValue(lm as never);
     const { stream, track } = fakeStream();
     getUserMedia.mockResolvedValue(stream);
-    const { unmount } = render(<GlobalCamera mode="cover" modelUrl="/m" />);
+    const { unmount } = render(<GlobalCamera mode="cover" modelUrl="/m" waveStartDelayMs={0} />);
     fireEvent.click(toggle());
     await tick();
     await tick();
@@ -243,7 +245,7 @@ describe("GlobalCamera: wave loop robustness + cleanup", () => {
     vi.mocked(HandLandmarker.createFromOptions).mockResolvedValue(lm as never);
     const { stream, track } = fakeStream();
     getUserMedia.mockResolvedValue(stream);
-    const { rerender } = render(<GlobalCamera mode="cover" modelUrl="/m" />);
+    const { rerender } = render(<GlobalCamera mode="cover" modelUrl="/m" waveStartDelayMs={0} />);
     fireEvent.click(toggle());
     await tick();
     await tick();

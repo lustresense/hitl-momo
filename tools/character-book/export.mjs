@@ -1,7 +1,7 @@
 // Exports the two 1:1 boards for PPT/Word: node tools/character-book/export.mjs
 // Needs: implementation/node_modules (playwright-core), a Chromium (CHROMIUM_PATH or /opt/pw-browsers/chromium),
 // and ffmpeg on PATH (also what Playwright's video recorder uses; see docs/execution/RUN_GUIDE.md).
-// Output in academic/progress-book/: karakter-{thinman,momo}-1x1.{png,mp4,gif}
+// Output in academic/progress-book/karakter/: karakter-{thinman,momo}-1x1.{png,mp4,gif}
 import { chromium } from "../../implementation/node_modules/playwright-core/index.mjs";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
@@ -10,7 +10,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const out = path.resolve(here, "../../academic/progress-book");
+const out = path.resolve(here, "../../academic/progress-book/karakter");
 const page_url = "file://" + path.join(out, "karakter-thinman-momo.html");
 const exe = process.env.CHROMIUM_PATH || (fs.existsSync("/opt/pw-browsers/chromium") ? "/opt/pw-browsers/chromium" : undefined);
 const SECONDS = { thinman: 16, momo: 28 };

@@ -16,7 +16,8 @@
 .tut-front__stitch { position: absolute; inset: 16px; border: 3px dashed rgba(255, 250, 240, .7); border-radius: 12px; }
 .tut-front__number { position: relative; font-size: calc(var(--gw) * .66); font-weight: 900; line-height: 1; color: #fffaf0; -webkit-text-stroke: calc(var(--gw) * .02) var(--nb-ink); paint-order: stroke fill; text-shadow: calc(var(--gw) * .022) calc(var(--gw) * .022) 0 var(--nb-ink); }
 .tut-front__done { position: absolute; right: 18px; top: 18px; display: grid; place-items: center; width: calc(var(--gw) * .17); aspect-ratio: 1; color: #fffaf0; background: var(--nb-green); border: 4px solid var(--nb-ink); border-radius: 50%; transform: scale(0); transition: transform .5s var(--nb-ease-pop) .5s; }
-.tut-card.is-done .tut-front__done { transform: scale(1); }
+.tut-card.is-done .tut-front__done { transform: scale(1); width: 44%; right: -4%; top: -3%; }
+.tut-card.is-done .tut-front__done svg { width: 56%; height: 56%; }
 
 .tut-back { transform: rotateY(180deg); display: flex; flex-direction: column; padding: 26px 24px 22px; background: var(--nb-leaf); border-radius: 20px 6px 6px 20px; }
 .tut-steps { display: flex; gap: 8px; }
@@ -91,3 +92,27 @@
 @media (prefers-reduced-motion: reduce) {
   .tut-handhint__hand, .tut-draw__ghost, .tut-zone__man--hop, .tut-zone__man--ouch, .tut-flag.is-waving .tut-flag__cloth, .tut-back .brochure-cta:not(:disabled) { animation: none; }
 }
+
+/* ======================= Cover, camera choice, student number: same kit as the rest ======================= */
+.camera-prototype-root.mode-cover .eyebrow { display: inline-flex; margin: 0 0 26px; padding: 6px 14px; font-size: 12px; font-weight: 900; letter-spacing: .06em; background: var(--nb-paper); border: 2.5px solid var(--nb-ink); border-radius: 999px; box-shadow: 3px 3px 0 var(--nb-ink); transform: rotate(-1.5deg); }
+.camera-prototype-root.mode-cover .headline { margin: 0 0 14px; font-weight: 900; color: var(--nb-ink); text-shadow: 4px 4px 0 var(--nb-orange); }
+.camera-prototype-root.mode-cover .subtext { margin: 0 0 26px; font-weight: 700; }
+.camera-prototype-root.mode-cover .toggle-card { width: min(318px, 86vw); background: var(--nb-orange); border: 3px solid var(--nb-ink); border-radius: 20px; box-shadow: 6px 6px 0 var(--nb-ink); }
+.camera-prototype-root.mode-cover .toggle-card::before { inset: 9px; border: 2.5px dashed rgba(255, 250, 240, .75); border-radius: 13px; }
+.camera-prototype-root.mode-cover .toggle-card::after { display: none; }
+.camera-prototype-root.mode-cover .toggle-label { color: var(--nb-ink); font-size: 16px; font-weight: 900; }
+.camera-prototype-root.mode-cover .toggle-row { min-height: 38px; padding: 4px 4px 0; }
+.camera-prototype-root.mode-cover .toggle-switch { width: 56px; height: 32px; background: var(--nb-paper); border: 2.5px solid var(--nb-ink); box-shadow: 2px 2px 0 var(--nb-ink); }
+.camera-prototype-root.mode-cover .toggle-switch::after { top: 3px; left: 3px; width: 20px; height: 20px; background: var(--nb-ink); }
+.camera-prototype-root.mode-cover .toggle-card.on .toggle-switch { background: var(--nb-green); }
+.camera-prototype-root.mode-cover .toggle-card.on .toggle-switch::after { background: var(--nb-paper); transform: translateX(24px); }
+.camera-prototype-root.mode-cover .camera-select { border-radius: 12px; color: var(--nb-ink); font-size: 12.5px; background: var(--nb-paper); box-shadow: 2px 2px 0 var(--nb-ink); }
+.camera-prototype-root.mode-cover .toggle-card.on .video-wrap { border: 3px solid var(--nb-ink); border-radius: 12px; max-height: 30vh; }
+/* With the camera on the headline is one line: keep everything inside a 720px screen. */
+.camera-prototype-root.mode-cover:has(.toggle-card.on) .eyebrow { display: none; }
+.camera-prototype-root.mode-cover:has(.toggle-card.on) .subtext { margin-bottom: 18px; }
+.camera-prototype-root.mode-cover .cover-skip-block { margin-top: 18px !important; }
+.camera-skip.nb-btn { margin-top: 0; }
+
+.student-number-screen .student-ruler { background: var(--nb-orange); border: 3px solid var(--nb-ink); box-shadow: 6px 6px 0 var(--nb-ink); }
+.student-number-screen .student-number-confirm { margin-top: 18px; padding: 10px 22px; min-height: 52px; font-size: 16px; }

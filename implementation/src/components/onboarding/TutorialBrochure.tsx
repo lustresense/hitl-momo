@@ -31,7 +31,9 @@ interface Layout {
   fit: number; // scale that makes the open book fit the viewport
   s0: number; // card scale while closed
   gap: number; // spacing of the fan
-  edge: number; // x of the piles
+  mini: number; // scale of a resting card in the row at the bottom
+  miniGap: number;
+  miniY: number;
   vh: number;
 }
 
@@ -44,7 +46,8 @@ function computeLayout(): Layout {
   const fit = Math.min(1, (vw * 0.94) / (gw + pw), (vh * 0.86) / oh);
   const closedW = Math.min(214, Math.max(150, vw * 0.17));
   const s0 = closedW / gw;
-  return { gw, pw, oh, fit, s0, gap: closedW * 1.1, edge: vw / 2 - closedW * 0.5 - 10, vh };
+  const mini = 46 / gw;
+  return { gw, pw, oh, fit, s0, gap: closedW * 1.1, mini, miniGap: 62, miniY: vh / 2 - (oh * mini) / 2 - 22, vh };
 }
 
 const FAN_ROT = [-5, 1.5, 5.5];
@@ -262,15 +265,9 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
     return l;
   }, []);
 
-  /** Where a card rests when it is not the open one. */
-  const restPose = useCallback((i: number, current: number, l: Layout) => {
-    const narrow = window.innerWidth < 760;
-    if (i < current) {
-      const k = i; // done pile on the left
-      return { x: -l.edge + k * 12, y: 6 + k * 5, rotation: -6 + k * 3, scale: l.s0 * 0.86, opacity: narrow ? 0 : 1 };
-    }
-    const k = i - current - 1; // waiting pile on the right
-    return { x: l.edge - k * 12, y: 6 + k * 5, rotation: 6 - k * 3, scale: l.s0 * 0.86, opacity: narrow ? 0 : 1 };
+  /** Where a card rests when it is not the open one: a little numbered stamp in the row at the bottom. */
+  const restPose = useCallback((i: number, _current: number, l: Layout) => {
+    return { x: (i - 1) * l.miniGap, y: l.miniY, rotation: 0, scale: l.mini, opacity: 1 };
   }, []);
 
   /** Card i flies to the centre, flips, then its practice page unfolds. */
@@ -285,17 +282,18 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
         setActive(i);
         cardRefs.current.forEach((c, j) => c && gsap.set(c, { zIndex: j === i ? 60 : j < i ? 10 + j : 30 - j }));
       }, 0);
-      // The cards still waiting slide to the right-hand pile.
-      for (let j = i + 1; j < 3; j++) {
+      // The other cards tuck into the row at the bottom.
+      for (let j = 0; j < 3; j++) {
         const c = cardRefs.current[j];
-        if (c) tl.to(c, { ...restPose(j, i, l), duration: 0.75, ease: "power3.inOut" }, 0);
+        if (c && j !== i) tl.to(c, { ...restPose(j, i, l), duration: 0.55, ease: "power3.inOut" }, 0);
       }
-      tl.to(card, { x: 0, y: 0, rotation: 0, scale: l.fit, opacity: 1, duration: 0.95, ease: "power3.inOut" }, 0)
-        .to(flip, { rotationY: 180, duration: 0.95, ease: "power2.inOut" }, 0)
-        .set(play, { opacity: 1 }, 0.9)
-        .to(play, { rotationY: 0, duration: 0.8, ease: "power3.out" }, 0.88)
-        .to(card, { x: (-l.pw / 2) * l.fit, duration: 0.8, ease: "power3.out" }, 0.88)
-        .add(() => setOpen(i), 1.45);
+      tl.to(card, { x: 0, y: 0, rotation: 0, scale: l.fit, opacity: 1, duration: 0.8, ease: "power3.inOut" }, 0)
+        .to(flip, { rotationY: 180, duration: 0.8, ease: "power2.inOut" }, 0)
+        .set(play, { opacity: 1 }, 0.72)
+        .fromTo(play, { filter: "brightness(.62)" }, { filter: "brightness(1)", duration: 0.55, ease: "power2.out" }, 0.72)
+        .to(play, { rotationY: 0, duration: 0.6, ease: "power3.out" }, 0.72)
+        .to(card, { x: (-l.pw / 2) * l.fit, duration: 0.6, ease: "power3.out" }, 0.72)
+        .add(() => setOpen(i), 1.25);
       return tl;
     },
     [restPose],
@@ -310,11 +308,12 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
       const play = playRefs.current[i]!;
       const tl = gsap.timeline();
       tl.add(() => setOpen(-1), 0);
-      tl.to(play, { rotationY: -92, duration: 0.5, ease: "power2.in" }, 0)
-        .set(play, { opacity: 0 }, 0.5)
-        .to(card, { x: 0, duration: 0.5, ease: "power2.inOut" }, 0)
-        .to(flip, { rotationY: 0, duration: 0.7, ease: "power2.inOut" }, 0.38)
-        .to(card, { ...restPose(i, i + 1, l), duration: 0.85, ease: "power3.inOut" }, 0.42);
+      tl.to(play, { rotationY: -92, duration: 0.42, ease: "power2.in" }, 0)
+        .to(play, { filter: "brightness(.62)", duration: 0.42, ease: "power2.in" }, 0)
+        .set(play, { opacity: 0 }, 0.42)
+        .to(card, { x: 0, duration: 0.42, ease: "power2.inOut" }, 0)
+        .to(flip, { rotationY: 0, duration: 0.5, ease: "power2.inOut" }, 0.32)
+        .to(card, { ...restPose(i, i + 1, l), duration: 0.6, ease: "power3.inOut" }, 0.36);
       return tl;
     },
     [restPose],
@@ -328,12 +327,12 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
       timelineRef.current = tl;
       tl.add(closeTimeline(from), 0);
       if (from < 2) {
-        tl.add(openTimeline((from + 1) as CardIndex), 0.5);
+        tl.add(openTimeline((from + 1) as CardIndex), 0.55);
       } else {
         // Everything is put away, then on to the level list.
         const cards = cardRefs.current.filter(Boolean) as HTMLElement[];
-        tl.to(cards, { y: -window.innerHeight, rotation: (i: number) => (i % 2 ? 8 : -8), duration: 0.6, ease: "power2.in", stagger: 0.07 }, 1.05)
-          .add(() => onStartRef.current(), 1.55);
+        tl.to(cards, { y: window.innerHeight, opacity: 0, duration: 0.45, ease: "power2.in", stagger: 0.05 }, 0.95)
+          .add(() => onStartRef.current(), 1.45);
       }
       if (reducedRef.current) tl.timeScale(6);
     },
@@ -347,11 +346,11 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
     const plays = playRefs.current as HTMLElement[];
     gsap.set(plays, { transformPerspective: 1800, transformOrigin: "0% 50%", rotationY: -92, opacity: 0 });
     gsap.set(flipRefs.current as HTMLElement[], { rotationY: 0 });
-    gsap.set(cards, { scale: l.s0 * 0.9, x: (i: number) => (i - 1) * l.gap, y: -l.vh * 0.6, rotation: 0, opacity: 0, zIndex: (i: number) => 30 - i });
+    gsap.set(cards, { scale: l.s0 * 0.9, x: (i: number) => (i - 1) * l.gap, y: -l.vh * 0.55, rotation: 0, opacity: 0, zIndex: (i: number) => 30 - i });
     const tl = gsap.timeline();
     timelineRef.current = tl;
-    tl.to(cards, { opacity: 1, y: 0, scale: l.s0, rotation: (i: number) => FAN_ROT[i]!, duration: 0.95, ease: "back.out(1.25)", stagger: 0.13 })
-      .add(openTimeline(0), "+=0.3");
+    tl.to(cards, { opacity: 1, y: 0, scale: l.s0, rotation: (i: number) => FAN_ROT[i]!, duration: 0.7, ease: "power3.out", stagger: 0.09 })
+      .add(openTimeline(0), "+=0.25");
     if (reducedRef.current) tl.timeScale(6);
     const onResize = () => {
       if (busyRef.current || timelineRef.current?.isActive()) return;

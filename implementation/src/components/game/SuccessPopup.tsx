@@ -62,6 +62,7 @@ export function SuccessPopup({ summary, onWin, onContinue }: SuccessPopupProps) 
           avatarHeight={300}
           trackMotion
           flapKey={flapKey}
+          extrasFrom="first"
           onDone={() => setFinished(true)}
           testId="success-chat"
         >

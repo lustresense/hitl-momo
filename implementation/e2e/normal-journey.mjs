@@ -145,7 +145,7 @@ try {
     all[stage] = await runLevel(stage);
     // Success is Momo's chat INSIDE the dimmed world; the level list opens by itself (or via the thumb cue).
     await page.locator("[data-testid=success-chat]").waitFor({ timeout: 8000 });
-    await page.locator("[data-testid=success-chat][data-finished=true]").waitFor({ timeout: 12000 });
+    await page.locator("[data-testid=success-chat][data-finished=true]").waitFor({ timeout: 25000 });
     await shot(`L${stage}-04-success-chat-in-world`);
     const chatText = (await page.locator("[data-testid=success-chat]").innerText()).replace(/\s+/g, " ");
     log(`L${stage}: Momo success chat`, chatText);

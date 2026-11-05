@@ -27,7 +27,7 @@ describe("MissionBriefing Component", () => {
     // Instruction / Goal
     expect(screen.getByText(/Di depan ada celah/i)).toBeTruthy();
     // Momo speaks the hint
-    expect(screen.getByTestId("mission-chat").textContent).toContain("Momo");
+    expect(screen.getByTestId("mission-chat").textContent).toContain("Di depan ada celah");
     // Examples (papan, balok, tangga derived from L1)
     expect(screen.getByText(/Balok/i)).toBeTruthy();
     expect(screen.getByText(/Papan/i)).toBeTruthy();
@@ -40,7 +40,7 @@ describe("MissionBriefing Component", () => {
     expect(onStartDrawing).toHaveBeenCalledTimes(1);
   });
 
-  it("calls onClose or onStartDrawing on Close button or Skip button", () => {
+  it("calls onClose or onStartDrawing on the Close button", () => {
     const onStartDrawing = vi.fn();
     const onClose = vi.fn();
     render(

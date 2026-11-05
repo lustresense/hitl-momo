@@ -10,11 +10,12 @@ interface ToolButtonProps {
   ariaLabel: string;
   title: string;
   active?: boolean;
+  disabled?: boolean;
   extraClass?: string;
   onClick?: () => void;
 }
 
-function ToolButton({ icon, label, ariaLabel, title, active = false, extraClass, onClick }: ToolButtonProps) {
+function ToolButton({ icon, label, ariaLabel, title, active = false, disabled = false, extraClass, onClick }: ToolButtonProps) {
   return (
     <button
       type="button"
@@ -22,6 +23,7 @@ function ToolButton({ icon, label, ariaLabel, title, active = false, extraClass,
       aria-label={ariaLabel}
       aria-pressed={active ? true : undefined}
       title={title}
+      disabled={disabled}
       onClick={onClick}
     >
       <Icon name={icon} size={30} stroke={2} />
@@ -31,19 +33,20 @@ function ToolButton({ icon, label, ariaLabel, title, active = false, extraClass,
 }
 
 export interface DrawingToolbarProps {
-  visible: boolean;
+  /** The tools stay on screen for balance; they only work while the student is drawing. */
+  enabled: boolean;
   onClear: () => void;
   onUndo: () => void;
   onRedo: () => void;
 }
 
-export function DrawingToolbar({ visible, onClear, onUndo, onRedo }: DrawingToolbarProps) {
+export function DrawingToolbar({ enabled, onClear, onUndo, onRedo }: DrawingToolbarProps) {
   return (
-    <aside className="nb-toolbar" role="toolbar" aria-label="Alat menggambar" style={{ display: visible ? undefined : "none" }}>
-      <ToolButton icon="hand-draw" label="Gambar" ariaLabel="Gambar, gestur cubit" title="Gambar dengan cubitan jari" active />
-      <ToolButton icon="hand-erase" label="Hapus" ariaLabel="Hapus" title="Hapus semua gambar" onClick={onClear} />
-      <ToolButton icon="hand-undo" label="Mundur" ariaLabel="Undo Goresan" title="Mundur satu goresan" extraClass="undo-tool" onClick={onUndo} />
-      <ToolButton icon="hand-redo" label="Maju" ariaLabel="Maju" title="Maju satu goresan" extraClass="redo-tool" onClick={onRedo} />
+    <aside className={`nb-toolbar${enabled ? "" : " is-idle"}`} role="toolbar" aria-label="Alat menggambar">
+      <ToolButton icon="hand-draw" label="Gambar" ariaLabel="Gambar, gestur cubit" title="Gambar dengan cubitan jari" active disabled={!enabled} />
+      <ToolButton icon="hand-erase" label="Hapus" ariaLabel="Hapus" title="Hapus semua gambar" disabled={!enabled} onClick={onClear} />
+      <ToolButton icon="hand-undo" label="Mundur" ariaLabel="Undo Goresan" title="Mundur satu goresan" extraClass="undo-tool" disabled={!enabled} onClick={onUndo} />
+      <ToolButton icon="hand-redo" label="Maju" ariaLabel="Maju" title="Maju satu goresan" extraClass="redo-tool" disabled={!enabled} onClick={onRedo} />
     </aside>
   );
 }

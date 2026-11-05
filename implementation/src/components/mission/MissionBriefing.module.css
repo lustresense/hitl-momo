@@ -1,31 +1,30 @@
-/* Mission hint: Momo chat on a paper sheet. Same tokens as the rest of the kit (see app/styles/96-kit-base.css). */
+/* Mission hint: no card. The world dims and Momo talks straight onto it, like the win screen. */
 .backdrop {
   position: fixed; inset: 0; z-index: 2000;
   display: flex; align-items: center; justify-content: center; padding: 16px;
-  background: rgba(17, 17, 17, 0.45);
-  animation: fade .2s ease-out both;
+  background: rgba(17, 17, 17, 0.5);
+  animation: fade .25s ease-out both;
 }
-.modalCard {
-  position: relative; width: min(560px, 100%); max-height: calc(100vh - 32px); overflow: auto;
-  display: flex; flex-direction: column; gap: 14px; padding: 22px 22px 18px;
-  background: var(--nb-paper); border: var(--nb-border) solid var(--nb-ink); border-radius: 20px; box-shadow: 6px 6px 0 var(--nb-ink);
-  animation: rise .32s var(--nb-ease-pop) both;
+.sheet {
+  position: relative; width: min(760px, 100%); max-height: calc(100vh - 32px);
+  display: flex; flex-direction: column; align-items: flex-start; gap: 16px;
+  animation: rise .34s var(--nb-ease-pop) both;
 }
 .closeButton {
-  position: absolute; top: 10px; right: 10px; z-index: 2;
-  display: grid; place-items: center; width: 38px; height: 38px; padding: 0;
-  color: var(--nb-ink); background: var(--nb-paper); border: 2px solid var(--nb-ink); border-radius: 12px; box-shadow: 2px 2px 0 var(--nb-ink); cursor: pointer;
+  position: fixed; top: 16px; right: 18px; z-index: 2;
+  display: grid; place-items: center; width: 46px; height: 46px; padding: 0;
+  color: var(--nb-ink); background: var(--nb-paper); border: 2.5px solid var(--nb-ink); border-radius: 14px; box-shadow: 3px 3px 0 var(--nb-ink); cursor: pointer;
 }
-.closeButton:hover { background: #fff; transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--nb-ink); }
+.closeButton:hover { background: #fff; transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--nb-ink); }
 .closeButton:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--nb-ink); }
 .closeButton:focus-visible { outline: 3px solid var(--nb-sky); outline-offset: 3px; }
-.examplesList { display: flex; flex-wrap: wrap; gap: 8px; margin: 2px 0 0; padding: 0; list-style: none; }
+.examplesList { display: flex; flex-wrap: wrap; gap: 8px; margin: 4px 0 0; padding: 0; list-style: none; }
 .exampleChip {
   display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 8px;
   font-weight: 800; font-size: 14px; color: var(--nb-ink);
   background: var(--nb-leaf); border: 2px solid var(--nb-ink); border-radius: 12px; box-shadow: 2px 2px 0 var(--nb-ink);
 }
-.actions { display: flex; justify-content: flex-end; align-items: center; gap: 10px; }
+.sheet > :global(.gesture-cue) { align-self: flex-start; margin-left: 150px; }
 @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
 @keyframes rise { from { opacity: 0; transform: translateY(14px) scale(.96); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .backdrop, .modalCard { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .backdrop, .sheet { animation: none; } }

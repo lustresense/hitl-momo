@@ -16,12 +16,14 @@ import { StageWorld } from "../stage-preview/StageWorld";
 import { getStageGeometry } from "@/src/game/stage-geometry";
 import { Icon } from "../ui/Icon";
 import { ThinmanArt } from "../ui/ThinmanArt";
-import { SkyBackdrop } from "../ui/SkyBackdrop";
+import { CloudBand } from "../ui/SkyBackdrop";
 
 /** How long the finished story stays before Momo flies up on her own. */
 export const INTRO_LINGER_MS = 2200;
 
 type Phase = "drop" | "story" | "rise";
+/** The camera column is three screens tall: clean sky on top, a band of clouds, then the world. */
+const CAMERA_START = -66.6667;
 
 export interface LevelIntroProps {
   level: LevelDefinition;
@@ -40,6 +42,7 @@ export function LevelIntro({ level, characterDisplayName, onReveal, onFinish }: 
   const rootRef = useRef<HTMLDivElement>(null);
   const cameraRef = useRef<HTMLDivElement>(null);
   const momoRef = useRef<HTMLDivElement>(null);
+  const nearRef = useRef<HTMLDivElement>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const lingerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const finishRef = useRef(onFinish);
@@ -82,7 +85,8 @@ export function LevelIntro({ level, characterDisplayName, onReveal, onFinish }: 
     timelineRef.current = tl;
     tl.to(momo, { y: "+=16", duration: 0.28, ease: "power2.out" })
       .to(momo, { y: 0, x: 0, duration: 1.15, ease: "power3.out" }, 0.28)
-      .to(camera, { yPercent: 0, duration: 1.55, ease: "power2.inOut" }, 0.36)
+      .to(camera, { yPercent: 0, duration: 2.1, ease: "power2.inOut" }, 0.36)
+      .fromTo(nearRef.current, { y: -220 }, { y: 260, duration: 2.1, ease: "power1.inOut" }, 0.36)
       .to(momo, { rotation: -6, duration: 0.5, ease: "sine.inOut", yoyo: true, repeat: 1 }, 0.4)
       .to({}, { duration: 0.25 });
   }, [finish, phase]);
@@ -95,7 +99,7 @@ export function LevelIntro({ level, characterDisplayName, onReveal, onFinish }: 
     if (!root || !camera || !momo) return;
     const storyX = () => Math.round(window.innerWidth * 0.16);
     const storyY = () => Math.round(window.innerHeight * 0.34);
-    gsap.set(camera, { yPercent: -50 });
+    gsap.set(camera, { yPercent: CAMERA_START });
     if (reducedMotion()) {
       gsap.set(root, { yPercent: 0, rotation: 0 });
       gsap.set(momo, { x: storyX(), y: storyY() });
@@ -133,8 +137,12 @@ export function LevelIntro({ level, characterDisplayName, onReveal, onFinish }: 
   return (
     <div ref={rootRef} className="level-intro" data-testid="level-intro" data-phase={phase} data-stage={level.stage}>
       <div ref={cameraRef} className="intro-camera">
-        <div className="intro-sky">
-          <SkyBackdrop />
+        <div className="intro-sky" />
+        <div className="intro-clouds">
+          <CloudBand layer="far" />
+          <div className="intro-clouds__near" ref={nearRef}>
+            <CloudBand layer="near" />
+          </div>
         </div>
         <div className="intro-world">
           <div className="intro-world__art">
@@ -155,6 +163,7 @@ export function LevelIntro({ level, characterDisplayName, onReveal, onFinish }: 
             avatarHeight={170}
             trackMotion
             flapKey={flap}
+            extrasFrom="first"
             onDone={() => setStoryDone(true)}
             testId="intro-chat"
           >
@@ -168,9 +177,8 @@ export function LevelIntro({ level, characterDisplayName, onReveal, onFinish }: 
         </MomoChat>
       </div>
 
-      <button type="button" className="nb-btn nb-btn--ghost btn-small intro-skip" data-testid="intro-skip" onClick={finish}>
-        Lewati
-        <Icon name="arrow-right" size={18} stroke={2.6} />
+      <button type="button" className="nb-iconbtn intro-skip" data-testid="intro-skip" aria-label="Lewati cerita" title="Lewati cerita" onClick={finish}>
+        <Icon name="arrow-right" size={22} stroke={3} />
       </button>
     </div>
   );

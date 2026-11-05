@@ -213,7 +213,7 @@ export function StudentRulerSelector({
             <div className="student-ruler-needle" aria-hidden="true" />
           </div>
         </div>
-        <button type="button" className="student-number-confirm" onClick={() => onConfirm(value)}>
+        <button type="button" className="student-number-confirm nb-btn nb-btn--primary" onClick={() => onConfirm(value)}>
           Lanjut ke Tutorial
         </button>
       </div>

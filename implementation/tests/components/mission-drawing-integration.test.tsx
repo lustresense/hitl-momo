@@ -15,7 +15,7 @@ describe("mission briefing and drawing integration", () => {
     const drawingProps = () => ({ level: LEVELS[0]!, initialMode: "pointer" as const, feedback: null, surfaceOut, onSubmit: vi.fn(), onExit: vi.fn(), missionConfig: config, missionOpen, onOpenMission: () => { missionOpen = true; view.rerender(<DrawingScreen {...drawingProps()} />); }, onCloseMission: () => { missionOpen = false; view.rerender(<DrawingScreen {...drawingProps()} />); } });
     const view = render(<DrawingScreen {...drawingProps()} />);
     const canvas = screen.getByTestId("draw-canvas");
-    expect(screen.getByRole("dialog").textContent).toContain("Momo");
+    expect(screen.getByTestId("mission-chat")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Bantu Custom Thinman menyeberang!" })).toBeTruthy();
     fireEvent.click(screen.getByRole("button", { name: /Mulai Menggambar/i }));
     expect(screen.queryByRole("dialog")).toBeNull();

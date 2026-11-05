@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { setSharedStream } from "../../camera/shared-stream";
+import { Icon } from "../ui/Icon";
 import { WaveTracker } from "../../camera/wave-tracker";
 import { DRAWING_MODE_EVENT, HAND_STATUS_EVENT, classifyCameraError, messageFor } from "../../camera/messages";
 import type { HandInputStatus } from "../../input/types";
@@ -447,8 +448,9 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip, recessed = false 
 
         {mode === "cover" && (
           <div className="cover-skip-block" style={{ marginTop: 20 }}>
-            <button type="button" className="camera-skip" onClick={onSkip}>
+            <button type="button" className="camera-skip nb-btn nb-btn--ghost" onClick={onSkip}>
               Lewati &amp; Pilih Nomor Absen
+              <Icon name="arrow-right" size={18} stroke={2.8} />
             </button>
           </div>
         )}

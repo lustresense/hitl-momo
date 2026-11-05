@@ -73,6 +73,7 @@ try {
   const reason = await page.locator("[data-testid=fail-reason]").textContent({ timeout: 2000 }).catch(() => null);
   check("A: walking off the cliff gives FAIL (not success)", m.outcome === "fail", { outcome: m.outcome, y: m.y });
   check("A: fail reason shown to student", /jurang/i.test(reason ?? ""), reason);
+  await page.locator("[data-testid=btn-retry-cycle]").waitFor({ state: "visible", timeout: 6000 }).catch(() => {}); // Momo's first bubble comes first, then the actions
   check("A: fail overlay offers retry / reposition / redraw", await page.locator("[data-testid=btn-retry-cycle]").isVisible() && await page.locator("[data-testid=btn-reposition]").isVisible() && await page.locator("[data-testid=btn-redraw-gameplay]").isVisible());
   await shot("A-01-fail-overlay");
   await page.locator("[data-testid=btn-retry-cycle]").click(); await sleep(500);
@@ -83,7 +84,7 @@ try {
   await shot("A-02-win-after-retry");
 
   // ---------- B) L3 danger -> fail -> Redraw -> win ----------
-  await page.locator("[data-testid=success-chat][data-finished=true]").waitFor({ timeout: 12000 });
+  await page.locator("[data-testid=success-chat][data-finished=true]").waitFor({ timeout: 25000 });
   await page.locator("[data-testid=btn-continue]").click(); // the thumb cue opens the level list
   await page.locator(".level-card").nth(2).waitFor({ state: "visible", timeout: 15000 });
   await enterLevel(page, 3, m => log(m));

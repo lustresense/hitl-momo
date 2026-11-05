@@ -26,7 +26,6 @@ export function MissionBriefing({
   const dialogRef = useRef<HTMLDivElement>(null);
   const primaryBtnRef = useRef<HTMLButtonElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
-  const skipBtnRef = useRef<HTMLButtonElement>(null);
   const previouslyFocusedRef = useRef<HTMLElement | null>(null);
 
   // Parents pass inline handlers; keep the latest in refs so the listener effect only depends on isOpen.
@@ -139,7 +138,7 @@ export function MissionBriefing({
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className={styles.modalCard}
+        className={styles.sheet}
       >
         <button
           ref={closeBtnRef}
@@ -158,8 +157,9 @@ export function MissionBriefing({
         <MomoChat
           lines={[config.title, config.instruction]}
           mood="Senang"
-          avatarHeight={150}
+          avatarHeight={190}
           typing={false}
+          stack
           testId="mission-chat"
         >
           {config.examples.length > 0 && (
@@ -174,15 +174,13 @@ export function MissionBriefing({
           )}
         </MomoChat>
 
-        <div className={styles.actions}>
-          <button ref={skipBtnRef} type="button" className="nb-btn nb-btn--ghost btn-small" onClick={handleDismiss}>
-            Lewati
-          </button>
-          <button ref={primaryBtnRef} type="button" className="nb-btn nb-btn--primary" onClick={onStartDrawing}>
-            <Icon name="pencil" size={20} />
-            {config.primaryCtaLabel}
-          </button>
-        </div>
+        {/* The thumb is the "go" gesture everywhere (win, story, hint); there is no skip. */}
+        <button ref={primaryBtnRef} type="button" className="gesture-cue" onClick={onStartDrawing}>
+          <span className="gesture-cue__hand">
+            <Icon name="thumb-up" size={30} stroke={2.2} />
+          </span>
+          <span className="gesture-cue__label">{config.primaryCtaLabel}</span>
+        </button>
       </div>
     </div>
   );

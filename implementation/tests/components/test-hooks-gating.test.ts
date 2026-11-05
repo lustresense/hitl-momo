@@ -10,6 +10,7 @@ describe("test-only window hooks are not installed in production", () => {
     "src/components/game/hooks/usePlacement.ts",
     "src/components/drawing/DrawingScreen.tsx",
     "src/app/SketchbookApp.tsx",
+    "src/app/hooks/useLevelSession.ts",
   ]) {
     it(`${file}: __skb* assignments are gated by testHooksEnabled`, () => {
       const lines = readFileSync(file, "utf8").split("\n");

@@ -1,28 +1,24 @@
 "use client";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { LEVELS, getLevel } from "@/src/domain/levels";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { getLevel, type LevelDefinition } from "@/src/domain/levels";
 import type { DrawingSurface } from "@/src/input";
-import type { LevelDefinition } from "@/src/domain/levels";
-import { createEventSink } from "@/src/events";
-import { FlowController } from "./state-machine";
 import { useFlowSnapshot } from "@/src/hooks/use-flow";
-import { createPredictionProvider, env } from "@/src/config/env";
-import { MockPredictionProvider } from "@/src/prediction/mock-prediction-provider";
-import { DevBanner } from "@/src/components/shared/DevBanner";
+import { env } from "@/src/config/env";
 import { MomoBubble } from "@/src/components/momo/MomoBubble";
-import { Top3Panel } from "@/src/components/prediction/Top3Panel";
-import { PredictingScreen } from "@/src/components/prediction/PredictingScreen";
-import { DecisionPanel } from "@/src/components/decision/DecisionPanel";
-import { GameStage } from "@/src/components/game/GameStage";
-import { CreationStore, type WorldCreation } from "@/src/game/creation-store";
 import { TutorialBrochure } from "@/src/components/onboarding/TutorialBrochure";
 import { StudentRulerSelector } from "@/src/components/onboarding/StudentRulerSelector";
-import { DrawingScreen } from "@/src/components/drawing/DrawingScreen";
-import { getMissionConfigForLevel } from "@/src/domain/mission-config";
-import { DEFAULT_CHARACTER_NAME, formatCharacterText, resolveCharacterDisplayName } from "@/src/config/character-tokens";
 import { GlobalCamera } from "@/src/components/camera/GlobalCamera";
-import { LevelRibbonBookmark } from "@/src/components/level/LevelRibbonBookmark";
-import { LOCKED_LEVEL_NOTICE, resolveAppRoute } from "./route-guard";
+import { DEFAULT_CHARACTER_NAME, resolveCharacterDisplayName } from "@/src/config/character-tokens";
+import { isLevelUnlocked } from "./level-progress";
+import { useEntryHold } from "./hooks/useEntryHold";
+import { useLevelCompletion } from "./hooks/useLevelCompletion";
+import { useLevelSession } from "./hooks/useLevelSession";
+import { useRouteState } from "./hooks/useRouteState";
+import { useRouteSync } from "./hooks/useRouteSync";
+import { AppShell } from "./screens/AppShell";
+import { DrawingFlowScreen } from "./screens/DrawingFlowScreen";
+import { GameplayScreen } from "./screens/GameplayScreen";
+import { LevelEntryScreen } from "./screens/LevelEntryScreen";
 
 /**
  * TASK 01/03 & UI OVERHAUL — Application shell (client-only).
@@ -30,201 +26,33 @@ import { LOCKED_LEVEL_NOTICE, resolveAppRoute } from "./route-guard";
  * to screens. Persistent global camera widget stays mounted across all routes.
  */
 export function SketchbookApp() {
-  const characterDisplayName = resolveCharacterDisplayName(process.env.NEXT_PUBLIC_CHARACTER_DISPLAY_NAME ?? DEFAULT_CHARACTER_NAME);
-  const [controller, setController] = useState<FlowController | null>(null);
-  const [providerMode, setProviderMode] = useState<"mock" | "partner">(env.predictionMode);
-  const [onboarding, setOnboarding] = useState<"camera" | "number" | "tutorial" | "levels">("camera");
-  const [routeNotice, setRouteNotice] = useState<string | null>(null);
-  const routeGuardActive = useRef(false);
+  const characterDisplayName = resolveCharacterDisplayName(
+    process.env.NEXT_PUBLIC_CHARACTER_DISPLAY_NAME ?? DEFAULT_CHARACTER_NAME,
+  );
+  const route = useRouteState();
+  const session = useLevelSession(route);
+  const { entryHold, startEntryHold } = useEntryHold();
+  const { onboarding, routeNotice } = route;
+  const { controller, creationsRef } = session;
   const surfaceRef = useRef<DrawingSurface | null>(null);
   const snapshot = useFlowSnapshot(controller);
-  // Survives GameStage unmounts during redraw/add/prediction; never browser-persisted.
-  const creationsRef = useRef(new CreationStore());
-  const eventSinkRef = useRef<ReturnType<typeof createEventSink> | null>(null);
-  useEffect(() => () => { eventSinkRef.current?.flush(); eventSinkRef.current?.dispose(); }, []);
-  const [drawingRevision,setDrawingRevision]=useState(0);
-  const missionSeenLevels = useRef(new Set<string>());
-  const [missionOpen, setMissionOpen] = useState(false);
-  const handleCreationsChange = useCallback((items: WorldCreation[]) => {
-    creationsRef.current.replace(items);
-  }, []);
-
-  // PULL-DOWN TRANSITION: keep the level-entry stage mounted (and inert) for a
-  // beat while #screen-drawing slides down over it, so the page swap has no
-  // blank flash behind the incoming screen.
-  const [entryHold, setEntryHold] = useState(false);
-  const entryHoldTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(
-    () => () => {
-      if (entryHoldTimer.current) clearTimeout(entryHoldTimer.current);
-    },
-    [],
-  );
-
-  const isLevelUnlocked = useCallback((stage: number) => {
-    if (stage <= 1) return true;
-    try {
-      // In dev mode (dev.momominum.tech or localhost), allow direct stage access for autonomous QA
-      if (typeof window !== "undefined") {
-        const host = window.location.hostname;
-        if (host.includes("dev") || host.includes("localhost") || host === "127.0.0.1") {
-          return true;
-        }
-      }
-      const completed = JSON.parse(window.localStorage.getItem("sketchbook.completedStages") ?? "[]") as number[];
-      return completed.includes(stage - 1);
-    } catch {
-      return false;
-    }
-  }, []);
-
-  const enterLevel = useCallback((level: LevelDefinition) => {
-    if (typeof window !== "undefined" && !isLevelUnlocked(level.stage)) {
-      routeGuardActive.current = true;
-      window.history.replaceState(null, "", "/levels");
-      setOnboarding("levels");
-      setRouteNotice(LOCKED_LEVEL_NOTICE);
-      return;
-    }
-    if (typeof window !== "undefined") {
-      window.scrollTo(0, 0);
-      if (window.location.pathname !== `/level${level.stage}`) {
-        window.history.pushState(null, "", `/level${level.stage}`);
-      }
-      setRouteNotice(null);
-    }
-    const provider = createPredictionProvider(level);
-    setProviderMode(env.predictionMode === "partner" && env.predictionEndpoint ? "partner" : "mock");
-    // TEST HOOKS ONLY (NEXT_PUBLIC_TEST_HOOKS=1): expose mock controls for E2E.
-    if (env.testHooksEnabled && provider instanceof MockPredictionProvider) {
-      const w = window as unknown as Record<string, unknown>;
-      w.__skbMock = provider;
-    }
-    eventSinkRef.current?.flush();
-    eventSinkRef.current?.dispose();
-    const sink = createEventSink();
-    eventSinkRef.current = sink;
-    const c = new FlowController({ provider, sink, goalCompletesLevel: true });
-    creationsRef.current.enterLevel(level.levelId);
-    if (!missionSeenLevels.current.has(level.levelId)) {
-      missionSeenLevels.current.add(level.levelId);
-      setMissionOpen(true);
-    }
-    setController(c);
-    c.enterLevel(level);
-  }, [isLevelUnlocked]);
-
-  const selectLevel = useCallback(
-    (level: LevelDefinition) => {
-      if (entryHoldTimer.current) clearTimeout(entryHoldTimer.current);
-      setEntryHold(true);
-      entryHoldTimer.current = setTimeout(() => setEntryHold(false), 800);
-      enterLevel(level);
-    },
-    [enterLevel],
-  );
-
-  const navigateTo = useCallback(
-    (route: string) => {
-      if (typeof window !== "undefined") {
-        const normalizedRoute = route.includes("/levels") ? "/levels" : route;
-        window.history.pushState(null, "", normalizedRoute);
-        window.scrollTo(0, 0);
-      }
-      setRouteNotice(null);
-      if (route.includes("/onboarding/number")) {
-        setOnboarding("number");
-      } else if (route.includes("/onboarding/card")) {
-        setOnboarding("tutorial");
-      } else if (route.includes("/levels")) {
-        setOnboarding("levels");
-      } else if (route.includes("/canvas")) {
-        setOnboarding("levels");
-        if (LEVELS[0]) enterLevel(LEVELS[0]);
-      } else {
-        setOnboarding("camera");
-      }
-    },
-    [enterLevel],
-  );
-
-  useEffect(() => {
-    function syncRoute() {
-      if (typeof window === "undefined") return;
-      const route = resolveAppRoute(window.location.pathname, isLevelUnlocked);
-      if (route.kind === "level") {
-        setRouteNotice(null);
-        setOnboarding("levels");
-        const currentSnapshot = controller?.getSnapshot();
-        if (currentSnapshot?.levelId !== route.level.levelId || currentSnapshot.phase === "level-entry") {
-          enterLevel(route.level);
-        }
-      } else if (route.kind === "levels") {
-        // A running prediction cannot be abandoned (FlowController invariant). Browser Back used to throw an
-        // uncaught InvalidTransitionError here and leave the URL on /levels with the UI stuck in "predicting".
-        const running = controller?.getSnapshot();
-        if (running?.phase === "predicting") {
-          const active = LEVELS.find((l) => l.levelId === running.levelId);
-          if (active) window.history.pushState(null, "", `/level${active.stage}`);
-          return;
-        }
-        if (route.notice) {
-          routeGuardActive.current = true;
-          window.history.replaceState(null, "", "/levels");
-          setRouteNotice(LOCKED_LEVEL_NOTICE);
-          setOnboarding("levels");
-          return;
-        }
-        if (routeGuardActive.current) {
-          routeGuardActive.current = false;
-        } else {
-          setRouteNotice(null);
-        }
-        setOnboarding("levels");
-        if (controller?.getSnapshot().levelId) controller.exitToLevelEntry();
-        creationsRef.current.clear();
-      } else if (route.kind === "number") {
-        setRouteNotice(null);
-        setOnboarding("number");
-      } else if (route.kind === "tutorial") {
-        setOnboarding("tutorial");
-      } else if (route.kind === "canvas") {
-        setRouteNotice(null);
-        setOnboarding("levels");
-        if (!controller?.getSnapshot().levelId && LEVELS[0]) enterLevel(LEVELS[0]);
-      } else {
-        setOnboarding("camera");
-        if (window.location.pathname === "/" || window.location.pathname === "") {
-          window.history.replaceState(null, "", "/onboarding/cam");
-        }
-      }
-    }
-
-    syncRoute();
-    window.addEventListener("popstate", syncRoute);
-    return () => window.removeEventListener("popstate", syncRoute);
-  }, [controller, enterLevel, isLevelUnlocked]);
-
+  const [drawingRevision, setDrawingRevision] = useState(0);
+  const { navigateTo } = useRouteSync(route, session);
 
   const level = useMemo(
     () => (snapshot?.levelId ? getLevel(snapshot.levelId) ?? null : null),
     [snapshot?.levelId],
   );
+  useLevelCompletion(snapshot);
 
-  useEffect(() => {
-    if (snapshot?.phase !== "complete" || !snapshot.levelId || typeof window === "undefined") return;
-    const completedLevel = getLevel(snapshot.levelId);
-    if (!completedLevel) return;
-    try {
-      const completed = JSON.parse(window.localStorage.getItem("sketchbook.completedStages") ?? "[]") as number[];
-      if (!completed.includes(completedLevel.stage)) {
-        window.localStorage.setItem("sketchbook.completedStages", JSON.stringify([...completed, completedLevel.stage]));
-      }
-    } catch {
-      // Keep completion usable if browser storage is unavailable.
-    }
-  }, [snapshot?.phase, snapshot?.levelId]);
+  const { enterLevel } = session;
+  const selectLevel = useCallback(
+    (selected: LevelDefinition) => {
+      startEntryHold();
+      enterLevel(selected);
+    },
+    [startEntryHold, enterLevel],
+  );
 
   async function handleSubmitDrawing() {
     if (!controller || !surfaceRef.current || controller.getSnapshot().phase !== "drawing") return;
@@ -239,25 +67,28 @@ export function SketchbookApp() {
   const phase = snapshot?.phase ?? "level-entry";
   const isDrawingFlow =
     onboarding === "levels" &&
-    (phase === "drawing" ||
-      phase === "predicting" ||
-      phase === "prediction-error" ||
-      phase === "evaluating");
-  const isLevelEntry = onboarding === "levels" && ((!snapshot || phase === "level-entry") || entryHold);
+    (phase === "drawing" || phase === "predicting" || phase === "prediction-error" || phase === "evaluating");
+  const isLevelEntry = onboarding === "levels" && (!snapshot || phase === "level-entry" || entryHold);
+  const isGameplay =
+    onboarding === "levels" && (phase === "falling" || phase === "placing" || phase === "gameplay");
 
   return (
-    <Shell mode={providerMode} onboarding={isCameraCover || isOnboarding || isLevelEntry}>
+    <AppShell mode={session.providerMode} onboarding={isCameraCover || isOnboarding || isLevelEntry}>
       {!isCameraCover && (
         <>
-          {/* STUDENT NUMBER SELECTION */}
           {onboarding === "number" && (
-            <StudentRulerSelector onConfirm={(selectedNumber) => {
-              try { window.localStorage.setItem("sketchbook.studentNumber", String(selectedNumber)); } catch { /* Continue if storage is unavailable. */ }
-              navigateTo("/onboarding/card");
-            }} />
+            <StudentRulerSelector
+              onConfirm={(selectedNumber) => {
+                try {
+                  window.localStorage.setItem("sketchbook.studentNumber", String(selectedNumber));
+                } catch {
+                  /* Continue if storage is unavailable. */
+                }
+                navigateTo("/onboarding/card");
+              }}
+            />
           )}
 
-          {/* ONBOARDING TUTORIAL */}
           {onboarding === "tutorial" && (
             <TutorialBrochure
               characterDisplayName={characterDisplayName}
@@ -266,105 +97,42 @@ export function SketchbookApp() {
             />
           )}
 
-
-          {/* LEVEL ENTRY */}
-          {onboarding === "levels" && ((!snapshot || phase === "level-entry") || entryHold) && (
-            <section
-              id="screen-level-entry"
-              aria-label="Pilih level"
-              data-entry-hold={entryHold ? "" : undefined}
-            >
-              <h1 className="visually-hidden">Sketchbook Universe</h1>
-              <LevelRibbonBookmark levels={LEVELS} onSelectLevel={selectLevel} isLevelUnlocked={isLevelUnlocked} />
-            </section>
+          {isLevelEntry && (
+            <LevelEntryScreen entryHold={entryHold} onSelectLevel={selectLevel} isLevelUnlocked={isLevelUnlocked} />
           )}
 
-          {/* DRAWING (Hosts Drawing Canvas & Floating Top-3 HITL Popup) */}
+          {/* Hosts the drawing canvas and the floating Top-3 HITL popup. */}
           {snapshot && isDrawingFlow && level && (
-            <DrawingScreen
-              key={level.levelId + String(snapshot.cyclesCompleted) + ":" + drawingRevision}
+            <DrawingFlowScreen
               level={level}
-              missionConfig={getMissionConfigForLevel(level)}
+              snapshot={snapshot}
+              phase={phase}
+              controller={controller}
+              providerMode={session.providerMode}
+              surfaceRef={surfaceRef}
+              drawingRevision={drawingRevision}
               // Wait for the level ribbons to leave before the briefing opens (they used to overlap for ~0.8 s).
-              missionOpen={missionOpen && !entryHold}
-              onOpenMission={() => setMissionOpen(true)}
-              onCloseMission={() => setMissionOpen(false)}
-              initialMode={env.defaultDrawInputMode}
-              feedback={controller?.feedback ?? null}
-              surfaceOut={surfaceRef}
-              active={phase === "drawing"}
-              phase={phase}
-              prediction={controller?.prediction ?? null}
-              errorDetail={controller?.errorDetail ?? null}
-              predictionMode={providerMode}
-              onAccept={() => {
-                try {
-                  controller?.decideAccept();
-                } catch {
-                  /* guarded by phase */
-                }
-              }}
-              onCorrect={(rank) => {
-                try {
-                  controller?.decideCorrect(rank);
-                } catch {
-                  /* guarded */
-                }
-              }}
-              onOverride={(label) => {
-                try {
-                  controller?.decideOverride(label);
-                } catch {
-                  /* DecisionError shown by picker validation */
-                }
-              }}
-              onRedraw={() => {
-                if (phase === "prediction-error") {
-                  controller?.redrawFromError();
-                } else {
-                  controller?.requestRedraw("evaluation");
-                }
-              }}
-              onRetry={() => void controller?.retryPrediction()}
+              missionOpen={session.missionOpen && !entryHold}
+              onOpenMission={() => session.setMissionOpen(true)}
+              onCloseMission={() => session.setMissionOpen(false)}
               onSubmit={() => void handleSubmitDrawing()}
-              onExit={() => {
-                controller?.exitToLevelEntry();
-                creationsRef.current.clear();
-                if (typeof window !== "undefined") window.history.pushState(null, "", "/levels");
-              }}
+              onExit={session.exitToLevels}
             />
           )}
 
-          {/* GAMEPLAY */}
-          {onboarding === "levels" && (phase === "falling" || phase === "placing" || phase === "gameplay") && level && snapshot?.behavior && snapshot?.decision && controller && (
-            <GameStage
-              integrated={true}
-              characterDisplayName={characterDisplayName}
-              creations={creationsRef.current.snapshot()}
-              onCreationsChange={handleCreationsChange}
-              onCreateAnotherObject={() => {setDrawingRevision(n=>n+1);controller.requestRedraw("create_another");}}
+          {isGameplay && level && snapshot?.behavior && snapshot?.decision && controller && (
+            <GameplayScreen
               level={level}
-              behavior={snapshot.behavior}
-              decision={snapshot.decision}
-              onOutcomeReported={(o) => controller.reportGameplayOutcome(o)}
-              summary={{
-                gameplay: formatCharacterText(level.summary?.gameplay ?? "Kamu berhasil menyelesaikan level ini!", characterDisplayName),
-                decision: `Keputusanmu: ${({accept:"terima tebakan",correct:"pilih tebakan lain",override:"bukan salah satunya"} as Record<string,string>)[snapshot.decision?.type ?? ""] ?? "-"}, label ${snapshot.decision?.finalLabel ?? "-"}.`,
-                literacy: level.summary?.literacy ?? "AI hanya menebak. Kamu yang memutuskan.",
-              }}
-              onNextLevel={level.stage < 3 ? () => { window.location.href = `/level${level.stage + 1}`; } : undefined}
-              onBackToLevels={() => { controller.exitToLevelEntry(); creationsRef.current.clear(); window.history.pushState(null, "", "/levels"); }}
-              onOutcomeObserved={(o) => controller.recordGameplayAttempt(o)}
-              onRetry={() => controller.recordGameplayRetry()}
-              onRedraw={() => {setDrawingRevision(n=>n+1);controller.requestRedraw("gameplay");}}
-              onCommitPlacement={() => controller.commitPlacement()}
-              onFallComplete={() => controller.completeFall()}
-              drawingInput={controller.drawingInput}
-              onReposition={() => controller.repositionObject()}
+              snapshot={snapshot}
               phase={phase}
+              controller={controller}
+              characterDisplayName={characterDisplayName}
+              creations={creationsRef.current}
+              onCreationsChange={session.handleCreationsChange}
+              onBumpDrawingRevision={() => setDrawingRevision((n) => n + 1)}
+              onBackToLevels={session.exitToLevels}
             />
           )}
-
         </>
       )}
 
@@ -388,22 +156,6 @@ export function SketchbookApp() {
         onWave={() => navigateTo("/onboarding/number")}
         onSkip={() => navigateTo("/onboarding/number")}
       />
-    </Shell>
-  );
-}
-
-function Shell({ mode, onboarding = false, children }: { mode: "mock" | "partner"; onboarding?: boolean; children: React.ReactNode }) {
-  return (
-    <div id="app" className={onboarding ? "onboarding-app" : undefined}>
-      <header className="app-header">
-        <div className="brand">
-          <span className="brand-mark" aria-hidden="true" />
-          <span className="brand-name">Sketchbook Universe</span>
-        </div>
-        <DevBanner mode={mode} />
-      </header>
-      <main id="screens">{children}</main>
-      <footer className="app-footer" />
-    </div>
+    </AppShell>
   );
 }

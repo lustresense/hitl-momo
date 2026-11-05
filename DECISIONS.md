@@ -119,6 +119,31 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 
 ## Entri Perubahan Terbaru
 
+### D-20261105-15 — Belum dikunci (preferensi Owner tercatat, menunggu diskusi dosen) — Penutup permainan setelah Level 3
+- Keputusan/ubahannya (usulan): penutup memakai **gabungan Opsi A + Opsi B**. Thinman berjalan sendiri di atas tiga benda gambaran siswa (menuntaskan janji intro "supaya dia bisa jalan sendiri tanpa bantuanmu"). Di atas tiap benda tampil ikon keputusan siswa (Terima / Pilih lain / Bukan semua) dan tebakan pertama Momo, ditutup satu kalimat Momo. Opsi C (halaman bebas/sandbox, Momo tetap menebak) **ditunda** sampai model partner tersedia dan pengaman konten disetujui. Ketiga opsi tidak dipasang sekaligus. Penutup penuh hanya pada kemenangan pertama.
+- Mengubah entri lama: butir "akhir permainan setelah Level 3" di "Belum dikunci (2026-11-05)"; butir "Level" di Keputusan Aktif (detail skrip level belum dikunci) tetap berlaku.
+- Bukti: diskusi Owner 2026-11-05 ("opsi A digabung opsi B", "A, B, C itu masih terlalu brutal", kekhawatiran gambar tidak pantas di Opsi C). Dokumen lengkap dengan kelebihan/kekurangan, kajian risiko konten, dan sumber: `project/OPSI_PENUTUP_PERMAINAN.md`.
+- Dampak: desain level/penutup, kode gameplay (belum dikerjakan), materi diskusi dosen.
+- Alasan status: preferensi Owner sudah ada, tetapi Owner menyatakan belum ada keputusan sampai didiskusikan dengan dosen. **Jangan diimplementasikan sebelum Owner menulis `SETUJUI D-20261105-15`.**
+
+### D-20261105-14 — Aktif (instruksi eksplisit Owner, M-012/M-013) — Bahasa visual
+- Keputusan/ubahannya: gaya neo-brutalism diterapkan secara intuitif: **bayangan keras hanya pada elemen utama** (kartu, toolbar, pita, tombol aksi utama), **tidak pernah pada teks** (tanpa `text-shadow` atau outline teks); elemen bersarang (chip, badge, baris tebakan, tombol di dalam toolbar) flat dengan border; isian warna flat tanpa gradasi. Tidak ada teks dalam kurung di UI. Ikon satu bahasa (SVG, tanpa emoji), termasuk glyph gestur tangan. Thinman yang tampil di mana pun (intro, tutorial, HUD) adalah Thinman asli dari game (Character A), bukan stickman polos. Cover, pilih kamera, nomor absen (penggaris), tutorial, level select, dan layar game memakai kit yang sama.
+- Mengubah entri lama: memperjelas D-20261105-01 (sistem visual dikunci; ini cara memakainya, bukan sistem baru). Pemetaan gestur emoji di "Yang Sengaja Tidak Difinalkan" kini tampil sebagai ikon SVG (statusnya tetap belum dikunci sebagai input kamera).
+- Bukti: instruksi Owner 2026-11-05; `implementation/CHANGELOG.md` 0.0.14 (round 1-3); evidence `implementation/docs/execution/evidence/ui-pass-2026-11-05/`.
+- Dampak: semua UI. Label "Mode demo: tebakan masih simulasi" tetap satu pita dan dihapus saat model asli tersedia (`implementation/src/config/demo.ts`).
+
+### D-20261105-13 — Aktif (instruksi eksplisit Owner, M-012/M-013) — Masuk level dan cerita
+- Keputusan/ubahannya: level dipilih dengan **menarik pita bookmark** (mouse untuk prototype; gestur jempol untuk NUI nanti). Pita tertarik, berbunyi "tek-tek" per takik, bergoyang, lalu halaman dunia Thinman jatuh. Momo datang dan bercerita (Thinman harus mencapai tujuan supaya bisa jalan sendiri tanpa bantuanmu), lalu Momo terbang ke atas dan kamera mengikutinya melewati awan ke **halaman gambar di langit** (halaman gambar sendiri tanpa awan). Pada masuk berikutnya ke level yang sama dalam satu sesi, intro tidak diulang. Petunjuk misi dibuka lewat ikon dan disampaikan Momo sebagai chat dengan ikon benda dan tombol jempol "Mulai Menggambar", tanpa tombol Lewati, tanpa kotak, hanya satu Momo di layar.
+- Mengubah entri lama: D-20261101-01 (usulan "petunjuk misi oleh sistem, bukan ucapan Momo", status belum aktif) **tidak dipakai**; instruksi Owner terbaru menempatkan cerita dan petunjuk pada Momo. Lore Momo tetap: Momo hanya bercerita/menebak, tidak memutuskan dan tidak menggambar.
+- Bukti: instruksi Owner 2026-11-05 (M-012, M-013).
+- Dampak: alur level, onboarding cerita, komponen `LevelIntro`, `LevelRibbonBookmark`, `MissionBriefing`.
+
+### D-20261105-12 — Aktif (instruksi eksplisit Owner, M-012/M-013) — Momo sebagai chat, akhir level, progres
+- Keputusan/ubahannya: semua ucapan Momo tampil seperti chat: avatar Momo dan **satu bubble per giliran** (saling menggantikan, tanpa label nama "Momo"); hanya petunjuk misi yang menampilkan semua baris sekaligus. Saat menang, **tidak ada kartu dan tidak ada tombol Lanjut/Pilih level**: Momo mengucapkan selamat di dunia yang digelapkan, lalu aplikasi langsung kembali ke pilih level (isyarat jempol untuk mempercepat). Saat gagal: Momo chat satu-satu (belum berhasil, alasan) lalu tiga aksi ikon. Menang Level N langsung membuka Level N+1 (progres ditulis saat kemenangan tampil); pita yang baru terbuka menampilkan animasi membuka kunci.
+- Mengubah entri lama: **Direvisi** D-20261105-04 (kartu "Selamat, berhasil!" dengan Lanjut / Pilih level diganti chat Momo + kembali otomatis ke pilih level).
+- Bukti: instruksi Owner 2026-11-05; E2E `implementation/e2e/normal-journey.mjs` (L1→L2→L3 dengan progres asli).
+- Dampak: UI dunia, progres level, event flow.
+
 ### D-20261105-11 — Aktif (instruksi eksplisit Owner)
 - Keputusan/ubahannya: `INSTRUCTION.md` diganti nama menjadi **`SOUL.md`** (gaya Hermes). Isinya diganti dengan versi terbaru dari project GPT Owner (2026-11-02). Riwayat keputusan GPT (`CHANGELOG.md` v2026.11.05-audit.7, 14 entri bertanggal 2026-07-11 sampai 2026-11-02) digabung ke `DECISIONS.md` secara **tambah-saja**: tidak ada baris repo maupun GPT yang dihapus; konflik diselesaikan menurut timeline yang lebih baru (lihat "Peta konflik" di Lampiran). `WORKING_STATE.md` GPT tidak diimpor ke repo (isinya log tooling/infrastruktur, 250 KB, berpotensi memuat detail sensitif); `Notes_Notulensi Bimbingan.md` identik dengan `meetings/source-notes/`.
 - Mengubah entri lama: D-20261105-10 (nama berkas); baris "Visual Momo" diganti (lama disimpan di Lampiran).
@@ -171,7 +196,7 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 ### Belum dikunci (2026-11-05)
 - Coyote time + jump buffer 100 ms sudah diimplementasikan (bukti trajektori) tetapi belum diratifikasi Owner.
 - Perilaku Momo yang benar-benar bergerak maju-mundur sendiri (mengikuti Thinman, mendekat/menjauh layar).
-- Fitur hapus objek; akhir permainan setelah Level 3; input tangan di gameplay (saat ini opt-in "Kontrol tangan", tangan nyata belum diuji).
+- Fitur hapus objek; akhir permainan setelah Level 3 (opsi dan preferensi Owner: D-20261105-15, `project/OPSI_PENUTUP_PERMAINAN.md`); input tangan di gameplay (saat ini opt-in "Kontrol tangan", tangan nyata belum diuji).
 
 
 ### 2026-08-29 — RECOVERY & VISUAL QA COMPLETE

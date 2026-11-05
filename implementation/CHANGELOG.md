@@ -2,6 +2,8 @@
 
 Technical changes only, newest first (old version -> new version). Product decisions live in the root `DECISIONS.md`; the Owner's instructions in `project/OWNER_MANDATES.md`.
 
+**What belongs here:** every change made INSIDE the `implementation/` folder (code, tests, e2e, runtime assets), per version. If you edit anything in `implementation/`, add an entry here. The decision behind a change, and documents/assets outside `implementation/` (e.g. `academic/progress-book/`, `project/`), go to the root `DECISIONS.md` instead; a change that touches both is logged in both and cross-references the decision ID.
+
 Entries 0.0.6-0.0.12 were moved here on 2026-11-05 from the root file that used to be called `CHANGELOG.md` (it mixed release notes with the decision log). `package.json` still says 0.2.0: align it with this numbering only when the Owner approves.
 
 ## [0.0.14] - 2026-11-05

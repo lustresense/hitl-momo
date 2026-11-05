@@ -9,6 +9,11 @@ Pembagian dokumen sejak 2026-11-05:
 | `DECISIONS.md` (ini) | Keputusan produk/PA: Aktif, Direvisi, Dicabut, Belum dikunci. Sumber kebenaran keputusan. |
 | `project/OWNER_MANDATES.md` | Semua instruksi/mandat Owner dalam kata-kata Owner, berurutan, dengan status dan bukti. |
 | `implementation/CHANGELOG.md` | Perubahan teknis per versi (dari versi lama ke baru). Entri rilis 0.0.6-0.0.12 yang dulu ada di sini sudah dipindahkan ke sana. |
+
+**Pembeda `DECISIONS.md` vs `implementation/CHANGELOG.md` (aturan cepat):**
+- `DECISIONS.md` = *apa yang diputuskan dan kenapa*: keputusan produk/PA, arah visual dan cerita, serta **dokumen dan aset di luar folder `implementation/`** beserta lokasinya (mis. buku progres di `academic/progress-book/`, materi diskusi dosen di `project/`). Status: Aktif / Direvisi / Dicabut / Belum dikunci / Riset.
+- `implementation/CHANGELOG.md` = *apa yang berubah di dalam kode*: setiap perubahan di dalam folder `implementation/` (kode, test, e2e, aset runtime), per versi.
+- Mengubah sesuatu di dalam `implementation/` berarti **wajib** masuk `implementation/CHANGELOG.md`. Keputusan di balik perubahan itu (dan dokumen di luar `implementation/`) masuk `DECISIONS.md`. Perubahan yang menyentuh keduanya dicatat di keduanya dan saling merujuk ID.
 | `NOW.md` | Keadaan paling baru dalam satu halaman. |
 
 ## Cara pakai
@@ -119,8 +124,16 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 
 ## Entri Perubahan Terbaru
 
+### D-20261105-16 — Aktif (instruksi eksplisit Owner) — Buku karakter (Thinman dan Momo) dan lokasinya
+- Keputusan/ubahannya: elemen "pengenalan karakter" untuk Buku Progres PA dibuat sebagai **satu halaman HTML mandiri**: `academic/progress-book/karakter-thinman-momo.html` (folder `academic/progress-book/` menampung elemen-elemen buku progres; daftar dan cara membangun ada di `academic/progress-book/README.md`). Isi: Thinman tampak kiri, kanan, depan, belakang; animasi lari, loncat, lari + loncat; pose rig. Momo: karakter besar di kiri, 12 ekspresi di kanan dengan status pemakaian di aplikasi (dipakai: Tenang, Senang, Penasaran, Berpikir, Bingung, Khawatir, Sedih, Semangat; ada di skrip tapi belum tampil: Kaget; belum dipakai: Ngantuk, Malu, Kedip), gerak (mengambang, kepak sayap, terbang), palet, dan catatan reverse engineering. Layout dua kolom di desktop, kotak-kotak dua kolom di HP; tiap kotak bisa diunduh sebagai SVG.
+- Cara dibuat: dibangun otomatis dari kode (`tools/character-book/build.mjs` membaca `implementation/src`), sehingga gambar dan animasi sama dengan game. File HTML asli Owner (`stickman-ab.html`, `momo-ekspresi_1.html`) tidak ada di repo; halaman ini rekonstruksi dari kode hasil porting. Jika file asli ditemukan, taruh di `design/visual/` untuk dibandingkan.
+- Mengubah entri lama: tidak ada. Tidak ada perubahan di dalam `implementation/` (hanya dibaca), jadi tidak ada entri `implementation/CHANGELOG.md`.
+- Bukti: instruksi Owner 2026-11-05 (M-014); hasil build dan screenshot desktop/mobile diperiksa.
+- Dampak: materi buku progres/PPT dan diskusi dosen; penjelasan karakter untuk AI/anggota baru.
+
+
 ### D-20261105-15 — Belum dikunci (status: RISET) — Penutup permainan setelah Level 3
-- Keputusan/ubahannya: **belum ada keputusan; masih tahap riset.** Arah yang sedang dikaji: penutup memakai **gabungan Opsi A + Opsi B**. Thinman berjalan sendiri di atas tiga benda gambaran siswa (menuntaskan janji intro "supaya dia bisa jalan sendiri tanpa bantuanmu"). Di atas tiap benda tampil ikon keputusan siswa (Terima / Pilih lain / Bukan semua) dan tebakan pertama Momo, ditutup satu kalimat Momo. Opsi C (halaman bebas/sandbox, Momo tetap menebak) **ditunda** sampai model partner tersedia dan pengaman konten disetujui. Ketiga opsi tidak dipasang sekaligus. Penutup penuh hanya pada kemenangan pertama.
+- Keputusan/ubahannya: **belum ada keputusan; masih tahap riset.** Arah yang sedang dikaji: penutup memakai **gabungan Opsi A + Opsi B**. Thinman berjalan sendiri di atas tiga benda gambaran siswa (menuntaskan janji intro "supaya dia bisa jalan sendiri tanpa bantuanmu"). Di atas tiap benda tampil ikon keputusan siswa (Terima / Pilih lain / Bukan semua) dan tebakan pertama Momo, ditutup satu kalimat Momo. Opsi C (halaman bebas/sandbox, Momo tetap menebak) **ditunda** sampai model partner tersedia dan pengaman konten disetujui. Ketiga opsi tidak dipasang sekaligus. Penutup penuh hanya pada kemenangan pertama. **Detail gabungan A + B yang dikaji (saran Claude, arah Owner):** layar penutup menampilkan **objek-objek hasil pilihan siswa** (goresan asli siswa per level, label akhir yang dipilih, dan **kategori perilaku Solid/Danger** yang diberikan konteks level), berikut ikon jenis keputusan (Terima / Pilih lain / Bukan semua) dan tebakan pertama Momo; Thinman berjalan di atas objek-objek itu; ditutup satu kalimat Momo. Data sumber sudah ada di alur (label akhir, perilaku, keputusan).
 - Mengubah entri lama: butir "akhir permainan setelah Level 3" di "Belum dikunci (2026-11-05)"; butir "Level" di Keputusan Aktif (detail skrip level belum dikunci) tetap berlaku.
 - Bukti: diskusi Owner 2026-11-05 ("opsi A digabung opsi B", "A, B, C itu masih terlalu brutal", kekhawatiran gambar tidak pantas di Opsi C). Dokumen lengkap dengan kelebihan/kekurangan, kajian risiko konten, dan sumber: `project/OPSI_PENUTUP_PERMAINAN.md`.
 - Dampak: desain level/penutup, kode gameplay (belum dikerjakan), materi diskusi dosen.

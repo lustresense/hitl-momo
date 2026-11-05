@@ -85,7 +85,7 @@ async function playSteps(stage, stepList, { label }) {
   return readGame(page);
 }
 
-const overlayTitle = () => page.locator(".overlay-title").first().textContent({ timeout: 1500 }).catch(() => null);
+const overlayTitle = () => page.getByTestId("outcome-title").textContent({ timeout: 1500 }).catch(() => null);
 
 async function runLevel(stage) {
   const plan = plans[String(stage)];
@@ -94,7 +94,7 @@ async function runLevel(stage) {
   await shot(`L${stage}-00-mission-and-canvas`);
   const decisions = [];
   for (const [ci, cycle] of plan.cycles.entries()) {
-    if (ci > 0) { await page.locator("[data-testid=btn-create-object]").click(); log(`L${stage}: 'Ciptakan objek lagi' (cycle ${ci + 1})`); }
+    if (ci > 0) { await page.locator("[data-testid=btn-create-object]").click(); log(`L${stage}: 'Objek baru' (cycle ${ci + 1})`); }
     await drawScribble(page, ci % 2 ? "spike" : "block");
     const { labels, decision } = await submitAndDecide(page, { prefer: cycle.label, log: m => log(`L${stage}c${ci + 1}: ${m}`) });
     decisions.push({ labels, decision });
@@ -143,7 +143,7 @@ try {
   for (const stage of LEVELS) {
     all[stage] = await runLevel(stage);
     await page.locator("[data-testid=btn-next]").click();
-    log(`L${stage}: clicked 'Lihat ringkasan'`);
+    log(`L${stage}: clicked 'Lanjut' (outcome overlay)`);
     await sleep(900);
     await shot(`L${stage}-04-summary`);
     if (stage < LEVELS[LEVELS.length - 1]) {

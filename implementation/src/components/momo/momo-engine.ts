@@ -5,6 +5,7 @@
  */
 import gsap from "gsap";
 import { J, M } from "./momo-art";
+import { wingTransform } from "./momo-wing";
 
 export const EXPRESSIONS = [
   "Senang", "Tenang", "Penasaran", "Berpikir", "Kaget", "Sedih",
@@ -146,7 +147,7 @@ export class MomoEngine {
 
   private kick(k: number[]): void {
     const s = this.sp;
-    s.fL.v += k[0]!; s.fR.v -= k[0]!; s.t1.v += k[1]!; s.t2.v += k[1]! * 0.6; s.bow.v += k[1]! * 0.5;
+    s.fL.v += k[0]!; s.fR.v += k[0]!; s.t1.v += k[1]!; s.t2.v += k[1]! * 0.6; s.bow.v += k[1]! * 0.5;
   }
 
   /** Flap the cloth wings once (used when Momo arrives or celebrates). */
@@ -191,7 +192,7 @@ export class MomoEngine {
       spring(sp.bow, -0.25 * R + 0.35 * sp.t1.a + sw * 0.35 * Math.sin(TAU * tt / 2.2), k, c, h);
     }
     tf(g.root, X, Y, R, P.sx, P.sy, 695, 640);
-    tf(g.fL, 0, 0, -cl(sp.fL.a, -32, 32), 1, 1, 168, 690); tf(g.fR, 0, 0, cl(sp.fR.a, -32, 32), 1, 1, 1226, 712);
+    g.fL.setAttribute("transform", wingTransform("L", sp.fL.a)); g.fR.setAttribute("transform", wingTransform("R", sp.fR.a));
     tf(g.tA, 0, 0, cl(sp.t1.a, -22, 22), 1, 1, J.j0[0], J.j0[1]); tf(g.tB, 0, 0, cl(sp.t2.a, -22, 22), 1, 1, J.j1[0], J.j1[1]); tf(g.tC, 0, 0, cl(sp.t3.a, -22, 22), 1, 1, J.j2[0], J.j2[1]);
     tf(g.bow, 0, 0, cl(sp.bow.a, -25, 25), 1, 1, 690, 1350);
     // face: eye travel is clamped so the pupils never leave the outline

@@ -124,6 +124,29 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 
 ## Entri Perubahan Terbaru
 
+### D-20261105-18 — Rekap klasifikasi percakapan sesi 2026-11-05 (Owner minta diklasifikasikan sendiri)
+Satu tabel supaya AI lain tahu mana yang sudah keputusan, mana yang masih riset, dan di mana jejaknya. Detail tiap butir ada di entri yang ditunjuk; tabel ini tidak mengubah status apa pun.
+
+| Butir dari percakapan | Klasifikasi | Rujukan |
+|---|---|---|
+| UI game konsisten (neo-brutalism intuitif, bayangan hanya elemen utama, tanpa teks dalam kurung, ikon SVG satu bahasa, resolusi tinggi) | Aktif | D-20261105-14, M-012, M-013 |
+| Momo sebagai kontak chat (satu bubble per giliran, tanpa pill nama); akhir level langsung ke pilih level; isyarat jempol/panah | Aktif | D-20261105-12 |
+| Tarik pita, intro cerita Momo, kamera naik ke langit, petunjuk misi oleh Momo, kartu tutorial/brosur, cover, pilih kamera, penggaris | Aktif | D-20261105-13, D-20261105-14 |
+| Thinman yang tampil di mana pun harus Thinman asli (Character A), bukan stickman polos | Aktif | D-20261105-14, M-013 |
+| Label demo boleh dilepas nanti lewat satu flag (`config/demo.ts`) | Aktif (opsional) | `implementation/CHANGELOG.md` 0.0.14 |
+| Penutup permainan setelah Level 3: Opsi A + B (objek pilihan siswa + kategori Solid/Danger); Opsi C ditunda; kekhawatiran gambar tidak pantas | **RISET, belum dikunci**; jangan diimplementasikan sebelum `SETUJUI D-20261105-15` | D-20261105-15, `project/OPSI_PENUTUP_PERMAINAN.md` |
+| Buku progres PA: dua papan 1:1 (Thinman, Momo), PNG/MP4/GIF/HTML dalam satu folder | Aktif | D-20261105-16, M-014, `academic/progress-book/` |
+| Sayap Momo tidak boleh terlihat putus di animasi mana pun; hanya ujung bawah yang bergerak | Aktif | D-20261105-17, M-015 |
+| Aturan dokumen: keputusan dan dokumen di luar `implementation/` ke `DECISIONS.md`; perubahan di dalam `implementation/` ke `implementation/CHANGELOG.md` | Aktif (aturan kerja) | header `DECISIONS.md`, header `implementation/CHANGELOG.md` |
+| Push ke GitHub hanya jika Owner minta eksplisit; commit memakai identitas Owner | Aktif (aturan kerja) | M-008 |
+| Belum ada: model prediksi nyata, logging backend, layout 390 px di HP, ratifikasi coyote time, hapus objek | Terbuka | `NOW.md` bagian Masih terbuka |
+
+### D-20261105-17 — Aktif (instruksi eksplisit Owner, M-015) — Animasi sayap Momo
+- Keputusan/ubahannya: pada **semua** Momo dan **semua** animasi (mengambang, kepak, terbang, ekspresi, chat), sayap tidak boleh terlihat putus dari badan. **Sudut segitiga atas sayap (yang menempel di badan) dan tepi tempel ke badan tidak pernah bergerak; hanya ujung bawah ("kaki" segitiga) yang bergerak ke atas dan ke bawah.** Bukan hanya pada screenshot atau gambar diam. Implementasi: sayap digeser (shear) sepanjang tepi tempel, bukan diputar pada poros, jadi bagian yang menempel tidak dikorbankan. Dua sayap kini bergerak simetris (sebelumnya tendangan kepak memutar sayap kiri dan kanan berlawanan arah).
+- Mengubah entri lama: memperbaiki perilaku animasi sayap hasil porting artwork Owner (poros rotasi lama berada sekitar 90 satuan di bawah sudut atas, sehingga sudut atas ikut terangkat dan sayap tampak putus). Catatan di D-20261105-16 soal sayap terpotong (clip) di papan buku hanyalah gejala; penyebab sebenarnya animasi ini.
+- Bukti: instruksi Owner 2026-11-05; `implementation/src/components/momo/momo-wing.ts` + `implementation/tests/components/momo-wing.test.ts` (sudut atas dan tepi tempel tidak bergeser pada semua sudut); `implementation/CHANGELOG.md` 0.0.14 (Fixed); papan Momo diekspor ulang di `academic/progress-book/karakter/`.
+- Dampak: semua tampilan Momo di game, buku progres, PPT/Word.
+
 ### D-20261105-16 — Aktif (instruksi eksplisit Owner) — Buku karakter (Thinman dan Momo) dan lokasinya
 - Keputusan/ubahannya: elemen "pengenalan karakter" untuk Buku Progres PA dibuat sebagai **dua papan persegi 1:1, satu per karakter** (Thinman dan Momo), tanpa scroll di dalam papan, supaya bisa ditempel ke PPT dan Word sebagai gambar/video. Lokasi: satu folder `academic/progress-book/karakter/` (daftar berkas dan cara membangun ada di `academic/progress-book/README.md`). Berkas di folder itu: `karakter-thinman-momo.html` (mandiri; desktop 16:9 dua papan kiri-kanan, HP atas-bawah), `karakter-{thinman,momo}-1x1.png` (2400 px, diam), `.mp4` (PPT) dan `.gif` (Word) beranimasi. Isi papan Thinman: karakter besar di kiri; tampak kiri, kanan, depan, belakang; animasi lari, loncat, lari + loncat; pose rig. Isi papan Momo: karakter besar di kiri; 12 ekspresi dengan status pemakaian di aplikasi (dipakai: Tenang, Senang, Penasaran, Berpikir, Bingung, Khawatir, Sedih, Semangat; ada di skrip tapi belum tampil: Kaget; belum dipakai: Ngantuk, Malu, Kedip); gerak (mengambang, kepak sayap, terbang); palet. Catatan reverse engineering dan tabel pemakaian ekspresi ada di bawah papan (bukan bagian papan).
 - Cara dibuat: dibangun otomatis dari kode (`tools/character-book/build.mjs` untuk HTML dan `export.mjs` untuk PNG/MP4/GIF; membaca `implementation/src`), sehingga gambar dan animasi sama dengan game. File HTML asli Owner (`stickman-ab.html`, `momo-ekspresi_1.html`) tidak ada di repo; halaman ini rekonstruksi dari kode hasil porting. Jika file asli ditemukan, taruh di `design/visual/` untuk dibandingkan.

@@ -28,15 +28,15 @@ try {
   const mission = page.locator("[role=dialog][aria-modal=true]");
   await page.locator("[data-testid=draw-canvas]").waitFor({ timeout: 15000 });
   if (await mission.waitFor({ state: "visible", timeout: 3000 }).then(() => true, () => false)) await mission.getByRole("button", { name: /mulai/i }).click();
-  const modeBtn = page.getByRole("button", { name: /pakai kamera/i });
+  const modeBtn = page.getByTestId("btn-input-hand");
   out.stages.modeButtonVisible = await modeBtn.isVisible().catch(() => false);
   if (out.stages.modeButtonVisible) {
     await modeBtn.click();
     await sleep(9000);
-    out.stages.handModeAfter9s = { buttonText: await page.getByRole("button", { name: /pakai (mouse|kamera)/i }).first().textContent().catch(() => null), bodyStatusLines: (await page.locator("body").innerText()).split("\n").filter(l => /kamera|tangan|tracker|model|izin|NUI|siap|tracking/i.test(l)).slice(0, 12) };
+    out.stages.handModeAfter9s = { buttonText: await page.locator("[data-testid^=btn-input-][aria-pressed=true]").first().textContent().catch(() => null), bodyStatusLines: (await page.locator("body").innerText()).split("\n").filter(l => /kamera|tangan|tracker|model|izin|NUI|siap|tracking/i.test(l)).slice(0, 12) };
     await page.screenshot({ path: path.join(OUT, "02-hand-mode.png") });
     // Back to pointer and draw: regression for the pointer-recovery fix.
-    await page.getByRole("button", { name: /pakai mouse/i }).click().catch(() => {});
+    await page.getByTestId("btn-input-pointer").click().catch(() => {});
     await sleep(800);
     const canvas = page.locator("[data-testid=draw-canvas]"); const b = await canvas.boundingBox();
     await page.mouse.move(b.x + 300, b.y + 300); await page.mouse.down(); await page.mouse.move(b.x + 420, b.y + 360, { steps: 6 }); await page.mouse.up();

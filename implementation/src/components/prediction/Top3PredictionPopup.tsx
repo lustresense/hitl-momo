@@ -83,7 +83,7 @@ export function Top3PredictionPopup({
         <div className="popup-title-row">
           <h3 className="popup-title">Tebakan Momo (Top-3)</h3>
           <span className="popup-badge dev-badge" data-testid="prediction-source">
-            {predictionMode === "mock" ? "DEMO / PREDIKSI SIMULASI" : "PARTNER API"}
+            {predictionMode === "mock" ? "Demo: tebakan simulasi" : "Model partner"}
           </span>
         </div>
         <p className="popup-lead">Confidence bukan jaminan benar. Kamu yang memutuskan.</p>

@@ -94,7 +94,7 @@ async function runLevel(stage) {
   await shot(`L${stage}-00-mission-and-canvas`);
   const decisions = [];
   for (const [ci, cycle] of plan.cycles.entries()) {
-    if (ci > 0) { await page.locator("[data-testid=btn-create-object]").click(); log(`L${stage}: 'Ciptakan objek lagi' (cycle ${ci + 1})`); }
+    if (ci > 0) { await page.locator("[data-testid=btn-draw-again]").click(); log(`L${stage}: 'Ciptakan objek lagi' (cycle ${ci + 1})`); }
     await drawScribble(page, ci % 2 ? "spike" : "block");
     const { labels, decision } = await submitAndDecide(page, { prefer: cycle.label, log: m => log(`L${stage}c${ci + 1}: ${m}`), shot: n => shot(`L${stage}-c${ci + 1}-00-${n}`) });
     decisions.push({ labels, decision });
@@ -102,6 +102,7 @@ async function runLevel(stage) {
     const cx = cycle.x + plans.objectSize.w / 2, cy = cycle.y + plans.objectSize.h / 2;
     const placed = await placeByDrag(page, cx, cy);
     log(`L${stage}c${ci + 1}: placement via mouse drag`, { wantedTopLeft: [cycle.x, cycle.y], got: [+placed.after.objectX.toFixed(1), +placed.after.objectY.toFixed(1)] });
+    await shot(`L${stage}-c${ci + 1}-01b-placing-dragged`);
     await confirmPlacement(page);
     await shot(`L${stage}-c${ci + 1}-02-gameplay`);
     const leaked = await page.evaluate(() => Object.keys(window).filter(k => k.startsWith("__skb")));

@@ -268,15 +268,12 @@ export function DrawingScreen({
         <>
           <button
             type="button"
-            className="btn btn-small"
+            className="btn btn-small mission-hint-btn"
+            data-testid="btn-mission-hint"
             aria-label="Petunjuk Misi"
             onClick={onOpenMission}
-            style={{
-              zIndex: 20,
-              position: "relative",
-            }}
           >
-            Petunjuk Misi
+            Petunjuk misi
           </button>
           <MissionBriefing isOpen={missionOpen} config={missionConfig} onStartDrawing={onCloseMission} onClose={onCloseMission} />
         </>
@@ -307,10 +304,10 @@ export function DrawingScreen({
           width: `min(340px, ${momoLayout.available}px)`,
         }}
       >
-        <MomoBubble moment={momoMoment} message={momoMessage} />
+        <MomoBubble moment={momoMoment} message={momoMessage} avatarHeight={150} />
         {isProbe && (
           <span className="momo-prediction-source" data-testid="momo-prediction-source">
-            {predictionMode === "mock" ? "DEMO / PREDIKSI SIMULASI" : "PARTNER API"}
+            {predictionMode === "mock" ? "Demo: tebakan simulasi" : "Model partner"}
           </span>
         )}
       </div>
@@ -353,9 +350,14 @@ export function DrawingScreen({
           pointerEvents: phase === "drawing" ? "auto" : "none",
         }}
       >
-        <button type="button" className="btn" onClick={() => void switchMode(inputMode === "hand" ? "pointer" : "hand")}>
-          {inputMode === "hand" ? "Pakai mouse" : "Pakai kamera"}
-        </button>
+        <div className="input-switch" role="group" aria-label="Cara menggambar">
+          <button type="button" data-testid="btn-input-pointer" aria-pressed={inputMode !== "hand"} onClick={() => void switchMode("pointer")}>
+            Mouse
+          </button>
+          <button type="button" data-testid="btn-input-hand" aria-pressed={inputMode === "hand"} onClick={() => void switchMode("hand")}>
+            Kamera
+          </button>
+        </div>
         <button
           type="button"
           className="btn btn-primary btn-submit-momo"

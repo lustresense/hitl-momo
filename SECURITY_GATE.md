@@ -151,7 +151,7 @@ In autonomous multi-agent environments, Markdown and vector graphics are active 
 - Localization JSON files can contain rendered HTML.
 
 Therefore, a change is classified as **LOW** only if **100% of touched files** conform strictly to:
-1. **Passive Documentation Only:** Readme/changelog/docs explicitly under `docs/` or `CHANGELOG.md` (strictly excluding any root files, instruction files, `.agents/**`, or security files).
+1. **Passive Documentation Only:** Readme/changelog/docs explicitly under `docs/` or `DECISIONS.md` (strictly excluding any root files, instruction files, `.agents/**`, or security files).
 2. **Pure Raster Media Assets:** `*.png`, `*.jpg`, `*.jpeg`, `*.webp`, `*.ico` (verified as non-executable via magic bytes / MIME verification). **SVGs are strictly excluded and classified as HIGH/UNKNOWN.**
 3. **Pure Presentation Stylesheets:** `*.css`, `*.scss` (verified free from external `url()` references, `@import`, or script execution expressions).
 4. **Isolated Static Fixtures:** `tests/fixtures/mock_data.json` verified free of script tags or template delimiters.

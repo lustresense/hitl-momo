@@ -12,6 +12,7 @@
       "*": "allow",
       "INSTRUCTION.md": "deny",
       "CHANGELOG.md": "deny",
+      "DECISIONS.md": "deny",
       "SOURCE_OF_TRUTH.md": "deny",
       "AGENTS.md": "deny",
       "academic/**": "deny",

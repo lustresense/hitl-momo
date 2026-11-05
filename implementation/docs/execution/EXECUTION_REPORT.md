@@ -55,7 +55,7 @@ See `docs/execution/FINAL_VERIFICATION.md` (generated from the final run).
 * `pixelDensity ≥ 2` for the integrated canvas: crisp but 4× fill cost on weak school hardware.
 * Unlock rule `host.includes("dev"|"localhost")` and `localStorage` progress are client-side only (cosmetic gating).
 * Stale docs: `docs/FRONTEND_HANDOFF.md` cites files that do not exist; partner docs list 6 error codes (code has 4) and a fallback rule that differs from code.
-* Governance files (`INSTRUCTION.md`, `CHANGELOG.md`, `SOURCE_OF_TRUTH.md`, `AGENTS.md`) untouched. `CHANGELOG.md` 0.0.12 claims a "full journey 3 levels" video produced with the placement bypass — recommend an `AUDIT SEKARANG` candidate entry; I did not edit it.
+* Governance files (`INSTRUCTION.md`, `DECISIONS.md`, `SOURCE_OF_TRUTH.md`, `AGENTS.md`) untouched. `DECISIONS.md` 0.0.12 claims a "full journey 3 levels" video produced with the placement bypass — recommend an `AUDIT SEKARANG` candidate entry; I did not edit it.
 
 ## 6. Invalid / legacy evidence
 `e2e/record_full_journey.mjs`, `run_full_journey.mjs`, `audit_*.mjs`, `debug_inspect.mjs` rely on `__skb*` hooks or blind key bands → **not acceptable as gameplay proof**; they now require a `NEXT_PUBLIC_TEST_HOOKS=1` build. `e2e/run.mjs` is a hook-based functional suite (flows/decisions), **not** a gameplay proof either.

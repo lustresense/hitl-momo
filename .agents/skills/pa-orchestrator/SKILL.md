@@ -40,7 +40,7 @@ Hermes subagents are fallback only when AGY routes are unavailable.
 13. **Accept or reject** the result.
 14. **If accepted, perform final visual QA and capture canonical evidence** (see Visual QA & Preview below).
 15. **Update canonical operational state** — only Ujang writes to:
-    - `CHANGELOG.md`
+    - `DECISIONS.md`
     - `WORKING_CONTEXT.md`
     - `.ops/TASK_BOARD.md`
     - `.ops/runtime/PREVIEW_STATE.md` (if preview/tunnel state changes)
@@ -204,7 +204,7 @@ worker completes
 → capture final screenshot
 → ensure tunnel is alive
 → update PREVIEW_STATE
-→ update CHANGELOG / WORKING_CONTEXT / TASK_BOARD
+→ update DECISIONS.md / NOW.md / WORKING_CONTEXT / TASK_BOARD
 → send screenshot + public preview URL + report to CAN
 → continue next approved task if non-blocked
 ```
@@ -247,7 +247,7 @@ Do not claim the tunnel is active without actually checking the URL.
   - test/build/browser output
   - screenshots/evidence (task-local — these are **not** final canonical evidence)
 - Ujang is the **single writer** for accepted operational state:
-  - `CHANGELOG.md`
+  - `DECISIONS.md`
   - `WORKING_CONTEXT.md`
   - `.ops/TASK_BOARD.md`
   - `.ops/runtime/PREVIEW_STATE.md` (for preview/tunnel state)

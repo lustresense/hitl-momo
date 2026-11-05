@@ -1,6 +1,6 @@
 # Source of Truth Map
 
-Dokumen ini menentukan **sumber mana yang authoritative untuk jenis pertanyaan tertentu**. Ini bukan pengganti `CHANGELOG.md`.
+Dokumen ini menentukan **sumber mana yang authoritative untuk jenis pertanyaan tertentu**. Ini bukan pengganti `DECISIONS.md`.
 
 ## 1. Cara AI harus bekerja
 
@@ -13,12 +13,19 @@ Urutan:
 
 Urutan:
 1. instruksi eksplisit pengguna terbaru;
-2. `CHANGELOG.md`;
+2. `DECISIONS.md`;
 3. dokumen formal terbaru + direct transcript dosen/pengguna;
 4. `PROJECT_MEMORY.md` / ECC memory hanya sebagai konteks;
 5. `archive/ai-history/**` hanya sejarah.
 
 Jika satu hal berstatus **Belum Dikunci**, agent tidak boleh menguncinya sendiri.
+
+## 2b. Dokumen turunan (sejak 2026-11-05)
+
+- `DECISIONS.md`: keputusan produk/PA (dulu `CHANGELOG.md`).
+- `project/OWNER_MANDATES.md`: semua instruksi Owner, kata-kata Owner, berurutan. Konteks dan bukti; bukan pengganti `DECISIONS.md`.
+- `implementation/CHANGELOG.md`: perubahan teknis per versi.
+- `NOW.md`: keadaan paling baru (konteks, bukan otoritas).
 
 ## 3. Apa yang benar-benar sudah diimplementasikan
 
@@ -35,7 +42,7 @@ Dokumen proposal dapat menjelaskan intent, tetapi bukan bukti bahwa suatu fitur 
 
 - Proposal formal terbaru berada di `academic/proposal/current/`.
 - Versi lama berada di `academic/proposal/history/` atau `archive/old-proposals/`.
-- `CHANGELOG.md` dapat mengoreksi detail keputusan yang sudah berubah setelah proposal.
+- `DECISIONS.md` dapat mengoreksi detail keputusan yang sudah berubah setelah proposal.
 
 ## 5. Bimbingan / meeting
 
@@ -56,7 +63,7 @@ Di dalam notulensi:
 
 - `design/` berisi current design work dan eksplorasi.
 - Nama file seperti `final`, `option`, atau `preview` tidak otomatis berarti desain telah dikunci.
-- Status desain tetap mengikuti `CHANGELOG.md` + keputusan pengguna.
+- Status desain tetap mengikuti `DECISIONS.md` + keputusan pengguna.
 
 ## 8. AI memory
 

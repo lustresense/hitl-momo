@@ -1,156 +1,15 @@
-# Changelog Keputusan — PA Sketchbook Universe / AI HITL
+# Catatan Keputusan: PA Sketchbook Universe / AI HITL
 
-Dokumen ini adalah catatan keputusan proyek yang dipakai untuk mencegah konteks lama atau jawaban AI mengambil alih keputusan terbaru.
+Berkas ini (dulu bernama `CHANGELOG.md`) adalah **catatan keputusan produk/PA**: apa yang diputuskan Owner, kapan, dan statusnya. Ia dipakai untuk mencegah konteks lama atau jawaban AI mengambil alih keputusan terbaru.
 
-## [0.0.13] - 2026-11-05 — Eksekusi teknis terintegrasi: gameplay L1-L3 terbukti, alur HITL baru, Momo animasi, modularisasi (DITULIS ATAS PERMINTAAN OWNER; nomor versi = usulan)
+Pembagian dokumen sejak 2026-11-05:
 
-Sumber: instruksi eksplisit Owner (CAN) di sesi eksekusi 2026-11-04/05. Branch kerja lokal `claude/pa-sketchbook-universe-fs0dbf` (baseline `54ebec1`, belum di-push). Detail permintaan per permintaan: `implementation/docs/execution/SESSION_HANDOFF.md`. Bukti: `implementation/docs/execution/evidence/final-383c3bc/` dan `FINAL_VERIFICATION.md`.
-
-### Aktif (instruksi eksplisit Owner)
-- **D-20261105-01 Sistem visual tidak boleh diubah.** Warna oranye/hijau, dots di belakang, outline dan bayangan yang sekarang DIKUNCI oleh Owner. "Anti-slop" = perbaikan detail (teks lebih sedikit, tempat/alur lebih intuitif), BUKAN ganti palet/tipografi. Redesign palet "squared notebook" ditolak (disimpan lokal di branch `claude/tolol`, tidak dipakai).
-- **D-20261105-02 Keputusan HITL langsung berlaku.** Tombol "Wujudkan Objek" dihapus. Terima = langsung membuat objek; Pilih lain = ketuk peringkat 2/3; Bukan semua = pilih label lalu "Pakai". Setelah keputusan muncul pop-up kecil "Masukkan ke dunia" (preview sketsa asli siswa) sebelum dunia berjalan. Redraw tetap jalur pemulihan di luar tiga keputusan.
-- **D-20261105-03 Panel "Tebakan Momo" dikecilkan** (440 -> 300 px), tiga aksi satu baris; Momo ditempatkan tepat di sampingnya.
-- **D-20261105-04 Layar ringkasan penuh diganti pop-up di dalam dunia game.** Saat berhasil: Momo masuk dari atas ke tengah dan merayakan, kartu "Selamat, berhasil!" (hasil gameplay + keputusan + 1 kalimat literasi) dengan Lanjut / Pilih level; latar digelapkan, hanya Momo dan kartu yang terang.
-- **D-20261105-05 Momo = artwork animasi milik Owner** (file `momo-ekspresi_1.html`, 12 ekspresi) menggantikan placeholder. Momo adalah maskot interaktif yang lebih besar dari Thinman: 150 px (gambar/Top-3), 170-210 px (menempatkan/bermain, mengikuti objek yang digeser, bisa diketuk), 300 px (merayakan); tidak dikurung kotak. Thinman diperkecil sedikit (skala visual 0.88, collider tidak berubah).
-- **D-20261105-06 Tombol "Gambar ulang" + "Ciptakan objek lagi" digabung** jadi satu "Gambar lagi" (setelah gagal tercatat sebagai redraw, selain itu sebagai objek tambahan). "Petunjuk misi" dipindah ke kanan atas. Pilihan input jadi satu kontrol "Mouse | Kamera".
-- **D-20261105-07 Label asal prediksi memakai kalimat biasa** ("Mode demo: tebakan masih simulasi", "Demo: tebakan simulasi") menggantikan "DEV / MOCK — BUKAN KELUARAN MODEL SUNGGUHAN" dan "DEMO / PREDIKSI SIMULASI". Tetap jujur bahwa tebakan MOCK. (Merevisi butir "Label Provenance Konsisten" di 0.0.11.)
-- **D-20261105-08 Kode frontend dimodularisasi** tanpa mengubah perilaku/tampilan (GameStage 404->188 baris, SketchbookApp 409->161, DrawingScreen 412->178, runtime KAPLAY 294->40 + `src/game/runtime/*`, globals.css jadi 13 partial berurutan).
-- **D-20261105-09 Isolasi kerja:** tidak ada push/merge/deploy ke `can` tanpa persetujuan Owner; Ujang tetap pemilik infrastruktur/`can`/backup/deploy.
-
-### Direvisi
-- Komit eksplisit lewat tombol CTA "Wujudkan Objek" (alur Probe 0.0.9-0.0.11) -> diganti D-20261105-02.
-- Gestur "Genggam / 2 Jari / 3 Jari" yang tertulis di toolbar tidak pernah diimplementasikan; teksnya dihapus dari UI (hanya pinch-gambar yang nyata).
-
-### Terbukti (browser, input mouse/keyboard asli, prediksi MOCK)
-- Onboarding -> L1 -> L2 (dua objek) -> L3 menang pada percobaan pertama; jalur gagal -> retry -> menang dan objek berbahaya -> Redraw -> geser -> menang. 548/548 unit test, tsc, lint, build lulus. Klaim "full journey" di 0.0.12 memakai `window.__skbMovePlacement` (bypass) dan TIDAK dianggap bukti gameplay; hook uji kini hanya ada bila `NEXT_PUBLIC_TEST_HOOKS=1`.
-- Lompatan kedua L1 yang "gagal" ternyata masalah timing automation + tidak adanya coyote time, bukan bug physics.
-
-### Belum dikunci / butuh keputusan
-- **Coyote time + jump buffer 100 ms** sudah diimplementasikan (bukti trajektori Fase 0) tetapi belum diratifikasi Owner; matikan dengan konstanta 0 di `src/game/jump-assist.ts`.
-- Perilaku "maju-mundur" Momo yang benar-benar bergerak sendiri (mengikuti Thinman, mendekat/menjauh layar) baru berupa perubahan ukuran per momen.
-- Tidak ada fitur hapus objek (hanya "Geser"); gameplay terintegrasi tidak memakai input tangan kecuali opt-in "Kontrol tangan"; akhir permainan setelah Level 3 belum ada.
-- Nomor versi 0.0.13 hanya usulan; belum menaikkan `package.json` (0.2.0).
-
-### BLOCKED (bukan di tangan sisi frontend/game)
-- Model klasifikasi REAL, endpoint/auth/skema/vocabulary/versi model, logging backend/DB/dashboard, kebijakan consent/PII: Partner PA (lihat `PARTNER_CONTRACT_ACTUAL.md`). Tangan/webcam fisik: butuh hardware + penguji. Evaluasi siswa: belum ada, tidak dikarang.
-
-## [0.0.12] - 2026-11-02 — Perbaikan Visual Viewport, Pembukaan Alur Level Ribbon & Teardown Kaplay Zero Error (Milestone efbb3cb)
-
-- **Perbaikan Ground Viewport Gap:** Memperpanjang path SVG tebing kiri dan kanan di `src/components/stage-preview/StageArtwork.tsx` (`v220H0z` dan `v220H356z`) sehingga menutup void gap vertikal ~112px saat diskalakan pada rasio 16:9, dengan tetap menjaga `viewBox="0 0 490 325"` dan kepatuhan uji visual.
-- **Wiring Unlock Level Ribbon:** Menghubungkan prop `isLevelUnlocked` dari `SketchbookApp.tsx` ke `LevelRibbonBookmark.tsx`. Bab 2 dan Bab 3 kini dapat diakses secara organik melalui kartu level siswa tanpa perlu bypass URL `page.goto`.
-- **Eliminasi Root Cause Teardown Kaplay:** Menambahkan existence check `player?.exists?.() && player.pos` pada loader sprite asinkron, callback tween, serta telemetri di `src/game/kaplay-runtime.ts` untuk mengeliminasi exception `null.x` saat unmount secara murni tanpa filter regex.
-- **Verifikasi E2E Playwright & Video Penuh:** Menghasilkan rekaman video fresh 61.44 detik (`page@4132cb92...webm`) yang merekam alur penuh dari Onboarding -> L1 WIN -> L2 WIN -> L3 WIN -> Menu Cerita (3 Bab Terbuka). E2E Playwright lulus 19/19 checks dengan 0 critical console error.
-- **Kepatuhan Regresi & Backup Cloud:** 252/252 unit test passing (100%), typecheck 0 error. Git bundle dibuat dan terverifikasi bit-for-bit lewat rehearsal cloud restore Duplicacy Revision 41 di target `gcd://PA BACKUP/WSL`.
-
-# Changelog Keputusan — PA Sketchbook Universe / AI HITL
-
-Dokumen ini adalah catatan keputusan proyek yang dipakai untuk mencegah konteks lama atau jawaban AI mengambil alih keputusan terbaru.
-
-## [0.0.11] - 2026-10-30 — Koreksi Temporal Momo Motion, Natural Predicting & Kamera Stationary (Deployed to dev.momominum.tech)
-
-- **Target Tunggal Momo:** Menghilangkan target perantara (x=384) saat PREDICTING. Target horizontal Momo kini langsung dihitung dari geometri aktual popup Top-3 (440px -> x=484, gap 16px) sejak pertama kali tombol Tebak Gambarku ditekan. Nol koreksi posisi sekunder saat beralih ke EVALUATING.
-- **Natural Predicting Experience & Copy Prototype:**
-  - Panel loading besar bertuliskan "Momo sedang menebak..." dihilangkan dari presentasi visual (`Top3PredictionPopup` return `null` pada `phase === "predicting"`).
-  - Momo sendiri yang berbicara dengan copy ramah pendamping anak SMP:
-    - DRAW: "Gambar objekmu dulu, ya. Nanti aku coba tebak!"
-    - PREDICTING: "Hmm... ini gambar apa, ya?"
-    - EVALUATING: "Aku punya tiga tebakan. Coba lihat dulu, yuk!"
-    - PREDICTION ERROR: "Hmm, aku belum bisa membaca gambarmu. Mau coba lagi?"
-  - State internal predicting, async inference guard, abort, error, retry, dan redraw tetap utuh tanpa delay palsu.
-- **Transisi Visual & Zero Overlap:** Presentasi UI hasil evaluasi ditahan sampai perpindahan Momo selesai (via `transitionEnd` atau immediate pada `prefers-reduced-motion`). Popup Top-3 tidak pernah me-render di depan lintasan Momo dan Momo tidak pernah menyapu panel Top-3.
-- **Root Cause & Fix Bug Kamera Meluncur:**
-  - Root cause: `GlobalCamera.tsx` menjalankan GSAP FLIP (`morphCameraCard`) antar placement perubahan state (`${mode}:${recessed}`). Saat masuk Drawing Screen dari Onboarding/Cover, cache layout sebelumnya di-morph ke posisi PIP kiri bawah sehingga kamera terlihat meluncur dari tengah ke kiri bawah.
-  - Fix: Scoped guard di `GlobalCamera.tsx` — saat `mode === "floating"`, batalkan tween GSAP (`gsap.killTweensOf`) dan clear props transform sebelum paint. Kamera kini 100% diam di anchor kiri bawah (`x=24, y=936`) sejak frame pertama Drawing Screen, terbukti secara matematis lewat rekaman RAF (min x = max x = 24).
-- **Label Provenance Konsisten:** Badge sumber prediksi menampilkan "DEMO / PREDIKSI SIMULASI" secara jujur di bubble Momo dan popup Top-3 sejak fase prediksi dimulai hingga hasil tampil saat mode mock.
-- **Verifikasi Temporal RAF (Playwright Browser):**
-  - Kamera: 0px glide sepanjang alur (min_x: 24, max_x: 24, min_y: 936, max_y: 936).
-  - Momo: 1 target konvergen (x=484, gap 16px dari popup right 468).
-  - Overlap: 0 frame terdeteksi.
-  - Multi-viewport: 1920x1080, 1366x768, 1280x720 semua gap 16px.
-  - Reduced-motion: `transition: none`, immediate settled.
-  - Full gates: 223/223 unit test PASS (33 files), typecheck exit 0, lint exit 0, SSG build exit 0.
-- **Status Operasional:** Deployed to dev.momominum.tech (port 5555). Git commit & backup bundle tersimpan lokal. Remote push belum dijalankan.
-
-## [0.0.10] - 2026-10-30 — State-based Momo positioning & motion (Owner review, belum deploy)
-
-- Momo pada DRAW/REDRAW di kiri atas; saat PREDICTING/EVALUATING/error mengikuti geometri tepi kanan popup dengan gap 16px. Bukan anchor kanan viewport.
-- Satu instance Momo dan bubble; CSS transform transition singkat, tanpa dependency motion tambahan. Preferensi reduced-motion meniadakan perpindahan animasi.
-- Bubble memakai konteks fase existing, tidak menentukan label/confidence/keputusan siswa. Aset/ukuran/wujud Momo tetap.
-- Canvas Drawing Flow dipertahankan; override pointer-events scoped mempertahankan pembekuan input selama prediksi/evaluasi melawan CSS baseline `!important`.
-- Popup Top-3, kamera kiri bawah, toolbar kanan, global dot-grid, gameplay dan Summary tidak dirombak.
-- Verifikasi final: 216/216 unit (32 files), typecheck/lint/build exit 0; lint warning baseline TutorialBrochure.tsx:289 tetap. Browser Chromium: 4 desktop + reduced-motion, 9/9 Accept/Correct/Override Level 1–3 sampai PLAY, nol console/page error. Gap popup–Momo 16px; transition 240ms, reduced-motion none; avatar/canvas tetap. Screenshot, video 1920×1080 7.32s dan JSON metrics disimpan pada evidence VM `/home/agentops/.hermes/cache/momo-state-motion/`. Bukan bukti model partner/Safari/kamera fisik.
-- Perubahan hanya pada worktree `feat/momo-state-motion`; tidak commit/push/merge/deploy. Live dev tetap batch `d0c1c35`.
-
-## [0.0.9] - 2026-10-29 — Top-3 HITL Prediction Floating Popup on Drawing Screen (branch feat/hitl-prediction-popup)
-
-- **Komponen & Arsitektur:** Mengubah presentasi UI hasil prediksi Top-3 AI dan keputusan Human-in-the-Loop (HITL) dari sebelumnya berupa halaman/section PROBE terpisah (section#screen-evaluating) menjadi popup/panel floating (Top3PredictionPopup) di area kiri atas Drawing Screen (top: 24px; left: 28px; width: min(440px, calc(100vw - 56px))).
-- **Pembersihan Panel Katalog:** Menghilangkan presentasi panel kotak katalog placeholder (`Katalog DEMO · placeholder`) dari `DrawingScreen`. Area kiri atas kanvas pada state DRAWING kini 100% kosong dan bersih, kanvas terlihat penuh. Saat PREDICTING/EVALUATING, hanya popup Top-3 yang muncul tanpa ada tumpukan UI lama di belakangnya. Pasca-Redraw terbukti tidak memunculkan kembali katalog. Kontrak `level.catalog` dan `level.vocabulary` di domain tetap utuh untuk kebutuhan dropdown Override.
-- **Integritas Kanvas:** Drawing Screen dan kanvas utama (100vw x 100vh) tetap ter-mount dan terlihat di belakang popup; goresan siswa tidak hilang saat prediksi diminta. Selama fase predicting dan evaluating, interaksi pointer pada kanvas dibekukan (pointerEvents: none) untuk mencegah goresan tak sengaja.
-- **Root Cause PROBE Terpisah:** Di SketchbookApp.tsx, fase drawing, predicting, dan evaluating sebelumnya diperlakukan mutually exclusive sehingga DrawingScreen di-unmount saat memasuki evaluasi dan digantikan oleh section#screen-evaluating fullscreen. Diperbaiki dengan menyatukan lifecycle isDrawingFlow (drawing, predicting, prediction-error, evaluating) di dalam DrawingScreen.
-- **Kontrak HITL Terpenuhi:**
-  - Menampilkan 3 kandidat berperingkat (#1, #2, #3), nama label, bar confidence, dan persentase numerik. Peringkat 1 ditandai visual dengan badge ⭐ Utama.
-  - Chip sumber prediksi: DEMO / PREDIKSI SIMULASI (mock) atau PARTNER API.
-  - Tiga cabang keputusan: Accept (kandidat #1), Correct (kandidat #2 atau #3), Override (pilihan kosa kata legal level).
-  - Aksi komit terpisah via tombol Wujudkan Objek! (btn-wujudkan-objek) yang memicu transisi ke falling -> placing -> gameplay di GameStage.
-  - Pemulihan Redraw / Gambar ulang (revisi) mengembalikan siswa ke mode gambar tanpa membuat objek palsu. Tombol keyboard Escape juga memicu pembatalan/redraw secara aman.
-- **Verifikasi & Quality Gates:**
-  - Unit tests: 205/205 PASS (31 test files, termasuk 9 tes komprehensif baru di top3-prediction-popup.test.tsx).
-  - Typecheck: PASS (tsc --noEmit).
-  - Lint: PASS (next lint).
-  - Build: PASS (Next.js SSG 16 static routes).
-  - Playwright E2E Browser: 1920x1080 dan 1366x768 (zero horizontal overflow: scrollWidth == innerWidth == 1366).
-  - Alur sequential Level 1, Level 2, dan Level 3 terbukti lolos dari gambar -> prediksi -> popup -> komit -> GameStage.
-- **Keamanan & Isolasi:** Dikerjakan di worktree terisolasi /home/user_06/sandboxes/sketchbook-react-hitl-popup pada branch feat/hitl-prediction-popup. Source preview port 5555 dan remote origin tidak tersentuh.
-
-## [0.0.8] - 2026-10-29 — Desktop framing L1/L3 (local preview)
-
-- Desktop landscape L1/L3: remove height-limited surface width; full viewport-width 16:9 art and physics canvas remain aligned. L2 and portrait rules unchanged.
-- Root cause: `width:min(100vw,177.7777778dvh)` created 53.33 px side gutters at 1280×660 and 320 px at 2560×1080.
-- Changed `implementation/src/components/game/game-stage.module.css` and minimal left boundary in `implementation/src/game/kaplay-runtime.ts`; regression tests in `implementation/tests/game/runtime-integration.test.ts`. Art, density, jump520, gravity1600 and level collision geometry unchanged.
-- Desktop screenshot/DOM acceptance: L1/L3 at 1280×660,1440×900,1920×1080,2560×1080: 8/8 full-width, initial actor/goal visible, uniform 16:9, geometry identical, DPR2 retained, zero page errors.
-- Gates: 196/196 unit tests (five new boundary/scope cases), typecheck, lint (existing hook warning), static export 16 routes PASS.
-- L1 desktop left boundary: real ArrowLeft reproduced sprite crop/fall at x<0. Added sprite-aware clamp with 2-world-pixel inset after fixed-step movement. Unit test RED (spriteLeft=-37.55), GREEN; L2/L3/portrait/legacy unchanged. Final real-browser boundary and sequential acceptance recorded separately.
-- Build generated in isolated WSL scratch; static preview assets copied in-place preserving server cwd/process; previous c9b5899 build copied to scratch recovery folder. No service restart/port/tunnel/production change. No commit/push.
-
-## [0.0.7] - 2026-10-29 — Batch stabilization Level 1–3 — VERIFIED LOKAL
-
-- **Area:** Stabilisasi gameplay dan rendering fisik Level 1–3 pada visual React StageWorld sandbox.
-- **Status:** VERIFIED LOKAL (bukan rilis produksi, tanpa push/merge).
-- **Hasil Stabilisasi:**
-  - **Tangga L2 Solid Terbukti:** Override STAGE_2 mapping tangga disetel Solid, konsisten dengan tutorial. Uji kontak fisik Playwright membuktikan pendaratan presisi (`playerFootY = 220.92`), standing stabil (12 sampel, `grounded: true`, `velY = 0`), lompat lepas dari tangga (`velY = -392`, `grounded: false`, ketinggian mencapai 143.63), dan reland. Rekaman video: `tangga-physical-acceptance/video/`.
-  - **Tali L3 Contextual Hazard:** Tetap danger dengan pesan kegagalan kontekstual (`Menyentuh objek berbahaya (tali)!`) melalui overlay outcome eksisting, tanpa popup baru.
-  - **Single Global Interior Grid:** Background dot-grid notebook disatukan pada root body/halaman interior. Duplikasi grid lokal pada halaman-halaman dihapus. Treatment hijau cover kamera onboarding (`.camera-prototype-wrapper.mode-cover`) tetap utuh.
-  - **Ketajaman Rendering Retina & Layar:** Perhitungan resolusi internal KAPLAY dikoreksi ke `Math.max(window.devicePixelRatio, 2)` murni, tanpa mengalikan ulang rasio lebar kontainer CSS yang sebelumnya menyebabkan alokasi canvas berlebih. Tekstur aset dipulihkan tajam (`textureScale = 8`).
-- **Verifikasi & Regresi Lengkap:**
-  - Unit tests: 191/191 PASS (30 test files, termasuk tes regresi hazard dan density baru).
-  - Typecheck: PASS (`tsc --noEmit --incremental false`).
-  - Lint: PASS (Next.js ESLint nol error, satu warning hook eksisting).
-  - Build: PASS (16 static routes ter-generate).
-  - Mobile & recovery: 14/14 checks PASS (`check_recovery.py`).
-  - Render & surface acceptance: 26/26 checks PASS lintas Desktop, Retina, dan Mobile (`render_acceptance.py`).
-- **Status Backup:**
-  - Backup lokal: Bundle Git pemulihan `82c15d5` dan manifest evidence tersimpan di `/home/user_06/projects/backups/sketchbook-react-visual-first/`.
-  - Backup cloud remote: Duplicacy Rev 21 (11:36 WIB) terverifikasi BELUM memuat bundle/manifest baru karena dibuat sebelum arsip; menunggu tick jadwal berikutnya.
-- **Batas Tindakan:** Tanpa push remote, merge branch, atau deploy produksi. Port preview 5555 dan tunnel tidak dimodifikasi.
-
-## [0.0.6] - 2026-10-29 — Prototype integration — VERIFIED (G1-G6 COMPLETE)
-
-- **Area:** Integrasi gameplay KAPLAY 3 Level pada visual React StageWorld yang disetujui.
-- **Status:** VERIFIED LOKAL (G1-G6 Lolos); bukan release atau klaim kesiapan produksi.
-- **Hasil Integrasi Tiga Level (KAPLAY Asli):**
-  - **Level 1 (Halaman yang Sobek):** Jurang sesuai geometri SVG tebing kiri/kanan, penempatan multi-objek solid tanpa kuota, simulasi falling, collision fisik KAPLAY, kontrol keyboard/pointer, fail/retry dan reposition objek identitas tetap, goal reached menyeberang jurang.
-  - **Level 2 (Menara Lipatan):** Traversal vertikal nyata dengan perancah 3 pijakan (`96,160`, `222,142`, `260,110`), lompatan bertingkat presisi ke puncak bendera tanpa manipulasi gravitasi (1600) atau jump force (520).
-  - **Level 3 (Lorong Kabut Penghapus):** Pemilihan rute atas vs bawah, hazard lantai statis terbukti memicu fail sebelum killY jika jatuh, objek 'unresolved' (ember) terbukti non-solid dan jatuh, rute atas terbukti playable sampai goal height-aware (`y <= 192`).
-- **Arsitektur & Kontrak Bersama:**
-  - Profil integrasi 800 × 450 berbasis affine transform `s = max(800/490, 450/325)` dengan centered slice. Profil legacy 800 × 380 tetap utuh.
-  - Satu Stickman aktif (SVG preview disembunyikan saat mode gameplay, digantikan body fisik KAPLAY ber-skin artwork SVG yang sama).
-  - Background scenery murni React `StageWorld`, foreground canvas KAPLAY transparan (`background: [0,0,0,0]`).
-- **Kualitas & Regresi (G6):**
-  - 184 unit tests PASS (29 test files), typecheck PASS (incremental false), lint PASS, Next.js build PASS.
-  - 14/14 browser recovery & mobile checks PASS (`check_recovery.py`): retry, reposition, blur stop, mobile portrait 390×844 tanpa overflow horizontal, touch coordinates accurate, 44px min targets.
-  - Full sequential E2E (Level 1 -> 2 -> 3 -> Summary) PASS tanpa debug hooks atau mock state (`final_flow.py`).
-  - Visual regression preview 4 scene tetap 100% identik dan motion CSS tetap aktif (`cleanup_qa.py`).
-- **Batas:** Tanpa NUI/MediaPipe/kamera, model AI asli, backend partner, atau deploy production. Tidak ada push/merge.
+| Berkas | Isi |
+|---|---|
+| `DECISIONS.md` (ini) | Keputusan produk/PA: Aktif, Direvisi, Dicabut, Belum dikunci. Sumber kebenaran keputusan. |
+| `project/OWNER_MANDATES.md` | Semua instruksi/mandat Owner dalam kata-kata Owner, berurutan, dengan status dan bukti. |
+| `implementation/CHANGELOG.md` | Perubahan teknis per versi (dari versi lama ke baru). Entri rilis 0.0.6-0.0.12 yang dulu ada di sini sudah dipindahkan ke sana. |
+| `NOW.md` | Keadaan paling baru dalam satu halaman. |
 
 ## Cara pakai
 
@@ -162,9 +21,9 @@ Dokumen ini adalah catatan keputusan proyek yang dipakai untuk mencegah konteks 
 ## Protokol Pembaruan Semi-Otomatis
 
 1. Tambahkan notulensi/transkrip atau hasil diskusi baru ke proyek.
-2. Minta AI menjalankan **Audit Perubahan**, lalu minta **Patch Changelog Usulan**—bukan langsung menulis ulang changelog.
+2. Minta AI menjalankan **Audit Perubahan**, lalu minta **Patch Keputusan Usulan**, bukan langsung menulis ulang catatan keputusan.
 3. Setujui atau tolak patch dengan ID, misalnya `SETUJUI D-20260711-01` atau `TOLAK D-20260711-02`.
-4. Setelah disetujui, AI mengeluarkan satu versi lengkap pengganti `CHANGELOG.md`. Jadikan versi itu satu-satunya changelog aktif di Sources; arsipkan versi sebelumnya.
+4. Setelah disetujui, AI mengeluarkan satu versi lengkap pengganti `DECISIONS.md`. Jadikan versi itu satu-satunya catatan keputusan aktif di Sources; arsipkan versi sebelumnya.
 
 Format patch yang wajib:
 
@@ -194,7 +53,7 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 | Hierarki pengalaman | Interaksi → Gameplay/Storyline → Edukasi. Edukasi muncul lewat pengalaman bermain. | Aktif |
 | Lore pengguna | Pengguna adalah Illustrator dari luar sketchbook, satu-satunya pencipta objek dan penentu keputusan akhir. | Aktif |
 | Lore Momo | Momo adalah pendamping/pembaca pola. Momo tidak bisa menggambar atau menciptakan objek; ia hanya dapat merespons/menebak/mendorong elemen sesuai desain gameplay. Respons edukasi/panduan cukup melalui text bubble kontekstual tanpa suara, NLP, LLM, atau percakapan bebas. | Aktif |
-| Visual Momo | Wujud visual Momo belum final; variasi dalam backup adalah eksplorasi, bukan desain terkunci. | Belum dikunci |
+| Visual Momo | Artwork animasi milik Owner (`momo-ekspresi_1.html`, 12 ekspresi) dipakai sebagai Momo di prototype sejak 2026-11-05 (D-20261105-05). Variasi lama di backup tetap eksplorasi. | Aktif (prototype) |
 | Kategori gameplay | Semantik **Solid** dan **Danger** tetap dipakai untuk konsekuensi gameplay. Jangan menganggap contoh kategori/objek lama berlaku universal tanpa desain level terbaru. | Aktif |
 | Level | Progresi level merepresentasikan pengalaman literasi AI: dasar, membandingkan ambiguitas/Top-3, lalu validasi kritis. Detail objek, rintangan, confidence band, dan skrip level belum dikunci. | Aktif / detail belum dikunci |
 | Peran penulis | Interaksi, UI/UX, canvas dan finger tracking bila benar-benar digunakan, tampilan Top-3/confidence, UI keputusan, gameplay 2D, Momo, event flow, mockup. | Aktif |
@@ -208,6 +67,10 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 | Presentasi vs buku | Buku PA boleh memuat flow/detail teknis lebih lengkap. PPT/paper harus menampilkan metodologi, desain sistem, dan diagram yang ringkas serta terbaca. | Aktif |
 | Evaluasi | Gunakan log untuk menggambarkan pola keputusan yang teramati. Jangan mengklaim perubahan psikologis/kognitif atau hasil pre/post tanpa rancangan dan bukti evaluasi yang sah. | Aktif |
 | Metodologi | Fishbone: Concept, Design, Material Collecting, Assembly, User Testing, Distribution. | Aktif |
+| Sistem visual | Warna oranye/hijau, dots di belakang, outline dan bayangan yang ada sekarang **dikunci Owner**. "Anti-slop" = perbaikan detail, bukan ganti palet/tipografi (D-20261105-01). | Aktif |
+| Alur keputusan HITL di UI | Terima/Pilih lain/Bukan semua langsung berlaku (tanpa tombol "Wujudkan Objek"); lalu tawaran "Masukkan ke dunia" (D-20261105-02). | Aktif |
+| Ringkasan level | Pop-up di dalam dunia game dengan Momo yang merayakan, bukan layar penuh (D-20261105-04). | Aktif |
+| Label asal prediksi | Kalimat biasa dan jujur: "Mode demo: tebakan masih simulasi" / "Demo: tebakan simulasi" (D-20261105-07). | Aktif |
 
 ## Yang Sengaja Tidak Difinalkan
 
@@ -244,6 +107,55 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 | Penyaringan klaim | Jawaban AI, detail stack, skema analitik, referensi, serta "final" versi lama harus diverifikasi sebelum dipakai. | Aturan aktif |
 
 ## Entri Perubahan Terbaru
+
+### D-20261105-01 — Aktif (instruksi eksplisit Owner)
+- Keputusan/ubahannya: sistem visual yang ada (oranye/hijau, dots, outline, bayangan, background) tidak boleh diubah. Redesign palet "squared notebook" oleh agen UI ditolak.
+- Mengubah entri lama: tidak ada; menegaskan arah visual yang sudah dipakai.
+- Bukti: instruksi Owner 2026-11-05 ("jangan diubah warnanya; yang diubah tempat/alur yang intuitif").
+- Dampak: desain/kode UI. Redesign yang ditolak hanya tersimpan sebagai branch lokal `claude/tolol` (jangan dipakai).
+
+### D-20261105-02 — Aktif (instruksi eksplisit Owner)
+- Keputusan/ubahannya: tombol "Wujudkan Objek" dihapus. Terima = langsung membuat objek; Pilih lain = ketuk peringkat 2 atau 3; Bukan semua = pilih label lalu "Pakai". Sesudahnya muncul pop-up "Masukkan ke dunia" (preview sketsa asli siswa). Redraw tetap jalur pemulihan di luar tiga keputusan.
+- Mengubah entri lama: **Direvisi**: komit eksplisit lewat CTA "Wujudkan Objek" (alur Probe 0.0.9-0.0.11).
+- Bukti: instruksi Owner 2026-11-05; E2E `implementation/e2e/recovery-paths.mjs`.
+- Dampak: UI keputusan, state flow, event log.
+
+### D-20261105-03 — Aktif
+- Keputusan/ubahannya: panel "Tebakan Momo" dikecilkan (440 menjadi 300 px), tiga aksi satu baris, Momo ditempatkan tepat di sampingnya.
+- Bukti: instruksi Owner 2026-11-05.
+
+### D-20261105-04 — Aktif
+- Keputusan/ubahannya: layar ringkasan penuh diganti pop-up di dalam dunia game. Saat berhasil Momo masuk dari atas ke tengah dan merayakan; kartu "Selamat, berhasil!" (hasil gameplay, keputusan, satu kalimat literasi) dengan Lanjut / Pilih level; latar digelapkan sehingga hanya Momo dan kartu yang terang.
+- Bukti: instruksi Owner 2026-11-05; screenshot `implementation/docs/execution/evidence/final-383c3bc/`.
+
+### D-20261105-05 — Aktif
+- Keputusan/ubahannya: artwork animasi Owner (`momo-ekspresi_1.html`) menjadi Momo di prototype. Momo adalah maskot interaktif yang lebih besar dari Thinman (150 px saat menggambar/Top-3, 170-210 px saat menempatkan/bermain dan mengikuti objek yang digeser, 300 px saat merayakan), tidak dikurung kotak. Thinman diperkecil sedikit (skala visual 0.88, collider tidak berubah).
+- Mengubah entri lama: menggantikan placeholder Momo; baris "Visual Momo" diperbarui.
+- Bukti: instruksi Owner 2026-11-05.
+
+### D-20261105-06 — Aktif
+- Keputusan/ubahannya: "Gambar ulang" + "Ciptakan objek lagi" digabung jadi satu tombol "Gambar lagi" (setelah gagal tercatat sebagai redraw, selain itu sebagai objek tambahan). "Petunjuk misi" dipindah ke kanan atas agar tidak tertimbun panel Top-3. Pilihan input jadi satu kontrol "Mouse | Kamera".
+- Bukti: instruksi Owner 2026-11-05.
+
+### D-20261105-07 — Aktif
+- Keputusan/ubahannya: label asal prediksi ditulis dengan kalimat biasa ("Mode demo: tebakan masih simulasi", "Demo: tebakan simulasi") menggantikan "DEV / MOCK - BUKAN KELUARAN MODEL SUNGGUHAN" dan "DEMO / PREDIKSI SIMULASI". Tetap jujur bahwa tebakan adalah MOCK.
+- Mengubah entri lama: **Direvisi**: butir "Label Provenance Konsisten" (0.0.11) di riwayat rilis teknis.
+
+### D-20261105-08 — Aktif
+- Keputusan/ubahannya: kode frontend dimodularisasi tanpa mengubah perilaku atau tampilan.
+
+### D-20261105-09 — Aktif
+- Keputusan/ubahannya: kerja dilakukan di branch terisolasi; tidak ada push/merge/deploy ke `can` tanpa persetujuan Owner; Ujang tetap pemilik infrastruktur, `can`, backup, deploy.
+
+### D-20261105-10 — Aktif (instruksi eksplisit Owner)
+- Keputusan/ubahannya: `CHANGELOG.md` diganti nama menjadi `DECISIONS.md` karena isinya catatan keputusan dari alur ChatGPT Owner, bukan catatan perubahan teknis. Perubahan teknis per versi berada di `implementation/CHANGELOG.md`. Semua instruksi Owner dicatat di `project/OWNER_MANDATES.md`. Keadaan terbaru di `NOW.md` (format dari Ujang: header "Base ancestry").
+- Dampak: `AGENTS.md`, `INSTRUCTION.md`, `SOURCE_OF_TRUTH.md`, `PROJECT_MEMORY.md`, `.hermes.md`, skill/rule agen disesuaikan. **Tindakan Owner:** unggah ulang `INSTRUCTION.md` dan `DECISIONS.md` ke Project Sources chat GPT dan beri tahu bahwa keputusan kini masuk `DECISIONS.md`.
+
+### Belum dikunci (2026-11-05)
+- Coyote time + jump buffer 100 ms sudah diimplementasikan (bukti trajektori) tetapi belum diratifikasi Owner.
+- Perilaku Momo yang benar-benar bergerak maju-mundur sendiri (mengikuti Thinman, mendekat/menjauh layar).
+- Fitur hapus objek; akhir permainan setelah Level 3; input tangan di gameplay (saat ini opt-in "Kontrol tangan", tangan nyata belum diuji).
+
 
 ### 2026-08-29 — RECOVERY & VISUAL QA COMPLETE
 

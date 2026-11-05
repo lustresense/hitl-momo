@@ -36,7 +36,8 @@ Lokasi: `implementation/docs/execution/evidence/final-383c3bc/` (video, screensh
 | Lokasi | Isi |
 |---|---|
 | `NOW.md` | keadaan terbaru, header `Base ancestry` |
-| `DECISIONS.md` | keputusan produk/PA (D-20261105-01..10) |
+| `SOUL.md` | aturan kerja + tone of voice (dulu `INSTRUCTION.md`; sama dengan instruksi project GPT) |
+| `DECISIONS.md` | keputusan produk/PA (D-20261105-01..11) + seluruh riwayat keputusan dari project GPT (Lampiran) |
 | `project/OWNER_MANDATES.md` | semua instruksi Owner, urut |
 | `implementation/` | aplikasi (satu-satunya folder yang perlu untuk coding/build) |
 | `implementation/CHANGELOG.md` | perubahan teknis per versi (0.0.13 = pekerjaan ini) |

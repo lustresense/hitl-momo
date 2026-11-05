@@ -38,7 +38,7 @@ The user retains final approval.
 Before substantial work:
 
 0. If `NOW.md` exists, read it first (one-page current state; header `Base ancestry`).
-1. Read `INSTRUCTION.md`.
+1. Read `SOUL.md`.
 2. Read `SOURCE_OF_TRUTH.md`.
 3. Read `DECISIONS.md`.
 4. Read `PROJECT_MEMORY.md`.
@@ -56,7 +56,8 @@ When the task is about the app, the working scope is the `implementation/` folde
 
 ## Where things live
 
-- `DECISIONS.md` = product/PA decision log (was `CHANGELOG.md`).
+- `SOUL.md` = working rules and tone of voice (was `INSTRUCTION.md`; same file as the Owner's GPT project instruction).
+- `DECISIONS.md` = product/PA decision log (was `CHANGELOG.md`); includes the full GPT decision history (Lampiran).
 - `project/OWNER_MANDATES.md` = every Owner instruction, in the Owner's words.
 - `implementation/CHANGELOG.md` = technical changes per version.
 - `NOW.md` = latest state.
@@ -82,7 +83,7 @@ Only the current **IT ORCHESTRATOR** may normally promote validated work into:
 A delegated **WORKER** should write task/result artifacts instead.
 
 Nobody may silently modify:
-- `INSTRUCTION.md`;
+- `SOUL.md`;
 - `DECISIONS.md`;
 - `SOURCE_OF_TRUTH.md`;
 - `AGENTS.md`.

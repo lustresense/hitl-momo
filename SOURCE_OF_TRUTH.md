@@ -6,7 +6,7 @@ Dokumen ini menentukan **sumber mana yang authoritative untuk jenis pertanyaan t
 
 Urutan:
 1. instruksi eksplisit pengguna terbaru;
-2. `INSTRUCTION.md`;
+2. `SOUL.md`;
 3. `AGENTS.md` dan rules yang tidak bertentangan dengan dua sumber di atas.
 
 ## 2. Keputusan produk / PA
@@ -22,7 +22,8 @@ Jika satu hal berstatus **Belum Dikunci**, agent tidak boleh menguncinya sendiri
 
 ## 2b. Dokumen turunan (sejak 2026-11-05)
 
-- `DECISIONS.md`: keputusan produk/PA (dulu `CHANGELOG.md`).
+- `SOUL.md`: aturan kerja dan tone of voice (dulu `INSTRUCTION.md`).
+- `DECISIONS.md`: keputusan produk/PA (dulu `CHANGELOG.md`); memuat riwayat keputusan dari project GPT di Lampiran.
 - `project/OWNER_MANDATES.md`: semua instruksi Owner, kata-kata Owner, berurutan. Konteks dan bukti; bukan pengganti `DECISIONS.md`.
 - `implementation/CHANGELOG.md`: perubahan teknis per versi.
 - `NOW.md`: keadaan paling baru (konteks, bukan otoritas).

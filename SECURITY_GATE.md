@@ -67,6 +67,7 @@ high_risk_patterns:
   - "**/SKILL.md"
   - "**/skills/**"
   - "INSTRUCTION*"
+  - "SOUL*"
   - "WORKING_CONTEXT*"
 
   # Authentication, Authorization, & Identity

@@ -29,7 +29,7 @@
 - **SOURCE_OF_TRUTH.md** — Single source of truth definitions
 - **PROJECT_MEMORY.md** — Project context & memory
 - **WORKING_CONTEXT.md** — Current working context
-- **INSTRUCTION.md** — Instructions untuk AI agents
+- **SOUL.md** — Instructions untuk AI agents
 - **AGENTS.md** — Agent orchestration config
 
 ### Key Decisions (dari CHANGELOG)
@@ -170,7 +170,7 @@ sketchbook-universe/
 | [SOURCE_OF_TRUTH.md](./SOURCE_OF_TRUTH.md) | Source of truth definitions |
 | [PROJECT_MEMORY.md](./PROJECT_MEMORY.md) | Project context |
 | [WORKING_CONTEXT.md](./WORKING_CONTEXT.md) | Current context |
-| [INSTRUCTION.md](./INSTRUCTION.md) | AI agent instructions |
+| [SOUL.md](./SOUL.md) | AI agent instructions |
 | [AGENTS.md](./AGENTS.md) | Agent orchestration |
 
 ---

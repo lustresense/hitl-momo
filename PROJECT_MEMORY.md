@@ -56,7 +56,7 @@ Without a new explicit decision, do not restore:
 
 ## Repository memory architecture
 
-- `INSTRUCTION.md`, `DECISIONS.md`, `SOURCE_OF_TRUTH.md`, `AGENTS.md` = governed control layer.
+- `SOUL.md`, `DECISIONS.md`, `SOURCE_OF_TRUTH.md`, `AGENTS.md` = governed control layer.
 - `PROJECT_MEMORY.md` = compact durable AI memory.
 - `WORKING_CONTEXT.md` = current-session continuation state.
 - `.ecc/memory/` = long-term unreviewed context/handoffs/lessons.

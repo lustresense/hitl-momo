@@ -4,6 +4,8 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { setSharedStream } from "../../camera/shared-stream";
 import { Icon } from "../ui/Icon";
+import { MomoGuide } from "../momo/MomoGuide";
+import { COVER_WAKE } from "@/src/domain/guide-script";
 import { WaveTracker } from "../../camera/wave-tracker";
 import { DRAWING_MODE_EVENT, HAND_STATUS_EVENT, classifyCameraError, messageFor } from "../../camera/messages";
 import type { HandInputStatus } from "../../input/types";
@@ -20,10 +22,15 @@ export interface GlobalCameraProps {
    * MediaStream) stays mounted.
    */
   recessed?: boolean;
+  /** Pause between the camera turning on and the hand model loading, so Momo wakes up and waves smoothly first. */
+  waveStartDelayMs?: number;
 }
 
 /** Layout effect is a no-op (and warns) while server-rendering the shell. */
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
+
+/** How long Momo gets to wake up and wave before the hand model starts loading (it can stall the page for a moment). */
+const WAKE_SETTLE_MS = 3400;
 
 /** Center -> bottom-left mini PIP morph duration, in seconds. */
 const MORPH_DURATION = 0.6;
@@ -74,7 +81,7 @@ function morphCameraCard(card: HTMLElement, from: CardRect | null, to: CardRect 
   );
 }
 
-export function GlobalCamera({ mode, modelUrl, onWave, onSkip, recessed = false }: GlobalCameraProps) {
+export function GlobalCamera({ mode, modelUrl, onWave, onSkip, recessed = false, waveStartDelayMs = WAKE_SETTLE_MS }: GlobalCameraProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   /**
@@ -84,6 +91,8 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip, recessed = false 
    */
   const requestRef = useRef(0);
   const unmountedRef = useRef(false);
+  const modeRef = useRef(mode);
+  modeRef.current = mode;
   const onWaveRef = useRef(onWave);
   onWaveRef.current = onWave;
   const modelUrlRef = useRef(modelUrl);
@@ -111,6 +120,16 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip, recessed = false 
   const [statusNote, setStatusNote] = useState("");
   const [failed, setFailed] = useState(false);
   const [delegate, setDelegate] = useState("");
+  /** Momo sleeps on the cover until the camera is on. (Later the wave wakes her; the wave detector does not wake her yet.) */
+  const [wake, setWake] = useState({ key: 0, startled: false, wave: 0 });
+  const awake = hasStream;
+  useEffect(() => {
+    if (!hasStream) return;
+    // Wakes startled (a hop and a flap), then settles and waves hello with one wing.
+    setWake((w) => ({ ...w, key: w.key + 1, startled: true }));
+    const t = setTimeout(() => setWake((w) => ({ ...w, startled: false, wave: w.wave + 1 })), 900);
+    return () => clearTimeout(t);
+  }, [hasStream]);
 
   function getTracker(): WaveTracker {
     if (!trackerRef.current) {
@@ -303,6 +322,9 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip, recessed = false 
       if (isStale()) return;
       setPreviewLabel("Menunggu lambaian tanganmu...");
       if (mode === "cover") {
+        // Loading the hand model can stall the page for a moment. Let Momo wake up and wave first (smooth), then listen for the wave.
+        await new Promise((resolve) => setTimeout(resolve, waveStartDelayMs));
+        if (isStale() || modeRef.current !== "cover") return;
         await startWaveTracking();
       }
     } catch (error) {
@@ -344,7 +366,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip, recessed = false 
 
   return (
     <div
-      className={`global-camera-host camera-prototype-root mode-${mode}${recessed ? " is-recessed" : ""}`}
+      className={`global-camera-host camera-prototype-root mode-${mode}${recessed ? " is-recessed" : ""}${awake ? " has-momo-awake" : ""}`}
       data-testid="global-camera-widget"
     >
       {/*
@@ -445,6 +467,28 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip, recessed = false 
             </select>
           </div>
         </div>
+
+        {mode === "cover" && (
+          <MomoGuide
+            placement="cover"
+            height={250}
+            sleeping={!awake}
+            step={awake ? { ...COVER_WAKE, mood: wake.startled ? "Kaget" : COVER_WAKE.mood } : null}
+            flapKey={awake ? wake.key : 0}
+            waveKey={awake ? wake.wave : 0}
+            startDelay={1400}
+            extrasFrom="last"
+            testId="cover-momo"
+          >
+            <button type="button" className="gesture-cue" data-testid="cover-continue" aria-label="Pilih nomor absen" onClick={onSkip}>
+              <span className="gesture-cue__hand">
+                <Icon name="thumb-up" size={30} stroke={2.2} />
+              </span>
+              <span className="gesture-cue__label">Pilih nomor absen</span>
+              <Icon name="arrow-right" size={18} stroke={3} />
+            </button>
+          </MomoGuide>
+        )}
 
         {mode === "cover" && (
           <div className="cover-skip-block" style={{ marginTop: 20 }}>

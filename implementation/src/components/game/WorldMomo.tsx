@@ -5,10 +5,10 @@
 import type { CSSProperties, MutableRefObject } from "react";
 import type { StageGeometry } from "@/src/game/stage-geometry";
 import { physicsToClient } from "@/src/game/stage-transform";
-import { MomoBubble } from "../momo/MomoBubble";
+import { MomoChat } from "../momo/MomoChat";
 import type { StageOutcome, StagePhase } from "./game-stage-types";
 
-type MomoMood = "Sedih" | "Penasaran" | "Tenang";
+type MomoMood = "Penasaran" | "Tenang";
 
 interface MomoLook {
   message: string;
@@ -18,7 +18,6 @@ interface MomoLook {
 }
 
 const PLAYING: MomoLook = { message: "Ayo jalan ke bendera!", className: "world-momo-play", size: 190, mood: "Tenang" };
-const FAILED: MomoLook = { message: "Tidak apa-apa. Coba lagi.", className: "world-momo-fail", size: 210, mood: "Sedih" };
 const PLACING: MomoLook = { message: "Geser objekmu ke tempat yang pas.", className: "world-momo-place", size: 170, mood: "Penasaran" };
 
 export interface WorldMomoProps {
@@ -45,11 +44,12 @@ export function WorldMomo({
   poke,
   onPoke,
 }: WorldMomoProps) {
-  if (!entered || outcome === "success") return null;
+  // Success and failure are told by their own Momo chat (SuccessPopup / FailOverlay).
+  if (!entered || outcome) return null;
 
   let style: CSSProperties | undefined;
-  const look = outcome === "fail" ? FAILED : phase === "placing" ? PLACING : PLAYING;
-  if (outcome !== "fail" && phase === "placing") {
+  const look = phase === "placing" ? PLACING : PLAYING;
+  if (phase === "placing") {
     const rect = canvasRef.current?.getBoundingClientRect();
     if (geometry && rect && rect.width > 0) {
       const point = physicsToClient({ x: position + geometry.object.w / 2, y: placementY }, rect, geometry);
@@ -62,13 +62,13 @@ export function WorldMomo({
 
   return (
     <div className={`world-momo ${look.className}`} style={style} data-testid="world-momo" onClick={onPoke}>
-      <MomoBubble
-        moment="solid-consequence"
+      <MomoChat
+        lines={look.message}
         mood={look.mood}
         avatarHeight={look.size}
         trackMotion
         flapKey={poke}
-        message={look.message}
+        typing={false}
       />
     </div>
   );

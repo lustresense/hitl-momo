@@ -18,7 +18,7 @@ const gameplayAttempts = [];
 const hookCheck = [];
 
 const { server, base } = await startStaticServer();
-const { browser, context, page, errors } = await launch({ videoDir: process.env.NO_VIDEO ? undefined : OUT });
+const { browser, context, page, errors } = await launch({ videoDir: process.env.NO_VIDEO ? undefined : OUT, deviceScaleFactor: Number(process.env.DSF || 1) });
 let result = "FAIL", failure = null;
 
 const shot = async name => { await page.screenshot({ path: path.join(OUT, `${name}.png`) }).catch(() => {}); };
@@ -143,19 +143,23 @@ try {
   const all = {};
   for (const stage of LEVELS) {
     all[stage] = await runLevel(stage);
-    // Success is a pop-up INSIDE the game world: Momo walks to the centre and the card offers next level / level list.
-    await sleep(1800); // Momo walk-in (1.2 s) + card fade
-    await shot(`L${stage}-04-success-popup-in-world`);
-    const popupText = (await page.locator("[data-testid=outcome-overlay]").innerText()).replace(/\s+/g, " ");
-    log(`L${stage}: success pop-up`, popupText);
-    if (await page.locator("[data-testid=game-canvas]").isVisible() === false) throw new Error("success pop-up must stay inside the game world (canvas hidden)");
-    if (stage < LEVELS[LEVELS.length - 1]) {
-      await page.locator("[data-testid=btn-next-level]").click(); // full page load into the next level (app behaviour)
-      await page.waitForURL(u => u.pathname === `/level${stage + 1}`, { timeout: 15000 });
-    } else {
-      await page.locator("[data-testid=btn-back-to-levels]").click();
-      await page.locator(".level-card").first().waitFor({ state: "visible", timeout: 15000 });
-    }
+    // Success is Momo's chat INSIDE the dimmed world; the level list opens by itself (or via the thumb cue).
+    await page.locator("[data-testid=success-chat]").waitFor({ timeout: 8000 });
+    await page.locator("[data-testid=success-chat][data-finished=true]").waitFor({ timeout: 12000 });
+    await shot(`L${stage}-04-success-chat-in-world`);
+    const chatText = (await page.locator("[data-testid=success-chat]").innerText()).replace(/\s+/g, " ");
+    log(`L${stage}: Momo success chat`, chatText);
+    if (await page.locator("[data-testid=game-canvas]").isVisible() === false) throw new Error("success chat must stay inside the game world (canvas hidden)");
+    if (await page.locator("[data-testid=btn-next-level], [data-testid=btn-back-to-levels]").count()) throw new Error("success must not offer next/level-list buttons any more");
+    if (stage === 2) await sleep(0); else await page.locator("[data-testid=btn-continue]").click(); // stage 2 proves the automatic hand-over
+    await page.locator(".level-card").first().waitFor({ state: "visible", timeout: 15000 });
+    await page.waitForURL(u => u.pathname === "/levels", { timeout: 8000 });
+    await sleep(1500);
+    await shot(`L${stage}-05-level-list-after-win`);
+    const states = await page.locator(".level-card").evaluateAll(xs => xs.map(x => x.dataset.state));
+    log(`L${stage}: level list states after win`, states);
+    if (states[stage - 1] !== "done") throw new Error(`L${stage} must show as done after the win, got ${states}`);
+    if (stage < 3 && states[stage] === "locked") throw new Error(`L${stage + 1} must be unlocked after winning L${stage}, got ${states}`);
   }
   const finalText = (await page.locator("body").innerText()).slice(0, 1500);
   log("final screen text (truncated)", finalText);

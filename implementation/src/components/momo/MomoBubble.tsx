@@ -1,18 +1,20 @@
 import { momoLine, momoMood, type MomoMoment, type MomoMood } from "@/src/domain/momo-script";
-import { MomoAvatar } from "./MomoAvatar";
+import { MomoChat } from "./MomoChat";
 
 /**
- * TASK 11 - Momo boundary: animated avatar slot + state-driven text bubble.
+ * Momo boundary: animated avatar + state-driven chat bubble (see MomoChat).
  * No chat input, no speech, no LLM, never creates objects or decides (lore).
  * The avatar is the Owner's Momo artwork (momo-engine.ts); its mood follows the moment.
  */
-export function MomoBubble({ moment, message, mood, avatarHeight = 62, trackMotion = false, flapKey }: { moment: MomoMoment; message?: string; mood?: MomoMood; avatarHeight?: number; trackMotion?: boolean; flapKey?: number }) {
+export function MomoBubble({ moment, message, mood, avatarHeight = 96, trackMotion = false, flapKey, typing = false }: { moment: MomoMoment; message?: string | string[]; mood?: MomoMood; avatarHeight?: number; trackMotion?: boolean; flapKey?: number; typing?: boolean }) {
   return (
-    <div className="momo">
-      <MomoAvatar className="momo-avatar" expression={mood ?? momoMood(moment)} height={avatarHeight} trackMotion={trackMotion} flapKey={flapKey} />
-      <div className="momo-bubble" role="status">
-        {message ?? momoLine(moment)}
-      </div>
-    </div>
+    <MomoChat
+      lines={message ?? momoLine(moment)}
+      mood={mood ?? momoMood(moment)}
+      avatarHeight={avatarHeight}
+      trackMotion={trackMotion}
+      flapKey={flapKey}
+      typing={typing}
+    />
   );
 }

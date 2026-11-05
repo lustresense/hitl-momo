@@ -4,16 +4,14 @@ import { formatCharacterText, resolveCharacterDisplayName } from "../config/char
 export interface MissionExampleItem {
   labelId: string;
   displayName: string;
+  /** Legacy emoji from the level fixtures; the UI draws an SVG glyph by labelId instead. */
   icon?: string;
 }
 
 export interface MissionConfig {
   stage: 1 | 2 | 3;
-  systemAttribution: "SISTEM";
   title: string;
   instruction: string;
-  demoBadge: "CONTOH DEMO";
-  explorationNotice: string;
   examples: MissionExampleItem[];
   primaryCtaLabel: string;
 }
@@ -81,12 +79,8 @@ export function getMissionConfigForLevel(
 
   return {
     stage,
-    systemAttribution: "SISTEM",
     title,
     instruction,
-    demoBadge: "CONTOH DEMO",
-    explorationNotice:
-      "Contoh hanya panduan. Bebas gambar benda lain.",
     examples,
     primaryCtaLabel: "Mulai Menggambar",
   };

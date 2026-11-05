@@ -4,11 +4,9 @@
 import type { LevelDefinition } from "@/src/domain/levels";
 import { GameStage } from "@/src/components/game/GameStage";
 import type { CreationStore, WorldCreation } from "@/src/game/creation-store";
+import { recordCompletedStage } from "../level-progress";
 import { buildLevelSummary } from "../level-summary";
 import type { FlowController, FlowStateSnapshot } from "../state-machine";
-
-/** The last stage has no "next level" button. */
-const LAST_STAGE = 3;
 
 export interface GameplayScreenProps {
   level: LevelDefinition;
@@ -51,13 +49,7 @@ export function GameplayScreen({
       decision={decision}
       onOutcomeReported={(outcome) => controller.reportGameplayOutcome(outcome)}
       summary={buildLevelSummary(level, decision, characterDisplayName)}
-      onNextLevel={
-        level.stage < LAST_STAGE
-          ? () => {
-              window.location.href = `/level${level.stage + 1}`;
-            }
-          : undefined
-      }
+      onLevelWon={() => recordCompletedStage(level.stage)}
       onBackToLevels={onBackToLevels}
       onOutcomeObserved={(outcome) => controller.recordGameplayAttempt(outcome)}
       onRetry={() => controller.recordGameplayRetry()}

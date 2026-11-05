@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { LevelContext, PredictionResult } from "@/src/domain/types";
+import { Icon } from "../ui/Icon";
 
 export interface DecisionPanelProps {
   prediction: PredictionResult;
@@ -52,34 +53,37 @@ export function DecisionPanel({ prediction, level, onAccept, onCorrect, onOverri
       <div className="decision-row">
         <button
           type="button"
-          className={`btn btn-accept${chosen === "accept" ? " is-selected" : ""}`}
+          className={`nb-btn btn-accept${chosen === "accept" ? " is-selected" : ""}`}
           data-testid="btn-accept"
-          aria-label={`Accept — terima peringkat 1 (${r1?.label ?? ""})`}
+          aria-label={`Accept: terima peringkat 1, ${r1?.label ?? ""}`}
           disabled={locked}
           onClick={() => commit("accept", onAccept)}
         >
+          <Icon name="check" size={19} stroke={3} />
           Terima
         </button>
         <button
           type="button"
-          className={`btn btn-correct${chosen === "correct" ? " is-selected" : ""}`}
+          className={`nb-btn btn-correct${chosen === "correct" ? " is-selected" : ""}`}
           data-testid="btn-correct"
-          aria-label="Correct — pilih peringkat lain"
+          aria-label="Correct: pilih peringkat lain"
           aria-expanded={picker === "correct"}
           disabled={locked}
           onClick={() => setPicker((p) => (p === "correct" ? "none" : "correct"))}
         >
+          <Icon name="swap" size={19} stroke={2.6} />
           Pilih lain
         </button>
         <button
           type="button"
-          className={`btn btn-override${chosen === "override" ? " is-selected" : ""}`}
+          className={`nb-btn btn-override${chosen === "override" ? " is-selected" : ""}`}
           data-testid="btn-override"
-          aria-label="Override — tolak semua tebakan"
+          aria-label="Override: tolak semua tebakan"
           aria-expanded={picker === "override"}
           disabled={locked}
           onClick={() => setPicker((p) => (p === "override" ? "none" : "override"))}
         >
+          <Icon name="close" size={19} stroke={3} />
           Bukan semua
         </button>
       </div>
@@ -93,12 +97,14 @@ export function DecisionPanel({ prediction, level, onAccept, onCorrect, onOverri
               <button
                 key={rank}
                 type="button"
-                className="btn correct-option"
+                className="nb-btn correct-option"
                 data-rank={rank}
                 disabled={locked}
                 onClick={() => commit("correct", () => onCorrect(rank as 2 | 3))}
               >
-                #{rank} {cand.label} ({Math.round(cand.confidence * 100)}%)
+                <span className="correct-option__rank" aria-hidden="true">{rank}</span>
+                <span className="correct-option__label">{cand.label}</span>
+                <span className="correct-option__pct">{Math.round(cand.confidence * 100)}%</span>
               </button>
             );
           })}
@@ -110,7 +116,7 @@ export function DecisionPanel({ prediction, level, onAccept, onCorrect, onOverri
           <label htmlFor="override-select" className="sr-only">Label yang dimaksud</label>
           <select id="override-select" defaultValue="" disabled={locked} onChange={() => setOverrideError(null)}>
             <option value="" disabled>
-              Pilih label
+              Pilih benda
             </option>
             {overrideOptions.map((v) => (
               <option key={v} value={v}>
@@ -120,7 +126,7 @@ export function DecisionPanel({ prediction, level, onAccept, onCorrect, onOverri
           </select>
           <button
             type="button"
-            className="btn btn-primary"
+            className="nb-btn nb-btn--primary btn-small"
             data-testid="override-confirm"
             disabled={locked}
             onClick={() => {
@@ -143,7 +149,8 @@ export function DecisionPanel({ prediction, level, onAccept, onCorrect, onOverri
       )}
 
       {/* Redraw = recovery route, deliberately outside the three decisions. */}
-      <button type="button" className="btn btn-ghost redraw-link" data-testid="btn-redraw" onClick={onRedraw}>
+      <button type="button" className="nb-btn nb-btn--ghost btn-small redraw-link" data-testid="btn-redraw" onClick={onRedraw}>
+        <Icon name="pencil" size={17} />
         Gambar ulang
       </button>
     </aside>

@@ -47,6 +47,8 @@ let failure = null;
 try {
   log("run-start", { git: gitInfo(), prediction: "MOCK" });
   await onboardToLevels(page, base, m => log(m));
+  // QA shortcut for THIS probe only: path B starts at L3 without playing L2 first. Real progression is covered by normal-journey.mjs.
+  await page.evaluate(() => sessionStorage.setItem("sketchbook.unlockAll", "1"));
 
   // ---------- A) L1 fall -> retry -> win ----------
   await enterLevel(page, 1, m => log(m));
@@ -81,8 +83,8 @@ try {
   await shot("A-02-win-after-retry");
 
   // ---------- B) L3 danger -> fail -> Redraw -> win ----------
-  await sleep(1800);
-  await page.locator("[data-testid=btn-back-to-levels]").click();
+  await page.locator("[data-testid=success-chat][data-finished=true]").waitFor({ timeout: 12000 });
+  await page.locator("[data-testid=btn-continue]").click(); // the thumb cue opens the level list
   await page.locator(".level-card").nth(2).waitFor({ state: "visible", timeout: 15000 });
   await enterLevel(page, 3, m => log(m));
   await drawScribble(page, "spike");

@@ -1,21 +1,9 @@
 /**
- * Overlay shown when the student fails the level: retry, reposition or redraw.
+ * The student failed the level: Momo says it kindly in chat and offers three icon actions
+ * (retry from checkpoint, move the same object, draw again).
  */
-const overlayStyle = {
-  position: "absolute",
-  top: "45%",
-  left: "50%",
-  transform: "translate(-50%,-50%)",
-  zIndex: 300,
-} as const;
-
-const reasonStyle = {
-  margin: "4px 0 14px",
-  fontSize: 13,
-  color: "#666",
-  fontWeight: 600,
-  textAlign: "center",
-} as const;
+import { MomoChat } from "../momo/MomoChat";
+import { Icon } from "../ui/Icon";
 
 export interface FailOverlayProps {
   failReason: string;
@@ -26,26 +14,37 @@ export interface FailOverlayProps {
 
 export function FailOverlay({ failReason, onRetry, onReposition, onRedraw }: FailOverlayProps) {
   return (
-    <div className="overlay" data-testid="outcome-overlay" style={overlayStyle}>
-      <h3 className="overlay-title" data-testid="outcome-title">
-        Gagal. Ulangi dari checkpoint
+    <div className="world-fail" data-testid="outcome-overlay">
+      <MomoChat
+        lines={["Belum berhasil, tidak apa-apa.", ...(failReason ? [failReason] : [])]}
+        mood="Sedih"
+        avatarHeight={190}
+        typing={false}
+        testId="fail-chat"
+      >
+        <div className="world-fail__actions">
+          <button className="nb-btn nb-btn--primary" data-testid="btn-retry-cycle" onClick={onRetry}>
+            <Icon name="again" size={20} />
+            Coba lagi
+          </button>
+          <button className="nb-btn" data-testid="btn-reposition" onClick={onReposition}>
+            <Icon name="swap" size={20} />
+            Geser objek
+          </button>
+          <button className="nb-btn" data-testid="btn-redraw-gameplay" onClick={onRedraw}>
+            <Icon name="pencil" size={20} />
+            Gambar ulang
+          </button>
+        </div>
+      </MomoChat>
+      <h3 className="overlay-title visually-hidden" data-testid="outcome-title">
+        Belum berhasil
       </h3>
       {failReason && (
-        <p data-testid="fail-reason" style={reasonStyle}>
+        <p data-testid="fail-reason" className="visually-hidden">
           {failReason}
         </p>
       )}
-      <div className="overlay-actions">
-        <button className="btn" data-testid="btn-retry-cycle" onClick={onRetry}>
-          Coba dari checkpoint
-        </button>
-        <button className="btn" data-testid="btn-reposition" onClick={onReposition}>
-          Reposisi objek yang sama
-        </button>
-        <button className="btn" data-testid="btn-redraw-gameplay" onClick={onRedraw}>
-          Gambar ulang
-        </button>
-      </div>
     </div>
   );
 }

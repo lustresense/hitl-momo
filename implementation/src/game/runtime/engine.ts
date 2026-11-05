@@ -27,5 +27,5 @@ export function releaseEngine(k: KAPLAYCtx): void {
  * A per-engine CSS key retains the default face without reusing a dead GL texture.
  */
 export function nextLabelFont(): string {
-  return `"sketchbook-runtime-${++fontGeneration}", monospace`;
+  return `"sketchbook-runtime-${++fontGeneration}", sans-serif`;
 }

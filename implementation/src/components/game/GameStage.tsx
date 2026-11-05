@@ -111,7 +111,7 @@ export function GameStage(props: GameStageProps) {
         />
       </div>
       {error && <p role="alert">{error}</p>}
-      {integrated && (props.creations?.length ?? 0) > 0 && phase === "gameplay" && (
+      {integrated && (props.creations?.length ?? 0) > 0 && phase === "gameplay" && !outcome && (
         <CreationShortcuts creations={props.creations ?? []} onSelect={actions.selectCreation} />
       )}
 
@@ -144,9 +144,11 @@ export function GameStage(props: GameStageProps) {
       {outcome === "success" && (
         <SuccessPopup
           summary={props.summary}
-          onNextLevel={props.onNextLevel}
-          onBackToLevels={props.onBackToLevels}
-          onOutcomeReported={props.onOutcomeReported}
+          onWin={props.onLevelWon}
+          onContinue={() => {
+            props.onOutcomeReported("success");
+            props.onBackToLevels?.();
+          }}
         />
       )}
 

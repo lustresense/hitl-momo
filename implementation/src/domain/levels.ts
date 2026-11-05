@@ -61,7 +61,7 @@ const STAGE_1: LevelDefinition = makeLevel({
   ],
   summary: {
     gameplay: "Kamu berhasil membuat jalur untuk {character} menyeberangi celah!",
-    literacy: "AI memberi tebakan. Kamu yang memastikan apakah tebakannya sesuai dengan gambarmu dan kebutuhan level.",
+    literacy: "AI hanya menebak. Kamu yang memutuskan.",
   },
 });
 
@@ -94,7 +94,7 @@ const STAGE_2: LevelDefinition = makeLevel({
   ],
   summary: {
     gameplay: "Kamu berhasil menemukan jalan ke halaman atas!",
-    literacy: "Bandingkan beberapa kemungkinan tebakan AI, bukan hanya tebakan pertama. Confidence tinggi bukan jaminan benar.",
+    literacy: "Bandingkan ketiga tebakan. Persen tinggi belum tentu benar.",
   },
 });
 
@@ -129,7 +129,7 @@ const STAGE_3: LevelDefinition = makeLevel({
   ],
   summary: {
     gameplay: "Kamu berhasil keluar dari Lorong Kabut!",
-    literacy: "Confidence tinggi tidak menjamin hasil AI sesuai. Periksa gambarnya dan konsekuensi penggunaannya di level ini.",
+    literacy: "Persen tinggi tidak menjamin benar. Periksa gambar dan akibatnya.",
   },
 });
 

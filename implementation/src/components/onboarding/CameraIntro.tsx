@@ -167,7 +167,7 @@ export function CameraIntro({ modelUrl, onWave, onSkip }: CameraIntroProps) {
           </div>
         </div>
         <div style={{ marginTop: 20 }}>
-          <button type="button" className="camera-skip" onClick={onSkip}>
+          <button type="button" className="camera-skip" data-testid="camera-skip" onClick={onSkip}>
             Lewati &amp; Buka Tutorial Kartu →
           </button>
         </div>

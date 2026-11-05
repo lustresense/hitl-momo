@@ -97,7 +97,8 @@ export async function enterLevel(page, stage, log = () => {}) {
   if (!direct) await page.getByTestId(`level-card-${stage}`).click();
   const mission = page.getByTestId("mission-dialog");
   await page.locator("[data-testid=draw-canvas]").waitFor({ state: "visible", timeout: 15000 });
-  if (await mission.isVisible().catch(() => false)) {
+  // The briefing opens once the level ribbons have left (~0.8 s), so wait for it instead of sampling once.
+  if (await mission.waitFor({ state: "visible", timeout: 3000 }).then(() => true, () => false)) {
     log(`L${stage}: mission briefing visible`);
     const start = mission.getByTestId("btn-mission-start");
     if (await start.isVisible().catch(() => false)) await start.click(); else await mission.getByTestId("btn-mission-skip").click();

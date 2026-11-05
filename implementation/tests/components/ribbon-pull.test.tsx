@@ -131,7 +131,7 @@ describe("Level 1 pointer drag", () => {
     fireEvent.click(card);
 
     expect(onSelect).not.toHaveBeenCalled();
-    expect(screen.getByRole("status").textContent).toContain("Level 2 terkunci");
+    expect(screen.getByRole("status").textContent).toContain("Level 2 masih terkunci");
   });
 });
 

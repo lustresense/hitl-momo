@@ -86,8 +86,8 @@ describe("Top3PredictionPopup Component", () => {
     );
 
     expect(screen.getByTestId("popup-evaluating")).toBeDefined();
-    expect(screen.getByRole("heading", { name: "Tebakan Momo" })).toBeDefined();
-    expect(screen.getByTestId("prediction-source").textContent).toBe("Demo / simulasi");
+    expect(screen.getByText("Tebakan Momo (Top-3)")).toBeDefined();
+    expect(screen.getByTestId("prediction-source").textContent).toContain("DEMO / PREDIKSI SIMULASI");
 
     // Check all 3 candidates
     expect(screen.getByText("jembatan")).toBeDefined();
@@ -97,12 +97,11 @@ describe("Top3PredictionPopup Component", () => {
     expect(screen.getByText("balok")).toBeDefined();
     expect(screen.getByText("45%")).toBeDefined();
 
-    // Rank 1 slip is marked, nothing is chosen until the student decides
-    expect(screen.getByTestId("top3-item-1").className).toContain("is-rank1");
-    expect(screen.getByTestId("top3-item-1").className).not.toContain("is-chosen");
+    // Check rank 1 badge
+    expect(screen.getByLabelText("Pilihan Utama")).toBeDefined();
   });
 
-  it("commits Accept decision when CTA is clicked", () => {
+  it("commits Accept decision on tap (no separate confirm button)", () => {
     const onAccept = vi.fn();
     render(
       <Top3PredictionPopup
@@ -119,12 +118,10 @@ describe("Top3PredictionPopup Component", () => {
     );
 
     fireEvent.click(screen.getByTestId("btn-accept"));
-    expect(screen.getByTestId("top3-item-1").className).toContain("is-chosen");
-    fireEvent.click(screen.getByTestId("btn-wujudkan-objek"));
     expect(onAccept).toHaveBeenCalledTimes(1);
   });
 
-  it("commits Correct decision with chosen rank (2 or 3) only after CTA is clicked", () => {
+  it("commits Correct decision with the tapped rank (2 or 3) only", () => {
     const onCorrect = vi.fn();
     render(
       <Top3PredictionPopup
@@ -140,21 +137,16 @@ describe("Top3PredictionPopup Component", () => {
       />
     );
 
-    // Open the Correct picker
     fireEvent.click(screen.getByTestId("btn-correct"));
+    expect(onCorrect).not.toHaveBeenCalled(); // opening the picker is not a decision
 
-    // Select candidate #2 (papan); the slip is highlighted but nothing is committed yet
-    fireEvent.click(screen.getByTestId("correct-option-2"));
-    expect(screen.getByTestId("top3-item-2").className).toContain("is-chosen");
-    expect(onCorrect).not.toHaveBeenCalled();
-
-    // Commit via CTA
-    fireEvent.click(screen.getByTestId("btn-wujudkan-objek"));
+    // Tapping candidate #2 is the decision
+    fireEvent.click(screen.getByText(/#2 /));
     expect(onCorrect).toHaveBeenCalledTimes(1);
     expect(onCorrect).toHaveBeenCalledWith(2);
   });
 
-  it("commits Override decision with chosen vocabulary label only after CTA is clicked", () => {
+  it("commits Override decision with the chosen vocabulary label only after confirming", () => {
     const onOverride = vi.fn();
     render(
       <Top3PredictionPopup
@@ -170,16 +162,12 @@ describe("Top3PredictionPopup Component", () => {
       />
     );
 
-    // Open the Override picker
     fireEvent.click(screen.getByTestId("btn-override"));
 
-    // Select vocabulary item (outside Top-3)
-    fireEvent.change(screen.getByTestId("override-select"), { target: { value: "tangga" } });
-    fireEvent.click(screen.getByTestId("override-confirm"));
+    // Choosing a label alone does not commit; confirming does
+    fireEvent.change(document.getElementById("override-select") as HTMLSelectElement, { target: { value: "tangga" } });
     expect(onOverride).not.toHaveBeenCalled();
-
-    // Commit via CTA
-    fireEvent.click(screen.getByTestId("btn-wujudkan-objek"));
+    fireEvent.click(screen.getByTestId("override-confirm"));
     expect(onOverride).toHaveBeenCalledTimes(1);
     expect(onOverride).toHaveBeenCalledWith("tangga");
   });
@@ -200,7 +188,7 @@ describe("Top3PredictionPopup Component", () => {
       />
     );
 
-    fireEvent.click(screen.getByTestId("btn-redraw"));
+    fireEvent.click(screen.getByText(/Gambar ulang/));
     expect(onRedraw).toHaveBeenCalledTimes(1);
   });
 

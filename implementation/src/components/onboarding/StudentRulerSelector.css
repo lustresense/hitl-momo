@@ -4,6 +4,9 @@
   align-items: center;
   justify-content: center;
   padding: 38px 24px 44px;
+  background: transparent;
+  color: #1a1a1a;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   user-select: none;
 }
 
@@ -16,74 +19,93 @@
 }
 
 .student-number-screen h1 {
-  font-size: clamp(30px, 4.4vw, 44px);
-}
-
-.student-number-hint {
-  margin-top: 6px;
-  font: 400 24px/1.1 var(--font-hand);
-  color: var(--pencil);
+  max-width: 760px;
+  margin: 0;
+  font-size: clamp(25px, 4vw, 38px);
+  font-weight: 900;
+  line-height: 1.12;
+  letter-spacing: .025em;
 }
 
 .student-number-readout {
   display: flex;
-  justify-content: center;
-  margin: 18px 0 22px;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  margin: 20px 0 23px;
 }
 
 .student-number-value {
   min-width: 2ch;
-  padding: 0 14px;
-  font-size: clamp(104px, 15vw, 148px);
-  font-weight: 800;
-  line-height: 1.05;
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink);
-  background: linear-gradient(transparent 52%, var(--mark) 52% 92%, transparent 92%);
+  font-size: clamp(108px, 15vw, 150px);
+  font-weight: 900;
+  line-height: 1;
+  color: #2f7442;
+  text-shadow: 4px 5px 0 #1a1a1a;
+  transition: color 0.15s ease;
+}
+
+.student-number-value.is-available {
+  color: #4a8c1f;
+  text-shadow: 4px 5px 0 #1a1a1a;
 }
 
 .student-number-value.is-taken {
-  color: var(--red);
+  color: #d9423a;
+  text-shadow: 4px 5px 0 #1a1a1a;
 }
 
 .student-number-value.is-bump {
-  animation: ruler-bump 0.2s ease-out;
+  animation: ruler-bump .3s ease;
 }
 
 @keyframes ruler-bump {
-  from { transform: translateY(-5px); }
-  to { transform: none; }
+  0% { transform: scale(1); }
+  40% { transform: scale(1.07); }
+  100% { transform: scale(1); }
 }
 
 .student-ruler-wrap {
   width: 100%;
-  margin-bottom: 28px;
+  margin-bottom: 30px;
 }
 
-/* A clear plastic school ruler: tinted, ink ticks, red hairline cursor. */
 .student-ruler {
   position: relative;
-  height: 132px;
+  height: 150px;
   overflow: hidden;
-  border: 2px solid var(--ink);
-  border-radius: 6px;
-  background: var(--blue-wash);
+  border: 2px solid #1a1a1a;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at 85% 18%, rgba(255, 240, 220, .18) 0 26px, transparent 27px),
+    radial-gradient(circle at 12% 88%, rgba(255, 240, 220, .14) 0 20px, transparent 21px),
+    linear-gradient(160deg, #e47b45, #d0622a 55%, #bf5418);
+  box-shadow: 6px 8px 0 #1a1a1a;
   cursor: grab;
   touch-action: none;
+  outline-offset: 5px;
 }
 
 .student-ruler.is-grabbing {
   cursor: grabbing;
 }
 
+.student-ruler::before {
+  position: absolute;
+  inset: 12px;
+  border: 1.5px dashed rgba(255, 230, 200, .45);
+  border-radius: 12px;
+  content: "";
+  pointer-events: none;
+}
+
 .student-ruler-tick {
   position: absolute;
-  top: 0;
+  top: 25px;
   left: 0;
   width: 1px;
-  height: 34px;
-  border-left: 2px solid var(--ink);
+  height: 74px;
+  border-left: 2px dashed rgba(255, 245, 225, .68);
   pointer-events: none;
 }
 
@@ -92,17 +114,17 @@
 }
 
 .student-ruler-tick.is-major {
-  height: 58px;
-  border-left-width: 3px;
+  height: 102px;
+  border-left: 3px solid #fffaf0;
 }
 
 .student-ruler-tick span {
   position: absolute;
-  top: 66px;
+  top: 108px;
   left: 0;
   transform: translateX(-50%);
-  color: var(--ink);
-  font: 600 20px/1 var(--font-ui);
+  color: #fffaf0;
+  font: 800 14px/1 Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
 .student-ruler-needle {
@@ -110,35 +132,87 @@
   top: 0;
   bottom: 0;
   left: 50%;
-  width: 3px;
+  width: 4px;
   transform: translateX(-50%);
-  background: var(--red);
+  border-right: 2px solid #1a1a1a;
+  border-left: 2px solid #1a1a1a;
+  background: #fff2d7;
+  box-shadow: 0 0 0 4px rgba(255, 242, 215, .26);
   pointer-events: none;
 }
 
 .student-number-confirm {
-  min-width: 200px;
+  min-height: 54px;
+  padding: 12px 24px;
+  border: 2px solid #1a1a1a;
+  border-radius: 14px;
+  background: linear-gradient(160deg, #e47b45, #d0622a 55%, #bf5418);
+  box-shadow: 4px 5px 0 #1a1a1a;
+  color: #fffaf0;
+  font: 800 16px/1.2 Inter, ui-sans-serif, system-ui, sans-serif;
+  cursor: pointer;
+  transition: transform .15s, box-shadow .15s;
+}
+
+.student-number-confirm:hover {
+  transform: translate(-1px, -2px);
+  box-shadow: 5px 7px 0 #1a1a1a;
+}
+
+.student-number-confirm:active {
+  transform: translate(3px, 4px);
+  box-shadow: 1px 1px 0 #1a1a1a;
+}
+
+.student-number-confirm:focus-visible {
+  outline: 3px solid #1a1a1a;
+  outline-offset: 4px;
 }
 
 @media (max-width: 600px) {
   .student-number-screen {
     min-height: 100svh;
-    padding: 30px 16px 34px;
+    padding: 30px 18px 34px;
+  }
+  .student-number-screen h1 {
+    max-width: 440px;
+    font-size: clamp(24px, 7vw, 34px);
+  }
+  .student-number-readout {
+    margin: 24px 0 26px;
+  }
+  .student-number-value {
+    font-size: clamp(100px, 31vw, 136px);
+  }
+  .student-ruler-wrap {
+    margin-bottom: 28px;
   }
   .student-ruler {
-    height: 120px;
+    height: 132px;
+    border-radius: 18px;
+  }
+  .student-ruler-tick {
+    top: 17px;
+    height: 67px;
+  }
+  .student-ruler-tick.is-major {
+    height: 90px;
   }
   .student-ruler-tick span {
-    top: 62px;
-    font-size: 18px;
+    top: 96px;
+    font-size: 12px;
   }
   .student-number-confirm {
-    width: 100%;
+    width: min(100%, 350px);
+    min-height: 56px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .student-number-value.is-bump {
     animation: none;
+  }
+  .student-number-confirm {
+    transition: none;
   }
 }

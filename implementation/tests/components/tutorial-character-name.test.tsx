@@ -19,7 +19,7 @@ describe("TutorialBrochure characterName prop", () => {
     ["   ", "Stickman"],
   ])("renders expected name for input %s", (characterDisplayName, expectedName) => {
     render(<TutorialBrochure onStart={() => {}} characterDisplayName={characterDisplayName} />);
-    expect(screen.getAllByText(new RegExp(`Kenalan dengan ${expectedName}`, "i")).length).toBeGreaterThan(0);
-    expect(screen.getAllByText(new RegExp(`Ajak ${expectedName} ke bendera`, "i")).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(new RegExp(`Kenalin ${expectedName}`, "i")).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(new RegExp(`biar ${expectedName} bisa lewat`, "i")).length).toBeGreaterThan(0);
   });
 });

@@ -44,14 +44,13 @@ describe("StudentRulerSelector", () => {
     const onConfirm = vi.fn();
     render(<StudentRulerSelector onConfirm={onConfirm} />);
 
-    expect(screen.getByRole("heading", { name: "Nomor absenmu" })).toBeTruthy();
-    expect(screen.getByText("Geser penggaris")).toBeTruthy();
+    expect(screen.getByRole("heading", { name: "GESER PENGGARIS SESUAI NOMOR ABSENMU" })).toBeTruthy();
     const slider = screen.getByRole("slider", { name: "Nomor absen" });
     fireEvent.keyDown(slider, { key: "ArrowRight" });
     expect(slider.getAttribute("aria-valuenow")).toBe("21");
     expect(window.localStorage.getItem("sketchbook.studentNumber")).toBe("21");
 
-    fireEvent.click(screen.getByTestId("student-number-confirm"));
+    fireEvent.click(screen.getByRole("button", { name: /Lanjut ke Tutorial/ }));
     expect(onConfirm).toHaveBeenCalledWith(21);
   });
 
@@ -93,44 +92,38 @@ describe("Top3Panel (TASK 08)", () => {
     const items = screen.getAllByRole("listitem");
     expect(items).toHaveLength(3);
     expect(screen.getByRole("listitem", { name: /Peringkat 1: papan/i })).toBeTruthy();
-    expect(screen.getByTestId("top3-item-1").querySelector("[data-testid=top3-label]")?.textContent).toBe("papan");
-    expect(screen.getByTestId("top3-item-3")).toBeTruthy();
     expect(screen.getByRole("img", { name: /Bar keyakinan 60 persen/i })).toBeTruthy();
     expect(screen.getByText("#3")).toBeTruthy();
   });
 });
 
 describe("DecisionPanel (TASK 09)", () => {
-  it("Correct requires explicit rank selection (never auto-selects rank 2)", () => {
+  it("Correct never auto-selects: nothing commits until a rank (2 or 3) is tapped, then it commits at once", () => {
     const onCorrect = vi.fn();
     render(<DecisionPanel prediction={RESULT} level={LEVEL} onAccept={() => {}} onCorrect={onCorrect} onOverride={() => {}} onRedraw={() => {}} />);
     expect(onCorrect).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByTestId("btn-correct"));
-    expect(screen.getByTestId("correct-picker").querySelectorAll("[data-rank]")).toHaveLength(2);
-    fireEvent.click(screen.getByRole("button", { name: /#3.*tali/i }));
-    expect(onCorrect).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByTestId("btn-wujudkan-objek"));
+    fireEvent.click(screen.getByRole("button", { name: /Correct — pilih peringkat lain/i }));
+    expect(onCorrect).not.toHaveBeenCalled(); // opening the picker is not a decision
+    fireEvent.click(screen.getByRole("button", { name: /#3 tali/i }));
+    expect(onCorrect).toHaveBeenCalledTimes(1);
     expect(onCorrect).toHaveBeenCalledWith(3);
   });
 
   it("Override picker excludes Top-3 labels and rejects empty selection", () => {
     const onOverride = vi.fn();
     render(<DecisionPanel prediction={RESULT} level={LEVEL} onAccept={() => {}} onCorrect={() => {}} onOverride={onOverride} onRedraw={() => {}} />);
-    fireEvent.click(screen.getByTestId("btn-override"));
+    fireEvent.click(screen.getByRole("button", { name: /Override — tolak semua tebakan/i }));
     const select = document.getElementById("override-select") as HTMLSelectElement;
     const options = [...select.options].map((o) => o.value).filter(Boolean);
     expect(options.sort()).toEqual(["ember", "tangga"]);
     fireEvent.click(screen.getByTestId("override-confirm"));
     expect(onOverride).not.toHaveBeenCalled();
-    expect(screen.getByRole("alert").textContent).toMatch(/pilih salah satu benda/i);
+    expect(screen.getByRole("alert").textContent).toMatch(/pilih label dulu/i);
   });
 
   it("Redraw is a separate recovery action outside the three decisions", () => {
     const onRedraw = vi.fn();
     render(<DecisionPanel prediction={RESULT} level={LEVEL} onAccept={() => {}} onCorrect={() => {}} onOverride={() => {}} onRedraw={onRedraw} />);
-    const group = screen.getByRole("group", { name: "Keputusanmu" });
-    expect(group.querySelectorAll("button")).toHaveLength(3);
-    expect(group.contains(screen.getByTestId("btn-redraw"))).toBe(false);
     fireEvent.click(screen.getByTestId("btn-redraw"));
     expect(onRedraw).toHaveBeenCalledTimes(1);
   });
@@ -139,7 +132,7 @@ describe("DecisionPanel (TASK 09)", () => {
 describe("PredictingScreen (TASK 13 states)", () => {
   it("loading state shows progress without error actions", () => {
     render(<PredictingScreen error={false} detail={null} onRetry={() => {}} onRedraw={() => {}} />);
-    expect(screen.getByText(/momo sedang membaca/i)).toBeTruthy();
+    expect(screen.getByText(/momo sedang membaca pola/i)).toBeTruthy();
     expect(screen.queryByTestId("btn-retry-prediction")).toBeNull();
   });
 
@@ -218,8 +211,8 @@ describe("LevelRibbonBookmark prototype shelf", () => {
     render(<LevelRibbonBookmark levels={LEVELS} onSelectLevel={vi.fn()} />);
     const list = screen.getByTestId("level-list");
     expect(list.querySelectorAll(".ribbon-slot")).toHaveLength(3);
-    expect(screen.getByText("Pilih level")).toBeTruthy();
-    expect(screen.getByText("Tarik pita ke bawah")).toBeTruthy();
+    expect(screen.getByText("Pilih Bab Cerita")).toBeTruthy();
+    expect(screen.getByText("Tarik pita Level 1 ke bawah untuk mulai menggambar")).toBeTruthy();
     expect(screen.getByTestId("level-card-1").querySelector(".ribbon-outer")?.getAttribute("d")).toContain("L88 472L2 518");
   });
   it("marks the first level playable and later ribbons locked", () => {

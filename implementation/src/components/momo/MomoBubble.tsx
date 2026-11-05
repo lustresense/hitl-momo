@@ -1,16 +1,15 @@
-import { momoLine, type MomoMoment } from "@/src/domain/momo-script";
+import { momoLine, momoMood, type MomoMoment, type MomoMood } from "@/src/domain/momo-script";
+import { MomoAvatar } from "./MomoAvatar";
 
 /**
- * Momo boundary: replaceable avatar slot + state-driven text bubble written in "pencil"
- * (handwriting face). No chat input, no speech, no LLM, never creates objects or decides.
- * Final mascot artwork arrives later via this slot only.
+ * TASK 11 - Momo boundary: animated avatar slot + state-driven text bubble.
+ * No chat input, no speech, no LLM, never creates objects or decides (lore).
+ * The avatar is the Owner's Momo artwork (momo-engine.ts); its mood follows the moment.
  */
-export function MomoBubble({ moment, message }: { moment: MomoMoment; message?: string }) {
+export function MomoBubble({ moment, message, mood, avatarHeight = 62, trackMotion = false, flapKey }: { moment: MomoMoment; message?: string; mood?: MomoMood; avatarHeight?: number; trackMotion?: boolean; flapKey?: number }) {
   return (
     <div className="momo">
-      {/* REPLACEABLE ASSET SLOT — DEV/PLACEHOLDER artwork, do not treat as final. */}
-      {/* eslint-disable-next-line @next/next/no-img-element -- tiny local placeholder SVG; optimization adds nothing here */}
-      <img className="momo-avatar" src="/assets/momo-placeholder/momo.svg" alt="Momo" width={44} height={52} />
+      <MomoAvatar className="momo-avatar" expression={mood ?? momoMood(moment)} height={avatarHeight} trackMotion={trackMotion} flapKey={flapKey} />
       <div className="momo-bubble" role="status">
         {message ?? momoLine(moment)}
       </div>

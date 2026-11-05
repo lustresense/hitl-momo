@@ -2,7 +2,7 @@
 
 Base ancestry: `54ebec1830760fe0b692d7a40b25ceb041bfdef9` (descendant of `840973b4d4e76d829b8e2059912ee393051616c7`)
 
-Diperbarui: 2026-11-05. Satu halaman: keadaan paling baru. Keputusan: `DECISIONS.md` (D-20261105-01..10). Instruksi Owner satu per satu: `project/OWNER_MANDATES.md`. Perubahan teknis per versi: `implementation/CHANGELOG.md` (0.0.13). Laporan progres yang bisa dibaca Owner dan Ujang: `implementation/docs/execution/PROGRESS_REPORT_2026-11-05.md`.
+Diperbarui: 2026-11-05. Satu halaman: keadaan paling baru. Keputusan: `DECISIONS.md` (D-20261105-01..11; riwayat GPT di Lampiran). Aturan kerja/TOV: `SOUL.md`. Instruksi Owner satu per satu: `project/OWNER_MANDATES.md`. Perubahan teknis per versi: `implementation/CHANGELOG.md` (0.0.13). Laporan progres yang bisa dibaca Owner dan Ujang: `implementation/docs/execution/PROGRESS_REPORT_2026-11-05.md`.
 
 ## Posisi
 - Branch kerja: `claude/pa-sketchbook-universe-fs0dbf` (lokal, **belum di-push**). `can` tidak disentuh (`54ebec1`).
@@ -10,6 +10,7 @@ Diperbarui: 2026-11-05. Satu halaman: keadaan paling baru. Keputusan: `DECISIONS
 - Commit terakhir yang diuji penuh: `383c3bc` (548/548 unit test, tsc, lint, build, E2E journey + recovery 16/16 + hand-control 6/6 + MediaPipe init dengan kamera palsu). Bukti: `implementation/docs/execution/evidence/final-383c3bc/`. Sesudahnya hanya dokumen dan struktur folder yang berubah.
 
 ## Paling baru (terbaru di atas)
+0. Zip project GPT diimpor: `INSTRUCTION.md` -> `SOUL.md` (isi versi GPT 2026-11-02); riwayat keputusan GPT (14 entri, 59 ID) digabung ke `DECISIONS.md` tambah-saja dengan peta konflik; teks instruksi native GPT versi baru di `docs/ai-workflow/GPT_PROJECT_INSTRUCTION.md`. Keputusan `D-20261105-11`.
 1. Dokumen dirapikan: `CHANGELOG.md` -> `DECISIONS.md`; rilis teknis ke `implementation/CHANGELOG.md`; `project/OWNER_MANDATES.md`; `NOW.md` format Ujang; berkas coretan dipindah ke `tools/scratch/` dan `implementation/scripts/scratch/` (tidak ada yang dihapus).
 2. Semua kerja dikumpulkan di satu branch (`claude/tolol` = redesign palet yang ditolak, jangan dipakai).
 3. Modularisasi frontend tanpa perubahan perilaku/tampilan.

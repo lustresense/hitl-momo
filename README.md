@@ -8,13 +8,13 @@ This base package intentionally contains the project, governance, memory, team p
 
 Human:
 1. `docs/team/TEAM_OPERATING_MODEL.md`
-2. `INSTRUCTION.md`
+2. `SOUL.md`
 3. `DECISIONS.md`
 4. `project/OPEN_QUESTIONS.md`
 
 AI:
 1. `AGENTS.md`
-2. `INSTRUCTION.md`
+2. `SOUL.md`
 3. `SOURCE_OF_TRUTH.md`
 4. `DECISIONS.md`
 5. `PROJECT_MEMORY.md`
@@ -59,7 +59,7 @@ Proposal history and old AI chats must never silently override current governanc
 | [SOURCE_OF_TRUTH.md](./SOURCE_OF_TRUTH.md) | Source of truth definitions |
 | [PROJECT_MEMORY.md](./PROJECT_MEMORY.md) | Project context & memory |
 | [WORKING_CONTEXT.md](./WORKING_CONTEXT.md) | Current working context |
-| [INSTRUCTION.md](./INSTRUCTION.md) | AI agent instructions |
+| [SOUL.md](./SOUL.md) | AI agent instructions |
 | [AGENTS.md](./AGENTS.md) | Agent orchestration config |
 
 ---

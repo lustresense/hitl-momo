@@ -84,12 +84,6 @@
 .momo-chat__avatar { flex: none; filter: drop-shadow(2px 3px 0 rgba(17, 17, 17, .14)); }
 .momo-chat__col { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; padding-top: 6%; }
 .momo-chat--right .momo-chat__col { align-items: flex-end; }
-.momo-chat__name {
-  display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 8px;
-  font-size: 12px; font-weight: 900; letter-spacing: .02em; color: var(--nb-ink);
-  background: var(--nb-orange); border: 2px solid var(--nb-ink); border-radius: 999px; box-shadow: 2px 2px 0 var(--nb-ink);
-}
-.momo-chat__dot { width: 8px; height: 8px; border-radius: 50%; background: #b8e986; border: 1.5px solid var(--nb-ink); }
 .momo-chat__thread { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; max-width: min(340px, 78vw); }
 .momo-chat--right .momo-chat__thread { align-items: flex-end; }
 .momo-chat__bubble, .momo-bubble.momo-chat__bubble {

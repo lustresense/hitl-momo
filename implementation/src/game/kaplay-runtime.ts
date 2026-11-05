@@ -32,6 +32,8 @@ export async function createKaplayGame(o: KaplayGameOptions): Promise<KaplayGame
     background: o.integrated ? [0, 0, 0, 0] : [232, 239, 227],
     debug: false,
   });
+  // No default black loading screen over the world while sprites load: the page behind it stays visible.
+  if (o.integrated && typeof k.onLoading === "function") k.onLoading(() => undefined);
   setActiveEngine(k);
   const labelFont = nextLabelFont();
   return o.integrated

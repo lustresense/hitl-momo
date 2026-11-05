@@ -28,7 +28,7 @@ describe("MissionBriefing Focus Trap & Restore Regression", () => {
     expect(getActiveElement()).toBe(primaryBtn);
   });
 
-  it("traps Tab cycle inside dialog: forward wraps per DOM order (close -> skip -> primary)", () => {
+  it("traps Tab cycle inside dialog: forward wraps per DOM order (close -> primary)", () => {
     const onStartDrawing = vi.fn();
     render(
       <MissionBriefing
@@ -40,7 +40,6 @@ describe("MissionBriefing Focus Trap & Restore Regression", () => {
 
     const primaryBtn = screen.getByRole("button", { name: /Mulai Menggambar/i });
     const closeBtn = screen.getByRole("button", { name: /Tutup Petunjuk Misi/i });
-    const skipBtn = screen.getByRole("button", { name: /Lewati/i });
 
     // Focus starts on primary (explicitly focused via useEffect)
     expect(getActiveElement()).toBe(primaryBtn);
@@ -49,11 +48,7 @@ describe("MissionBriefing Focus Trap & Restore Regression", () => {
     fireEvent.keyDown(window, { key: "Tab", shiftKey: false });
     expect(getActiveElement()).toBe(closeBtn);
 
-    // Tab from close -> skip (next in DOM)
-    fireEvent.keyDown(window, { key: "Tab", shiftKey: false });
-    expect(getActiveElement()).toBe(skipBtn);
-
-    // Tab from skip -> primary (next in DOM)
+    // Tab from close -> primary (next in DOM; there is no skip any more)
     fireEvent.keyDown(window, { key: "Tab", shiftKey: false });
     expect(getActiveElement()).toBe(primaryBtn);
   });
@@ -70,16 +65,11 @@ describe("MissionBriefing Focus Trap & Restore Regression", () => {
 
     const primaryBtn = screen.getByRole("button", { name: /Mulai Menggambar/i });
     const closeBtn = screen.getByRole("button", { name: /Tutup Petunjuk Misi/i });
-    const skipBtn = screen.getByRole("button", { name: /Lewati/i });
 
     // Focus starts on primary (last in DOM)
     expect(getActiveElement()).toBe(primaryBtn);
 
-    // Shift+Tab from primary -> skip (previous in DOM)
-    fireEvent.keyDown(window, { key: "Tab", shiftKey: true });
-    expect(getActiveElement()).toBe(skipBtn);
-
-    // Shift+Tab from skip -> close (previous in DOM)
+    // Shift+Tab from primary -> close (previous in DOM)
     fireEvent.keyDown(window, { key: "Tab", shiftKey: true });
     expect(getActiveElement()).toBe(closeBtn);
 
@@ -167,7 +157,7 @@ describe("MissionBriefing Focus Trap & Restore Regression", () => {
     expect(getActiveElement()).toBe(triggerBtn);
   });
 
-  it("restores focus to previously focused element on close via Skip button", () => {
+  it("restores focus to previously focused element on close via the close button", () => {
     const onClose = vi.fn();
     const onStartDrawing = vi.fn();
 
@@ -202,9 +192,8 @@ describe("MissionBriefing Focus Trap & Restore Regression", () => {
         />
       </div>
     );
-    // Close the modal via Skip button
-    const skipBtn = screen.getByRole("button", { name: /Lewati/i });
-    fireEvent.click(skipBtn);
+    // Close the modal via the close button
+    fireEvent.click(screen.getByRole("button", { name: /Tutup Petunjuk Misi/i }));
     expect(onClose).toHaveBeenCalledTimes(1);
     rerender(
       <div>
@@ -314,7 +303,6 @@ describe("MissionBriefing Focus Trap & Restore Regression", () => {
 
     const primaryBtn = screen.getByRole("button", { name: /Mulai Menggambar/i });
     const closeBtn = screen.getByRole("button", { name: /Tutup Petunjuk Misi/i });
-    const skipBtn = screen.getByRole("button", { name: /Lewati/i });
 
     expect(getActiveElement()).toBe(primaryBtn);
 
@@ -323,15 +311,9 @@ describe("MissionBriefing Focus Trap & Restore Regression", () => {
     expect(getActiveElement()).toBe(closeBtn);
 
     fireEvent.keyDown(window, { key: "Tab", shiftKey: false });
-    expect(getActiveElement()).toBe(skipBtn);
-
-    fireEvent.keyDown(window, { key: "Tab", shiftKey: false });
     expect(getActiveElement()).toBe(primaryBtn);
 
     // Shift+Tab backward cycles through dialog elements only
-    fireEvent.keyDown(window, { key: "Tab", shiftKey: true });
-    expect(getActiveElement()).toBe(skipBtn);
-
     fireEvent.keyDown(window, { key: "Tab", shiftKey: true });
     expect(getActiveElement()).toBe(closeBtn);
 

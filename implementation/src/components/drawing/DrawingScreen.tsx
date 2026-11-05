@@ -12,7 +12,6 @@ import type { DrawingSurface } from "@/src/input";
 import type { InputModeId } from "@/src/input/types";
 import { MomoBubble } from "../momo/MomoBubble";
 import { Icon } from "../ui/Icon";
-import { SkyBackdrop } from "../ui/SkyBackdrop";
 import { Top3PredictionPopup } from "../prediction/Top3PredictionPopup";
 import { DrawingActions } from "./DrawingActions";
 import { DrawingToolbar } from "./DrawingToolbar";
@@ -86,9 +85,8 @@ export function DrawingScreen({
       aria-label="Menggambar"
       data-drawing-active={active ? "true" : "false"}
     >
-      <SkyBackdrop />
       <DrawingToolbar
-        visible={phase === "drawing"}
+        enabled={phase === "drawing"}
         onClear={() => surfaceOut.current?.clear()}
         onUndo={() => surfaceOut.current?.undo()}
         onRedo={() => surfaceOut.current?.redo()}
@@ -127,6 +125,8 @@ export function DrawingScreen({
           transform: `translate(${momoLayout.x}px, ${momoLayout.y}px)`,
 
           zIndex: 101,
+          // One Momo at a time: the mission hint has her own.
+          visibility: missionOpen ? "hidden" : "visible",
           pointerEvents: "none",
           width: `min(480px, ${momoLayout.available}px)`,
         }}

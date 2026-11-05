@@ -25,6 +25,16 @@ Visual + flow pass on branch `can` (frontend/game). Owner mandate M-012 in `proj
 - Level 2 never unlocked reliably: progress was written by an effect that could miss the `complete` phase. It is now written synchronously when the win is shown (`SuccessPopup.onWin`).
 - Level-select layout overlapped the brand header; the demo label sat behind the world.
 
+### Revision round 2 (same day, Owner feedback)
+- Momo chat: no name label; one bubble at a time (lines replace each other, `stack` only for the mission hint); fail actions appear after the first bubble. Success/fail/mission use the dimmed world directly, no boxes or cards (a fixed dim inside a transformed parent had drawn a grey box: fixed).
+- Mission hint: Momo + object icons straight on the dim, thumb gesture "Mulai Menggambar", no "Lewati"; the drawing-cue Momo is hidden while it is open (one Momo at a time).
+- Drawing page is clean paper in the sky: no clouds. Clouds exist only in a band the camera passes on the way up (`CloudBand`, three-screen camera column). Right-hand tools stay visible (resting) while Momo's guesses are shown.
+- Tutorial: closed cards rest as numbered stamps in a row at the bottom; open = fly to centre, flip, brochure unfolds with fold shading; shorter, firmer motion.
+- Cover, camera choice and student number use the kit (sticker eyebrow, orange card with ink border, neo toggle, buttons); camera-on layout fits 1280x720.
+- Real Thinman (Character A) in intro, tutorial and HUD badge (`ThinmanArt`).
+- KAPLAY default black loading screen suppressed (a black flash over the world).
+- Intro skip is a small icon button. Evidence: `docs/execution/evidence/ui-pass-2026-11-05/` (screenshots + two videos).
+
 ### Tests
 - vitest 549/549, tsc, lint, build; E2E normal-journey (L1-L3 with real progression), recovery 16/16, hand-control 6/6, MediaPipe probe pass. Evidence: `docs/execution/evidence/ui-pass-2026-11-05/`.
 

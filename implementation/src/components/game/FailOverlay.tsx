@@ -19,7 +19,7 @@ export function FailOverlay({ failReason, onRetry, onReposition, onRedraw }: Fai
         lines={["Belum berhasil, tidak apa-apa.", ...(failReason ? [failReason] : [])]}
         mood="Sedih"
         avatarHeight={190}
-        typing={false}
+        extrasFrom="first"
         testId="fail-chat"
       >
         <div className="world-fail__actions">

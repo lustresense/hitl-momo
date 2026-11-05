@@ -1,9 +1,10 @@
 "use client";
 /**
- * Momo speaks like a chat contact: her artwork on one side, her name, then message bubbles that arrive
- * one by one after a short "typing" beat. Display only: Momo never takes input, decides, or creates objects
- * (lore invariant). Every Momo line in the app (drawing cue, world, mission, win) goes through here, so
- * she always looks like the same speaker.
+ * Momo speaks like a chat contact: her artwork on one side and one speech bubble at a time. Lines replace each
+ * other (typing dots, then the next line), so the screen never fills up with stacked bubbles. There is no name
+ * label: it is obviously Momo. Display only: Momo never takes input, decides, or creates objects (lore invariant).
+ *
+ * `stack` keeps every line on screen at once; only the mission hint uses it.
  */
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { MomoMood } from "@/src/domain/momo-script";
@@ -11,7 +12,12 @@ import { MomoAvatar } from "./MomoAvatar";
 
 /** Typing beat before a line shows: short for one-liners, a little longer for long lines. */
 export function typingMs(line: string): number {
-  return Math.min(900, 380 + line.length * 7);
+  return Math.min(800, 320 + line.length * 6);
+}
+
+/** How long a line stays before the next one replaces it (long enough to read, never long enough to bore). */
+export function dwellMs(line: string): number {
+  return 900 + line.length * 34;
 }
 
 export interface MomoChatProps {
@@ -24,9 +30,12 @@ export interface MomoChatProps {
   typing?: boolean;
   /** Wait this long before the first line starts (e.g. while Momo is still flying in). */
   startDelay?: number;
+  /** Keep all lines visible together instead of replacing them one by one. */
+  stack?: boolean;
   /** Fires once, right after the last line is shown. */
   onDone?: () => void;
-  /** Rendered under the bubbles once every line is shown (e.g. gesture choices). */
+  /** Rendered under the bubble: from the first line (`first`) or only once the last line is shown (`last`). */
+  extrasFrom?: "first" | "last";
   children?: ReactNode;
   className?: string;
   testId?: string;
@@ -46,7 +55,9 @@ export function MomoChat({
   flapKey,
   typing = true,
   startDelay = 0,
+  stack = false,
   onDone,
+  extrasFrom = "last",
   children,
   className,
   testId,
@@ -54,7 +65,8 @@ export function MomoChat({
 }: MomoChatProps) {
   const list = useMemo(() => (Array.isArray(lines) ? lines : [lines]), [lines]);
   const key = list.join("␞");
-  const [shown, setShown] = useState(0);
+  /** Index of the line being shown; -1 = nothing yet. */
+  const [index, setIndex] = useState(-1);
   const [typingNow, setTypingNow] = useState(false);
   const doneRef = useRef(onDone);
   doneRef.current = onDone;
@@ -63,25 +75,23 @@ export function MomoChat({
     const instant = !typing || prefersReducedMotion();
     let cancelled = false;
     const timers: ReturnType<typeof setTimeout>[] = [];
+    const at = (ms: number, fn: () => void) => timers.push(setTimeout(() => !cancelled && fn(), ms));
     if (instant) {
-      setShown(list.length);
+      setIndex(list.length - 1);
       setTypingNow(false);
-      timers.push(setTimeout(() => !cancelled && doneRef.current?.(), 0));
+      at(0, () => doneRef.current?.());
     } else {
-      setShown(0);
-      let at = startDelay;
+      setIndex(-1);
+      let t = startDelay;
       list.forEach((line, i) => {
-        timers.push(setTimeout(() => !cancelled && setTypingNow(true), at));
-        at += typingMs(line);
-        timers.push(
-          setTimeout(() => {
-            if (cancelled) return;
-            setShown(i + 1);
-            setTypingNow(i + 1 < list.length);
-            if (i + 1 === list.length) doneRef.current?.();
-          }, at),
-        );
-        at += 260;
+        at(t, () => setTypingNow(true));
+        t += typingMs(line);
+        at(t, () => {
+          setIndex(i);
+          setTypingNow(false);
+          if (i === list.length - 1) doneRef.current?.();
+        });
+        t += dwellMs(line);
       });
     }
     return () => {
@@ -92,22 +102,20 @@ export function MomoChat({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [key, typing, startDelay]);
 
-  const finished = shown >= list.length;
+  const finished = index >= list.length - 1;
+  const visible = stack ? list.slice(0, index + 1) : typingNow ? [] : index >= 0 ? [list[index]!] : [];
+  const showExtras = children && (extrasFrom === "first" ? index >= 0 : finished);
   return (
     <div className={`momo-chat momo-chat--${side}${className ? " " + className : ""}`} data-testid={testId} data-finished={finished ? "true" : "false"}>
       <MomoAvatar className="momo-chat__avatar" expression={mood} height={avatarHeight} trackMotion={trackMotion} flapKey={flapKey} />
       <div className="momo-chat__col">
-        <div className="momo-chat__name">
-          <span className="momo-chat__dot" aria-hidden="true" />
-          Momo
-        </div>
         <div className="momo-chat__thread" role="status" aria-live="polite">
-          {list.slice(0, shown).map((line, i) => (
-            <div key={i} className="momo-bubble momo-chat__bubble">
+          {visible.map((line, i) => (
+            <div key={stack ? i : `${index}:${line}`} className="momo-bubble momo-chat__bubble">
               {line}
             </div>
           ))}
-          {typingNow && !finished && (
+          {typingNow && (
             <div className="momo-chat__bubble momo-chat__typing" aria-label="Momo sedang mengetik">
               <i />
               <i />
@@ -115,7 +123,7 @@ export function MomoChat({
             </div>
           )}
         </div>
-        {finished && children && <div className="momo-chat__extras">{children}</div>}
+        {showExtras && <div className="momo-chat__extras">{children}</div>}
       </div>
     </div>
   );

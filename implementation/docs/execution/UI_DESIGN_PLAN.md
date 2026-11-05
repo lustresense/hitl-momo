@@ -73,4 +73,21 @@ Camera cover and global camera widget (other worker), StageArtwork / StageAtmosp
 
 ## 8. Results
 
-Filled in at the end of the work package: see the final section "Measured copy reduction" below.
+Measured visible words per screen (1280x720, whole page text including camera widget and the demo chip; before = old build, after = this build; `evidence/ui-after/words-*.json`):
+
+| Screen | Before | After |
+|---|---|---|
+| Student number | 22 | 21 |
+| Tutorial (card spread / open) | 115 | 50 |
+| Level cards | 23 | 20 |
+| Mission briefing (with drawing chrome behind) | 101 | 61 |
+| Drawing | 26 | 20 |
+| Top-3 | 85 | 48 |
+| Correct picker | 104 | 54 |
+| Override picker | 97 | 49 |
+| Placement | 34 | 18 |
+| Gameplay | 38 | 20 |
+| Fail overlay | 43 | 23 |
+
+The camera cover (46 to 49) belongs to the camera worker; its 3 extra words are the demo chip.
+Screenshots: `docs/execution/evidence/ui-after/` (1280x720, 1920x1080, 390x844). Not captured: the transient "predicting" state (the mock answers faster than a screenshot can be taken) and the 1920x1080 success/summary screens (the scripted playthrough lost its timing at that render speed; the same screens are captured at the other two sizes).

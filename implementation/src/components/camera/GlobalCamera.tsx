@@ -300,7 +300,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip, recessed = false 
       const activeDeviceId = activeTrack?.getSettings?.().deviceId || selectedDevice;
       await populateCameraChoices(activeDeviceId);
       if (isStale()) return;
-      setPreviewLabel("Menunggu lambaian tanganmu... 👋");
+      setPreviewLabel("Menunggu lambaian tanganmu...");
       if (mode === "cover") {
         await startWaveTracking();
       }
@@ -448,7 +448,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip, recessed = false 
         {mode === "cover" && (
           <div className="cover-skip-block" style={{ marginTop: 20 }}>
             <button type="button" className="camera-skip" onClick={onSkip}>
-              Lewati &amp; Pilih Nomor Absen →
+              Lewati &amp; Pilih Nomor Absen
             </button>
           </div>
         )}

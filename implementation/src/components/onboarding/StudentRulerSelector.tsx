@@ -185,8 +185,7 @@ export function StudentRulerSelector({
   return (
     <section className="student-number-screen" aria-labelledby="student-number-heading">
       <div className="student-number-content">
-        <h1 id="student-number-heading">Nomor absenmu</h1>
-        <p className="student-number-hint">Geser penggaris</p>
+        <h1 id="student-number-heading">GESER PENGGARIS SESUAI NOMOR ABSENMU</h1>
         <div className="student-number-readout" aria-live="polite">
           <span key={value} className={`student-number-value${isTaken ? " is-taken" : " is-available"}${bump ? " is-bump" : ""}`}>{value}</span>
         </div>
@@ -214,8 +213,8 @@ export function StudentRulerSelector({
             <div className="student-ruler-needle" aria-hidden="true" />
           </div>
         </div>
-        <button type="button" className="btn btn-primary btn-lg student-number-confirm" data-testid="student-number-confirm" onClick={() => onConfirm(value)}>
-          Lanjut
+        <button type="button" className="student-number-confirm" onClick={() => onConfirm(value)}>
+          Lanjut ke Tutorial
         </button>
       </div>
     </section>

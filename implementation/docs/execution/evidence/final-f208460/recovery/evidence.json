@@ -1,0 +1,220 @@
+{
+  "run": "2026-11-05T02-29-28-233Z",
+  "result": "PASS",
+  "failure": null,
+  "git": {
+    "head": "f20846042fd3a7f8d08a3ebff4b04b6ca7aea4ba",
+    "branch": "claude/pa-sketchbook-universe-fs0dbf",
+    "dirty": true
+  },
+  "checks": [
+    {
+      "name": "Top-3 panel shows exactly 3 answers",
+      "ok": true,
+      "detail": [
+        "batu",
+        "tangga",
+        "balok"
+      ]
+    },
+    {
+      "name": "Top-3 decision group has exactly Accept/Correct/Override; Redraw is a separate recovery button, not a 4th decision",
+      "ok": true
+    },
+    {
+      "name": "Correct picker offers ranks 2 and 3 only",
+      "ok": true,
+      "detail": [
+        "2",
+        "3"
+      ]
+    },
+    {
+      "name": "A: walking off the cliff gives FAIL (not success)",
+      "ok": true,
+      "detail": {
+        "outcome": "fail",
+        "y": 556.1098775510209
+      }
+    },
+    {
+      "name": "A: fail reason shown to student",
+      "ok": true,
+      "detail": "Jatuh ke jurang!"
+    },
+    {
+      "name": "A: fail overlay offers retry / reposition / redraw",
+      "ok": true
+    },
+    {
+      "name": "A: retry respawns at checkpoint, gameplay phase, no stale outcome",
+      "ok": true,
+      "detail": {
+        "phase": "gameplay",
+        "x": 56.57142857142857,
+        "y": 239.69387755102042,
+        "vy": 0,
+        "grounded": true,
+        "settled": false,
+        "outcome": null,
+        "failReason": null,
+        "objectX": 334.68998655980954,
+        "objectY": 250.19998083309252,
+        "objectW": 130.6122448979592,
+        "objectH": 19.591836734693878,
+        "committed": 1
+      }
+    },
+    {
+      "name": "A: after retry the level is WON with normal input",
+      "ok": true,
+      "detail": {
+        "outcome": "success"
+      }
+    },
+    {
+      "name": "B: HITL decision reached label 'tali' through Correct/Accept",
+      "ok": true,
+      "detail": {
+        "type": "Correct",
+        "rank": 2,
+        "label": "tali"
+      }
+    },
+    {
+      "name": "B: label 'tali' resolved to danger behaviour",
+      "ok": true,
+      "detail": [
+        {
+          "label": "tali",
+          "behavior": "danger"
+        }
+      ]
+    },
+    {
+      "name": "B: touching the danger object FAILS with a danger reason",
+      "ok": true,
+      "detail": {
+        "outcome": "fail",
+        "reasonB": "Menyentuh objek berbahaya (tali)!"
+      }
+    },
+    {
+      "name": "B: Redraw returns to the drawing phase",
+      "ok": true
+    },
+    {
+      "name": "B: second cycle (after Redraw) reached solid label 'papan'",
+      "ok": true,
+      "detail": {
+        "type": "Correct",
+        "rank": 3,
+        "label": "papan"
+      }
+    },
+    {
+      "name": "B: earlier danger object repositioned off the route via UI",
+      "ok": true,
+      "detail": [
+        {
+          "label": "tali",
+          "x": 65,
+          "y": 100
+        },
+        {
+          "label": "papan",
+          "x": 390,
+          "y": 280
+        }
+      ]
+    },
+    {
+      "name": "B: after Redraw with a solid label the level can be WON",
+      "ok": true,
+      "detail": {
+        "outcome": "success",
+        "leftoverDangerObjects": 1
+      }
+    },
+    {
+      "name": "no console/page errors",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "steps": [
+    {
+      "t": "2026-11-05T02:29:28.538Z",
+      "m": "run-start",
+      "d": {
+        "git": {
+          "head": "f20846042fd3a7f8d08a3ebff4b04b6ca7aea4ba",
+          "branch": "claude/pa-sketchbook-universe-fs0dbf",
+          "dirty": true
+        },
+        "prediction": "MOCK"
+      }
+    },
+    {
+      "t": "2026-11-05T02:29:28.990Z",
+      "m": "onboarding: student number confirmed"
+    },
+    {
+      "t": "2026-11-05T02:29:29.066Z",
+      "m": "onboarding: tutorial skipped via visible button"
+    },
+    {
+      "t": "2026-11-05T02:29:33.945Z",
+      "m": "L1: mission briefing visible"
+    },
+    {
+      "t": "2026-11-05T02:29:34.204Z",
+      "m": "L1: mission briefing dismissed"
+    },
+    {
+      "t": "2026-11-05T02:29:35.945Z",
+      "m": "Top-3 (MOCK provider): [\"batu\",\"tangga\",\"balok\"]"
+    },
+    {
+      "t": "2026-11-05T02:29:36.149Z",
+      "m": "decision: {\"type\":\"Correct\",\"rank\":3,\"label\":\"balok\"}"
+    },
+    {
+      "t": "2026-11-05T02:30:08.321Z",
+      "m": "L3: mission briefing visible"
+    },
+    {
+      "t": "2026-11-05T02:30:08.584Z",
+      "m": "L3: mission briefing dismissed"
+    },
+    {
+      "t": "2026-11-05T02:30:10.028Z",
+      "m": "Top-3 (MOCK provider): [\"papan\",\"tali\",\"ember\"]"
+    },
+    {
+      "t": "2026-11-05T02:30:10.103Z",
+      "m": "decision: {\"type\":\"Correct\",\"rank\":2,\"label\":\"tali\"}"
+    },
+    {
+      "t": "2026-11-05T02:30:29.460Z",
+      "m": "Top-3 (MOCK provider): [\"ember\",\"tangga\",\"papan\"]"
+    },
+    {
+      "t": "2026-11-05T02:30:29.565Z",
+      "m": "decision: {\"type\":\"Correct\",\"rank\":3,\"label\":\"papan\"}"
+    },
+    {
+      "t": "2026-11-05T02:30:39.680Z",
+      "m": "creations carried through Redraw",
+      "d": [
+        {
+          "label": "tali",
+          "behavior": "danger",
+          "x": 389.99996885961417,
+          "y": 279.9999762554558
+        }
+      ]
+    }
+  ],
+  "video": "page@1f37e993d0ddbe52dfbbb3eba12eed41.webm"
+}

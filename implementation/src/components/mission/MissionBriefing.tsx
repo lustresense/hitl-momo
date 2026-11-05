@@ -1,7 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import type { MissionConfig } from "../../domain/mission-config";
 import styles from "./MissionBriefing.module.css";
-import { Icon } from "../shared/Icon";
 
 export interface MissionBriefingProps {
   isOpen: boolean;
@@ -13,7 +12,6 @@ export interface MissionBriefingProps {
 
 /**
  * SISTEM-attributed pre-canvas mission guidance modal dialog.
- * Printed "typed" voice, explicitly separate from Momo (handwriting) and independent of the Top-3 panel.
  * Explicitly separate from Momo dialog and independent of Top-3 floating card.
  * Accessible with role="dialog", aria-modal="true", escape handling, focus trap, focus return.
  */
@@ -140,8 +138,7 @@ export function MissionBriefing({
         aria-modal="true"
         aria-labelledby={titleId}
         aria-describedby={descId}
-        className={styles.page}
-        data-testid="mission-dialog"
+        className={styles.modalCard}
       >
         <div className={styles.header}>
           <span className={styles.systemBadge}>{config.systemAttribution}</span>
@@ -152,7 +149,7 @@ export function MissionBriefing({
             onClick={handleDismiss}
             aria-label="Tutup Petunjuk Misi"
           >
-            <Icon name="x" size={22} />
+            ×
           </button>
         </div>
 
@@ -165,12 +162,17 @@ export function MissionBriefing({
         </p>
 
         {config.examples.length > 0 && (
-          <div className={styles.examples}>
-            <span className={styles.examplesLabel}>Contoh</span>
+          <div className={styles.examplesSection}>
+            <div className={styles.examplesHeader}>
+              <span className={styles.demoBadge}>{config.demoBadge}</span>
+              <span className={styles.examplesSubtitle}>
+                Benda yang bisa membantu:
+              </span>
+            </div>
             <ul className={styles.examplesList}>
               {config.examples.map((item) => (
                 <li key={item.labelId} className={styles.exampleChip}>
-                  {item.icon && <span aria-hidden="true">{item.icon}</span>}
+                  {item.icon && <span className={item.icon}>{item.icon}</span>}
                   <span>{item.displayName}</span>
                 </li>
               ))}
@@ -184,7 +186,6 @@ export function MissionBriefing({
             ref={skipBtnRef}
             type="button"
             className={styles.skipButton}
-            data-testid="btn-mission-skip"
             onClick={handleDismiss}
           >
             Lewati
@@ -193,11 +194,8 @@ export function MissionBriefing({
             ref={primaryBtnRef}
             type="button"
             className={styles.primaryButton}
-            data-testid="btn-mission-start"
-            aria-label={`${config.primaryCtaLabel} menggambar`}
             onClick={onStartDrawing}
           >
-            <Icon name="pencil" size={20} />
             {config.primaryCtaLabel}
           </button>
         </div>

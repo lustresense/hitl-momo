@@ -8,7 +8,7 @@ export type AppRouteResolution =
   | { kind: "canvas" }
   | { kind: "camera" };
 
-const LOCKED_LEVEL_NOTICE = "Level ini masih terkunci. Selesaikan level sebelumnya dulu.";
+const LOCKED_LEVEL_NOTICE = "Bab 2 masih terkunci! Selesaikan Bab 1 dulu ya.";
 
 /** Resolves direct paths before rendering; locked and unknown levels never enter a canvas. */
 export function resolveAppRoute(path: string, isLevelUnlocked: (stage: number) => boolean = (stage) => stage <= 1): AppRouteResolution {

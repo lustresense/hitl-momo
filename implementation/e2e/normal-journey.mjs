@@ -85,7 +85,7 @@ async function playSteps(stage, stepList, { label }) {
   return readGame(page);
 }
 
-const overlayTitle = () => page.getByTestId("outcome-title").textContent({ timeout: 1500 }).catch(() => null);
+const overlayTitle = () => page.locator(".overlay-title").first().textContent({ timeout: 1500 }).catch(() => null);
 
 async function runLevel(stage) {
   const plan = plans[String(stage)];
@@ -94,9 +94,9 @@ async function runLevel(stage) {
   await shot(`L${stage}-00-mission-and-canvas`);
   const decisions = [];
   for (const [ci, cycle] of plan.cycles.entries()) {
-    if (ci > 0) { await page.locator("[data-testid=btn-create-object]").click(); log(`L${stage}: 'Objek baru' (cycle ${ci + 1})`); }
+    if (ci > 0) { await page.locator("[data-testid=btn-create-object]").click(); log(`L${stage}: 'Ciptakan objek lagi' (cycle ${ci + 1})`); }
     await drawScribble(page, ci % 2 ? "spike" : "block");
-    const { labels, decision } = await submitAndDecide(page, { prefer: cycle.label, log: m => log(`L${stage}c${ci + 1}: ${m}`) });
+    const { labels, decision } = await submitAndDecide(page, { prefer: cycle.label, log: m => log(`L${stage}c${ci + 1}: ${m}`), shot: n => shot(`L${stage}-c${ci + 1}-00-${n}`) });
     decisions.push({ labels, decision });
     await shot(`L${stage}-c${ci + 1}-01-after-decision`);
     const cx = cycle.x + plans.objectSize.w / 2, cy = cycle.y + plans.objectSize.h / 2;
@@ -142,19 +142,23 @@ try {
   const all = {};
   for (const stage of LEVELS) {
     all[stage] = await runLevel(stage);
-    await page.locator("[data-testid=btn-next]").click();
-    log(`L${stage}: clicked 'Lanjut' (outcome overlay)`);
-    await sleep(900);
-    await shot(`L${stage}-04-summary`);
+    // Success is a pop-up INSIDE the game world: Momo walks to the centre and the card offers next level / level list.
+    await sleep(1800); // Momo walk-in (1.2 s) + card fade
+    await shot(`L${stage}-04-success-popup-in-world`);
+    const popupText = (await page.locator("[data-testid=outcome-overlay]").innerText()).replace(/\s+/g, " ");
+    log(`L${stage}: success pop-up`, popupText);
+    if (await page.locator("[data-testid=game-canvas]").isVisible() === false) throw new Error("success pop-up must stay inside the game world (canvas hidden)");
     if (stage < LEVELS[LEVELS.length - 1]) {
-      const nextBtn = page.locator("[data-testid=btn-next-level]");
-      await nextBtn.click(); // full page load into the next level (app behaviour)
+      await page.locator("[data-testid=btn-next-level]").click(); // full page load into the next level (app behaviour)
       await page.waitForURL(u => u.pathname === `/level${stage + 1}`, { timeout: 15000 });
+    } else {
+      await page.locator("[data-testid=btn-back-to-levels]").click();
+      await page.locator(".level-card").first().waitFor({ state: "visible", timeout: 15000 });
     }
   }
   const finalText = (await page.locator("body").innerText()).slice(0, 1500);
   log("final screen text (truncated)", finalText);
-  await shot("99-final-summary");
+  await shot("99-final-levels");
   result = "PASS";
   writeJson(path.join(OUT, "decisions.json"), all);
 } catch (e) {

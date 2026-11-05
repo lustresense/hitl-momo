@@ -53,7 +53,7 @@ export function CameraIntro({ modelUrl, onWave, onSkip }: CameraIntroProps) {
         },
         onStatus: (status) => {
           if (unmountedRef.current) return;
-          if (status.kind === "ready") setPreviewLabel(`Menunggu lambaian tanganmu... 👋 (${status.delegate})`);
+          if (status.kind === "ready") setPreviewLabel(`Menunggu lambaian tanganmu... (${status.delegate})`);
           else setPreviewLabel(status.message);
         },
       });
@@ -112,7 +112,7 @@ export function CameraIntro({ modelUrl, onWave, onSkip }: CameraIntroProps) {
       const activeDeviceId = activeTrack?.getSettings?.().deviceId || selectedDevice;
       await populateCameraChoices(activeDeviceId);
       if (isStale()) return;
-      setPreviewLabel("Menunggu lambaian tanganmu... 👋");
+      setPreviewLabel("Menunggu lambaian tanganmu...");
       await getTracker().start();
     } catch (error) {
       if (isStale()) {
@@ -168,7 +168,7 @@ export function CameraIntro({ modelUrl, onWave, onSkip }: CameraIntroProps) {
         </div>
         <div style={{ marginTop: 20 }}>
           <button type="button" className="camera-skip" data-testid="camera-skip" onClick={onSkip}>
-            Lewati &amp; Buka Tutorial Kartu →
+            Lewati &amp; Buka Tutorial Kartu
           </button>
         </div>
       </div>

@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from "react";
 import { getPrefersReducedMotion, subscribePrefersReducedMotion } from "./tutorial-motion";
 import { resolveCharacterDisplayName } from "@/src/config/character-tokens";
-import { Icon } from "../shared/Icon";
 
 interface TutorialBrochureProps {
   onStart(): void;
@@ -333,12 +332,28 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
   return (
     <div ref={rootRef} className="tutorial-prototype-root">
       {onSkip && (
-        <button type="button" className="btn btn-small tutorial-skip" data-testid="tutorial-skip" onClick={onSkip}>
-          Lewati
+        <button
+          type="button"
+          className="tutorial-skip"
+          onClick={onSkip}
+          style={{
+            position: "absolute",
+            top: 16,
+            right: 16,
+            zIndex: 1001,
+            background: "transparent",
+            border: "none",
+            color: "var(--muted)",
+            cursor: "pointer",
+            fontWeight: 600,
+            fontSize: "14px",
+          }}
+        >
+          Lewati Tutorial &rarr;
         </button>
       )}
       <div ref={appRef} className={`app ${active >= 0 ? "is-focus" : ""}`}>
-        <main ref={stageRef} className={`stage ${active >= 0 ? "is-focus" : ""}`} aria-label="Tutorial">
+        <main ref={stageRef} className={`stage ${active >= 0 ? "is-focus" : ""}`} aria-label="Prototype tutorial brochure">
           <BrochureCard index={0} active={active} phase={phase} ready={ready(0)} onNext={nextCard} onMotionDone={() => setMotionDone(true)} slotRef={(element) => { slotRefs.current[0] = element; }} innerRef={(element) => { innerRefs.current[0] = element; }} panelRef={(element) => { panelRefs.current[0] = element; }} characterName={characterName} />
           <BrochureCard index={1} active={active} phase={phase} ready={ready(1)} onNext={nextCard} slotRef={(element) => { slotRefs.current[1] = element; }} innerRef={(element) => { innerRefs.current[1] = element; }} panelRef={(element) => { panelRefs.current[1] = element; }} characterName={characterName} />
           <BrochureCard index={2} active={active} phase={phase} ready={ready(2)} onNext={nextCard} canvasRef={canvasRef} tool={tool} hasStroke={hasStroke} onTool={setTool} onBeginStroke={beginStroke} onMoveStroke={moveStroke} onEndStroke={endStroke} onClear={clearDrawing} onUndo={undoDrawing} onRedo={redoDrawing} slotRef={(element) => { slotRefs.current[2] = element; }} innerRef={(element) => { innerRefs.current[2] = element; }} panelRef={(element) => { panelRefs.current[2] = element; }} characterName={characterName} />
@@ -363,9 +378,9 @@ function BrochureCard({ index, active, phase, ready, onNext, onMotionDone, canva
     <div className="card"><div ref={innerRef} className="card-inner">
       <section className={`face front front-accent-${index + 1}`}><div className="front-center"><div className="number">{index + 1}</div></div></section>
       <section className={`face back theme-${index + 1}`}><div className="brochure-track"><section className="panel guide-panel">
-        {index === 0 && <><h2 className="guide-title">Kenalan dengan {characterName}</h2><p className="guide-copy">Geser ke kanan. Ajak {characterName} ke bendera.</p><button className={`btn btn-primary brochure-cta ${ready ? "is-ready" : ""}`} type="button" disabled={!ready} onClick={(event) => { event.stopPropagation(); onNext(); }}>Lanjut</button></>}
-        {index === 1 && <><h2 className="guide-title">Pijakan atau bahaya</h2><p className="guide-copy">Benda padat jadi pijakan. Benda tajam merobek kertas.</p><button className="btn btn-primary brochure-cta is-ready" type="button" onClick={(event) => { event.stopPropagation(); onNext(); }}>Lanjut</button></>}
-        {index === 2 && <><h2 className="guide-title">Coba menggambar</h2><p className="guide-copy">Coret satu garis, lalu tekan Mundur.</p><button className={`btn btn-primary brochure-cta ${ready ? "is-ready" : ""}`} type="button" disabled={!ready} onClick={(event) => { event.stopPropagation(); onNext(); }}>Mulai</button></>}
+        {index === 0 && <><h2 className="guide-title">Kenalin {characterName}</h2><p className="guide-copy">Dia mau jalan lewatin lembaran buku gambar ini, tapi jalurnya buntu. Coba gerakin tanganmu ke kanan atau kiri buat ajak dia jalan!</p><button className={`brochure-cta ${ready ? "is-ready" : ""}`} type="button" disabled={!ready} onClick={(event) => { event.stopPropagation(); onNext(); }}>Lanjut</button></>}
+        {index === 1 && <><h2 className="guide-title">Pijakan Aman vs Bahaya</h2><p className="guide-copy">Gambarlah benda padat kayak balok atau tangga biar {characterName} bisa lewat. Hindari benda tajam kayak duri atau pisau biar buku gak sobek!</p><button className="brochure-cta is-ready" type="button" onClick={(event) => { event.stopPropagation(); onNext(); }}>Lanjut</button></>}
+        {index === 2 && <><h2 className="guide-title">Tes Coret &amp; Gestur Jarimu</h2><p className="guide-copy">Coba bikin garis bebas di kanvas ini. Gunakan gestur jarimu: 🤏 Coret, ✊ Hapus, ✌️ Undo, dan 🖐️ Redo. Udah siap?</p><button className={`brochure-cta ${ready ? "is-ready" : ""}`} type="button" disabled={!ready} onClick={(event) => { event.stopPropagation(); onNext(); }}>Mulai Level 1</button></>}
       </section><section ref={panelRef} className="panel play-panel">
         {index === 0 && <MotionPlayground onComplete={onMotionDone!} />}
         {index === 1 && <SafetyPlayground />}
@@ -378,14 +393,14 @@ function BrochureCard({ index, active, phase, ready, onNext, onMotionDone, canva
 function MotionPlayground({ onComplete }: { onComplete(): void }) {
   const [position, setPosition] = useState(17);
   function move(event: PointerEvent<HTMLDivElement>) { const rect = event.currentTarget.getBoundingClientRect(); const next = Math.max(12, Math.min(88, ((event.clientX - rect.left) / rect.width) * 100)); setPosition(next); if (next >= 82) onComplete(); }
-  return <div className={`play-card motion-playground ${position >= 82 ? "is-complete" : ""}`} onPointerMove={move} onClick={(event) => event.stopPropagation()}><div className="motion-arrows"><Icon name="left" size={22} />Geser<Icon name="right" size={22} /></div><div className="motion-floor" /><div className="motion-finish" aria-label="Bendera tujuan" /><div className="stickman-wrap" data-stickman style={{ left: `${position}%`, transform: `translateX(-50%) scaleX(${position < 17 ? -1 : 1})` }}><svg viewBox="0 0 80 150" aria-hidden="true"><circle cx="40" cy="22" r="16" fill="#f7f5ea" stroke="#1e2126" strokeWidth="6" /><path d="M34 22 q6 7 12 0" fill="none" stroke="#1e2126" strokeWidth="3" strokeLinecap="round" /><circle cx="34" cy="18" r="2.4" fill="#1e2126" /><circle cx="46" cy="18" r="2.4" fill="#1e2126" /><path d="M40 38 L40 92 M40 52 L16 72 M40 52 L65 70 M40 92 L20 130 M40 92 L62 130" fill="none" stroke="#1e2126" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" /></svg></div><div className="motion-success"><Icon name="check" size={26} strokeWidth={3} /></div></div>;
+  return <div className={`play-card motion-playground ${position >= 82 ? "is-complete" : ""}`} onPointerMove={move} onClick={(event) => event.stopPropagation()}><div className="motion-arrows">◀ &nbsp; GESER TANGAN &nbsp; ▶</div><div className="motion-floor" /><div className="motion-finish" aria-label="Target finish" /><div className="stickman-wrap" data-stickman style={{ left: `${position}%`, transform: `translateX(-50%) scaleX(${position < 17 ? -1 : 1})` }}><svg viewBox="0 0 80 150" aria-hidden="true"><circle cx="40" cy="22" r="16" fill="#f7f5ea" stroke="#1e2126" strokeWidth="6" /><path d="M34 22 q6 7 12 0" fill="none" stroke="#1e2126" strokeWidth="3" strokeLinecap="round" /><circle cx="34" cy="18" r="2.4" fill="#1e2126" /><circle cx="46" cy="18" r="2.4" fill="#1e2126" /><path d="M40 38 L40 92 M40 52 L16 72 M40 52 L65 70 M40 92 L20 130 M40 92 L62 130" fill="none" stroke="#1e2126" strokeWidth="7" strokeLinecap="round" strokeLinejoin="round" /></svg></div><div className="motion-success">✓</div></div>;
 }
 
 function SafetyPlayground() {
-  return <div className="play-card safety-split"><div className="safety-zone safe-zone"><div className="zone-badge"><Icon name="check" size={18} strokeWidth={3} />Aman</div><div className="safe-objects"><div className="ladder" /><div className="wood-block" /><div className="mini-stick" aria-hidden="true"><svg viewBox="0 0 48 78" width="48" height="78"><circle cx="24" cy="12" r="8" fill="#f7f5ea" stroke="#1e2126" strokeWidth="4" /><path d="M24 20V47M24 29L10 39M24 29L38 39M24 47L12 69M24 47L36 69" fill="none" stroke="#1e2126" strokeWidth="5" strokeLinecap="round" /></svg></div></div></div><div className="safety-zone danger-zone"><div className="zone-badge"><Icon name="x" size={18} strokeWidth={3} />Bahaya</div><div className="tear-line" /><div className="danger-objects"><div className="knife" /><div className="spikes"><i /><i /><i /></div></div></div></div>;
+  return <div className="play-card safety-split"><div className="safety-zone safe-zone"><div className="zone-badge">✓ AMAN DIPIJAK</div><div className="safe-objects"><div className="ladder" /><div className="wood-block" /><div className="mini-stick" aria-hidden="true"><svg viewBox="0 0 48 78" width="48" height="78"><circle cx="24" cy="12" r="8" fill="#f7f5ea" stroke="#1e2126" strokeWidth="4" /><path d="M24 20V47M24 29L10 39M24 29L38 39M24 47L12 69M24 47L36 69" fill="none" stroke="#1e2126" strokeWidth="5" strokeLinecap="round" /></svg></div></div></div><div className="safety-zone danger-zone"><div className="zone-badge">✕ KERTAS SOBEK</div><div className="tear-line" /><div className="danger-objects"><div className="knife" /><div className="spikes"><i /><i /><i /></div></div></div></div>;
 }
 
 interface DrawPlaygroundProps { canvasRef: React.RefObject<HTMLCanvasElement>; tool: Tool; hasStroke: boolean; onTool(tool: Tool): void; onBeginStroke(event: PointerEvent<HTMLCanvasElement>): void; onMoveStroke(event: PointerEvent<HTMLCanvasElement>): void; onEndStroke(event: PointerEvent<HTMLCanvasElement>): void; onClear(): void; onUndo(): void; onRedo(): void; }
 function DrawPlayground({ canvasRef, tool, onTool, onBeginStroke, onMoveStroke, onEndStroke, onClear, onUndo, onRedo }: DrawPlaygroundProps) {
-  return <div className="play-card draw-playground"><div className="draw-canvas-wrap"><canvas ref={canvasRef} className="draw-canvas" data-draw-canvas onPointerDown={onBeginStroke} onPointerMove={onMoveStroke} onPointerUp={onEndStroke} onPointerCancel={onEndStroke} /></div><div className="gesture-toolbar" role="toolbar" aria-label="Alat coba menggambar"><button className={`gesture-btn ${tool === "draw" ? "is-active" : ""}`} type="button" data-tool="draw" aria-pressed={tool === "draw"} onClick={() => onTool("draw")}><Icon name="pencil" size={22} /><span>Pensil</span></button><button className={`gesture-btn ${tool === "erase" ? "is-active" : ""}`} type="button" data-tool="erase" aria-pressed={tool === "erase"} onClick={() => onTool("erase")}><Icon name="eraser" size={22} /><span>Hapus</span></button><button className="gesture-btn" type="button" data-tool="undo" onClick={onUndo}><Icon name="undo" size={22} /><span>Mundur</span></button><button className="gesture-btn" type="button" data-tool="redo" onClick={onRedo}><Icon name="redo" size={22} /><span>Maju</span></button><button className="gesture-btn" type="button" data-tool="clear" onClick={onClear}><Icon name="trash" size={22} /><span>Bersih</span></button></div></div>;
+  return <div className="play-card draw-playground"><div className="draw-canvas-wrap"><canvas ref={canvasRef} className="draw-canvas" data-draw-canvas onPointerDown={onBeginStroke} onPointerMove={onMoveStroke} onPointerUp={onEndStroke} onPointerCancel={onEndStroke} /></div><div className="gesture-toolbar" aria-label="Gesture toolbar"><button className={`gesture-btn ${tool === "draw" ? "is-active" : ""}`} type="button" data-tool="draw" onClick={() => onTool("draw")}><strong>✎</strong><span>🤏 Coret</span></button><button className={`gesture-btn ${tool === "erase" ? "is-active" : ""}`} type="button" data-tool="erase" onClick={() => onTool("erase")}><strong>⌫</strong><span>✊ Hapus</span></button><button className="gesture-btn" type="button" data-tool="undo" onClick={onUndo}><strong>↶</strong><span>✌️ Batal</span></button><button className="gesture-btn" type="button" data-tool="redo" onClick={onRedo}><strong>↷</strong><span>🖐️ Ulang</span></button><button className="gesture-btn" type="button" onClick={onClear}><strong>×</strong><span>Bersihkan</span></button></div></div>;
 }

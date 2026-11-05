@@ -32,15 +32,18 @@ interface StageTemplate {
 const STAGE_TEMPLATES: Record<1 | 2 | 3, StageTemplate> = {
   1: {
     titleTemplate: "Bantu {character} menyeberang!",
-    instructionTemplate: "Gambar benda untuk menutup celah bagi {character}.",
+    instructionTemplate:
+      "Di depan ada celah. Gambar benda yang menurutmu bisa membantu {character} mencapai seberang.",
   },
   2: {
     titleTemplate: "Bantu {character} naik lebih tinggi!",
-    instructionTemplate: "Gambar benda sebagai pijakan naik bagi {character}.",
+    instructionTemplate:
+      "Pikirkan posisi dan bentuk benda yang dapat membantu {character} mencapai platform atas.",
   },
   3: {
     titleTemplate: "Bantu {character} memilih jalan aman!",
-    instructionTemplate: "Gambar benda yang aman dipijak {character}.",
+    instructionTemplate:
+      "Perhatikan rintangan di depan, lalu gambar benda yang menurutmu aman dan berguna untuk {character}.",
   },
 };
 
@@ -82,8 +85,9 @@ export function getMissionConfigForLevel(
     title,
     instruction,
     demoBadge: "CONTOH DEMO",
-    explorationNotice: "Bebas gambar yang lain.",
+    explorationNotice:
+      "Contoh hanya panduan. Bebas gambar benda lain.",
     examples,
-    primaryCtaLabel: "Mulai",
+    primaryCtaLabel: "Mulai Menggambar",
   };
 }

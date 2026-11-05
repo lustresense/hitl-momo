@@ -1,14 +1,17 @@
 # Implementation Changelog
 
-Technical changes only, newest first (old version -> new version). Product decisions live in the root `DECISIONS.md`; the Owner's instructions in `project/OWNER_MANDATES.md`.
+Every change made INSIDE the `implementation/` folder (code, tests, e2e, runtime assets, folder structure), newest version first. If you touch anything in `implementation/`, add it here.
 
-**What belongs here:** every change made INSIDE the `implementation/` folder (code, tests, e2e, runtime assets), per version. If you edit anything in `implementation/`, add an entry here. The decision behind a change, and documents/assets outside `implementation/` (e.g. `academic/progress-book/`, `project/`), go to the root `DECISIONS.md` instead; a change that touches both is logged in both and cross-references the decision ID.
+**Link to `DECISIONS.md` (root):** `DECISIONS.md` holds the Owner's decisions only. Most Owner decisions change `implementation/`, so:
+- Every version here names the decision(s) it carries out on its first line: `Decision: D-YYYYMMDD-NN`. A change with no new Owner decision (bug fix, refactor, test) writes `Decision: -` or the older decision it serves.
+- The decision in `DECISIONS.md` names the version here that implements it (`Teknis: implementation/CHANGELOG.md 0.0.x`).
+- Owner instructions in his own words: `project/OWNER_MANDATES.md`. Nothing outside `implementation/` (docs, `academic/`, `project/`, pushes) is logged here.
 
 Entries 0.0.6-0.0.12 were moved here on 2026-11-05 from the root file that used to be called `CHANGELOG.md` (it mixed release notes with the decision log). `package.json` still says 0.2.0: align it with this numbering only when the Owner approves.
 
 ## [0.0.15] - 2026-11-05
 
-Momo pass on branch `can`. Owner mandates M-015 (wings) and M-016 (Momo guides every page). Decisions: D-20261105-17 (wings), D-20261105-19 (guide), progress log in the root `DECISIONS.md`.
+Decision: D-20261105-17 (wings), D-20261105-19 (Momo guides every page). Mandates M-015, M-016. Branch `can`.
 
 ### Fixed
 - `src/components/momo/momo-wing.ts` (new) and `momo-engine.ts`: Momo's cloth wings looked cut off while animating. They were rotated about a pivot about 90 art units below the apex, so the apex (the corner attached to the body) lifted off. Now the wing is sheared along its attach edge: the apex and the whole attach edge never move, only the lower tips go up (negative angle) and down (positive), at most 56 art units (the wave may go to 50 degrees). Applies to every Momo (chat, drawing, intro, world, character book). The flap kick is now symmetric for both wings. Matrix printed with 8 decimals (4 decimals moved the apex by 0.02 units).
@@ -34,7 +37,7 @@ Momo pass on branch `can`. Owner mandates M-015 (wings) and M-016 (Momo guides e
 
 ## [0.0.14] - 2026-11-05
 
-Visual + flow pass on branch `can` (frontend/game). Owner mandate M-012 in `project/OWNER_MANDATES.md`. Palette, dots, outlines and hard shadows unchanged (M-003).
+Decision: D-20261105-12, D-20261105-13, D-20261105-14. Visual + flow pass on branch `can` (frontend/game). Owner mandate M-012 in `project/OWNER_MANDATES.md`. Palette, dots, outlines and hard shadows unchanged (M-003).
 
 ### Added
 - One shared kit: `src/components/ui/Icon.tsx` (single icon language, hand-gesture glyphs, object glyphs, no emoji), `SkyBackdrop`, and `app/styles/96-98-kit-*.css` (one button, card, chip, toolbar). Demo notice is one tape label (`config/demo.ts` flag, remove with the mock).
@@ -77,7 +80,7 @@ Visual + flow pass on branch `can` (frontend/game). Owner mandate M-012 in `proj
 
 ## [0.0.13] - 2026-11-05
 
-Integrated execution pass on branch `claude/pa-sketchbook-universe-fs0dbf` (baseline `54ebec1`). Product decisions behind it: `DECISIONS.md` D-20261105-01..10.
+Integrated execution pass on branch `claude/pa-sketchbook-universe-fs0dbf` (baseline `54ebec1`). Decision: D-20261105-01..10.
 
 ### Added
 - Honest real-input E2E (`e2e/normal-journey.mjs`, `recovery-paths.mjs`, `hand-control-probe.mjs`, `mediapipe-probe.mjs`) with a shared harness and read-only telemetry; level solvability model (`tests/game/level-reachability.ts`).

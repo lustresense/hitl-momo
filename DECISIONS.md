@@ -1,20 +1,19 @@
 # Catatan Keputusan: PA Sketchbook Universe / AI HITL
 
-Berkas ini (dulu bernama `CHANGELOG.md`) adalah **catatan keputusan produk/PA**: apa yang diputuskan Owner, kapan, dan statusnya. Ia dipakai untuk mencegah konteks lama atau jawaban AI mengambil alih keputusan terbaru.
-
-Pembagian dokumen sejak 2026-11-05:
+Berkas ini (dulu bernama `CHANGELOG.md`) adalah **catatan keputusan Owner**: apa yang diputuskan Owner (CAN), kapan, kenapa, dan statusnya. Isinya hanya keputusan Owner. AI tidak membuat keputusan sendiri di sini; AI hanya mencatat keputusan Owner dan menghubungkannya ke perubahan teknisnya.
 
 | Berkas | Isi |
 |---|---|
-| `DECISIONS.md` (ini) | Keputusan produk/PA: Aktif, Direvisi, Dicabut, Belum dikunci. Sumber kebenaran keputusan. |
-| `project/OWNER_MANDATES.md` | Semua instruksi/mandat Owner dalam kata-kata Owner, berurutan, dengan status dan bukti. |
-| `implementation/CHANGELOG.md` | Perubahan teknis per versi (dari versi lama ke baru). Entri rilis 0.0.6-0.0.12 yang dulu ada di sini sudah dipindahkan ke sana. |
-
-**Pembeda `DECISIONS.md` vs `implementation/CHANGELOG.md` (aturan cepat):**
-- `DECISIONS.md` = *apa yang diputuskan dan kenapa*: keputusan produk/PA, arah visual dan cerita, serta **dokumen dan aset di luar folder `implementation/`** beserta lokasinya (mis. buku progres di `academic/progress-book/`, materi diskusi dosen di `project/`). Status: Aktif / Direvisi / Dicabut / Belum dikunci / Riset.
-- `implementation/CHANGELOG.md` = *apa yang berubah di dalam kode*: setiap perubahan di dalam folder `implementation/` (kode, test, e2e, aset runtime), per versi.
-- Mengubah sesuatu di dalam `implementation/` berarti **wajib** masuk `implementation/CHANGELOG.md`. Keputusan di balik perubahan itu (dan dokumen di luar `implementation/`) masuk `DECISIONS.md`. Perubahan yang menyentuh keduanya dicatat di keduanya dan saling merujuk ID.
+| `DECISIONS.md` (ini) | Keputusan Owner: Aktif, Direvisi, Dicabut, Belum dikunci, Riset. Sumber kebenaran keputusan. |
+| `implementation/CHANGELOG.md` | Setiap perubahan di dalam folder `implementation/` (kode, test, e2e, aset runtime, struktur folder), per versi. |
+| `project/OWNER_MANDATES.md` | Instruksi Owner dalam kata-kata Owner, berurutan. |
 | `NOW.md` | Keadaan paling baru dalam satu halaman. |
+
+**Hubungan `DECISIONS.md` dan `implementation/CHANGELOG.md`:**
+- Keputusan Owner masuk ke sini. Kebanyakan keputusan Owner mengubah `implementation/` (teknis, folder, kode). Keputusan seperti itu **wajib** menyebut versi changelog yang mengerjakannya, contoh: "Teknis: `implementation/CHANGELOG.md` 0.0.15".
+- Setiap entri changelog **wajib** menyebut ID keputusan yang melatarinya, contoh: "Decision: D-20261105-19". Jadi dari keputusan bisa dilacak ke perubahan teknis, dan dari perubahan teknis ke keputusannya.
+- Perubahan teknis tanpa keputusan baru dari Owner (perbaikan bug, refactor, test) cukup di changelog, tetap ditulis "Decision: -" atau ID keputusan lama yang dijalankan.
+- Keputusan yang tidak menyentuh `implementation/` (dokumen, aset di `academic/`, `project/`, alur kerja seperti push) hanya dicatat di sini, ditulis "Teknis: tidak ada".
 
 ## Cara pakai
 
@@ -125,18 +124,21 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 ## Entri Perubahan Terbaru
 
 ### D-20261105-20 — Aktif (instruksi eksplisit Owner) — Push revisi 0.0.14 ke branch `can`
+- Teknis: tidak ada (alur kerja).
 - Keputusan/ubahannya: Owner menyuruh push ("gas push") setelah wing fix (D-20261105-17), audit semua Momo, dan Momo sebagai pemandu (D-20261105-19). Push ke `origin/can` memakai environment sesi ini. Commit tetap atas nama Owner (`Farchan Deano Muhammad`, M-008); GitHub bisa menampilkan "Unverified" karena tidak ditandatangani, dan itu sengaja diterima: author tidak direset ke Claude. Push hanya terjadi karena perintah eksplisit ini; aturan "jangan push tanpa diminta" tetap berlaku untuk sesi berikutnya.
 - Mengubah entri lama: tidak ada.
 - Bukti: perintah Owner 2026-11-05 (tidak dicatat di `implementation/CHANGELOG.md` karena bukan perubahan isi `implementation/`); commit `eb27fb6`, `7466ca3`, `7a836b9` dan commit catatan ini.
 - Dampak: remote `can` memuat semua kerja sesi ini; sesi baru yang di-clone dari remote ikut melihatnya.
 
 ### D-20261105-19 — Aktif (instruksi eksplisit Owner, M-016) — Momo memandu setiap halaman, dimulai dari cover
+- Teknis: `implementation/CHANGELOG.md` 0.0.15 (Added, Changed).
 - Keputusan/ubahannya: **Momo memandu semua sesi dan halaman**, bukan hanya di dalam level. **Cover (kamera):** Momo tidur di cover (mata tertutup, Zzz). Kamera menyala = Momo bangun kaget (loncat dan kepak), lalu menyapa dengan satu sayap (dada-dada), menyebut dirinya, lalu memandu ke langkah berikutnya: "pilih nomor absenmu pakai penggaris" dengan satu isyarat jempol. **Alasan kamera menyala = bangun:** NUI belum ada; kelak yang membangunkan Momo adalah lambaian tangan (pelacak lambaian tetap jalan; lambaian sekarang berarti "lanjut"). **Halaman berikutnya:** penggaris (Momo menjelaskan, dan bingung kalau nomor sudah diambil), tutorial tiga kartu (Momo mengikuti apa yang dilakukan siswa: ajak Thinman jalan, lalu "Thinman sampai", lalu pijakan aman dan bahaya, lalu coret dan mundur, lalu "kamu sudah siap"), daftar level (menunjuk bab terbaru yang terbuka), lalu cerita intro, halaman gambar, dunia, menang dan gagal yang sudah dipandu Momo (D-20261105-12/13). Momo tetap tampilan saja: tidak menerima input, tidak memutuskan, tidak membuat objek (invarian lore). Gaya: chat satu bubble per giliran, tanpa teks dalam kurung (D-20261105-14). Sayap tetap menempel saat menyapa (D-20261105-17): hanya ujung sayap kiri yang naik-turun.
 - Mengubah entri lama: memperluas D-20261105-12/13 (Momo sebagai pemandu) ke cover, penggaris, tutorial, dan daftar level; menggantikan teks panduan statis cover yang hanya berupa judul dan subteks.
 - Bukti: instruksi Owner 2026-11-05; `implementation/e2e/guide-flow.mjs` (14 pemeriksaan) dan video di `implementation/docs/execution/evidence/momo-guide-2026-11-05/`; `implementation/CHANGELOG.md` 0.0.15 (Added, Changed).
 - Dampak: copy Momo di `implementation/src/domain/guide-script.ts` (placeholder seperti lainnya; suara final belum dikunci). Layout HP 390 px untuk cover masih kasar (bubble menutup sebagian kartu kamera).
 
 ### D-20261105-18 — Rekap klasifikasi percakapan sesi 2026-11-05 (Owner minta diklasifikasikan sendiri)
+- Teknis: tidak ada (rekap).
 Satu tabel supaya AI lain tahu mana yang sudah keputusan, mana yang masih riset, dan di mana jejaknya. Detail tiap butir ada di entri yang ditunjuk; tabel ini tidak mengubah status apa pun.
 
 | Butir dari percakapan | Klasifikasi | Rujukan |
@@ -155,12 +157,14 @@ Satu tabel supaya AI lain tahu mana yang sudah keputusan, mana yang masih riset,
 | Belum ada: model prediksi nyata, logging backend, layout 390 px di HP, ratifikasi coyote time, hapus objek | Terbuka | `NOW.md` bagian Masih terbuka |
 
 ### D-20261105-17 — Aktif (instruksi eksplisit Owner, M-015) — Animasi sayap Momo
+- Teknis: `implementation/CHANGELOG.md` 0.0.15 (Fixed).
 - Keputusan/ubahannya: pada **semua** Momo dan **semua** animasi (mengambang, kepak, terbang, ekspresi, chat), sayap tidak boleh terlihat putus dari badan. **Sudut segitiga atas sayap (yang menempel di badan) dan tepi tempel ke badan tidak pernah bergerak; hanya ujung bawah ("kaki" segitiga) yang bergerak ke atas dan ke bawah.** Bukan hanya pada screenshot atau gambar diam. Implementasi: sayap digeser (shear) sepanjang tepi tempel, bukan diputar pada poros, jadi bagian yang menempel tidak dikorbankan. Dua sayap kini bergerak simetris (sebelumnya tendangan kepak memutar sayap kiri dan kanan berlawanan arah).
 - Mengubah entri lama: memperbaiki perilaku animasi sayap hasil porting artwork Owner (poros rotasi lama berada sekitar 90 satuan di bawah sudut atas, sehingga sudut atas ikut terangkat dan sayap tampak putus). Catatan di D-20261105-16 soal sayap terpotong (clip) di papan buku hanyalah gejala; penyebab sebenarnya animasi ini.
 - Bukti: instruksi Owner 2026-11-05; `implementation/src/components/momo/momo-wing.ts` + `implementation/tests/components/momo-wing.test.ts` (sudut atas dan tepi tempel tidak bergeser pada semua sudut); `implementation/CHANGELOG.md` 0.0.15 (Fixed); papan Momo diekspor ulang di `academic/progress-book/karakter/`; audit semua Momo di aplikasi (satu-satunya renderer Momo adalah `MomoEngine`, jadi berlaku di chat, intro, gambar, dunia, menang/gagal): `implementation/e2e/audit-momo-wings.mjs` dan video `implementation/docs/execution/evidence/momo-wings-2026-11-05/`.
 - Dampak: semua tampilan Momo di game, buku progres, PPT/Word.
 
 ### D-20261105-16 — Aktif (instruksi eksplisit Owner) — Buku karakter (Thinman dan Momo) dan lokasinya
+- Teknis: tidak ada (alat di `tools/character-book/`, hasil di `academic/`).
 - Keputusan/ubahannya: elemen "pengenalan karakter" untuk Buku Progres PA dibuat sebagai **dua papan persegi 1:1, satu per karakter** (Thinman dan Momo), tanpa scroll di dalam papan, supaya bisa ditempel ke PPT dan Word sebagai gambar/video. Lokasi: satu folder `academic/progress-book/karakter/` (daftar berkas dan cara membangun ada di `academic/progress-book/README.md`). Berkas di folder itu: `karakter-thinman-momo.html` (mandiri; desktop 16:9 dua papan kiri-kanan, HP atas-bawah), `karakter-{thinman,momo}-1x1.png` (2400 px, diam), `.mp4` (PPT) dan `.gif` (Word) beranimasi. Isi papan Thinman: karakter besar di kiri; tampak kiri, kanan, depan, belakang; animasi lari, loncat, lari + loncat; pose rig. Isi papan Momo: karakter besar di kiri; 12 ekspresi dengan status pemakaian di aplikasi (dipakai: Tenang, Senang, Penasaran, Berpikir, Bingung, Khawatir, Sedih, Semangat; ada di skrip tapi belum tampil: Kaget; belum dipakai: Ngantuk, Malu, Kedip); gerak (mengambang, kepak sayap, terbang); palet. Catatan reverse engineering dan tabel pemakaian ekspresi ada di bawah papan (bukan bagian papan).
 - Cara dibuat: dibangun otomatis dari kode (`tools/character-book/build.mjs` untuk HTML dan `export.mjs` untuk PNG/MP4/GIF; membaca `implementation/src`), sehingga gambar dan animasi sama dengan game. File HTML asli Owner (`stickman-ab.html`, `momo-ekspresi_1.html`) tidak ada di repo; halaman ini rekonstruksi dari kode hasil porting. Jika file asli ditemukan, taruh di `design/visual/` untuk dibandingkan.
 - Mengubah entri lama: tidak ada. Tidak ada perubahan di dalam `implementation/` (hanya dibaca), jadi tidak ada entri `implementation/CHANGELOG.md`.
@@ -169,6 +173,7 @@ Satu tabel supaya AI lain tahu mana yang sudah keputusan, mana yang masih riset,
 
 
 ### D-20261105-15 — Belum dikunci (status: RISET) — Penutup permainan setelah Level 3
+- Teknis: tidak ada (masih riset, belum dikerjakan).
 - Keputusan/ubahannya: **belum ada keputusan; masih tahap riset.** Arah yang sedang dikaji: penutup memakai **gabungan Opsi A + Opsi B**. Thinman berjalan sendiri di atas tiga benda gambaran siswa (menuntaskan janji intro "supaya dia bisa jalan sendiri tanpa bantuanmu"). Di atas tiap benda tampil ikon keputusan siswa (Terima / Pilih lain / Bukan semua) dan tebakan pertama Momo, ditutup satu kalimat Momo. Opsi C (halaman bebas/sandbox, Momo tetap menebak) **ditunda** sampai model partner tersedia dan pengaman konten disetujui. Ketiga opsi tidak dipasang sekaligus. Penutup penuh hanya pada kemenangan pertama. **Detail gabungan A + B yang dikaji (saran Claude, arah Owner):** layar penutup menampilkan **objek-objek hasil pilihan siswa** (goresan asli siswa per level, label akhir yang dipilih, dan **kategori perilaku Solid/Danger** yang diberikan konteks level), berikut ikon jenis keputusan (Terima / Pilih lain / Bukan semua) dan tebakan pertama Momo; Thinman berjalan di atas objek-objek itu; ditutup satu kalimat Momo. Data sumber sudah ada di alur (label akhir, perilaku, keputusan).
 - Mengubah entri lama: butir "akhir permainan setelah Level 3" di "Belum dikunci (2026-11-05)"; butir "Level" di Keputusan Aktif (detail skrip level belum dikunci) tetap berlaku.
 - Bukti: diskusi Owner 2026-11-05 ("opsi A digabung opsi B", "A, B, C itu masih terlalu brutal", kekhawatiran gambar tidak pantas di Opsi C). Dokumen lengkap dengan kelebihan/kekurangan, kajian risiko konten, dan sumber: `project/OPSI_PENUTUP_PERMAINAN.md`.
@@ -176,69 +181,83 @@ Satu tabel supaya AI lain tahu mana yang sudah keputusan, mana yang masih riset,
 - Alasan status: masih riset. Preferensi Owner (A + B) hanya bahan kajian, bukan keputusan; akan didiskusikan dengan dosen. **Jangan diimplementasikan sebelum Owner menulis `SETUJUI D-20261105-15`.**
 
 ### D-20261105-14 — Aktif (instruksi eksplisit Owner, M-012/M-013) — Bahasa visual
+- Teknis: `implementation/CHANGELOG.md` 0.0.14.
 - Keputusan/ubahannya: gaya neo-brutalism diterapkan secara intuitif: **bayangan keras hanya pada elemen utama** (kartu, toolbar, pita, tombol aksi utama), **tidak pernah pada teks** (tanpa `text-shadow` atau outline teks); elemen bersarang (chip, badge, baris tebakan, tombol di dalam toolbar) flat dengan border; isian warna flat tanpa gradasi. Tidak ada teks dalam kurung di UI. Ikon satu bahasa (SVG, tanpa emoji), termasuk glyph gestur tangan. Thinman yang tampil di mana pun (intro, tutorial, HUD) adalah Thinman asli dari game (Character A), bukan stickman polos. Cover, pilih kamera, nomor absen (penggaris), tutorial, level select, dan layar game memakai kit yang sama.
 - Mengubah entri lama: memperjelas D-20261105-01 (sistem visual dikunci; ini cara memakainya, bukan sistem baru). Pemetaan gestur emoji di "Yang Sengaja Tidak Difinalkan" kini tampil sebagai ikon SVG (statusnya tetap belum dikunci sebagai input kamera).
 - Bukti: instruksi Owner 2026-11-05; `implementation/CHANGELOG.md` 0.0.14 (round 1-3); evidence `implementation/docs/execution/evidence/ui-pass-2026-11-05/`.
 - Dampak: semua UI. Label "Mode demo: tebakan masih simulasi" tetap satu pita dan dihapus saat model asli tersedia (`implementation/src/config/demo.ts`).
 
 ### D-20261105-13 — Aktif (instruksi eksplisit Owner, M-012/M-013) — Masuk level dan cerita
+- Teknis: `implementation/CHANGELOG.md` 0.0.14.
 - Keputusan/ubahannya: level dipilih dengan **menarik pita bookmark** (mouse untuk prototype; gestur jempol untuk NUI nanti). Pita tertarik, berbunyi "tek-tek" per takik, bergoyang, lalu halaman dunia Thinman jatuh. Momo datang dan bercerita (Thinman harus mencapai tujuan supaya bisa jalan sendiri tanpa bantuanmu), lalu Momo terbang ke atas dan kamera mengikutinya melewati awan ke **halaman gambar di langit** (halaman gambar sendiri tanpa awan). Pada masuk berikutnya ke level yang sama dalam satu sesi, intro tidak diulang. Petunjuk misi dibuka lewat ikon dan disampaikan Momo sebagai chat dengan ikon benda dan tombol jempol "Mulai Menggambar", tanpa tombol Lewati, tanpa kotak, hanya satu Momo di layar.
 - Mengubah entri lama: D-20261101-01 (usulan "petunjuk misi oleh sistem, bukan ucapan Momo", status belum aktif) **tidak dipakai**; instruksi Owner terbaru menempatkan cerita dan petunjuk pada Momo. Lore Momo tetap: Momo hanya bercerita/menebak, tidak memutuskan dan tidak menggambar.
 - Bukti: instruksi Owner 2026-11-05 (M-012, M-013).
 - Dampak: alur level, onboarding cerita, komponen `LevelIntro`, `LevelRibbonBookmark`, `MissionBriefing`.
 
 ### D-20261105-12 — Aktif (instruksi eksplisit Owner, M-012/M-013) — Momo sebagai chat, akhir level, progres
+- Teknis: `implementation/CHANGELOG.md` 0.0.14.
 - Keputusan/ubahannya: semua ucapan Momo tampil seperti chat: avatar Momo dan **satu bubble per giliran** (saling menggantikan, tanpa label nama "Momo"); hanya petunjuk misi yang menampilkan semua baris sekaligus. Saat menang, **tidak ada kartu dan tidak ada tombol Lanjut/Pilih level**: Momo mengucapkan selamat di dunia yang digelapkan, lalu aplikasi langsung kembali ke pilih level (isyarat jempol untuk mempercepat). Saat gagal: Momo chat satu-satu (belum berhasil, alasan) lalu tiga aksi ikon. Menang Level N langsung membuka Level N+1 (progres ditulis saat kemenangan tampil); pita yang baru terbuka menampilkan animasi membuka kunci.
 - Mengubah entri lama: **Direvisi** D-20261105-04 (kartu "Selamat, berhasil!" dengan Lanjut / Pilih level diganti chat Momo + kembali otomatis ke pilih level).
 - Bukti: instruksi Owner 2026-11-05; E2E `implementation/e2e/normal-journey.mjs` (L1→L2→L3 dengan progres asli).
 - Dampak: UI dunia, progres level, event flow.
 
 ### D-20261105-11 — Aktif (instruksi eksplisit Owner)
+- Teknis: tidak ada (penggantian nama dokumen di root).
 - Keputusan/ubahannya: `INSTRUCTION.md` diganti nama menjadi **`SOUL.md`** (gaya Hermes). Isinya diganti dengan versi terbaru dari project GPT Owner (2026-11-02). Riwayat keputusan GPT (`CHANGELOG.md` v2026.11.05-audit.7, 14 entri bertanggal 2026-07-11 sampai 2026-11-02) digabung ke `DECISIONS.md` secara **tambah-saja**: tidak ada baris repo maupun GPT yang dihapus; konflik diselesaikan menurut timeline yang lebih baru (lihat "Peta konflik" di Lampiran). `WORKING_STATE.md` GPT tidak diimpor ke repo (isinya log tooling/infrastruktur, 250 KB, berpotensi memuat detail sensitif); `Notes_Notulensi Bimbingan.md` identik dengan `meetings/source-notes/`.
 - Mengubah entri lama: D-20261105-10 (nama berkas); baris "Visual Momo" diganti (lama disimpan di Lampiran).
 - Bukti: instruksi Owner 2026-11-05 + zip project GPT; pemeriksaan mekanis semua baris dan 59 ID.
 - Dampak: semua rujukan `INSTRUCTION.md` di repo menjadi `SOUL.md`. **Tindakan Owner:** di project GPT ganti nama berkas Project Sources dan teks instruksi native (versi siap tempel: `docs/ai-workflow/GPT_PROJECT_INSTRUCTION.md`).
 
 ### D-20261105-01 — Aktif (instruksi eksplisit Owner)
+- Teknis: `implementation/CHANGELOG.md` 0.0.13.
 - Keputusan/ubahannya: sistem visual yang ada (oranye/hijau, dots, outline, bayangan, background) tidak boleh diubah. Redesign palet "squared notebook" oleh agen UI ditolak.
 - Mengubah entri lama: tidak ada; menegaskan arah visual yang sudah dipakai.
 - Bukti: instruksi Owner 2026-11-05 ("jangan diubah warnanya; yang diubah tempat/alur yang intuitif").
 - Dampak: desain/kode UI. Redesign yang ditolak hanya tersimpan sebagai branch lokal `claude/tolol` (jangan dipakai).
 
 ### D-20261105-02 — Aktif (instruksi eksplisit Owner)
+- Teknis: `implementation/CHANGELOG.md` 0.0.13.
 - Keputusan/ubahannya: tombol "Wujudkan Objek" dihapus. Terima = langsung membuat objek; Pilih lain = ketuk peringkat 2 atau 3; Bukan semua = pilih label lalu "Pakai". Sesudahnya muncul pop-up "Masukkan ke dunia" (preview sketsa asli siswa). Redraw tetap jalur pemulihan di luar tiga keputusan.
 - Mengubah entri lama: **Direvisi**: komit eksplisit lewat CTA "Wujudkan Objek" (alur Probe 0.0.9-0.0.11).
 - Bukti: instruksi Owner 2026-11-05; E2E `implementation/e2e/recovery-paths.mjs`.
 - Dampak: UI keputusan, state flow, event log.
 
 ### D-20261105-03 — Aktif
+- Teknis: `implementation/CHANGELOG.md` 0.0.13.
 - Keputusan/ubahannya: panel "Tebakan Momo" dikecilkan (440 menjadi 300 px), tiga aksi satu baris, Momo ditempatkan tepat di sampingnya.
 - Bukti: instruksi Owner 2026-11-05.
 
 ### D-20261105-04 — Aktif
+- Teknis: `implementation/CHANGELOG.md` 0.0.13.
 - Keputusan/ubahannya: layar ringkasan penuh diganti pop-up di dalam dunia game. Saat berhasil Momo masuk dari atas ke tengah dan merayakan; kartu "Selamat, berhasil!" (hasil gameplay, keputusan, satu kalimat literasi) dengan Lanjut / Pilih level; latar digelapkan sehingga hanya Momo dan kartu yang terang.
 - Bukti: instruksi Owner 2026-11-05; screenshot `implementation/docs/execution/evidence/final-383c3bc/`.
 
 ### D-20261105-05 — Aktif
+- Teknis: `implementation/CHANGELOG.md` 0.0.13.
 - Keputusan/ubahannya: artwork animasi Owner (`momo-ekspresi_1.html`) menjadi Momo di prototype. Momo adalah maskot interaktif yang lebih besar dari Thinman (150 px saat menggambar/Top-3, 170-210 px saat menempatkan/bermain dan mengikuti objek yang digeser, 300 px saat merayakan), tidak dikurung kotak. Thinman diperkecil sedikit (skala visual 0.88, collider tidak berubah).
 - Mengubah entri lama: menggantikan placeholder Momo; baris "Visual Momo" diperbarui.
 - Bukti: instruksi Owner 2026-11-05.
 
 ### D-20261105-06 — Aktif
+- Teknis: `implementation/CHANGELOG.md` 0.0.13.
 - Keputusan/ubahannya: "Gambar ulang" + "Ciptakan objek lagi" digabung jadi satu tombol "Gambar lagi" (setelah gagal tercatat sebagai redraw, selain itu sebagai objek tambahan). "Petunjuk misi" dipindah ke kanan atas agar tidak tertimbun panel Top-3. Pilihan input jadi satu kontrol "Mouse | Kamera".
 - Bukti: instruksi Owner 2026-11-05.
 
 ### D-20261105-07 — Aktif
+- Teknis: `implementation/CHANGELOG.md` 0.0.13.
 - Keputusan/ubahannya: label asal prediksi ditulis dengan kalimat biasa ("Mode demo: tebakan masih simulasi", "Demo: tebakan simulasi") menggantikan "DEV / MOCK - BUKAN KELUARAN MODEL SUNGGUHAN" dan "DEMO / PREDIKSI SIMULASI". Tetap jujur bahwa tebakan adalah MOCK.
 - Mengubah entri lama: **Direvisi**: butir "Label Provenance Konsisten" (0.0.11) di riwayat rilis teknis.
 
 ### D-20261105-08 — Aktif
+- Teknis: `implementation/CHANGELOG.md` 0.0.13.
 - Keputusan/ubahannya: kode frontend dimodularisasi tanpa mengubah perilaku atau tampilan.
 
 ### D-20261105-09 — Aktif
+- Teknis: `implementation/CHANGELOG.md` 0.0.13.
 - Keputusan/ubahannya: kerja dilakukan di branch terisolasi; tidak ada push/merge/deploy ke `can` tanpa persetujuan Owner; Ujang tetap pemilik infrastruktur, `can`, backup, deploy.
 
 ### D-20261105-10 — Aktif (instruksi eksplisit Owner)
+- Teknis: `implementation/CHANGELOG.md` 0.0.13.
 - Keputusan/ubahannya: `CHANGELOG.md` diganti nama menjadi `DECISIONS.md` karena isinya catatan keputusan dari alur ChatGPT Owner, bukan catatan perubahan teknis. Perubahan teknis per versi berada di `implementation/CHANGELOG.md`. Semua instruksi Owner dicatat di `project/OWNER_MANDATES.md`. Keadaan terbaru di `NOW.md` (format dari Ujang: header "Base ancestry").
 - Dampak: `AGENTS.md`, `INSTRUCTION.md`, `SOURCE_OF_TRUTH.md`, `PROJECT_MEMORY.md`, `.hermes.md`, skill/rule agen disesuaikan. **Tindakan Owner:** unggah ulang `INSTRUCTION.md` dan `DECISIONS.md` ke Project Sources chat GPT dan beri tahu bahwa keputusan kini masuk `DECISIONS.md`.
 

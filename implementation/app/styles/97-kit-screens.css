@@ -5,7 +5,7 @@
 /* ======================= World HUD ======================= */
 #screen-gameplay .stage-floating-header.hud { top: 14px; left: 18px; right: 18px; align-items: flex-start; gap: 12px; }
 .hud-plate { display: inline-flex; align-items: center; gap: 10px; padding: 7px 14px 7px 8px; border-radius: 18px; box-shadow: var(--nb-shadow-sm); }
-.hud-plate__mark { display: grid; place-items: center; width: 40px; height: 40px; flex: none; color: var(--nb-ink); background: var(--nb-leaf); border: 2.5px solid var(--nb-ink); border-radius: 50%; }
+.hud-plate__mark { position: relative; overflow: hidden; display: block; width: 40px; height: 40px; flex: none; color: var(--nb-ink); background: var(--nb-leaf); border: 2.5px solid var(--nb-ink); border-radius: 50%; }
 .hud-plate__title { margin: 0; font-size: 18px; font-weight: 900; letter-spacing: -.01em; color: var(--nb-ink); white-space: nowrap; }
 .hud-plate__sep { width: 2px; height: 24px; background: rgba(17, 17, 17, .22); border-radius: 2px; }
 .hud-plate .decision-chip { margin: 0; font-size: 15px; padding: 5px 14px 5px 6px; box-shadow: 2px 2px 0 var(--nb-ink); }
@@ -196,3 +196,5 @@
 .thinman-art svg { display: block; width: 100%; height: auto; overflow: visible; }
 .intro-world__art { position: absolute; }
 .intro-thinman { position: absolute; width: 4.6%; transform: translate(-50%, -96.7%); pointer-events: none; }
+.hud-plate__mark .thinman-art { position: absolute; left: 50%; top: 3px; width: 54px; transform: translateX(-50%); }
+@media (max-width: 760px) { .hud-plate__mark .thinman-art { width: 40px; top: 2px; } }

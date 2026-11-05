@@ -3,6 +3,7 @@
  * Right: hand-control toggle and "Gambar lagi". Everything is icon + short word; no parenthesised hints.
  */
 import { Icon, type IconName } from "../ui/Icon";
+import { ThinmanArt } from "../ui/ThinmanArt";
 import type { HumanDecision } from "@/src/domain/types";
 import type { InputMode } from "./game-stage-types";
 
@@ -45,7 +46,7 @@ export function StageHeader({
     <div className="stage-floating-header hud">
       <div className="hud-plate nb-card">
         <span className="hud-plate__mark" aria-hidden="true">
-          <Icon name="thinman" size={22} stroke={2.4} />
+          <ThinmanArt />
         </span>
         <h2 className="hud-plate__title">Dunia {characterName}</h2>
         <span className="hud-plate__sep" aria-hidden="true" />

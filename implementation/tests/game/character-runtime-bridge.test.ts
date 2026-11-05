@@ -232,3 +232,14 @@ describe("CharacterRuntimeBridge - runtime sizing regression", () => {
     expect(t.offsetY + renderedHeight).toBeCloseTo(40, 0);
   });
 });
+
+describe("CharacterRuntimeBridge - Thinman slightly smaller than the collider-scaled figure", () => {
+  it("visualScale shrinks the figure but keeps the feet on the collider bottom", () => {
+    const bridge = new CharacterRuntimeBridge();
+    const sceneScale = 1.1 * 800 / 490, textureScale = 8;
+    const full = bridge.computeVisualTransform({ colliderWidth: 24, colliderHeight: 40, sceneScale, textureScale });
+    const small = bridge.computeVisualTransform({ colliderWidth: 24, colliderHeight: 40, sceneScale, textureScale, visualScale: 0.88 });
+    expect(small.spriteHeight * small.scale).toBeCloseTo(full.spriteHeight * full.scale * 0.88, 3);
+    expect(small.offsetY + small.spriteHeight * small.scale).toBeCloseTo(40, 3);
+  });
+});

@@ -87,7 +87,7 @@ describe("Top3PredictionPopup Component", () => {
 
     expect(screen.getByTestId("popup-evaluating")).toBeDefined();
     expect(screen.getByText("Tebakan Momo (Top-3)")).toBeDefined();
-    expect(screen.getByTestId("prediction-source").textContent).toContain("DEMO / PREDIKSI SIMULASI");
+    expect(screen.getByTestId("prediction-source").textContent).toContain("Demo: tebakan simulasi");
 
     // Check all 3 candidates
     expect(screen.getByText("jembatan")).toBeDefined();

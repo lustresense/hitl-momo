@@ -9,6 +9,8 @@ import {isLegalPlacement,worldOutcome} from "./placement-rules";
 import {buildCharacterAKeyframeManifest,CharacterRuntimeBridge} from "./character/character-runtime-bridge";
 import {JumpAssist} from "./jump-assist";
 import {kaplayAssetToPromise,recoverCharacterSpriteLoad} from "./character/character-load-recovery";
+/** Thinman is drawn a little smaller than the physics body so Momo (the interactive mascot) reads as the bigger one. Collider unchanged. */
+export const CHARACTER_VISUAL_SCALE=0.88;
 export type GameOutcome="success"|"fail";
 export interface KaplayGameHandle {
  selectCreation?(id:string):boolean;
@@ -77,7 +79,7 @@ export async function createKaplayGame(o:KaplayGameOptions):Promise<KaplayGameHa
   const characterSprites=new Map(characterManifest.map(frame=>[frame.frameId,`integrated-character-${o.level.stage}-${frame.frameId}`]));
   const characterLoads=characterManifest.map(frame=>k.loadSprite(characterSprites.get(frame.frameId)!,frame.dataUri));
   const characterBridge=new CharacterRuntimeBridge();
-  const characterTransform=characterBridge.computeVisualTransform({colliderWidth:24,colliderHeight:40,sceneScale,textureScale});
+  const characterTransform=characterBridge.computeVisualTransform({colliderWidth:24,colliderHeight:40,sceneScale,textureScale,visualScale:CHARACTER_VISUAL_SCALE});
   let characterSprite:GameObj<PosComp & SpriteComp>|null=null;
   void recoverCharacterSpriteLoad(kaplayAssetToPromise(spriteAsset).then(()=>undefined),Promise.all(characterLoads.map(asset=>kaplayAssetToPromise(asset).then(()=>undefined)))).then(characterLoaded=>{
    if(destroyed || !player?.exists?.() || !player.pos)return;

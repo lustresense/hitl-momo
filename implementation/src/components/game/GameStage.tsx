@@ -43,7 +43,7 @@ export function GameStage(props:GameStageProps){
  const [handAvailable,setHandAvailable]=useState(false);
  // The decided object is offered to the world first (pop-up); the world only starts when the student enters it.
  const [entered,setEntered]=useState(false);
- const [winFlap,setWinFlap]=useState(0);
+ const [winFlap,setWinFlap]=useState(0),[momoPoke,setMomoPoke]=useState(0);
  useEffect(()=>{if(outcome!=="success"){setWinFlap(0);return;}const id=window.setTimeout(()=>setWinFlap(1),1100);return()=>window.clearTimeout(id);},[outcome]);
 
  function syncActiveDirs(){
@@ -195,7 +195,7 @@ export function GameStage(props:GameStageProps){
       {!props.integrated&&<button className="btn btn-small" onClick={()=>{keys.current={...NEUTRAL};heldPointers.current.clear();cameraInput.current={...NEUTRAL};setHeldDirs([]);sendCombinedInput();setMode(mode==="camera"?"fallback":"camera");paused.current=false;setTrackingPaused(false);}}>
         {mode==="camera"?"Gunakan FALLBACK keyboard/pointer":"Nyalakan Kamera NUI"}
       </button>}
-      <button className="btn btn-small" onClick={props.onRedraw}>Gambar ulang</button>
+      <button className="btn btn-small" data-testid="btn-draw-again" onClick={()=>{if(outcome==="fail"||!props.onCreateAnotherObject)props.onRedraw();else props.onCreateAnotherObject();}}>Gambar lagi</button>
     </div>
   </div>
 
@@ -215,7 +215,6 @@ export function GameStage(props:GameStageProps){
   />
   </div>
   {error&&<p role="alert">{error}</p>}
-  {props.integrated&&phase==="gameplay"&&!outcome&&<button className={styles.create} data-testid="btn-create-object" onClick={props.onCreateAnotherObject}>Ciptakan objek lagi</button>}
   {props.integrated&&(props.creations?.length??0)>0&&phase==="gameplay"&&<div className={styles.objects}>{props.creations?.map((c,i)=><button key={c.id} data-testid={`reposition-${i}`} onClick={()=>{if(controller.current?.selectCreation(c.id)){setOutcome(null);setPosition(c.x);setPlacementY(c.y);}}}>Geser {c.label} {i+1}</button>)}</div>}
 
   {phase==="placing"&&!error&&(
@@ -346,7 +345,7 @@ export function GameStage(props:GameStageProps){
   {outcome==="success"&&(
     <div className="world-win" data-testid="outcome-overlay">
       <div className="world-win-momo" aria-hidden="true">
-        <MomoAvatar expression="Semangat" height={120} trackMotion flapKey={winFlap} label="Momo merayakan"/>
+        <MomoAvatar expression="Semangat" height={300} trackMotion flapKey={winFlap} label="Momo merayakan"/>
       </div>
       <div className="overlay world-win-card" role="status">
         <h3 className="overlay-title" data-testid="outcome-title">Selamat, berhasil!</h3>
@@ -374,16 +373,17 @@ export function GameStage(props:GameStageProps){
   )}
 
   {(()=>{
-    // Momo moves with the moment: beside the dragged object while placing, top-left while playing, centre on success.
+    // Momo is the interactive mascot, not a label in a box: she moves with the moment and comes closer to
+    // the screen (bigger) when it matters. Sizes are px of artwork height; Thinman is ~100 px on screen.
     if(!entered||outcome==="success")return null;
-    let style:React.CSSProperties|undefined;let msg="Ayo jalan ke bendera!";let cls="world-momo-play";
-    if(outcome==="fail"){msg="Tidak apa-apa. Coba lagi.";cls="world-momo-fail";}
+    let style:React.CSSProperties|undefined;let msg="Ayo jalan ke bendera!";let cls="world-momo-play";let size=190;let mood:"Sedih"|"Penasaran"|"Tenang"="Tenang";
+    if(outcome==="fail"){msg="Tidak apa-apa. Coba lagi.";cls="world-momo-fail";size=210;mood="Sedih";}
     else if(phase==="placing"){
-      msg="Geser objekmu ke tempat yang pas.";cls="world-momo-place";
+      msg="Geser objekmu ke tempat yang pas.";cls="world-momo-place";size=170;mood="Penasaran";
       const r=canvas.current?.getBoundingClientRect();
-      if(geometry&&r&&r.width>0){const pt=physicsToClient({x:position+geometry.object.w/2,y:placementY},r,geometry);style={left:Math.max(8,Math.min(pt.x-110,window.innerWidth-270)),top:Math.max(8,pt.y-92)};}
+      if(geometry&&r&&r.width>0){const pt=physicsToClient({x:position+geometry.object.w/2,y:placementY},r,geometry);style={left:Math.max(8,Math.min(pt.x-150,window.innerWidth-330)),top:Math.max(8,pt.y-size-16)};}
     }
-    return <div className={`world-momo ${cls}`} style={style} data-testid="world-momo"><MomoBubble moment="solid-consequence" mood={outcome==="fail"?"Sedih":phase==="placing"?"Penasaran":"Tenang"} trackMotion message={msg}/></div>;
+    return <div className={`world-momo ${cls}`} style={style} data-testid="world-momo" onClick={()=>setMomoPoke(n=>n+1)}><MomoBubble moment="solid-consequence" mood={mood} avatarHeight={size} trackMotion flapKey={momoPoke} message={msg}/></div>;
   })()}
 
   {props.integrated&&mode==="camera"&&<div className="stage-input-status-chip" style={{position:"absolute",bottom:12,right:16,zIndex:150,fontSize:11,fontWeight:600,padding:"4px 8px",borderRadius:4,background:"rgba(255,255,255,0.85)",border:"1px solid rgba(0,0,0,0.15)",color:"#333",pointerEvents:"none"}}>

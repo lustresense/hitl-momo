@@ -1,10 +1,8 @@
-/** NFR-05: the DEV/MOCK marker must stay visible in development builds. */
+/** NFR-05: provenance of the predictions stays visible at all times (never presented as a real model). */
 export function DevBanner({ mode }: { mode: "mock" | "partner" }) {
   return (
     <span id="dev-banner" className="dev-banner">
-      {mode === "partner"
-        ? "DEV / PARTNER ADAPTER — bukan model final"
-        : "DEV / MOCK — bukan keluaran model sungguhan"}
+      {mode === "partner" ? "Tebakan dari model partner (uji coba)" : "Mode demo: tebakan masih simulasi"}
     </span>
   );
 }

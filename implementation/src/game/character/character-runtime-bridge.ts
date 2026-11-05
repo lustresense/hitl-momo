@@ -185,12 +185,14 @@ export class CharacterRuntimeBridge {
     colliderHeight: number;
     sceneScale?: number;
     textureScale?: number;
+    /** Visual size relative to the collider (feet stay on the collider bottom). Default 1. */
+    visualScale?: number;
   }): VisualTransform {
     const cfg = CHARACTER_A_CONFIG;
     const sceneScale = opts.sceneScale ?? 1.0;
     const textureScale = opts.textureScale ?? 1;
 
-    const baseScale = opts.colliderHeight / cfg.H;
+    const baseScale = (opts.colliderHeight * (opts.visualScale ?? 1)) / cfg.H;
     const totalScale = (baseScale * sceneScale) / textureScale;
 
     const visualFootX = cfg.cx * baseScale * sceneScale;

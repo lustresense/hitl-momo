@@ -2,7 +2,7 @@
 
 Base ancestry: `54ebec1830760fe0b692d7a40b25ceb041bfdef9` (descendant of `840973b4d4e76d829b8e2059912ee393051616c7`)
 
-Diperbarui: 2026-11-05. Satu halaman: keadaan paling baru. Keputusan: `DECISIONS.md` (D-20261105-01..22; riwayat GPT di Lampiran). Aturan kerja/TOV: `SOUL.md`. Instruksi Owner satu per satu: `project/OWNER_MANDATES.md`. Perubahan teknis per versi: `implementation/CHANGELOG.md` (0.0.13). Laporan progres yang bisa dibaca Owner dan Ujang: `implementation/docs/execution/PROGRESS_REPORT_2026-11-05.md`.
+Diperbarui: 2026-11-05. Satu halaman: keadaan paling baru. Keputusan: `DECISIONS.md` (D-20261105-01..23; riwayat GPT di Lampiran). Aturan kerja/TOV: `SOUL.md`. Instruksi Owner satu per satu: `project/OWNER_MANDATES.md`. Perubahan teknis per versi: `implementation/CHANGELOG.md` (0.0.13). Laporan progres yang bisa dibaca Owner dan Ujang: `implementation/docs/execution/PROGRESS_REPORT_2026-11-05.md`.
 
 ## Posisi
 - Branch kerja: `can` (sudah memuat semua kerja sesi sebelumnya; revisi 0.0.14 ditambahkan di atasnya).
@@ -10,6 +10,7 @@ Diperbarui: 2026-11-05. Satu halaman: keadaan paling baru. Keputusan: `DECISIONS
 - Commit terakhir yang diuji penuh: `383c3bc` (548/548 unit test, tsc, lint, build, E2E journey + recovery 16/16 + hand-control 6/6 + MediaPipe init dengan kamera palsu). Bukti: `implementation/docs/execution/evidence/final-383c3bc/`. Sesudahnya hanya dokumen dan struktur folder yang berubah.
 
 ## Paling baru (terbaru di atas)
+0000000. PRD Revisi 0.0.16 ditulis (RENCANA, belum dikerjakan): `project/PRD_REVISI_0.0.16.md`, D-20261105-23, M-019. Menunggu `SETUJUI PRD 0.0.16`.
 000000. Momo memandu semua halaman sebelum game (M-016, D-20261105-19; teknis di `implementation/CHANGELOG.md` 0.0.15): cover (tidur, bangun saat kamera menyala, menyapa satu sayap, menunjuk penggaris), penggaris, tutorial tiga kartu, daftar level; lanjut ke intro/gambar/dunia yang sudah dipandu Momo. Video di `implementation/docs/execution/evidence/momo-guide-2026-11-05/`. Sudah di-push ke `can` atas perintah Owner (D-20261105-20).
 00000. Sayap Momo diperbaiki di semua animasi: sudut atas dan tepi tempel diam, hanya ujung bawah naik-turun (D-20261105-17, M-015, `momo-wing.ts`). Papan Momo diekspor ulang. Seluruh isi percakapan sesi ini diklasifikasikan di D-20261105-18.
 0000. Buku karakter dibuat sebagai **dua papan 1:1** (Thinman, Momo) di satu folder `academic/progress-book/karakter/`: HTML mandiri + PNG/MP4/GIF untuk PPT dan Word (Thinman kiri/kanan/depan/belakang + animasi lari/loncat/lari+loncat; Momo besar + 12 ekspresi + status pemakaian). Dibangun dari kode lewat `node tools/character-book/build.mjs` dan `export.mjs`. Keputusan D-20261105-16. Detail gabungan A+B penutup (objek pilihan siswa + kategori Solid/Danger + ikon keputusan) dicatat di D-20261105-15, masih RISET. Aturan: ubah isi `implementation/` -> `implementation/CHANGELOG.md`; keputusan dan dokumen di luar `implementation/` -> `DECISIONS.md`.

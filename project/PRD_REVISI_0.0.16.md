@@ -176,7 +176,35 @@ Tetap status **RISET** sampai Owner `SETUJUI D-20261105-15`. Bentuk yang disaran
 3. Kecepatan: Thinman terasa kecepetan. Angka bebas, asal Level 1 minimal butuh 2 gambar (R8.1).
 4. Tambahan: Momo mengarahkan benda yang boleh digambar tanpa memaksa (R10).
 
+## Jawaban Owner kedua (2026-11-07) dan keputusan IT
+
+Owner: daftar benda dan jumlah minimal gambar **cukup dummy dulu**. Model, label, dan tingkat kesulitan adalah **scope partner**; dummy ini hanya bahan untuk partner. Kalau bertentangan dengan kondisi kode saat ini, **pakai kondisi saat ini** dan jelaskan alasannya.
+
+**K1. Daftar benda untuk kartu R10 = katalog level yang sudah ada di `src/domain/levels.ts`** (tidak membuat label baru):
+
+| Level | Benda di kartu | Perilaku sekarang (`behaviorMap`) | Kenaikan kesulitan |
+|---|---|---|---|
+| L1 Jembatan Pertama | balok, papan, tangga, batu | balok/papan/tangga = padat; batu = bahaya | jelas: padat vs bahaya mudah dibedakan |
+| L2 Menara Lipatan | papan, balok, tangga, duri | papan/balok/tangga = padat; duri = bahaya | ambigu: bandingkan Top-3, peringkat 1 belum tentu benar |
+| L3 Lorong Kabut Penghapus | papan, tangga, tali, ember | papan/tangga = padat; tali = bahaya di konteks ini; ember belum punya perilaku (versi netral) | kontekstual: label benar belum tentu aman di tempat itu |
+
+Alasan memakai katalog yang ada:
+- Kartu yang menampilkan benda di luar katalog akan menyuruh siswa menggambar sesuatu yang tidak bisa ditebak atau tidak punya perilaku. Itu bertentangan dengan kondisi sekarang, jadi kondisi sekarang yang dipakai.
+- Kenaikan kesulitan sudah ada di desain level sekarang (jelas, ambigu, kontekstual), jadi tidak perlu ditambah jumlah benda. Jumlah benda tetap 4 per level.
+- **Benda bahaya tetap ditampilkan** di kartu (batu, duri, tali). Pelajaran HITL justru memutuskan apakah tebakan dan akibatnya aman; menyembunyikannya membuat keputusan jadi sepele. Momo cukup memberi petunjuk tanpa memaksa: "Thinman butuh pijakan" (siswa sendiri yang menyimpulkan benda padat).
+- Ikon kartu memakai `Icon` SVG (D-20261105-14: tanpa emoji), bukan emoji `icon` di katalog. Glyph yang belum ada (batu, duri, tali, ember) perlu digambar.
+
+**K2. Minimal gambar per level (dummy untuk partner):**
+
+| Level | Sekarang (`e2e/lib/level-plans.json`) | Dummy 0.0.16 | Catatan |
+|---|---|---|---|
+| L1 | 1 objek | **minimal 2** | permintaan Owner (R8.1); geometri L1 diubah |
+| L2 | 2 objek | **minimal 2** (tetap) | sudah sesuai |
+| L3 | 1 objek | **minimal 2** | supaya tidak lebih mudah dari L1; partner boleh mengubah |
+
+- Ini dummy, bukan keputusan desain final. Nilai ditaruh di satu tempat (usul: `minDrawings` di definisi level) supaya partner gampang mengganti.
+- Dibuktikan dengan test geometri (n-1 objek gagal, n objek berhasil) dan e2e.
+
 ## Pertanyaan terbuka
 
-1. Daftar benda per level untuk kartu R10 (L1 balok/papan/tangga, L2 dan L3?): ambil dari katalog yang ada atau Owner tentukan.
-2. Untuk L2 dan L3, berapa minimal gambar yang diinginkan?
+- Tidak ada untuk saat ini. K1 dan K2 menunggu `SETUJUI PRD 0.0.16` bersama bagian lain.

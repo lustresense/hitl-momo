@@ -1,0 +1,102 @@
+[
+  {
+    "check": "weights file sha256 (default model)",
+    "result": "INFO",
+    "detail": "8e7fb60a0c0dd5217c362294a740dcdc560bd096d700f13395f52c80ab5eefdc"
+  },
+  {
+    "check": "GET /health returns 200 ok",
+    "result": "PASS",
+    "detail": "{\"status\":\"ok\"}"
+  },
+  {
+    "check": "POST /predict returns 200 with exactly 3 candidates",
+    "result": "PASS",
+    "detail": "{\"candidates\":[{\"label\":\"airplane\",\"confidence\":0.485564},{\"label\":\"bird\",\"confidence\":0.270019},{\"label\":\"star\",\"confidence\":0.048596}]}"
+  },
+  {
+    "check": "predict confidences are in [0,1] and sorted desc",
+    "result": "PASS",
+    "detail": "[{'label': 'airplane', 'confidence': 0.485564}, {'label': 'bird', 'confidence': 0.270019}, {'label': 'star', 'confidence': 0.048596}]"
+  },
+  {
+    "check": "predict labels are members of config.CATEGORIES",
+    "result": "PASS",
+    "detail": "['airplane', 'bird', 'star']"
+  },
+  {
+    "check": "top-3 confidence sum <= 1 (softmax output, not mock constant)",
+    "result": "PASS",
+    "detail": "0.804179"
+  },
+  {
+    "check": "GET /api/join/{token} returns class info",
+    "result": "PASS",
+    "detail": "{\"class_name\":\"7A\",\"school_name\":\"SMP Uji Staging\",\"student_count\":30,\"taken_numbers\":[]}"
+  },
+  {
+    "check": "GET /api/join with unknown token returns 404",
+    "result": "PASS",
+    "detail": "404"
+  },
+  {
+    "check": "POST /api/join/{token}/students creates student",
+    "result": "PASS",
+    "detail": "200 {\"student_id\":1,\"number\":5,\"name\":\"Siswa Uji\",\"class_name\":\"7A\"}"
+  },
+  {
+    "check": "re-join same number keeps same student_id (upsert)",
+    "result": "PASS",
+    "detail": "{\"student_id\":1,\"number\":5,\"name\":\"Siswa Uji Dua\",\"class_name\":\"7A\"}"
+  },
+  {
+    "check": "POST /api/submissions with valid payload returns 201",
+    "result": "PASS",
+    "detail": "201 {\"id\":1}"
+  },
+  {
+    "check": "POST /api/submissions with no auth header is accepted (documented risk)",
+    "result": "PASS",
+    "detail": "201"
+  },
+  {
+    "check": "identical retry creates duplicate row (idempotency probe)",
+    "result": "INFO",
+    "detail": "rows for same student/level after 2 identical posts = 2"
+  },
+  {
+    "check": "invalid decision_type rejected with 422",
+    "result": "PASS",
+    "detail": "422"
+  },
+  {
+    "check": "PROPOSED /api/v1/model-info is NOT implemented (404)",
+    "result": "PASS",
+    "detail": "404"
+  },
+  {
+    "check": "PROPOSED PATCH /api/submissions/{id}/outcome is NOT implemented (404/405)",
+    "result": "PASS",
+    "detail": "404"
+  },
+  {
+    "check": "GET /api/auth/me without login returns 401",
+    "result": "PASS",
+    "detail": "401"
+  },
+  {
+    "check": "CORS preflight allow-origin header",
+    "result": "INFO",
+    "detail": "http://example.com"
+  },
+  {
+    "check": "openapi.json exported from live app",
+    "result": "PASS",
+    "detail": "17 paths"
+  },
+  {
+    "check": "openapi paths",
+    "result": "INFO",
+    "detail": "[\"/api/auth/login\", \"/api/auth/logout\", \"/api/auth/me\", \"/api/classes\", \"/api/classes/{class_id}\", \"/api/classes/{class_id}/export.csv\", \"/api/classes/{class_id}/export.zip\", \"/api/classes/{class_id}/submissions\", \"/api/join/{token}\", \"/api/join/{token}/students\", \"/api/schools\", \"/api/schools/{school_id}\", \"/api/schools/{school_id}/admins\", \"/api/submissions\", \"/api/submissions/{submission_id}/image.png\", \"/health\", \"/predict\"]"
+  }
+]

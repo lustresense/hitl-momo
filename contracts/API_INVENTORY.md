@@ -1,55 +1,50 @@
 # API Inventory — Sketchbook Universe
 
-Source: FastAPI routers in `backend/app/main.py`, `backend/app/classroom.py`, `backend/app/dashboard.py`
-(Dias canonical, source SHA `81bab5eb`). Status legend:
+Sumber: router FastAPI di `backend/app/` (`main.py`, `classroom.py`, `dashboard.py`). Skema live diekspor ke `contracts/openapi.json` (18 path).
+Status: `EXISTING` = ada di source dan diuji. `PROPOSED` = belum ada di source.
 
-- `EXISTING` = route decorator found in backend source.
-- `PROPOSED` = mentioned in planning docs only; **not** in source.
-- `RUNTIME_VERIFIED` is NOT claimed here. Runtime status is recorded in `docs/migration/INTEGRATION_REPORT.md`.
+## Endpoint game (dipakai client Can)
 
-Consumers were checked by grepping `frontend/implementation/src` (Can game) and `frontend/admin/lib` (Dias admin).
-
-## Game-facing endpoints (Can client consumes)
-
-| Method | Path | Status | Source | Consumer | Auth | Notes |
-|---|---|---|---|---|---|---|
-| GET | `/health` | EXISTING | `main.py:35` | ops | none | returns `{"status":"ok"}` |
-| POST | `/predict` | EXISTING | `main.py:40` | Can `partner-http-provider` (via `NEXT_PUBLIC_PREDICTION_ENDPOINT`) | none | body `{"drawing": {...}}`; response `{"candidates": [...]}`. Real model loaded from `MODEL_PATH`; no mock path in backend |
-| GET | `/api/join/{token}` | EXISTING | `classroom.py:30` | Can `api/classroom-client.ts:99` | class token in path | returns class_name, school_name, student_count, taken_numbers |
-| POST | `/api/join/{token}/students` | EXISTING | `classroom.py:47` | Can `api/classroom-client.ts:108` | class token in path | body `{"number": int>=1, "name": str 1–80}`; upserts by (class, number) |
-| POST | `/api/submissions` | EXISTING | `classroom.py:89` | Can `api/submission-client.ts` | **none** (class token inside body) | body includes `join_token`, `student_id`, `level_id`, `strokes`, `candidates`, `decision_type`, `source_rank`, `final_label`. **Not idempotent**: every call inserts a new row (`INSERT`, no unique key) |
-
-## Admin-facing endpoints (Dias dashboard consumes)
-
-| Method | Path | Status | Source | Consumer | Auth |
+| Method | Path | Status | Auth | Consumer | Catatan |
 |---|---|---|---|---|---|
-| POST | `/api/auth/login` | EXISTING | `dashboard.py:72` | `frontend/admin/lib/api.ts:147` | email+password, 401 on failure |
-| GET | `/api/auth/me` | EXISTING | `dashboard.py:81` | `api.ts:148` | `current_user` |
-| POST | `/api/auth/logout` | EXISTING | `dashboard.py:86` | `api.ts:149` | session |
-| GET | `/api/schools` | EXISTING | `dashboard.py:108` | `api.ts:151` | superadmin |
-| POST | `/api/schools` | EXISTING | `dashboard.py:123` | `api.ts:152` | superadmin |
-| GET | `/api/schools/{school_id}` | EXISTING | `dashboard.py:129` | `api.ts:153` | superadmin |
-| POST | `/api/schools/{school_id}/admins` | EXISTING | `dashboard.py:161` | `api.ts:155` | superadmin |
-| GET | `/api/classes` | EXISTING | `dashboard.py:189` | `api.ts:158` | current_user |
-| POST | `/api/classes` | EXISTING | `dashboard.py:206` | `api.ts:160` | current_user |
-| GET | `/api/classes/{class_id}` | EXISTING | `dashboard.py:220` | `api.ts:161` | current_user |
-| DELETE | `/api/classes/{class_id}` | EXISTING | `dashboard.py:226` | `api.ts:162` | current_user |
-| GET | `/api/classes/{class_id}/submissions` | EXISTING | `dashboard.py:233` | `api.ts:168` | current_user |
-| GET | `/api/submissions/{submission_id}/image.png` | EXISTING | `dashboard.py:265` | admin | current_user |
-| GET | `/api/classes/{class_id}/export.csv` | EXISTING | `dashboard.py:291` | admin | current_user |
-| GET | `/api/classes/{class_id}/export.zip` | EXISTING | `dashboard.py:303` | admin | current_user |
+| GET | `/health` | EXISTING | none | ops | `{"status":"ok"}` |
+| POST | `/predict` | EXISTING | none | Can `partner-http-provider` | body `{"drawing": {...}}`; respons `{"candidates": [3 item]}`. Model asli dari `MODEL_PATH`. `prediction_id` belum dikirim. |
+| GET | `/api/join/{token}` | EXISTING | token kelas di path | Can `classroom-client.ts` | info kelas + `taken_numbers` |
+| POST | `/api/join/{token}/students` | EXISTING | token kelas di path | Can `classroom-client.ts` | body `{number, name}`. Respons: `student_id`, `number`, `name`, `class_name`, **`student_session_token`**, `expires_in` (28800), `joined_at`. Token disimpan sebagai SHA-256. |
+| POST | `/api/submissions` | EXISTING | **`Authorization: Bearer <student_session_token>`** | Can `submission-client.ts` | body `submission_key` (wajib, idempoten per siswa), `join_token`, `student_id`, `level_id`, `attempt_id?`, `prediction_id?`, `strokes`, `candidates` (tepat 3), `decision_type`, `source_rank?`, `final_label`, `redraw_count?`. Respons **201** `{id, status:"created"}`, atau **200** `{id, status:"duplicate"}` bila key sudah ada. 401 tanpa/salah token, 403 bila token bukan milik murid/kelas tersebut. |
+| PATCH | `/api/submissions/{id}/outcome` | EXISTING | Bearer (pemilik submission) | Can `submission-client.ts` | body `{outcome: success\|fail, behavior: solid\|danger\|unresolved, retry_count?}`. Respons 200 `{id, status:"updated"}`. 404 bila submission bukan milik sesi ini. |
 
-## Proposed only (NOT implemented; do not treat as existing API)
+## Endpoint dashboard (dipakai admin Dias)
 
-| Method | Path | Status | Evidence of absence |
+| Method | Path | Status | Auth |
 |---|---|---|---|
-| GET | `/api/v1/model-info` | PROPOSED | `grep -rn "model-info" backend` → no match |
-| PATCH | `/api/submissions/{id}/outcome` | PROPOSED | `grep -rn "/outcome" backend` → no match |
+| POST | `/api/auth/login` | EXISTING | email + password → `token` (Bearer) |
+| GET | `/api/auth/me`, POST `/api/auth/logout` | EXISTING | Bearer |
+| GET/POST | `/api/schools`, GET `/api/schools/{id}`, POST `/api/schools/{id}/admins` | EXISTING | superadmin |
+| GET/POST | `/api/classes`, GET/DELETE `/api/classes/{id}` | EXISTING | Bearer |
+| GET | `/api/classes/{id}/submissions` | EXISTING | Bearer. Kolom: `id, level_id, decision_type, source_rank, final_label, candidates, created_at, student_id, student_number, student_name` |
+| GET | `/api/submissions/{id}/image.png` | EXISTING | Bearer atau `?token=` |
+| GET | `/api/classes/{id}/export.csv`, `export.zip` | EXISTING | Bearer |
 
-Also PROPOSED, not in source: `prediction_id`, `model_version`, idempotency keys, session token, rate limit. These are gaps for the Can–Dias contract, pending joint approval.
+## Belum ada (PROPOSED)
 
-## Known contract risks found during inventory
+| Method | Path | Catatan |
+|---|---|---|
+| GET | `/api/v1/model-info` | Ada di client (`getModelInfo`) tetapi tidak dipanggil di alur mana pun. Tetap PROPOSED. |
 
-1. `POST /api/submissions` has no auth and no idempotency. Retries from the outbox can create duplicate rows. Mitigation requires a server-side change, which needs joint Can + Dias approval.
-2. `main.py` sets `allow_origins=["*"]` together with `allow_credentials=True`. Runtime probe (`docs/migration/INTEGRATION_REPORT.md`, check CORS) shows the server echoes any `Origin` back, so any website can make credentialed requests to the API when a teacher is logged in. This is a permissive CORS risk, not a broken setup. Needs a Dias decision; not changed here.
-3. `/predict` has no auth. Acceptable for a demo; a production decision is open.
+Gap yang tercatat: `prediction_id` dan `model_version` belum dihasilkan backend. Kolom `prediction_id` di submission tersimpan `NULL` untuk alur saat ini.
+
+## Perubahan kontrak pada iterasi ini (atas instruksi pemilik)
+
+1. Join sekarang mengembalikan `student_session_token` (sebelumnya tidak ada).
+2. `POST /api/submissions` wajib Bearer token dan `submission_key`. Sebelumnya keduanya tidak ada.
+3. `PATCH .../outcome` diimplementasikan (sebelumnya 404).
+4. CORS: origin dibatasi lewat env `CORS_ORIGINS`. `allow_credentials=False`. Sebelumnya `*` dengan credentials.
+
+Perubahan 1–3 bersifat aditif untuk respons, tetapi wajib auth untuk request. Persetujuan formal Can dan Dias untuk perubahan breaking ini belum ada (lihat `UNRESOLVED.md`).
+
+## Risiko yang masih ada
+
+- `/predict` tanpa auth.
+- Sesi admin (`sessions` di `db.py`) menyimpan token mentah, bukan hash.
+- `load_model(..., safe_mode=False)`.

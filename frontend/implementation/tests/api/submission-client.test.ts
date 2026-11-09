@@ -20,6 +20,13 @@ describe("SubmissionClient", () => {
 
     const payload: CreateSubmissionRequest = {
       submission_key: "sub_uuid_123",
+      join_token: "tok-test-1",
+      student_id: 9,
+      candidates: [
+      { label: "balok", confidence: 0.7 },
+      { label: "batu", confidence: 0.2 },
+      { label: "papan", confidence: 0.1 },
+    ],
       attempt_id: "att_456",
       prediction_id: "pred_789",
       level_id: "level-1",

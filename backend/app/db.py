@@ -68,13 +68,46 @@ CREATE TABLE IF NOT EXISTS submissions (
 
 CREATE INDEX IF NOT EXISTS idx_submissions_class ON submissions(class_id);
 CREATE INDEX IF NOT EXISTS idx_submissions_student ON submissions(student_id);
+
+CREATE TABLE IF NOT EXISTS student_sessions (
+    token_hash  TEXT PRIMARY KEY,
+    student_id  INTEGER NOT NULL REFERENCES students(id) ON DELETE CASCADE,
+    class_id    INTEGER NOT NULL REFERENCES classes(id) ON DELETE CASCADE,
+    created_at  TEXT NOT NULL,
+    expires_at  TEXT NOT NULL
+);
 """
+
+# Columns added to existing databases (idempotent migration). Fresh DBs get them here too.
+SUBMISSION_ADDITIONS = {
+    "submission_key": "TEXT",
+    "attempt_id": "TEXT",
+    "prediction_id": "TEXT",
+    "redraw_count": "INTEGER",
+    "outcome": "TEXT",
+    "behavior": "TEXT",
+    "retry_count": "INTEGER",
+    "outcome_at": "TEXT",
+}
+
+
+def _migrate(conn: sqlite3.Connection) -> None:
+    cols = {row["name"] for row in conn.execute("PRAGMA table_info(submissions)")}
+    for name, sql_type in SUBMISSION_ADDITIONS.items():
+        if name not in cols:
+            conn.execute(f"ALTER TABLE submissions ADD COLUMN {name} {sql_type}")
+    # Idempotency: one submission per student per submission_key (NULL keys are not constrained).
+    conn.execute(
+        "CREATE UNIQUE INDEX IF NOT EXISTS idx_submissions_student_key "
+        "ON submissions(student_id, submission_key) WHERE submission_key IS NOT NULL"
+    )
 
 
 def init_db() -> None:
     DB_PATH.parent.mkdir(parents=True, exist_ok=True)
     with connect() as conn:
         conn.executescript(SCHEMA)
+        _migrate(conn)
 
 
 @contextmanager

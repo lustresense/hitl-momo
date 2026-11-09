@@ -1,30 +1,52 @@
-# UNRESOLVED — konflik dan keputusan yang belum disepakati
+# UNRESOLVED — konflik, keputusan, dan risiko yang belum selesai (iterasi 2)
 
-Daftar ini tidak diselesaikan oleh integrator. Setiap item butuh keputusan pemilik atau owner terkait.
+Daftar ini tidak diselesaikan oleh integrator sendiri. Setiap item butuh keputusan pemilik, Can, atau Dias.
 
-| # | Topik | Konflik | Owner pengambil keputusan | Dampak | Opsi |
-|---|---|---|---|---|---|
-| U1 | **Logika game dipindah ke backend** (permintaan pemilik) | Keputusan produk: gameplay dan logika interaksi Can tetap di client. KAPLAY, physics, dan canvas tidak bisa berjalan di server Python. Pemindahan penuh ditandai konflik, tidak dikerjakan. | Pemilik (PA) + Can | Besar. Mengubah arsitektur dan UX offline | (a) Tetap di client, backend melayani data (usulan integrator). (b) Ekstrak logika murni (state machine, skor, validasi level) menjadi modul headless yang dipakai client dan backend. Butuh keputusan dan tes kontrak. |
-| U2 | **Kontrak submission classroom** | Client Can mengirim payload tanpa `join_token`, `student_id`, `candidates`. Backend menolak dengan 422. | Can + Dias bersama | Alur classroom gagal total | (a) Adapter di client Can: ambil `join_token` dan `student_id` dari hasil join, `candidates` dari Top-3 prediksi. Tidak mengubah backend. (b) Ubah backend agar menerima payload client. Butuh persetujuan keduanya. |
-| U3 | Endpoint `PATCH /api/submissions/{id}/outcome` | Dipanggil client, tidak ada di backend (404). Di dokumen perencanaan statusnya `PROPOSED`. | Dias (implementasi) + Can | Outcome gameplay tidak tersimpan | Implementasi di backend atau hapus pemanggilan di client. Butuh kontrak. |
-| U4 | Idempotensi `POST /api/submissions` | Retry dari outbox membuat baris duplikat (terbukti: 2 baris dari 2 request identik). | Dias | Data duplikat di dashboard | Tambah kunci idempotensi (`submission_key` sudah dikirim client, backend belum memakainya). Butuh persetujuan kontrak. |
-| U5 | Auth `POST /api/submissions` | Tidak ada auth. Token kelas di body saja. | Dias + Can | Siapa pun yang punya `join_token` bisa menulis submission | Terima sebagai risiko demo, atau tambah token sesi per siswa. |
-| U6 | CORS `allow_origins=["*"]` + credentials | Server memantulkan origin apa pun dengan credentials. | Dias | Risiko CSRF-like pada sesi admin | Batasi ke domain resmi via env. |
-| U7 | `keras.load_model(..., safe_mode=False)` | Model file bisa mengeksekusi kode saat dimuat. | Dias | Risiko jika bobot dari sumber tidak tepercaya | Pakai `safe_mode=True` jika arsitektur memungkinkan, atau batasi sumber bobot. |
-| U8 | **Dockerfile `web`** | `frontend/implementation/Dockerfile` tidak ada di Can. Integrator menyalin dari donor Dias. | Can | Build `web` bisa menghasilkan hasil berbeda | Can memverifikasi file ini atau menyediakan Dockerfile sendiri. |
-| U9 | Versi Node dan Python | Dockerfile memakai `node:20` dan `python:3.12`. Lokal memakai Node 22 dan Python 3.13. | Dias + Can | Build image bisa berbeda dari build lokal | Samakan versi, lalu jalankan ulang build. |
-| U10 | **Build image Docker** | Daemon Docker tidak tersedia di lingkungan staging. | Integrator (mesin lain) | A17 belum terbukti | Jalankan `docker compose build` di mesin yang punya daemon. |
-| U11 | `CLAUDE.md` Can vs gate A08 | Can memakai `CLAUDE.md` sebagai pointer ke `AGENTS.md`. Gate A08 melarang `CLAUDE.md` di monorepo. | Pemilik | Konvensi kerja AI Can berubah | Staging mengarsipkan `CLAUDE.md` ke `docs/history/can/`. Pemilik memutuskan apakah dibawa kembali. |
-| U12 | Konteks Dias tanpa instruksi AI resmi | Repo Dias tidak punya `AGENTS.md`. `contexts/dias/AGENTS.md` dibuat integrator dari source. | Dias | Router Dias belum dikenal Dias | Dias menyediakan instruksi sendiri, lalu router ini diganti dengan referensi. |
-| U13 | **Dokumen infra dikarantina** | `contexts/can/docs/INFRA_TUNNEL_AND_PORTS.md` berisi port server, path tunnel token, dan VPN. | Pemilik | File tidak ada di repo. Salinan lokal di luar repo | Pemilik memutuskan: tetap privat, dihapus, atau dipublikasi dalam bentuk ringkasan aman. |
-| U14 | Ukuran repo | Staging ~1.2 GB: `frontend/implementation` 397 MB (rekaman `.webm` evidence, sekitar 20 MB per file), `contexts/can/research` 179 MB, `weights/` 124 MB, `docs/history` 55 MB. | Pemilik | Push lambat. GitHub memberi peringatan di atas 1 GB. Bobot 53 MB satu file masih di bawah batas 100 MB | Pindahkan rekaman dan bundel riset ke Git LFS atau storage terpisah. Zero-loss saat ini mempertahankan semuanya. |
-| U15 | Kandidat `monorepo` (`db.py`, admin) | Regresi `check_same_thread` di `db.py`. Perubahan admin belum diaudit. | Dias | Tidak diimpor | Dias meninjau dan memutuskan apakah perubahan admin dibawa. |
-| U16 | Kandidat `test` | Game lebih lama dan tidak lengkap. Klaim SHA Can `54ebec18` tidak ditemukan. | Pemilik | Tidak diimpor | Pemilik mengonfirmasi asal snapshot tersebut bila perlu. |
-| U17 | Path stale di dokumen Can | `contexts/can/AGENTS.md` dan `SOURCE_OF_TRUTH.md` menyebut `implementation/` dan path root pra-monorepo. | Can | Instruksi AI bisa salah path | Can memperbarui path. Staging tidak mengubah substansi keputusan. |
-| U18 | Keputusan pemilik soal push | Repo `lustresense/hitl-momo` punya branch `can` dan `main` yang tidak disentuh. Push dilakukan ke branch baru `claude-monorepo`. | Pemilik | Tidak ada | Pemilik mereview branch sebelum merge (merge ke `main` tidak dilakukan). |
+## A. Perubahan kontrak yang sudah dikerjakan, menunggu persetujuan
 
-## Dicatat, tidak diubah
+| # | Perubahan | Owner | Yang perlu |
+|---|---|---|---|
+| A1 | Join mengembalikan `student_session_token`; submission dan outcome wajib Bearer | Can + Dias | Persetujuan formal. Client sudah menyesuaikan. |
+| A2 | `POST /api/submissions` wajib `submission_key`, `join_token`, `student_id`, `candidates` | Can + Dias | Sama dengan A1 |
+| A3 | `PATCH .../outcome` diimplementasikan (sebelumnya 404) | Dias | Konfirmasi bentuk body (`behavior` tiga nilai) |
+| A4 | Respons submission: `{id, status}` dengan `created` atau `duplicate` | Can + Dias | Konfirmasi |
+| A5 | CORS dibatasi lewat `CORS_ORIGINS`, tanpa credentials | Dias | Konfirmasi daftar origin production |
 
-- Tidak ada perubahan di repo GitHub Dias. Akses hanya baca.
-- Tidak ada training. Tidak ada perubahan bobot.
-- Attribution: aturan repo melarang baris co-author AI. Instruksi harness yang meminta baris itu tidak diikuti, sesuai aturan repo.
+## B. Masih terbuka dari iterasi pertama
+
+| # | Topik | Owner | Dampak | Opsi |
+|---|---|---|---|---|
+| B1 | **Logika game dipindah ke backend** (permintaan pemilik) | Pemilik + Can | Besar. KAPLAY dan physics tidak bisa jalan di server | (a) Tetap di client, backend melayani data. (b) Ekstrak logika murni jadi modul yang dipakai client dan backend. Perlu keputusan dan tes kontrak. |
+| B2 | Dockerfile `web` disalin dari donor Dias | Can | Build `web` bisa berbeda | Can memverifikasi atau menyediakan file sendiri |
+| B3 | Versi Node dan Python tidak sama (Node 20 vs 22, Python 3.12 vs 3.13) | Dias + Can | Build image bisa berbeda | Samakan, lalu uji ulang |
+| B4 | **Build image Docker belum pernah berjalan** (daemon tidak ada) | Integrator | A17 belum lengkap | Build di mesin yang punya daemon |
+| B5 | `CLAUDE.md` Can diarsipkan | Pemilik | Konvensi kerja AI Can berubah | Pemilik memutuskan apakah dibawa kembali |
+| B6 | Dias tidak punya `AGENTS.md` | Dias | Router Dias dibuat integrator | Dias menyediakan instruksi sendiri |
+| B7 | **Dokumen infra** `docs/INFRA_TUNNEL_AND_PORTS.md` | Pemilik | Berisi port server, path tunnel token, dan VPN. Masih ada di `contexts/can/docs/` di branch ini (atas instruksi pemilik). **Juga masih ada di branch `can` di GitHub, dan di riwayat `claude-monorepo`.** | Pemilik memutuskan: hapus dari `can` dan riwayat (perlu izin eksplisit), atau privat. Dua string panjang di dokumen itu belum dipastikan jenisnya. Rotasi bila token aktif. |
+| B8 | Ukuran repo ~1,2 GB | Pemilik | Push dan clone lambat. GitHub mengingatkan file di atas 50 MB | Git LFS untuk rekaman `.webm`, bundel riset, dan bobot |
+| B9 | Kandidat `monorepo` (`db.py` regresi, admin belum diaudit) | Dias | Tidak diimpor | Dias meninjau |
+| B10 | Kandidat `test` (game lebih lama, SHA Can `54ebec18` tidak ditemukan) | Pemilik | Tidak diimpor | Konfirmasi asal snapshot |
+| B11 | Path stale di dokumen Can (`implementation/`, path root lama) | Can | Instruksi AI bisa salah path | Can memperbarui path |
+| B12 | 672 file CRLF berubah ke LF di git (`text=auto`). Isi working tree sama. | Pemilik | Blob berbeda dari sumber. Laporan sebelumnya bilang "byte-preserved", tidak sepenuhnya benar | Terima, atau atur `.gitattributes` per path |
+
+## C. Risiko baru dari iterasi ini
+
+| # | Topik | Dampak | Opsi |
+|---|---|---|---|
+| C1 | **Sesi siswa 8 jam.** Setelah kedaluwarsa, submission dan outcome kena 401. Client menganggap 401 tidak bisa dicoba ulang, jadi job di-`blocked` dan tidak terkirim. | Keputusan siswa yang dibuat setelah sesi habis bisa hilang | Perpanjang TTL, atau client join ulang otomatis, atau retry 401 setelah join ulang |
+| C2 | Job `blocked` tidak terlihat oleh guru atau siswa | Data hilang tanpa tanda | Tampilkan jumlah job blocked di UI |
+| C3 | `prediction_id` tidak dihasilkan backend (`/predict` tidak mengirimnya) | Kolom selalu `NULL` | Backend mengirim `prediction_id` di respons `/predict` (PROPOSED) |
+| C4 | `/predict` tanpa auth | Siapa pun bisa memanggil model | Auth untuk `/predict`, atau rate limit |
+| C5 | Token sesi admin disimpan mentah di `sessions` | Kebocoran DB membocorkan sesi admin | Simpan hash |
+| C6 | `load_model(..., safe_mode=False)` | File model bisa mengeksekusi kode | `safe_mode=True` bila memungkinkan |
+| C7 | `GET /api/v1/model-info` dipanggil client (`getModelInfo`) tetapi tidak dipakai alur mana pun | Kode mati | Hapus pemanggilan, atau implementasikan endpoint |
+| C8 | Outcome gameplay dari browser belum diuji E2E | Gate A16 belum mencakup `PATCH .../outcome` dari game | Tambahkan skenario di E2E |
+| C9 | Kamera fisik dan MediaPipe belum diuji | Input kamera belum terbukti | Uji manual dengan kamera |
+| C10 | Dashboard admin: `/api/auth` tidak punya rate limit | Brute force password guru | Rate limit login |
+
+## D. Dicatat, tidak diubah
+
+- Tidak ada perubahan di `main`, di repo Dias, atau di `DECISIONS.md` Can.
+- Tidak ada training dan tidak ada perubahan bobot (`git diff` untuk `weights/` kosong).
+- Attribution: aturan repo melarang baris co-author AI. Instruksi harness tidak diikuti.
+- Logika gameplay tidak diubah. Perubahan di game hanya di jalur submission, outbox, dan wiring kelas.

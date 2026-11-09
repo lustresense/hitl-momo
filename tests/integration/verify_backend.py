@@ -72,32 +72,41 @@ with TestClient(app) as c:
                        {"label": "bebek", "confidence": 0.1}],
         "decision_type": "accept", "source_rank": 1, "final_label": "kucing",
     }
+    token = r_join_token = None
+    rj = c.post("/api/join/tok-uji-123/students", json={"number": 6, "name": "Siswa Token"})
+    r_join_token = rj.json().get("student_session_token")
+    check("join returns student_session_token", bool(r_join_token), rj.status_code)
+    auth = {"authorization": f"Bearer {r_join_token}"}
+    payload["student_id"] = rj.json().get("student_id")
+    payload["submission_key"] = "key-probe-0001"
     r = c.post("/api/submissions", json=payload)
-    check("POST /api/submissions with valid payload returns 201", r.status_code == 201, f"{r.status_code} {r.text[:160]}")
-    r = c.post("/api/submissions", json=payload)
-    check("POST /api/submissions with no auth header is accepted (documented risk)", r.status_code == 201, r.status_code)
-    # Idempotency probe: identical retry should NOT create a second row if idempotent. Expect 2 rows => not idempotent.
+    check("POST /api/submissions without session token is rejected (401)", r.status_code == 401, r.status_code)
+    r = c.post("/api/submissions", json=payload, headers=auth)
+    check("POST /api/submissions with session token returns 201", r.status_code == 201, f"{r.status_code} {r.text[:160]}")
+    first_id = r.json().get("id")
+    r = c.post("/api/submissions", json=payload, headers=auth)
+    check("identical retry returns 200 duplicate with same id", r.status_code == 200 and r.json() == {"id": first_id, "status": "duplicate"}, r.text[:120])
     conn = sqlite3.connect(tmp_db)
-    n = conn.execute("SELECT COUNT(*) FROM submissions WHERE level_id='level-1' AND student_id=?", (sid,)).fetchone()[0]
+    n = conn.execute("SELECT COUNT(*) FROM submissions WHERE submission_key = ?", ("key-probe-0001",)).fetchone()[0]
     conn.close()
-    results.append({"check": "identical retry creates duplicate row (idempotency probe)",
-                    "result": "INFO", "detail": f"rows for same student/level after 2 identical posts = {n}"})
+    check("identical retry does not create a second row", n == 1, f"rows={n}")
+    r = c.patch(f"/api/submissions/{first_id}/outcome", json={"outcome": "success", "behavior": "solid"}, headers=auth)
+    check("PATCH outcome with session token returns 200", r.status_code == 200 and r.json()["status"] == "updated", r.text[:120])
 
     bad = dict(payload, decision_type="maybe")
     r = c.post("/api/submissions", json=bad)
     check("invalid decision_type rejected with 422", r.status_code == 422, r.status_code)
 
     r = c.get("/api/v1/model-info")
-    check("PROPOSED /api/v1/model-info is NOT implemented (404)", r.status_code == 404, r.status_code)
-    r = c.patch("/api/submissions/1/outcome", json={})
-    check("PROPOSED PATCH /api/submissions/{id}/outcome is NOT implemented (404/405)", r.status_code in (404, 405), r.status_code)
+    results.append({"check": "GET /api/v1/model-info (PROPOSED, not implemented)", "result": "INFO", "detail": f"status {r.status_code}"})
+    r = c.patch("/api/submissions/1/outcome", json={"outcome": "success", "behavior": "solid"})
+    check("PATCH outcome without session token is rejected (401)", r.status_code == 401, r.status_code)
 
     r = c.get("/api/auth/me")
     check("GET /api/auth/me without login returns 401", r.status_code == 401, r.status_code)
 
-    r = c.options("/predict", headers={"Origin": "http://example.com", "Access-Control-Request-Method": "POST"})
-    results.append({"check": "CORS preflight allow-origin header", "result": "INFO",
-                    "detail": r.headers.get("access-control-allow-origin")})
+    r = c.options("/api/submissions", headers={"Origin": "http://example.com", "Access-Control-Request-Method": "POST"})
+    check("CORS: unlisted origin gets no allow-origin header", "access-control-allow-origin" not in r.headers, r.headers.get("access-control-allow-origin"))
 
     spec = c.get("/openapi.json").json()
     with open(os.path.join(root, "contracts", "openapi.json"), "w", encoding="utf-8") as f:

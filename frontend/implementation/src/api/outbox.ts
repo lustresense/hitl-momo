@@ -197,6 +197,14 @@ export class OutboxQueue {
     return () => this.listeners.delete(listener);
   }
 
+  /** Re-run processing after a backoff. Without this, failed jobs wait for an unrelated trigger. */
+  private scheduleRetry(delayMs: number): void {
+    if (typeof setTimeout !== "function") return;
+    setTimeout(() => {
+      void this.process();
+    }, Math.max(0, delayMs) + 25);
+  }
+
   private notify(): void {
     void this.getStats().then((stats) => {
       for (const listener of this.listeners) {
@@ -247,6 +255,7 @@ export class OutboxQueue {
 
     await this.storage.put(job);
     this.notify();
+    void this.process();
     return id;
   }
 
@@ -271,6 +280,7 @@ export class OutboxQueue {
 
     await this.storage.put(job);
     this.notify();
+    void this.process();
     return id;
   }
 
@@ -372,6 +382,7 @@ export class OutboxQueue {
       if (retryable) {
         job.status = "pending";
         job.nextRetryAt = Date.now() + this.calculateBackoff(job.attempts);
+        this.scheduleRetry(job.nextRetryAt - Date.now());
       } else {
         job.status = "blocked";
       }
@@ -415,6 +426,7 @@ export class OutboxQueue {
       if (retryable) {
         job.status = "pending";
         job.nextRetryAt = Date.now() + this.calculateBackoff(job.attempts);
+        this.scheduleRetry(job.nextRetryAt - Date.now());
       } else {
         job.status = "blocked";
       }

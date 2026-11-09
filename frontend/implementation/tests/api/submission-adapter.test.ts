@@ -41,6 +41,7 @@ describe("SubmissionAdapter (CAN-05 & CAN-06 Orchestration)", () => {
     const outbox = new OutboxQueue({ client: mockClient, storage });
     const adapter = new SubmissionAdapter({
       outbox,
+      classContext: () => ({ joinToken: "tok-test-1", studentId: 9 }),
       idGenerator: () => "sub-key-custom-1",
     });
 
@@ -84,6 +85,7 @@ describe("SubmissionAdapter (CAN-05 & CAN-06 Orchestration)", () => {
     let counter = 0;
     const adapter = new SubmissionAdapter({
       outbox,
+      classContext: () => ({ joinToken: "tok-test-1", studentId: 9 }),
       idGenerator: () => `key-${++counter}`,
     });
 

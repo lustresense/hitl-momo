@@ -33,7 +33,9 @@ Provisional choices taken for the open Owner questions: gesture icon mapping pin
 
 ### Tests
 - New: `tests/components/thumb-confirm.test.tsx`, `tests/input/thumb-up.test.ts`, `tests/input/hand-pose.test.ts`, `tests/input/eraser.test.ts`, `tests/components/icon-gestures.test.tsx` (paths equal the design SVGs).
-- Gates (2026-11-08): vitest 640/640 (91 files); `tsc --noEmit` clean; `next lint` clean; `NEXT_PUBLIC_TEST_HOOKS=0 next build` and `NEXT_PUBLIC_TEST_HOOKS=1 next build` both pass.
+- Fixes after the first T14 run (2026-11-09): a newly mounted `ThumbConfirm` is armed only after it has seen no thumb once, so a thumb still held after "Mulai Level 1" no longer starts Level 1 from the ribbon; the win "Lanjut" (`btn-continue`) is a 1 s `ThumbConfirm`; the input picker is hidden in camera mode and drawing starts in hand mode there (pointer in fallback); `feedHandLandmarksForTest` now reports ink changes. e2e: `holdThumb` for `btn-continue`, simulated pinching hand for drawing in camera mode, `mediapipe-probe` forces fallback before `btn-input-hand`, the intro counts as gone once it has faded out.
+- Gates after these fixes (2026-11-09): vitest 646/646 (94 files); `tsc --noEmit` clean; `next lint` clean; both builds pass. TEST_HOOKS=0: normal-journey PASS (L1-L3 first attempt, ending), recovery-paths 16/16. TEST_HOOKS=1: guide-flow 13/13, hand-control-probe 6/6, mediapipe-probe OK (starts in hand mode, picker hidden in camera mode), audit-momo-wings 0 bad samples.
+- First T14 gates (2026-11-08): vitest 640/640 (91 files); `tsc --noEmit` clean; `next lint` clean; `NEXT_PUBLIC_TEST_HOOKS=0 next build` and `NEXT_PUBLIC_TEST_HOOKS=1 next build` both pass.
 - E2E on the TEST_HOOKS=0 build, no camera, fallback buttons: normal-journey L1-L3 plus ending PASS, each level won on the first attempt; recovery-paths 16/16.
 - E2E on the TEST_HOOKS=1 build, fake camera, simulated wave and thumb: guide-flow 13/13, hand-control-probe 6/6, mediapipe-probe (stream live, hand mode, pointer draw after hand mode) OK, audit-momo-wings 0 bad samples (largest edge move 0.00024).
 <!-- video dropped, see NOW.md -->

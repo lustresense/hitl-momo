@@ -1,0 +1,23 @@
+/*
+ * Global styles, split into ordered partials. The cascade depends on this EXACT order
+ * (later files deliberately override earlier ones with !important layers): do not reorder.
+ */
+@import "./prototype-camera.css";
+@import "./styles/00-tokens-base.css";
+@import "./styles/10-world-stage.css";
+@import "./styles/20-layout-buttons.css";
+@import "./styles/30-components.css";
+@import "./styles/40-onboarding.css";
+@import "./styles/50-drawing-layout.css";
+@import "./styles/60-global-camera.css";
+@import "./styles/70-drawing-screen.css";
+@import "./styles/75-gameplay-input.css";
+@import "./styles/80-document-paper.css";
+@import "./styles/85-top3-popup.css";
+@import "./styles/90-world-popups.css";
+@import "./styles/95-momo-mission.css";
+@import "./styles/96-kit-base.css";
+@import "./styles/97-kit-screens.css";
+@import "./styles/98-kit-flow.css";
+@import "./styles/99-tutorial.css";
+@import "./styles/100-guide.css";

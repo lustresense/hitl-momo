@@ -1,0 +1,62 @@
+Independent verification for t_051ff60f
+Started: 2026-08-25T01:03:38.967345+00:00
+
+
+=== typecheck: npm run typecheck ===
+
+> sketchbook-universe-author-side@0.2.0 typecheck
+> tsc --noEmit
+
+sh: 1: tsc: Permission denied
+
+=== tests: /srv/sketchbook/Sketchbook-Universe-v2/implementation/node_modules/.bin/vitest run ===
+
+ RUN  v2.1.9 /srv/sketchbook/Sketchbook-Universe-v2/implementation
+
+ ✓ tests/app/state-machine.test.ts (13 tests) 31ms
+ ✓ tests/components/components.test.tsx (6 tests) 159ms
+ ✓ tests/prediction/partner-http.test.ts (6 tests) 9ms
+ ✓ tests/input/hand-gesture.test.ts (8 tests) 5ms
+ ✓ tests/prediction/mock-provider.test.ts (6 tests) 14ms
+ ✓ tests/prediction/validation.test.ts (10 tests) 5ms
+ ✓ tests/domain/decision-resolver.test.ts (7 tests) 4ms
+ ✓ tests/domain/behavior-resolver.test.ts (4 tests) 3ms
+ ✓ tests/input/normalize.test.ts (4 tests) 4ms
+ ✓ tests/game/spawner.test.ts (3 tests) 4ms
+
+ Test Files  10 passed (10)
+      Tests  67 passed (67)
+   Start at  08:03:39
+   Duration  5.78s (transform 133ms, setup 732ms, collect 204ms, tests 236ms, environment 2.97s, prepare 499ms)
+
+
+=== lint: npm run lint ===
+
+> sketchbook-universe-author-side@0.2.0 lint
+> next lint
+
+✔ No ESLint warnings or errors
+
+=== build: npm run build ===
+
+> sketchbook-universe-author-side@0.2.0 build
+> next build
+
+  ▲ Next.js 14.2.35
+  - Environments: .env.local
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+   Collecting page data ...
+unhandledRejection Error [PageNotFoundError]: Cannot find module for page: /_document
+    at getPagePath (/srv/sketchbook/Sketchbook-Universe-v2/implementation/node_modules/next/dist/server/require.js:94:15)
+    at requirePage (/srv/sketchbook/Sketchbook-Universe-v2/implementation/node_modules/next/dist/server/require.js:99:22)
+    at /srv/sketchbook/Sketchbook-Universe-v2/implementation/node_modules/next/dist/server/load-components.js:72:65
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async Promise.all (index 0)
+    at async loadComponentsImpl (/srv/sketchbook/Sketchbook-Universe-v2/implementation/node_modules/next/dist/server/load-components.js:71:33)
+    at async Object.hasCustomGetInitialProps (/srv/sketchbook/Sketchbook-Universe-v2/implementation/node_modules/next/dist/build/utils.js:1274:24) {
+  type: 'PageNotFoundError',
+  code: 'ENOENT'
+}

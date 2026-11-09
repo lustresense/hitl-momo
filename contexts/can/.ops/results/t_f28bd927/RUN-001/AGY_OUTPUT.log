@@ -1,0 +1,49 @@
+
+=== MODEL claude-sonnet-4-6 START 2026-08-26T12:07:16.399679+00:00 ===
+COMMAND: agy -p <AGY_PROMPT.md> --model claude-sonnet-4-6 --mode accept-edits --dangerously-skip-permissions --print-timeout 45m
+
+I'll start by reading the project's AGENTS.md and exploring the relevant codebase, then conduct the research.
+Good. Now I have a solid understanding of the current implementation. Let me conduct targeted web research on the key topics.
+Now I have enough research material to write the full deliverables. Let me create the output directories and files.
+Now let me write the main research report:
+Now let's write the executive summary report and the task deliverable REPORT.md:
+Now write the worker-owned artifacts under `.ops/results/t_f28bd927/`:
+Let me do a final verification of all deliverables:
+All deliverables are present. Let me do a quick sanity check on the research report size and confirm no src/ edits were made:
+All deliverables are complete and verified. Here is the final result:
+
+---
+
+## ✅ Task t_f28bd927 — Complete
+
+**Role:** WORKER (research-only). No `src/` files were modified.
+
+### Deliverables Created
+
+| File | Path |
+|------|------|
+| [`WORKER_LOG.md`](file:///srv/sketchbook/Sketchbook-Universe-v2/.ops/research/gesture-ux/WORKER_LOG.md) | `.ops/research/gesture-ux/` |
+| [`RESEARCH_GESTURE_UX.md`](file:///srv/sketchbook/Sketchbook-Universe-v2/.ops/research/gesture-ux/RESEARCH_GESTURE_UX.md) | `.ops/research/gesture-ux/` (370 lines, ~23 KB) |
+| [`REPORT.md`](file:///srv/sketchbook/Sketchbook-Universe-v2/.ops/research/gesture-ux/REPORT.md) | `.ops/research/gesture-ux/` |
+| `WORKER_LOG.md`, `WORKER_CHANGELOG.md`, `REPORT.md` | `.ops/results/t_f28bd927/` (worker-owned) |
+
+---
+
+### Key Findings
+
+**Q1 — Pre-pinch cursor:** Render a small dot at smoothed index fingertip (landmark 8) in all tracked states. Buxton's Three-State Model makes this mandatory — no cursor in State 1 breaks pointing accuracy. Surface `cursor: {x,y}` via `HandInputStatus` expansion.
+
+**Q2 — Pinch thresholds:** Current `0.42` is ~2× too large. Recommended:
+- **Close:** `0.28` + 3-frame debounce
+- **Open (hysteresis):** `0.40` + 4-frame debounce
+- Normalization approach (wrist-to-middle-MCP) is already correct.
+
+**Q3 — Undo gesture:** **Left-hand fist held for 400 ms** — grounded in Guiard's bimanual asymmetry model (1987). Low false-positive rate via dwell. Requires `numHands: 2` + reading `handedness`. Visual progress arc during dwell gives user cancel control.
+
+**Q4 — Additional gestures:** None recommended now. Clear canvas and submit stay as UI buttons.
+
+**Q5 — Ergonomics:** Gorilla arm is real; keep sessions short. Add minimum stroke filter (≥3 pts, ≥5 px). Consider separate `PointSmoother` instances for cursor display (alpha 0.50–0.55) vs. stroke recording (alpha 0.45).
+
+All citations are real academic papers with DOIs (Fitts 1954, Buxton 1990, Guiard 1987, Wobbrock et al. 2009, Argelaguet & Andujar 2013) plus official MediaPipe documentation. No citations were fabricated.
+
+=== MODEL claude-sonnet-4-6 END 2026-08-26T12:18:22.450562+00:00 exit=0 ===

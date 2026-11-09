@@ -1,0 +1,341 @@
+PRESENTATION SCRIPT - BILINGUAL PROMPTER
+Deck: PPT_Proposal_Farchan_13_Slides_PPTAwal_Style.html
+Topic: Interactive AI Literacy Simulation for Junior High School Students
+Use: Indonesian section = understand the material. English section = present it.
+
+General delivery rule:
+Do not read every word on the slide. Use the slide as visual proof, then explain the logic behind it. Your main line is: students should not only use AI, they should learn how to question AI output.
+
+Suggested duration:
+11-13 minutes total.
+
+============================================================
+OPENING BEFORE SLIDE 1
+============================================================
+
+Indonesian mastery:
+Pembukaan jangan terlalu standar seperti "let me introduce myself". Langsung masuk dari masalah utama agar dosen merasa presentasi ini punya arah. Identitas tetap disebut, tapi setelah konteks singkat.
+
+English script:
+Good morning, respected supervisors and examiners.
+
+Before going into the system design, I would like to start from the main concern of this proposal: students today are already surrounded by AI systems, but many of them still see AI output as a final answer. In education, this is risky because AI should not only be used, but also questioned, compared, and validated.
+
+My final project proposes an interactive AI literacy simulation for junior high school students. The focus is on frontend interaction design, Top-3 prediction UI, and a game-based Human-in-the-Loop experience.
+
+My name is Farchan Deano Muhammad, NRP 5323600012. This proposal is supervised by Dr. Tri Budi Santoso, S.T., M.T. and Dr. Ing. Hestiasari Rante, S.T., M.Sc.
+
+Transition:
+To explain why this system is needed, I will start with the learning problem behind the project.
+
+============================================================
+SLIDE 1 - COVER
+============================================================
+
+Indonesian mastery:
+Slide ini hanya identitas. Jangan lama-lama. Tekankan topik besar: simulasi interaktif, literasi AI, siswa SMP, HITL, Top-3 UI, gameplay.
+
+English script:
+This proposal is titled Interactive AI Literacy Simulation for Junior High School Students. The system is designed as a web-based interactive simulation where students draw objects, see AI predictions, make decisions, and observe the consequences inside a 2D game.
+
+The scope I present today focuses on the student-facing experience: the frontend interaction, the Top-3 prediction interface, the Human-in-the-Loop decision moment, and the gameplay flow.
+
+Transition:
+The first question is why this kind of system is necessary for junior high school students.
+
+============================================================
+SLIDE 2 - PROJECT CONTEXT
+============================================================
+
+Indonesian mastery:
+Inti slide ini: masalahnya bukan siswa belum bisa coding AI. Masalahnya siswa bisa terlalu percaya pada output AI. Literasi AI berarti siswa paham AI itu prediktif, bisa salah, dan perlu dievaluasi.
+
+English script:
+This project starts from a simple but important problem. AI is now present in many daily activities, including learning tools, search engines, recommendation systems, and digital applications. However, many students may still treat AI output as a final answer.
+
+The first problem is that AI output is often accepted without evaluation. If students only see the final result, they may think that AI is always correct. The second problem is that AI concepts are abstract, especially for junior high school students. Terms like prediction, confidence, and error are difficult to understand if they are only explained theoretically.
+
+Because of that, this proposal uses an interactive direction. Instead of only explaining AI, the system lets students experience AI prediction directly. Students draw something, see the AI prediction, compare the result, and decide whether the prediction should be accepted or corrected.
+
+The project is also inspired by exploratory AI literacy approaches for younger learners, but the implementation here is visual classification and gameplay decision-making.
+
+What I want to emphasize here is that the project is not trying to teach students how to build an AI model. The goal is more fundamental: helping students understand that AI output is uncertain and must be evaluated.
+
+Transition:
+After identifying that problem, the next part is the proposed learning interaction.
+
+============================================================
+SLIDE 3 - PROPOSED SOLUTION
+============================================================
+
+Indonesian mastery:
+Slide ini alur besar sistem. Hafalkan loop: Draw, Predict, Top-3 UI, Decide, Consequence, Log. Kalau dosen tanya kontribusi utama, jawab: membuat output AI jadi pengalaman interaktif yang bisa divalidasi siswa.
+
+English script:
+The proposed solution is a web-based interactive simulation. The learning flow is built around six steps.
+
+First, the student draws an object through a canvas-based interaction. Second, the drawing is processed as input for AI prediction. Third, the system displays the result through a Top-3 UI, so the student does not only see one final answer. Fourth, the student makes a decision: accept, correct, override, or redraw. Fifth, the selected decision affects the behavior of the object inside the 2D gameplay. Finally, the interaction is recorded as a log.
+
+This flow is important because the AI prediction is not the end of the process. The prediction becomes a checkpoint. The student must evaluate the output before it is used in the game.
+
+The MediaPipe hand tracking component supports this interaction by making the input more direct. Students can draw using finger movement, so the experience feels more active than simply selecting answers from a quiz.
+
+Transition:
+Now I will show how this interaction is placed inside the overall system design.
+
+============================================================
+SLIDE 4 - SYSTEM DESIGN OVERVIEW
+============================================================
+
+Indonesian mastery:
+Jangan jelaskan semua kotak terlalu detail. Jelaskan tiga bagian: input, process, output. Poin penting: ada decision resolver sebagai lapisan HITL, jadi AI tidak langsung menentukan gameplay.
+
+English script:
+This slide shows the global system design. The system can be understood through three major parts: input, process, and output.
+
+The input part includes the camera stream, finger tracking interaction, canvas drawing, and student decision. These inputs are important because the system does not only receive a drawing, but also receives the student's judgment after the AI prediction appears.
+
+The process part includes several layers. The interaction layer handles the drawing and gameplay environment. The AI classification layer produces prediction results. Then, the Human-in-the-Loop layer works as a decision resolver. This is where the student's decision is used to determine the final label of the object.
+
+The output part includes the Top-3 prediction interface, the gameplay outcome, the learning feedback, and the interaction data. So the output is not only visual gameplay; it also includes data that can be reviewed later.
+
+The key point is that the AI result is not directly executed. It must pass through a human decision first. This is the main design principle of the system.
+
+Transition:
+Because this is a team project, I will clarify the development scope that I focus on.
+
+============================================================
+SLIDE 5 - DEVELOPMENT SCOPE
+============================================================
+
+Indonesian mastery:
+Slide ini buat batasan tanggung jawab. Jangan terkesan lepas tangan dari AI, tapi jelaskan scope: output AI dipakai sebagai bahan interaksi. Penulis fokus pengalaman siswa, UI, gameplay, keputusan.
+
+English script:
+This proposal is part of a two-person project, so the development scope must be clear.
+
+My scope focuses on the student-facing side of the system. This includes the user interface, the interaction flow, the gameplay experience, the Top-3 UI, and the feedback design. In other words, I focus on how students interact with the system and how AI output becomes part of the learning experience.
+
+For the user interface, I design the main screens, the game HUD, the Top-3 prediction display, and the feedback elements. For interaction, I focus on finger tracking, canvas drawing, navigation, and decision input. For gameplay, I design the level flow, object behavior, fail condition, and retry condition.
+
+The partner side is related to prediction data and data processing. However, in this presentation, I focus on how that prediction output is presented to students and how students can respond to it.
+
+This scope is important because AI literacy does not happen only inside the model. It happens when the user sees the output, questions it, and decides what to do next.
+
+Transition:
+To make that interaction clear, I define the interaction matrix.
+
+============================================================
+SLIDE 6 - INTERACTION MATRIX
+============================================================
+
+Indonesian mastery:
+Interaction matrix bukan use case. Ini peta aksi user dan respon sistem. Gunanya supaya flow tidak terlalu abstrak. Jelaskan setiap interaksi punya input, respon, dan konteks tampilan.
+
+English script:
+The interaction matrix is used to map the relationship between user input, system response, and the context where the interaction appears.
+
+For example, the first interaction is presence detection. When the student waves a hand, the system starts and the visual companion can greet the student. Then, the navigation interaction allows the student to move through the menu and tutorial.
+
+The core interaction starts from drawing. The student draws on the canvas, and the system captures the drawing. After that, the student submits the drawing as an AI request, and the system displays the Top-3 prediction.
+
+The most important interaction is the AI decision. At this point, the student chooses accept, correct, override, or redraw. This decision determines the final label before the object is used in gameplay.
+
+Other interactions, such as movement, feedback, recovery, and reflection, support the complete learning loop. This matrix helps ensure that every student action has a clear system response.
+
+Transition:
+The next slide focuses on the most important interaction: the Top-3 UI as the Human-in-the-Loop moment.
+
+============================================================
+SLIDE 7 - TOP-3 UI AND HUMAN DECISION
+============================================================
+
+Indonesian mastery:
+Ini slide inti. Pakai kalimat kuat: "AI gives suggestions, but the student makes the final decision." Confidence tinggi bukan berarti pasti benar. Top-3 UI membuat siswa membandingkan output.
+
+English script:
+This slide shows the main Human-in-the-Loop checkpoint in the system.
+
+After the drawing is submitted, the AI shows the Top-3 prediction with confidence score. The system does not immediately use the first prediction as the final answer. Instead, the student must make a decision.
+
+There are four decision options. Accept means the student trusts the first prediction. Correct means the student chooses another prediction from the Top-3 list. Override means the student rejects all AI suggestions and inputs a different label. Redraw means the student decides that the drawing is unclear and returns to the canvas.
+
+This design supports AI literacy because students learn that AI output is not absolute. Even when AI gives a confident prediction, the student still has to evaluate whether it matches the drawing intention.
+
+The simple principle is: AI gives suggestions, but the student makes the final decision.
+
+Transition:
+After the final decision is made, the system needs to translate that decision into gameplay behavior.
+
+============================================================
+SLIDE 8 - OBJECT BEHAVIOR MAPPING
+============================================================
+
+Indonesian mastery:
+Slide ini menjelaskan kenapa keputusan siswa punya konsekuensi. Kalau label benar dan aman, objek membantu. Kalau salah/berbahaya, objek bisa jadi danger atau fail. Ini membuat literasi AI terasa konkret.
+
+English script:
+After the student makes a decision, the final object label is mapped into gameplay behavior.
+
+There are three main categories. A safe support object becomes a solid object. It can help the student progress, for example as a ladder, bridge, or stairs. A harmful object becomes a danger object. It can cause a fail condition or block progress, for example fire or lightning. If the object is invalid or unclear, the system can guide the student to redraw or correct it.
+
+This mapping is important because the decision does not stop at the interface. The decision has a visible consequence inside the game world.
+
+For students, this makes the AI validation process more concrete. They can see that accepting, correcting, or rejecting a prediction can change what happens in the level.
+
+Transition:
+To make this learning process gradual, the system uses level-based interaction design.
+
+============================================================
+SLIDE 9 - LEVEL INTERACTION DESIGN
+============================================================
+
+Indonesian mastery:
+Tiga level bukan konten game random. Level 1 pengenalan, Level 2 ambiguitas, Level 3 validasi kritis. Ini progres pembelajaran AI literacy dari mudah ke kritis.
+
+English script:
+The level design is structured to gradually increase the complexity of AI uncertainty.
+
+Level 1 is guided recognition. The student draws a simple object, and the system mainly shows a Top-1 prediction. The goal is to introduce the basic loop: draw, predict, accept, and see the object in the game.
+
+Level 2 introduces ambiguity. The system displays Top-3 prediction and confidence score. At this stage, the student needs to compare alternatives and decide whether the first prediction is really the best answer.
+
+Level 3 introduces a more critical decision. The AI may produce a confident but wrong prediction. This level asks the student to override or redraw when necessary. The learning point is that high confidence does not always mean correct.
+
+So the level progression is not only about game difficulty. It is about increasing the student's responsibility in evaluating AI output.
+
+Transition:
+After understanding the level structure, the next slide summarizes the user flow and system roles.
+
+============================================================
+SLIDE 10 - USER FLOW AND USE CASE SUMMARY
+============================================================
+
+Indonesian mastery:
+Sebut tiga fase: Create, Decide, Consequence. Use case cukup ringkas: student, admin, super admin. Jangan tenggelam di diagram. Fokus ke pengalaman siswa.
+
+English script:
+The student flow is divided into three main phases: create, decide, and consequence.
+
+In the create phase, the student enters the level, draws an object, and submits the sketch. In the decide phase, the Top-3 UI appears, and the student chooses accept, correct, override, or redraw. In the consequence phase, the selected label is applied to the object, and the object behavior affects the gameplay.
+
+The use case diagram also shows that the system has different roles. The student uses the simulation, draws objects, views predictions, makes decisions, and plays the level. The admin can review session data and interaction data. The super admin manages higher-level system access and configuration.
+
+However, the main focus of this proposal remains the student experience: how the student interacts with AI output and how that interaction becomes part of learning.
+
+Transition:
+Now I will explain how the interface supports that flow.
+
+============================================================
+SLIDE 11 - SYSTEM HIERARCHY AND MASCOT BRIDGE
+============================================================
+
+Indonesian mastery:
+Slide ini menjelaskan "rasa" sistem. Hirarkinya bukan teknologi dulu, tapi pengalaman siswa dulu. Urutannya: interaksi harus gampang, gameplay harus bikin siswa mau lanjut, baru edukasi masuk lewat refleksi. Maskot menjadi penengah di tiga lapisan itu. Ia tidak jadi tokoh cerita yang terlalu berat, tetapi menjadi pendamping visual yang membantu siswa membaca situasi: kapan sistem menunggu input, kapan AI sedang menebak, kapan hasilnya ragu, kapan keputusan berisiko, dan kapan siswa perlu merefleksikan hasil.
+
+Makna Indonesianya:
+Kita tidak memaksa siswa merasa sedang belajar teori AI. Kita buat mereka masuk lewat gesture dan permainan dulu. Setelah mereka mengalami prediksi dan konsekuensi, barulah edukasi AI muncul sebagai pemahaman.
+
+Catatan CoCo MIT:
+CoCo MIT dipakai hanya sebagai inspirasi konsep desain, bukan referensi teknis. Proyek ini tidak membangun language model. Yang diadaptasi adalah idenya: literasi AI untuk siswa muda sebaiknya eksploratif, konkret, dan playful. Pada proyek ini, ide tersebut diterapkan lewat klasifikasi visual berbasis sketsa, Top-3 prediction, confidence score, keputusan HITL, dan konsekuensi gameplay.
+
+English script:
+This slide explains the system hierarchy behind the user experience.
+
+The first layer is interaction. At this layer, the system must feel natural and easy to enter. Students should be able to start from simple actions such as camera-based gesture, drawing on the canvas, and following a clear interface. If the interaction feels difficult, students may stop before reaching the educational part.
+
+The second layer is gameplay and storyline. The simulation uses a simple puzzle-platformer context so that the student's drawing and decision have a goal. The student is not only answering a question; the student is trying to make progress inside the level.
+
+The third layer is education. This layer appears after the student experiences the interaction and gameplay consequence. In other words, the learning point is delivered through reflection, not through a long lecture.
+
+The mascot works as the bridge between these three layers. It softens instruction, signals uncertainty, gives short warnings, and helps connect gameplay feedback to AI literacy. The mascot represents AI as an assistant, but it does not replace the student's decision. This supports the design principle: teach without making students feel lectured.
+
+MIT Little Language Models / CoCo is used only as conceptual design inspiration, not as a technical reference. This project does not build a language model. What is adapted is the idea that AI literacy for younger learners should be exploratory, concrete, and playful. In this project, that idea is applied through sketch-based visual classification, Top-3 prediction, confidence score, Human-in-the-Loop decisions, and gameplay consequences.
+
+Transition:
+After defining the experience hierarchy, the final project plan is organized into a research schedule and contribution summary.
+
+============================================================
+SLIDE 12 - RESEARCH SCHEDULE AND MAIN CONTRIBUTION
+============================================================
+
+Indonesian mastery:
+Slide ini bukan penutup ucapan terima kasih lagi, tapi ringkasan rencana kerja dan kontribusi. Jadwal cukup dijelaskan mengikuti fase concept sampai distribution. Kontribusi utama: sistem membuat ketidakpastian AI terlihat, bisa dipilih, dan punya konsekuensi.
+
+English script:
+The research schedule follows the development phases shown in the proposal. It starts from concept, then moves to design, material collecting, assembly, user testing, and distribution.
+
+In the early phase, the work focuses on problem study, target user identification, and interaction requirements. The design phase includes the global system design, user flow, interaction matrix, wireframe, and level interaction. The material collecting and assembly phases focus on assets, interface development, gameplay implementation, and system integration. After the prototype is functional, the system will be tested and revised before final documentation and distribution.
+
+The main contribution is the design of an interactive AI literacy experience that places students as active decision-makers. The system introduces AI literacy through sketch-based gameplay. The Top-3 UI creates the Human-in-the-Loop moment, and the gameplay consequence makes AI uncertainty visible.
+
+This means the student is not only reading about AI uncertainty. The student experiences it, makes a decision, and sees the effect of that decision.
+
+Transition:
+That is the summary of the project plan and contribution. I will close the presentation on the final slide.
+
+============================================================
+SLIDE 13 - THANK YOU
+============================================================
+
+Indonesian mastery:
+Slide terakhir cukup singkat. Jangan ulang semua isi. Pakai satu kalimat penutup yang mengunci kontribusi, lalu undang pertanyaan. Kalau mau lebih formal, ucapkan terima kasih ke pembimbing dan penguji.
+
+English script:
+That concludes my presentation.
+
+The main idea of this proposal is to help students understand AI not as an automatic source of truth, but as a system whose output needs to be questioned, compared, and validated.
+
+Thank you for your attention. I am open to questions, feedback, and suggestions.
+
+Optional shorter closing:
+Thank you. I am ready for the discussion.
+
+============================================================
+QUICK DEFENSE NOTES
+============================================================
+
+If asked: "What is the novelty?"
+Indonesian:
+Kebaruannya bukan bikin model AI baru, tapi integrasi pengalaman belajar: finger tracking drawing, Top-3 prediction, HITL decision, dan konsekuensi gameplay dalam satu simulasi literasi AI.
+English answer:
+The novelty is not in creating a new AI model, but in integrating sketch-based interaction, Top-3 prediction, Human-in-the-Loop decision making, and gameplay consequence into one AI literacy learning experience.
+
+If asked: "Why junior high school students?"
+Indonesian:
+Karena siswa SMP sudah mulai berinteraksi dengan AI, tapi kemampuan evaluasi output masih berkembang. Sistem dibuat konkret dan berbasis game agar konsep prediksi dan confidence lebih mudah dipahami.
+English answer:
+Junior high school students already interact with AI systems, but their ability to evaluate AI output is still developing. This system uses concrete and game-based interaction to make prediction, confidence, and error easier to understand.
+
+If asked: "Why Top-3 instead of only Top-1?"
+Indonesian:
+Top-1 membuat AI terlihat seperti jawaban final. Top-3 menunjukkan ada alternatif dan tingkat keyakinan, sehingga siswa terdorong membandingkan.
+English answer:
+Top-1 can make AI look like a final answer. Top-3 shows alternatives and confidence levels, so students are encouraged to compare and evaluate the prediction.
+
+If asked: "What is Human-in-the-Loop in this project?"
+Indonesian:
+HITL terjadi ketika siswa melihat prediksi AI lalu menentukan keputusan akhir: accept, correct, override, atau redraw. Jadi manusia bukan penonton, tapi validator.
+English answer:
+Human-in-the-Loop happens when the student sees the AI prediction and determines the final decision through accept, correct, override, or redraw. The student is not only an observer, but a validator.
+
+If asked: "What is your scope?"
+Indonesian:
+Scope penulis adalah frontend interaction, UI/UX, Top-3 UI, gameplay flow, feedback, wireframe, interaction matrix, dan level interaction design.
+English answer:
+My scope focuses on frontend interaction, UI/UX, Top-3 UI, gameplay flow, feedback, wireframe, interaction matrix, and level interaction design.
+
+If asked: "Why use a mascot?"
+Indonesian:
+Maskot dipakai sebagai feedback visual dan jembatan antara interaksi, gameplay, dan edukasi. Tujuannya membantu siswa memahami state sistem tanpa instruksi panjang. Bukan chatbot dan bukan AI utama.
+English answer:
+The mascot is used as a visual feedback element and a bridge between interaction, gameplay, and education. It helps students understand system states without long instructions. It is not a chatbot and not the main AI model.
+
+If asked: "Why put education at the last layer?"
+Indonesian:
+Karena targetnya siswa SMP. Kalau edukasi ditaruh terlalu depan sebagai teori, pengalaman bisa terasa seperti ceramah. Dengan urutan interaksi, gameplay, lalu edukasi, siswa mengalami dulu baru merefleksikan konsep AI-nya.
+English answer:
+Because the target users are junior high school students. If the educational content appears too early as theory, the experience may feel like a lecture. By placing interaction and gameplay first, students experience the concept before reflecting on the AI literacy meaning.
+
+Final memory line:
+Draw -> Predict -> Decide -> Consequence -> Reflect.

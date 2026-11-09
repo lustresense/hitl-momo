@@ -1,0 +1,32 @@
+/* PRD 0.0.16 styles, owner: see task list. */
+
+/* ---------- R4 ThumbConfirm: thumb with a progress ring (owner: input-qa) ---------- */
+.thumb-confirm {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 6px;
+  background: none; border: 0; padding: 0; font: inherit; color: var(--nb-ink);
+  user-select: none; -webkit-user-select: none; touch-action: none;
+}
+button.thumb-confirm { cursor: pointer; }
+button.thumb-confirm:focus-visible { outline: 3px solid var(--nb-sky); outline-offset: 4px; border-radius: 50%; }
+.thumb-confirm__face {
+  position: relative; display: grid; place-items: center; width: 72px; height: 72px;
+  border-radius: 50%; background: var(--nb-paper);
+  border: var(--nb-border) solid var(--nb-ink); box-shadow: var(--nb-shadow-sm);
+  transition: transform .15s var(--nb-ease-pop);
+}
+.thumb-confirm__ring { position: absolute; inset: -2px; width: calc(100% + 4px); height: calc(100% + 4px); }
+.thumb-confirm__track { fill: none; stroke: var(--nb-leaf-soft); stroke-width: 6; }
+.thumb-confirm__fill { fill: none; stroke: var(--nb-green); stroke-width: 6; stroke-linecap: round; }
+.thumb-confirm__thumb { position: relative; display: grid; place-items: center; }
+.thumb-confirm__label { font-weight: 800; font-size: 14px; }
+.thumb-confirm.is-holding .thumb-confirm__face { transform: scale(1.06); background: var(--nb-yellow); }
+.thumb-confirm.is-confirmed .thumb-confirm__face { animation: thumb-confirm-pulse .45s var(--nb-ease-pop); background: var(--nb-leaf); }
+.thumb-confirm.is-disabled { opacity: .5; }
+@keyframes thumb-confirm-pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 var(--nb-green); }
+  50% { transform: scale(1.18); box-shadow: 0 0 0 10px transparent; }
+  100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .thumb-confirm__face, .thumb-confirm.is-confirmed .thumb-confirm__face { transition: none; animation: none; }
+}

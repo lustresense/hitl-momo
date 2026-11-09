@@ -1,0 +1,269 @@
+Create a 13-slide 16:9 proposal defense deck as an editable HTML-style presentation.
+
+Deck title:
+Interactive AI Literacy Simulation for Junior High School Students
+
+Main scope:
+This is NOT a language model project, NOT a chatbot project, and NOT a generative AI project. It is a visual AI literacy simulation for junior high school students. The system uses finger tracking / canvas drawing, sketch classification, Top-3 prediction with confidence score, Human-in-the-Loop decisions, and 2D gameplay consequences.
+
+Core loop:
+Draw -> Predict -> Decide -> Consequence
+
+Final contribution statement:
+An interactive experience that makes AI uncertainty visible and actionable.
+
+Visual style direction:
+Use the attached "PPT awal" SVG deck as the visual reference. Keep the new deck content from this prompt, but adapt the visual language from the old SVG deck.
+
+Style must feel:
+- playful but still formal for proposal defense
+- light sage or pale green background
+- subtle grid background
+- rounded white cards
+- dark navy text
+- bright green accent
+- friendly icon illustrations
+- clean spacing
+- not cluttered
+- presentation-friendly
+
+Important visual rules:
+- Every slide must be 16:9.
+- No text or visual element may overflow outside the slide.
+- Keep large titles, short subtitles, and compact cards.
+- Use diagrams, mockup-style cards, and icons instead of long paragraphs.
+- Use English for all slide text.
+- Keep speaker-friendly slide content, not dense academic text.
+- Use rounded cards and soft shadows similar to the initial SVG style.
+- Avoid the dark neon deck style. This version should look closer to the old "PPT awal" design.
+
+If using the attached SVG assets:
+- Reuse or visually adapt the drawing canvas mockup.
+- Reuse or visually adapt the Top-3 prediction panel mockup.
+- Reuse the playful icon/card style from the old deck.
+- Do not paste old Indonesian slide text into the new deck.
+- Recreate labels in English where needed.
+
+Project keywords that must appear naturally across the deck:
+- Finger tracking
+- Drawing canvas
+- Sketch classification
+- Top-3 UI
+- Confidence score
+- Accept / Correct / Override / Redraw
+- Human-in-the-Loop
+- 2D gameplay consequence
+- Interaction log
+- Mascot as visual companion
+- AI as assistant, not final authority
+
+Critical framing for MIT Little Language Models / CoCo:
+Mention MIT Little Language Models / CoCo only once or twice as conceptual design inspiration. Do not imply this project builds an LLM, trains a language model, uses generative AI, or copies CoCo implementation. The adapted idea is that AI literacy for younger learners should be exploratory, concrete, and playful. In this project, that idea is applied through visual classification, Top-3 prediction, confidence score, HITL decisions, and gameplay consequences.
+
+Slide structure:
+
+Slide 1 - Cover
+Title:
+Interactive AI Literacy Simulation for Junior High School Students
+Subtitle:
+Frontend Interaction Design, Top-3 UI, and Game-Based Human-in-the-Loop Experience
+Author:
+Farchan Deano Muhammad
+NRP: [insert NRP]
+Supervisors:
+Dr.-Ing. Hestiasari Rante, S.T., M.Sc.
+Sritrusta Sukaridhoto, S.T., Ph.D.
+Program:
+Applied Bachelor of Multimedia Engineering Technology
+Politeknik Elektronika Negeri Surabaya
+2026
+Visual:
+Large title, clean cover, small mascot/companion illustration, green accent.
+
+Slide 2 - Project Context
+Heading:
+Why This Project Is Needed
+Subheading:
+AI literacy should not only teach students how to use AI, but also how to evaluate AI output.
+Content cards:
+1. AI output is often treated as a final answer.
+   Impact: students may accept AI without evaluation.
+   Direction: show AI prediction as uncertain output.
+2. AI concepts are abstract.
+   Impact: students may not understand confidence and error.
+   Direction: use drawing-based interactive simulation.
+3. Existing learning media often lacks decision consequence.
+   Impact: students only observe, not decide.
+   Direction: add Human-in-the-Loop decision moment.
+Tiny note:
+Inspired by exploratory AI literacy approaches for younger learners, but implemented through visual classification and gameplay decisions.
+
+Slide 3 - Proposed Solution
+Heading:
+Proposed Solution
+Subheading:
+A web-based interactive simulation where students draw objects, inspect AI predictions, and decide the final object behavior.
+Main points:
+- Students draw objects through a canvas-based interaction.
+- The system displays AI prediction through a Top-3 UI.
+- Students choose to accept, correct, override, or redraw.
+- The decision affects object behavior inside the 2D game.
+- Interaction data is logged for decision-pattern analysis.
+Visual:
+Friendly flow diagram:
+Student Drawing -> AI Prediction -> Top-3 UI -> Human Decision -> 2D Gameplay Consequence -> Interaction Log
+
+Slide 4 - System Design Overview
+Heading:
+System Design Overview
+Subheading:
+The system is designed as one integrated global system with different development responsibilities.
+Visual:
+One global system diagram:
+Camera Input -> Finger Tracking Interaction -> Drawing Capture -> AI Classification Result -> Top-3 UI -> Decision Resolver -> Object Behavior Mapping -> 2D Gameplay Simulation -> Interaction Data Logging.
+Outputs:
+AI Literacy Prototype, Gameplay Outcome, Decision Pattern Data.
+Do not split author and partner into separate diagrams.
+
+Slide 5 - Development Scope
+Heading:
+Development Scope
+Subheading:
+This proposal focuses on the author's scope within a two-person project.
+Content cards or clean matrix:
+- User Interface: main screens, game HUD, Top-3 UI, feedback display.
+- Interaction: finger tracking, canvas drawing, navigation, decision input.
+- Gameplay: 2D level flow, object behavior, fail/retry condition.
+- Feedback: mascot response, level result, decision summary.
+- Documentation: user flow, interaction matrix, wireframe, level interaction design.
+Note:
+The author does not focus on AI model training and clustering. The author designs the interactive experience where AI output is used by students.
+
+Slide 6 - Interaction Matrix
+Heading:
+Interaction Matrix
+Subheading:
+The interaction matrix maps user input, system response, and where each interaction appears in the simulation.
+Content:
+I-01 Presence: wave hand -> system starts / mascot greets -> onboarding.
+I-02 Navigation: click / tap / gesture -> start, continue, next -> menu and tutorial.
+I-03 Drawing: canvas drawing -> drawing captured -> core loop.
+I-04 AI Request: submit drawing -> Top-3 prediction appears -> Top-3 UI.
+I-05 AI Decision: accept / correct / override -> final label selected -> HITL moment.
+I-06 Movement: keyboard / touch / gesture -> main character moves -> main gameplay.
+I-07 Feedback: user action result -> consequence appears -> result state.
+I-08 Recovery: retry / redraw / back -> user revises action -> fail state.
+I-09 Reflection: view summary -> decision summary appears -> end level.
+
+Slide 7 - Top-3 UI and Human Decision
+Heading:
+The Main Human-in-the-Loop Checkpoint
+Subheading:
+The student does not directly accept AI output. The Top-3 UI creates a decision point before the object enters gameplay.
+Visual:
+Use a drawing canvas mockup on the left and a Top-3 prediction panel mockup on the right, adapted from the old SVG assets if available.
+Decision roles:
+- Accept: student trusts the first prediction.
+- Correct: student selects another AI suggestion.
+- Override: student rejects AI suggestions.
+- Redraw: student revises unclear input.
+Keep this slide visually strong; it is the central interaction slide.
+
+Slide 8 - Object Behavior Mapping
+Heading:
+Student Decisions Become Gameplay Behavior
+Subheading:
+The final label is translated into object behavior inside the simulation world.
+Content:
+- Safe support object -> Solid -> used as platform/helper -> ladder, bridge, stairs.
+- Harmful object -> Danger -> causes fail or blocks progress -> fire, lightning, knife.
+- Invalid or unclear object -> Redraw/correction -> student revises drawing or label -> unclear sketch.
+Visual:
+Final Object Label -> Behavior Mapping -> Gameplay Result.
+
+Slide 9 - Level Interaction Design
+Heading:
+Level Interaction Design
+Subheading:
+Each level introduces a different intensity of AI uncertainty and student decision-making.
+Content:
+- Level 1: Guided recognition. Top-1 only. Draw and accept simple object. Learn that AI can classify sketches.
+- Level 2: Ambiguous prediction. Top-3 + confidence. Compare prediction alternatives. Learn that AI output has uncertainty.
+- Level 3: Critical decision. Confident but wrong prediction. Override or redraw. Learn that humans must validate AI.
+
+Slide 10 - User Flow and Use Case Summary
+Heading:
+User Flow and Use Case Summary
+Subheading:
+The flow is organized around Create, Decide, Consequence, and Reflect.
+User flow:
+Create -> Decide -> Consequence -> Reflect.
+Use case actors:
+- Student: start session, draw object, view AI prediction, make final decision, play level, view level summary.
+- Admin / Teacher: login dashboard, view session data, export interaction data.
+- Superadmin: manage admin account, manage class/group data.
+Visual:
+Two cards: one for user flow and one for use case overview.
+
+Slide 11 - System Hierarchy
+Heading:
+Interaction First, Education Through Play
+Subheading:
+The mascot bridges the system hierarchy so students learn from the experience, not from a lecture.
+Hierarchy:
+1. Interaction
+   Natural entry point through camera, gesture, drawing canvas, and simple UI.
+2. Gameplay & Storyline
+   A simple puzzle-platformer context turns drawing and prediction into a playable goal.
+3. Education
+   AI literacy appears through reflection on prediction, confidence, correction, and consequence.
+Mascot role:
+The mascot is a visual companion that softens instruction, signals uncertainty, and connects game feedback to AI literacy. It is not a chatbot and not the AI model itself.
+Small callout box title:
+Design Inspiration
+Small callout text:
+MIT Little Language Models / CoCo shows how AI concepts can be introduced to younger learners through playful exploration. This project adapts the interaction-first idea into a visual classification context: students draw, inspect Top-3 predictions, decide, and see gameplay consequences.
+Keep the callout small. Main message stays: Interaction First, Education Through Play.
+
+Slide 12 - Research Schedule and Main Contribution
+Heading:
+Research Schedule and Main Contribution
+Subheading:
+The project plan follows the development phases while keeping the main contribution focused on interactive AI literacy.
+Schedule:
+Concept: M1-M2
+Design: M2-M4
+Material Collecting: M4-M6
+Assembly: M5-M8
+User Testing: M8-M10
+Distribution: M10-M12
+Main contribution:
+An interactive experience that makes AI uncertainty visible and actionable.
+Supporting points:
+- Top-3 UI makes prediction uncertainty visible.
+- HITL decisions make students active validators.
+- Gameplay consequences make AI decisions meaningful.
+- Interaction logs support decision-pattern analysis.
+
+Slide 13 - Thank You
+Heading:
+Thank You
+Subheading:
+Questions and Discussion
+Closing statement:
+The proposed contribution is an interactive experience that makes AI uncertainty visible and actionable for junior high school students.
+Visual:
+Simple final slide with mascot/companion illustration, core loop Draw -> Predict -> Decide -> Consequence, and clean green accent.
+
+Presenter note guidance:
+If presenter notes are supported, add short Indonesian notes per slide. The notes should help the presenter explain the concept, not read the slide word-for-word. Avoid "Let me introduce myself." Use a direct opening such as:
+"Good morning, honorable supervisors and examiners. This proposal discusses how AI literacy can be introduced through interaction, not through theory first."
+
+Strict limitations:
+- Do not claim that CoCo has been implemented, evaluated, replicated, or technically integrated.
+- Do not say the system uses a language model.
+- Do not say the system trains a generative AI model.
+- Do not turn the mascot into a chatbot.
+- Do not change the final contribution statement.
+- Do not add dense academic paragraphs.
+- Do not add new slides beyond these 13.

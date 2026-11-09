@@ -1,0 +1,12 @@
+Sampel per kelas: 60,000
+Total sampel    : 1,200,000
+Loading model dari: /tmp/claude-0/-home-user-hitl-momo/70f1ddc5-ed67-5bfc-8173-b01b43d2907b/scratchpad/staging/sketchbook-universe/weights/model_4_mobilenetv2_best.keras
+{
+  "can_create_payload_status": 422,
+  "can_create_payload_detail": [
+    "join_token",
+    "student_id",
+    "candidates"
+  ],
+  "can_recordOutcome_PATCH_status": 404
+}

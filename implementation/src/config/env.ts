@@ -128,7 +128,10 @@ function configErrorProvider(message: string): PredictionProvider {
  * configured. Any partner/unknown-config state yields a clearly-labeled config
  * error provider — never fabricated output (FR-02/NFR-05).
  */
-export function createPredictionProvider(level: LevelDefinition): PredictionProvider {
+export function createPredictionProvider(
+  level: LevelDefinition,
+  tokenProvider?: () => string | undefined | Promise<string | undefined>,
+): PredictionProvider {
   if (env.predictionModeInvalid) {
     return configErrorProvider(
       `NEXT_PUBLIC_PREDICTION_MODE tidak dikenal (gunakan "mock" atau "partner"). Tidak ada prediksi yang dibuat.`,
@@ -157,6 +160,7 @@ export function createPredictionProvider(level: LevelDefinition): PredictionProv
         sendContext: env.predictionSendContext,
         contextProvider: (): PredictionContext => ({ levelId: level.levelId, attemptId: attemptContext.current() }),
         onProvenance: (p) => attemptContext.noteProvenance(p),
+        tokenProvider,
       });
     } catch (err) {
       // e.g. endpoint is not http(s): must not crash the app, must not fall back to mock.

@@ -13,6 +13,7 @@ import { DEFAULT_CHARACTER_NAME, resolveCharacterDisplayName } from "@/src/confi
 import { isLevelUnlocked } from "./level-progress";
 import { useEntryHold } from "./hooks/useEntryHold";
 import { recapFromFlow, useLevelSession } from "./hooks/useLevelSession";
+import { useClassroomSession } from "./hooks/useClassroomSession";
 import { CenterOfPage } from "@/src/components/ending/CenterOfPage";
 import { BookFlip } from "@/src/components/ui/BookFlip";
 import type { EndingChoice } from "@/src/components/ending/ending-types";
@@ -33,7 +34,11 @@ export function SketchbookApp() {
     process.env.NEXT_PUBLIC_CHARACTER_DISPLAY_NAME ?? DEFAULT_CHARACTER_NAME,
   );
   const route = useRouteState();
-  const session = useLevelSession(route);
+  const classroom = useClassroomSession();
+  const session = useLevelSession(route, {
+    outbox: classroom.outbox,
+    tokenProvider: () => classroom.session?.student_session_token,
+  });
   const { entryHold, startEntryHold } = useEntryHold();
   const { onboarding, routeNotice } = route;
   const { controller, creationsRef } = session;
@@ -138,6 +143,11 @@ export function SketchbookApp() {
                   window.localStorage.setItem("sketchbook.studentNumber", String(selectedNumber));
                 } catch {
                   /* Continue if storage is unavailable. */
+                }
+                if (classroom.joinToken) {
+                  void classroom.joinClass(selectedNumber, `Siswa ${selectedNumber}`).catch(() => {
+                    /* Non-blocking if join endpoint offline */
+                  });
                 }
                 navigateTo("/onboarding/card");
               }}

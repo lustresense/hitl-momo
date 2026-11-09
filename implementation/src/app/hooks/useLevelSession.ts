@@ -1,3 +1,5 @@
+import { SubmissionAdapter } from "@/src/api/submission-adapter";
+import type { OutboxQueue } from "@/src/api/outbox";
 /**
  * The running level: creates the FlowController (with its prediction provider and event sink) on
  * level entry, owns the per-level event sink lifecycle, the session's world creations and the
@@ -30,7 +32,15 @@ export function recapFromFlow(level: LevelDefinition, flow: Pick<FlowController,
   };
 }
 
-export function useLevelSession(route: Pick<RouteState, "setRouteNotice" | "redirectToLockedNotice">) {
+export interface LevelSessionOptions {
+  outbox?: OutboxQueue;
+  tokenProvider?: () => string | undefined;
+}
+
+export function useLevelSession(
+  route: Pick<RouteState, "setRouteNotice" | "redirectToLockedNotice">,
+  sessionOptions?: LevelSessionOptions,
+) {
   const { setRouteNotice, redirectToLockedNotice } = route;
   const [controller, setController] = useState<FlowController | null>(null);
   /** Same provider the FlowController uses; R11 provisional guesses while drawing read it too. */
@@ -81,7 +91,11 @@ export function useLevelSession(route: Pick<RouteState, "setRouteNotice" | "redi
         }
         setRouteNotice(null);
       }
-      const provider = createPredictionProvider(level);
+      const adapter = sessionOptions?.outbox
+        ? new SubmissionAdapter({ outbox: sessionOptions.outbox })
+        : null;
+
+      const provider = createPredictionProvider(level, sessionOptions?.tokenProvider);
       setProviderMode(env.predictionMode === "partner" && env.predictionEndpoint ? "partner" : "mock");
       // TEST HOOKS ONLY (NEXT_PUBLIC_TEST_HOOKS=1): expose mock controls for E2E.
       if (env.testHooksEnabled && provider instanceof MockPredictionProvider) {
@@ -92,7 +106,13 @@ export function useLevelSession(route: Pick<RouteState, "setRouteNotice" | "redi
       eventSinkRef.current?.dispose();
       const sink = createEventSink();
       eventSinkRef.current = sink;
-      const flow = new FlowController({ provider, sink, goalCompletesLevel: true });
+      const flow = new FlowController({
+        provider,
+        sink,
+        goalCompletesLevel: true,
+        onDecisionApplied: (s) => adapter?.handleDecisionApplied(s),
+        onGameplayResult: (r) => adapter?.handleGameplayResult(r),
+      });
       creationsRef.current.enterLevel(level.levelId);
       if (!missionSeenLevels.current.has(level.levelId)) {
         missionSeenLevels.current.add(level.levelId);
@@ -103,7 +123,7 @@ export function useLevelSession(route: Pick<RouteState, "setRouteNotice" | "redi
       setController(flow);
       flow.enterLevel(level);
     },
-    [redirectToLockedNotice, setRouteNotice],
+    [redirectToLockedNotice, setRouteNotice, sessionOptions?.outbox, sessionOptions?.tokenProvider],
   );
 
   /** Leave the running level for the level list and forget this session's world creations. */

@@ -46,6 +46,14 @@ describe("R9 Pusat Halaman", () => {
     expect(onChoose).toHaveBeenCalledWith("again");
   });
 
+  it("the overview has one card per finished level, Bab 4 included", () => {
+    const four: LevelRecap[] = [...recaps, { levelId: "stage-4-proof", title: "Bab 4", strokes: sq, finalLabel: "balok", category: "padat", decision: "accept", firstGuess: "tangga" }];
+    render(<CenterOfPage recaps={four} onChoose={vi.fn()} initialStage="overview" />);
+    expect(screen.getAllByRole("listitem")).toHaveLength(4);
+    expect(screen.getByText("Tebakan pertama Momo: tangga")).toBeTruthy();
+    expect(screen.getByText("Bab 4")).toBeTruthy();
+  });
+
   it("fits the student's strokes into the card", () => {
     const d = strokesToPath(sq, 120, 80);
     expect(d.startsWith("M")).toBe(true);

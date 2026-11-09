@@ -4,6 +4,15 @@
  * drag), toggled with Gambar; it never clears the whole page. Shown only while the student is drawing.
  */
 import { Icon, type IconName } from "../ui/Icon";
+import { ERASER_SIZE_PRESETS } from "../../input/eraser";
+import "./eraser-size.css";
+
+/** The three Hapus sizes shown under the Hapus tool: short label, Indonesian name, radius in CSS px. */
+const ERASER_SIZES = [
+  { short: "S", name: "kecil", px: ERASER_SIZE_PRESETS.small },
+  { short: "M", name: "sedang", px: ERASER_SIZE_PRESETS.medium },
+  { short: "L", name: "besar", px: ERASER_SIZE_PRESETS.large },
+] as const;
 
 interface ToolButtonProps {
   icon: IconName;
@@ -42,13 +51,46 @@ export interface DrawingToolbarProps {
   onErasingChange: (on: boolean) => void;
   onUndo: () => void;
   onRedo: () => void;
+  /** Hapus radius in CSS px now in use; the size button for it is shown pressed. */
+  eraserSize?: number;
+  /** Set the Hapus size (S / M / L). Without it the size buttons stay hidden. */
+  onEraserSizeChange?: (cssPx: number) => void;
 }
 
-export function DrawingToolbar({ enabled, erasing, onErasingChange, onUndo, onRedo }: DrawingToolbarProps) {
+export function DrawingToolbar({
+  enabled,
+  erasing,
+  onErasingChange,
+  onUndo,
+  onRedo,
+  eraserSize,
+  onEraserSizeChange,
+}: DrawingToolbarProps) {
   return (
     <aside className={`nb-toolbar${enabled ? "" : " is-idle"}`} role="toolbar" aria-label="Alat menggambar">
       <ToolButton icon="hand-draw" label="Gambar" ariaLabel="Gambar, gestur cubit" title="Gambar dengan cubitan jari" active={!erasing} disabled={!enabled} onClick={() => onErasingChange(false)} />
       <ToolButton icon="hand-erase" label="Hapus" ariaLabel="Hapus" title="Hapus bagian yang kamu geser, atau kepalkan tangan" active={erasing} extraClass="erase-tool" disabled={!enabled} onClick={() => onErasingChange(!erasing)} />
+      {erasing && onEraserSizeChange && (
+        <div className="eraser-size" role="group" aria-label="Ukuran penghapus">
+          {ERASER_SIZES.map((size) => {
+            const current = eraserSize !== undefined && Math.abs(eraserSize - size.px) < 0.5;
+            return (
+              <button
+                key={size.short}
+                type="button"
+                className={`eraser-size__btn${current ? " is-active" : ""}`}
+                aria-label={`Hapus ukuran ${size.name}`}
+                aria-pressed={current}
+                title={`Hapus ukuran ${size.name}`}
+                disabled={!enabled}
+                onClick={() => onEraserSizeChange(size.px)}
+              >
+                {size.short}
+              </button>
+            );
+          })}
+        </div>
+      )}
       <ToolButton icon="hand-undo" label="Mundur" ariaLabel="Undo Goresan" title="Mundur satu goresan" extraClass="undo-tool" disabled={!enabled} onClick={onUndo} />
       <ToolButton icon="hand-redo" label="Maju" ariaLabel="Maju" title="Maju satu goresan" extraClass="redo-tool" disabled={!enabled} onClick={onRedo} />
     </aside>

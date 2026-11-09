@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import type { MissionConfig } from "../../domain/mission-config";
 import { MomoChat } from "../momo/MomoChat";
 import { Icon, objectIconFor } from "../ui/Icon";
+import { DwellButton } from "../ui/DwellButton";
 import styles from "./MissionBriefing.module.css";
 
 export interface MissionBriefingProps {
@@ -140,15 +141,19 @@ export function MissionBriefing({
         aria-labelledby={titleId}
         className={styles.sheet}
       >
-        <button
-          ref={closeBtnRef}
-          type="button"
-          className={styles.closeButton}
-          onClick={handleDismiss}
-          aria-label="Tutup Petunjuk Misi"
-        >
-          <Icon name="close" size={20} stroke={3} />
-        </button>
+        {/* The frame is the close button's 60 px box; the dwell control inside fills it and takes the fingertip. */}
+        <div className={styles.closeButton}>
+          <DwellButton
+            ref={closeBtnRef}
+            bare
+            iconOnly
+            label="Tutup Petunjuk Misi"
+            onActivate={handleDismiss}
+            icon={<Icon name="close" size={20} stroke={3} />}
+          >
+            Tutup
+          </DwellButton>
+        </div>
 
         <h2 id={titleId} className="visually-hidden">
           {config.title}
@@ -174,13 +179,16 @@ export function MissionBriefing({
           )}
         </MomoChat>
 
-        {/* The thumb is the "go" gesture everywhere (win, story, hint); there is no skip. */}
-        <button ref={primaryBtnRef} type="button" className="gesture-cue" onClick={onStartDrawing}>
-          <span className="gesture-cue__hand">
-            <Icon name="thumb-up" size={30} stroke={2.2} />
-          </span>
-          <span className="gesture-cue__label">{config.primaryCtaLabel}</span>
-        </button>
+        {/* The thumb is the "go" gesture everywhere (win, story, hint); there is no skip. A dwell picks it too. */}
+        <DwellButton
+          ref={primaryBtnRef}
+          tone="cue"
+          className="gesture-cue"
+          onActivate={onStartDrawing}
+          icon={<Icon name="thumb-up" size={30} stroke={2.2} />}
+        >
+          {config.primaryCtaLabel}
+        </DwellButton>
       </div>
     </div>
   );

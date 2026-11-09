@@ -11,10 +11,12 @@ import { MissionBriefing } from "../mission/MissionBriefing";
 import type { DrawingSurface } from "@/src/input";
 import type { InputModeId } from "@/src/input/types";
 import { MomoChat } from "../momo/MomoChat";
-import { momoGuessMumble, momoMood } from "@/src/domain/momo-script";
+import { momoMood } from "@/src/domain/momo-script";
 import { Icon } from "../ui/Icon";
+import { DwellButton } from "../ui/DwellButton";
+import "../ui/nui-actions.css";
+import { ERASER_RADIUS_PX } from "@/src/input/eraser";
 import { MomoGuessChat } from "../prediction/MomoGuessChat";
-import { useMomoGuessStream } from "../prediction/useMomoGuessStream";
 import { DrawingActions } from "./DrawingActions";
 import { DrawingToolbar } from "./DrawingToolbar";
 import { useDrawingSurface } from "./hooks/useDrawingSurface";
@@ -45,12 +47,14 @@ export interface DrawingScreenProps {
   missionOpen?: boolean;
   onOpenMission?: () => void;
   onCloseMission?: () => void;
-  /** R11 streaming: provisional guess for the current strokes while drawing (shown as Momo's mumble only). */
-  provisionalGuess?: ((surface: DrawingSurface) => Promise<PredictionResult | null>) | null;
-  /** R11: submit by itself once the hand rests (GUESS_IDLE_MS). On by default. */
-  autoAsk?: boolean;
 }
 
+/**
+ * Drawing screen: the canvas, the tool/mission/exit chrome, Momo the companion and the Top-3 prediction popup.
+ * This replaces R11's auto-ask after the hand rests, by the Owner's instruction of 2026-11-09: while the student
+ * draws, Momo stays quiet (no mumbled guesses, no provisional model calls) and nothing is submitted by itself.
+ * The student says "selesai" with a thumbs-up (ThumbConfirm, 2 s); only then Momo guesses.
+ */
 export function DrawingScreen({
   level,
   initialMode,
@@ -72,14 +76,12 @@ export function DrawingScreen({
   missionOpen = false,
   onOpenMission = () => void 0,
   onCloseMission = () => void 0,
-  provisionalGuess = null,
-  autoAsk = true,
 }: DrawingScreenProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   // R13: camera mode always draws by hand (no picker); pointer only in fallback mode.
   const appInputMode = useInputMode();
   const [startMode] = useState<InputModeId>(() => drawModeFor(appInputMode, initialMode));
-  const { inputMode, hasInk, switchMode } = useDrawingSurface({ canvasRef, surfaceOut, initialMode: startMode, active });
+  const { inputMode, hasInk, handPose, switchMode } = useDrawingSurface({ canvasRef, surfaceOut, initialMode: startMode, active });
   useEffect(() => {
     if (!active) return;
     const wanted = drawModeFor(appInputMode, initialMode);
@@ -87,6 +89,8 @@ export function DrawingScreen({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [appInputMode, active]);
 
+  // Hapus size (CSS px): the S/M/L buttons show it; the surface owns the real radius and clamps it.
+  const [eraserSize, setEraserSize] = useState(ERASER_RADIUS_PX);
   const [erasing, setErasingState] = useState(false);
   const setErasing = (on: boolean) => {
     setErasingState(on);
@@ -108,15 +112,8 @@ export function DrawingScreen({
   // Hold the retained result back until Momo has arrived beside the popup.
   const visualPhase = waitingForArrival && phase === "evaluating" ? "predicting" : phase;
   const momoCue = resolveMomoCue(feedback, visualPhase, { stage: level.stage, prediction });
-  const stream = useMomoGuessStream({
-    surfaceOut,
-    active: active && phase === "drawing" && !missionOpen,
-    provisionalGuess,
-    onAsk: autoAsk ? () => onSubmit(null) : undefined,
-  });
-  // While drawing, Momo hums her provisional guess (not a decision, no number).
-  const mumbling = visualPhase === "drawing" && !feedback && stream.drawing;
-  const momoLines = mumbling ? momoGuessMumble(level.stage, stream.provisional) : momoCue.message ?? momoLineFor(momoCue.moment);
+  // While drawing Momo stays idle: her cue line only, no mumbled guess.
+  const momoLines = momoCue.message ?? momoLineFor(momoCue.moment);
   const showGuess = isProbe && !waitingForArrival && (phase === "evaluating" || phase === "prediction-error");
 
   return (
@@ -134,24 +131,43 @@ export function DrawingScreen({
         onErasingChange={setErasing}
         onUndo={() => surfaceOut.current?.undo()}
         onRedo={() => surfaceOut.current?.redo()}
+        eraserSize={eraserSize}
+        onEraserSizeChange={(px) => setEraserSize(surfaceOut.current?.setEraserRadius(px) ?? px)}
       />
 
-      <div className="drawing-corner">
+      {/*
+        Corner buttons: 60 px targets, 12 px apart. Both are off while the mission hint covers the screen, so a
+        click or a resting fingertip cannot reach them through it. A dwell picks them too; the click stays as the
+        fallback. They read the drawing surface's fingertip: no second hand reader is started here.
+      */}
+      <div className="drawing-corner nui-corner">
         {missionConfig && (
-          <button
-            type="button"
-            className="nb-iconbtn nb-iconbtn--accent mission-hint-btn"
-            data-testid="btn-mission-hint"
-            aria-label="Petunjuk Misi"
+          <DwellButton
+            iconOnly
+            tone="accent"
+            className="nb-iconbtn nui-corner-btn mission-hint-btn"
+            testId="btn-mission-hint"
+            label="Petunjuk Misi"
             title="Petunjuk misi"
-            onClick={onOpenMission}
+            disabled={missionOpen}
+            onActivate={onOpenMission}
+            icon={<Icon name="bulb" size={26} stroke={2.2} />}
           >
-            <Icon name="bulb" size={26} stroke={2.2} />
-          </button>
+            Petunjuk misi
+          </DwellButton>
         )}
-        <button type="button" className="nb-iconbtn drawing-exit" aria-label="Keluar Level" title="Keluar level" onClick={onExit}>
-          <Icon name="exit" size={24} stroke={2.2} />
-        </button>
+        <DwellButton
+          iconOnly
+          dwellMs={1800}
+          className="nb-iconbtn nui-corner-btn drawing-exit"
+          label="Keluar Level"
+          title="Keluar level"
+          disabled={missionOpen}
+          onActivate={onExit}
+          icon={<Icon name="exit" size={24} stroke={2.2} />}
+        >
+          Keluar level
+        </DwellButton>
       </div>
       {missionConfig && (
         <MissionBriefing isOpen={missionOpen} config={missionConfig} onStartDrawing={onCloseMission} onClose={onCloseMission} />
@@ -177,10 +193,9 @@ export function DrawingScreen({
       >
         <MomoChat
           lines={momoLines}
-          mood={mumbling ? "Penasaran" : momoCue.mood ?? momoMood(momoCue.moment)}
+          mood={momoCue.mood ?? momoMood(momoCue.moment)}
           fog={momoCue.fog}
           avatarHeight={showGuess ? 136 : 170}
-          typing={!mumbling}
           extrasFrom="always"
           className="momo-guess-chat"
         >
@@ -213,6 +228,9 @@ export function DrawingScreen({
         active={active}
         inputMode={inputMode}
         hasInk={hasInk}
+        // The drawing surface runs the one hand tracker; the finish ring reads its thumb (never a second tracker).
+        externalThumbUp={inputMode === "hand" && handPose === "thumb-up"}
+        finishPaused={missionOpen}
         onSwitchMode={(mode: InputModeId) => void switchMode(mode)}
         onSubmit={() => onSubmit(null)}
       />

@@ -23,6 +23,11 @@ export interface ThumbConfirmProps {
   disabled?: boolean;
   className?: string;
   testId?: string;
+  /**
+   * A screen that already runs the hand tracker (the drawing surface) passes its thumbs-up here, so this ring
+   * does not start a second tracker. When given, this ring never acquires the shared tracker.
+   */
+  externalThumbUp?: boolean;
 }
 
 const R = 30;
@@ -30,14 +35,24 @@ const CIRC = 2 * Math.PI * R;
 /** Drain speed relative to fill speed when the thumb is lost. */
 export const THUMB_DRAIN_RATIO = 0.5;
 
-export function ThumbConfirm({ holdMs, onConfirm, label = "Tahan jempol", disabled = false, className, testId = "thumb-confirm" }: ThumbConfirmProps) {
+export function ThumbConfirm({
+  holdMs,
+  onConfirm,
+  label = "Tahan jempol",
+  disabled = false,
+  className,
+  testId = "thumb-confirm",
+  externalThumbUp,
+}: ThumbConfirmProps) {
   const mode = useInputMode();
-  const gesture = useHandGesture(!disabled && mode === "camera");
+  // The hook is always called; with an external thumb it is simply inactive (no shared tracker).
+  const gesture = useHandGesture(!disabled && mode === "camera" && externalThumbUp === undefined);
+  const thumbUp = externalThumbUp ?? gesture.thumbUp;
   const [pressing, setPressing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [pulse, setPulse] = useState(false);
 
-  const holding = !disabled && (mode === "camera" ? gesture.thumbUp : pressing);
+  const holding = !disabled && (mode === "camera" ? thumbUp : pressing);
   const holdingRef = useRef(holding);
   holdingRef.current = holding;
   const onConfirmRef = useRef(onConfirm);

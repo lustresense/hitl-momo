@@ -73,13 +73,29 @@ export class OneEuroFilter2D {
   }
 }
 
+/** 1-euro tuning: cutoff at rest, speed sensitivity (beta), derivative cutoff. */
+export interface OneEuroParams {
+  minCutoff: number;
+  beta: number;
+  dCutoff: number;
+}
+
+/** Gameplay default, unchanged. */
+const DEFAULT_ONE_EURO: OneEuroParams = { minCutoff: 0.8, beta: 0.015, dCutoff: 1.0 };
+
+/**
+ * Hand drawing works in 0..1 frame coordinates, not pixels. With the gameplay beta (0.015) the filter
+ * stayed a fixed ~0.8 Hz low-pass, so the ink lagged the hand by about 0.2 s. A larger beta lets it follow fast moves.
+ */
+export const DRAWING_ONE_EURO: OneEuroParams = { minCutoff: 1.0, beta: 5.0, dCutoff: 1.0 };
+
 export class PointSmoother {
   private last: { x: number; y: number } | null = null;
   private oneEuro: OneEuroFilter2D | null = null;
 
-  constructor(private readonly alphaParam?: number) {
+  constructor(private readonly alphaParam?: number, params: OneEuroParams = DEFAULT_ONE_EURO) {
     if (alphaParam === undefined) {
-      this.oneEuro = new OneEuroFilter2D(0.8, 0.015, 1.0);
+      this.oneEuro = new OneEuroFilter2D(params.minCutoff, params.beta, params.dCutoff);
     }
   }
 

@@ -1,0 +1,20 @@
+/* NUI placements of the game and drawing buttons: where each one sits and how big it is. Rules: targets at least
+   56 px, at least 12 px between neighbours. Only the fail overlay uses DwellButton (its fingertip dwell); the
+   other buttons here are plain nb-buttons, because the drawing and stage screens already run a hand reader
+   (see the notes in each component). */
+
+/* Fail overlay: three DwellButtons in a row that wraps on a narrow screen. */
+.world-fail__actions.nui-fail-actions { gap: 12px; }
+.dwell-btn.nui-fail-action { width: auto; }
+/* Orange primary fill, as the old nb-btn--primary (ink on orange is 6.7:1). */
+.dwell-btn.nui-primary { background: var(--nb-orange, #ef7a37); }
+
+/* Stage HUD: "Gambar lagi", a plain button. */
+.nb-btn.nui-header-action { min-height: 56px; }
+
+/* Drawing corner: icon-only squares (Petunjuk Misi, Keluar Level), 12 px apart. */
+.drawing-corner.nui-corner { gap: 12px; }
+.drawing-corner .nb-iconbtn.nui-corner-btn { width: 60px; height: 60px; min-width: 60px; min-height: 60px; }
+
+/* Tebak Gambarku: a text button in the bottom row. */
+.drawing-submit-controls .nb-btn.nui-submit { min-height: 56px; }

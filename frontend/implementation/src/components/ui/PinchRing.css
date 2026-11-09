@@ -1,0 +1,38 @@
+/* PinchRing (cubit ring): the thumb ring's twin. Colours are the gesture tokens in app/styles/102-gesture.css.
+   Contrast is checked by tests/components/nui-contrast.test.ts. The face is always paper with an ink border,
+   so the ring never depends on the page behind it. */
+.pinch-ring {
+  display: inline-flex; flex-direction: column; align-items: center; gap: 6px;
+  background: none; border: 0; padding: 0; font: inherit; color: var(--nb-ink);
+  user-select: none; -webkit-user-select: none; touch-action: none;
+}
+button.pinch-ring { cursor: pointer; }
+button.pinch-ring:focus-visible { outline: 3px solid var(--nb-ring-focus); outline-offset: 4px; border-radius: 12px; }
+.pinch-ring__face {
+  position: relative; display: grid; place-items: center; width: 72px; height: 72px;
+  border-radius: 50%; background: var(--nb-paper);
+  border: var(--nb-border) solid var(--nb-ink); box-shadow: var(--nb-shadow-sm);
+  transition: transform .15s var(--nb-ease-pop), box-shadow .15s ease;
+}
+.pinch-ring__ring { position: absolute; inset: -2px; width: calc(100% + 4px); height: calc(100% + 4px); }
+.pinch-ring__track { fill: none; stroke: var(--nb-ring-track); stroke-width: 7; }
+.pinch-ring__fill { fill: none; stroke: var(--nb-ring-fill); stroke-width: 7; stroke-linecap: round; }
+.pinch-ring__icon { position: relative; display: grid; place-items: center; }
+.pinch-ring__label {
+  font-weight: 800; font-size: 14px; line-height: 1.2; text-align: center;
+  padding: 4px 12px; border: var(--nb-border) solid var(--nb-ink); border-radius: 999px;
+  background: var(--nb-paper); color: var(--nb-ink);
+}
+/* Holding: the face lifts and gets a yellow halo, and the label inverts. Two cues, not only colour. */
+.pinch-ring.is-holding .pinch-ring__face { transform: scale(1.06); box-shadow: 0 0 0 6px var(--nb-ring-halo), var(--nb-shadow-sm); }
+.pinch-ring.is-holding .pinch-ring__label { background: var(--nb-ink); color: var(--nb-paper); }
+.pinch-ring.is-confirmed .pinch-ring__face { animation: pinch-ring-pulse .45s var(--nb-ease-pop); }
+.pinch-ring.is-disabled { opacity: .55; }
+@keyframes pinch-ring-pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 var(--nb-ring-fill); }
+  50% { transform: scale(1.18); box-shadow: 0 0 0 10px transparent; }
+  100% { transform: scale(1); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pinch-ring__face, .pinch-ring.is-confirmed .pinch-ring__face { transition: none; animation: none; }
+}

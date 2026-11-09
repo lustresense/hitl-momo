@@ -1,7 +1,7 @@
 "use client";
 /**
  * Tutorial: three number cards deal in, fan out, and each one in turn flies to the centre, flips and unfolds
- * into a little book (guide page + practice page). Holding the thumbs-up on "Lanjut" closes the book into a card again, which
+ * into a little book (guide page + practice page). Holding a pinch on "Lanjut" closes the book into a card again, which
  * slides onto the "done" pile on the left while the next card is already travelling in from the pile on the right.
  *
  * One GSAP timeline per step, overlapped so nothing waits for anything: transform-only (no width/height
@@ -15,11 +15,12 @@ import { Icon, type IconName } from "../ui/Icon";
 import { MomoGuide } from "../momo/MomoGuide";
 import { tutorialStep, type TutorialMoment } from "@/src/domain/guide-script";
 import { ThinmanArt } from "../ui/ThinmanArt";
-import { ThumbConfirm } from "../ui/ThumbConfirm";
+import { PinchRing } from "../ui/PinchRing";
 import { useInputMode } from "@/src/hooks/useHandGesture";
 import { renderCharacterASideSvg } from "@/src/game/character/character-a-svg";
 import { walkT } from "@/src/game/character/pose-math";
 import { getPrefersReducedMotion, subscribePrefersReducedMotion } from "./tutorial-motion";
+import "./TutorialBrochure.css";
 
 interface TutorialBrochureProps {
   onStart(): void;
@@ -75,23 +76,79 @@ export function advanceWalkPhase(phase: number, dxPct: number): number {
   return (((phase + Math.abs(dxPct) / TUTORIAL_STRIDE_PCT) % 1) + 1) % 1;
 }
 
+/** Thinman's walk ends at the flag (percent of the scene width). */
+const WALK_END = 76;
+/** A full pinch ring walks Thinman the rest of the way in about a second and a half. */
+const WALK_MS = 1400;
+/** How long a pinch (or a press, without a camera) fills the card-1 ring. */
+const PINCH_HOLD_MS = 1200;
+
+/** The gesture line on each card: what to do, in the input mode the student is in. Every advance is a pinch. */
+function gestureHint(index: CardIndex, camera: boolean, walked: boolean): { icon: IconName; text: string } {
+  if (index === 0) {
+    if (camera) return { icon: "hand-draw", text: "Cubit tanganmu, lalu tahan sampai cincin penuh." };
+    return walked
+      ? { icon: "hand-draw", text: "Tahan tombolnya sampai cincin penuh." }
+      : { icon: "arrow-right", text: "Geser Thinman ke bendera dulu." };
+  }
+  if (index === 1) return { icon: "hand-draw", text: camera ? "Cubit tanganmu, lalu tahan sampai cincin penuh." : "Tahan tombolnya sampai cincin penuh." };
+  return {
+    icon: "hand-draw",
+    text: camera ? "Coba tiap gestur di kanvas, lalu cubit dan tahan buat mulai." : "Coba tiap alat di kanan, lalu tahan tombolnya buat mulai.",
+  };
+}
+
 /* ---------- Practice page 1: walk Thinman to the flag ---------- */
-function WalkPlayground({ onComplete }: { onComplete(): void }) {
+function WalkPlayground({ onComplete, walkRequest }: { onComplete(): void; walkRequest: { ms: number } | null }) {
   const [walk, setWalk] = useState({ pos: 14, phase: 0, facing: 1 });
   const [moved, setMoved] = useState(false);
   const pos = walk.pos;
-  const done = pos >= 76;
-  function move(event: PointerEvent<HTMLDivElement>) {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const next = Math.max(10, Math.min(78, ((event.clientX - rect.left) / rect.width) * 100));
+  const done = pos >= WALK_END;
+  const posRef = useRef(pos);
+  posRef.current = pos;
+  const completeRef = useRef(onComplete);
+  completeRef.current = onComplete;
+
+  /** Drag and the pinch walk both move Thinman through here, so the walk cycle follows the distance (R5).
+   *  Tiny drag jitter is skipped; the walk's last step is exact, so Thinman always lands on the flag. */
+  const place = useCallback((next: number, exact = false) => {
     setWalk((prev) => {
       const dx = next - prev.pos;
-      if (Math.abs(dx) <= 0.2) return prev;
+      if (!exact && Math.abs(dx) <= 0.2) return prev;
       return { pos: next, phase: advanceWalkPhase(prev.phase, dx), facing: dx < 0 ? -1 : 1 };
     });
     setMoved(true);
-    if (next >= 76) onComplete();
+  }, []);
+
+  function move(event: PointerEvent<HTMLDivElement>) {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const next = Math.max(10, Math.min(78, ((event.clientX - rect.left) / rect.width) * 100));
+    place(next, next >= WALK_END);
+    if (next >= WALK_END) completeRef.current();
   }
+
+  // A full pinch ring: Thinman walks the rest of the way in one smooth stride, then the card may move on.
+  useEffect(() => {
+    if (!walkRequest) return;
+    const from = posRef.current;
+    if (from >= WALK_END) {
+      completeRef.current();
+      return;
+    }
+    const steps = Math.max(1, Math.round(walkRequest.ms / 16));
+    let step = 0;
+    const timer = window.setInterval(() => {
+      step++;
+      const t = Math.min(1, step / steps);
+      place(from + (WALK_END - from) * t * t * (3 - 2 * t)); // smoothstep: soft start and stop
+      if (step >= steps) {
+        window.clearInterval(timer);
+        place(WALK_END, true);
+        completeRef.current();
+      }
+    }, 16);
+    return () => window.clearInterval(timer);
+  }, [walkRequest, place]);
   // The real rig walk cycle (same walkT the game's CharacterAnimationAdapter uses), not two alternating poses.
   const walkSvg = moved ? renderCharacterASideSvg(walkT(walk.phase), 0) : "";
   return (
@@ -271,6 +328,9 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
   const redoRef = useRef<ImageData[]>([]);
   const toolRef = useRef<Tool>("draw");
   toolRef.current = tool;
+  // Card 1: a full pinch ring asks Thinman to walk to the flag, and the card then moves on.
+  const [walkRequest, setWalkRequest] = useState<{ ms: number } | null>(null);
+  const advanceAfterWalk = useRef(false);
 
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => getPrefersReducedMotion());
   useEffect(() => subscribePrefersReducedMotion(setPrefersReducedMotion), []);
@@ -491,9 +551,22 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
     if (next === "erase") mark("erase");
   }
 
-  const ready = (index: CardIndex) => (index === 0 ? walked : index === 1 ? true : Boolean(used.draw && used.undo));
+  // Card 1 with the camera: the pinch ring is the practice, so it is ready at once. With a mouse, Thinman walks first.
+  const ready = (index: CardIndex) => (index === 0 ? walked || inputMode === "camera" : index === 1 ? true : Boolean(used.draw && used.undo));
   const next = (index: CardIndex) => {
     if (open === index && ready(index)) goNext(index);
+  };
+  /** Thinman reached the flag, by a drag or by the pinch ring's walk. A pinch ring also moves the card on. */
+  const onWalkDone = () => {
+    setWalked(true);
+    if (!advanceAfterWalk.current) return;
+    advanceAfterWalk.current = false;
+    goNext(0);
+  };
+  /** The card-1 pinch ring is the practice itself: it walks Thinman to the flag and moves on. */
+  const pinchWalk = () => {
+    advanceAfterWalk.current = true;
+    setWalkRequest({ ms: reducedRef.current ? 300 : WALK_MS });
   };
 
   // Momo guides each card. While a card is folding shut the last thing she said stays (no flicker back to the start).
@@ -505,8 +578,9 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
     : momentRef.current;
   momentRef.current = moment;
 
-  const pages: Array<{ title: string; copy: string; cta: string; ctaIcon: IconName; holdMs: 1000 | 2000 }> = [
-    { title: `Kenalin ${characterName}`, copy: "Dia mau menyeberangi buku gambar ini. Geser tanganmu ke kanan dan kiri buat ajak dia jalan ke bendera.", cta: "Lanjut", ctaIcon: "arrow-right", holdMs: 1000 },
+  // holdMs: card 1 is the walk ring (PINCH_HOLD_MS); "Lanjut" 1 s; "Mulai Level 1" 2 s (R5).
+  const pages: Array<{ title: string; copy: string; cta: string; ctaIcon: IconName; holdMs: number }> = [
+    { title: `Kenalin ${characterName}`, copy: "Dia mau menyeberangi buku gambar ini. Bantu dia jalan sampai ke bendera.", cta: "Lanjut", ctaIcon: "arrow-right", holdMs: PINCH_HOLD_MS },
     { title: "Pijakan aman, atau bahaya", copy: `Gambar benda padat kayak balok atau tangga biar ${characterName} bisa lewat. Hindari benda bahaya kayak duri biar bukunya nggak sobek.`, cta: "Lanjut", ctaIcon: "arrow-right", holdMs: 1000 },
     { title: "Coba gestur tanganmu", copy: "Coret di kanvas pakai jarimu, lalu coba hapus, mundur, dan maju. Tiap gestur yang kamu coba akan tercentang.", cta: "Mulai Level 1", ctaIcon: "play", holdMs: 2000 },
   ];
@@ -523,6 +597,7 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
         {pages.map((page, index) => {
           const i = index as CardIndex;
           const isReady = ready(i);
+          const hint = gestureHint(i, inputMode === "camera", walked);
           return (
             <article
               key={i}
@@ -554,11 +629,21 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
                   </div>
                   <h2 className="guide-title">{page.title}</h2>
                   <p className="guide-copy">{page.copy}</p>
-                  {/* R5: "Lanjut" is a 1 s thumbs-up, "Mulai Level 1" a 2 s one; locked until the practice is done. */}
+                  <p className="tut-gesture">
+                    <Icon name={hint.icon} size={22} stroke={2.4} />
+                    <span>{hint.text}</span>
+                  </p>
+                  {/* Every card advances with a pinch ring: a round cubit button that fills while pinched (or held
+                      with the mouse) and moves the card on when full. Locked until the practice is done (camera mode on
+                      card 1: the pinch ring is the practice itself, so it is ready at once). */}
                   {isReady && open === i ? (
                     <div className="brochure-cta brochure-cta--thumb is-ready" onClick={(event) => event.stopPropagation()}>
-                      <ThumbConfirm holdMs={page.holdMs} label={page.cta} onConfirm={() => next(i)} testId={`tutorial-thumb-${i + 1}`} />
-                      <span className="brochure-cta__label">{page.cta}</span>
+                      <PinchRing
+                        holdMs={page.holdMs}
+                        label={page.cta}
+                        onConfirm={i === 0 ? pinchWalk : () => next(i)}
+                        testId={`tutorial-pinch-${i + 1}`}
+                      />
                     </div>
                   ) : (
                     <div className="brochure-cta brochure-cta--locked nb-btn" aria-disabled="true" data-locked={isReady ? undefined : "true"}>
@@ -574,7 +659,7 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
                 }}
                 className="tut-play play-panel"
               >
-                {i === 0 && <WalkPlayground onComplete={() => setWalked(true)} />}
+                {i === 0 && <WalkPlayground onComplete={onWalkDone} walkRequest={walkRequest} />}
                 {i === 1 && <SafetyPlayground />}
                 {i === 2 && <DrawPlayground canvasRef={canvasRef} tool={tool} used={used} onTool={selectTool} onBeginStroke={beginStroke} onMoveStroke={moveStroke} onEndStroke={endStroke} onUndo={undoDrawing} onRedo={redoDrawing} />}
               </section>

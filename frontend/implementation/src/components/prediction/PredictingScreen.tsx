@@ -4,6 +4,10 @@
  * Every failure offers explicit recovery: retry keeps the drawing,
  * redraw returns to the canvas. Nothing is fabricated on failure.
  */
+import { DwellButton } from "../ui/DwellButton";
+import { HandCursor } from "../ui/HandCursor";
+import { Icon } from "../ui/Icon";
+
 export interface PredictingScreenProps {
   error: boolean;
   detail: string | null;
@@ -29,12 +33,24 @@ export function PredictingScreen({ error, detail, onRetry, onRedraw }: Predictin
             Penyedia prediksi tidak dapat menyelesaikan permintaan
             {detail ? ` (${detail})` : ""}. Tidak ada hasil yang dikarang — coba lagi atau gambar ulang.
           </p>
-          <button type="button" className="btn btn-primary" data-testid="btn-retry-prediction" onClick={onRetry}>
+          <DwellButton
+            testId="btn-retry-prediction"
+            className="dwell-btn--primary"
+            label="Coba Lagi"
+            icon={<Icon name="again" size={20} />}
+            onActivate={onRetry}
+          >
             Coba Lagi
-          </button>
-          <button type="button" className="btn" data-testid="btn-redraw-from-error" onClick={onRedraw}>
+          </DwellButton>
+          <DwellButton
+            testId="btn-redraw-from-error"
+            label="Gambar Ulang"
+            icon={<Icon name="pencil" size={20} />}
+            onActivate={onRedraw}
+          >
             Gambar Ulang
-          </button>
+          </DwellButton>
+          <HandCursor />
         </div>
       )}
     </section>

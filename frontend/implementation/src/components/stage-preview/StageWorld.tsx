@@ -1,4 +1,5 @@
 import { StageArtwork } from './StageArtwork';
+import { StageArtworkFinal } from './StageArtworkFinal';
 import type { SceneIndex } from './scene-metadata';
 import styles from './stage-world.module.css';
 
@@ -16,7 +17,7 @@ export function StageWorld({ scene, className, gameplay = false }: StageWorldPro
       data-testid="stage-world"
       data-scene={scene}
     >
-      <StageArtwork scene={scene} gameplay={gameplay} />
+      {scene === 4 ? <StageArtworkFinal gameplay={gameplay} /> : <StageArtwork scene={scene} gameplay={gameplay} />}
     </div>
   );
 }

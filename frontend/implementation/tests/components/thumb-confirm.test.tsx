@@ -2,9 +2,14 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { ThumbConfirm } from "@/src/components/ui/ThumbConfirm";
 import { forceInputMode, resetInputModeForTest } from "@/src/input/input-mode";
-import { resetThumbTrackerForTest, simulateThumb } from "@/src/camera/thumb-tracker";
+import { acquireThumbTracker, resetThumbTrackerForTest, simulateThumb } from "@/src/camera/thumb-tracker";
 
 vi.mock("@/src/camera/hand-landmarker", () => ({ createHandLandmarker: vi.fn(() => new Promise(() => {})) }));
+// Spy on the shared tracker (real behaviour kept) to prove which rings start it.
+vi.mock("@/src/camera/thumb-tracker", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/src/camera/thumb-tracker")>();
+  return { ...actual, acquireThumbTracker: vi.fn(actual.acquireThumbTracker) };
+});
 
 function advance(ms: number) {
   for (let t = 0; t < ms; t += 16) act(() => { vi.advanceTimersByTime(16); });
@@ -16,6 +21,7 @@ describe("ThumbConfirm (PRD 0.0.16 R4)", () => {
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "requestAnimationFrame", "cancelAnimationFrame", "performance", "Date"] });
     resetInputModeForTest();
     resetThumbTrackerForTest();
+    vi.mocked(acquireThumbTracker).mockClear();
   });
   afterEach(() => {
     cleanup();
@@ -118,5 +124,29 @@ describe("ThumbConfirm (PRD 0.0.16 R4)", () => {
     act(() => simulateThumb(true));
     advance(1200);
     expect(onConfirm).toHaveBeenCalledTimes(1);
+  });
+
+  it("externalThumbUp: the caller's thumb fills the camera ring and the ring never starts the shared tracker", () => {
+    const onConfirm = vi.fn();
+    const { rerender } = render(<ThumbConfirm holdMs={2000} onConfirm={onConfirm} externalThumbUp={false} />);
+    advance(50); // arms after seeing no thumb
+    rerender(<ThumbConfirm holdMs={2000} onConfirm={onConfirm} externalThumbUp />);
+    advance(1000);
+    expect(progress()).toBeGreaterThan(40);
+    expect(onConfirm).not.toHaveBeenCalled();
+    advance(1100);
+    expect(onConfirm).toHaveBeenCalledTimes(1);
+    expect(acquireThumbTracker).not.toHaveBeenCalled();
+  });
+
+  it("externalThumbUp=false ignores a thumb the shared tracker reports, so the ring stays with its owner", () => {
+    const onConfirm = vi.fn();
+    render(<ThumbConfirm holdMs={1000} onConfirm={onConfirm} externalThumbUp={false} />);
+    advance(50);
+    act(() => simulateThumb(true));
+    advance(2000);
+    expect(onConfirm).not.toHaveBeenCalled();
+    expect(progress()).toBe(0);
+    expect(acquireThumbTracker).not.toHaveBeenCalled();
   });
 });

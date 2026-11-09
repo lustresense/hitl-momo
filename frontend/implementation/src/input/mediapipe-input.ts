@@ -1,17 +1,21 @@
 import type { HandLandmarker, HandLandmarkerResult } from "@mediapipe/tasks-vision";
 import type { Landmark, StrokeStore } from "./types";
 import type { HandFailureReason, HandInputStatus } from "./types";
-import { classifyHandPose, evaluateGesture, type CursorState, type HandPose } from "./hand-gesture";
-import { mapToCanvas } from "./hand-gesture";
-import { PointSmoother } from "./smoothing";
+import { classifyHandPose, evaluateGesture, indexTipNormalized, type HandPose } from "./hand-gesture";
+import { HandStrokePipeline, type HandCursor, type HandFrame } from "./hand-stroke-pipeline";
+import { ERASER_RADIUS_PX, fixedEraserControl, type EraserControl } from "./eraser";
 import { getSharedStream, subscribeSharedStream } from "../camera/shared-stream";
+import { publishHand, retireHand, startHandHeartbeat } from "../camera/hand-cursor-store";
 import { createHandLandmarker, delegateLabel } from "../camera/hand-landmarker";
 import { classifyCameraError, messageFor, type CameraFailureReason } from "../camera/messages";
+
+export { ERASER_RADIUS_PX };
 
 /**
  * TASK 05 — MediaPipe HandLandmarker drawing driver (client-only).
  *
- * PROVISIONAL gesture: index-finger cursor + thumb-index pinch toggles ink.
+ * Camera and model lifecycle live here; the per-frame rules (pose vote, stroke start/release,
+ * loss grace, eraser) live in HandStrokePipeline so the tests and the live path share them.
  * - Browser-only; never imported on the server (dynamic import at call site).
  * - Starts only when the student enters hand-drawing mode.
  * - Fully cleaned up when leaving drawing mode (camera tracks, rAF, landmarker).
@@ -26,9 +30,11 @@ export interface HandDriverOptions {
   wasmRoot?: string;
   onStatus(status: HandInputStatus): void;
   onRender(): void;
-  onCursor?: (cursor: { x: number; y: number; state: "hover" | "near" | "drawing" } | null) => void;
-  /** PRD 0.0.16 R12: classified pose once per processed frame ("none" when no hand). Debounce lives in the UI. */
+  onCursor?: (cursor: HandCursor | null) => void;
+  /** PRD 0.0.16 R12: stable (voted) pose once per processed frame ("none" when no hand). The UI debounces it into commands. */
   onPose?: (pose: HandPose, nowMs: number) => void;
+  /** Eraser setting owned by the surface (the fist, the Hapus tool and the two-hand sizer share it). */
+  eraser?: EraserControl;
 }
 
 export class HandDrawingDriver {
@@ -39,21 +45,33 @@ export class HandDrawingDriver {
   private rafId = 0;
   private running = false;
   private lastVideoTime = -1;
-  private smoother = new PointSmoother();
-  private wasPinched = false;
-  private alreadyLost = false;
+  /** Clock time of the last frame sent through the pipeline (camera frame or lost report). */
+  private lastFedMs = 0;
+  private readonly pipeline: HandStrokePipeline;
   /** Bumped by every start()/stop(); an async start whose token is stale must not touch state. */
   private generation = 0;
   private unsubscribeStream: (() => void) | null = null;
   private onVisibility: (() => void) | null = null;
+  /** Keeps this reader alive in the shared cursor store while the model loads (no frames yet). */
+  private stopHeartbeat: (() => void) | null = null;
 
-  constructor(private readonly options: HandDriverOptions) {}
+  constructor(private readonly options: HandDriverOptions) {
+    this.pipeline = new HandStrokePipeline({
+      store: options.store,
+      size: () => ({ width: options.canvas.width, height: options.canvas.height }),
+      eraser: options.eraser ?? fixedEraserControl(options.canvas, ERASER_RADIUS_PX),
+      onPose: options.onPose,
+    });
+  }
 
   async start(): Promise<void> {
     const { onStatus } = this.options;
     this.running = true;
+    this.lastFedMs = performance.now();
     const myGen = ++this.generation;
     const stale = () => !this.running || this.generation !== myGen;
+    // Visible to the dwell buttons from now on, so they never start a second model while this one loads.
+    this.beginReader();
     try {
       onStatus({ kind: "initializing" });
 
@@ -85,9 +103,11 @@ export class HandDrawingDriver {
       if (stale()) return;
       this.watchBorrowedStream();
 
+      // Two hands: one draws or erases (the fist or the pinch), the other sets the eraser size.
       const created = await createHandLandmarker({
         wasmRoot: this.options.wasmRoot ?? "/mediapipe/wasm",
         modelUrl: this.options.modelUrl,
+        numHands: 2,
       });
       if (stale()) {
         // stop() raced the async start: do not leave an orphan landmarker behind.
@@ -98,12 +118,24 @@ export class HandDrawingDriver {
 
       onStatus({ kind: "ready", delegate: delegateLabel(created) });
       this.watchVisibility();
+      this.endHeartbeat();
       this.loop();
     } catch (err) {
       if (stale()) return; // superseded by stop()/restart: the caller already moved on
       await this.stop();
       this.fail(classifyCameraError(err));
     }
+  }
+
+  private beginReader(): void {
+    this.endHeartbeat();
+    publishHand({ cursor: null, source: "drawing" });
+    this.stopHeartbeat = startHandHeartbeat("drawing");
+  }
+
+  private endHeartbeat(): void {
+    this.stopHeartbeat?.();
+    this.stopHeartbeat = null;
   }
 
   /** Report a failure with a short Indonesian reason; the caller falls back to pointer. */
@@ -138,7 +170,7 @@ export class HandDrawingDriver {
   private watchVisibility(): void {
     if (typeof document === "undefined" || this.onVisibility) return;
     this.onVisibility = () => {
-      if (document.hidden) this.process(undefined, performance.now());
+      if (document.hidden) this.apply(this.pipeline.reset(performance.now()));
     };
     document.addEventListener("visibilitychange", this.onVisibility);
   }
@@ -149,7 +181,7 @@ export class HandDrawingDriver {
    */
   feedLandmarksForTest(landmarks: Landmark[] | undefined, timestampMs: number): void {
     if (!this.running) return;
-    this.process(landmarks, timestampMs);
+    this.process(landmarks ? [landmarks] : undefined, timestampMs);
   }
 
   private loop = (): void => {
@@ -160,80 +192,61 @@ export class HandDrawingDriver {
     // Hidden tab: skip inference entirely (rAF is throttled anyway; this also covers occluded windows).
     if (typeof document !== "undefined" && document.hidden) return;
     const now = performance.now();
-    if (video.currentTime === this.lastVideoTime) return;
+    if (video.currentTime === this.lastVideoTime) {
+      // No new camera frame. After a long freeze, report the hand as lost so the open line closes;
+      // otherwise the next frame would draw a straight jump from the old point.
+      if (now - this.lastFedMs > CAMERA_STALL_MS) this.process(undefined, now);
+      return;
+    }
     this.lastVideoTime = video.currentTime;
     let result: HandLandmarkerResult;
     try {
       result = this.landmarker.detectForVideo(video, now);
     } catch {
       // A throwing tracker will keep throwing: end the stroke, stop, and let the caller fall back.
-      this.process(undefined, now);
+      this.apply(this.pipeline.reset(now));
       void this.stop().then(() => this.fail("tracker-error"));
       return;
     }
-    this.process(result.landmarks[0], now);
+    this.process(result.landmarks, now);
   };
 
-  /** Shared pipeline for camera frames and injected test landmarks. */
-  private process(landmarks: Landmark[] | undefined, _timestampMs: number): void {
-    const { frame, pose } = gateFrameByPose(evaluateGesture(landmarks), landmarks, _timestampMs, this.options.onPose);
-    const { store, canvas, onStatus, onRender, onCursor } = this.options;
+  /** `hands`: every hand MediaPipe reports this frame (none = undefined or empty). */
+  private process(hands: Landmark[][] | undefined, nowMs: number): void {
+    this.lastFedMs = nowMs;
+    const frame = this.pipeline.feedHands(hands, nowMs);
+    this.apply(frame);
+    const hand = cursorHandOf(hands);
+    publishHand({
+      cursor: hand ? indexTipNormalized(hand) : null,
+      pose: frame.pose,
+      thumbUp: frame.pose === "thumb-up",
+      pinch: frame.pose === "pinch",
+      source: "drawing",
+    });
+  }
 
-    if (frame.state === "lost") {
-      // End any open stroke so reacquisition never draws jump lines.
-      // Repeated "lost" frames while already idle change nothing: skip the redraw (perf).
-      if (this.alreadyLost && !this.wasPinched) return;
-      this.alreadyLost = true;
-      if (store.hasInk() || this.wasPinched) store.endStroke();
-      if (store.isErasing()) store.endErase();
-      this.wasPinched = false;
-      this.smoother.reset();
-      onCursor?.(null);
-      onStatus({ kind: "tracking-lost" });
-      onRender();
-      return;
-    }
-
-    this.alreadyLost = false;
-    onStatus({ kind: frame.pinched ? "drawing" : "ready" });
-    const smoothed = this.smoother.smooth(frame.cursor, _timestampMs);
-    const pt = mapToCanvas(smoothed, canvas.width, canvas.height);
-    onCursor?.({ x: pt.x, y: pt.y, state: frame.cursorState });
-
-    // R12 kepal = Hapus (or the eraser tool on): the cursor erases under the cursor while held; one pass = one undo step.
-    if (pose === "fist" || store.eraserMode) {
-      if (this.wasPinched) store.endStroke();
-      this.wasPinched = false;
-      store.eraseAt(pt, ERASER_RADIUS_PX);
-      onRender();
-      return;
-    }
-    if (store.isErasing()) store.endErase();
-
-    if (frame.pinched && !this.wasPinched) {
-      store.beginStroke();
-      store.addPoint(pt);
-    } else if (frame.pinched && this.wasPinched) {
-      store.addPoint(pt);
-    } else if (!frame.pinched && this.wasPinched) {
-      store.addPoint(pt);
-      store.endStroke();
-    }
-    this.wasPinched = frame.pinched;
-    onRender();
+  /** Reports one frame: status, cursor, and a redraw only when the canvas changed. */
+  private apply(frame: HandFrame): void {
+    this.options.onStatus(frame.status);
+    this.options.onCursor?.(frame.cursor);
+    if (frame.changed) this.options.onRender();
   }
 
   async stop(): Promise<void> {
     this.running = false;
     this.generation++;
     cancelAnimationFrame(this.rafId);
+    this.endHeartbeat();
+    retireHand("drawing");
     this.unsubscribeStream?.();
     this.unsubscribeStream = null;
     if (this.onVisibility && typeof document !== "undefined") {
       document.removeEventListener("visibilitychange", this.onVisibility);
     }
     this.onVisibility = null;
-    if (this.options.store) this.options.store.endStroke();
+    // Closes any open stroke or eraser pass now, so no line or undo step is left half-open.
+    if (this.pipeline.reset(performance.now()).changed) this.options.onRender();
     this.options.onCursor?.(null);
     // Only release tracks we opened; a borrowed (shared) stream stays alive
     // for its owner (GlobalCamera) and the next hand-mode session.
@@ -250,9 +263,6 @@ export class HandDrawingDriver {
     } catch {
       /* close is best-effort */
     }
-    this.smoother.reset();
-    this.wasPinched = false;
-    this.alreadyLost = false;
   }
 }
 
@@ -268,13 +278,30 @@ function toHandReason(reason: CameraFailureReason): HandFailureReason {
   }
 }
 
+/**
+ * The hand the shared cursor follows: the fist (the eraser hand) first, then a pinching hand, else the first seen.
+ * Mirrors the drawing pipeline's pick closely enough for a cursor; the pipeline keeps the ink choice.
+ */
+function cursorHandOf(hands: Landmark[][] | undefined): Landmark[] | undefined {
+  const visible = (hands ?? []).filter((h) => h && h.length >= 21);
+  if (visible.length <= 1) return visible[0];
+  return (
+    visible.find((h) => classifyHandPose(h) === "fist") ??
+    visible.find((h) => classifyHandPose(h) === "pinch") ??
+    visible[0]
+  );
+}
+
+/**
+ * A camera that delivers no new frame for this long counts as a lost hand. Longer than the hand-loss
+ * grace on purpose: a slow low-light webcam (about 6 fps) must not cut every stroke into dots.
+ */
+export const CAMERA_STALL_MS = 500;
+
 /** Poses that are commands, never ink: a pinch-like thumb/index distance inside them must not draw. */
 const COMMAND_POSES: ReadonlySet<HandPose> = new Set(["fist", "two-fingers", "split-palm", "thumb-up"]);
 
-/** Eraser radius for the fist, in canvas pixels. */
-export const ERASER_RADIUS_PX = 28;
-
-/** Classify the pose once, report it, and suppress ink while a command pose is shown. */
+/** Classify the pose once, report it, and suppress ink while a command pose is shown (single-frame helper). */
 export function gateFrameByPose(
   frame: ReturnType<typeof evaluateGesture>,
   landmarks: Landmark[] | undefined,

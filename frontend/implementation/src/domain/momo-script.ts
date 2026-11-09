@@ -22,9 +22,12 @@ export type MomoMoment =
   | "cycle-fail"
   | "level-complete";
 
-/** Placeholder guidance lines keyed by app state. */
-const LINES: Record<MomoMoment, string> = {
-  "level-entry": "Halo, aku Momo. Aku bisa membaca pola gambarmu, tapi tidak bisa menggambar. Kamu Illustrator-nya.",
+/**
+ * Placeholder guidance lines keyed by app state. A moment can have several lines: each one is its own short bubble,
+ * in order (brief e: no line longer than about 90 characters).
+ */
+const LINES: Record<MomoMoment, string | string[]> = {
+  "level-entry": ["Halo, aku Momo. Aku bisa membaca pola gambarmu.", "Tapi tidak bisa menggambar. Kamu Illustrator-nya."],
   "drawing-cue": "Gambar objekmu di kanvas. Aku akan menebak apa yang kamu buat.",
   "drawing-empty": "Kanvasnya masih kosong. Gambar sesuatu dulu ya.",
   predicting: "Sedang kubaca goresanmu...",
@@ -41,8 +44,10 @@ const LINES: Record<MomoMoment, string> = {
   "level-complete": "Bab ini selesai! Keputusanmu tadi yang menentukan jalannya cerita.",
 };
 
-export function momoLine(moment: MomoMoment): string {
-  return LINES[moment];
+/** The bubbles for a moment, in order. Each entry is one line for MomoChat. */
+export function momoLine(moment: MomoMoment): string[] {
+  const entry = LINES[moment];
+  return Array.isArray(entry) ? [...entry] : [entry];
 }
 
 /** Visual mood of Momo per moment. Expression is decoration only: it never signals a "right" decision. */
@@ -85,15 +90,17 @@ export interface MomoLevelTone {
   guessMood: MomoMood;
 }
 
-const TONES: Record<1 | 2 | 3, MomoLevelTone> = {
+const TONES: Record<1 | 2 | 3 | 4, MomoLevelTone> = {
   1: { tone: "confident", fog: 0, guessMood: "Semangat" },
   2: { tone: "doubtful", fog: 0.4, guessMood: "Bingung" },
   3: { tone: "humble", fog: 0.9, guessMood: "Khawatir" },
+  // Bab 4 keeps Momo humble, with the fog at its maximum (R14: the fog only grows from level to level).
+  4: { tone: "humble", fog: 1, guessMood: "Khawatir" },
 };
 
-/** Tone and fog for a level stage (1..3). Unknown stages fall back to L1. */
+/** Tone and fog for a level stage (1..4). Unknown stages fall back to L1. */
 export function momoLevelTone(stage: number): MomoLevelTone {
-  return TONES[(stage === 2 || stage === 3 ? stage : 1) as 1 | 2 | 3];
+  return TONES[(Number.isInteger(stage) && stage >= 1 && stage <= 4 ? stage : 1) as 1 | 2 | 3 | 4];
 }
 
 /** Provider confidence 0..1 shown as a whole percent. The only way a number reaches Momo's lines. */

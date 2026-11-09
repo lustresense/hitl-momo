@@ -35,7 +35,7 @@ function resolve(s: Sim, solids: Rect[]): boolean {
 }
 
 export interface World { g: StageGeometry; solids: Rect[]; hazards: Rect[] }
-export function buildWorld(stage: 1 | 2 | 3, objects: Array<Rect & { behavior: "solid" | "danger" | "unresolved" }> = []): World {
+export function buildWorld(stage: 1 | 2 | 3 | 4, objects:Array<Rect & { behavior: "solid" | "danger" | "unresolved" }> = []): World {
   const g = getStageGeometry(stage);
   const solids: Rect[] = [...g.platforms];
   const hazards: Rect[] = [...g.hazards];

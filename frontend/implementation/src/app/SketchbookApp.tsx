@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getLevel, type LevelDefinition } from "@/src/domain/levels";
+import { FINAL_LEVEL_STAGE, getLevel, type LevelDefinition } from "@/src/domain/levels";
 import type { DrawingSurface } from "@/src/input";
 import { useFlowSnapshot } from "@/src/hooks/use-flow";
 import { env } from "@/src/config/env";
@@ -102,15 +102,6 @@ export function SketchbookApp() {
     setEndingOpen(false);
     if (choice === "finish") setFinished(true);
   }, []);
-  const levelIdForGuess = snapshot?.levelId;
-  /** R11: Momo's provisional guess while drawing uses the level's own provider; failures just mean no guess. */
-  const provisionalGuess = useMemo(
-    () =>
-      provider
-        ? (surface: DrawingSurface) => provider.predict(surface.toDrawingInput(), { levelId: levelIdForGuess ?? undefined }).catch(() => null)
-        : null,
-    [provider, levelIdForGuess],
-  );
   const selectLevel = useCallback(
     (selected: LevelDefinition) => {
       // The level list stays under the falling intro page only when an intro plays.
@@ -191,7 +182,6 @@ export function SketchbookApp() {
               onCloseMission={() => session.setMissionOpen(false)}
               onSubmit={() => void handleSubmitDrawing()}
               onExit={backToLevels}
-              provisionalGuess={provisionalGuess}
             />
             </div>
           )}
@@ -218,7 +208,7 @@ export function SketchbookApp() {
               onBumpDrawingRevision={() => setDrawingRevision((n) => n + 1)}
               onBackToLevels={backToLevels}
               onWon={() => {
-                if (level.stage === 3) wonFinalRef.current = true;
+                if (level.stage === FINAL_LEVEL_STAGE) wonFinalRef.current = true;
               }}
             />
           )}

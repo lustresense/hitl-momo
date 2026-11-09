@@ -119,6 +119,16 @@ export class StrokeStore {
     return this.eraseBefore !== null;
   }
 
+  /** True while a stroke is open (pen down). */
+  hasActiveStroke(): boolean {
+    return this.active !== null;
+  }
+
+  /** Last point of the open stroke, if it has one. */
+  lastActivePoint(): StrokePoint | null {
+    return this.active && this.active.length > 0 ? this.active[this.active.length - 1]! : null;
+  }
+
   getStrokes(): { completed: RawStroke[]; active: RawStroke | null } {
     return { completed: [...this.strokes], active: this.active };
   }

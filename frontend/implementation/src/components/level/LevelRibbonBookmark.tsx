@@ -29,14 +29,59 @@ const LOCK_RESIST = 0.07;
 const LOCK_MAX = 12;
 const TAIL = 44;
 const SHADOW = 7;
+/** Offset of each ribbon's shadow; the ribbon's svg is this much wider than the ribbon. */
+export const RIBBON_SHADOW = SHADOW;
+/** Narrowest ribbon that still fits "Pembuktian" (the longest label) beside its edge. */
+export const MIN_RIBBON_W = 84;
+/** Width of the "Mulai Bab n" thumb pill under the next ribbon (ThumbConfirm, 14px text). It can be wider than a ribbon. */
+export const THUMB_PILL_W = 124;
+/** Below this ribbon width the CSS inset of the label (36px) leaves too little room, so the label gets 8px. */
+const NARROW_RIBBON_W = 120;
+/** .bm-page side padding (98-kit-flow.css). */
+const PAGE_GUTTER = 16;
+/** Clear space kept on each side of the shelf for the pull notches and the ring (the old 2 * 14). */
+const NOTCH_ROOM = 14;
 
 type Dims = { w: number; h: number };
-function ribbonDims(): Dims {
-  if (typeof window === "undefined") return { w: 176, h: 430 };
-  const h = Math.round(Math.max(290, Math.min(470, window.innerHeight * 0.58)));
-  // Three ribbons must always fit the screen width (phones included).
-  const fit = Math.floor((window.innerWidth - 32 - 2 * 14 - SHADOW * 3) / 3);
-  return { w: Math.round(Math.max(84, Math.min(184, h * 0.4, fit))), h };
+export interface ShelfDims extends Dims {
+  /** Ribbons per row: all of them when one row keeps a readable label, else two per row. */
+  perRow: number;
+}
+
+/** Gap between ribbons on the shelf, as the CSS in 98-kit-flow.css: 14px up to 600px wide, else clamp(26px, 5vw, 76px). */
+export function shelfGap(width: number): number {
+  if (width <= 600) return 14;
+  return Math.min(76, Math.max(26, width * 0.05));
+}
+
+const clamp = (value: number, low: number, high: number) => Math.max(low, Math.min(high, value));
+
+/**
+ * Ribbon size for a screen. A row must fit the page: its ribbons, their shadows, the gaps, and the thumb pill under
+ * the next ribbon (the pill can be the widest item of its row). When four ribbons cannot keep a readable label in
+ * one row, they wrap to two rows and get shorter, so the page stays near one screen tall. Pure, so tests can check
+ * the arithmetic at any width.
+ */
+export function shelfLayout(count: number, viewportWidth: number, viewportHeight: number): ShelfDims {
+  const gap = shelfGap(viewportWidth);
+  const room = viewportWidth - 2 * PAGE_GUTTER - 2 * NOTCH_ROOM;
+  // Widest ribbon when `n` ribbons share a row: the n ribbons take n-1 gaps and n shadows, and the thumb pill
+  // stands in for one ribbon. Both limits must hold: n ribbons fit, and (n-1) ribbons plus the pill fit.
+  const widestInRow = (n: number) => {
+    const budget = room - gap * (n - 1) - RIBBON_SHADOW * n;
+    return Math.floor(Math.min(budget / n, (budget - THUMB_PILL_W) / Math.max(1, n - 1)));
+  };
+  const perRow = widestInRow(count) >= MIN_RIBBON_W ? count : Math.min(count, 2);
+  const rows = Math.ceil(count / perRow);
+  const h = Math.round(rows > 1 ? clamp(viewportHeight * 0.42, 250, 330) : clamp(viewportHeight * 0.58, 290, 470));
+  const w = Math.round(Math.min(184, h * 0.4, widestInRow(perRow)));
+  return { w, h, perRow };
+}
+
+/** The shelf for the current window; a fixed size where there is no window (server render). */
+function currentShelf(count: number): ShelfDims {
+  if (typeof window === "undefined") return { w: 176, h: 430, perRow: count };
+  return shelfLayout(count, window.innerWidth, window.innerHeight);
 }
 
 const outerPath = (w: number, l: number) => `M3 3H${w - 3}V${l - 3}L${w / 2} ${l - 3 - TAIL}L3 ${l - 3}Z`;
@@ -277,7 +322,9 @@ function Bookmark({ level, state, isNext, dims, unlocking, onLaunch, onLockedTug
         <span className="bm-content">
           <span className="bm-tag">Bab</span>
           <span className="bm-number">{level.stage}</span>
-          <span className="bm-name">{name}</span>
+          <span className="bm-name" style={dims.w < NARROW_RIBBON_W ? { maxWidth: dims.w - 8 } : undefined}>
+            {name}
+          </span>
           <span className="bm-badge" aria-hidden="true">
             {locked ? <Icon name="lock" size={24} stroke={2.6} /> : state === "done" ? <Icon name="check" size={26} stroke={3.4} /> : <Icon name="play" size={22} stroke={2.4} fill="currentColor" />}
           </span>
@@ -306,18 +353,18 @@ function Bookmark({ level, state, isNext, dims, unlocking, onLaunch, onLockedTug
 }
 
 export function LevelRibbonBookmark({ levels, onSelectLevel, isLevelUnlocked }: LevelRibbonBookmarkProps) {
-  const [dims, setDims] = useState<Dims>(() => ribbonDims());
+  const [dims, setDims] = useState<ShelfDims>(() => currentShelf(levels.length));
   const [status, setStatus] = useState("");
   const [freshStage] = useState(() => consumeFreshUnlock());
   const [revealed, setRevealed] = useState(freshStage === null);
   const notchTick = useRef(0);
 
   useEffect(() => {
-    const onResize = () => setDims(ribbonDims());
+    const onResize = () => setDims(currentShelf(levels.length));
     onResize();
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
-  }, []);
+  }, [levels.length]);
 
   // The ribbon a win just unlocked stays locked for a beat, then breaks open.
   useEffect(() => {
@@ -360,7 +407,8 @@ export function LevelRibbonBookmark({ levels, onSelectLevel, isLevelUnlocked }: 
           <i key={i} />
         ))}
       </div>
-      <div className="bm-shelf level-list" role="group" aria-label="Daftar level" data-testid="level-list">
+      {/* Wraps to a second row on phones (see shelfLayout); on wide screens every ribbon stays in one row. */}
+      <div className="bm-shelf level-list" role="group" aria-label="Daftar level" data-testid="level-list" style={{ flexWrap: "wrap", rowGap: 24 }}>
         {levels.map((level) => {
           const open = isLevelUnlocked ? isLevelUnlocked(level.stage) : level.stage === 1;
           const fresh = freshStage === level.stage;

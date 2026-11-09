@@ -144,9 +144,28 @@ export function isThumbUp(landmarks: Landmark[] | undefined, minLift = 0.45): bo
  * pinch = Coret (draw), kepal = Hapus (erase), dua jari = Mundur (undo), telapak terbelah = Maju (redo).
  * `classifyHandPose` returns exactly one pose per frame so the poses are mutually exclusive with
  * each other, with the thumbs-up confirmation and with the open palm used for the wave.
- * Priority: thumb-up, fist, pinch, two-fingers, split-palm, open-palm.
+ * Priority: thumb-up, pinch, fist, two-fingers, split-palm, open-palm.
  */
 export type HandPose = "thumb-up" | "fist" | "pinch" | "two-fingers" | "split-palm" | "open-palm" | "none";
+
+/** Pinch enters below PINCH_ENTER and, once held, stays until PINCH_EXIT (thumb-index gap / hand span). */
+export const PINCH_ENTER = 0.42;
+export const PINCH_EXIT = 0.55;
+/**
+ * A folded index only counts as pinched when the thumb nearly touches its tip; this keeps a real fist from drawing.
+ * Once held, the same pinch keeps its ink up to TOUCH_FOLDED_INDEX_EXIT (same ~1.3x ratio as PINCH_ENTER/EXIT);
+ * otherwise a loose thumb drops the ink and the still-folded hand reads as a fist, which erases.
+ */
+export const TOUCH_FOLDED_INDEX = 0.15;
+export const TOUCH_FOLDED_INDEX_EXIT = 0.2;
+/** A thumb raised this far (hand spans) is not a fist: a raised thumb must never erase. */
+const FIST_MAX_THUMB_LIFT = 0.3;
+/** Tip beyond this many PIP distances from the wrist = straight. Was 1.15; loosened for children's hands. */
+const EXTENDED_RATIO = 1.1;
+/** Split palm: the middle-ring gap must clearly beat the other gaps, so an evenly spread open palm stays open. */
+const SPLIT_GAP_RATIO = 1.8;
+/** Split palm: middle-ring gap as a share of the hand span. Was 0.35; loosened for small hands. */
+const SPLIT_MIN_SPREAD = 0.25;
 
 type FingerState = "extended" | "curled" | "between";
 
@@ -158,7 +177,7 @@ function fingerStates(lm: Landmark[]): FingerState[] {
     const t = Math.hypot(tip.x - wrist.x, tip.y - wrist.y);
     const p = Math.hypot(pip.x - wrist.x, pip.y - wrist.y);
     if (t < p) return "curled";
-    if (t > p * 1.15) return "extended";
+    if (t > p * EXTENDED_RATIO) return "extended";
     return "between";
   });
 }
@@ -167,24 +186,66 @@ function dist(a: Landmark, b: Landmark): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-export function classifyHandPose(landmarks: Landmark[] | undefined): HandPose {
+/**
+ * `opts.pinchHeld`: the previous frame was a pinch, so the looser exit ratio applies (hysteresis).
+ */
+export function classifyHandPose(landmarks: Landmark[] | undefined, opts: { pinchHeld?: boolean } = {}): HandPose {
   if (!landmarks || landmarks.length < 21 || landmarks.some((p) => !p)) return "none";
   const wrist = landmarks[WRIST]!;
   const span = dist(wrist, landmarks[MIDDLE_MCP]!);
   if (span <= 1e-6) return "none";
   if (isThumbUp(landmarks)) return "thumb-up";
+
+  // Pinch is read before fist: a thumb on the index tip is ink whatever the other fingers do.
+  const touch = dist(landmarks[THUMB_TIP]!, landmarks[INDEX_TIP]!) / span;
   const [index, middle, ring, pinky] = fingerStates(landmarks);
-  if (index === "curled" && middle === "curled" && ring === "curled" && pinky === "curled") return "fist";
-  if (index !== "curled" && isPinched(landmarks)) return "pinch";
-  if (index === "extended" && middle === "extended" && ring === "curled" && pinky === "curled") return "two-fingers";
-  if (index === "extended" && middle === "extended" && ring === "extended" && pinky === "extended") {
+  const pinched =
+    index === "curled"
+      ? touch < (opts.pinchHeld ? TOUCH_FOLDED_INDEX_EXIT : TOUCH_FOLDED_INDEX)
+      : touch < (opts.pinchHeld ? PINCH_EXIT : PINCH_ENTER);
+  if (pinched) return "pinch";
+
+  // Fist (Hapus): every finger folded and the thumb not raised.
+  if (
+    index === "curled" && middle === "curled" && ring === "curled" && pinky === "curled" &&
+    thumbLift(landmarks, span) < FIST_MAX_THUMB_LIFT
+  ) {
+    return "fist";
+  }
+
+  // Two fingers (Mundur): index and middle not folded (one of them straight); ring and pinky not straight.
+  if (
+    index !== "curled" && middle !== "curled" && (index === "extended" || middle === "extended") &&
+    ring !== "extended" && pinky !== "extended"
+  ) {
+    return "two-fingers";
+  }
+
+  // Split palm (Maju) and open palm: no finger folded. Split = a clearly wider middle-ring gap.
+  if (index !== "curled" && middle !== "curled" && ring !== "curled" && pinky !== "curled") {
     const gapIM = dist(landmarks[8]!, landmarks[12]!);
     const gapMR = dist(landmarks[12]!, landmarks[16]!);
     const gapRP = dist(landmarks[16]!, landmarks[20]!);
-    if (gapMR / span > 0.35 && gapMR > 1.8 * Math.max(gapIM, gapRP)) return "split-palm";
-    return "open-palm";
+    if (gapMR / span > SPLIT_MIN_SPREAD && gapMR > SPLIT_GAP_RATIO * Math.max(gapIM, gapRP)) return "split-palm";
+    if (index === "extended" && middle === "extended" && ring === "extended" && pinky === "extended") return "open-palm";
   }
   return "none";
+}
+
+/** Thumb tip height above its base, in hand spans (positive = raised). */
+function thumbLift(lm: Landmark[], span: number): number {
+  return (lm[THUMB_MCP]!.y - lm[THUMB_TIP]!.y) / span;
+}
+
+/**
+ * Centre of the four knuckles (MCP 5, 9, 13, 17), mirrored and clamped like the cursor.
+ * The fist eraser works here: the folded fingertips sit in the palm and would erase the wrong spot.
+ */
+export function palmCenterNormalized(landmarks: Landmark[]): { x: number; y: number } {
+  const knuckles = [5, 9, 13, 17].map((i) => landmarks[i]!);
+  const x = knuckles.reduce((sum, p) => sum + p.x, 0) / knuckles.length;
+  const y = knuckles.reduce((sum, p) => sum + p.y, 0) / knuckles.length;
+  return { x: clamp01(1 - x), y: clamp01(y) };
 }
 
 /** Kepal = Hapus (erase). */

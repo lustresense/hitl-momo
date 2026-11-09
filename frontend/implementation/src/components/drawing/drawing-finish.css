@@ -1,0 +1,18 @@
+/* "Selesai gambar" thumb ring (Owner 2026-11-09). Bottom-left of the canvas: clear of the tool column on the
+   right, of the Tebak row at the bottom centre, and of the drawing itself. */
+.drawing-finish {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  z-index: 20;
+  max-width: 160px;
+  text-align: center;
+}
+
+@media (max-width: 600px) {
+  .drawing-finish {
+    left: 12px;
+    bottom: 16px;
+    max-width: 128px;
+  }
+}

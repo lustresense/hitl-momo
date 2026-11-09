@@ -1,10 +1,145 @@
 {
   "_note": "Student-style plans, PRD 0.0.16: every level needs minDrawings = 2 objects at WALK_SPEED 130. launchX = player left-edge world x where the student stops, then presses Right+Space; hold = fixed 50Hz steps Right stays held (999 = until landing). Validated by tests/game/level-solvability.test.ts (kinematic model) and by browser E2E (authority).",
-  "objectSize": { "w": 130.6122, "h": 19.5918 },
-  "1": { "cycles": [ {"label": "balok", "behavior": "solid", "x": 262, "y": 262}, {"label": "papan", "behavior": "solid", "x": 410, "y": 258} ],
-         "steps": [ {"launchX": 176, "hold": 34}, {"launchX": 325, "hold": 37}, {"launchX": 488, "hold": 38} ] },
-  "2": { "cycles": [ {"label": "balok", "behavior": "solid", "x": 190, "y": 220}, {"label": "papan", "behavior": "solid", "x": 400, "y": 172} ],
-         "steps": [ {"launchX": 124, "hold": 26}, {"launchX": 206, "hold": 14}, {"launchX": 244, "hold": 14}, {"launchX": 301, "hold": 39}, {"launchX": 423, "hold": 25}, {"launchX": 507, "hold": 34} ] },
-  "3": { "cycles": [ {"label": "papan", "behavior": "solid", "x": 240, "y": 330}, {"label": "papan", "behavior": "solid", "x": 390, "y": 280} ],
-         "steps": [ {"launchX": 134, "hold": 40}, {"launchX": 332, "hold": 22}, {"launchX": 513, "hold": 29} ] }
+  "objectSize": {
+    "w": 130.6122,
+    "h": 19.5918
+  },
+  "1": {
+    "cycles": [
+      {
+        "label": "balok",
+        "behavior": "solid",
+        "x": 262,
+        "y": 262
+      },
+      {
+        "label": "papan",
+        "behavior": "solid",
+        "x": 410,
+        "y": 258
+      }
+    ],
+    "steps": [
+      {
+        "launchX": 176,
+        "hold": 34
+      },
+      {
+        "launchX": 325,
+        "hold": 37
+      },
+      {
+        "launchX": 488,
+        "hold": 38
+      }
+    ]
+  },
+  "2": {
+    "cycles": [
+      {
+        "label": "balok",
+        "behavior": "solid",
+        "x": 100,
+        "y": 220
+      },
+      {
+        "label": "papan",
+        "behavior": "solid",
+        "x": 400,
+        "y": 172
+      }
+    ],
+    "steps": [
+      {
+        "launchX": 76,
+        "hold": 10
+      },
+      {
+        "launchX": 201,
+        "hold": 22
+      },
+      {
+        "launchX": 294,
+        "hold": 36
+      },
+      {
+        "launchX": 417,
+        "hold": 22
+      },
+      {
+        "launchX": 500,
+        "hold": 30
+      }
+    ]
+  },
+  "3": {
+    "cycles": [
+      {
+        "label": "papan",
+        "behavior": "solid",
+        "x": 240,
+        "y": 330
+      },
+      {
+        "label": "papan",
+        "behavior": "solid",
+        "x": 390,
+        "y": 280
+      }
+    ],
+    "steps": [
+      {
+        "launchX": 134,
+        "hold": 40
+      },
+      {
+        "launchX": 332,
+        "hold": 22
+      },
+      {
+        "launchX": 513,
+        "hold": 29
+      }
+    ]
+  },
+  "4": {
+    "cycles": [
+      {
+        "label": "papan",
+        "behavior": "solid",
+        "x": 166,
+        "y": 223
+      },
+      {
+        "label": "balok",
+        "behavior": "solid",
+        "x": 330,
+        "y": 163
+      },
+      {
+        "label": "tangga",
+        "behavior": "solid",
+        "x": 470,
+        "y": 103
+      }
+    ],
+    "steps": [
+      {
+        "launchX": 87,
+        "hold": 26
+      },
+      {
+        "launchX": 251,
+        "hold": 26
+      },
+      {
+        "launchX": 389,
+        "hold": 26
+      },
+      {
+        "launchX": 547,
+        "hold": 26
+      }
+    ]
+  }
 }

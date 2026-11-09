@@ -10,11 +10,13 @@
  */
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
-import type { LevelDefinition } from "@/src/domain/levels";
+import { FINAL_LEVEL_STAGE, type LevelDefinition } from "@/src/domain/levels";
 import { introLines, nudgeLines, NUDGE_TO_SKY } from "@/src/domain/world-intro-script";
 import { MomoChat } from "../momo/MomoChat";
 import { StageWorld } from "../stage-preview/StageWorld";
 import { getStageGeometry } from "@/src/game/stage-geometry";
+import { getFinalStageGeometry } from "@/src/game/stage-geometry-final";
+import type { SceneIndex } from "../stage-preview/scene-metadata";
 import { Icon, ICON_NAMES, type IconName } from "../ui/Icon";
 import { ThumbConfirm } from "../ui/ThumbConfirm";
 import { ThinmanArt } from "../ui/ThinmanArt";
@@ -61,7 +63,8 @@ export function LevelIntro({ level, characterDisplayName, onReveal, onFinish }: 
   const nudge = [...nudgeLines(level.stage, characterDisplayName), NUDGE_TO_SKY];
   const [flap, setFlap] = useState(0);
   const lines = introLines(level.stage, characterDisplayName);
-  const spawn = getStageGeometry(level.stage as 1 | 2 | 3).spawn;
+  // The closing level has its own geometry module (see stage-geometry-final.ts).
+  const spawn = (level.stage === FINAL_LEVEL_STAGE ? getFinalStageGeometry() : getStageGeometry(level.stage as 1 | 2 | 3)).spawn;
 
   const finish = useCallback(() => {
     if (finishedRef.current) return;
@@ -152,7 +155,8 @@ export function LevelIntro({ level, characterDisplayName, onReveal, onFinish }: 
         </div>
         <div className="intro-world">
           <div className="intro-world__art">
-            <StageWorld scene={level.stage} gameplay />
+            {/* Scene 4 needs StageWorld to render StageArtworkFinal; until then this level's intro cannot draw. */}
+            <StageWorld scene={level.stage as SceneIndex} gameplay />
             <ThinmanArt
               className="intro-thinman"
               style={{ left: `${(spawn.x / 800) * 100}%`, top: `${(spawn.y / 450) * 100}%` }}

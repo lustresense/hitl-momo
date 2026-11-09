@@ -1,16 +1,13 @@
 /**
- * Optional hand control of the world stage: availability of the shared camera stream, the
- * GameplayHandDriver lifecycle (steering in gameplay, pinch-drag in placement) and the status text
- * shown to the student.
+ * Hand control of the world stage: runs the GameplayHandDriver while GameStage says the stage is
+ * in camera mode (no toggle), and shows the status text the student sees.
  */
 import { useEffect, useState, type MutableRefObject } from "react";
-import { getSharedStream } from "@/src/camera/shared-stream";
 import type { GameplayHandDriver, GameplayStatus } from "@/src/input/gameplay-hand-driver";
 import type { GameplayInput } from "./useGameplayInput";
-import type { GameStageProps, StageOutcome, StagePhase } from "../game-stage-types";
+import type { GameStageProps, InputMode, StageOutcome, StagePhase } from "../game-stage-types";
 
 const PREPARING_CAMERA = "Menyiapkan kamera";
-const HAND_STATUS_POLL_MS = 1000;
 
 const STATUS_TEXT: Record<GameplayStatus, string> = {
   tracking: "Tangan terbaca",
@@ -24,43 +21,38 @@ interface UseHandControlOptions {
   ready: boolean;
   phase: StagePhase;
   outcome: StageOutcome | null;
-  integrated: boolean | undefined;
+  /** Decided by GameStage. The hand reader runs only in "camera". */
+  mode: InputMode;
   input: GameplayInput;
   /** Always points at the newest props (the driver callbacks outlive renders). */
   latest: MutableRefObject<GameStageProps>;
   movePlacementToHandCursor: (cursor: { x: number; y: number }) => void;
+  /** The hand reader could not start or crashed: GameStage switches the stage to fallback (R13). */
+  onHandFailed: () => void;
 }
 
 export function useHandControl({
   ready,
   phase,
   outcome,
-  integrated,
+  mode,
   input,
   latest,
   movePlacementToHandCursor,
+  onHandFailed,
 }: UseHandControlOptions) {
   const [status, setStatus] = useState("NUI NOT VERIFIED");
-  const [handAvailable, setHandAvailable] = useState(false);
-  const { mode, setMode, arbiter, sendCombinedInput, releaseManualInput } = input;
-
-  // Hand control is opt-in and only offered while the shared camera stream is live (no second permission prompt).
-  useEffect(() => {
-    if (!integrated) return;
-    const check = () =>
-      setHandAvailable(
-        Boolean(getSharedStream()?.getVideoTracks().some((track) => track.readyState === "live")),
-      );
-    check();
-    const id = window.setInterval(check, HAND_STATUS_POLL_MS);
-    return () => window.clearInterval(id);
-  }, [integrated]);
+  const { arbiter, sendCombinedInput } = input;
+  // Placing and gameplay share one reader. The phase change alone must not reload MediaPipe.
+  const readerWanted = ready && mode === "camera" && !outcome && (phase === "placing" || phase === "gameplay");
 
   useEffect(() => {
     sendCombinedInput();
-    if (!ready || mode !== "camera" || outcome || (phase !== "placing" && phase !== "gameplay")) return;
+    if (!readerWanted) return;
     let cancelled = false;
     let driver: GameplayHandDriver | null = null;
+    // A fresh start opts in again after an earlier camera revoke (arbiter R5).
+    arbiter.dispatch({ type: "camera", status: "ok" });
 
     async function startDriver() {
       const { GameplayHandDriver: DriverClass } = await import("@/src/input/gameplay-hand-driver");
@@ -68,16 +60,20 @@ export function useHandControl({
       const video = document.querySelector<HTMLVideoElement>(".global-camera-host .camera-video");
       if (!video) {
         setStatus("Kamera belum tersedia · NUI NOT VERIFIED");
+        onHandFailed();
         return;
       }
       driver = new DriverClass({
         video,
+        // Always on, so placing and gameplay can share one reader. The arbiter drops hand jump
+        // outside gameplay (handDragFrame), so a pinch that grabs the object never jumps.
+        enableJump: true,
         onStatus: (next) => {
           if (cancelled) return;
           setStatus(STATUS_TEXT[next]);
-          if (next === "camera-unavailable") {
-            arbiter.dispatch({ type: "camera", status: "revoked" });
-            setMode("fallback");
+          if (next === "camera-unavailable") arbiter.dispatch({ type: "camera", status: "revoked" });
+          if (next === "camera-unavailable" || next === "error") {
+            onHandFailed();
             sendCombinedInput();
           }
         },
@@ -119,23 +115,7 @@ export function useHandControl({
       sendCombinedInput();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, mode, phase, outcome]);
+  }, [readerWanted]);
 
-  /** Integrated stage: the "Kontrol tangan" / "Pakai keyboard" toggle. */
-  function toggleHandControl() {
-    releaseManualInput();
-    setMode(mode === "camera" ? "fallback" : "camera");
-    setStatus(PREPARING_CAMERA);
-    arbiter.dispatch({ type: "set-hand-enabled", enabled: mode !== "camera" });
-    sendCombinedInput();
-  }
-
-  /** Stand-alone (legacy) stage: the "Nyalakan Kamera NUI" / FALLBACK toggle. */
-  function toggleCameraNui() {
-    releaseManualInput();
-    sendCombinedInput();
-    setMode(mode === "camera" ? "fallback" : "camera");
-  }
-
-  return { status, handAvailable, toggleHandControl, toggleCameraNui };
+  return { status };
 }

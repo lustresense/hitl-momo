@@ -198,3 +198,36 @@ def test_shared_contract_fixtures_validate():
     SubmissionBody.model_validate(sub)
     out = json.loads((FIXTURES / "outcome-request.json").read_text(encoding="utf-8"))
     OutcomeBody.model_validate(out)
+
+
+def test_join_purges_expired_student_sessions(client):
+    """Expired session rows are dead weight. A join cleans them, so the table cannot grow forever."""
+    conn = sqlite3.connect(os.environ["MOMO_DB_PATH"])
+    sid = _join(client, 6)["student_id"]
+    conn.execute(
+        "INSERT INTO student_sessions (token_hash, student_id, class_id, created_at, expires_at) "
+        "VALUES ('expired-hash-1', ?, 1, '2020-01-01T00:00:00+00:00', '2020-01-02T00:00:00+00:00')",
+        (sid,),
+    )
+    conn.commit()
+    _join(client, 7)
+    left = conn.execute("SELECT COUNT(*) FROM student_sessions WHERE token_hash = 'expired-hash-1'").fetchone()[0]
+    conn.close()
+    assert left == 0
+
+
+def test_predict_rejects_oversized_drawing(client, monkeypatch):
+    """/predict has no auth. A huge drawing must be refused before it costs CPU."""
+    import backend.app.main as main_mod
+    monkeypatch.setattr(main_mod, "predict_from_drawing", lambda d: [{"label": "x", "confidence": 1.0}])
+    points = [{"x": float(i), "y": float(i)} for i in range(20_001)]
+    r = client.post("/predict", json={"drawing": {"strokes": [points]}})
+    assert r.status_code == 422
+
+
+def test_predict_accepts_normal_drawing(client, monkeypatch):
+    import backend.app.main as main_mod
+    monkeypatch.setattr(main_mod, "predict_from_drawing", lambda d: [{"label": "x", "confidence": 1.0}])
+    r = client.post("/predict", json={"drawing": {"strokes": [[{"x": 1.0, "y": 1.0}, {"x": 2.0, "y": 2.0}]]}})
+    assert r.status_code == 200
+    assert r.json()["candidates"][0]["label"] == "x"

@@ -5,7 +5,7 @@
 
 | Komponen | Owner | Status | Kelas bukti |
 |---|---|---|---|
-| Game siswa (typecheck, unit, build) | Can | PASS: 672 unit test | UNIT_ONLY |
+| Game siswa (typecheck, unit, build) | Can | PASS: 681 unit test | UNIT_ONLY |
 | Gameplay HITL (normal-journey, recovery) | Can | PASS | MOCK_MODEL |
 | Alur classroom end-to-end (join → predict → submit → DB → dashboard) | Bersama | PASS 17/17, langsung dan via Caddy | REAL_MODEL |
 | Kontrak submission (fixture dua sisi) | Bersama | PASS: Python 11, Can 3 | UNIT_ONLY |

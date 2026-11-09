@@ -1,0 +1,80 @@
+{
+  "1": [
+    {
+      "labels": [
+        "batu",
+        "tangga",
+        "balok"
+      ],
+      "decision": {
+        "type": "Correct",
+        "rank": 3,
+        "label": "balok"
+      }
+    },
+    {
+      "labels": [
+        "balok",
+        "papan",
+        "batu"
+      ],
+      "decision": {
+        "type": "Correct",
+        "rank": 2,
+        "label": "papan"
+      }
+    }
+  ],
+  "2": [
+    {
+      "labels": [
+        "duri",
+        "tangga",
+        "balok"
+      ],
+      "decision": {
+        "type": "Correct",
+        "rank": 3,
+        "label": "balok"
+      }
+    },
+    {
+      "labels": [
+        "balok",
+        "papan",
+        "duri"
+      ],
+      "decision": {
+        "type": "Correct",
+        "rank": 2,
+        "label": "papan"
+      }
+    }
+  ],
+  "3": [
+    {
+      "labels": [
+        "ember",
+        "tangga",
+        "papan"
+      ],
+      "decision": {
+        "type": "Correct",
+        "rank": 3,
+        "label": "papan"
+      }
+    },
+    {
+      "labels": [
+        "papan",
+        "tali",
+        "ember"
+      ],
+      "decision": {
+        "type": "Accept",
+        "rank": 1,
+        "label": "papan"
+      }
+    }
+  ]
+}

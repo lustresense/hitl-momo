@@ -18,6 +18,8 @@ export interface StudentSession {
   name: string;
   class_name?: string;
   student_session_token: string;
+  /** Class join token used to join. Stored so a reload can rebuild the class context. */
+  join_token?: string;
   expires_in?: number;
   joined_at: string;
 }
@@ -111,6 +113,7 @@ export class ClassroomClient {
     );
     const session: StudentSession = {
       ...res,
+      join_token: joinToken,
       joined_at: res.joined_at || new Date().toISOString(),
     };
     this.sessionStore.setSession(session);

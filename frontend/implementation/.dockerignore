@@ -1,0 +1,9 @@
+# Build context for the game image (docker-compose service "web").
+# The build only needs package files, app/, src/, public/ and config. Keep the
+# ~370 MB of recorded evidence, local build output and tests out of the context.
+node_modules
+.next
+out
+docs/execution/evidence
+e2e
+*.log

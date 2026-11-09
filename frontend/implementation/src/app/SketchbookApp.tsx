@@ -14,6 +14,7 @@ import { isLevelUnlocked } from "./level-progress";
 import { useEntryHold } from "./hooks/useEntryHold";
 import { recapFromFlow, useLevelSession } from "./hooks/useLevelSession";
 import { useClassroomSession } from "./hooks/useClassroomSession";
+import { classContextFrom } from "../api/submission-adapter";
 import { CenterOfPage } from "@/src/components/ending/CenterOfPage";
 import { BookFlip } from "@/src/components/ui/BookFlip";
 import type { EndingChoice } from "@/src/components/ending/ending-types";
@@ -44,7 +45,7 @@ export function SketchbookApp() {
     tokenProvider: () => classroomRef.current.session?.student_session_token,
     classContext: () => {
       const c = classroomRef.current;
-      return c.joinToken && c.session ? { joinToken: c.joinToken, studentId: c.session.student_id } : null;
+      return classContextFrom(c.joinToken, c.session);
     },
   });
   const { entryHold, startEntryHold } = useEntryHold();

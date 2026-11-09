@@ -112,8 +112,13 @@ export function useLevelSession(
         provider,
         sink,
         goalCompletesLevel: true,
-        onDecisionApplied: (s) => adapter?.handleDecisionApplied(s),
-        onGameplayResult: (r) => adapter?.handleGameplayResult(r),
+        // Submission is best effort. A failure here must never reach gameplay.
+        onDecisionApplied: (s) => {
+          void adapter?.handleDecisionApplied(s).catch(() => {});
+        },
+        onGameplayResult: (r) => {
+          void adapter?.handleGameplayResult(r).catch(() => {});
+        },
       });
       creationsRef.current.enterLevel(level.levelId);
       if (!missionSeenLevels.current.has(level.levelId)) {

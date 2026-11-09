@@ -51,7 +51,10 @@ export function useClassroomSession(options: UseClassroomSessionOptions = {}): U
   }, [submissionClient]);
 
   const [session, setSession] = useState<StudentSession | null>(() => sessionStoreRef.current.getSession());
-  const [joinToken, setJoinToken] = useState<string | null>(options.initialJoinToken ?? null);
+  // After a reload the URL may have no query. The stored student session keeps the join token.
+  const [joinToken, setJoinToken] = useState<string | null>(
+    () => options.initialJoinToken ?? sessionStoreRef.current.getSession()?.join_token ?? null,
+  );
   const [joinInfo, setJoinInfo] = useState<ClassInfo | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -66,6 +69,13 @@ export function useClassroomSession(options: UseClassroomSessionOptions = {}): U
   useEffect(() => {
     return outbox.addListener((stats) => {
       setOutboxStats(stats);
+    });
+  }, [outbox]);
+
+  // Send jobs left over from a previous page load (tab closed mid-request, or offline).
+  useEffect(() => {
+    void outbox.resume().catch(() => {
+      /* offline or storage error: the next enqueue or online event retries */
     });
   }, [outbox]);
 
@@ -119,6 +129,10 @@ export function useClassroomSession(options: UseClassroomSessionOptions = {}): U
           name: studentName,
         });
         setSession(s);
+        // Jobs blocked by an expired session can use the new token now.
+        void outbox.requeueUnauthorized().catch(() => {
+          /* retried on the next trigger */
+        });
         return s;
       } catch (err) {
         const msg = err instanceof Error ? err.message : "Gagal bergabung ke kelas.";
@@ -128,7 +142,7 @@ export function useClassroomSession(options: UseClassroomSessionOptions = {}): U
         setIsLoading(false);
       }
     },
-    [joinToken, classroomClient]
+    [joinToken, classroomClient, outbox]
   );
 
   const leaveClass = useCallback(() => {

@@ -13,6 +13,8 @@ export interface BaseOutboxJob {
   updatedAt: number;
   nextRetryAt?: number;
   lastError?: string;
+  /** ApiError code of the last failure, e.g. "unauthorized". Lets the app recover blocked jobs. */
+  lastErrorCode?: string;
 }
 
 export interface SubmissionOutboxJob extends BaseOutboxJob {
@@ -284,6 +286,39 @@ export class OutboxQueue {
     return id;
   }
 
+  /**
+   * Call once on app start. A job left in "sending" means the tab closed mid-request.
+   * Put it back to "pending" and run. Safe: the server dedupes by submission_key.
+   */
+  async resume(): Promise<void> {
+    const jobs = await this.storage.getAll();
+    for (const job of jobs) {
+      if (job.status === "sending") {
+        job.status = "pending";
+        job.updatedAt = Date.now();
+        await this.storage.put(job);
+      }
+    }
+    await this.process();
+  }
+
+  /**
+   * Call after the student joins again. Jobs blocked by 401 (expired session) are put back
+   * to "pending" so they use the new token. Jobs blocked for other reasons stay blocked.
+   */
+  async requeueUnauthorized(): Promise<void> {
+    const jobs = await this.storage.getAll();
+    for (const job of jobs) {
+      if (job.status === "blocked" && job.lastErrorCode === "unauthorized") {
+        job.status = "pending";
+        job.nextRetryAt = undefined;
+        job.updatedAt = Date.now();
+        await this.storage.put(job);
+      }
+    }
+    await this.process();
+  }
+
   private calculateBackoff(attempts: number): number {
     const exp = Math.min(this.maxBackoffMs, this.baseBackoffMs * Math.pow(2, attempts));
     const jitter = Math.random() * 0.3 * exp;
@@ -325,9 +360,15 @@ export class OutboxQueue {
       const jobs = await this.storage.getAll();
       const now = Date.now();
 
+      const delivered = new Set(
+        jobs.filter((j) => j.type === "submission" && j.status === "acknowledged").map((j) => j.submissionKey)
+      );
       const executable = jobs.filter((job) => {
         if (job.status !== "pending") return false;
         if (job.nextRetryAt && job.nextRetryAt > now) return false;
+        // An outcome can only be sent once its submission is delivered. Otherwise skip it,
+        // so the loop does not spin on a job that cannot move.
+        if (job.type === "outcome" && !job.submissionId && !delivered.has(job.submissionKey)) return false;
         return true;
       });
 
@@ -377,6 +418,7 @@ export class OutboxQueue {
     } catch (err) {
       const retryable = this.isRetryable(err);
       job.lastError = err instanceof Error ? err.message : String(err);
+      job.lastErrorCode = err instanceof ApiError ? err.code : undefined;
       job.updatedAt = Date.now();
 
       if (retryable) {
@@ -421,6 +463,7 @@ export class OutboxQueue {
     } catch (err) {
       const retryable = this.isRetryable(err);
       job.lastError = err instanceof Error ? err.message : String(err);
+      job.lastErrorCode = err instanceof ApiError ? err.code : undefined;
       job.updatedAt = Date.now();
 
       if (retryable) {

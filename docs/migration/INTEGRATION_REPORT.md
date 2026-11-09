@@ -21,7 +21,7 @@ Gate yang sebelumnya FAIL (A04, A11) sekarang PASS, dengan bukti E2E dan test ko
 |---|---|---|---|---|
 | A01 | Empat sumber dipin | PASS | STATIC_ONLY | `SOURCE_MANIFEST.md` |
 | A02 | Zero-loss mapping | PASS | STATIC_ONLY | `SOURCE_MAP.csv`: setiap file tracked sumber tepat satu baris. `PORT_NEEDED` 50 → `DUPLICATE_VERIFIED` 40 + `SUPERSEDED_BY_CAN` 10. `BLOCKED_SECRET` → `IMPORTED` (instruksi pemilik). `REVIEW_REQUIRED` 1 (`frontend/package-lock.json`). |
-| A03 | Game Can terbaru + tes | PASS | UNIT_ONLY | Typecheck exit 0. `vitest run`: **102 file / 672 test PASS**. Diff dari `can`: lihat "Perubahan kode" di bawah. |
+| A03 | Game Can terbaru + tes | PASS | UNIT_ONLY | Typecheck exit 0. `vitest run`: **104 file / 681 test PASS**. Diff dari `can`: lihat "Perubahan kode" di bawah. |
 | A04 | Fitur classroom donor tidak hilang | PASS | REAL_MODEL + UNIT_ONLY | `PORT_AUDIT.md`: tiap fungsi `session.ts` punya pengganti. E2E classroom 17/17 (join, predict, submit, DB, dashboard). |
 | A05 | Backend/admin/train/weights utuh | PASS | STATIC_ONLY | `git diff origin/claude-monorepo -- weights` kosong. Perubahan backend hanya di `classroom.py`, `db.py`, `main.py`, dan `verify_backend.py`. |
 | A06 | Satu changelog aktif | PASS | STATIC_ONLY | `CHANGELOG.md` root. Arsip di `docs/history/`. |
@@ -29,14 +29,32 @@ Gate yang sebelumnya FAIL (A04, A11) sekarang PASS, dengan bukti E2E dan test ko
 | A08 | Tidak ada `CLAUDE.md` | PASS | STATIC_ONLY | `git ls-files` dan `find`: 0 file bernama `CLAUDE.md`. |
 | A09 | README sesuai repo | PASS | — | Setiap command di README dijalankan (lihat README). |
 | A10 | HTTP contract sesuai source | PASS | REAL_MODEL | `openapi.json` diekspor dari app live (18 path). `API_INVENTORY.md` diperbarui. |
-| A11 | Client–server schema cocok | PASS | UNIT_ONLY + REAL_MODEL | Fixture `contracts/fixtures/` dipakai dua sisi: test Python 11/11 (`test_classroom_contract.py`) dan test Can `contract-fixtures.test.ts` 3/3. Probe runtime 20/20. `prediction_id` belum dihasilkan backend (lihat gap). |
+| A11 | Client–server schema cocok | PASS | UNIT_ONLY + REAL_MODEL | Fixture `contracts/fixtures/` dipakai dua sisi: test Python 14/14 (`test_classroom_contract.py`) dan test Can `contract-fixtures.test.ts` 3/3. Probe runtime 20/20. `prediction_id` belum dihasilkan backend (lihat gap). |
 | A12 | Build frontend Can | PASS | STATIC_ONLY | `npm run build` exit 0 (mock dan partner). |
-| A13 | Backend import/tes/model | PASS | REAL_MODEL | `pytest` 11/11. `verify_backend.py` 20/20 dengan bobot asli (`REAL_MODEL`). Tidak ada suite pytest lain di repo. |
+| A13 | Backend import/tes/model | PASS | REAL_MODEL | `pytest` 14/14. `verify_backend.py` 20/20 dengan bobot asli (`REAL_MODEL`). Tidak ada suite pytest lain di repo. |
 | A14 | Dashboard build dan routing | PASS | REAL_MODEL + STATIC_ONLY | Typecheck dan build exit 0. Via Caddy: `/admin/login` dan `/admin/kelas/1` 200. Login dan halaman kelas di browser: PASS (E2E). |
 | A15 | Classroom E2E join → submit → DB → dashboard | PASS | REAL_MODEL | `classroom-e2e.mjs`: **17/17 PASS** langsung dan lewat Caddy. Log di `docs/migration/evidence/classroom/`. |
 | A16 | Gameplay HITL tidak regresi | PASS | MOCK_MODEL | `normal-journey.mjs`: 3 level PASS, `consoleErrors=0`. `recovery-paths.mjs`: 16/16 PASS. Prediksi mock. |
 | A17 | Deployment wiring | PARTIAL | STATIC_ONLY + runtime Caddy | `docker compose config` exit 0. **Caddy 2.10.2 asli** memvalidasi `deploy/Caddyfile` dan melayani `/`, `/level1`, `/onboarding/number`, `/admin/*`, `/api/*`, `/predict`, `/health` (smoke test). Build image **BLOCKED**: daemon Docker tidak tersedia. |
 | A18 | Keamanan dan reproducibility | PARTIAL | STATIC_ONLY | Lihat "Keamanan" di bawah. |
+
+## Perbaikan setelah audit untuk `main` (iterasi 3)
+
+Tiap perbaikan diawali test yang gagal (RED), lalu kode minimal (GREEN).
+
+**Game (Can):**
+- `outbox.ts`: job yang tertinggal di `sending` (tab ditutup saat kirim) dikirim ulang lewat `resume()`, dipanggil saat aplikasi mulai. Aman, server memakai `submission_key`.
+- `outbox.ts`: job yang diblokir 401 (sesi habis) menyimpan `lastErrorCode` dan dikirim ulang lewat `requeueUnauthorized()` setelah siswa bergabung lagi. Job yang ditolak 422 tetap diblokir.
+- `outbox.ts`: outcome yang menunggu submission yang belum terkirim dilewati. Sebelumnya `process()` memutar 20 kali dan membaca penyimpanan 41 kali tanpa hasil.
+- `classroom-client.ts` dan `submission-adapter.ts`: token kelas disimpan bersama sesi siswa, dan `classContextFrom()` memakainya bila URL tidak lagi punya query `?kelas=`. Tanpa ini, reload membuat keputusan berhenti terkirim tanpa pesan.
+- `submission-adapter.ts` dan `useLevelSession.ts`: kegagalan pengiriman tidak lagi bisa menjadi unhandled rejection di gameplay.
+
+**Backend (Dias):**
+- `classroom.py`: sesi siswa kedaluwarsa dihapus setiap kali ada join.
+- `main.py`: `/predict` menolak gambar lebih dari 20.000 titik (422). Endpoint ini tidak punya auth.
+- `deploy/Caddyfile`: badan permintaan ke backend dibatasi 1 MB.
+
+**Bukti run ulang (bersih, setelah perbaikan):** typecheck game dan dashboard PASS; vitest 104 file / 681 test PASS; pytest 14/14; `verify_backend.py` 20/20 dengan bobot asli; E2E classroom 17/17 lewat Caddy 2.10.2 asli; build game (partner dan mock) dan dashboard PASS.
 
 ## Perubahan kode di iterasi ini
 

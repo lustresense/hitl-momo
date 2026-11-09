@@ -11,6 +11,10 @@
 
 	@backend path /api/* /predict /health
 	handle @backend {
+		# Refuse huge bodies at the edge, before they reach Python.
+		request_body {
+			max_size 1MB
+		}
 		reverse_proxy backend:8000
 	}
 

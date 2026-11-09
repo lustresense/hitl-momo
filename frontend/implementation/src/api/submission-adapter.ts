@@ -7,6 +7,20 @@ export interface ClassContext {
   studentId: number;
 }
 
+/**
+ * Build the class context. The page URL wins; after a reload the URL may have no query,
+ * so fall back to the join token stored with the student session.
+ */
+export function classContextFrom(
+  urlJoinToken: string | null | undefined,
+  session: { student_id: number; join_token?: string } | null | undefined
+): ClassContext | null {
+  if (!session) return null;
+  const joinToken = urlJoinToken || session.join_token;
+  if (!joinToken) return null;
+  return { joinToken, studentId: session.student_id };
+}
+
 export interface SubmissionAdapterOptions {
   outbox: OutboxQueue;
   idGenerator?: () => string;
@@ -37,6 +51,9 @@ export class SubmissionAdapter {
   async handleDecisionApplied(snapshot: FlowDecisionSnapshot): Promise<string> {
     const ctx = this.classContext ? this.classContext() : null;
     if (!ctx) return "";
+
+    const c = snapshot.prediction?.candidates;
+    if (!c || c.length < 3) return "";
 
     const submissionKey = this.idGenerator();
     this.attemptToSubmissionKey.set(snapshot.attemptId, submissionKey);

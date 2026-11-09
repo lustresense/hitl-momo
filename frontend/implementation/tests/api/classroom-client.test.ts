@@ -1,3 +1,4 @@
+// @vitest-environment jsdom
 import { describe, expect, it } from "vitest";
 import { ClassroomClient, StudentSessionStore } from "@/src/api/classroom-client";
 
@@ -70,5 +71,22 @@ describe("ClassroomClient", () => {
     const modelInfo = await client.getModelInfo();
     expect(modelInfo.contractVersion).toBe("1.0");
     expect(modelInfo.labels).toEqual(["balok", "batu", "papan"]);
+  });
+});
+
+describe("ClassroomClient session persistence", () => {
+  it("joinStudent stores the join token with the session so a reload can restore it", async () => {
+    window.sessionStorage.clear();
+    const fetchImpl: typeof fetch = async () =>
+      new Response(
+        JSON.stringify({ student_id: 3, number: 5, name: "Ani", class_name: "7A", student_session_token: "tok_s", expires_in: 28800 }),
+        { status: 200 }
+      );
+    const client = new ClassroomClient({ baseUrl: "https://api.example.com", fetchImpl });
+
+    await client.joinStudent("join-abc-123", { number: 5, name: "Ani" });
+
+    expect(client.sessionStore.getSession()?.join_token).toBe("join-abc-123");
+    expect(new StudentSessionStore().getSession()?.join_token).toBe("join-abc-123");
   });
 });

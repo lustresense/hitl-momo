@@ -2,7 +2,7 @@ import os
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
 from . import classroom, dashboard
 from .db import init_db
@@ -36,8 +36,20 @@ def startup_event():
     load_model()
 
 
+MAX_PREDICT_POINTS = 20_000  # same cap as a classroom submission; /predict has no auth
+
+
 class DrawingPayload(BaseModel):
     drawing: dict
+
+    @field_validator("drawing")
+    @classmethod
+    def _limit_points(cls, drawing: dict) -> dict:
+        strokes = drawing.get("strokes") or []
+        total = sum(len(s) for s in strokes if isinstance(s, list))
+        if total > MAX_PREDICT_POINTS:
+            raise ValueError(f"Gambar terlalu besar (maks {MAX_PREDICT_POINTS} titik).")
+        return drawing
 
 
 @app.get("/health")

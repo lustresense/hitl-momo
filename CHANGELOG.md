@@ -12,7 +12,10 @@ Satu-satunya changelog engineering yang aktif. Riwayat lama diarsipkan di `docs/
 - Contract: `submission-client.ts` mengikuti skema backend. Respons `{id, status}`. Outcome `PATCH`.
 - Fix: konteks kelas dibaca lewat ref (`SketchbookApp.tsx`), bukan closure usang.
 - Test: `tests/api/contract-fixtures.test.ts` memakai fixture bersama dengan backend.
+- Fix: outbox `resume()` mengirim ulang job yang tertinggal di `sending`. `requeueUnauthorized()` mengirim ulang job yang diblokir 401 setelah join ulang. Outcome yang menunggu submission tidak lagi memutar loop.
+- Fix: token kelas disimpan bersama sesi siswa (`classContextFrom`), jadi reload tanpa `?kelas=` tetap mengirim. Kegagalan kirim tidak jadi unhandled rejection di gameplay.
 - Staging: `frontend/implementation/Dockerfile` ditambahkan dari donor Dias (service `web` membutuhkannya).
+- Staging: `frontend/implementation/.dockerignore` ditambahkan.
 - Staging: path aset di `icon-gestures.test.tsx` dipindah ke `contexts/can/design/`.
 
 ### Dias — Backend, Model, Admin
@@ -22,6 +25,8 @@ Satu-satunya changelog engineering yang aktif. Riwayat lama diarsipkan di `docs/
 - Security: CORS dari env `CORS_ORIGINS`, `allow_credentials=False`. Sebelumnya `*` dengan credentials.
 - Migrasi: kolom submission ditambahkan otomatis (`_migrate` di `db.py`).
 - Compose: `CORS_ORIGINS` untuk backend.
+- Security: sesi siswa kedaluwarsa dihapus saat join. `/predict` menolak gambar di atas 20.000 titik (422).
+- Deploy: Caddy membatasi badan permintaan ke backend 1 MB.
 
 ### Shared Integration
 - Test: `tests/integration/test_classroom_contract.py` (11), `tests/integration/verify_backend.py` (20 probe runtime dengan bobot asli).

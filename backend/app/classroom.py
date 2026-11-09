@@ -92,6 +92,8 @@ def join_class(token: str, body: JoinBody, conn: sqlite3.Connection = Depends(ge
         "SELECT id FROM students WHERE class_id = ? AND number = ?", (c["id"], body.number)
     ).fetchone()
     now = datetime.now(timezone.utc)
+    # Drop expired sessions on every join. Keeps the table small without a background job.
+    conn.execute("DELETE FROM student_sessions WHERE expires_at <= ?", (now.isoformat(),))
     token = secrets.token_urlsafe(32)
     conn.execute(
         "INSERT INTO student_sessions (token_hash, student_id, class_id, created_at, expires_at) VALUES (?, ?, ?, ?, ?)",

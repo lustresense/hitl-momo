@@ -33,10 +33,10 @@ Daftar ini tidak diselesaikan oleh integrator sendiri. Setiap item butuh keputus
 
 | # | Topik | Dampak | Opsi |
 |---|---|---|---|
-| C1 | **Sesi siswa 8 jam.** Setelah kedaluwarsa, submission dan outcome kena 401. Client menganggap 401 tidak bisa dicoba ulang, jadi job di-`blocked` dan tidak terkirim. | Keputusan siswa yang dibuat setelah sesi habis bisa hilang | Perpanjang TTL, atau client join ulang otomatis, atau retry 401 setelah join ulang |
+| C1 | **Sesi siswa 8 jam.** Setelah kedaluwarsa, submission kena 401 dan job `blocked`. **Sebagian diperbaiki:** job 401 menyimpan `lastErrorCode` dan dikirim ulang otomatis setelah siswa bergabung lagi (`requeueUnauthorized`). | Selama siswa belum bergabung lagi, keputusan tertahan dan tidak terlihat | Tampilkan pesan "sesi habis, gabung lagi" di UI (lihat C2) |
 | C2 | Job `blocked` tidak terlihat oleh guru atau siswa | Data hilang tanpa tanda | Tampilkan jumlah job blocked di UI |
 | C3 | `prediction_id` tidak dihasilkan backend (`/predict` tidak mengirimnya) | Kolom selalu `NULL` | Backend mengirim `prediction_id` di respons `/predict` (PROPOSED) |
-| C4 | `/predict` tanpa auth | Siapa pun bisa memanggil model | Auth untuk `/predict`, atau rate limit |
+| C4 | `/predict` tanpa auth. Sekarang dibatasi 20.000 titik per gambar dan 1 MB badan di Caddy. | Siapa pun masih bisa memanggil model (beban CPU) | Auth atau rate limit untuk `/predict` |
 | C5 | Token sesi admin disimpan mentah di `sessions` | Kebocoran DB membocorkan sesi admin | Simpan hash |
 | C6 | `load_model(..., safe_mode=False)` | File model bisa mengeksekusi kode | `safe_mode=True` bila memungkinkan |
 | C7 | `GET /api/v1/model-info` dipanggil client (`getModelInfo`) tetapi tidak dipakai alur mana pun | Kode mati | Hapus pemanggilan, atau implementasikan endpoint |

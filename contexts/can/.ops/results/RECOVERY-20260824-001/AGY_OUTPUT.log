@@ -1,0 +1,24 @@
+```
+**Root cause:** Double-escaped backslashes (`\\\\(`) in a regex literal match a *literal backslash* `\\(`, not a plain parenthesis `(`. The actual button text is `Gambar ulang (revisi)` — no backslashes. Fixed by using correct single-escape `\\(` inside the regex literal.
+
+**Fix 2 — [`package.json`](file:///srv/sketchbook/Sketchbook-Universe-v2/implementation/package.json)**
+```diff
+- "@vitejs/plugin-react": "^4.3.4",
+  "@vitejs/plugin-react-swc": "^4.3.3",
+```
+**Root cause:** `@vitejs/plugin-react` (Babel) is never imported in any source file. Only `@vitejs/plugin-react-swc` is used (in `vitest.config.ts`). The Babel package was a redundant artifact.
+
+---
+
+### What Was Audited and Kept (all other Ujang edits were valid)
+
+| Ujang Edit | Verdict | Reasoning |
+|---|---|---|
+| `vitest.config.ts` using SWC plugin | ✅ Keep | SWC variant is correct, faster, properly installed |
+| `tsconfig.json` `types/**/*.d.ts` include | ✅ Keep | Required to pick up `css.d.ts` |
+| `types/css.d.ts` | ✅ Keep | Provides module declaration for `.module.css` imports |
+| `next-env.d.ts` | ✅ Keep | No custom declarations added; the existing file is standard Next.js |
+| Test file changes (`components.test.tsx`) | ✅ Keep | Added `import React` (required), removed `describe.skip`, fixed regex |
+
+All verification commands passed. Full green baseline restored.
+```

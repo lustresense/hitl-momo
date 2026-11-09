@@ -1,6 +1,6 @@
 # Catatan Keputusan: PA Sketchbook Universe / AI HITL
 
-Berkas ini (dulu bernama `CHANGELOG.md`) adalah **catatan keputusan Owner**: apa yang diputuskan Owner (CAN), kapan, kenapa, dan statusnya. Isinya hanya keputusan Owner. AI tidak membuat keputusan sendiri di sini; AI hanya mencatat keputusan Owner dan menghubungkannya ke perubahan teknisnya.
+Berkas ini (dulu bernama `CHANGELOG.md`) adalah **catatan keputusan PA/produk dari Owner**: apa yang diputuskan Owner (CAN), kapan, kenapa, dan statusnya. Isinya hanya keputusan soal PA (produk, cerita, desain, gameplay, dokumen PA). Aturan kerja (cara commit, push, format dokumen) dan kemarahan/instruksi proses Owner tidak dicatat di sini: lihat `AGENTS.md` dan `project/OWNER_MANDATES.md` (M-008, M-017, M-018). AI tidak membuat keputusan sendiri di sini; AI hanya mencatat keputusan Owner dan menghubungkannya ke perubahan teknisnya.
 
 | Berkas | Isi |
 |---|---|
@@ -123,41 +123,19 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 
 ## Entri Perubahan Terbaru
 
-### D-20261105-24 — Aktif untuk cerita, RENCANA untuk teknis (instruksi eksplisit Owner, M-020) — IP story disesuaikan dan PRD 0.0.16 diperluas
-- Teknis: belum ada (nanti `implementation/CHANGELOG.md` 0.0.16).
+### D-20261105-24 — Aktif (cerita dan teknis, dikerjakan di 0.0.16) (instruksi eksplisit Owner, M-020) — IP story disesuaikan dan PRD 0.0.16 diperluas
+- Teknis: `implementation/CHANGELOG.md` 0.0.16.
 - Keputusan/ubahannya: storyline awal Owner disimpan dan disesuaikan di `project/storyline.md`: Momo = layang-layang, Stickman = **Thinman** (masukan dosen), Escape the Sketchbook = **Sketchbook Universe** (semesta halaman; tujuan tetap Thinman hidup sendiri seperti Momo). **Gameplay sekarang fix**; cerita yang menyesuaikan. Benda bahaya cukup duri; siswa tidak menggambar benda tajam (kata "pisau" dihapus dari tutorial; mengubah baris "Isi tutorial Kartu 2"). PRD 0.0.16 ditambah R11-R18: Top-3 di chat Momo dengan tebakan sambil menggambar; ikon gestur menggambar dari Figma Owner (`design/visual/drawing-gestures/`); mode kamera full NUI tanpa tombol, tombol hanya kalau kamera tidak bisa; Momo makin halu per level lewat Kabut Penghapus (L3: kabut menutup muka Momo); bendera menjadi papan petunjuk jalan; Momo menunjuk dengan sayap dan lega saat pertama dikoreksi; asal-usul Momo di cover. Penutup Pusat Halaman + overview pilihan + easter egg: arah disetujui (menggantikan status RISET D-20261105-15 untuk arahnya).
 - Mengubah entri lama: D-20261105-15 (arah penutup disetujui), D-20261027-01 (Kabut Penghapus dipakai sebagai dasar animasi), baris "Isi tutorial Kartu 2" (tanpa pisau), PRD R1/R4 (tanpa webcam: ada mode cadangan).
 - Bukti: instruksi Owner 2026-11-07 (M-020); 4 SVG dari Figma Owner.
 - Alasan status: implementasi menunggu `SETUJUI PRD 0.0.16`. Pertanyaan terbuka: pemetaan ikon gestur, panel opening.
 
-### D-20261105-23 — Belum dikunci (status: RENCANA) — PRD Revisi 0.0.16 (Momo, jempol, buku, penutup)
-- Teknis: belum ada (nanti `implementation/CHANGELOG.md` 0.0.16).
+### D-20261105-23 — Aktif (dikerjakan di 0.0.16) — PRD Revisi 0.0.16 (Momo, jempol, buku, penutup)
+- Teknis: `implementation/CHANGELOG.md` 0.0.16.
 - Keputusan/ubahannya: feedback Owner atas video full run dijadikan satu rencana: `project/PRD_REVISI_0.0.16.md`. Isi: lambaian (bukan kamera nyala) yang membangunkan Momo; transisi buka buku semi 3D (kanan bawah ke kiri atas); penggaris tanpa tombol, Momo menanyakan angka yang dipilih; semua jempol punya cincin progres (2 detik konfirmasi, 1 detik percakapan) dengan deteksi jempol nyata; Thinman tutorial pakai animasi jalan; pita mental ke atas lalu buku membuka ke dunia, kembali = buku menutup; Thinman lebih pelan; panel tebakan dan HUD sekunder dikecilkan ("Gambar lagi" tetap); video bukti wajib memperlihatkan Momo terbang ke kanvas di langit dan mode gambar; penutup L3 (A + B) digabung ke PRD ini tetapi tetap RISET (D-20261105-15). Jawaban Owner 2026-11-07: Terima = jempol 2 detik, gestur Pilih lain dan Bukan semua harus diriset (R4b); tanpa webcam tidak didukung (wajib NUI); Thinman lebih pelan dengan syarat Level 1 minimal butuh 2 gambar; Momo mengarahkan benda yang bisa digambar tanpa memaksa (R10, choice architecture).  Jawaban kedua: daftar benda dan minimal gambar cukup dummy untuk partner; IT memakai katalog level saat ini (K1) dan minimal 2 gambar per level (K2).
 - Mengubah entri lama: akan mengubah D-20261105-19 (cover: kamera nyala tidak lagi membangunkan Momo) dan D-20261105-13 (masuk level) setelah disetujui.
 - Bukti: instruksi Owner 2026-11-07 (M-019).
-- Alasan status: Owner meminta rencana dulu, jangan langsung implementasi. **Jangan dikerjakan sebelum Owner menulis `SETUJUI PRD 0.0.16`.**
-
-### D-20261105-22 — Aktif (instruksi eksplisit Owner, M-018) — Commit hanya atas nama Owner
-- Teknis: tidak ada (aturan kerja di root: `AGENTS.md`, `CLAUDE.md` baru).
-- Keputusan/ubahannya: semua commit dan push memakai identitas yang Owner pasang di environment Claude Code (`GIT_AUTHOR_*`, `GIT_COMMITTER_*`). Tidak ada AI sebagai author, co-author, atau kontributor: tanpa baris `Co-Authored-By`, `Claude-Session`, atau atribusi AI lain; author tidak pernah direset ke Claude walau hook meminta. Aturan ditulis di `AGENTS.md` (bagian "Git commits and push") dan `CLAUDE.md` baru yang memuat `AGENTS.md`, supaya setiap sesi Claude Code membacanya.
-- Mengubah entri lama: memperkuat M-008. Commit lama di `can` masih memuat baris `Co-Authored-By`; menulis ulang riwayat (force push) menunggu persetujuan Owner.
-- Bukti: instruksi Owner 2026-11-05 (screenshot GitHub "2 people authored").
-- Dampak: semua sesi AI berikutnya.
-
-### D-20261105-21 — Aktif (instruksi eksplisit Owner, M-017) — Aturan DECISIONS.md dan implementation/CHANGELOG.md
-- Teknis: `implementation/CHANGELOG.md` 0.0.15 (Docs).
-- Keputusan/ubahannya: `DECISIONS.md` (root) berisi **keputusan dari Owner** saja. `implementation/CHANGELOG.md` berisi **setiap perubahan di dalam folder `implementation/`**. Kebanyakan keputusan Owner mengubah `implementation/` (teknis, folder, kode), jadi keputusan dan changelog **saling terhubung**: tiap keputusan menulis baris "Teknis:" ke versi changelog, tiap versi changelog menulis baris "Decision:" ke ID keputusan. Panduan di atas kedua berkas ditulis ulang dengan aturan ini, dan semua entri D-20261105-01..24 serta versi 0.0.13..0.0.15 sudah dihubungkan.
-- Catatan Owner: **Owner marah besar** karena AI tidak membaca berkas dan salah menangkap aturan ini berkali-kali (catatan teknis tenggelam di versi lama; catatan push dimasukkan ke changelog; panduan berkas tidak jelas). Pelajaran untuk AI berikutnya: baca panduan di atas `DECISIONS.md` dan `implementation/CHANGELOG.md` sebelum mencatat; catatan baru di changelog selalu di versi paling atas; jangan masukkan hal di luar `implementation/` ke changelog.
-- Mengubah entri lama: memperjelas D-20261105-10 (pembagian dokumen) dan header kedua berkas.
-- Bukti: instruksi Owner 2026-11-05 (M-017).
-- Dampak: cara semua AI mencatat kerja di repo ini.
-
-### D-20261105-20 — Aktif (instruksi eksplisit Owner) — Push revisi 0.0.14 ke branch `can`
-- Teknis: tidak ada (alur kerja).
-- Keputusan/ubahannya: Owner menyuruh push ("gas push") setelah wing fix (D-20261105-17), audit semua Momo, dan Momo sebagai pemandu (D-20261105-19). Push ke `origin/can` memakai environment sesi ini. Commit tetap atas nama Owner (`Farchan Deano Muhammad`, M-008); GitHub bisa menampilkan "Unverified" karena tidak ditandatangani, dan itu sengaja diterima: author tidak direset ke Claude. Push hanya terjadi karena perintah eksplisit ini; aturan "jangan push tanpa diminta" tetap berlaku untuk sesi berikutnya.
-- Mengubah entri lama: tidak ada.
-- Bukti: perintah Owner 2026-11-05 (tidak dicatat di `implementation/CHANGELOG.md` karena bukan perubahan isi `implementation/`); commit `46d2330`, `eb3c053`, `5c05cc3` dan commit catatan ini.
-- Dampak: remote `can` memuat semua kerja sesi ini; sesi baru yang di-clone dari remote ikut melihatnya.
+- Status: Owner menyuruh eksekusi (2026-11-08) dan dites sebelum di-push. Belum dikerjakan: riset gestur Pilih lain/Bukan semua (R4b, Ujang), kontrol telunjuk Thinman (Ujang), video showcase (dibatalkan Owner untuk hemat token), panel opening (R17 tetap kalimat Momo saja), kartu benda pilihan siswa belum diteruskan ke halaman gambar, pertanyaan tebakan belum tertutup otomatis saat siswa menggambar lagi.
 
 ### D-20261105-19 — Aktif (instruksi eksplisit Owner, M-016) — Momo memandu setiap halaman, dimulai dari cover
 - Teknis: `implementation/CHANGELOG.md` 0.0.15 (Added, Changed).
@@ -181,8 +159,6 @@ Satu tabel supaya AI lain tahu mana yang sudah keputusan, mana yang masih riset,
 | Buku progres PA: dua papan 1:1 (Thinman, Momo), PNG/MP4/GIF/HTML dalam satu folder | Aktif | D-20261105-16, M-014, `academic/progress-book/` |
 | Sayap Momo tidak boleh terlihat putus di animasi mana pun; hanya ujung bawah yang bergerak | Aktif | D-20261105-17, M-015 |
 | Momo tidur di cover, bangun saat kamera menyala (kelak lambaian), menyapa dada-dada satu sayap, dan memandu semua halaman | Aktif | D-20261105-19, M-016 |
-| Aturan dokumen: keputusan dan dokumen di luar `implementation/` ke `DECISIONS.md`; perubahan di dalam `implementation/` ke `implementation/CHANGELOG.md` | Aktif (aturan kerja) | header `DECISIONS.md`, header `implementation/CHANGELOG.md` |
-| Push ke GitHub hanya jika Owner minta eksplisit; commit memakai identitas Owner | Aktif (aturan kerja) | M-008 |
 | Belum ada: model prediksi nyata, logging backend, layout 390 px di HP, ratifikasi coyote time, hapus objek | Terbuka | `NOW.md` bagian Masih terbuka |
 
 ### D-20261105-17 — Aktif (instruksi eksplisit Owner, M-015) — Animasi sayap Momo
@@ -199,7 +175,6 @@ Satu tabel supaya AI lain tahu mana yang sudah keputusan, mana yang masih riset,
 - Mengubah entri lama: tidak ada. Tidak ada perubahan di dalam `implementation/` (hanya dibaca), jadi tidak ada entri `implementation/CHANGELOG.md`.
 - Bukti: instruksi Owner 2026-11-05 (M-014); hasil build dan screenshot desktop/mobile diperiksa.
 - Dampak: materi buku progres/PPT dan diskusi dosen; penjelasan karakter untuk AI/anggota baru.
-
 
 ### D-20261105-15 — Belum dikunci (status: RISET) — Penutup permainan setelah Level 3
 - Teknis: tidak ada (masih riset, belum dikerjakan).
@@ -294,7 +269,6 @@ Satu tabel supaya AI lain tahu mana yang sudah keputusan, mana yang masih riset,
 - Coyote time + jump buffer 100 ms sudah diimplementasikan (bukti trajektori) tetapi belum diratifikasi Owner.
 - Perilaku Momo yang benar-benar bergerak maju-mundur sendiri (mengikuti Thinman, mendekat/menjauh layar).
 - Fitur hapus objek; akhir permainan setelah Level 3 (opsi dan preferensi Owner: D-20261105-15, `project/OPSI_PENUTUP_PERMAINAN.md`); input tangan di gameplay (saat ini opt-in "Kontrol tangan", tangan nyata belum diuji).
-
 
 ### 2026-08-29 — RECOVERY & VISUAL QA COMPLETE
 
@@ -519,7 +493,6 @@ Aturan operasional ini **bukan keputusan fitur PA**, melainkan prosedur menjaga 
 3. **Klasifikasikan** keputusan/scope/flow/peran produk sebagai kandidat CHANGELOG; tooling, branch, deployment, test, video, output worker sebagai WORKING_STATE, dengan tag `KATA-TOOL` atau `BELUM-TERBUKTI` sesuai bukti. Satu kejadian bisa berdampak pada keduanya, tetapi jangan menjadikan implementasi sebagai pengesahan desain.
 4. Keluarkan **berkas utuh pengganti**, bukan patch/potongan; untuk CHANGELOG gunakan newest-first setelah bagian 0, simpan tabel Aktif dan histori lama; untuk STATE gunakan newest-first, metadata, dan riwayat update. Hanya naikkan status kandidat menjadi Aktif jika pengguna memberi persetujuan eksplisit.
 5. File hasil chat **tidak otomatis mengganti Project Sources**. Bila sumber tidak dapat dibuka, nyatakan kendalanya dan jangan mengaku sudah mengkloningnya.
-
 
 ## Lampiran B. Riwayat keputusan bernomor 14 ke 1 (dari project GPT, terbaru di atas)
 
@@ -1469,5 +1442,4 @@ flowchart TD
 - Dipertegas fokus penulis pada UI, preprocessing input gambar, progression, serta justifikasi tema/warna.
 - Dipertegas Momo sebagai text-bubble companion tanpa voice/NLP/LLM.
 - Session/login, kontrol karakter, manipulasi confidence, stack, dan detail analitik tetap harus diverifikasi terhadap dokumen/repo terbaru karena pembahasannya bersifat kondisional atau berubah sepanjang bimbingan.
-
 

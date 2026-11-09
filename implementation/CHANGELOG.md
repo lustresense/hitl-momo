@@ -41,9 +41,11 @@ Provisional choices taken for the open Owner questions: gesture icon mapping pin
 <!-- video dropped, see NOW.md -->
 - Evidence: the 17 min showcase video was not kept in the repo (Owner cancelled the re-record to save tokens). Run `node e2e/record-full-showcase.mjs` on a TEST_HOOKS=1 build to regenerate it.
 
+- QA against PRD 0.0.16 (2026-11-09): every PRD item R1-R3, R4, R5, R6, R8, R9, R10, R11, R12, R13, R14, R15, R16, R18 has code in `src/` and passing tests/e2e (grep check by item). R18: no `pisau` left in `src/`. Not done: R4b gesture research and Thinman finger-control research (Ujang), R7 showcase video (cancelled by Owner), R17 sketch panels (Momo lines only), R10 picked card is only recorded, R11 step 4 (question does not close when drawing again; Gambar ulang and Esc still work).
+
 ## [0.0.15] - 2026-11-05
 
-Decision: D-20261105-17 (wings), D-20261105-19 (Momo guides every page), D-20261105-21 (docs rule). Mandates M-015, M-016. Branch `can`.
+Decision: D-20261105-17 (wings), D-20261105-19 (Momo guides every page). Mandates M-015, M-016, M-017. Branch `can`.
 
 ### Fixed
 - `src/components/momo/momo-wing.ts` (new) and `momo-engine.ts`: Momo's cloth wings looked cut off while animating. They were rotated about a pivot about 90 art units below the apex, so the apex (the corner attached to the body) lifted off. Now the wing is sheared along its attach edge: the apex and the whole attach edge never move, only the lower tips go up (negative angle) and down (positive), at most 56 art units (the wave may go to 50 degrees). Applies to every Momo (chat, drawing, intro, world, character book). The flap kick is now symmetric for both wings. Matrix printed with 8 decimals (4 decimals moved the apex by 0.02 units).
@@ -68,7 +70,7 @@ Decision: D-20261105-17 (wings), D-20261105-19 (Momo guides every page), D-20261
 - Gates: vitest 558/558, tsc, lint, build; E2E journey L1-L3, recovery 16/16, hand-control 6/6, MediaPipe probe, wing audit (apex moved at most 0.0002 units over 1734 samples, tips travelled the full 56), guide flow 14/14.
 
 ### Docs
-- `CHANGELOG.md` (this file): guide at the top rewritten. Every change inside `implementation/` goes here, newest version on top; every version opens with a `Decision:` line naming the Owner decision it carries out; nothing outside `implementation/` (pushes, `academic/`, `project/`) is logged here. 0.0.13 and 0.0.14 got their `Decision:` lines. The Owner was very angry that this rule was missed (D-20261105-21, M-017).
+- `CHANGELOG.md` (this file): guide at the top rewritten. Every change inside `implementation/` goes here, newest version on top; every version opens with a `Decision:` line naming the Owner decision it carries out; nothing outside `implementation/` (pushes, `academic/`, `project/`) is logged here. 0.0.13 and 0.0.14 got their `Decision:` lines. The Owner was very angry that this rule was missed (M-017).
 
 ## [0.0.14] - 2026-11-05
 

@@ -17,6 +17,9 @@ export interface PredictionCandidate {
 /** Exactly-Top-3 prediction result shape returned by any PredictionProvider. */
 export interface PredictionResult {
   candidates: [PredictionCandidate, PredictionCandidate, PredictionCandidate];
+  predictionId?: string;
+  modelVersion?: string;
+  contractVersion?: string;
 }
 
 export interface StrokePoint {

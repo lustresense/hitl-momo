@@ -86,9 +86,22 @@ export function validatePredictionResponse(
       `Label di luar vocabulary level: ${outOfVocab.join(", ")}.`,
     );
   }
-  return {
+  const result: PredictionResult = {
     candidates: parsed as [PredictionResult["candidates"][0], PredictionResult["candidates"][1], PredictionResult["candidates"][2]],
   };
+
+  const payloadObj = value as Record<string, unknown>;
+  if (typeof payloadObj.predictionId === "string") {
+    result.predictionId = payloadObj.predictionId;
+  }
+  if (typeof payloadObj.modelVersion === "string") {
+    result.modelVersion = payloadObj.modelVersion;
+  }
+  if (typeof payloadObj.contractVersion === "string") {
+    result.contractVersion = payloadObj.contractVersion;
+  }
+
+  return result;
 }
 
 /** lower-cased trimmed vocabulary entry -> exact canonical spelling (first wins). */

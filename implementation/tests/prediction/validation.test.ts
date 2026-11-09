@@ -53,4 +53,20 @@ describe("prediction response validation (TASK 07/13)", () => {
       expect((err as { reason?: string }).reason).toBe("malformed-response");
     }
   });
+
+  it("propagates predictionId, modelVersion, contractVersion when present", () => {
+    const r = validatePredictionResponse({
+      candidates: [
+        { label: "papan", confidence: 0.5 },
+        { label: "batu", confidence: 0.3 },
+        { label: "tali", confidence: 0.2 },
+      ],
+      predictionId: "pred-123",
+      modelVersion: "v1.2.3",
+      contractVersion: "1.0.0",
+    });
+    expect(r.predictionId).toBe("pred-123");
+    expect(r.modelVersion).toBe("v1.2.3");
+    expect(r.contractVersion).toBe("1.0.0");
+  });
 });

@@ -89,4 +89,14 @@ describe("createPredictionProvider: MOCK is default, REAL/unknown config never f
       vi.unstubAllGlobals();
     }
   });
+
+  it("apiBaseUrl and predictionEndpoint fallback", () => {
+    vi.stubEnv("NEXT_PUBLIC_API_BASE_URL", "https://api.example.com///");
+    vi.stubEnv("NEXT_PUBLIC_PREDICTION_ENDPOINT", "");
+    expect(env.apiBaseUrl).toBe("https://api.example.com");
+    expect(env.predictionEndpoint).toBe("https://api.example.com/predict");
+
+    vi.stubEnv("NEXT_PUBLIC_PREDICTION_ENDPOINT", "https://custom.example.com/api/v1/predict");
+    expect(env.predictionEndpoint).toBe("https://custom.example.com/api/v1/predict");
+  });
 });

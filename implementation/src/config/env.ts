@@ -48,8 +48,14 @@ export const env = {
     const m = rawPredictionMode();
     return m !== "" && m !== "mock" && m !== "partner";
   },
+  get apiBaseUrl(): string {
+    return (process.env.NEXT_PUBLIC_API_BASE_URL ?? "").trim().replace(/\/+$/, "");
+  },
   get predictionEndpoint(): string {
-    return (process.env.NEXT_PUBLIC_PREDICTION_ENDPOINT ?? "").trim();
+    const explicit = (process.env.NEXT_PUBLIC_PREDICTION_ENDPOINT ?? "").trim();
+    if (explicit) return explicit;
+    const base = env.apiBaseUrl;
+    return base ? `${base}/predict` : "";
   },
   get predictionTimeoutMs(): number {
     const n = Number(process.env.NEXT_PUBLIC_PREDICTION_TIMEOUT_MS);

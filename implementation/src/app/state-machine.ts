@@ -1,3 +1,4 @@
+import { attemptContext } from "../events/attempt-context";
 import type {
   DrawingInput,
   HumanDecision,
@@ -37,11 +38,30 @@ export class InvalidTransitionError extends Error {
   }
 }
 
+export interface FlowDecisionSnapshot {
+  attemptId: string;
+  levelId: string;
+  drawingInput: DrawingInput;
+  prediction: PredictionResult;
+  decision: HumanDecision;
+  sourceRank: 1 | 2 | 3 | null;
+  redrawCount: number;
+}
+
+export interface FlowGameplayResultSnapshot {
+  attemptId: string;
+  levelId: string;
+  outcome: "success" | "fail";
+  behavior: ObjectBehavior;
+}
+
 export interface FlowOptions {
   provider: PredictionProvider;
   sink?: InteractionEventSink;
   /** Integrated worlds finish at the goal; legacy callers retain cycle pacing. */
   goalCompletesLevel?: boolean;
+  onDecisionApplied?: (snapshot: FlowDecisionSnapshot) => void;
+  onGameplayResult?: (result: FlowGameplayResultSnapshot) => void;
 }
 
 export type FlowFeedback = "empty-drawing" | "prediction-failed" | null;
@@ -49,10 +69,12 @@ export type FlowFeedback = "empty-drawing" | "prediction-failed" | null;
 export interface FlowStateSnapshot {
   phase: AppPhase;
   levelId: string | null;
+  attemptId: string | null;
   hasPrediction: boolean;
   decision: HumanDecision | null;
   behavior: ObjectBehavior | null;
   cyclesCompleted: number;
+  redrawCount: number;
   /** During falling/placing phase: the object being materialized/positioned. */
   placingObject?: { label: string; behavior: ObjectBehavior } | null;
 }
@@ -69,14 +91,18 @@ export class FlowController {
   feedback: FlowFeedback = null;
   errorDetail: string | null = null;
   cyclesCompleted = 0;
+  attemptId: string | null = null;
+  redrawCount = 0;
   private attemptRecorded: "success" | "fail" | null = null;
 
+  private readonly options: FlowOptions;
   private readonly provider: PredictionProvider;
   private readonly sink: InteractionEventSink;
   private readonly goalCompletesLevel: boolean;
   private readonly listeners = new Set<Listener>();
 
   constructor(options: FlowOptions) {
+    this.options = options;
     this.provider = options.provider;
     this.sink = options.sink ?? noopSink;
     this.goalCompletesLevel = options.goalCompletesLevel ?? false;
@@ -93,10 +119,12 @@ export class FlowController {
     return {
       phase: this.phase,
       levelId: this.level?.levelId ?? null,
+      attemptId: this.attemptId,
       hasPrediction: this.prediction !== null,
       decision: this.decision,
       behavior: this.behavior,
       cyclesCompleted: this.cyclesCompleted,
+      redrawCount: this.redrawCount,
       placingObject: (this.phase === "falling" || this.phase === "placing") && this.decision
         ? { label: this.decision.finalLabel, behavior: this.behavior! }
         : null,
@@ -130,6 +158,8 @@ export class FlowController {
     this.level = level;
     this.resetCycleState();
     this.cyclesCompleted = 0;
+    this.redrawCount = 0;
+    this.attemptId = null;
     this.phase = "drawing";
     this.notify();
   }
@@ -160,6 +190,7 @@ export class FlowController {
     }
     this.feedback = null;
     this.drawingInput = input;
+    this.attemptId = attemptContext.begin();
     this.emit({ kind: "drawing_submitted", levelId: this.level?.levelId ?? "?" });
     await this.runPrediction();
   }
@@ -176,6 +207,7 @@ export class FlowController {
   /** Recovery route from the error state back to the canvas (FR-07). */
   redrawFromError(): void {
     this.require("prediction-error", "redrawFromError");
+    this.redrawCount++;
     this.emitRedraw("error");
     this.resetToDrawing();
   }
@@ -238,6 +270,17 @@ export class FlowController {
       sourceRank,
       finalLabel: decision.finalLabel,
     });
+    if (this.attemptId && this.drawingInput && this.prediction && this.level) {
+      this.options.onDecisionApplied?.({
+        attemptId: this.attemptId,
+        levelId: this.level.levelId,
+        drawingInput: this.drawingInput,
+        prediction: this.prediction,
+        decision: this.decision,
+        sourceRank: sourceRank ?? null,
+        redrawCount: this.redrawCount,
+      });
+    }
     this.notify();
   }
 
@@ -283,6 +326,14 @@ export class FlowController {
     if (this.phase !== "gameplay" || !this.level || !this.behavior) return;
     this.attemptRecorded = outcome;
     this.emit({ kind: "gameplay_result", levelId: this.level.levelId, outcome, behavior: this.behavior });
+    if (this.attemptId && this.level && this.behavior) {
+      this.options.onGameplayResult?.({
+        attemptId: this.attemptId,
+        levelId: this.level.levelId,
+        outcome,
+        behavior: this.behavior,
+      });
+    }
   }
 
   recordGameplayRetry(): void {

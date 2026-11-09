@@ -1,3 +1,4 @@
+// STALE: butuh pembaruan harness baru
 // Live audit: in the real app, every Momo wing keeps its apex and attach edge on the body in every frame,
 // across onboarding, level list, story intro (flap + camera rise), drawing, prediction and decision.
 // A requestAnimationFrame sampler reads each <g class="fL|fR"> transform and measures how far A, B and the edge midpoint move.

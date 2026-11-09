@@ -21,7 +21,8 @@ export function LevelEntryScreen({ entryHold, onSelectLevel, isLevelUnlocked, fi
   return (
     <section id="screen-level-entry" aria-label="Pilih level" data-entry-hold={entryHold ? "" : undefined}>
       <h1 className="visually-hidden">Sketchbook Universe</h1>
-      <LevelRibbonBookmark levels={LEVELS} onSelectLevel={onSelectLevel} isLevelUnlocked={isLevelUnlocked} />
+      {/* While the entry hold runs, the level intro is on top of this list: it must not read the hand. */}
+      <LevelRibbonBookmark levels={LEVELS} onSelectLevel={onSelectLevel} isLevelUnlocked={isLevelUnlocked} paused={entryHold} />
       {finished && !entryHold && <PageEdgeWalkers />}
       {!entryHold && <MomoGuide step={levelListStep(unlocked)} startDelay={900} testId="levels-momo" />}
     </section>

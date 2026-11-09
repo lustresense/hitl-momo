@@ -66,8 +66,9 @@ try {
     prefer: plans["1"].cycles[0].label, log: m => log(m),
     inspect: async () => {
       const t = id => page.getByTestId(id).count();
-      check("Top-3 panel: exactly three decisions (Accept/Correct/Override) + a separate Redraw link; no 'Wujudkan Objek' step",
-        (await t("btn-accept")) === 1 && (await t("btn-correct")) === 1 && (await t("btn-override")) === 1 && (await t("btn-redraw")) === 1 && (await t("btn-wujudkan-objek")) === 0);
+      // 2026-11-09 Top-3: one button per candidate (btn-accept = rank 1, btn-correct-2/3), then "Bukan ini" and a separate Redraw.
+      check("Top-3 panel: exactly three candidate decisions (btn-accept, btn-correct-2, btn-correct-3) + Bukan ini + a separate Redraw link; no 'Wujudkan Objek' step",
+        (await t("btn-accept")) === 1 && (await t("btn-correct-2")) === 1 && (await t("btn-correct-3")) === 1 && (await t("btn-override")) === 1 && (await t("btn-redraw")) === 1 && (await t("btn-wujudkan-objek")) === 0);
       const box = await page.getByTestId("popup-evaluating").boundingBox();
       check("Top-3 panel is compact (<= 340 px wide)", box && box.width <= 340, box && Math.round(box.width));
     },

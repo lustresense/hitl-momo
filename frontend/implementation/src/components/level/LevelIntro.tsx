@@ -7,6 +7,10 @@
  *
  * The drawing screen is already mounted underneath with the same sky, so the last frame of the camera move
  * and the first frame of the drawing page are identical (no jump). Skippable at any moment.
+ *
+ * NUI: the picture cards and the skip are dwell buttons (a resting fingertip picks or skips, a click does it at once).
+ * The 1 s "Ke langit" thumb follows the drawing page's own hand reader while that page runs one, so the intro never
+ * starts a second tracker on the camera.
  */
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
@@ -17,10 +21,13 @@ import { StageWorld } from "../stage-preview/StageWorld";
 import { getStageGeometry } from "@/src/game/stage-geometry";
 import { getFinalStageGeometry } from "@/src/game/stage-geometry-final";
 import type { SceneIndex } from "../stage-preview/scene-metadata";
+import { DwellButton } from "../ui/DwellButton";
 import { Icon, ICON_NAMES, type IconName } from "../ui/Icon";
 import { ThumbConfirm } from "../ui/ThumbConfirm";
 import { ThinmanArt } from "../ui/ThinmanArt";
 import { CloudBand } from "../ui/SkyBackdrop";
+import { usePageThumb } from "./use-page-thumb";
+import "./level-nui.css";
 
 /** How long the finished story stays before Momo flies up on her own. */
 export const INTRO_LINGER_MS = 4500;
@@ -62,6 +69,7 @@ export function LevelIntro({ level, characterDisplayName, onReveal, onFinish }: 
   const [picked, setPicked] = useState<string | null>(null);
   const nudge = [...nudgeLines(level.stage, characterDisplayName), NUDGE_TO_SKY];
   const [flap, setFlap] = useState(0);
+  const pageThumb = usePageThumb();
   const lines = introLines(level.stage, characterDisplayName);
   // The closing level has its own geometry module (see stage-geometry-final.ts).
   const spawn = (level.stage === FINAL_LEVEL_STAGE ? getFinalStageGeometry() : getStageGeometry(level.stage as 1 | 2 | 3)).spawn;
@@ -192,27 +200,42 @@ export function LevelIntro({ level, characterDisplayName, onReveal, onFinish }: 
           >
             <div className="intro-cards" role="group" aria-label="Benda yang bisa dihidupkan Momo" data-testid="intro-cards">
               {level.catalog.map((item) => (
-                <button
+                <DwellButton
                   key={item.labelId}
-                  type="button"
                   className={`intro-card nb-card${picked === item.labelId ? " is-picked" : ""}`}
-                  data-testid={`intro-card-${item.labelId}`}
-                  aria-pressed={picked === item.labelId}
-                  onClick={() => setPicked(item.labelId)}
+                  testId={`intro-card-${item.labelId}`}
+                  label={item.displayName}
+                  pressed={picked === item.labelId}
+                  onActivate={() => setPicked(item.labelId)}
+                  icon={<Icon name={(ICON_NAMES.includes(item.labelId as IconName) ? item.labelId : "pencil") as IconName} size={34} stroke={2.4} />}
                 >
-                  <Icon name={(ICON_NAMES.includes(item.labelId as IconName) ? item.labelId : "pencil") as IconName} size={34} stroke={2.4} />
                   <span className="intro-card__name">{item.displayName}</span>
-                </button>
+                </DwellButton>
               ))}
             </div>
-            <ThumbConfirm holdMs={1000} onConfirm={rise} label="Ke langit" className="intro-thumb" testId="intro-continue" />
+            <ThumbConfirm
+              holdMs={1000}
+              onConfirm={rise}
+              label="Ke langit"
+              className="intro-thumb"
+              testId="intro-continue"
+              externalThumbUp={pageThumb}
+            />
           </MomoChat>
         )}
       </div>
 
-      <button type="button" className="nb-iconbtn intro-skip" data-testid="intro-skip" aria-label="Lewati cerita" title="Lewati cerita" onClick={finish}>
-        <Icon name="arrow-right" size={22} stroke={3} />
-      </button>
+      <DwellButton
+        iconOnly
+        className="nb-iconbtn intro-skip"
+        testId="intro-skip"
+        label="Lewati cerita"
+        title="Lewati cerita"
+        onActivate={finish}
+        icon={<Icon name="arrow-right" size={22} stroke={3} />}
+      >
+        Lewati cerita
+      </DwellButton>
     </div>
   );
 }

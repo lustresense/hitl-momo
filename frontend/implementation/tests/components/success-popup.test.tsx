@@ -27,3 +27,19 @@ describe("SuccessPopup Lanjut (PRD 0.0.16 R8.5)", () => {
     expect(onContinue).toHaveBeenCalledTimes(1);
   });
 });
+
+describe("SuccessPopup: the thumb is the only action, and the list opens by itself", () => {
+  it("in camera mode Lanjut is a thumb ring (no mouse button), so a fingertip never needs a click", () => {
+    render(<SuccessPopup onContinue={vi.fn()} />);
+    advance(600);
+    expect(screen.getByTestId("btn-continue").tagName).toBe("DIV");
+    expect(screen.getByTestId("btn-continue").getAttribute("data-mode")).toBe("camera");
+  });
+
+  it("when nobody confirms, the finished chat opens the level list once by itself", () => {
+    const onContinue = vi.fn();
+    render(<SuccessPopup onContinue={onContinue} />);
+    advance(12000);
+    expect(onContinue).toHaveBeenCalledTimes(1);
+  });
+});

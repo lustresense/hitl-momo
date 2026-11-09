@@ -1,18 +1,20 @@
-/* "Selesai gambar" thumb ring (Owner 2026-11-09). Bottom-left of the canvas: clear of the tool column on the
-   right, of the Tebak row at the bottom centre, and of the drawing itself. */
+/* "Selesai gambar" thumb ring (Owner 2026-11-09). Bottom-RIGHT on desktop: the global camera card is fixed in the
+   bottom-left corner (24 px, z-index 900) and would hide a ring placed there; the tool column on the right ends above
+   it, and the Tebak row sits centre-bottom. */
 .drawing-finish {
   position: absolute;
-  left: 20px;
+  right: 20px;
   bottom: 20px;
   z-index: 20;
   max-width: 160px;
   text-align: center;
 }
 
+/* Phones: the controls become a column at the bottom right, so the ring sits just above that column. */
 @media (max-width: 600px) {
   .drawing-finish {
-    left: 12px;
-    bottom: 16px;
+    right: 12px;
+    bottom: 150px;
     max-width: 128px;
   }
 }

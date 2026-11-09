@@ -51,24 +51,24 @@
     ],
     "steps": [
       {
-        "launchX": 76,
-        "hold": 10
+        "launchX": 70,
+        "hold": 26
       },
       {
-        "launchX": 201,
-        "hold": 22
+        "launchX": 206,
+        "hold": 35
       },
       {
-        "launchX": 294,
-        "hold": 36
+        "launchX": 302,
+        "hold": 54
       },
       {
-        "launchX": 417,
-        "hold": 22
+        "launchX": 424,
+        "hold": 41
       },
       {
-        "launchX": 500,
-        "hold": 30
+        "launchX": 510,
+        "hold": 49
       }
     ]
   },

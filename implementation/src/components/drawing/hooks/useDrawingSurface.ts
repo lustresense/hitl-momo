@@ -5,6 +5,7 @@
 import { useEffect, useState, type RefObject } from "react";
 import { DrawingSurface } from "@/src/input";
 import type { InputModeId } from "@/src/input/types";
+import { createGestureCommander } from "../gesture-commands";
 
 interface UseDrawingSurfaceOptions {
   canvasRef: RefObject<HTMLCanvasElement>;
@@ -23,9 +24,16 @@ export function useDrawingSurface({ canvasRef, surfaceOut, initialMode, active }
     if (!canvas) return;
     const video = document.querySelector<HTMLVideoElement>(".global-camera-host .camera-video");
 
-    const surface = new DrawingSurface(canvas, video, {
+    // R12: dua jari = Mundur, telapak terbelah = Maju, each once per held pose. Kepal (Hapus tool) erases inside DrawingSurface itself.
+    const commander = createGestureCommander();
+    const surface: DrawingSurface = new DrawingSurface(canvas, video, {
       initialMode,
       onInkChange: setHasInk,
+      onPose: (pose, nowMs) => {
+        const action = commander.feed(pose, nowMs);
+        if (action === "undo") surface.undo();
+        else if (action === "redo") surface.redo();
+      },
     });
     surfaceOut.current = surface;
 

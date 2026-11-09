@@ -1,7 +1,7 @@
 import type { HandLandmarker, HandLandmarkerResult } from "@mediapipe/tasks-vision";
 import type { Landmark, StrokeStore } from "./types";
 import type { HandFailureReason, HandInputStatus } from "./types";
-import { evaluateGesture, type CursorState } from "./hand-gesture";
+import { classifyHandPose, evaluateGesture, type CursorState, type HandPose } from "./hand-gesture";
 import { mapToCanvas } from "./hand-gesture";
 import { PointSmoother } from "./smoothing";
 import { getSharedStream, subscribeSharedStream } from "../camera/shared-stream";
@@ -27,6 +27,8 @@ export interface HandDriverOptions {
   onStatus(status: HandInputStatus): void;
   onRender(): void;
   onCursor?: (cursor: { x: number; y: number; state: "hover" | "near" | "drawing" } | null) => void;
+  /** PRD 0.0.16 R12: classified pose once per processed frame ("none" when no hand). Debounce lives in the UI. */
+  onPose?: (pose: HandPose, nowMs: number) => void;
 }
 
 export class HandDrawingDriver {
@@ -174,7 +176,7 @@ export class HandDrawingDriver {
 
   /** Shared pipeline for camera frames and injected test landmarks. */
   private process(landmarks: Landmark[] | undefined, _timestampMs: number): void {
-    const frame = evaluateGesture(landmarks);
+    const { frame, pose } = gateFrameByPose(evaluateGesture(landmarks), landmarks, _timestampMs, this.options.onPose);
     const { store, canvas, onStatus, onRender, onCursor } = this.options;
 
     if (frame.state === "lost") {
@@ -183,6 +185,7 @@ export class HandDrawingDriver {
       if (this.alreadyLost && !this.wasPinched) return;
       this.alreadyLost = true;
       if (store.hasInk() || this.wasPinched) store.endStroke();
+      if (store.isErasing()) store.endErase();
       this.wasPinched = false;
       this.smoother.reset();
       onCursor?.(null);
@@ -196,6 +199,16 @@ export class HandDrawingDriver {
     const smoothed = this.smoother.smooth(frame.cursor, _timestampMs);
     const pt = mapToCanvas(smoothed, canvas.width, canvas.height);
     onCursor?.({ x: pt.x, y: pt.y, state: frame.cursorState });
+
+    // R12 kepal = Hapus (or the eraser tool on): the cursor erases under the cursor while held; one pass = one undo step.
+    if (pose === "fist" || store.eraserMode) {
+      if (this.wasPinched) store.endStroke();
+      this.wasPinched = false;
+      store.eraseAt(pt, ERASER_RADIUS_PX);
+      onRender();
+      return;
+    }
+    if (store.isErasing()) store.endErase();
 
     if (frame.pinched && !this.wasPinched) {
       store.beginStroke();
@@ -253,4 +266,25 @@ function toHandReason(reason: CameraFailureReason): HandFailureReason {
     default:
       return "camera-unavailable";
   }
+}
+
+/** Poses that are commands, never ink: a pinch-like thumb/index distance inside them must not draw. */
+const COMMAND_POSES: ReadonlySet<HandPose> = new Set(["fist", "two-fingers", "split-palm", "thumb-up"]);
+
+/** Eraser radius for the fist, in canvas pixels. */
+export const ERASER_RADIUS_PX = 28;
+
+/** Classify the pose once, report it, and suppress ink while a command pose is shown. */
+export function gateFrameByPose(
+  frame: ReturnType<typeof evaluateGesture>,
+  landmarks: Landmark[] | undefined,
+  nowMs: number,
+  onPose?: (pose: HandPose, nowMs: number) => void,
+): { frame: ReturnType<typeof evaluateGesture>; pose: HandPose } {
+  const pose = classifyHandPose(landmarks);
+  onPose?.(pose, nowMs);
+  if (frame.state === "tracking" && frame.pinched && COMMAND_POSES.has(pose)) {
+    return { frame: { ...frame, pinched: false, cursorState: "hover" }, pose };
+  }
+  return { frame, pose };
 }

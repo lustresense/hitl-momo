@@ -50,8 +50,9 @@ describe("StudentRulerSelector", () => {
     expect(slider.getAttribute("aria-valuenow")).toBe("21");
     expect(window.localStorage.getItem("sketchbook.studentNumber")).toBe("21");
 
-    fireEvent.click(screen.getByRole("button", { name: /Lanjut ke Tutorial/ }));
-    expect(onConfirm).toHaveBeenCalledWith(21);
+    // PRD 0.0.16 R3: no "Lanjut ke Tutorial" button; confirmation is Momo's thumbs-up (tests/components/ruler-confirm.test.tsx).
+    expect(screen.queryByRole("button", { name: /Lanjut ke Tutorial/ })).toBeNull();
+    expect(onConfirm).not.toHaveBeenCalled();
   });
 
   it("announces a taken number", () => {
@@ -149,16 +150,13 @@ describe("PredictingScreen (TASK 13 states)", () => {
 });
 
 describe("GlobalCamera (Persistent Floating Camera)", () => {
-  it("renders centered hero cover view when mode is cover", () => {
-    const onSkip = vi.fn();
-    render(<GlobalCamera mode="cover" modelUrl="/mock-model.task" onSkip={onSkip} />);
+  // PRD 0.0.16 R1/R13: camera mode is full NUI, the cover has no skip button any more.
+  it("renders centered hero cover view when mode is cover, without a skip button", () => {
+    render(<GlobalCamera mode="cover" modelUrl="/mock-model.task" />);
     const widget = screen.getByTestId("global-camera-widget");
     expect(widget.className).toContain("mode-cover");
     expect(screen.getByText(/Jarimu Adalah Kuas Ajaibnya!/i)).toBeTruthy();
-    const skipBtn = screen.getByRole("button", { name: /Lewati & Pilih Nomor Absen/i });
-    expect(skipBtn).toBeTruthy();
-    fireEvent.click(skipBtn);
-    expect(onSkip).toHaveBeenCalledTimes(1);
+    expect(screen.queryByRole("button", { name: /Lewati/i })).toBeNull();
   });
 
   it("renders docked floating widget with toggle-card styling when mode is floating", () => {

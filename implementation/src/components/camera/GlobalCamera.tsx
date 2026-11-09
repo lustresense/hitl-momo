@@ -5,7 +5,10 @@ import gsap from "gsap";
 import { setSharedStream } from "../../camera/shared-stream";
 import { Icon } from "../ui/Icon";
 import { MomoGuide } from "../momo/MomoGuide";
-import { COVER_WAKE } from "@/src/domain/guide-script";
+import { BookFlip } from "../ui/BookFlip";
+import { useInputMode } from "@/src/hooks/useHandGesture";
+import { COVER_NO_CAMERA_HINT, COVER_WAKE } from "@/src/domain/guide-script";
+import { reportCameraAvailable, reportCameraUnavailable, reportTrackerFailed } from "../../input/input-mode";
 import { WaveTracker } from "../../camera/wave-tracker";
 import { DRAWING_MODE_EVENT, HAND_STATUS_EVENT, classifyCameraError, messageFor } from "../../camera/messages";
 import type { HandInputStatus } from "../../input/types";
@@ -14,7 +17,12 @@ export interface GlobalCameraProps {
   /** "cover" = full centered orange card, "floating" = bottom-left mini PIP. */
   mode: "cover" | "floating";
   modelUrl: string;
+  /**
+   * Called when the cover is done: the student waved, Momo woke up and said her lines, and the book starts opening
+   * (PRD 0.0.16 R1/R2). The page under the opening leaf should switch to the ruler now.
+   */
   onWave?: () => void;
+  /** Same destination as onWave; kept for callers. The cover itself no longer renders a skip button (R1, R13). */
   onSkip?: () => void;
   /**
    * The drawing canvas owns the bottom dock (Aksi Gambar / Kamera / Alat).
@@ -22,15 +30,20 @@ export interface GlobalCameraProps {
    * MediaStream) stays mounted.
    */
   recessed?: boolean;
-  /** Pause between the camera turning on and the hand model loading, so Momo wakes up and waves smoothly first. */
+  /** Pause between the camera turning on and the wave tracker starting. 0 by default (R1: Momo still sleeps). Kept for tests. */
   waveStartDelayMs?: number;
 }
+
+
 
 /** Layout effect is a no-op (and warns) while server-rendering the shell. */
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
-/** How long Momo gets to wake up and wave before the hand model starts loading (it can stall the page for a moment). */
-const WAKE_SETTLE_MS = 3400;
+/** R1: the tracker starts right away; Momo is still asleep, so a model-load stall does not break her wake-up animation. */
+const WAKE_SETTLE_MS = 0;
+
+/** How long the invite line stays readable before the book opens. */
+const COVER_LAST_LINE_DWELL_MS = 1600;
 
 /** Center -> bottom-left mini PIP morph duration, in seconds. */
 const MORPH_DURATION = 0.6;
@@ -81,7 +94,7 @@ function morphCameraCard(card: HTMLElement, from: CardRect | null, to: CardRect 
   );
 }
 
-export function GlobalCamera({ mode, modelUrl, onWave, onSkip, recessed = false, waveStartDelayMs = WAKE_SETTLE_MS }: GlobalCameraProps) {
+export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveStartDelayMs = WAKE_SETTLE_MS }: GlobalCameraProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   /**
@@ -120,16 +133,57 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip, recessed = false,
   const [statusNote, setStatusNote] = useState("");
   const [failed, setFailed] = useState(false);
   const [delegate, setDelegate] = useState("");
-  /** Momo sleeps on the cover until the camera is on. (Later the wave wakes her; the wave detector does not wake her yet.) */
+  const inputMode = useInputMode();
+  /** R1: Momo sleeps on the cover, also with the camera on. Only a wave (or the fallback button) wakes her. */
+  const [awake, setAwake] = useState(false);
   const [wake, setWake] = useState({ key: 0, startled: false, wave: 0 });
-  const awake = hasStream;
+  /** BookFlip play key: bumps once when Momo has said her last line. */
+  const [flipKey, setFlipKey] = useState(0);
+  const leftCoverRef = useRef(false);
+  const wakeMomo = () => {
+    if (modeRef.current !== "cover") return;
+    setAwake(true);
+  };
+  const wakeRef = useRef(wakeMomo);
+  wakeRef.current = wakeMomo;
   useEffect(() => {
-    if (!hasStream) return;
+    if (!awake) return;
     // Wakes startled (a hop and a flap), then settles and waves hello with one wing.
     setWake((w) => ({ ...w, key: w.key + 1, startled: true }));
     const t = setTimeout(() => setWake((w) => ({ ...w, startled: false, wave: w.wave + 1 })), 900);
     return () => clearTimeout(t);
-  }, [hasStream]);
+  }, [awake]);
+  const awakeRef = useRef(false);
+  awakeRef.current = awake;
+  /** Momo's last line has just appeared: let it be read, then open the book. Ignores the empty "asleep" chat. */
+  const onCoverLinesDone = () => {
+    if (!awakeRef.current) return;
+    setTimeout(() => {
+      if (!unmountedRef.current) finishCover();
+    }, COVER_LAST_LINE_DWELL_MS);
+  };
+  /** After Momo's last line: open the book and switch the page under it to the ruler (R2). */
+  const finishCover = () => {
+    if (leftCoverRef.current || modeRef.current !== "cover") return;
+    leftCoverRef.current = true;
+    trackerRef.current?.stop();
+    setFlipKey((k) => k + 1);
+    onWaveRef.current?.();
+  };
+  // Test hooks (R1): simulate a wave on a fake camera. Never installed in production builds.
+  useEffect(() => {
+    if (process.env.NEXT_PUBLIC_TEST_HOOKS !== "1" || mode !== "cover") return;
+    const w = window as Window & { __skbWave?: () => void };
+    w.__skbWave = () => wakeRef.current();
+    const onKey = (event: KeyboardEvent) => {
+      if ((event.key === "w" || event.key === "W") && !(event.target instanceof HTMLInputElement)) wakeRef.current();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      delete w.__skbWave;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [mode]);
 
   function getTracker(): WaveTracker {
     if (!trackerRef.current) {
@@ -137,17 +191,19 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip, recessed = false,
         getVideo: () => videoRef.current,
         modelUrl: () => modelUrlRef.current,
         onWave: () => {
-          setPreviewLabel("Lambaian terdeteksi. Momo siap!");
-          onWaveRef.current?.();
+          setPreviewLabel("Lambaian terdeteksi. Momo bangun!");
+          wakeRef.current();
         },
         onStatus: (status) => {
           if (unmountedRef.current) return;
           if (status.kind === "ready") {
             setDelegate(status.delegate);
             setStatusNote(`Deteksi tangan siap · ${status.delegate}`);
+            reportTrackerFailed(false);
           } else {
-            // The preview keeps working; the student can still use "Lewati".
+            // MediaPipe failed: the fallback buttons appear (R13).
             setStatusNote(status.message);
+            reportTrackerFailed(true);
           }
         },
       });
@@ -260,6 +316,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip, recessed = false,
 
   /** Failure path: back to "off" with a short reason, pointer/keyboard unaffected. */
   function reportCameraFailure(message: string) {
+    reportCameraUnavailable();
     setHasStream(false);
     setIsOn(false);
     setFailed(true);
@@ -279,6 +336,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip, recessed = false,
       // Keep the switch as the user left it (legacy contract); show why nothing happens.
       setPreviewLabel(messageFor("unsupported"));
       setStatusNote(messageFor("unsupported"));
+      reportCameraUnavailable();
       return;
     }
     let stream: MediaStream | null = null;
@@ -296,6 +354,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip, recessed = false,
       // instead of opening a second camera (zero double camera).
       streamRef.current = stream;
       setSharedStream(stream);
+      reportCameraAvailable();
       // Camera unplugged / permission revoked mid-session: tear down and say why.
       const live = stream;
       stream.getVideoTracks().forEach((track) =>
@@ -322,9 +381,10 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip, recessed = false,
       if (isStale()) return;
       setPreviewLabel("Menunggu lambaian tanganmu...");
       if (mode === "cover") {
-        // Loading the hand model can stall the page for a moment. Let Momo wake up and wave first (smooth), then listen for the wave.
-        await new Promise((resolve) => setTimeout(resolve, waveStartDelayMs));
-        if (isStale() || modeRef.current !== "cover") return;
+        if (waveStartDelayMs > 0) {
+          await new Promise((resolve) => setTimeout(resolve, waveStartDelayMs));
+          if (isStale() || modeRef.current !== "cover") return;
+        }
         await startWaveTracking();
       }
     } catch (error) {
@@ -476,29 +536,34 @@ export function GlobalCamera({ mode, modelUrl, onWave, onSkip, recessed = false,
             step={awake ? { ...COVER_WAKE, mood: wake.startled ? "Kaget" : COVER_WAKE.mood } : null}
             flapKey={awake ? wake.key : 0}
             waveKey={awake ? wake.wave : 0}
-            startDelay={1400}
-            extrasFrom="last"
+            startDelay={awake ? 1100 : 0}
+            onDone={onCoverLinesDone}
             testId="cover-momo"
-          >
-            <button type="button" className="gesture-cue" data-testid="cover-continue" aria-label="Pilih nomor absen" onClick={onSkip}>
-              <span className="gesture-cue__hand">
-                <Icon name="thumb-up" size={30} stroke={2.2} />
-              </span>
-              <span className="gesture-cue__label">Pilih nomor absen</span>
-              <Icon name="arrow-right" size={18} stroke={3} />
-            </button>
-          </MomoGuide>
+          />
         )}
 
-        {mode === "cover" && (
-          <div className="cover-skip-block" style={{ marginTop: 20 }}>
-            <button type="button" className="camera-skip nb-btn nb-btn--ghost" onClick={onSkip}>
-              Lewati &amp; Pilih Nomor Absen
+        {mode === "cover" && !awake && hasStream && inputMode === "camera" && (
+          <div className="cover-wave-hint" data-testid="cover-wave-hint" aria-hidden="true">
+            <svg className="cover-wave-hint__hand" viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M7 11V6.5a1.5 1.5 0 0 1 3 0V11" />
+              <path d="M10 10V4.5a1.5 1.5 0 0 1 3 0V10" />
+              <path d="M13 10V5.5a1.5 1.5 0 0 1 3 0V12" />
+              <path d="M16 12V8.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-1a6 6 0 0 1-5-2.7L3.6 14.6a1.5 1.5 0 0 1 2.4-1.8L7 14" />
+            </svg>
+          </div>
+        )}
+
+        {mode === "cover" && !awake && inputMode === "fallback" && (
+          <div className="cover-skip-block cover-fallback" data-testid="cover-fallback">
+            <p className="cover-fallback__note">{COVER_NO_CAMERA_HINT}</p>
+            <button type="button" className="camera-skip nb-btn" data-testid="cover-wake" onClick={wakeMomo}>
+              Bangunkan Momo
               <Icon name="arrow-right" size={18} stroke={2.8} />
             </button>
           </div>
         )}
       </div>
+      <BookFlip playKey={flipKey} direction="open" label="Sketchbook Universe" testId="cover-book-flip" />
     </div>
   );
 }

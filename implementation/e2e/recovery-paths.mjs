@@ -4,7 +4,7 @@
 //     second drawing/decision -> WIN. Also checks Redraw is not a 4th decision button on the Top-3 panel.
 import fs from "node:fs";
 import path from "node:path";
-import { ROOT, startStaticServer, launch, gitInfo, onboardToLevels, enterLevel, drawScribble, submitAndDecide, placeByDrag, confirmPlacement, readGame, sleep, writeJson } from "./lib/harness.mjs";
+import { ROOT, startStaticServer, launch, gitInfo, onboardToLevelsFast, enterLevel, drawScribble, submitAndDecide, placeByDrag, confirmPlacement, readGame, sleep, writeJson , holdThumb } from "./lib/harness.mjs";
 
 const plans = JSON.parse(fs.readFileSync(path.join(ROOT, "e2e/lib/level-plans.json"), "utf8"));
 const RUN = new Date().toISOString().replace(/[:.]/g, "-");
@@ -43,10 +43,19 @@ async function playPlan(plan) {
   await page.keyboard.up("ArrowRight"); return readGame(page);
 }
 const toCentre = c => [c.x + plans.objectSize.w / 2, c.y + plans.objectSize.h / 2];
+/** Second (and later) cycles of a level plan: draw again, decide, place. */
+async function placeSecond(stage, from = 1) {
+  for (const cycle of plans[String(stage)].cycles.slice(from)) {
+    await page.locator("[data-testid=btn-draw-again]").click();
+    await drawScribble(page, "block");
+    await submitAndDecide(page, { prefer: cycle.label, log: m => log(m) });
+    await placeByDrag(page, ...toCentre(cycle)); await confirmPlacement(page);
+  }
+}
 let failure = null;
 try {
   log("run-start", { git: gitInfo(), prediction: "MOCK" });
-  await onboardToLevels(page, base, m => log(m));
+  await onboardToLevelsFast(page, base, m => log(m));
   // QA shortcut for THIS probe only: path B starts at L3 without playing L2 first. Real progression is covered by normal-journey.mjs.
   await page.evaluate(() => sessionStorage.setItem("sketchbook.unlockAll", "1"));
 
@@ -65,6 +74,15 @@ try {
   });
   check("Decision immediately offers the object to the world ('Masukkan ke dunia')", await page.getByTestId("enter-world-popup").isVisible());
   await placeByDrag(page, ...toCentre(plans["1"].cycles[0])); await confirmPlacement(page);
+  // The fall is the student's test run with only the first object (a partial try is allowed).
+  // 0.0.16 world: the placed balok now blocks the walk at the cliff edge, so the student first moves it
+  // out of the way with the visible "Geser" control, then walks off the cliff.
+  const geser = async (cx, cy) => {
+    await page.locator("[data-testid=reposition-0]").click();
+    await page.waitForFunction(() => document.querySelector("[data-testid=game-canvas]")?.dataset.phase === "placing", null, { timeout: 8000 });
+    await placeByDrag(page, cx, cy, { create: false }); await confirmPlacement(page);
+  };
+  await geser(130, 110);
   await page.keyboard.down("ArrowRight");
   const t0 = Date.now(); let m;
   while (Date.now() - t0 < 15000) { m = await readGame(page); if (m.outcome) break; await sleep(30); }
@@ -79,13 +97,16 @@ try {
   await page.locator("[data-testid=btn-retry-cycle]").click(); await sleep(500);
   const afterRetry = await readGame(page);
   check("A: retry respawns at checkpoint, gameplay phase, no stale outcome", afterRetry.phase === "gameplay" && !afterRetry.outcome && afterRetry.x < 80 && afterRetry.y < 300, afterRetry);
+  // Put the balok back on its spot; minDrawings = 2, so the second object goes in before the winning run.
+  await geser(...toCentre(plans["1"].cycles[0]));
+  await placeSecond(1);
   const r1 = await playPlan(plans["1"]);
   check("A: after retry the level is WON with normal input", r1.outcome === "success", { outcome: r1.outcome });
   await shot("A-02-win-after-retry");
 
   // ---------- B) L3 danger -> fail -> Redraw -> win ----------
   await page.locator("[data-testid=success-chat][data-finished=true]").waitFor({ timeout: 25000 });
-  await page.locator("[data-testid=btn-continue]").click(); // the thumb cue opens the level list
+  await holdThumb(page, "btn-continue"); // the thumb cue opens the level list
   await page.locator(".level-card").nth(2).waitFor({ state: "visible", timeout: 15000 });
   await enterLevel(page, 3, m => log(m));
   await drawScribble(page, "spike");
@@ -94,6 +115,7 @@ try {
   check("B: HITL decision reached label 'tali' through Correct/Accept", d1.decision.label === "tali", d1.decision);
   await shot("B-01-decision-tali");
   await placeByDrag(page, ...toCentre(plans["3"].cycles[0])); await confirmPlacement(page);
+  await placeSecond(3);
   const dangerPhase = await page.evaluate(() => JSON.parse(document.querySelector("[data-testid=game-canvas]").dataset.creations));
   check("B: label 'tali' resolved to danger behaviour", dangerPhase[0]?.behavior === "danger" && dangerPhase[0]?.label === "tali", dangerPhase.map(c => ({ label: c.label, behavior: c.behavior })));
   const rb = await playPlan({ steps: plans["3"].steps });
@@ -123,6 +145,7 @@ try {
   await confirmPlacement(page);
   const moved = await page.evaluate(() => JSON.parse(document.querySelector("[data-testid=game-canvas]").dataset.creations));
   check("B: earlier danger object repositioned off the route via UI", moved.find(c => c.label === "tali")?.y < 200, moved.map(c => ({ label: c.label, x: Math.round(c.x), y: Math.round(c.y) })));
+  if (moved.filter(c => c.behavior === "solid").length < plans["3"].cycles.length) await placeSecond(3);
   const rb2 = await playPlan({ steps: plans["3"].steps });
   const hazards = (await page.evaluate(() => JSON.parse(document.querySelector("[data-testid=game-canvas]").dataset.creations))).filter(c => c.behavior === "danger");
   check("B: after Redraw with a solid label the level can be WON", rb2.outcome === "success", { outcome: rb2.outcome, leftoverDangerObjects: hazards.length });

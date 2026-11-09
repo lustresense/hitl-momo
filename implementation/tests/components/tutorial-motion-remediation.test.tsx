@@ -28,7 +28,9 @@ describe("Tutorial Brochure card animation", () => {
     await act(async () => {
       render(<TutorialBrochure onStart={() => {}} />);
     });
-    const cta = document.querySelector(".tutorial-card-1 .brochure-cta") as HTMLButtonElement;
-    expect(cta.disabled).toBe(true);
+    // PRD 0.0.16 R5: the CTA is a ThumbConfirm, shown only once the practice is done; before that a lock.
+    const cta = document.querySelector(".tutorial-card-1 .brochure-cta") as HTMLElement;
+    expect(cta.dataset.locked).toBe("true");
+    expect(document.querySelector("[data-testid=tutorial-thumb-1]")).toBeNull();
   });
 });

@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolveHorizontalMovementIntent } from "@/src/game/kaplay-runtime";
+import { WALK_SPEED } from "@/src/game/runtime/constants";
 import { CharacterRuntimeBridge } from "@/src/game/character/character-runtime-bridge";
 
 describe("runtime visual movement intent", () => {
@@ -19,13 +20,13 @@ describe("runtime visual movement intent", () => {
     const bridge = new CharacterRuntimeBridge();
     const right = resolveHorizontalMovementIntent({ left: false, right: true }, true, false);
     bridge.update({ x: 100, y: 200, vx: 0, vy: 0, grounded: true, facing: 1, resolvedVx: right }, 1 / 60);
-    expect(right).toBe(200);
+    expect(right).toBe(WALK_SPEED);
     expect(bridge.getCurrentFrameId()).toMatch(/^WALK_\d+$/);
     expect(bridge.getFacing()).toBe(1);
 
     const left = resolveHorizontalMovementIntent({ left: true, right: false }, true, false);
     bridge.update({ x: 100, y: 200, vx: 0, vy: 0, grounded: true, facing: -1, resolvedVx: left }, 1 / 60);
-    expect(left).toBe(-200);
+    expect(left).toBe(-WALK_SPEED);
     expect(bridge.getCurrentFrameId()).toMatch(/^WALK_\d+$/);
     expect(bridge.getFacing()).toBe(-1);
   });

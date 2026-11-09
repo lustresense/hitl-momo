@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { KeyboardEvent, PointerEvent, WheelEvent } from "react";
 import { MomoGuide } from "../momo/MomoGuide";
-import { NUMBER_STEP, NUMBER_TAKEN_STEP } from "@/src/domain/guide-script";
+import { ThumbConfirm } from "../ui/ThumbConfirm";
+import { NUMBER_STEP, NUMBER_TAKEN_STEP, numberConfirm } from "@/src/domain/guide-script";
 import "./StudentRulerSelector.css";
 
 const MAX = 30;
@@ -13,6 +14,8 @@ const SPACING = 44;
 const POOL = 44;
 const HALF = Math.floor(POOL / 2);
 const STORAGE_KEY = "sketchbook.studentNumber";
+/** R3: the ruler counts as "settled" once the snap is done and nobody dragged it for this long. */
+export const RULER_SETTLE_MS = 600;
 
 const mod = (number: number, divisor: number) => ((number % divisor) + divisor) % divisor;
 const numberAt = (slot: number) => (mod(slot, CYCLE) < MAX ? mod(slot, CYCLE) + 1 : null);
@@ -58,8 +61,31 @@ export function StudentRulerSelector({
   const [dragging, setDragging] = useState(false);
   const drag = useRef({ active: false, moved: false, x: 0, start: 0, lastX: 0, time: 0, velocity: 0 });
   const isTaken = takenNumbers.includes(value);
+  /** R3: Momo asks for confirmation only while the ruler rests on a number. */
+  const [settled, setSettled] = useState(false);
+  const settleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const unsettle = useCallback(() => {
+    setSettled(false);
+    if (settleTimer.current) clearTimeout(settleTimer.current);
+    settleTimer.current = null;
+  }, []);
+  const armSettle = useCallback(() => {
+    if (settleTimer.current) clearTimeout(settleTimer.current);
+    settleTimer.current = setTimeout(() => {
+      settleTimer.current = null;
+      if (!drag.current.active) setSettled(true);
+    }, RULER_SETTLE_MS);
+  }, []);
+  useEffect(() => {
+    armSettle();
+    return () => {
+      if (settleTimer.current) clearTimeout(settleTimer.current);
+    };
+  }, [armSettle]);
 
   const go = useCallback((slot: number) => {
+    unsettle();
+    armSettle();
     const snapped = snap(Math.round(slot));
     target.current = snapped;
     const next = numberAt(snapped)!;
@@ -69,7 +95,7 @@ export function StudentRulerSelector({
       setBump(false);
       requestAnimationFrame(() => setBump(true));
     }
-  }, []);
+  }, [armSettle, unsettle]);
 
   useEffect(() => {
     if (didHydrate.current) return;
@@ -148,8 +174,9 @@ export function StudentRulerSelector({
       time: performance.now(),
       velocity: 0,
     };
-    event.currentTarget.setPointerCapture(event.pointerId);
+    event.currentTarget.setPointerCapture?.(event.pointerId);
     setDragging(true);
+    unsettle();
   };
 
   const onPointerMove = (event: PointerEvent<HTMLDivElement>) => {
@@ -215,11 +242,17 @@ export function StudentRulerSelector({
             <div className="student-ruler-needle" aria-hidden="true" />
           </div>
         </div>
-        <button type="button" className="student-number-confirm nb-btn nb-btn--primary" onClick={() => onConfirm(value)}>
-          Lanjut ke Tutorial
-        </button>
       </div>
-      <MomoGuide step={isTaken ? NUMBER_TAKEN_STEP : NUMBER_STEP} startDelay={700} testId="number-momo" />
+      <MomoGuide
+        key={isTaken ? "taken" : settled ? `ask-${value}` : "pick"}
+        step={isTaken ? NUMBER_TAKEN_STEP : settled ? numberConfirm(value) : NUMBER_STEP}
+        startDelay={settled || isTaken ? 0 : 700}
+        testId="number-momo"
+      >
+        {settled && !isTaken ? (
+          <ThumbConfirm holdMs={2000} label={`Tahan jempol untuk nomor ${value}`} onConfirm={() => onConfirm(value)} testId="number-thumb" />
+        ) : null}
+      </MomoGuide>
     </section>
   );
 }

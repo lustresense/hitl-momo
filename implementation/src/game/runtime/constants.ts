@@ -6,8 +6,8 @@
 export const CHARACTER_VISUAL_SCALE = 0.88;
 
 export const GRAVITY = 1600;
-/** Horizontal walking speed in world px/s. */
-export const WALK_SPEED = 200;
+/** Horizontal walking speed in world px/s. PRD 0.0.16 R8.1: slowed from 200 so a level needs at least `minDrawings` objects. */
+export const WALK_SPEED = 130;
 export const JUMP_FORCE = 520;
 
 /** The player's collider (feet on the body bottom). */

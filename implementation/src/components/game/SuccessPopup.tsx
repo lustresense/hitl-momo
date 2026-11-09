@@ -5,7 +5,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { MomoChat } from "../momo/MomoChat";
-import { Icon } from "../ui/Icon";
+import { ThumbConfirm } from "../ui/ThumbConfirm";
 import type { GameSummary } from "./game-stage-types";
 
 const SECOND_FLAP_DELAY_MS = 1100;
@@ -66,13 +66,8 @@ export function SuccessPopup({ summary, onWin, onContinue }: SuccessPopupProps) 
           onDone={() => setFinished(true)}
           testId="success-chat"
         >
-          <button type="button" className="gesture-cue" data-testid="btn-continue" aria-label="Lanjut ke pilihan level" onClick={go}>
-            <span className="gesture-cue__hand">
-              <Icon name="thumb-up" size={30} stroke={2.2} />
-            </span>
-            <span className="gesture-cue__label">Lanjut</span>
-            <Icon name="arrow-right" size={18} stroke={3} />
-          </button>
+          {/* PRD 0.0.16 R8.5: talking to Momo = 1 s thumb. */}
+          <ThumbConfirm holdMs={1000} onConfirm={go} label="Lanjut" testId="btn-continue" />
         </MomoChat>
       </div>
       <h3 className="overlay-title visually-hidden" data-testid="outcome-title">

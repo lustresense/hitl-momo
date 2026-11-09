@@ -24,8 +24,8 @@
 .tut-steps i { width: 30px; height: 11px; border: 2.5px solid var(--nb-ink); border-radius: 7px; background: var(--nb-paper); }
 .tut-steps i.is-now { background: var(--nb-orange); }
 .tut-steps i.is-done { background: var(--nb-green); }
-.tut-back .guide-title { margin: 20px 0 0; font-size: clamp(26px, calc(var(--gw) * .092), 34px); font-weight: 900; line-height: 1.05; letter-spacing: -.025em; color: var(--nb-ink); }
-.tut-back .guide-copy { margin: 14px 0 0; font-size: 16px; font-weight: 700; line-height: 1.5; color: var(--nb-ink); }
+.tut-back .guide-title { margin: 20px 0 0; font-size: var(--nb-h2); font-weight: 900; line-height: 1.05; letter-spacing: -.025em; color: var(--nb-ink); }
+.tut-back .guide-copy { margin: 14px 0 0; font-size: var(--nb-body); font-weight: 700; line-height: 1.5; color: var(--nb-ink); }
 .tut-back .brochure-cta { margin-top: auto; width: 100%; min-height: 52px; font-size: 17px; }
 .tut-back .brochure-cta:not(:disabled) { animation: cta-ready .7s var(--nb-ease-pop) 1; }
 @keyframes cta-ready { 0% { transform: scale(.94); } 100% { transform: scale(1); } }
@@ -115,3 +115,7 @@
 .camera-skip.nb-btn { margin-top: 0; }
 
 .student-number-screen .student-number-confirm { margin-top: 18px; padding: 10px 22px; min-height: 52px; font-size: 16px; }
+
+/* PRD 0.0.16 R5: thumbs-up replaces the Lanjut / Mulai buttons. */
+.tut-back .brochure-cta--thumb { display: flex; align-items: center; gap: 12px; margin-top: auto; font-weight: 900; font-size: var(--nb-body); }
+.tut-back .brochure-cta--locked { margin-top: auto; width: 100%; min-height: 52px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; opacity: .55; cursor: default; }

@@ -4,7 +4,7 @@
 // Prediction is MOCK (deterministic fixture provider) and is reported as such.
 import fs from "node:fs";
 import path from "node:path";
-import { ROOT, startStaticServer, launch, gitInfo, onboardToLevels, enterLevel, drawScribble, submitAndDecide, placeByDrag, confirmPlacement, readGame, sleep, sha256, writeJson } from "./lib/harness.mjs";
+import { ROOT, startStaticServer, launch, gitInfo, onboardToLevels, enterLevel, drawScribble, submitAndDecide, placeByDrag, confirmPlacement, readGame, sleep, sha256, writeJson, playEnding , holdThumb } from "./lib/harness.mjs";
 
 const plans = JSON.parse(fs.readFileSync(path.join(ROOT, "e2e/lib/level-plans.json"), "utf8"));
 const RUN = new Date().toISOString().replace(/[:.]/g, "-");
@@ -151,7 +151,14 @@ try {
     log(`L${stage}: Momo success chat`, chatText);
     if (await page.locator("[data-testid=game-canvas]").isVisible() === false) throw new Error("success chat must stay inside the game world (canvas hidden)");
     if (await page.locator("[data-testid=btn-next-level], [data-testid=btn-back-to-levels]").count()) throw new Error("success must not offer next/level-list buttons any more");
-    if (stage === 2) await sleep(0); else await page.locator("[data-testid=btn-continue]").click(); // stage 2 proves the automatic hand-over
+    if (stage === 3) {
+      // 0.0.16 R9: after the L3 win the book opens the ending (Pusat Halaman) instead of the level list.
+      await holdThumb(page, "btn-continue", { timeout: 8000 }).catch(() => {});
+      await playEnding(page, { choice: "finish", log: m => log(m) });
+      await shot("L3-06-ending-done");
+      break;
+    }
+    if (stage === 2) await sleep(0); else await holdThumb(page, "btn-continue"); // stage 2 proves the automatic hand-over
     await page.locator(".level-card").first().waitFor({ state: "visible", timeout: 15000 });
     await page.waitForURL(u => u.pathname === "/levels", { timeout: 8000 });
     await sleep(1500);

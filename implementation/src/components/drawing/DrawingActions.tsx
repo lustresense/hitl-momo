@@ -1,8 +1,10 @@
 /**
  * Bottom controls of the drawing screen: the Mouse/Kamera input switch and the "Tebak Gambarku" submit button.
+ * R13: the Mouse/Kamera switch is a fallback control, shown only when the camera cannot be used.
  */
 import type { InputModeId } from "@/src/input/types";
 import { Icon } from "../ui/Icon";
+import { useInputMode } from "@/src/hooks/useHandGesture";
 
 export interface DrawingActionsProps {
   /** Only the drawing phase accepts input; other phases dim the controls. */
@@ -16,8 +18,10 @@ export interface DrawingActionsProps {
 
 export function DrawingActions({ phase, active, inputMode, hasInk, onSwitchMode, onSubmit }: DrawingActionsProps) {
   const isDrawingPhase = phase === "drawing";
+  const cameraMode = useInputMode() === "camera";
   return (
     <div className={`drawing-submit-controls${isDrawingPhase ? "" : " is-idle"}`}>
+      {!cameraMode && (
       <div className="input-switch" role="group" aria-label="Cara menggambar">
         <button
           type="button"
@@ -38,6 +42,7 @@ export function DrawingActions({ phase, active, inputMode, hasInk, onSwitchMode,
           Kamera
         </button>
       </div>
+      )}
       <button
         type="button"
         className="nb-btn nb-btn--primary btn-submit-momo"

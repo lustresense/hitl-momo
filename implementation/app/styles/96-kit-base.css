@@ -3,6 +3,11 @@
    classes still in use (.btn, .momo-bubble) are re-skinned here so there is ONE button, ONE card, ONE speaker.
    Palette, dots background, outlines and hard shadows are the Owner's locked visual system (M-003). */
 :root {
+  /* Shared type scale (PRD 0.0.16 R3): every screen uses these for titles, body and big numbers. */
+  --nb-h1: clamp(24px, 3.2vw, 34px);
+  --nb-h2: clamp(20px, 2.4vw, 26px);
+  --nb-body: 16px;
+  --nb-display: clamp(64px, 8vw, 96px);
   --nb-ink: #111111;
   --nb-paper: #fffaf0;
   --nb-bg: #f7f5ea;

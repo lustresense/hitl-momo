@@ -10,20 +10,32 @@ export interface GuideStep {
   mood: MomoMood;
 }
 
-/** The cover: Momo sleeps until the camera is on (later: until the student waves; the wave detector is not the wake-up yet). */
+/**
+ * The cover (PRD 0.0.16 R1, R17): Momo sleeps until the student waves. Woken, she greets, tells her origin and invites
+ * the student in; after the last line the book opens onto the ruler page.
+ */
 export const COVER_WAKE: GuideStep = {
   mood: "Senang",
   lines: [
-    "Halo! Aku Momo.",
-    "Aku bakal nemenin kamu keliling dunia buku gambar ini.",
-    "Yuk mulai dari nomor absenmu. Pakai penggaris ya.",
+    "Halo! Aku Momo, gambar pertama di buku ini yang bisa hidup.",
+    "Aku bisa nebak gambar, tapi aku nggak bisa menggambar.",
+    "Temanku Thinman cuma garis tipis yang belum selesai. Bantu dia hidup, ya!",
+    "Ayo ikut aku masuk ke dunia Sketchbook!",
   ],
 };
 
+/** Cover in fallback mode (R13): the camera cannot be used, Momo says so before the wake button appears. */
+export const COVER_NO_CAMERA_HINT = "Kamera tidak bisa dipakai. Tekan Bangunkan Momo.";
+
 export const NUMBER_STEP: GuideStep = {
   mood: "Penasaran",
-  lines: ["Geser penggarisnya sampai pas di nomor absenmu.", "Sudah pas? Tekan Lanjut."],
+  lines: ["Sebelum masuk, pilih dulu nomor absenmu.", "Geser penggarisnya sampai pas."],
 };
+
+/** R3: the ruler stopped on a free number; Momo asks and waits for a 2 s thumbs-up. */
+export function numberConfirm(value: number): GuideStep {
+  return { mood: "Penasaran", lines: [`Bener nomor absenmu ${value}?`] };
+}
 
 export const NUMBER_TAKEN_STEP: GuideStep = {
   mood: "Bingung",
@@ -39,13 +51,13 @@ export function tutorialStep(moment: TutorialMoment, characterName: string): Gui
     case "walk":
       return { mood: "Semangat", lines: [`Coba geser tanganmu ke kanan dan kiri. Ajak ${characterName} jalan ke bendera.`] };
     case "walk-done":
-      return { mood: "Senang", lines: [`Mantap, ${characterName} sampai! Tekan Lanjut.`] };
+      return { mood: "Senang", lines: [`Mantap, ${characterName} sampai! Angkat jempolmu buat lanjut.`] };
     case "safety":
-      return { mood: "Berpikir", lines: ["Benda padat jadi pijakan. Benda tajam berbahaya.", "Sudah paham? Tekan Lanjut."] };
+      return { mood: "Berpikir", lines: ["Benda padat jadi pijakan. Duri itu berbahaya.", "Sudah paham? Angkat jempolmu."] };
     case "gesture":
-      return { mood: "Semangat", lines: ["Sekarang coret kanvasnya, lalu coba mundur.", "Dua gestur itu yang bikin tombol Mulai terbuka."] };
+      return { mood: "Semangat", lines: ["Sekarang coret kanvasnya, lalu coba mundur.", "Dua gestur itu yang membuka Level 1."] };
     case "gesture-done":
-      return { mood: "Senang", lines: ["Kamu sudah siap! Tekan Mulai Level 1."] };
+      return { mood: "Senang", lines: ["Kamu sudah siap! Tahan jempolmu buat mulai Level 1."] };
   }
 }
 

@@ -4,7 +4,7 @@
 //  NOT TESTED: hand left/right/pinch accuracy (needs a physical webcam and a person).
 import fs from "node:fs";
 import path from "node:path";
-import { ROOT, startStaticServer, launch, gitInfo, onboardToLevels, enterLevel, drawScribble, submitAndDecide, placeByDrag, confirmPlacement, readGame, sleep, writeJson } from "./lib/harness.mjs";
+import { ROOT, startStaticServer, launch, gitInfo, onboardToLevelsFast, enterLevel, drawScribble, submitAndDecide, placeByDrag, confirmPlacement, readGame, sleep, writeJson } from "./lib/harness.mjs";
 const plans = JSON.parse(fs.readFileSync(path.join(ROOT, "e2e/lib/level-plans.json"), "utf8"));
 const RUN = new Date().toISOString().replace(/[:.]/g, "-");
 const OUT = process.env.PROBE_OUT || path.join(ROOT, "docs/execution/evidence", `hand-control-${RUN}`);
@@ -14,19 +14,17 @@ const { browser, page, errors } = await launch({ extraArgs: ["--use-fake-device-
 const checks = []; const check = (n, ok, d) => { checks.push({ name: n, ok: !!ok, detail: d }); console.log(`${ok ? "PASS" : "FAIL"}  ${n}`, d !== undefined ? JSON.stringify(d) : ""); };
 let failure = null;
 try {
-  await page.goto(base, { waitUntil: "domcontentloaded" });
-  await page.getByRole("switch").first().click();           // turn the camera on in the intro (shared stream goes live)
-  await sleep(4000);
-  await page.locator("[data-testid=camera-skip], .camera-skip").first().click();
-  await page.locator("[data-testid=student-number-confirm], button.student-number-confirm").first().click();
-  await page.locator("[data-testid=tutorial-skip], .tutorial-skip").first().click({ timeout: 30000 });
-  await page.locator(".level-card, [data-testid^=level-card]").first().waitFor({ timeout: 30000 });
+  // 0.0.16: the camera turns on in the cover (fake device), the wave/thumb are simulated (test-hooks build).
+  await onboardToLevelsFast(page, base, m => console.log(m));
   await enterLevel(page, 1);
   await drawScribble(page);
   await submitAndDecide(page, { prefer: "balok" });
-  const c = plans["1"].cycles[0];
-  await placeByDrag(page, c.x + plans.objectSize.w / 2, c.y + plans.objectSize.h / 2);
-  await confirmPlacement(page);
+  // minDrawings = 2: place every cycle of the plan.
+  for (const [i, c] of plans["1"].cycles.entries()) {
+    if (i > 0) { await page.locator("[data-testid=btn-draw-again]").click(); await drawScribble(page); await submitAndDecide(page, { prefer: c.label }); }
+    await placeByDrag(page, c.x + plans.objectSize.w / 2, c.y + plans.objectSize.h / 2);
+    await confirmPlacement(page);
+  }
   const toggle = page.locator("[data-testid=btn-hand-control]");
   await toggle.waitFor({ state: "visible", timeout: 15000 });
   check("opt-in 'Kontrol tangan' is offered only because the shared camera is live", true);

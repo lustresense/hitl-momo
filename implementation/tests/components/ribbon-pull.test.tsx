@@ -163,3 +163,28 @@ describe("GSAP page slide transition", () => {
     expect(node.style.transform).toContain("-100%");
   });
 });
+
+describe("PRD 0.0.16 R6: thumb on the next ribbon", () => {
+  it("a 2 s thumbs-up on the next ribbon launches that level once", async () => {
+    const { simulateThumb, resetThumbTrackerForTest } = await import("@/src/camera/thumb-tracker");
+    const { resetInputModeForTest } = await import("@/src/input/input-mode");
+    resetInputModeForTest();
+    resetThumbTrackerForTest();
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "requestAnimationFrame", "cancelAnimationFrame", "performance", "Date"] });
+    try {
+      const onSelect = vi.fn();
+      render(<LevelRibbonBookmark levels={LEVELS} onSelectLevel={onSelect} isLevelUnlocked={(s) => s === 1} />);
+      expect(screen.getByTestId("level-thumb-1")).toBeTruthy();
+      expect(screen.queryByTestId("level-thumb-2")).toBeNull();
+      // ThumbConfirm arms only after it has seen "no thumb" once.
+      for (let t = 0; t < 200; t += 16) act(() => { vi.advanceTimersByTime(16); });
+      act(() => simulateThumb(true));
+      for (let t = 0; t < 3500; t += 16) act(() => { vi.advanceTimersByTime(16); });
+      act(() => simulateThumb(null));
+      await vi.waitFor(() => expect(onSelect).toHaveBeenCalledTimes(1));
+      expect(onSelect.mock.calls[0]![0].stage).toBe(1);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});

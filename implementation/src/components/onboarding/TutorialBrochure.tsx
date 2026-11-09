@@ -1,7 +1,7 @@
 "use client";
 /**
  * Tutorial: three number cards deal in, fan out, and each one in turn flies to the centre, flips and unfolds
- * into a little book (guide page + practice page). Pressing "Lanjut" closes the book into a card again, which
+ * into a little book (guide page + practice page). Holding the thumbs-up on "Lanjut" closes the book into a card again, which
  * slides onto the "done" pile on the left while the next card is already travelling in from the pile on the right.
  *
  * One GSAP timeline per step, overlapped so nothing waits for anything: transform-only (no width/height
@@ -14,7 +14,11 @@ import { resolveCharacterDisplayName } from "@/src/config/character-tokens";
 import { Icon, type IconName } from "../ui/Icon";
 import { MomoGuide } from "../momo/MomoGuide";
 import { tutorialStep, type TutorialMoment } from "@/src/domain/guide-script";
-import { ThinmanArt, type ThinmanPose } from "../ui/ThinmanArt";
+import { ThinmanArt } from "../ui/ThinmanArt";
+import { ThumbConfirm } from "../ui/ThumbConfirm";
+import { useInputMode } from "@/src/hooks/useHandGesture";
+import { renderCharacterASideSvg } from "@/src/game/character/character-a-svg";
+import { walkT } from "@/src/game/character/pose-math";
 import { getPrefersReducedMotion, subscribePrefersReducedMotion } from "./tutorial-motion";
 
 interface TutorialBrochureProps {
@@ -63,19 +67,33 @@ function Flag({ waving }: { waving: boolean }) {
   );
 }
 
+/** Percent of the scene width Thinman covers in one full walk cycle (two steps). */
+export const TUTORIAL_STRIDE_PCT = 9;
+
+/** Walk-cycle phase after moving `dxPct` percent: the step rate follows the drag speed (R5). */
+export function advanceWalkPhase(phase: number, dxPct: number): number {
+  return (((phase + Math.abs(dxPct) / TUTORIAL_STRIDE_PCT) % 1) + 1) % 1;
+}
+
 /* ---------- Practice page 1: walk Thinman to the flag ---------- */
 function WalkPlayground({ onComplete }: { onComplete(): void }) {
-  const [pos, setPos] = useState(14);
+  const [walk, setWalk] = useState({ pos: 14, phase: 0, facing: 1 });
   const [moved, setMoved] = useState(false);
+  const pos = walk.pos;
   const done = pos >= 76;
-  const stride: ThinmanPose = Math.floor(pos / 5) % 2 === 0 ? "walkA" : "walkB";
   function move(event: PointerEvent<HTMLDivElement>) {
     const rect = event.currentTarget.getBoundingClientRect();
     const next = Math.max(10, Math.min(78, ((event.clientX - rect.left) / rect.width) * 100));
-    setPos((prev) => (Math.abs(next - prev) > 0.2 ? next : prev));
+    setWalk((prev) => {
+      const dx = next - prev.pos;
+      if (Math.abs(dx) <= 0.2) return prev;
+      return { pos: next, phase: advanceWalkPhase(prev.phase, dx), facing: dx < 0 ? -1 : 1 };
+    });
     setMoved(true);
     if (next >= 76) onComplete();
   }
+  // The real rig walk cycle (same walkT the game's CharacterAnimationAdapter uses), not two alternating poses.
+  const walkSvg = moved ? renderCharacterASideSvg(walkT(walk.phase), 0) : "";
   return (
     <div className={`tut-scene tut-walk${done ? " is-complete" : ""}`} onPointerMove={move} onPointerDown={move} onClick={(e) => e.stopPropagation()} data-testid="tutorial-walk">
       <div className={`tut-handhint${moved ? " is-gone" : ""}`} aria-hidden="true">
@@ -90,8 +108,12 @@ function WalkPlayground({ onComplete }: { onComplete(): void }) {
         <path d="M30 24l-6 10M90 24l-5 9M170 25l-6 10M260 24l-5 10M350 25l-6 9M450 24l-5 10M530 25l-6 9" stroke="#111" strokeWidth="2.6" strokeLinecap="round" opacity=".45" />
       </svg>
       <div className="tut-walk__trail" style={{ width: `${Math.max(0, pos - 14)}%` }} aria-hidden="true" />
-      <div className="tut-walk__man" style={{ left: `${pos}%` }}>
-        <ThinmanArt pose={moved ? stride : "stand"} />
+      <div className="tut-walk__man" style={{ left: `${pos}%` }} data-testid="tutorial-walk-man" data-walk-phase={walk.phase.toFixed(3)}>
+        {moved ? (
+          <span className="thinman-art" style={{ display: "block", transform: walk.facing < 0 ? "scaleX(-1)" : undefined }} aria-hidden="true" dangerouslySetInnerHTML={{ __html: walkSvg }} />
+        ) : (
+          <ThinmanArt pose="stand" />
+        )}
       </div>
       <div className="tut-walk__flag">
         <Flag waving={done} />
@@ -222,6 +244,7 @@ function DrawPlayground({ canvasRef, tool, used, onTool, onBeginStroke, onMoveSt
 /* ---------- Component ---------- */
 export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: TutorialBrochureProps) {
   const characterName = resolveCharacterDisplayName(characterDisplayName);
+  const inputMode = useInputMode();
   const rootRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<Array<HTMLElement | null>>([]);
   const flipRefs = useRef<Array<HTMLDivElement | null>>([]);
@@ -482,15 +505,15 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
     : momentRef.current;
   momentRef.current = moment;
 
-  const pages: Array<{ title: string; copy: string; cta: string; ctaIcon: IconName }> = [
-    { title: `Kenalin ${characterName}`, copy: "Dia mau menyeberangi buku gambar ini. Geser tanganmu ke kanan dan kiri buat ajak dia jalan ke bendera.", cta: "Lanjut", ctaIcon: "arrow-right" },
-    { title: "Pijakan aman, atau bahaya", copy: `Gambar benda padat kayak balok atau tangga biar ${characterName} bisa lewat. Hindari benda tajam kayak duri atau pisau biar bukunya nggak sobek.`, cta: "Lanjut", ctaIcon: "arrow-right" },
-    { title: "Coba gestur tanganmu", copy: "Coret di kanvas pakai jarimu, lalu coba hapus, mundur, dan maju. Tiap gestur yang kamu coba akan tercentang.", cta: "Mulai Level 1", ctaIcon: "play" },
+  const pages: Array<{ title: string; copy: string; cta: string; ctaIcon: IconName; holdMs: 1000 | 2000 }> = [
+    { title: `Kenalin ${characterName}`, copy: "Dia mau menyeberangi buku gambar ini. Geser tanganmu ke kanan dan kiri buat ajak dia jalan ke bendera.", cta: "Lanjut", ctaIcon: "arrow-right", holdMs: 1000 },
+    { title: "Pijakan aman, atau bahaya", copy: `Gambar benda padat kayak balok atau tangga biar ${characterName} bisa lewat. Hindari benda bahaya kayak duri biar bukunya nggak sobek.`, cta: "Lanjut", ctaIcon: "arrow-right", holdMs: 1000 },
+    { title: "Coba gestur tanganmu", copy: "Coret di kanvas pakai jarimu, lalu coba hapus, mundur, dan maju. Tiap gestur yang kamu coba akan tercentang.", cta: "Mulai Level 1", ctaIcon: "play", holdMs: 2000 },
   ];
 
   return (
     <div ref={rootRef} className="tutorial-prototype-root tut" data-active={active}>
-      {onSkip && (
+      {onSkip && inputMode === "fallback" && (
         <button type="button" className="tutorial-skip tut-skip" onClick={onSkip}>
           Lewati Tutorial
           <Icon name="arrow-right" size={17} stroke={2.8} />
@@ -531,18 +554,18 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
                   </div>
                   <h2 className="guide-title">{page.title}</h2>
                   <p className="guide-copy">{page.copy}</p>
-                  <button
-                    className={`brochure-cta nb-btn nb-btn--primary${isReady ? " is-ready" : ""}`}
-                    type="button"
-                    disabled={!isReady}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      next(i);
-                    }}
-                  >
-                    {page.cta}
-                    <Icon name={isReady ? page.ctaIcon : "lock"} size={20} stroke={2.8} />
-                  </button>
+                  {/* R5: "Lanjut" is a 1 s thumbs-up, "Mulai Level 1" a 2 s one; locked until the practice is done. */}
+                  {isReady && open === i ? (
+                    <div className="brochure-cta brochure-cta--thumb is-ready" onClick={(event) => event.stopPropagation()}>
+                      <ThumbConfirm holdMs={page.holdMs} label={page.cta} onConfirm={() => next(i)} testId={`tutorial-thumb-${i + 1}`} />
+                      <span className="brochure-cta__label">{page.cta}</span>
+                    </div>
+                  ) : (
+                    <div className="brochure-cta brochure-cta--locked nb-btn" aria-disabled="true" data-locked={isReady ? undefined : "true"}>
+                      {page.cta}
+                      <Icon name={isReady ? page.ctaIcon : "lock"} size={20} stroke={2.8} />
+                    </div>
+                  )}
                 </section>
               </div>
               <section

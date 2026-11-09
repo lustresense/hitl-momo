@@ -1,7 +1,7 @@
 // Live audit: in the real app, every Momo wing keeps its apex and attach edge on the body in every frame,
 // across onboarding, level list, story intro (flap + camera rise), drawing, prediction and decision.
 // A requestAnimationFrame sampler reads each <g class="fL|fR"> transform and measures how far A, B and the edge midpoint move.
-import { startStaticServer, launch, onboardToLevels, drawScribble, submitAndDecide, sleep } from "./lib/harness.mjs";
+import { startStaticServer, launch, onboardToLevelsFast, drawScribble, submitAndDecide, sleep } from "./lib/harness.mjs";
 
 const { server, base } = await startStaticServer();
 const { browser, context, page, errors } = await launch({ videoDir: process.env.VIDEO_DIR });
@@ -36,7 +36,7 @@ const stages = [];
 try {
   await page.goto(base, { waitUntil: "domcontentloaded" });
   await sleep(2500); stages.push(["cover", await read()]);
-  await onboardToLevels(page, base);
+  await onboardToLevelsFast(page, base);
   await sleep(1500); stages.push(["levels", await read()]);
   await page.locator(".level-card").first().click();
   await page.locator("[data-testid=level-intro]").waitFor({ state: "visible", timeout: 8000 });

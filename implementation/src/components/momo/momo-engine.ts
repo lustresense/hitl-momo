@@ -54,7 +54,38 @@ function momoSVG(id: string): string {
    <g class="eL"><g clip-path="url(#${id}L)"><path fill="#380C02" d="${M.eyeLp}"/><path fill="#FEFEFE" d="${M.eyeLh}"/></g><path class="cL" opacity="0" ${ml} d="M470 566Q522 600 574 566"/></g><g class="eR"><g clip-path="url(#${id}R)"><path fill="#380C02" d="${M.eyeRp}"/><path fill="#FEFEFE" d="${M.eyeRh}"/></g><path class="cR" opacity="0" ${ml} d="M815 566Q867 600 919 566"/></g>
    <g class="tear"><g class="tearI"><path ${drop} d="M500 650Q474 700 500 724Q526 700 500 650Z"/></g></g>
    <g class="sweat"><g class="sweatI"><path ${drop} d="M905 392Q885 430 905 450Q925 430 905 392Z"/></g></g>
+   <g class="fog" opacity="0" pointer-events="none"><g class="fogI">${FOG_PUFFS}</g></g>
   </g></svg>`;
+}
+
+/** Kabut Penghapus (R14): soft eraser-dust puffs drawn over Momo's face. Paper white with a thin ink edge. */
+const FOG_PUFFS = [
+  [600, 590, 190, 120], [800, 570, 210, 130], [700, 680, 260, 120], [500, 680, 140, 90], [900, 690, 150, 90],
+].map(([x, y, rx, ry]) => `<ellipse cx="${x}" cy="${y}" rx="${rx}" ry="${ry}" fill="#F4F1EA" stroke="#2E0D06" stroke-width="10" stroke-dasharray="40 30" opacity="0.92"/>`).join("");
+
+/** Clamp a fog level to 0..1. */
+export function clampFog(v: number): number {
+  return Number.isFinite(v) ? Math.max(0, Math.min(1, v)) : 0;
+}
+
+/**
+ * Where the fog is at time `t` (seconds) for a level 0..1. Pure so it can be unit tested.
+ * - below 0.15: nothing (L1);
+ * - medium: a puff drifts across the eyes now and then (L2);
+ * - from 0.7: the fog settles on the face and stays (L3).
+ * Returns the horizontal offset (art units) and the opacity of the fog group.
+ */
+export function fogFrame(level: number, t: number): { x: number; opacity: number } {
+  const f = clampFog(level);
+  if (f < 0.15) return { x: 0, opacity: 0 };
+  const settle = Math.max(0, Math.min(1, (f - 0.45) / 0.25));
+  const period = 5.5;
+  const ph = (((t % period) + period) % period) / period; // 0..1
+  const sweepX = -1500 + ph * 3000; // passes from far left to far right
+  const sweepVis = Math.max(0, 1 - Math.abs(sweepX) / 1200);
+  const x = sweepX * (1 - settle) + Math.sin(t * 0.9) * 30 * settle;
+  const opacity = Math.min(0.92, f) * (settle >= 1 ? 1 : sweepVis * (1 - settle) + settle);
+  return { x, opacity };
 }
 
 const FD: Num = { ex: 1, ey: 1, el: 1, er: 1, dx: 0, dy: 0, brA: 0, bLy: 0, bLr: 0, bRy: 0, bRr: 0, mS: 1, ms: 1, mF: 0, mK: 0, mW: 0, mdy: 0, mrot: 0, mO: 0, os: 1, mD: 0, tear: 0, sweat: 0 };
@@ -79,11 +110,13 @@ interface Spring { a: number; v: number }
 const spring = (s: Spring, t: number, k: number, c: number, dt: number) => { s.v += (k * (t - s.a) - c * s.v) * dt; s.a += s.v * dt; };
 let uid = 0;
 
-const PARTS = ["root", "tA", "tB", "tC", "bow", "fL", "fR", "brL", "brR", "mS", "mF", "mK", "mW", "lidL", "lidR", "cL", "cR", "mO", "mD", "eL", "eR", "tear", "sweat", "tearI", "sweatI"] as const;
+const PARTS = ["root", "tA", "tB", "tC", "bow", "fL", "fR", "brL", "brR", "mS", "mF", "mK", "mW", "lidL", "lidR", "cL", "cR", "mO", "mD", "eL", "eR", "tear", "sweat", "tearI", "sweatI", "fog", "fogI"] as const;
 
 export class MomoEngine {
   private g: Record<(typeof PARTS)[number], SVGElement>;
-  private P = { x: 0, y: 0, r: 0, sx: 1, sy: 1, fl: 0, fr: 0, bf: 0, wv: 0 };
+  private P = { x: 0, y: 0, r: 0, sx: 1, sy: 1, fl: 0, fr: 0, bf: 0, wv: 0, wvR: 0 };
+  private fogLevel = 0;
+  private fogT = 0;
   private F: Num = { ...FD };
   private mo: Num = { ...MD };
   private bl = 1;
@@ -167,6 +200,30 @@ export class MomoEngine {
       .to(this.P, { wv: 0, r: 0, duration: 0.4, ease: "sine.out" }, ">");
   }
 
+  /** Kabut Penghapus level 0..1 (R14). Visual only: it never changes what Momo says or any number. */
+  setFog(level: number): void {
+    this.fogLevel = clampFog(level);
+  }
+
+  get fog(): number {
+    return this.fogLevel;
+  }
+
+  /**
+   * Point with a wing (R16): Momo has no hands, so she leans toward the target and one wing tip beats toward it.
+   * `side` is the screen side the target is on. Uses the same tip-only shear, so the wing stays attached.
+   */
+  point(side: "left" | "right"): void {
+    this.wt?.kill();
+    const key = side === "left" ? "wv" : "wvR";
+    const lean = side === "left" ? -7 : 7;
+    this.wt = gsap.timeline()
+      .to(this.P, { r: lean, x: side === "left" ? -40 : 40, duration: 0.3, ease: "sine.out" }, 0)
+      .to(this.P, { [key]: -46, duration: 0.2, ease: "power2.out" }, 0)
+      .to(this.P, { [key]: -20, duration: 0.18, ease: "sine.inOut", yoyo: true, repeat: 5 }, ">")
+      .to(this.P, { [key]: 0, r: 0, x: 0, duration: 0.45, ease: "sine.out" }, ">");
+  }
+
   /** Flap the cloth wings once (used when Momo arrives or celebrates). */
   flap(): void {
     this.ft?.kill();
@@ -209,7 +266,10 @@ export class MomoEngine {
       spring(sp.bow, -0.25 * R + 0.35 * sp.t1.a + sw * 0.35 * Math.sin(TAU * tt / 2.2), k, c, h);
     }
     tf(g.root, X, Y, R, P.sx, P.sy, 695, 640);
-    g.fL.setAttribute("transform", wingTransform("L", cl(sp.fL.a, -32, 32) + P.wv)); g.fR.setAttribute("transform", wingTransform("R", cl(sp.fR.a, -32, 32)));
+    g.fL.setAttribute("transform", wingTransform("L", cl(sp.fL.a, -32, 32) + P.wv)); g.fR.setAttribute("transform", wingTransform("R", cl(sp.fR.a, -32, 32) + P.wvR));
+    this.fogT += dt;
+    const fogNow = fogFrame(this.fogLevel, this.fogT * this.rm);
+    g.fog.setAttribute("opacity", fogNow.opacity.toFixed(3)); tf(g.fogI, fogNow.x, 0, 0, 1, 1, 695, 640);
     tf(g.tA, 0, 0, cl(sp.t1.a, -22, 22), 1, 1, J.j0[0], J.j0[1]); tf(g.tB, 0, 0, cl(sp.t2.a, -22, 22), 1, 1, J.j1[0], J.j1[1]); tf(g.tC, 0, 0, cl(sp.t3.a, -22, 22), 1, 1, J.j2[0], J.j2[1]);
     tf(g.bow, 0, 0, cl(sp.bow.a, -25, 25), 1, 1, 690, 1350);
     // face: eye travel is clamped so the pupils never leave the outline

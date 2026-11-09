@@ -110,7 +110,7 @@ describe("DrawingScreen Momo state-based positioning - NEW CONTRACT", () => {
     render(<DrawingScreen {...defaultProps} phase="evaluating" prediction={mockPrediction} />);
     const companion = document.querySelector(".drawing-momo-companion");
     expect(companion?.getAttribute("data-phase")).toBe("evaluating");
-    expect(await screen.findByText("Aku punya tiga tebakan. Bandingkan dulu, ya.")).not.toBeNull();
+    expect(await screen.findByText("Gampang! Ini pasti jembatan, 88%. Bener gak?")).not.toBeNull();
     expect((companion as HTMLElement).style.transform).toContain("translate(484px, 24px)");
   });
 
@@ -140,7 +140,7 @@ describe("DrawingScreen Momo state-based positioning - NEW CONTRACT", () => {
     const end = new Event("transitionend", { bubbles: true });
     Object.defineProperty(end, "propertyName", { value: "transform" });
     fireEvent(companion, end);
-    expect(await screen.findByText("Aku punya tiga tebakan. Bandingkan dulu, ya.")).not.toBeNull();
+    expect(await screen.findByText("Gampang! Ini pasti jembatan, 88%. Bener gak?")).not.toBeNull();
 
     rerender(<DrawingScreen {...defaultProps} phase="prediction-error" />);
     expect(await screen.findByText("Hmm, aku belum bisa membaca gambarmu. Mau coba lagi?")).not.toBeNull();

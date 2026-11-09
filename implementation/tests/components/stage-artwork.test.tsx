@@ -51,6 +51,19 @@ describe("visual-only stage artwork contract", () => {
   expect(container.querySelector('svg')!.outerHTML).toBe(original.outerHTML);
   unmount();
  });
+ it("R15: levels end at a signpost naming the next chapter; tutorial keeps the flag", () => {
+  const next = { 1: "Menara Lipatan", 2: "Lorong Kabut", 3: "Pusat Halaman" } as const;
+  for (const scene of [1,2,3] as const) {
+   const {container, unmount}=render(<StageArtwork scene={scene} gameplay/>);
+   const goal=container.querySelector('[data-asset-role="goal-preview"]')!;
+   expect(goal.getAttribute("data-goal-kind")).toBe("signpost");
+   expect(goal.textContent).toContain(`Bab ${scene} selesai`);
+   expect(goal.textContent).toContain(next[scene]);
+   unmount();
+  }
+  const {container}=render(<StageArtwork scene={0}/>);
+  expect(container.querySelector('[data-asset-role="goal-preview"]')!.getAttribute("href")).toMatch(/-flag$/);
+ });
  it("provides exactly four original scene metadata entries", () => {
   expect(STAGE_SCENES).toHaveLength(4);
   expect(STAGE_SCENES.map(s=>s.title)).toEqual(["Gameplay Screen","Halaman yang Sobek","Menara Lipatan","Lorong Kabut Penghapus"]);

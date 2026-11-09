@@ -28,6 +28,10 @@ export interface MomoChatProps {
   flapKey?: number;
   waveKey?: number;
   sleeping?: boolean;
+  /** Kabut Penghapus level 0..1 (R14): fog over Momo's face; a thick fog fades the bubble a little (still readable). */
+  fog?: number;
+  pointKey?: number;
+  pointSide?: "left" | "right";
   /** Show the typing dots before each line. Off = lines appear immediately. */
   typing?: boolean;
   /** Wait this long before the first line starts (e.g. while Momo is still flying in). */
@@ -37,7 +41,7 @@ export interface MomoChatProps {
   /** Fires once, right after the last line is shown. */
   onDone?: () => void;
   /** Rendered under the bubble: from the first line (`first`) or only once the last line is shown (`last`). */
-  extrasFrom?: "first" | "last";
+  extrasFrom?: "first" | "last" | "always";
   children?: ReactNode;
   className?: string;
   testId?: string;
@@ -57,6 +61,9 @@ export function MomoChat({
   flapKey,
   waveKey,
   sleeping,
+  fog = 0,
+  pointKey,
+  pointSide,
   typing = true,
   startDelay = 0,
   stack = false,
@@ -108,10 +115,10 @@ export function MomoChat({
 
   const finished = index >= list.length - 1;
   const visible = stack ? list.slice(0, index + 1) : typingNow ? [] : index >= 0 ? [list[index]!] : [];
-  const showExtras = children && list.length > 0 && (extrasFrom === "first" ? index >= 0 : finished);
+  const showExtras = children && list.length > 0 && (extrasFrom === "always" || (extrasFrom === "first" ? index >= 0 : finished));
   return (
-    <div className={`momo-chat momo-chat--${side}${className ? " " + className : ""}`} data-testid={testId} data-finished={finished ? "true" : "false"}>
-      <MomoAvatar className="momo-chat__avatar" expression={mood} height={avatarHeight} trackMotion={trackMotion} flapKey={flapKey} waveKey={waveKey} sleeping={sleeping} />
+    <div className={`momo-chat momo-chat--${side}${className ? " " + className : ""}`} data-testid={testId} data-finished={finished ? "true" : "false"} data-foggy={fog >= 0.7 ? "true" : undefined}>
+      <MomoAvatar className="momo-chat__avatar" expression={mood} height={avatarHeight} trackMotion={trackMotion} flapKey={flapKey} waveKey={waveKey} sleeping={sleeping} fog={fog} pointKey={pointKey} pointSide={pointSide} />
       <div className="momo-chat__col">
         <div className="momo-chat__thread" role="status" aria-live="polite">
           {visible.map((line, i) => (

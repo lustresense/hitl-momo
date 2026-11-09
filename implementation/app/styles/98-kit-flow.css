@@ -2,7 +2,7 @@
 #screen-level-entry[data-entry-hold] { position: absolute !important; inset: 0 !important; width: 100% !important; min-height: 0 !important; pointer-events: none; }
 
 .bm-page { position: relative; min-height: 100vh; display: flex; flex-direction: column; align-items: center; padding: 0 16px 20px; overflow: hidden; box-sizing: border-box; }
-.bm-brand { position: absolute; z-index: 3; top: 50px; left: 26px; display: flex; align-items: center; gap: 9px; font-size: 16px; font-weight: 900; color: var(--nb-ink); letter-spacing: -.01em; }
+.bm-brand { position: absolute; z-index: 3; top: 50px; left: 26px; display: flex; align-items: center; gap: 9px; font-size: var(--nb-body); font-weight: 900; color: var(--nb-ink); letter-spacing: -.01em; }
 .bm-brand__mark { width: 24px; height: 24px; border-radius: 7px; border: 2.5px solid var(--nb-ink); background: repeating-linear-gradient(45deg, var(--nb-ink), var(--nb-ink) 3px, transparent 3px, transparent 7px); }
 
 /* Spiral binding: wire rings clipped over the top edge. */
@@ -33,8 +33,8 @@
 
 .bm-content { position: absolute; left: 0; right: 0; top: 26px; display: flex; flex-direction: column; align-items: center; gap: 2px; pointer-events: none; }
 .bm-tag { font-size: 13px; font-weight: 900; letter-spacing: .18em; text-indent: .18em; color: var(--nb-ink); }
-.bm-number { font-size: clamp(64px, 12vh, 96px); font-weight: 900; line-height: .95; color: var(--nb-ink); }
-.bm-locked .bm-number { font-size: clamp(64px, 12vh, 96px); font-weight: 900; line-height: .95; color: var(--nb-ink); }
+.bm-number { font-size: var(--nb-display); font-weight: 900; line-height: .95; color: var(--nb-ink); }
+.bm-locked .bm-number { font-size: var(--nb-display); font-weight: 900; line-height: .95; color: var(--nb-ink); }
 .bm-name { max-width: calc(var(--bm-w, 170px) - 36px); margin-top: 4px; font-size: 14px; font-weight: 900; line-height: 1.15; color: var(--nb-ink); }
 .bm-badge { display: grid; place-items: center; width: 48px; height: 48px; margin-top: 12px; color: var(--nb-ink); background: var(--nb-paper); border: 2.5px solid var(--nb-ink); border-radius: 50%; }
 .bm-done .bm-badge { background: var(--nb-green); color: #fffaf0; }
@@ -68,14 +68,14 @@
 @keyframes bm-burst { 0% { transform: scale(.4); opacity: 1; } 100% { transform: scale(7); opacity: 0; } }
 
 .bm-foot { position: relative; z-index: 2; margin-top: auto; padding-top: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
-.bm-title { display: inline-flex; align-items: center; gap: 10px; margin: 0; font-size: 28px; font-weight: 900; letter-spacing: -.02em; color: var(--nb-ink); }
+.bm-title { display: inline-flex; align-items: center; gap: 10px; margin: 0; font-size: var(--nb-h1); font-weight: 900; letter-spacing: -.02em; color: var(--nb-ink); }
 .bm-title .nb-icon { color: var(--nb-orange-deep); }
 .bm-status { min-height: 34px; display: flex; align-items: center; }
 
 @media (max-width: 600px) {
   .bm-brand { display: none; }
   .bm-shelf { gap: 14px; }
-  .bm-number { font-size: clamp(64px, 12vh, 96px); font-weight: 900; line-height: .95; color: var(--nb-ink); }
+  .bm-number { font-size: var(--nb-display); font-weight: 900; line-height: .95; color: var(--nb-ink); }
   .bm-name { font-size: 12px; }
   .bm-badge { width: 38px; height: 38px; margin-top: 8px; }
 }
@@ -88,3 +88,12 @@
 @media (max-width: 640px) { #app:has(.bm-page) .demo-tape { top: auto; bottom: 10px; left: auto; right: 8px; } }
 .route-notice { position: fixed; z-index: 1300; left: 20px; bottom: 120px; max-width: min(420px, calc(100vw - 40px)); }
 .drawing-flow-host[data-intro="true"] { visibility: hidden; }
+
+/* R9 easter egg: Thinman and Momo walk together along the bottom page edge after the closing. */
+.page-edge-walkers { position: fixed; left: 0; right: 0; bottom: 6px; height: 96px; z-index: 5; pointer-events: none; overflow: hidden; }
+.page-edge-walkers__pair { position: absolute; bottom: 0; display: flex; align-items: flex-end; gap: 6px; animation: page-edge-walk 28s linear infinite; }
+.page-edge-walkers__thinman { width: 46px; }
+.page-edge-walkers__momo { margin-bottom: 30px; }
+@keyframes page-edge-walk { from { transform: translateX(-140px); } to { transform: translateX(calc(100vw + 20px)); } }
+@media (prefers-reduced-motion: reduce) { .page-edge-walkers__pair { animation: none; left: 24px; } }
+.bm-slot .bm-thumb { margin-top: 12px; }

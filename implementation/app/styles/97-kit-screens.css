@@ -17,6 +17,23 @@
   .hud-plate__sep { display: none; }
   .hud-plate .decision-chip { font-size: 12px; }
 }
+/* PRD 0.0.16 R8.3: secondary HUD (world plate, decision chip, input status, demo tape) about 75 percent.
+   "Gambar lagi" keeps its size: it is the important trigger. */
+#screen-gameplay .stage-floating-header.hud { top: 10px; left: 12px; }
+#screen-gameplay .hud-plate { gap: 7px; padding: 4px 10px 4px 5px; border-radius: 14px; }
+#screen-gameplay .hud-plate__mark { width: 30px; height: 30px; border-width: 2px; }
+#screen-gameplay .hud-plate__mark .thinman-art { width: 40px; top: 2px; }
+#screen-gameplay .hud-plate__title { font-size: 13.5px; }
+#screen-gameplay .hud-plate__sep { height: 18px; }
+#screen-gameplay .hud-plate .decision-chip { font-size: 11.5px; padding: 3px 10px 3px 4px; }
+#screen-gameplay .stage-input-status-chip { font-size: 10px; padding: 2px 8px; border-width: 1.5px; }
+#app:has(#screen-gameplay) .demo-tape { font-size: 9.5px; padding: 2px 10px; }
+@media (max-width: 760px) {
+  #screen-gameplay .hud-plate__mark { width: 24px; height: 24px; }
+  #screen-gameplay .hud-plate__mark .thinman-art { width: 32px; }
+  #screen-gameplay .hud-plate__title { font-size: 11.5px; }
+  #screen-gameplay .hud-plate .decision-chip { font-size: 10px; }
+}
 
 /* Floating controls: same card as everything else, not a pill. */
 #screen-gameplay .stage-floating-controls {
@@ -51,7 +68,7 @@
   background: radial-gradient(circle at 1px 1px, rgba(49, 45, 38, .2) 1px, transparent 1.3px) 0 0 / 14px 14px, var(--nb-bg);
 }
 .enter-world-popup .enter-preview { display: block; width: 100%; height: 96px; max-width: none; object-fit: contain; border: 0; border-radius: 6px; background: transparent; }
-.enter-world-popup .enter-label { margin: 0; text-align: center; font-size: 20px; font-weight: 900; letter-spacing: -.01em; color: var(--nb-ink); }
+.enter-world-popup .enter-label { margin: 0; text-align: center; font-size: var(--nb-h2); font-weight: 900; letter-spacing: -.01em; color: var(--nb-ink); }
 .enter-world-popup .btn, .enter-world-popup .nb-btn { width: 100%; }
 @keyframes pop-center { from { opacity: 0; transform: translate(-50%, -46%) scale(.9) rotate(-1.5deg); } to { opacity: 1; transform: translate(-50%, -50%) scale(1) rotate(0); } }
 
@@ -68,7 +85,7 @@
 .world-win .momo-chat__col { padding-top: 14%; }
 .gesture-cue {
   display: inline-flex; align-items: center; gap: 10px; margin-top: 4px; padding: 7px 14px 7px 8px; cursor: pointer;
-  font: inherit; font-weight: 900; font-size: 16px; color: var(--nb-ink);
+  font: inherit; font-weight: 900; font-size: var(--nb-body); color: var(--nb-ink);
   background: var(--nb-orange); border: var(--nb-border) solid var(--nb-ink); border-radius: 999px; box-shadow: var(--nb-shadow-sm);
   transition: transform .12s ease, box-shadow .12s ease;
 }
@@ -115,7 +132,7 @@
 .input-switch button + button { border-left: var(--nb-border) solid var(--nb-ink); }
 .input-switch button[aria-pressed="true"] { background: var(--nb-ink); color: var(--nb-paper); }
 .input-switch button:focus-visible { outline: 3px solid var(--nb-sky); outline-offset: -4px; }
-.btn-submit-momo { font-size: 16px; padding: 10px 22px; }
+.btn-submit-momo { font-size: var(--nb-body); padding: 10px 22px; }
 @media (max-width: 600px) {
   .drawing-submit-controls { left: auto; right: 12px; bottom: 16px; transform: none; flex-direction: column; align-items: flex-end; z-index: 950; }
   .nb-toolbar { right: 8px; gap: 6px; padding: 6px; }

@@ -9,6 +9,36 @@ Every change made INSIDE the `implementation/` folder (code, tests, e2e, runtime
 
 Entries 0.0.6-0.0.12 were moved here on 2026-11-05 from the root file that used to be called `CHANGELOG.md` (it mixed release notes with the decision log). `package.json` still says 0.2.0: align it with this numbering only when the Owner approves.
 
+## [0.0.16] - 2026-11-08
+
+Decision: D-20261105-23, D-20261105-24. PRD `project/PRD_REVISI_0.0.16.md` (approved by the Owner). Branch `can`.
+Provisional choices taken for the open Owner questions: gesture icon mapping pinch = Coret, kepal = Hapus, dua jari = Mundur, telapak terbelah = Maju (R12); opening = Momo lines only (R17); R4b research not implemented, so Pilih lain and Bukan semua keep their tap-to-open pickers, each confirmed with a 2 s ring.
+
+### Added
+- R4 `src/components/ui/ThumbConfirm.tsx` and `app/styles/102-gesture.css`: a thumb with a progress ring, `holdMs` 1000 (conversation) or 2000 (decision). Camera mode: no button, only a real thumbs-up fills the ring. Fallback mode: a button held with mouse, touch, Enter or Space. A lost thumb drains the ring at half speed, a full ring pulses and confirms once, then the thumb must drop before the next fill.
+- R4 `isThumbUp` in `src/input/hand-gesture.ts`; `src/camera/thumb-tracker.ts`: one HandLandmarker on the shared webcam stream (no second camera), running only while a ThumbConfirm is on screen; `src/hooks/useHandGesture.ts` (`useHandGesture`, `useInputMode`).
+- R13 `src/input/input-mode.ts`: app-wide camera or fallback mode. GlobalCamera reports a camera or tracker failure; a live stream switches back to camera mode, so the buttons disappear again.
+- R12 `classifyHandPose`, `isFist`, `isTwoFingers`, `isSplitPalm`, `drawingCommandFor`: one pose per frame, mutually exclusive with pinch, thumbs-up and the open palm. `DrawingSurfaceOptions.onPose` reports the pose each hand frame; command poses never draw ink.
+- R12 eraser: `StrokeStore.eraseAt` and `DrawingSurface.setErasing`; a held fist erases strokes under the hand cursor (28 px), one erase pass is one undo step.
+- Test hooks, only when `NEXT_PUBLIC_TEST_HOOKS=1`: `window.__skbThumb`, `window.__skbInputMode` (and `__skbWave` on the cover).
+- R2 `BookFlip` (book opens and closes), R9 ending `src/components/ending/` (CenterOfPage), R11 `MomoGuessChat` with streaming guesses, `PageEdgeWalkers`, `gesture-commands.ts` (owners: onboarding, world, momo-hitl teammates).
+<!-- video dropped, see NOW.md -->
+- `e2e/record-full-showcase.mjs`: the whole product without skips, written to `docs/execution/evidence/prd-0.0.16/full-showcase.mp4`.
+
+### Changed
+- R12 `src/components/ui/Icon.tsx`: `hand-draw`, `hand-erase`, `hand-undo`, `hand-redo` now draw the Owner's Figma artwork from `design/visual/drawing-gestures/` (filled, original viewBox).
+- R1 cover: turning the camera on keeps Momo asleep; the wave wakes her; after her lines the book opens to the ruler. No buttons in camera mode; "Bangunkan Momo" only when the camera cannot be used.
+- R3 ruler: Momo asks "Bener nomor absenmu N?" when the ruler stops and waits for a 2 s thumb. R5 tutorial: 1 s thumbs on cards 1 and 2, 2 s "Mulai Level 1". R6 level list: 2 s thumb on the ribbon, the book opens into the world. R7 intro cards and "Ke langit" thumb. R11 decision: Terima is a 2 s thumb; Pilih lain and Bukan semua select, then a 2 s ring confirms. `minDrawings` = 2 on every level.
+- e2e: `lib/harness.mjs` follows the new flow (`holdThumb`, `wakeMomoOnCover`, `pickStudentNumber`, `playTutorial`, `onboardToLevelsFast`, `playEnding`, `drawSlow`, `playPlanSteps`); `normal-journey`, `recovery-paths`, `hand-control-probe`, `mediapipe-probe`, `guide-flow`, `audit-momo-wings` updated. `recovery-paths` moves the balok away with Geser before the cliff fall, because the placed balok now blocks the walk.
+
+### Tests
+- New: `tests/components/thumb-confirm.test.tsx`, `tests/input/thumb-up.test.ts`, `tests/input/hand-pose.test.ts`, `tests/input/eraser.test.ts`, `tests/components/icon-gestures.test.tsx` (paths equal the design SVGs).
+- Gates (2026-11-08): vitest 640/640 (91 files); `tsc --noEmit` clean; `next lint` clean; `NEXT_PUBLIC_TEST_HOOKS=0 next build` and `NEXT_PUBLIC_TEST_HOOKS=1 next build` both pass.
+- E2E on the TEST_HOOKS=0 build, no camera, fallback buttons: normal-journey L1-L3 plus ending PASS, each level won on the first attempt; recovery-paths 16/16.
+- E2E on the TEST_HOOKS=1 build, fake camera, simulated wave and thumb: guide-flow 13/13, hand-control-probe 6/6, mediapipe-probe (stream live, hand mode, pointer draw after hand mode) OK, audit-momo-wings 0 bad samples (largest edge move 0.00024).
+<!-- video dropped, see NOW.md -->
+- Evidence: the 17 min showcase video was not kept in the repo (Owner cancelled the re-record to save tokens). Run `node e2e/record-full-showcase.mjs` on a TEST_HOOKS=1 build to regenerate it.
+
 ## [0.0.15] - 2026-11-05
 
 Decision: D-20261105-17 (wings), D-20261105-19 (Momo guides every page), D-20261105-21 (docs rule). Mandates M-015, M-016. Branch `can`.

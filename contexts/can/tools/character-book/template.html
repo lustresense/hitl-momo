@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Buku Progres PA · Karakter Thinman dan Momo</title>
+<style>
+:root{--ink:#111;--paper:#fffaf0;--bg:#f7f5ea;--orange:#ef7a37;--leaf:#c8d9a4;--leaf-soft:#eff3db;--green:#4a8c1f;--yellow:#f0d487;--grey:#cfc9bb}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased;background:radial-gradient(circle at 1px 1px,rgba(49,45,38,.16) 1px,transparent 1.2px) 0 0/22px 22px,var(--bg)}
+a{color:inherit}
+.page{max-width:1500px;margin:0 auto;padding:0 18px}
+.topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;padding:14px 0}
+.topbar .brand{display:flex;align-items:center;gap:10px;font-weight:900;font-size:18px;margin-right:auto}
+.topbar .brand i{width:24px;height:24px;border:2.5px solid var(--ink);border-radius:7px;background:repeating-linear-gradient(45deg,var(--ink),var(--ink) 3px,transparent 3px,transparent 7px)}
+.topbar p{margin:0;font-weight:700;font-size:13.5px;max-width:760px;line-height:1.4}
+/* two square boards: side by side on desktop (16:9), stacked on phones */
+.boards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+.slot{min-width:0}
+.fit{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;border-radius:14px}
+.board{position:absolute;left:0;top:0;width:1200px;height:1200px;transform-origin:0 0;padding:36px;border:6px solid var(--ink);border-radius:28px;background:radial-gradient(circle at 1px 1px,rgba(49,45,38,.18) 1.4px,transparent 1.8px) 0 0/24px 24px,var(--paper);display:flex;flex-direction:column;gap:24px}
+.bar{display:flex;align-items:center;gap:18px;height:84px;flex:none}
+.bar .no{display:grid;place-items:center;width:72px;height:72px;border:5px solid var(--ink);border-radius:18px;background:var(--orange);font-weight:900;font-size:34px}
+.bar h2{margin:0;font-size:64px;font-weight:900;letter-spacing:-.02em}
+.bar .sp{flex:1}
+.chip{display:inline-block;padding:7px 18px;border:3.5px solid var(--ink);border-radius:999px;font-weight:800;font-size:22px;background:var(--paper);white-space:nowrap}
+.chip.on{background:var(--orange)}.chip.ok{background:var(--leaf)}.chip.mid{background:var(--yellow)}.chip.off{background:var(--grey)}
+.body{flex:1;display:grid;grid-template-columns:400px 1fr;gap:24px;min-height:0}
+.hero{border:5px solid var(--ink);border-radius:28px;background:var(--paper);box-shadow:12px 12px 0 var(--ink);display:flex;flex-direction:column;padding:20px;gap:14px;min-height:0}
+.hero .stage{flex:1;border:4px dashed var(--ink);border-radius:20px;background:radial-gradient(circle at 1px 1px,rgba(49,45,38,.2) 1.4px,transparent 1.8px) 0 0/20px 20px,var(--bg);display:flex;align-items:flex-end;justify-content:center;padding:18px 10px 12px;min-height:0;overflow:hidden}
+.hero .stage.mid{align-items:center}
+.hero .stage svg{height:100%;width:auto;display:block}
+.hero h3{margin:0;font-size:46px;font-weight:900;line-height:1}
+.hero p{margin:0;font-size:22px;font-weight:700;line-height:1.3;min-height:58px}
+.hero .chips{display:flex;gap:10px;flex-wrap:wrap}
+.right{display:flex;flex-direction:column;gap:18px;min-width:0;min-height:0}
+.band{display:flex;flex-direction:column;gap:10px;min-height:0}
+.band>h4{margin:0;display:flex;align-items:center;gap:12px;font-size:30px;font-weight:900;height:38px}
+.row{display:grid;gap:14px}
+.r4{grid-template-columns:repeat(4,1fr)}.r3{grid-template-columns:repeat(3,1fr)}.r6{grid-template-columns:repeat(6,1fr);gap:10px}
+.tile{border:4px solid var(--ink);border-radius:18px;background:var(--bg);display:flex;flex-direction:column;min-width:0;overflow:hidden}
+.tile .v{flex:1;display:flex;align-items:flex-end;justify-content:center;padding:10px 6px 4px;min-height:0;position:relative;overflow:hidden}
+.tile .v svg{display:block;width:auto}
+.tile .n{border-top:4px solid var(--ink);background:var(--paper);padding:6px 9px;font-size:22px;white-space:nowrap;letter-spacing:-.02em;font-weight:900;display:flex;align-items:center;justify-content:space-between;gap:6px}
+.sdot{width:20px;height:20px;border:3px solid var(--ink);border-radius:50%;flex:none}
+.sdot.ok{background:var(--leaf)}.sdot.mid{background:var(--yellow)}.sdot.off{background:var(--grey)}
+button.tile{font:inherit;color:inherit;padding:0;cursor:pointer;text-align:left}
+button.tile[aria-pressed="true"]{outline:6px solid var(--orange);outline-offset:-6px;background:var(--leaf-soft)}
+.ctl{display:inline-flex;border:3.5px solid var(--ink);border-radius:12px;overflow:hidden;background:var(--paper)}
+.ctl button{font:inherit;font-weight:800;font-size:20px;padding:2px 16px;border:0;background:transparent;cursor:pointer;color:var(--ink)}
+.ctl button+button{border-left:3.5px solid var(--ink)}
+.ctl button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.stage2{position:relative;width:100%;height:100%;overflow:hidden}
+.ground{position:absolute;left:0;right:0;bottom:30px;border-top:6px solid var(--ink)}
+.ticks{position:absolute;left:0;right:0;bottom:8px;height:14px;background:repeating-linear-gradient(90deg,var(--ink) 0 4px,transparent 4px 34px);opacity:.45}
+.actor{position:absolute;left:50%;bottom:26px;height:170px;margin-left:-45px}
+.actor svg{height:100%;width:auto;display:block}
+.momo-host{display:inline-block;overflow:visible}
+.momo-host svg{height:100%;width:auto;display:block;overflow:visible}
+.pal{display:flex;gap:14px;align-items:center;flex-wrap:wrap;font-size:20px;font-weight:800}
+.pal i{display:inline-block;width:30px;height:30px;border:3.5px solid var(--ink);border-radius:8px;vertical-align:middle;margin-right:6px}
+.links{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 0}
+.lnk{padding:6px 12px;border:2.5px solid var(--ink);border-radius:10px;font-weight:800;font-size:13px;text-decoration:none;background:var(--paper)}
+.lnk:hover{background:var(--orange)}
+/* docs below the boards (not part of the exported squares) */
+.docs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:26px 0 40px}
+.doc{border:3px solid var(--ink);border-radius:16px;background:var(--paper);padding:14px 16px;min-width:0}
+.doc h3{margin:0 0 6px;font-size:18px;font-weight:900}
+.doc p,.doc li{font-size:13.5px;font-weight:600;line-height:1.5}
+.doc ul{margin:4px 0 0;padding-left:18px}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:12.5px}
+th,td{border:2px solid var(--ink);padding:4px 7px;font-weight:700;text-align:left;vertical-align:top}
+th{background:var(--leaf)}
+code{overflow-wrap:anywhere;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;background:var(--leaf-soft);border:1.5px solid var(--ink);border-radius:5px;padding:0 4px}
+@media (max-width:1000px){.boards{grid-template-columns:minmax(0,1fr)}.docs{grid-template-columns:minmax(0,1fr)}}
+/* solo mode: one board fills the window (used to export PNG / video for PPT and Word) */
+body.solo{background:var(--bg);overflow:hidden}
+body.solo .page{max-width:none;padding:0}
+body.solo .topbar,body.solo .docs,body.solo .links,body.solo .slot.hide,body.solo .ctl,body.solo .noexport{display:none!important}
+body.solo .boards{display:block}
+body.solo .fit{width:min(100vw,100vh);margin:0 auto;border-radius:0}
+@media (prefers-reduced-motion:reduce){*{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <div class="brand"><i></i>Buku Progres PA · Karakter</div>
+    <p>Dua papan persegi 1:1, satu per karakter, tanpa scroll: siap ditempel ke PPT atau Word sebagai gambar (PNG) atau video (MP4/GIF). Gambar dan animasi hidup, dirender oleh kode yang sama dengan game.</p>
+  </div>
+
+  <div class="boards">
+    <!-- ============ PAPAN 1: THINMAN ============ -->
+    <div class="slot" id="slot-thinman">
+      <div class="fit"><section class="board" id="board-thinman" aria-label="Papan karakter Thinman">
+        <div class="bar"><span class="no">01</span><h2>Thinman</h2><span class="sp"></span><span class="chip on">Karakter A</span><span class="chip">Rig 7 sudut</span></div>
+        <div class="body">
+          <div class="hero"><div class="stage"><div id="thin-hero" style="height:100%;display:flex;align-items:flex-end"></div></div>
+            <h3>Thinman</h3><p>Sosok sketsa tipis, kepala oval bermata dua. Berjalan ke bendera.</p>
+            <div class="chips"><span class="chip">Tinggi 391</span><span class="chip">Garis 5</span></div></div>
+          <div class="right">
+            <div class="band"><h4>Tampak</h4><div class="row r4" id="thin-views" style="height:300px"></div></div>
+            <div class="band"><h4>Gerak <span class="ctl" id="face-seg"><button aria-pressed="true" data-f="1">Kanan</button><button aria-pressed="false" data-f="-1">Kiri</button></span></h4><div class="row r3" id="thin-anims" style="height:380px"></div></div>
+            <div class="band"><h4>Pose rig</h4><div class="row r6" id="thin-poses" style="height:210px"></div></div>
+          </div>
+        </div>
+      </section></div>
+      <div class="links noexport"><a class="lnk" href="karakter-thinman-1x1.png" download>PNG 1:1</a><a class="lnk" href="karakter-thinman-1x1.mp4" download>MP4 (PPT)</a><a class="lnk" href="karakter-thinman-1x1.gif" download>GIF (Word)</a><a class="lnk" href="#solo=thinman">Layar penuh</a></div>
+    </div>
+
+    <!-- ============ PAPAN 2: MOMO ============ -->
+    <div class="slot" id="slot-momo">
+      <div class="fit"><section class="board" id="board-momo" aria-label="Papan karakter Momo">
+        <div class="bar"><span class="no">02</span><h2>Momo</h2><span class="sp"></span><span class="chip">12 ekspresi</span><span class="chip on">Layang-layang</span></div>
+        <div class="body">
+          <div class="hero"><div class="stage mid"><span class="momo-host" id="momo-hero"></span></div>
+            <h3 id="momo-name">Tenang</h3><p id="momo-where"></p>
+            <div class="pal" id="momo-pal"></div></div>
+          <div class="right">
+            <div class="band"><h4>Ekspresi <span class="chip ok" style="font-size:19px;padding:3px 12px">dipakai</span><span class="chip mid" style="font-size:19px;padding:3px 12px">di skrip</span><span class="chip off" style="font-size:19px;padding:3px 12px">belum</span></h4><div class="row r4" id="exp-grid" style="grid-template-rows:repeat(3,1fr);height:640px"></div></div>
+            <div class="band"><h4>Gerak</h4><div class="row r3" id="momo-anims" style="height:230px"></div></div>
+          </div>
+        </div>
+      </section></div>
+      <div class="links noexport"><a class="lnk" href="karakter-momo-1x1.png" download>PNG 1:1</a><a class="lnk" href="karakter-momo-1x1.mp4" download>MP4 (PPT)</a><a class="lnk" href="karakter-momo-1x1.gif" download>GIF (Word)</a><a class="lnk" href="#solo=momo">Layar penuh</a></div>
+    </div>
+  </div>
+
+  <div class="docs">
+    <div class="doc"><h3>Cara pakai di PPT dan Word</h3>
+      <ul><li><b>PPT:</b> sisipkan <code>karakter-*-1x1.mp4</code> (animasi) atau PNG (diam). Rasio 1:1, jadi tidak terpotong.</li>
+      <li><b>Word:</b> sisipkan PNG; GIF ikut bergerak di Word untuk layar. Dua papan bisa ditaruh kiri-kanan atau atas-bawah, ukuran sama.</li>
+      <li>Berkas dibuat ulang dengan <code>node tools/character-book/build.mjs</code> lalu <code>node tools/character-book/export.mjs</code>.</li></ul></div>
+    <div class="doc"><h3>Thinman: rig 7 sudut</h3>
+      <p>Pose = tujuh sudut: paha dekat, lutut dekat, paha jauh, lutut jauh, lengan dekat, lengan jauh, kemiringan kepala (paha 44, betis 48). Jalan/lari: sudut kaki mengikuti gelombang kosinus, langkah dihitung agar telapak tidak meluncur. Loncat: kecepatan vertikal memilih RISE, APEX, FALL, lalu LAND. Lari + loncat: kedua mesin jalan bersama. Konstanta game: jalan 200, lompat 520, gravitasi 1600.</p></div>
+    <div class="doc"><h3>Momo: lapisan, pegas, ekspresi</h3>
+      <p>Satu SVG 1389 × 2058: ekor tiga ruas, pita, badan, sayap kain, alis, enam mulut, mata berkelopak, air mata, keringat. Sayap, ekor, dan pita bergerak dengan fisika pegas. Tiap ekspresi = spesifikasi (wajah, energi gerak, reaksi). Berkedip acak 2,4 sampai 5,8 detik; mode "kurangi gerak" menurunkan amplitudo ke 35%.</p></div>
+  </div>
+  <div class="doc" style="margin-bottom:12px"><h3>Pemakaian 12 ekspresi Momo di aplikasi (audit UI 2026-11-05)</h3><div class="tablewrap"><table id="exp-table"><tr><th>Ekspresi</th><th>Status</th><th>Dipakai di</th><th>Reaksi</th></tr></table></div></div>
+  <div class="doc" style="margin-bottom:40px"><h3>Sumber</h3>
+    <p>File HTML asli Owner (<code>stickman-ab.html</code>, <code>momo-ekspresi_1.html</code>) tidak ada di repo; halaman ini rekonstruksi dari kode hasil porting: <code>implementation/src/game/character/*</code>, <code>implementation/src/components/momo/*</code>, <code>implementation/src/domain/momo-script.ts</code>. Halaman hanya membaca kode itu, tidak mengubahnya. Dibangun: __BUILD_DATE__.</p></div>
+</div>
+
+<script>/*__BUNDLE__*/</script>
+<script>
+(function(){
+const S = window.Sheet, $ = (s, r=document) => r.querySelector(s);
+const el = (h) => { const t = document.createElement("template"); t.innerHTML = h.trim(); return t.content.firstChild; };
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const params = new URLSearchParams(location.hash.replace(/^#/, "").replace(/;/g, "&"));
+const solo = params.get("solo"), auto = params.has("auto");
+if (solo) { document.body.classList.add("solo"); document.getElementById("slot-" + (solo === "thinman" ? "momo" : "thinman")).classList.add("hide"); }
+
+/* scale each 1200px board to fit its square wrapper (like a slide: identical at every size) */
+const fits = document.querySelectorAll(".fit");
+const rescale = () => fits.forEach(f => { const b = f.firstElementChild; b.style.transform = "scale(" + (f.clientWidth / 1200) + ")"; });
+new ResizeObserver(rescale).observe(document.body); addEventListener("resize", rescale); rescale();
+
+/* ---------- Thinman ---------- */
+const front = S.renderCharacterAFrontSvg(false), back = S.renderCharacterAFrontSvg(true), sideR = S.renderCharacterASideSvg(S.POSES.STAND, 0);
+$("#thin-hero").innerHTML = front;
+$("#thin-hero svg").style.height = "100%";
+[["Kiri", sideR, true], ["Kanan", sideR, false], ["Depan", front, false], ["Belakang", back, false]].forEach(([t, svg, m]) => {
+  const c = el(`<div class="tile"><div class="v"><div style="height:200px;${m ? "transform:scaleX(-1)" : ""}">${svg}</div></div><div class="n">${t}</div></div>`);
+  $("svg", c).style.height = "200px"; $("#thin-views").appendChild(c);
+});
+const poseNote = {STAND:"Berdiri", CROUCH:"Jongkok", RISE:"Naik", APEX:"Puncak", FALL:"Turun", LAND:"Mendarat"};
+Object.keys(S.POSES).forEach(k => {
+  const c = el(`<div class="tile"><div class="v" style="padding:6px 2px 2px"><div style="height:130px">${S.renderCharacterASideSvg(S.POSES[k], ["RISE","APEX","FALL"].includes(k) ? 1 : 0)}</div></div><div class="n" style="font-size:19px;padding:4px 6px;justify-content:center">${poseNote[k]}</div></div>`);
+  $("svg", c).style.height = "130px"; $("#thin-poses").appendChild(c);
+});
+
+let facing = 1; const sims = [];
+function makeAnim(title, mode){
+  const c = el(`<div class="tile"><div class="v" style="padding:0"><div class="stage2"><div class="ground"></div><div class="ticks"></div><div class="actor"><div class="flip" style="height:100%"></div></div></div></div><div class="n">${title}</div></div>`);
+  $("#thin-anims").appendChild(c);
+  const ad = new S.CharacterAnimationAdapter({variant:"A", reducedMotion:false});
+  const flip = $(".flip", c), ticks = $(".ticks", c);
+  const sim = {y:0, vy:0, grounded:true, wait:.6, off:0};
+  const G = 1600, JUMP = 520, SPEED = 200, PX = 1.15;
+  sims.push(dt => {
+    const vx = mode === "jump" ? 0 : SPEED; let landVy = 0;
+    if (mode !== "run") {
+      if (sim.grounded) { sim.wait -= dt; if (sim.wait <= 0) { sim.vy = -JUMP; sim.grounded = false; } }
+      else { sim.vy += G * dt; sim.y += sim.vy * dt; if (sim.y >= 0) { landVy = sim.vy; sim.y = 0; sim.grounded = true; sim.vy = 0; sim.wait = mode === "jump" ? .9 : 1.1; } }
+    }
+    ad.update({x:0, y:sim.y, vx:vx*facing, vy: landVy || sim.vy, grounded:sim.grounded, facing}, dt);
+    flip.innerHTML = ad.renderSvg();
+    flip.style.transform = `translateY(${(sim.y*PX).toFixed(1)}px) scaleX(${facing})`;
+    sim.off = (sim.off - vx * facing * dt * 1.2) % 34; ticks.style.backgroundPositionX = sim.off + "px";
+  });
+  ad.update({x:0,y:0,vx:0,vy:0,grounded:true,facing:1}, .016); flip.innerHTML = ad.renderSvg();
+}
+makeAnim("Lari", "run"); makeAnim("Loncat", "jump"); makeAnim("Lari + loncat", "runjump");
+const setFacing = f => { facing = f; document.querySelectorAll("#face-seg button").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.f === f))); };
+document.querySelectorAll("#face-seg button").forEach(b => b.onclick = () => setFacing(+b.dataset.f));
+if (auto && solo === "thinman") setInterval(() => setFacing(-facing), 4000);
+let last = performance.now();
+(function loop(t){ const dt = Math.min(.05, (t - last) / 1000); last = t; sims.forEach(f => f(dt)); requestAnimationFrame(loop); })(last);
+
+/* ---------- Momo ---------- */
+const MOMO_ASPECT = S.MOMO_ASPECT;
+function mount(container, h, expr, opts){ const s = document.createElement("span"); s.className = "momo-host"; s.style.height = h + "px"; s.style.width = (h * MOMO_ASPECT) + "px"; container.appendChild(s); const e = new S.MomoEngine(s, opts || {}); e.set(expr, true); return {s, e}; }
+const heroHost = $("#momo-hero"); heroHost.style.height = "400px"; heroHost.style.width = (400 * MOMO_ASPECT) + "px"; // wings swing past the artwork box: keep margin so they are never clipped
+const hero = new S.MomoEngine(heroHost); hero.set("Tenang", true);
+const X = {
+  Senang:{k:"ok", w:"Cerita awal level, petunjuk misi", r:"Lompatan kecil, sayap mengepak"},
+  Tenang:{k:"ok", w:"Menggambar, bermain, bawaan", r:"Mengayun pelan"},
+  Penasaran:{k:"ok", w:"Tiga tebakan, saat menaruh objek", r:"Miring penasaran"},
+  Berpikir:{k:"ok", w:"Saat membaca gambar", r:"Menggeleng pelan"},
+  Kaget:{k:"mid", w:"Ada di skrip (benda berbahaya), belum tampil", r:"Loncat kaget"},
+  Sedih:{k:"ok", w:"Saat gagal", r:"Menunduk, air mata jatuh"},
+  Bingung:{k:"ok", w:"Kanvas masih kosong", r:"Geleng kiri-kanan"},
+  Ngantuk:{k:"off", w:"Belum dipakai", r:"Terkantuk lalu tersentak"},
+  Malu:{k:"off", w:"Belum dipakai", r:"Menunduk malu"},
+  Semangat:{k:"ok", w:"Menang; Momo terbang naik di intro", r:"Dua lompatan girang"},
+  Kedip:{k:"off", w:"Belum dipakai", r:"Mengayun sambil mengedip"},
+  Khawatir:{k:"ok", w:"Tebakan gagal dibaca (error)", r:"Gemetar, keringat"},
+};
+const lbl = {ok:"Dipakai", mid:"Di skrip", off:"Belum"};
+const tiles = [];
+S.EXPRESSIONS.forEach(name => {
+  const b = el(`<button class="tile" aria-pressed="false"><div class="v" style="align-items:center"></div><div class="n"><span>${name}</span><i class="sdot ${X[name].k}"></i></div></button>`);
+  $("#exp-grid").appendChild(b);
+  const h = 112; mount($(".v", b), h, name, {});
+  tiles.push({name, b}); b.onclick = () => { stopAuto(); select(name); };
+  $("#exp-table").appendChild(el(`<tr><td>${name}</td><td>${lbl[X[name].k]}</td><td>${X[name].w}</td><td>${X[name].r}</td></tr>`));
+});
+function select(name){
+  hero.set(name); $("#momo-name").textContent = name; $("#momo-where").textContent = X[name].w + ". " + X[name].r + ".";
+  tiles.forEach(t => t.b.setAttribute("aria-pressed", String(t.name === name)));
+  if (name === "Semangat") hero.flap();
+}
+select("Tenang");
+let timer = null, idx = 0;
+function stopAuto(){ if (timer) { clearInterval(timer); timer = null; } }
+if (auto && solo === "momo") timer = setInterval(() => { idx = (idx + 1) % S.EXPRESSIONS.length; select(S.EXPRESSIONS[idx]); }, 2200);
+heroHost.onclick = () => hero.flap();
+function motion(title, build){ const c = el(`<div class="tile"><div class="v" style="align-items:center"></div><div class="n">${title}</div></div>`); $("#momo-anims").appendChild(c); build($(".v", c)); }
+motion("Mengambang", v => mount(v, 125, "Tenang"));
+motion("Kepak sayap", v => { const m = mount(v, 125, "Semangat"); setInterval(() => m.e.flap(), 2600); });
+motion("Terbang", v => { const m = mount(v, 115, "Senang", {trackMotion:true}); S.gsap.fromTo(m.s, {x:-45}, {x:45, duration:1.7, ease:"sine.inOut", yoyo:true, repeat:-1}); });
+[["#2E0D06","Tinta"],["#E4551B","Oranye"],["#B2DB8E","Hijau"]].forEach(([c, n]) => $("#momo-pal").appendChild(el(`<span><i style="background:${c}"></i>${n}</span>`)));
+})();
+</script>
+</body>
+</html>

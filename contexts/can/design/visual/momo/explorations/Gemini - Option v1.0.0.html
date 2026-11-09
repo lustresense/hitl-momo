@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Karakter Layang-Layang - Dunia Kertas</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background-color: #F4F1EA; /* Warna dasar kertas / off-white */
+            background-image: radial-gradient(#d1cdb8 1px, transparent 1px);
+            background-size: 20px 20px;
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* 
+           ANIMATION HELPERS
+           Grup-grup SVG sudah diatur titik porosnya (transform-origin)
+           agar gerakan rotasi terlihat natural.
+        */
+        
+        /* Animasi Mengambang (Floating) */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        /* Animasi Tangan Melambai */
+        @keyframes waveLeft {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(-30deg); }
+        }
+        @keyframes waveRight {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(30deg); }
+        }
+        
+        /* Animasi Ekor Bergoyang */
+        @keyframes wagTail {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(10deg); }
+        }
+
+        /* Hover Triggers: Saat card di-hover, jalankan animasi pada bagian spesifik */
+        .character-card:hover .arm-left {
+            animation: waveLeft 1s ease-in-out infinite;
+            transform-origin: right center; /* Poros pangkal lengan kiri */
+        }
+        .character-card:hover .arm-right {
+            animation: waveRight 1s ease-in-out infinite;
+            transform-origin: left center; /* Poros pangkal lengan kanan */
+        }
+        .character-card:hover .kite-tail {
+            animation: wagTail 1.5s ease-in-out infinite;
+            transform-origin: top center; /* Poros di ujung bawah layangan */
+        }
+        
+        /* Outline style untuk efek tinta/kertas */
+        .ink-stroke {
+            stroke: #2C2A28; /* Tinta coklat kehitaman */
+            stroke-width: 6;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center p-8">
+
+    <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-[#2C2A28] mb-4">Karakter Layang-Layang Dunia Kertas</h1>
+        <p class="text-[#656158] max-w-2xl mx-auto">Tiga opsi karakter berbasis vektor sederhana (SVG). Desain 2D datar dengan garis luar tegas cocok untuk tema buku/kertas. Semua bagian (tangan, ekor, mata, badan) sudah dikelompokkan agar siap dianimasikan. <br><span class="font-bold text-terracotta-600">Arahkan kursor (hover) ke karakter untuk melihat preview animasi tangannya!</span></p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 w-full max-w-6xl">
+
+        <!-- ========================================== -->
+        <!-- OPSI 1: SI KLASIK (Bentuk Belah Ketupat)   -->
+        <!-- ========================================== -->
+        <div class="character-card flex flex-col items-center bg-white p-6 rounded-3xl shadow-xl border-4 border-[#2C2A28]">
+            <h2 class="text-2xl font-bold text-[#C76D54] mb-2">1. Si Klasik</h2>
+            <p class="text-sm text-gray-500 mb-6 text-center">Bentuk diamond ikonik. Ramah & ceria. Punya tangan garis seperti lidi.</p>
+            
+            <div class="w-64 h-80 animate-float" style="animation-delay: 0s;">
+                <svg viewBox="0 0 200 300" class="w-full h-full overflow-visible">
+                    
+                    <!-- EKOR -->
+                    <!-- transform-origin diset di (100, 190) yaitu ujung bawah layangan -->
+                    <g class="kite-tail" style="transform-origin: 100px 190px;">
+                        <!-- Garis Ekor -->
+                        <path d="M 100,190 Q 120,220 90,250 T 100,290" fill="none" class="ink-stroke" />
+                        <!-- Pita 1 -->
+                        <path d="M 105,225 L 125,220 L 120,235 Z" fill="#9EB294" class="ink-stroke" />
+                        <!-- Pita 2 -->
+                        <path d="M 85,260 L 65,255 L 70,270 Z" fill="#9EB294" class="ink-stroke" />
+                    </g>
+
+                    <!-- BADAN UTAMA -->
+                    <g id="body-klasik">
+                        <!-- Rangka Kayu (opsional, memberi kesan layangan asli) -->
+                        <line x1="100" y1="30" x2="100" y2="190" class="ink-stroke" stroke-width="4" stroke-opacity="0.3"/>
+                        <line x1="40" y1="90" x2="160" y2="90" class="ink-stroke" stroke-width="4" stroke-opacity="0.3"/>
+                        
+                        <!-- Kain Layangan -->
+                        <polygon points="100,30 160,90 100,190 40,90" fill="#C76D54" class="ink-stroke" />
+                    </g>
+
+                    <!-- MATA (Terinspirasi Clawd: kotak solid) -->
+                    <g id="eyes-klasik">
+                        <!-- Mata Kiri -->
+                        <rect x="75" y="85" width="12" height="12" rx="2" fill="#2C2A28" />
+                        <!-- Mata Kanan -->
+                        <rect x="113" y="85" width="12" height="12" rx="2" fill="#2C2A28" />
+                    </g>
+
+                    <!-- TANGAN KIRI -->
+                    <!-- transform-origin di (40, 110) -->
+                    <g class="arm-left" style="transform-origin: 40px 110px;">
+                        <path d="M 40,110 Q 10,100 15,130" fill="none" class="ink-stroke" />
+                        <!-- Jari bulat -->
+                        <circle cx="15" cy="130" r="4" fill="#C76D54" class="ink-stroke" />
+                    </g>
+
+                    <!-- TANGAN KANAN -->
+                    <!-- transform-origin di (160, 110) -->
+                    <g class="arm-right" style="transform-origin: 160px 110px;">
+                        <path d="M 160,110 Q 190,100 185,130" fill="none" class="ink-stroke" />
+                        <!-- Jari bulat -->
+                        <circle cx="185" cy="130" r="4" fill="#C76D54" class="ink-stroke" />
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- OPSI 2: SI GENDUT (Bentuk Rokkaku/Segi Enam)-->
+        <!-- ========================================== -->
+        <div class="character-card flex flex-col items-center bg-white p-6 rounded-3xl shadow-xl border-4 border-[#2C2A28]">
+            <h2 class="text-2xl font-bold text-[#9EB294] mb-2">2. Si Kotak</h2>
+            <p class="text-sm text-gray-500 mb-6 text-center">Bentuk Rokkaku Jepang. Kokoh, sedikit malas/santai. Tangan lebih tebal.</p>
+            
+            <div class="w-64 h-80 animate-float" style="animation-delay: 0.5s;">
+                <svg viewBox="0 0 200 300" class="w-full h-full overflow-visible">
+                    
+                    <!-- EKOR -->
+                    <!-- transform-origin diset di (100, 170) -->
+                    <g class="kite-tail" style="transform-origin: 100px 170px;">
+                        <polyline points="100,170 85,195 115,220 90,245 110,270" fill="none" class="ink-stroke" stroke-width="8" />
+                        <!-- Pita kotak -->
+                        <rect x="75" y="185" width="15" height="15" fill="#5A6B53" class="ink-stroke" transform="rotate(20 82 192)" />
+                        <rect x="105" y="235" width="15" height="15" fill="#5A6B53" class="ink-stroke" transform="rotate(-15 112 242)" />
+                    </g>
+
+                    <!-- TANGAN KIRI (Di belakang badan) -->
+                    <!-- transform-origin di (50, 120) -->
+                    <g class="arm-left" style="transform-origin: 50px 120px;">
+                        <rect x="20" y="110" width="35" height="16" rx="4" fill="#9EB294" class="ink-stroke" transform="rotate(20 50 120)" />
+                    </g>
+
+                    <!-- TANGAN KANAN (Di belakang badan) -->
+                    <!-- transform-origin di (150, 120) -->
+                    <g class="arm-right" style="transform-origin: 150px 120px;">
+                        <rect x="145" y="110" width="35" height="16" rx="4" fill="#9EB294" class="ink-stroke" transform="rotate(-20 150 120)" />
+                    </g>
+
+                    <!-- BADAN UTAMA -->
+                    <g id="body-kotak">
+                        <polygon points="70,40 130,40 160,105 130,170 70,170 40,105" fill="#9EB294" class="ink-stroke" />
+                        <!-- Garis muka -->
+                        <line x1="40" y1="105" x2="160" y2="105" class="ink-stroke" stroke-width="3" stroke-opacity="0.2"/>
+                    </g>
+
+                    <!-- MATA (Mata setengah tertutup / santai) -->
+                    <g id="eyes-kotak">
+                        <!-- Kiri -->
+                        <rect x="75" y="95" width="16" height="6" rx="2" fill="#2C2A28" />
+                        <!-- Kanan -->
+                        <rect x="109" y="95" width="16" height="6" rx="2" fill="#2C2A28" />
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- OPSI 3: SI GESIT (Bentuk Delta)            -->
+        <!-- ========================================== -->
+        <div class="character-card flex flex-col items-center bg-white p-6 rounded-3xl shadow-xl border-4 border-[#2C2A28]">
+            <h2 class="text-2xl font-bold text-[#5A6B53] mb-2">3. Si Gesit</h2>
+            <p class="text-sm text-gray-500 mb-6 text-center">Bentuk Delta. Agresif, cepat, & nakal. Tangan menyatu dengan bentuk sayap.</p>
+            
+            <div class="w-64 h-80 animate-float" style="animation-delay: 1s;">
+                <svg viewBox="0 0 200 300" class="w-full h-full overflow-visible">
+                    
+                    <!-- EKOR -->
+                    <!-- transform-origin diset di (100, 140) -->
+                    <g class="kite-tail" style="transform-origin: 100px 140px;">
+                        <path d="M 100,140 Q 110,180 100,220 T 100,280" fill="none" class="ink-stroke" stroke-dasharray="8 8" />
+                        <!-- Pita Delta -->
+                        <polygon points="90,180 110,180 100,200" fill="#C76D54" class="ink-stroke" />
+                        <polygon points="95,240 105,240 100,255" fill="#C76D54" class="ink-stroke" />
+                    </g>
+
+                    <!-- BADAN UTAMA -->
+                    <g id="body-gesit">
+                        <!-- Delta base -->
+                        <path d="M 100,30 L 180,140 L 100,110 L 20,140 Z" fill="#5A6B53" class="ink-stroke" />
+                        <line x1="100" y1="30" x2="100" y2="110" class="ink-stroke" stroke-width="3" stroke-opacity="0.3"/>
+                    </g>
+
+                    <!-- TANGAN KIRI (Kecil, tajam, menonjol dari bawah) -->
+                    <!-- transform-origin di (60, 125) -->
+                    <g class="arm-left" style="transform-origin: 60px 125px;">
+                        <polygon points="60,125 40,150 65,145" fill="#5A6B53" class="ink-stroke" stroke-linejoin="miter" />
+                    </g>
+
+                    <!-- TANGAN KANAN (Kecil, tajam, menonjol dari bawah) -->
+                    <!-- transform-origin di (140, 125) -->
+                    <g class="arm-right" style="transform-origin: 140px 125px;">
+                        <polygon points="140,125 160,150 135,145" fill="#5A6B53" class="ink-stroke" stroke-linejoin="miter" />
+                    </g>
+
+                    <!-- MATA (Segitiga miring / Mischievous) -->
+                    <g id="eyes-gesit">
+                        <!-- Kiri -->
+                        <polygon points="75,85 85,95 70,95" fill="#2C2A28" />
+                        <!-- Kanan -->
+                        <polygon points="125,85 115,95 130,95" fill="#2C2A28" />
+                    </g>
+                </svg>
+            </div>
+        </div>
+
+    </div>
+
+</body>
+</html>

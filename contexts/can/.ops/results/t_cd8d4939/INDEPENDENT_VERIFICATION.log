@@ -1,0 +1,62 @@
+Independent verification for t_cd8d4939
+Started: 2026-08-25T00:08:48.659938+00:00
+
+
+=== typecheck: npm run typecheck ===
+
+> sketchbook-universe-author-side@0.2.0 typecheck
+> tsc --noEmit
+
+sh: 1: tsc: Permission denied
+
+=== tests: /srv/sketchbook/Sketchbook-Universe-v2/implementation/node_modules/.bin/vitest run ===
+
+ RUN  v2.1.9 /srv/sketchbook/Sketchbook-Universe-v2/implementation
+
+ ✓ tests/app/state-machine.test.ts (13 tests) 33ms
+ ✓ tests/components/components.test.tsx (6 tests) 122ms
+ ✓ tests/prediction/partner-http.test.ts (6 tests) 9ms
+ ✓ tests/input/hand-gesture.test.ts (8 tests) 5ms
+ ✓ tests/prediction/mock-provider.test.ts (6 tests) 16ms
+ ✓ tests/prediction/validation.test.ts (10 tests) 5ms
+ ✓ tests/domain/decision-resolver.test.ts (7 tests) 4ms
+ ✓ tests/domain/behavior-resolver.test.ts (4 tests) 3ms
+ ✓ tests/input/normalize.test.ts (4 tests) 4ms
+ ✓ tests/game/spawner.test.ts (3 tests) 4ms
+
+ Test Files  10 passed (10)
+      Tests  67 passed (67)
+   Start at  07:08:49
+   Duration  5.57s (transform 130ms, setup 735ms, collect 205ms, tests 204ms, environment 2.88s, prepare 481ms)
+
+
+=== lint: npm run lint ===
+
+> sketchbook-universe-author-side@0.2.0 lint
+> next lint
+
+✔ No ESLint warnings or errors
+
+=== build: npm run build ===
+
+> sketchbook-universe-author-side@0.2.0 build
+> next build
+
+  ▲ Next.js 14.2.35
+
+   Creating an optimized production build ...
+ ✓ Compiled successfully
+   Linting and checking validity of types ...
+Failed to compile.
+
+./src/game/entities/level-props.ts:97:7
+Type error: Property 'id' does not exist on type 'KAPLAYCtx<{}, string>'.
+
+[0m [90m  95 |[39m     k[33m.[39marea()[33m,[39m[0m
+[0m [90m  96 |[39m     k[33m.[39mbody()[33m,[39m[0m
+[0m[31m[1m>[22m[39m[90m  97 |[39m     k[33m.[39mid(id)[33m,[39m[0m
+[0m [90m     |[39m       [31m[1m^[22m[39m[0m
+[0m [90m  98 |[39m   ]) [36mas[39m unknown [36mas[39m [33mPlayerObj[39m[33m;[39m[0m
+[0m [90m  99 |[39m }[0m
+[0m [90m 100 |[39m[0m
+Next.js build worker exited with code: 1 and signal: null

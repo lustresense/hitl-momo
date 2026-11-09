@@ -1,0 +1,194 @@
+{
+  "checks": [
+    {
+      "name": "join: student number chosen on ruler",
+      "ok": true,
+      "extra": "number=20"
+    },
+    {
+      "name": "join: POST /api/join/{token}/students returned session token",
+      "ok": true,
+      "extra": "status=200"
+    },
+    {
+      "name": "predict: real backend answered 200 with 3 candidates",
+      "ok": true,
+      "extra": "status=200"
+    },
+    {
+      "name": "predict: UI shows the labels returned by the server",
+      "ok": true,
+      "extra": "server=[\"car\",\"book\",\"cloud\"] ui=[\"car\",\"book\",\"cloud\"]"
+    },
+    {
+      "name": "submit: first delivery was dropped and retried (>=2 POSTs)",
+      "ok": true,
+      "extra": "posts=2"
+    },
+    {
+      "name": "submit: retry was answered as duplicate (no second record)",
+      "ok": true,
+      "extra": "{\"id\":1,\"status\":\"duplicate\"}"
+    },
+    {
+      "name": "cors: browser cross-origin POST was answered (not blocked)",
+      "ok": true,
+      "extra": "answers=1"
+    },
+    {
+      "name": "cors: no CORS console errors",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "database: exactly one submission row for this student",
+      "ok": true,
+      "extra": "rows=1"
+    },
+    {
+      "name": "database: stored candidates equal UI top-3",
+      "ok": true,
+      "extra": "[\"car\",\"book\",\"cloud\"]"
+    },
+    {
+      "name": "database: row id equals the id the retry answered",
+      "ok": true,
+      "extra": "db=1 answer=1"
+    },
+    {
+      "name": "database: submission_key and attempt_id stored",
+      "ok": true,
+      "extra": "4ffe601d-266b-4f54-8674-ab071f072215"
+    },
+    {
+      "name": "database: prediction_id stored (NOT PRODUCED by backend /predict; expected null)",
+      "ok": true,
+      "extra": "null"
+    },
+    {
+      "name": "database: decision stored and level recorded",
+      "ok": true,
+      "extra": "accept stage-1-foundation"
+    },
+    {
+      "name": "dashboard API: submission listed for the student",
+      "ok": true,
+      "extra": "rows=1"
+    },
+    {
+      "name": "dashboard UI: class page shows the student's row",
+      "ok": true,
+      "extra": ""
+    },
+    {
+      "name": "game: no uncaught page errors",
+      "ok": true,
+      "extra": ""
+    }
+  ],
+  "network": [
+    {
+      "method": "GET",
+      "url": "<api>/api/join/tok-e2e-1",
+      "status": 200,
+      "body": {
+        "class_name": "7A E2E",
+        "school_name": "SMP E2E",
+        "student_count": 30,
+        "taken_numbers": []
+      }
+    },
+    {
+      "method": "POST",
+      "url": "<api>/api/join/tok-e2e-1/students",
+      "status": 200,
+      "body": {
+        "student_id": 1,
+        "number": 20,
+        "name": "Siswa 20",
+        "class_name": "7A E2E",
+        "student_session_token": "<redacted-test-token>",
+        "expires_in": 28800,
+        "joined_at": "2026-11-09T11:29:37.830896+00:00"
+      }
+    },
+    {
+      "method": "POST",
+      "url": "<api>/predict",
+      "status": 200,
+      "body": {
+        "candidates": [
+          {
+            "label": "book",
+            "confidence": 0.102963
+          },
+          {
+            "label": "car",
+            "confidence": 0.10119
+          },
+          {
+            "label": "banana",
+            "confidence": 0.091641
+          }
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "url": "<api>/predict",
+      "status": 200,
+      "body": {
+        "candidates": [
+          {
+            "label": "book",
+            "confidence": 0.189371
+          },
+          {
+            "label": "car",
+            "confidence": 0.164063
+          },
+          {
+            "label": "banana",
+            "confidence": 0.089332
+          }
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "url": "<api>/predict",
+      "status": 200,
+      "body": {
+        "candidates": [
+          {
+            "label": "car",
+            "confidence": 0.281791
+          },
+          {
+            "label": "book",
+            "confidence": 0.115345
+          },
+          {
+            "label": "cloud",
+            "confidence": 0.103513
+          }
+        ]
+      }
+    },
+    {
+      "method": "POST",
+      "url": "<api>/api/submissions",
+      "status": 200,
+      "body": {
+        "id": 1,
+        "status": "duplicate"
+      }
+    }
+  ],
+  "consoleErrors": [
+    {
+      "type": "console",
+      "text": "Failed to load resource: net::ERR_CONNECTION_RESET"
+    }
+  ]
+}

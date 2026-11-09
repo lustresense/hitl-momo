@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <rect width="1200" height="720" fill="#f8fafc"/>
+  <text x="60" y="64" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#172033">Posisi Penelitian terhadap Penelitian Terkait</text>
+  <text x="60" y="98" font-family="Arial, sans-serif" font-size="16" fill="#4a5568">Penelitian ini berada pada irisan literasi AI, HITL, XAI, finger tracking, dan game-based learning.</text>
+  <defs>
+    <style>
+      .circle { fill-opacity:0.34; stroke-width:3; }
+      .label { font-family:Arial, sans-serif; font-size:18px; font-weight:700; fill:#172033; }
+      .small { font-family:Arial, sans-serif; font-size:13px; fill:#64748b; }
+      .center { font-family:Arial, sans-serif; font-size:20px; font-weight:700; fill:#0f172a; }
+      .body { font-family:Arial, sans-serif; font-size:15px; fill:#334155; }
+      .box { fill:#ffffff; stroke:#cbd5e1; stroke-width:2; rx:16; }
+    </style>
+  </defs>
+  <circle class="circle" cx="430" cy="300" r="155" fill="#bfdbfe" stroke="#60a5fa"/>
+  <circle class="circle" cx="590" cy="300" r="155" fill="#bbf7d0" stroke="#4ade80"/>
+  <circle class="circle" cx="510" cy="445" r="155" fill="#fde68a" stroke="#f59e0b"/>
+  <circle class="circle" cx="725" cy="420" r="145" fill="#fecaca" stroke="#f87171"/>
+  <text class="label" x="315" y="190">Literasi AI</text>
+  <text class="small" x="320" y="214">[1], [2], [3], [10]</text>
+  <text class="label" x="615" y="190">HITL dan XAI</text>
+  <text class="small" x="620" y="214">[4], [5], [6], [14], [15]</text>
+  <text class="label" x="330" y="560">Game-based learning</text>
+  <text class="small" x="360" y="584">[8], [9], [10], [20]</text>
+  <text class="label" x="720" y="560">Finger tracking</text>
+  <text class="small" x="748" y="584">[11], [12], [13], [18]</text>
+  <rect class="box" x="435" y="320" width="260" height="120"/>
+  <text class="center" x="468" y="358">Penelitian Ini</text>
+  <text class="body" x="460" y="390">Simulasi berlevel</text>
+  <text class="body" x="460" y="414">Top-3 + HITL + konsekuensi</text>
+  <text class="small" x="60" y="650">Sumber: diadaptasi dari [1], [4], [8], [10], [11], [14], [15], [20].</text>
+</svg>

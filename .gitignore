@@ -1,0 +1,34 @@
+# Generated / local-only. Do not commit build output, caches, databases or secrets.
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+next-env.d.ts.bak
+*.tsbuildinfo
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Local runtime data (SQLite databases hold real student data)
+backend/data/
+data/
+*.sqlite
+*.sqlite3
+*.db
+
+# Secrets: only .env.example is tracked
+.env
+.env.*
+!.env.example
+
+# Logs, OS and editor files
+*.log
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

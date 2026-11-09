@@ -1,0 +1,21 @@
+{
+  "submission_key": "sub-0001-fixture-key",
+  "join_token": "tok-fixture-123",
+  "student_id": 1,
+  "level_id": "level-1",
+  "attempt_id": "attempt-0001",
+  "prediction_id": "pred-0001",
+  "strokes": [
+    [{"x": 10.0, "y": 12.0}, {"x": 14.5, "y": 18.25}],
+    [{"x": 20.0, "y": 4.0}, {"x": 21.0, "y": 6.0, "width": 2.0}]
+  ],
+  "candidates": [
+    {"label": "kucing", "confidence": 0.6},
+    {"label": "anjing", "confidence": 0.3},
+    {"label": "bebek", "confidence": 0.1}
+  ],
+  "decision_type": "accept",
+  "source_rank": 1,
+  "final_label": "kucing",
+  "redraw_count": 0
+}

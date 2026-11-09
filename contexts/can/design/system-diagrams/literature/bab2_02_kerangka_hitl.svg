@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="720" viewBox="0 0 1200 720">
+  <rect width="1200" height="720" fill="#fbfcfe"/>
+  <text x="60" y="64" font-family="Arial, sans-serif" font-size="34" font-weight="700" fill="#172033">Kerangka Human-in-the-Loop pada Simulasi</text>
+  <text x="60" y="98" font-family="Arial, sans-serif" font-size="16" fill="#4a5568">Manusia tidak hanya memberi input, tetapi memvalidasi output AI sebelum dipakai dalam simulasi.</text>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#334155"/>
+    </marker>
+    <style>
+      .box { fill:#ffffff; stroke:#cbd5e1; stroke-width:2; rx:16; }
+      .ai { fill:#eff6ff; stroke:#93c5fd; stroke-width:2; rx:16; }
+      .human { fill:#fef3c7; stroke:#fbbf24; stroke-width:2; rx:16; }
+      .game { fill:#ecfdf5; stroke:#86efac; stroke-width:2; rx:16; }
+      .title { font-family:Arial, sans-serif; font-size:20px; font-weight:700; fill:#172033; }
+      .body { font-family:Arial, sans-serif; font-size:15px; fill:#334155; }
+      .small { font-family:Arial, sans-serif; font-size:13px; fill:#64748b; }
+      .arrow { stroke:#334155; stroke-width:2.4; fill:none; marker-end:url(#arrow); }
+    </style>
+  </defs>
+  <rect class="box" x="70" y="170" width="205" height="115"/>
+  <text class="title" x="95" y="208">Input Siswa</text>
+  <text class="body" x="95" y="240">Gerakan jari</text>
+  <text class="body" x="95" y="264">dan sketsa</text>
+  <path class="arrow" d="M275 228 H350"/>
+  <rect class="ai" x="350" y="170" width="230" height="115"/>
+  <text class="title" x="375" y="208">Model AI</text>
+  <text class="body" x="375" y="240">Klasifikasi gambar</text>
+  <text class="body" x="375" y="264">berbasis pola data</text>
+  <path class="arrow" d="M580 228 H655"/>
+  <rect class="ai" x="655" y="170" width="240" height="115"/>
+  <text class="title" x="680" y="208">Output AI</text>
+  <text class="body" x="680" y="240">Top-3 prediction</text>
+  <text class="body" x="680" y="264">dan confidence score</text>
+  <path class="arrow" d="M775 285 V365"/>
+  <rect class="human" x="600" y="365" width="350" height="150"/>
+  <text class="title" x="625" y="403">Keputusan Manusia</text>
+  <text class="body" x="625" y="438">Accept: menerima prediksi utama</text>
+  <text class="body" x="625" y="462">Correct: memilih alternatif</text>
+  <text class="body" x="625" y="486">Override / Redraw: menolak atau ulang</text>
+  <path class="arrow" d="M600 440 H500"/>
+  <rect class="game" x="250" y="365" width="250" height="150"/>
+  <text class="title" x="275" y="403">Decision Resolver</text>
+  <text class="body" x="275" y="438">Label akhir dipetakan</text>
+  <text class="body" x="275" y="462">menjadi perilaku objek</text>
+  <text class="body" x="275" y="486">Solid, Danger, atau netral</text>
+  <path class="arrow" d="M375 515 V590 H1010 V228 H895"/>
+  <text class="small" x="650" y="605">Feedback loop: keputusan dan log dapat dipakai untuk refleksi dan analisis pola.</text>
+  <text class="small" x="60" y="650">Sumber: diadaptasi dari [4], [5], [7].</text>
+</svg>

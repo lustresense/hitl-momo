@@ -1,0 +1,9 @@
+{
+  "student_id": 1,
+  "number": 3,
+  "name": "Siswa 3",
+  "class_name": "7A",
+  "student_session_token": "fixture-token-not-a-secret-0000000000000000",
+  "expires_in": 28800,
+  "joined_at": "2026-11-09T08:00:00+00:00"
+}

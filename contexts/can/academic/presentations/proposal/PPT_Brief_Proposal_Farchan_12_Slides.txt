@@ -1,0 +1,394 @@
+PPT BRIEF - FINAL PROJECT PROPOSAL
+Language: English
+Total: 12 slides
+Source document: F:\Downloads\Draf Proposal Farchan.pdf
+Presentation image folder: image/ppt_12_slides/
+
+Presentation title:
+Development of a Level-Based Interactive Simulation Using MediaPipe Finger Tracking with Human-in-the-Loop Mechanism for an Artificial Intelligence Literacy System for Junior High School Students
+
+Recommended presentation duration: 10-12 minutes
+Slide balance: 1 cover slide, 2 background slides, 9 discussion slides.
+
+============================================================
+SLIDE 1 - COVER
+============================================================
+
+Slide title:
+Development of a Level-Based Interactive Simulation Using MediaPipe Finger Tracking with Human-in-the-Loop Mechanism for an Artificial Intelligence Literacy System for Junior High School Students
+
+Layout:
+Formal academic cover. Put the institution logo at the top center or top left, the title in the center, and identity details below.
+
+On-slide content:
+- Final Project Proposal
+- Farchan Deano Muhammad
+- NRP. 5323600012
+- Supervisors:
+  Dr. Tri Budi Santoso, S.T., M.T.
+  Dr. Ing. Hestiasari Rante, S.T., M.Sc.
+- Applied Bachelor Program in Multimedia Engineering Technology
+- Department of Creative Multimedia Technology
+- Politeknik Elektronika Negeri Surabaya
+- 2026
+
+Visual asset:
+image/ppt_12_slides/slide_01_cover_logo.png
+
+Speaker notes:
+This presentation introduces a final project proposal for developing an AI literacy simulation for junior high school students. The system combines MediaPipe finger tracking, sketch-based input, AI prediction, Human-in-the-Loop decision making, and level-based gameplay.
+
+============================================================
+SLIDE 2 - BACKGROUND 1: WHY AI LITERACY MATTERS
+============================================================
+
+Slide purpose:
+Explain the educational problem briefly: students need AI literacy, not only digital literacy.
+
+Layout:
+Two-column layout. Left side for short problem bullets, right side for the AI literacy reference figure.
+
+On-slide content:
+- AI is increasingly present in learning, search, recommendation systems, and daily digital activities.
+- Digital literacy is no longer enough; students also need to understand how AI produces outputs.
+- AI literacy includes understanding AI, using AI appropriately, evaluating AI outputs, and recognizing ethical implications.
+- Junior high school students need concrete learning experiences because AI concepts are often abstract.
+
+Visual asset:
+image/ppt_12_slides/slide_02_ai_literacy_framework.png
+
+Visual caption:
+AI literacy dimensions adapted from Ng et al.
+
+Speaker notes:
+The first issue is that AI is no longer a distant technology. Students interact with intelligent systems through many daily platforms. However, if AI literacy is taught only as theory, students may know the terms but still fail to evaluate AI outputs critically. This project responds to that gap by designing an interactive learning experience.
+
+============================================================
+SLIDE 3 - BACKGROUND 2: FROM ABSTRACT AI TO DIRECT INTERACTION
+============================================================
+
+Slide purpose:
+Show why the proposed system uses interactive input, game-based learning, and Human-in-the-Loop.
+
+Layout:
+Use the MediaPipe hand tracking figure as the main visual. Put short explanatory bullets on the side.
+
+On-slide content:
+- AI prediction should be experienced as a process, not accepted as a final answer.
+- Students need to see that model output can be correct, uncertain, or wrong.
+- Finger tracking makes drawing interaction more direct and engaging.
+- Game-based simulation provides goals, feedback, and consequences.
+- Human-in-the-Loop places the student as the final evaluator of AI output.
+
+Visual asset:
+image/ppt_12_slides/slide_03_mediapipe_hands.png
+
+Visual caption:
+MediaPipe Hands as the basis for real-time finger tracking interaction.
+
+Speaker notes:
+The second background point is about learning format. A static explanation is not enough to show how prediction, confidence, and correction work. By using finger tracking, students can create a sketch directly. The system then predicts the object, and students decide whether the prediction should be accepted or corrected.
+
+============================================================
+SLIDE 4 - PROBLEM STATEMENT AND OBJECTIVES
+============================================================
+
+Slide purpose:
+Summarize the research questions and objective in a concise form.
+
+Layout:
+Three-block layout: Problem, Research Questions, Objective.
+
+On-slide content:
+Problem:
+- Students may treat AI output as an absolute answer.
+- AI prediction is probabilistic, but this is not always visible to students.
+- AI literacy needs a medium that allows students to evaluate AI output directly.
+
+Research questions:
+- How can a level-based MediaPipe finger tracking simulation provide a concrete AI literacy experience for junior high school students?
+- How can Human-in-the-Loop be integrated through Top-3 prediction, confidence score, and student decision options?
+- How can interaction data be used to observe students' decision patterns toward AI output?
+
+Objective:
+- To produce an interactive AI literacy prototype where students draw, read AI predictions, validate the output, and observe the gameplay consequences of their decisions.
+
+Visual asset:
+No full image required. Optional small icon or small logo:
+image/ppt_12_slides/slide_01_cover_logo.png
+
+Speaker notes:
+The main problem is not only technical. The project is designed to help students understand that AI output must be read, compared, and validated. The objective is therefore to build a prototype that connects AI prediction with human judgment and direct consequences inside a simulation.
+
+============================================================
+SLIDE 5 - PROPOSED LEARNING INTERACTION
+============================================================
+
+Slide purpose:
+Explain the core loop of the proposed system before entering technical architecture.
+
+Layout:
+Horizontal process layout with five steps.
+
+On-slide content:
+Core interaction loop:
+1. Student draws an object using finger movement.
+2. The sketch is processed by the AI classifier.
+3. The system displays Top-3 prediction and confidence score.
+4. Student chooses Accept, Correct, Override, or Redraw.
+5. The final decision becomes an object behavior in the 2D simulation.
+
+Key message:
+- AI acts as a prediction assistant.
+- The student remains the creator, evaluator, and final decision maker.
+- Gameplay consequences make AI validation visible and concrete.
+
+Visual asset:
+image/ppt_12_slides/slide_05_06_system_architecture.png
+
+Visual note:
+Use the global system diagram as a reference image, or crop the Input-Process-Output flow if the slide needs more space.
+
+Speaker notes:
+This slide explains the learning loop. The system does not stop after giving a prediction. Instead, the prediction becomes a decision point. When students accept, correct, reject, or redraw, they learn that AI output requires validation before it is used.
+
+============================================================
+SLIDE 6 - GLOBAL SYSTEM ARCHITECTURE
+============================================================
+
+Slide purpose:
+Show the complete technical structure of the proposed solution.
+
+Layout:
+Full-width architecture diagram with three short callouts below.
+
+On-slide content:
+Architecture layers:
+- Input: camera, finger tracking, drawing canvas, and student decision.
+- Process Layer 1: interaction and 2D simulation.
+- Process Layer 2: AI classification using CNN/MobileNet and TensorFlow.js.
+- Process Layer 3: Human-in-the-Loop decision resolver.
+- Process Layer 4: interaction log and dashboard data.
+- Output: Top-3 prediction, confidence score, gameplay consequence, and analytics data.
+
+Visual asset:
+image/ppt_12_slides/slide_05_06_system_architecture.png
+
+Visual caption:
+Global architecture of the proposed AI literacy simulation.
+
+Speaker notes:
+The architecture separates the system into input, process, and output. The important point is the decision layer. The AI prediction is not directly executed by the game. It first passes through Human-in-the-Loop validation, where the student's decision determines the final object label and behavior.
+
+============================================================
+SLIDE 7 - ACTORS AND USE CASE SCOPE
+============================================================
+
+Slide purpose:
+Explain who uses the system and what each actor can do.
+
+Layout:
+Use case diagram on the right, role summary on the left.
+
+On-slide content:
+Actors:
+- Student/User: plays the simulation, draws objects, views AI predictions, makes decisions, and observes gameplay consequences.
+- Admin: manages class/session data, monitors student interaction logs, and reviews learning-related data.
+- Super Admin: manages higher-level system access, users, and operational configuration.
+
+Scope:
+- Student side focuses on learning interaction.
+- Admin side focuses on monitoring and data access.
+- Super Admin side focuses on system-level management.
+
+Visual asset:
+image/ppt_12_slides/slide_07_use_case_diagram.png
+
+Visual caption:
+Use case diagram of the proposed system.
+
+Speaker notes:
+The system is not only a gameplay screen. It also includes administrative access because interaction logs are part of the learning data. Students experience the AI literacy simulation, while Admin and Super Admin manage and review the supporting data.
+
+============================================================
+SLIDE 8 - STUDENT FLOW: THREE-PHASE EXPERIENCE
+============================================================
+
+Slide purpose:
+Summarize the student journey from input creation to AI validation and gameplay consequence.
+
+Layout:
+Three-column layout. Each column represents one phase with one flow image.
+
+On-slide content:
+Phase 1 - Input Creation:
+- Student enters the system, hand detection starts, and the student draws on the canvas.
+
+Phase 2 - AI Decision:
+- The system displays Top-3 prediction and confidence score.
+- Student chooses Accept, Correct, Override, or Redraw.
+
+Phase 3 - Gameplay Consequence:
+- The selected final label is applied to the object.
+- The object becomes part of the level and affects gameplay progress.
+
+Visual assets:
+image/ppt_12_slides/slide_08_user_flow_phase_1.png
+image/ppt_12_slides/slide_08_user_flow_phase_2.png
+image/ppt_12_slides/slide_08_user_flow_phase_3.png
+
+Visual caption:
+Three-phase user flow: drawing, decision, and consequence.
+
+Speaker notes:
+The user flow is divided into three phases so the interaction can be read clearly. The first phase is about creating input. The second phase is where AI literacy happens most directly, because students evaluate the prediction. The third phase shows the consequence of that decision inside the simulation.
+
+============================================================
+SLIDE 9 - HITL DECISION LAYER AND INTERACTION TYPE
+============================================================
+
+Slide purpose:
+Explain how the student decision becomes part of the system logic.
+
+Layout:
+Interaction matrix as the main visual. Add a compact decision explanation beside it.
+
+On-slide content:
+Decision options:
+- Accept: student accepts the first prediction as the final label.
+- Correct: student selects another prediction from the Top-3 list.
+- Override: student rejects all predictions and manually determines the label.
+- Redraw: student decides the sketch is unclear and repeats the drawing process.
+
+Object mapping:
+- Valid final label can become a Solid object that helps level progress.
+- Incorrect or risky mapping can become a Danger object or trigger recovery.
+- The decision is stored as interaction data for analysis.
+
+Visual asset:
+image/ppt_12_slides/slide_09_interaction_type_matrix.png
+
+Visual caption:
+Interaction type matrix for input, AI response, decision, and system feedback.
+
+Speaker notes:
+This slide is the core of the Human-in-the-Loop mechanism. AI gives a prediction, but the student controls the final decision. The system then translates that decision into gameplay behavior. This makes validation more concrete than a normal quiz or static explanation.
+
+============================================================
+SLIDE 10 - INTERFACE OVERVIEW AND MASCOT ROLE
+============================================================
+
+Slide purpose:
+Show the planned interface screens and explain the mascot as a learning companion, not a main narrative element.
+
+Layout:
+Use selected wireframe images in a gallery. Put mascot role bullets in a small side panel.
+
+On-slide content:
+Interface screens:
+- Splash and onboarding screen introduce the interaction flow.
+- Drawing canvas supports finger-based sketch input.
+- Gameplay screen shows how the validated object affects the level.
+- Admin and Super Admin dashboards support data monitoring.
+
+Mascot concept:
+- The mascot acts as a visual companion inside the learning flow.
+- It helps students notice system states, prediction moments, warnings, and feedback.
+- It represents AI as an assistant, not as the final controller.
+- The visual design of the mascot is planned for Semester 7 during the asset and prototype development phase.
+
+Visual assets:
+image/ppt_12_slides/slide_10_wireframe_splash.png
+image/ppt_12_slides/slide_10_wireframe_onboarding.png
+image/ppt_12_slides/slide_10_wireframe_drawing_canvas.png
+image/ppt_12_slides/slide_10_wireframe_gameplay.png
+image/ppt_12_slides/slide_10_admin_dashboard.png
+image/ppt_12_slides/slide_10_super_admin_dashboard.png
+
+Visual caption:
+Wireframe overview for student, admin, and super admin interfaces.
+
+Speaker notes:
+The interface is designed so students can move from onboarding to drawing, prediction, decision, and gameplay. The mascot is included as a functional visual guide. Its role is not to dominate the story, but to bridge gameplay interaction and educational feedback.
+
+============================================================
+SLIDE 11 - DEVELOPMENT METHODOLOGY AND PROJECT PLAN
+============================================================
+
+Slide purpose:
+Explain how the project will be developed and where each activity fits in the timeline.
+
+Layout:
+Use the fishbone diagram as the main image. Add phase labels as short notes.
+
+On-slide content:
+Methodology phases:
+- Concept: problem study, target user identification, and HITL interaction needs.
+- Design: system architecture, user flow, wireframe, interaction matrix, and level design.
+- Material Collecting: AI dataset, visual assets, mascot concept, and level materials.
+- Assembly: UI development, gameplay implementation, AI integration, and API integration.
+- User Testing: prototype testing, interaction observation, and revision.
+- Distribution: final prototype, documentation, and presentation.
+
+Planning note:
+- Mascot sketch and visual asset production are placed in Semester 7 as part of Material Collecting and Assembly.
+- User testing and refinement are planned after the interactive prototype is functional.
+
+Visual asset:
+image/ppt_12_slides/slide_11_fishbone_methodology.png
+
+Visual caption:
+Fishbone methodology for the interactive AI literacy simulation.
+
+Speaker notes:
+The methodology shows that the project moves from concept and design into asset preparation, implementation, testing, and distribution. The mascot is not treated as an afterthought; it is included in the visual asset and prototype development plan during Semester 7.
+
+============================================================
+SLIDE 12 - EXPECTED OUTPUTS AND CONTRIBUTION
+============================================================
+
+Slide purpose:
+Close the presentation by emphasizing deliverables, contribution, and the expected value of the project.
+
+Layout:
+Three-column closing slide: Output, Contribution, Next Step. Use the institution logo subtly.
+
+On-slide content:
+Expected outputs:
+- A level-based interactive AI literacy simulation prototype.
+- Finger tracking drawing interaction using MediaPipe.
+- AI prediction display with Top-3 prediction and confidence score.
+- Human-in-the-Loop decision mechanism through Accept, Correct, Override, and Redraw.
+- Interaction logs and dashboard data for reviewing student decisions.
+
+Main contribution:
+- The project connects AI prediction, human validation, and gameplay consequence in one learning experience.
+- It positions AI as an assistant while keeping students as active decision makers.
+- It provides a concrete way for junior high school students to learn that AI output needs to be evaluated.
+
+Next step:
+- Build the functional prototype.
+- Finalize visual assets and mascot design.
+- Conduct user testing and revise the system based on observation.
+
+Visual asset:
+image/ppt_12_slides/slide_12_closing_logo.png
+
+Speaker notes:
+The expected result is a prototype that makes AI literacy more experiential. Students do not only read about AI. They draw, receive predictions, evaluate the output, and see the result of their decision inside a game. This is the main value of the proposed project.
+
+============================================================
+END OF PPT BRIEF
+============================================================
+
+Suggested slide image usage summary:
+- Slide 1: slide_01_cover_logo.png
+- Slide 2: slide_02_ai_literacy_framework.png
+- Slide 3: slide_03_mediapipe_hands.png
+- Slide 5-6: slide_05_06_system_architecture.png
+- Slide 7: slide_07_use_case_diagram.png
+- Slide 8: slide_08_user_flow_phase_1.png, slide_08_user_flow_phase_2.png, slide_08_user_flow_phase_3.png
+- Slide 9: slide_09_interaction_type_matrix.png
+- Slide 10: slide_10_wireframe_splash.png, slide_10_wireframe_onboarding.png, slide_10_wireframe_drawing_canvas.png, slide_10_wireframe_gameplay.png, slide_10_admin_dashboard.png, slide_10_super_admin_dashboard.png
+- Slide 11: slide_11_fishbone_methodology.png
+- Slide 12: slide_12_closing_logo.png

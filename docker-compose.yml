@@ -17,6 +17,8 @@ services:
       - ./weights:/app/weights:ro
     environment:
       MODEL_PATH: /app/weights/${MODEL_FILE:-model_4_mobilenetv2_best.keras}
+      # Browser origins allowed to call the API (same-origin through Caddy needs none; set for split hosting).
+      CORS_ORIGINS: ${PUBLIC_URL}
 
   admin:
     build:

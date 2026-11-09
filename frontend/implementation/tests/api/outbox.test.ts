@@ -6,7 +6,15 @@ import { ApiError } from "@/src/api/http-client";
 describe("OutboxQueue", () => {
   const dummySubmission: CreateSubmissionRequest = {
     submission_key: "key-123",
+    join_token: "tok-test-1",
+    student_id: 9,
     level_id: "level-1",
+    candidates: [
+      { label: "balok", confidence: 0.7 },
+      { label: "batu", confidence: 0.2 },
+      { label: "papan", confidence: 0.1 },
+    ],
+
     strokes: [[{ x: 0, y: 0 }, { x: 1, y: 1 }]],
     decision_type: "accept",
     final_label: "balok",

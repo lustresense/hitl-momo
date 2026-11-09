@@ -1,4 +1,4 @@
-import { SubmissionAdapter } from "@/src/api/submission-adapter";
+import { SubmissionAdapter, type ClassContext } from "@/src/api/submission-adapter";
 import type { OutboxQueue } from "@/src/api/outbox";
 /**
  * The running level: creates the FlowController (with its prediction provider and event sink) on
@@ -35,6 +35,8 @@ export function recapFromFlow(level: LevelDefinition, flow: Pick<FlowController,
 export interface LevelSessionOptions {
   outbox?: OutboxQueue;
   tokenProvider?: () => string | undefined;
+  /** Class identity for submissions; null when the student has not joined a class. */
+  classContext?: () => ClassContext | null;
 }
 
 export function useLevelSession(
@@ -92,7 +94,7 @@ export function useLevelSession(
         setRouteNotice(null);
       }
       const adapter = sessionOptions?.outbox
-        ? new SubmissionAdapter({ outbox: sessionOptions.outbox })
+        ? new SubmissionAdapter({ outbox: sessionOptions.outbox, classContext: sessionOptions.classContext })
         : null;
 
       const provider = createPredictionProvider(level, sessionOptions?.tokenProvider);
@@ -123,7 +125,7 @@ export function useLevelSession(
       setController(flow);
       flow.enterLevel(level);
     },
-    [redirectToLockedNotice, setRouteNotice, sessionOptions?.outbox, sessionOptions?.tokenProvider],
+    [redirectToLockedNotice, setRouteNotice, sessionOptions?.outbox, sessionOptions?.tokenProvider, sessionOptions?.classContext],
   );
 
   /** Leave the running level for the level list and forget this session's world creations. */

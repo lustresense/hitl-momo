@@ -1,30 +1,36 @@
 # CHANGELOG — Sketchbook Universe Engineering
 
-Satu-satunya changelog engineering yang aktif. Riwayat lama tidak dihapus, hanya diarsipkan:
-
-- Can: `docs/history/can/` (termasuk `implementation-CHANGELOG.md` dan `CLAUDE.pre-monorepo.md`)
-- Dias: `docs/history/dias/CHANGELOG.md`
+Satu-satunya changelog engineering yang aktif. Riwayat lama diarsipkan di `docs/history/`.
 
 ## [Unreleased]
 
 ### Can — Student Game
-- Staging: game dipindah dari `implementation/` ke `frontend/implementation/` pada SHA `d4bbaec` (`lustresense/hitl-momo`, branch `can`).
-- Staging: `frontend/implementation/Dockerfile` ditambahkan dari donor Dias, karena service `web` di Compose membutuhkannya.
-- Staging: `contexts/can/` berisi governance Can secara byte-preserved. `AGENTS.md` mendapat router di atas, kebijakan asli tetap di bawah pemisah.
-- Staging: path aset di `frontend/implementation/tests/components/icon-gestures.test.tsx` diubah ke `contexts/can/design/` (restrukturisasi, bukan perubahan perilaku).
+- Staging: game dipindah ke `frontend/implementation/` (baseline `d4bbaec`). Governance Can di `contexts/can/` (byte-preserved).
+- Fix: outbox tidak pernah mengirim setelah enqueue. Sekarang `enqueue*` memicu proses, dan retry dijadwalkan setelah backoff (`tests/api/outbox-delivery.test.ts`).
+- Fix: `submission-adapter` mengirim `join_token`, `student_id`, dan `candidates`. Tidak mengirim saat di luar kelas.
+- Fix: parameter link `?kelas=` diterima (link dari dashboard).
+- Contract: `submission-client.ts` mengikuti skema backend. Respons `{id, status}`. Outcome `PATCH`.
+- Fix: konteks kelas dibaca lewat ref (`SketchbookApp.tsx`), bukan closure usang.
+- Test: `tests/api/contract-fixtures.test.ts` memakai fixture bersama dengan backend.
+- Staging: `frontend/implementation/Dockerfile` ditambahkan dari donor Dias (service `web` membutuhkannya).
+- Staging: path aset di `icon-gestures.test.tsx` dipindah ke `contexts/can/design/`.
 
 ### Dias — Backend, Model, Admin
-- Staging: `backend/`, `frontend/admin/`, `train/`, `weights/`, `deploy/`, `docker-compose.yml`, dan file root diambil dari `MuhammadDias/HITL` pada SHA `81bab5eb`.
-- Staging: donor `frontend/implementation/` Dias diarsipkan di `docs/history/dias/frontend-implementation-donor/`. File yang menyentuh classroom ditandai `PORT_NEEDED`.
-- Staging: `contexts/dias/` berisi README asli, DEPLOY asli, dan catatan arsip (`notes/`).
+- Feature: join kelas mengembalikan `student_session_token` (SHA-256 disimpan di `student_sessions`).
+- Feature: `POST /api/submissions` wajib Bearer token. Idempoten lewat `submission_key` (unique `(student_id, submission_key)`). Respons 201 `created` atau 200 `duplicate`.
+- Feature: `PATCH /api/submissions/{id}/outcome` (sebelumnya tidak ada).
+- Security: CORS dari env `CORS_ORIGINS`, `allow_credentials=False`. Sebelumnya `*` dengan credentials.
+- Migrasi: kolom submission ditambahkan otomatis (`_migrate` di `db.py`).
+- Compose: `CORS_ORIGINS` untuk backend.
 
 ### Shared Integration
-- Staging: `.gitattributes` Can disalin ke root (berlaku untuk seluruh repo; salinan asli tetap di `contexts/can/`).
-- Staging: monorepo dibangun dari dua sumber. Hasilnya ditandai `LOCAL_STAGING`. Belum dirilis dan belum dideploy.
-- Staging: `contracts/API_INVENTORY.md` dibuat dari route FastAPI yang benar-benar ada. `contracts/openapi.json` diekspor dari aplikasi live.
-- Staging: `docs/migration/` memuat SOURCE_MANIFEST, SOURCE_MAP (1 baris per file tracked), BRANCH_COMPARISON, INTEGRATION_REPORT, dan UNRESOLVED.
-- Known: kontrak submission client Can tidak cocok dengan backend (lihat `contracts/API_INVENTORY.md`). Perbaikan belum dilakukan.
+- Test: `tests/integration/test_classroom_contract.py` (11), `tests/integration/verify_backend.py` (20 probe runtime dengan bobot asli).
+- Test: `frontend/implementation/e2e/classroom-e2e.mjs` (17 cek, langsung dan via Caddy).
+- Kontrak: `contracts/fixtures/` dipakai dua sisi. `contracts/openapi.json` diekspor ulang (18 path). `API_INVENTORY.md` diperbarui.
+- Audit: `docs/migration/PORT_AUDIT.md`. 50 file donor `PORT_NEEDED` dicek satu per satu.
+- Bukti: `docs/migration/evidence/`.
+- Known: `prediction_id` belum dihasilkan backend. Build image Docker belum dibuktikan (daemon tidak ada).
 
 ## Pre-monorepo history
-- Can: `docs/history/can/` (riwayat changelog dan dokumen pra-monorepo).
-- Dias: `docs/history/dias/` (riwayat changelog dan dokumen pra-monorepo).
+- Can: `docs/history/can/`
+- Dias: `docs/history/dias/`

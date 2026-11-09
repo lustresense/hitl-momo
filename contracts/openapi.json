@@ -867,7 +867,54 @@
           "required": true
         },
         "responses": {
-          "201": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/submissions/{submission_id}/outcome": {
+      "patch": {
+        "summary": "Record Outcome",
+        "operationId": "record_outcome_api_submissions__submission_id__outcome_patch",
+        "parameters": [
+          {
+            "name": "submission_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "title": "Submission Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OutcomeBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
             "description": "Successful Response",
             "content": {
               "application/json": {
@@ -1093,6 +1140,46 @@
         ],
         "title": "LoginBody"
       },
+      "OutcomeBody": {
+        "properties": {
+          "outcome": {
+            "type": "string",
+            "enum": [
+              "success",
+              "fail"
+            ],
+            "title": "Outcome"
+          },
+          "behavior": {
+            "type": "string",
+            "enum": [
+              "solid",
+              "danger",
+              "unresolved"
+            ],
+            "title": "Behavior"
+          },
+          "retry_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Retry Count"
+          }
+        },
+        "type": "object",
+        "required": [
+          "outcome",
+          "behavior"
+        ],
+        "title": "OutcomeBody"
+      },
       "Point": {
         "properties": {
           "x": {
@@ -1145,6 +1232,12 @@
       },
       "SubmissionBody": {
         "properties": {
+          "submission_key": {
+            "type": "string",
+            "maxLength": 80,
+            "minLength": 8,
+            "title": "Submission Key"
+          },
           "join_token": {
             "type": "string",
             "title": "Join Token"
@@ -1158,6 +1251,30 @@
             "maxLength": 80,
             "minLength": 1,
             "title": "Level Id"
+          },
+          "attempt_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Attempt Id"
+          },
+          "prediction_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Prediction Id"
           },
           "strokes": {
             "items": {
@@ -1205,10 +1322,24 @@
             "maxLength": 80,
             "minLength": 1,
             "title": "Final Label"
+          },
+          "redraw_count": {
+            "anyOf": [
+              {
+                "type": "integer",
+                "maximum": 100.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Redraw Count"
           }
         },
         "type": "object",
         "required": [
+          "submission_key",
           "join_token",
           "student_id",
           "level_id",

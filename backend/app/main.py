@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -10,12 +12,18 @@ app = FastAPI(title="Momo Backend", version="0.1.0")
 app.include_router(dashboard.router)
 app.include_router(classroom.router)
 
+# Browser origins allowed to call the API. Same-origin (Caddy) needs none; dev and
+# split deployments set CORS_ORIGINS (comma-separated). Auth is a Bearer header, not cookies,
+# so credentials are not allowed.
+_DEFAULT_CORS = "http://localhost:3344,http://localhost:3002,http://localhost:3000,http://127.0.0.1:3344,http://127.0.0.1:3002"
+CORS_ORIGINS = [o.strip() for o in os.getenv("CORS_ORIGINS", _DEFAULT_CORS).split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_origins=CORS_ORIGINS,
+    allow_credentials=False,
+    allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type"],
     # Lets the admin dashboard read export filenames cross-origin.
     expose_headers=["Content-Disposition"],
 )

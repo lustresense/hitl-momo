@@ -35,9 +35,17 @@ export function SketchbookApp() {
   );
   const route = useRouteState();
   const classroom = useClassroomSession();
+  // Level callbacks can outlive the render that created them (route effects keep the first one).
+  // Read the latest classroom state through a ref so a decision always sees the current join.
+  const classroomRef = useRef(classroom);
+  classroomRef.current = classroom;
   const session = useLevelSession(route, {
     outbox: classroom.outbox,
-    tokenProvider: () => classroom.session?.student_session_token,
+    tokenProvider: () => classroomRef.current.session?.student_session_token,
+    classContext: () => {
+      const c = classroomRef.current;
+      return c.joinToken && c.session ? { joinToken: c.joinToken, studentId: c.session.student_id } : null;
+    },
   });
   const { entryHold, startEntryHold } = useEntryHold();
   const { onboarding, routeNotice } = route;

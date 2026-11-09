@@ -73,7 +73,7 @@ export function useClassroomSession(options: UseClassroomSessionOptions = {}): U
     if (typeof window !== "undefined" && !joinToken) {
       try {
         const params = new URLSearchParams(window.location.search);
-        const token = params.get("join") || params.get("join_token");
+        const token = params.get("join") || params.get("join_token") || params.get("kelas");
         if (token) {
           setJoinToken(token);
         }

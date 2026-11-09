@@ -42,27 +42,42 @@
   {
     "check": "POST /api/join/{token}/students creates student",
     "result": "PASS",
-    "detail": "200 {\"student_id\":1,\"number\":5,\"name\":\"Siswa Uji\",\"class_name\":\"7A\"}"
+    "detail": "200 {\"student_id\":1,\"number\":5,\"name\":\"Siswa Uji\",\"class_name\":\"7A\",\"student_session_token\":\"Q3c8OO_qKPHZaRg83x_URLuqsgLVNnZ"
   },
   {
     "check": "re-join same number keeps same student_id (upsert)",
     "result": "PASS",
-    "detail": "{\"student_id\":1,\"number\":5,\"name\":\"Siswa Uji Dua\",\"class_name\":\"7A\"}"
+    "detail": "{\"student_id\":1,\"number\":5,\"name\":\"Siswa Uji Dua\",\"class_name\":\"7A\",\"student_session_token\":\"DcQgn2qzyPh8fpR-dnl_s9MBD95"
   },
   {
-    "check": "POST /api/submissions with valid payload returns 201",
+    "check": "join returns student_session_token",
     "result": "PASS",
-    "detail": "201 {\"id\":1}"
+    "detail": "200"
   },
   {
-    "check": "POST /api/submissions with no auth header is accepted (documented risk)",
+    "check": "POST /api/submissions without session token is rejected (401)",
     "result": "PASS",
-    "detail": "201"
+    "detail": "401"
   },
   {
-    "check": "identical retry creates duplicate row (idempotency probe)",
-    "result": "INFO",
-    "detail": "rows for same student/level after 2 identical posts = 2"
+    "check": "POST /api/submissions with session token returns 201",
+    "result": "PASS",
+    "detail": "201 {\"id\":1,\"status\":\"created\"}"
+  },
+  {
+    "check": "identical retry returns 200 duplicate with same id",
+    "result": "PASS",
+    "detail": "{\"id\":1,\"status\":\"duplicate\"}"
+  },
+  {
+    "check": "identical retry does not create a second row",
+    "result": "PASS",
+    "detail": "rows=1"
+  },
+  {
+    "check": "PATCH outcome with session token returns 200",
+    "result": "PASS",
+    "detail": "{\"id\":1,\"status\":\"updated\"}"
   },
   {
     "check": "invalid decision_type rejected with 422",
@@ -70,14 +85,14 @@
     "detail": "422"
   },
   {
-    "check": "PROPOSED /api/v1/model-info is NOT implemented (404)",
-    "result": "PASS",
-    "detail": "404"
+    "check": "GET /api/v1/model-info (PROPOSED, not implemented)",
+    "result": "INFO",
+    "detail": "status 404"
   },
   {
-    "check": "PROPOSED PATCH /api/submissions/{id}/outcome is NOT implemented (404/405)",
+    "check": "PATCH outcome without session token is rejected (401)",
     "result": "PASS",
-    "detail": "404"
+    "detail": "401"
   },
   {
     "check": "GET /api/auth/me without login returns 401",
@@ -85,18 +100,18 @@
     "detail": "401"
   },
   {
-    "check": "CORS preflight allow-origin header",
-    "result": "INFO",
-    "detail": "http://example.com"
+    "check": "CORS: unlisted origin gets no allow-origin header",
+    "result": "PASS",
+    "detail": "None"
   },
   {
     "check": "openapi.json exported from live app",
     "result": "PASS",
-    "detail": "17 paths"
+    "detail": "18 paths"
   },
   {
     "check": "openapi paths",
     "result": "INFO",
-    "detail": "[\"/api/auth/login\", \"/api/auth/logout\", \"/api/auth/me\", \"/api/classes\", \"/api/classes/{class_id}\", \"/api/classes/{class_id}/export.csv\", \"/api/classes/{class_id}/export.zip\", \"/api/classes/{class_id}/submissions\", \"/api/join/{token}\", \"/api/join/{token}/students\", \"/api/schools\", \"/api/schools/{school_id}\", \"/api/schools/{school_id}/admins\", \"/api/submissions\", \"/api/submissions/{submission_id}/image.png\", \"/health\", \"/predict\"]"
+    "detail": "[\"/api/auth/login\", \"/api/auth/logout\", \"/api/auth/me\", \"/api/classes\", \"/api/classes/{class_id}\", \"/api/classes/{class_id}/export.csv\", \"/api/classes/{class_id}/export.zip\", \"/api/classes/{class_id}/submissions\", \"/api/join/{token}\", \"/api/join/{token}/students\", \"/api/schools\", \"/api/schools/{school_id}\", \"/api/schools/{school_id}/admins\", \"/api/submissions\", \"/api/submissions/{submission_id}/image.png\", \"/api/submissions/{submission_id}/outcome\", \"/health\", \"/predict\"]"
   }
 ]

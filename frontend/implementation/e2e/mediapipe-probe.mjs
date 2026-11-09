@@ -1,3 +1,4 @@
+// STALE: butuh pembaruan harness baru
 // MediaPipe integration probe. Uses Chromium's FAKE camera (synthetic test pattern, NOT a hand):
 //  - REAL: getUserMedia permission path, wasm + hand_landmarker.task loading, HandLandmarker init, camera lifecycle
 //  - NOT TESTED: real hand tracking / pinch accuracy (needs a physical webcam and a person)

@@ -1,3 +1,4 @@
+// STALE: butuh pembaruan harness baru
 import path from "node:path";
 /**
  * TASK 14 — Full author-side browser E2E (Edge headless via playwright-core).

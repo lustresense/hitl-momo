@@ -1,3 +1,4 @@
+// STALE: butuh pembaruan harness baru
 import { chromium } from "playwright-core";
 import fs from "node:fs";
 import path from "node:path";

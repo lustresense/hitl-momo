@@ -9,7 +9,9 @@ import { ROOT, startStaticServer, launch, gitInfo, onboardToLevels, enterLevel, 
 const plans = JSON.parse(fs.readFileSync(path.join(ROOT, "e2e/lib/level-plans.json"), "utf8"));
 const RUN = new Date().toISOString().replace(/[:.]/g, "-");
 const OUT = process.env.JOURNEY_OUT || path.join(ROOT, "docs/execution/evidence", `journey-${RUN}`);
-const LEVELS = (process.env.LEVELS || "1,2,3").split(",").map(Number);
+const LEVELS = (process.env.LEVELS || "1,2,3,4").split(",").map(Number);
+// 2026-11-09: the ending (Pusat Halaman) follows the FINAL level (Bab 4), not Bab 3.
+const ENDING_AFTER = 4;
 const MAX_ATTEMPTS = Number(process.env.MAX_ATTEMPTS || 4);
 fs.mkdirSync(OUT, { recursive: true });
 const steps = [];
@@ -96,7 +98,9 @@ async function runLevel(stage) {
   for (const [ci, cycle] of plan.cycles.entries()) {
     if (ci > 0) { await page.locator("[data-testid=btn-draw-again]").click(); log(`L${stage}: 'Ciptakan objek lagi' (cycle ${ci + 1})`); }
     await drawScribble(page, ci % 2 ? "spike" : "block");
-    const { labels, decision } = await submitAndDecide(page, { prefer: cycle.label, log: m => log(`L${stage}c${ci + 1}: ${m}`), shot: n => shot(`L${stage}-c${ci + 1}-00-${n}`) });
+    // Cover both ways to say "selesai": the 2 s finish thumb (even cycles) and the Tebak Gambarku button (odd cycles).
+    const submitVia = ci % 2 ? "button" : "finish";
+    const { labels, decision } = await submitAndDecide(page, { prefer: cycle.label, submitVia, log: m => log(`L${stage}c${ci + 1}: ${m}`), shot: n => shot(`L${stage}-c${ci + 1}-00-${n}`) });
     decisions.push({ labels, decision });
     await shot(`L${stage}-c${ci + 1}-01-after-decision`);
     const cx = cycle.x + plans.objectSize.w / 2, cy = cycle.y + plans.objectSize.h / 2;
@@ -151,8 +155,8 @@ try {
     log(`L${stage}: Momo success chat`, chatText);
     if (await page.locator("[data-testid=game-canvas]").isVisible() === false) throw new Error("success chat must stay inside the game world (canvas hidden)");
     if (await page.locator("[data-testid=btn-next-level], [data-testid=btn-back-to-levels]").count()) throw new Error("success must not offer next/level-list buttons any more");
-    if (stage === 3) {
-      // 0.0.16 R9: after the L3 win the book opens the ending (Pusat Halaman) instead of the level list.
+    if (stage === ENDING_AFTER) {
+      // 0.0.16 R9: after the final level the book opens the ending (Pusat Halaman) instead of the level list.
       await holdThumb(page, "btn-continue", { timeout: 8000 }).catch(() => {});
       await playEnding(page, { choice: "finish", log: m => log(m) });
       await shot("L3-06-ending-done");
@@ -166,7 +170,7 @@ try {
     const states = await page.locator(".level-card").evaluateAll(xs => xs.map(x => x.dataset.state));
     log(`L${stage}: level list states after win`, states);
     if (states[stage - 1] !== "done") throw new Error(`L${stage} must show as done after the win, got ${states}`);
-    if (stage < 3 && states[stage] === "locked") throw new Error(`L${stage + 1} must be unlocked after winning L${stage}, got ${states}`);
+    if (stage < ENDING_AFTER && states[stage] === "locked") throw new Error(`L${stage + 1} must be unlocked after winning L${stage}, got ${states}`);
   }
   const finalText = (await page.locator("body").innerText()).slice(0, 1500);
   log("final screen text (truncated)", finalText);

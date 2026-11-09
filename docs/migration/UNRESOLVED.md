@@ -44,6 +44,21 @@ Daftar ini tidak diselesaikan oleh integrator sendiri. Setiap item butuh keputus
 | C9 | Kamera fisik dan MediaPipe belum diuji | Input kamera belum terbukti | Uji manual dengan kamera |
 | C10 | Dashboard admin: `/api/auth` tidak punya rate limit | Brute force password guru | Rate limit login |
 
+## E. Perubahan game atas instruksi Owner 2026-11-09, perlu disahkan Can
+
+`DECISIONS.md` Can tidak diubah. Semua poin berikut perlu Can catat atau tolak.
+
+| # | Perubahan | Catatan |
+|---|---|---|
+| E1 | Selesai gambar dengan tahan jempol, bukan auto-ask. Menggantikan R11 | Tahan 2 detik. Owner menyebut sekitar 3 detik, komponen hanya mendukung 1 atau 2 detik |
+| E2 | Mode kamera: kontrol tangan otomatis, tombol arah jadi indikator | Menyimpang dari tombol "Pakai keyboard" lama. Keyboard tetap aktif |
+| E3 | Level 4 "Pembuktian" (usulan saya, Owner belum memberi desain) | Tiga objek dibutuhkan. Teks dan nada Bab 4 draf. Tamat pindah ke setelah Bab 4 |
+| E4 | Pijakan bawah Level 2 diperpanjang 58 ke 68 satuan | Perubahan gambar, supaya celah tidak lebih sempit dari badan pemain |
+| E5 | Tombol "melayang" 1,2 detik dan kursor tangan dipetakan x kali lebar jendela | Pemetaan kamera ke layar belum diuji dengan kamera |
+| E6 | Ambang gestur (cubit 0,42 masuk dan 0,55 keluar, kepal, dua jari, telapak terbelah, ukuran penghapus) | Tebakan dari landmark sintetis. Perlu kalibrasi pada tangan anak |
+| E7 | Hanya `FailOverlay`, Top-3, header sudut, Tebak, misi memakai dwell. Daftar level, tamat, `SuccessPopup` (jempol 1 detik) belum diubah | "Semua UI pakai NUI" belum penuh |
+| E8 | Kamera fisik dan MediaPipe belum pernah diuji pada perubahan ini | Semua bukti gestur dari landmark sintetis dan test hook |
+
 ## D. Dicatat, tidak diubah
 
 - Tidak ada perubahan di `main`, di repo Dias, atau di `DECISIONS.md` Can.

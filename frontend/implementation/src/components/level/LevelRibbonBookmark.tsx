@@ -2,23 +2,30 @@
 /**
  * Level select: three bookmarks hang from the sketchbook's spiral binding.
  *   open   = orange, ready to pull      done   = green with a check      locked = grey, short, with a padlock
- * Pull a ribbon down by its ring (mouse drag for now; the NUI thumb gesture maps to the same pull later).
- * While pulling, the ribbon "clicks" every notch (tek, tek). Past the last notch the ring turns green; on
- * release (or a 2 s thumb on the next ribbon, PRD 0.0.16 R6) the ribbon bounces up and the book opens.
- * A click or Enter does the same pull by itself so nobody is stuck without a drag.
+ * NUI: a fingertip resting on a ribbon for 1.2 s pulls it by itself (the ring fills on its pull ring); a click or
+ * Enter does the same at once, and a mouse drag pulls it by hand. The thumb of the next ribbon is a 2 s confirm.
+ * Pull a ribbon down by its ring (mouse drag); while pulling, the ribbon "clicks" every notch (tek, tek). Past the
+ * last notch the ring turns green; on release (or the 2 s thumb, PRD 0.0.16 R6) the ribbon bounces up and the book opens.
  * The ribbon that a win has just unlocked plays its own unlock animation when this page opens.
+ * The ribbon stays a real <button>: its drag, click and Enter live on it, and a DwellButton cannot host pointer
+ * handlers. The dwell is the same useDwell hook as DwellButton, so the same single owner and reader apply.
  */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { gsap } from "gsap";
 import type { LevelDefinition } from "@/src/domain/levels";
 import { consumeFreshUnlock, isStageCompleted, nextStageToPlay } from "@/src/app/level-progress";
+import { useDwell } from "@/src/hooks/useDwell";
 import { Icon } from "../ui/Icon";
 import { ThumbConfirm } from "../ui/ThumbConfirm";
+import { usePageThumb } from "./use-page-thumb";
+import "./level-nui.css";
 
 export interface LevelRibbonBookmarkProps {
   levels: LevelDefinition[];
   onSelectLevel: (level: LevelDefinition) => void;
   isLevelUnlocked?: (stage: number) => boolean;
+  /** A level intro plays above this list (its entry hold): nothing here reads the hand until it is gone. */
+  paused?: boolean;
 }
 
 /** Pull distance (px) per "tek" notch, and notches needed to arm the ribbon. */
@@ -96,9 +103,31 @@ interface BookmarkProps {
   dims: Dims;
   /** Play the lock-breaking animation once. */
   unlocking: boolean;
+  /** The list is behind a level intro: no dwell, no thumb. */
+  paused: boolean;
   onLaunch: (level: LevelDefinition) => void;
   onLockedTug: (level: LevelDefinition) => void;
   onNotch: (count: number) => void;
+}
+
+/** Dwell ring round the pull ring: the same track and fill as DwellButton, drawn only in camera mode. */
+const DWELL_R = 24;
+const DWELL_CIRC = 2 * Math.PI * DWELL_R;
+function DwellRing({ progress }: { progress: number }) {
+  return (
+    <svg className="bm-dwell" viewBox="0 0 56 56" aria-hidden="true" focusable="false">
+      <circle className="bm-dwell__track" cx="28" cy="28" r={DWELL_R} />
+      <circle
+        className="bm-dwell__fill"
+        cx="28"
+        cy="28"
+        r={DWELL_R}
+        strokeDasharray={DWELL_CIRC}
+        strokeDashoffset={DWELL_CIRC * (1 - progress)}
+        transform="rotate(-90 28 28)"
+      />
+    </svg>
+  );
 }
 
 function stageName(level: LevelDefinition): string {
@@ -106,7 +135,7 @@ function stageName(level: LevelDefinition): string {
   return (part ?? level.title).trim();
 }
 
-function Bookmark({ level, state, isNext, dims, unlocking, onLaunch, onLockedTug, onNotch }: BookmarkProps) {
+function Bookmark({ level, state, isNext, dims, unlocking, paused, onLaunch, onLockedTug, onNotch }: BookmarkProps) {
   const slotRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const lenState = useRef({ length: 0 });
@@ -285,6 +314,20 @@ function Bookmark({ level, state, isNext, dims, unlocking, onLaunch, onLockedTug
     autoPull();
   };
 
+  // A resting fingertip: a locked ribbon says what to finish first, an open one pulls itself (as a click does).
+  // A drag in progress already owns the pull, so the dwell stays out of it.
+  const dwell = useDwell({
+    ref: btnRef,
+    enabled: !paused,
+    onActivate: () => {
+      if (drag.current) return;
+      if (locked) onLockedTug(level);
+      else autoPull();
+    },
+  });
+  // The next ribbon's 2 s thumb follows a page reader's thumbs-up when one is live, else the shared tracker.
+  const pageThumb = usePageThumb();
+
   const name = stageName(level);
   const label = `Level ${level.stage}, ${name}${locked ? ", terkunci" : state === "done" ? ", sudah selesai" : ""}`;
 
@@ -300,6 +343,8 @@ function Bookmark({ level, state, isNext, dims, unlocking, onLaunch, onLockedTug
         data-level-id={`level-${level.stage}`}
         data-stage={level.stage}
         data-state={state}
+        data-mode={dwell.mode}
+        data-progress={Math.round(dwell.progress * 100)}
         aria-label={label}
         onPointerDown={begin}
         onPointerMove={move}
@@ -331,6 +376,7 @@ function Bookmark({ level, state, isNext, dims, unlocking, onLaunch, onLockedTug
         </span>
         <span className="bm-ring" aria-hidden="true">
           <Icon name="arrow-down" size={20} stroke={3.2} />
+          {dwell.mode === "camera" && <DwellRing progress={dwell.progress} />}
         </span>
         <span className="bm-notches" aria-hidden="true">
           {Array.from({ length: NOTCHES_TO_ARM }, (_, i) => (
@@ -346,13 +392,15 @@ function Bookmark({ level, state, isNext, dims, unlocking, onLaunch, onLockedTug
           label={`Mulai Bab ${level.stage}`}
           className="bm-thumb"
           testId={`level-thumb-${level.stage}`}
+          disabled={paused}
+          externalThumbUp={pageThumb}
         />
       )}
     </div>
   );
 }
 
-export function LevelRibbonBookmark({ levels, onSelectLevel, isLevelUnlocked }: LevelRibbonBookmarkProps) {
+export function LevelRibbonBookmark({ levels, onSelectLevel, isLevelUnlocked, paused = false }: LevelRibbonBookmarkProps) {
   const [dims, setDims] = useState<ShelfDims>(() => currentShelf(levels.length));
   const [status, setStatus] = useState("");
   const [freshStage] = useState(() => consumeFreshUnlock());
@@ -422,6 +470,7 @@ export function LevelRibbonBookmark({ levels, onSelectLevel, isLevelUnlocked }: 
               isNext={!locked && nextStage === level.stage}
               dims={dims}
               unlocking={fresh && revealed}
+              paused={paused}
               onLaunch={onSelectLevel}
               onLockedTug={onLockedTug}
               onNotch={onNotch}

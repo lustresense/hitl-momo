@@ -3,12 +3,16 @@
  * R9 Penutup: Pusat Halaman. After Level 3 the book opens its last page. Thinman's thin line fills with ink and he
  * walks by himself to Momo; she startles, then is glad and flaps (they become friends). Then the overview of the
  * student's three objects, Momo's short epilog, and a 2 s thumb for Main lagi or Selesai.
+ * NUI: the two choices are dwell buttons (a resting fingertip selects one, a click selects it at once); the 2 s thumb
+ * confirms. The page has no hand reader of its own, so these use the shared tracker.
  * DOM + CSS animation (no KAPLAY). Display only: nothing here changes a decision or a number.
  */
 import { useEffect, useState } from "react";
 import { MomoChat } from "../momo/MomoChat";
+import { DwellButton } from "../ui/DwellButton";
 import { ThinmanArt } from "../ui/ThinmanArt";
 import { ThumbConfirm } from "../ui/ThumbConfirm";
+import "./ending-nui.css";
 import { DECISION_TEXT, ENDING_TIMING, EPILOG_LINES, strokesToPath, type EndingChoice, type EndingStage, type LevelRecap } from "./ending-types";
 
 export interface CenterOfPageProps {
@@ -94,19 +98,18 @@ export function CenterOfPage({ recaps, onChoose, initialStage = "page" }: Center
 
       {stage === "choice" && (
         <div className="center-page__choice" data-testid="ending-choice">
-          <div className="center-page__options" role="radiogroup" aria-label="Pilih">
+          {/* Two toggles (aria-pressed): a DwellButton has no radio role, and the chosen one reads as pressed. */}
+          <div className="center-page__options" role="group" aria-label="Pilih">
             {(["again", "finish"] as const).map((c) => (
-              <button
+              <DwellButton
                 key={c}
-                type="button"
-                role="radio"
-                aria-checked={choice === c}
-                className={`nb-btn${choice === c ? " nb-btn--primary is-selected" : ""}`}
-                data-testid={c === "again" ? "ending-play-again" : "ending-finish"}
-                onClick={() => setChoice(c)}
+                className="ending-option"
+                pressed={choice === c}
+                testId={c === "again" ? "ending-play-again" : "ending-finish"}
+                onActivate={() => setChoice(c)}
               >
                 {c === "again" ? "Main lagi" : "Selesai"}
-              </button>
+              </DwellButton>
             ))}
           </div>
           <ThumbConfirm

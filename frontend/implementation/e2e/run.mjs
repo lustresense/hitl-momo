@@ -1,3 +1,4 @@
+// STALE: butuh pembaruan harness baru
 // LEGACY (not maintained): written for the old "Wujudkan Objek" / full-screen summary flow. The maintained suites are normal-journey, recovery-paths, hand-control-probe and mediapipe-probe.
 /**
  * TASK 14 — Full author-side browser E2E (Edge headless via playwright-core).

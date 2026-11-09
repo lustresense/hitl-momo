@@ -1,3 +1,4 @@
+// STALE: butuh pembaruan harness baru
 // Momo guides every page before the game: cover (asleep -> wakes, waves, greets), ruler, tutorial (3 cards), level list, story intro.
 // PRD 0.0.16: fake camera + NEXT_PUBLIC_TEST_HOOKS=1 build (wave and thumbs are simulated). Records a video and checks what Momo says on each page.
 import fs from "node:fs";

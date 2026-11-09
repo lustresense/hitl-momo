@@ -10,6 +10,13 @@ import { DrawingScreen } from "@/src/components/drawing/DrawingScreen";
 import { LEVELS } from "@/src/domain/levels";
 import type { PredictionResult, LevelContext } from "@/src/domain/types";
 
+// Hand tracker stubbed: the decision buttons read the fingertip, and no camera exists in tests.
+vi.mock("@/src/hooks/useHandGesture", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/src/hooks/useHandGesture")>();
+  const stub = await import("./gesture-stub");
+  return { ...actual, useHandGesture: stub.useHandGestureStub };
+});
+
 let mockHasInk = false;
 vi.mock("@/src/input", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/src/input")>();
@@ -99,27 +106,30 @@ describe("Top3Panel (TASK 08)", () => {
 });
 
 describe("DecisionPanel (TASK 09)", () => {
-  it("Correct never auto-selects: nothing commits until a rank (2 or 3) is tapped, then it commits at once", () => {
+  it("Correct: a tap on candidate 3 commits once with rank 3; no other decision fires", () => {
     const onCorrect = vi.fn();
-    render(<DecisionPanel prediction={RESULT} level={LEVEL} onAccept={() => {}} onCorrect={onCorrect} onOverride={() => {}} onRedraw={() => {}} />);
+    const onAccept = vi.fn();
+    render(<DecisionPanel prediction={RESULT} level={LEVEL} onAccept={onAccept} onCorrect={onCorrect} onOverride={() => {}} onRedraw={() => {}} />);
     expect(onCorrect).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: /Correct: pilih peringkat lain/i }));
-    expect(onCorrect).not.toHaveBeenCalled(); // opening the picker is not a decision
     fireEvent.click(screen.getByRole("button", { name: /tali/i }));
     expect(onCorrect).toHaveBeenCalledTimes(1);
     expect(onCorrect).toHaveBeenCalledWith(3);
+    expect(onAccept).not.toHaveBeenCalled();
   });
 
-  it("Override picker excludes Top-3 labels and rejects empty selection", () => {
+  it("Override list offers only labels outside the Top-3 and needs Pakai to commit", () => {
     const onOverride = vi.fn();
     render(<DecisionPanel prediction={RESULT} level={LEVEL} onAccept={() => {}} onCorrect={() => {}} onOverride={onOverride} onRedraw={() => {}} />);
-    fireEvent.click(screen.getByRole("button", { name: /Override: tolak semua tebakan/i }));
-    const select = document.getElementById("override-select") as HTMLSelectElement;
-    const options = [...select.options].map((o) => o.value).filter(Boolean);
-    expect(options.sort()).toEqual(["ember", "tangga"]);
-    fireEvent.click(screen.getByTestId("override-confirm"));
+    fireEvent.click(screen.getByTestId("btn-override"));
+    expect(screen.queryByTestId("override-option-papan")).toBeNull();
+    expect(screen.getByTestId("override-option-tangga")).toBeTruthy();
+    expect(screen.getByTestId("override-option-ember")).toBeTruthy();
+    expect(screen.queryByTestId("override-confirm")).toBeNull(); // nothing chosen yet
+    fireEvent.click(screen.getByTestId("override-option-ember"));
     expect(onOverride).not.toHaveBeenCalled();
-    expect(screen.getByRole("alert").textContent).toMatch(/pilih label dulu/i);
+    fireEvent.click(screen.getByTestId("override-confirm"));
+    expect(onOverride).toHaveBeenCalledTimes(1);
+    expect(onOverride).toHaveBeenCalledWith("ember");
   });
 
   it("Redraw is a separate recovery action outside the three decisions", () => {
@@ -205,10 +215,10 @@ describe("GlobalCamera (Persistent Floating Camera)", () => {
 });
 
 describe("LevelRibbonBookmark shelf", () => {
-  it("renders three bookmarks on the spiral binding with a short heading", () => {
+  it("renders four bookmarks on the spiral binding with a short heading", () => {
     render(<LevelRibbonBookmark levels={LEVELS} onSelectLevel={vi.fn()} />);
     const list = screen.getByTestId("level-list");
-    expect(list.querySelectorAll(".bm-slot")).toHaveLength(3);
+    expect(list.querySelectorAll(".bm-slot")).toHaveLength(4);
     expect(screen.getByText("Pilih bab")).toBeTruthy();
     expect(screen.getByTestId("level-card-1").querySelector(".bm-outer--body")?.getAttribute("d")).toContain("L");
   });

@@ -5,6 +5,7 @@ import { GameplayHandDriver, type GameplayDiagnostic, type GameplayFrame } from 
 import { HandDrawingDriver } from "@/src/input/mediapipe-input";
 import { StrokeStore, type HandInputStatus, type Landmark } from "@/src/input/types";
 import { resetSharedStreamForTest, setSharedStream } from "@/src/camera/shared-stream";
+import { makeHand } from "./hand-fixtures";
 
 vi.mock("@mediapipe/tasks-vision", () => ({
   FilesetResolver: { forVisionTasks: vi.fn() },
@@ -307,6 +308,46 @@ describe("HandDrawingDriver", () => {
     await driver.start();
     for (let i = 1; i <= 10; i++) { v.currentTime = i; stepRaf(); }
     expect(onRender.mock.calls.length).toBeLessThanOrEqual(1);
+    await driver.stop();
+  });
+
+  it("stop() ends an open eraser pass, so the cut stays one undo step", async () => {
+    const b = stream(); setSharedStream(b.s);
+    const fist = makeHand({ ratios: [0.5, 0.5, 0.5, 0.5] });
+    create.mockResolvedValue(lmk(() => ({ landmarks: [fist] })) as never);
+    const { driver, v, store } = setup();
+    await driver.start();
+    for (let i = 1; i <= 4; i++) { v.currentTime = i; stepRaf(); }
+    expect(store.isErasing()).toBe(true);
+    await driver.stop();
+    expect(store.isErasing()).toBe(false);
+  });
+});
+
+describe("HandDrawingDriver: a frozen camera does not leave a line open", () => {
+  it("after 1 s with no new video frame the open line closes, so the line never jumps when the hand returns", async () => {
+    const b = stream(); setSharedStream(b.s);
+    let hand = makeHand({ ratios: [1.5, 0.5, 0.5, 0.5], indexTip: { x: 0.4, y: 0.55 }, thumbTip: { x: 0.404, y: 0.55 } });
+    create.mockResolvedValue(lmk(() => ({ landmarks: [hand] })) as never);
+    let now = 1000;
+    vi.spyOn(performance, "now").mockImplementation(() => now);
+    const canvas = document.createElement("canvas");
+    canvas.width = 400; canvas.height = 300;
+    const v = video();
+    const store = new StrokeStore();
+    const driver = new HandDrawingDriver({ canvas, video: v, store, modelUrl: "/m", onStatus: () => {}, onRender: () => {} });
+    await driver.start();
+    for (let i = 1; i <= 5; i++) { now = 1000 + i * 33; v.currentTime = i; stepRaf(); }
+    expect(store.getStrokes().active).not.toBeNull();
+    // Video frozen: no new currentTime for about 1 s of animation frames.
+    for (let i = 0; i < 30; i++) { now += 33; stepRaf(); }
+    expect(store.getStrokes().active).toBeNull();
+    expect(store.getStrokes().completed).toHaveLength(1);
+    // The hand is back far to the left: a new line starts there (canvas x = 160), not a jump from x = 240.
+    hand = makeHand({ ratios: [1.5, 0.5, 0.5, 0.5], indexTip: { x: 0.6, y: 0.55 }, thumbTip: { x: 0.604, y: 0.55 } });
+    for (let i = 6; i <= 9; i++) { now += 33; v.currentTime = i; stepRaf(); }
+    expect(store.getStrokes().completed).toHaveLength(1);
+    expect(Math.abs(store.getStrokes().active![0]!.x - 160)).toBeLessThanOrEqual(1);
     await driver.stop();
   });
 });

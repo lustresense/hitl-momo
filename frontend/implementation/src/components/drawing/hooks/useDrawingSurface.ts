@@ -1,10 +1,12 @@
 /**
  * Owns the DrawingSurface bound to the drawing canvas: creation/disposal, resize handling, the
- * selected input mode (pointer vs camera hand) and the "has ink" flag that enables submitting.
+ * selected input mode (pointer vs camera hand), the "has ink" flag that enables submitting and
+ * the hand pose the finish ring reads (so the screen runs only one hand tracker).
  */
 import { useEffect, useState, type RefObject } from "react";
 import { DrawingSurface } from "@/src/input";
 import type { InputModeId } from "@/src/input/types";
+import type { HandPose } from "@/src/input/hand-gesture";
 import { createGestureCommander } from "../gesture-commands";
 
 interface UseDrawingSurfaceOptions {
@@ -18,18 +20,32 @@ interface UseDrawingSurfaceOptions {
 export function useDrawingSurface({ canvasRef, surfaceOut, initialMode, active }: UseDrawingSurfaceOptions) {
   const [inputMode, setInputMode] = useState<InputModeId>(initialMode);
   const [hasInk, setHasInk] = useState(false);
+  const [handPose, setHandPose] = useState<HandPose>("none");
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const video = document.querySelector<HTMLVideoElement>(".global-camera-host .camera-video");
 
+    // The hand reports a pose every frame: state changes only when the pose does, so no re-render per frame.
+    let lastPose: HandPose = "none";
+    const setPose = (pose: HandPose) => {
+      if (pose === lastPose) return;
+      lastPose = pose;
+      setHandPose(pose);
+    };
+
     // R12: dua jari = Mundur, telapak terbelah = Maju, each once per held pose. Kepal (Hapus tool) erases inside DrawingSurface itself.
     const commander = createGestureCommander();
     const surface: DrawingSurface = new DrawingSurface(canvas, video, {
       initialMode,
       onInkChange: setHasInk,
+      onStatusChange: (status) => {
+        // Tracking stopped or lost: a pose seen earlier is no longer true, so a held thumb cannot confirm later.
+        if (status.kind !== "ready" && status.kind !== "drawing") setPose("none");
+      },
       onPose: (pose, nowMs) => {
+        setPose(pose);
         const action = commander.feed(pose, nowMs);
         if (action === "undo") surface.undo();
         else if (action === "redo") surface.redo();
@@ -86,5 +102,5 @@ export function useDrawingSurface({ canvasRef, surfaceOut, initialMode, active }
     if (!active) void surfaceOut.current?.setMode("pointer");
   }, [active, surfaceOut]);
 
-  return { inputMode, hasInk, switchMode };
+  return { inputMode, hasInk, handPose, switchMode };
 }

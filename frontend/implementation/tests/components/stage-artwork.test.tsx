@@ -52,7 +52,8 @@ describe("visual-only stage artwork contract", () => {
   unmount();
  });
  it("R15: levels end at a signpost naming the next chapter; tutorial keeps the flag", () => {
-  const next = { 1: "Menara Lipatan", 2: "Lorong Kabut", 3: "Pusat Halaman" } as const;
+  // Bab 3 leads to Bab 4 (Pembuktian); the closing Pusat Halaman comes after Bab 4, whose goal is the flag.
+  const next = { 1: "Menara Lipatan", 2: "Lorong Kabut", 3: "Pembuktian" } as const;
   for (const scene of [1,2,3] as const) {
    const {container, unmount}=render(<StageArtwork scene={scene} gameplay/>);
    const goal=container.querySelector('[data-asset-role="goal-preview"]')!;
@@ -64,9 +65,9 @@ describe("visual-only stage artwork contract", () => {
   const {container}=render(<StageArtwork scene={0}/>);
   expect(container.querySelector('[data-asset-role="goal-preview"]')!.getAttribute("href")).toMatch(/-flag$/);
  });
- it("provides exactly four original scene metadata entries", () => {
-  expect(STAGE_SCENES).toHaveLength(4);
-  expect(STAGE_SCENES.map(s=>s.title)).toEqual(["Gameplay Screen","Halaman yang Sobek","Menara Lipatan","Lorong Kabut Penghapus"]);
+ it("provides the gameplay scene and the four level scenes", () => {
+  expect(STAGE_SCENES).toHaveLength(5);
+  expect(STAGE_SCENES.map(s=>s.title)).toEqual(["Gameplay Screen","Halaman yang Sobek","Menara Lipatan","Lorong Kabut Penghapus","Pembuktian"]);
  });
  it("preserves viewBoxes and static illustrations without raster or canvas", () => {
   for (const scene of [0,1,2,3] as const) {

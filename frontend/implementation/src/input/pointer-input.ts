@@ -1,10 +1,10 @@
 import type { DrawingInput } from "../domain/types";
 import { normalizeStrokes } from "./normalize";
+import { ERASER_RADIUS_PX, eraserRadiusCanvasPx } from "./eraser";
 
-/** Eraser radius in canvas pixels: about 28 CSS px, scaled by the canvas backing-store ratio. */
+/** Eraser radius in canvas pixels: the default CSS radius, scaled by the canvas backing-store ratio. */
 export function eraserRadius(canvas: HTMLCanvasElement): number {
-  const w = canvas.getBoundingClientRect().width;
-  return 28 * (w > 0 ? canvas.width / w : 1);
+  return eraserRadiusCanvasPx(canvas, ERASER_RADIUS_PX);
 }
 
 /**
@@ -16,6 +16,8 @@ export function attachPointerDriver(
   store: import("./types").StrokeStore,
   onRender: () => void,
   onCursor?: (c: { x: number; y: number; state: "hover" | "near" | "drawing" } | null) => void,
+  /** Eraser radius in canvas px; the surface passes its CSS-px setting so the drag and the fist agree. */
+  radiusPx: () => number = () => eraserRadius(canvas),
 ): () => void {
   let active = false;
 
@@ -38,7 +40,7 @@ export function attachPointerDriver(
     const p = pointOf(e);
     if (store.eraserMode) {
       store.beginErase();
-      store.eraseAt(p, eraserRadius(canvas));
+      store.eraseAt(p, radiusPx());
     } else {
       store.beginStroke();
       store.addPoint(p);
@@ -50,7 +52,7 @@ export function attachPointerDriver(
     const p = pointOf(e);
     if (active) {
       e.preventDefault();
-      if (store.isErasing()) store.eraseAt(p, eraserRadius(canvas));
+      if (store.isErasing()) store.eraseAt(p, radiusPx());
       else store.addPoint(p);
       onCursor?.({ x: p.x, y: p.y, state: "drawing" });
       onRender();

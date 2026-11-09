@@ -3,7 +3,9 @@
  */
 import { Icon, type IconName } from "../ui/Icon";
 import { DirectionButton } from "./DirectionButton";
-import type { DirectionKey } from "./game-stage-types";
+import { GuideHelpIcon } from "./ControlGuide";
+import type { DirectionKey, InputMode } from "./game-stage-types";
+import "./gameplay-guide.css";
 
 const DIRECTION_BUTTONS: ReadonlyArray<{
   dir: DirectionKey;
@@ -19,13 +21,28 @@ const DIRECTION_BUTTONS: ReadonlyArray<{
 ];
 
 export interface GameplayControlsProps {
+  /** "camera": the hand steers, the buttons only show it. "fallback": the buttons are the controls. */
+  mode: InputMode;
   heldDirs: DirectionKey[];
+  /** Directions the hand is giving right now (highlight only). */
+  handDirs: DirectionKey[];
   onPress: (pointerId: number, dir: DirectionKey) => void;
   onRelease: (pointerId: number) => void;
   onReposition: () => void;
+  guideOpen: boolean;
+  onToggleGuide: () => void;
 }
 
-export function GameplayControls({ heldDirs, onPress, onRelease, onReposition }: GameplayControlsProps) {
+export function GameplayControls({
+  mode,
+  heldDirs,
+  handDirs,
+  onPress,
+  onRelease,
+  onReposition,
+  guideOpen,
+  onToggleGuide,
+}: GameplayControlsProps) {
   return (
     <div className="stage-floating-controls" data-testid="gameplay-controls">
       <div className="gameplay-controls__row">
@@ -34,6 +51,8 @@ export function GameplayControls({ heldDirs, onPress, onRelease, onReposition }:
             key={button.dir}
             {...button}
             pressed={heldDirs.includes(button.dir)}
+            handActive={handDirs.includes(button.dir)}
+            indicator={mode === "camera"}
             onPress={onPress}
             onRelease={onRelease}
           />
@@ -43,6 +62,16 @@ export function GameplayControls({ heldDirs, onPress, onRelease, onReposition }:
       <button className="nb-btn btn-small" data-testid="btn-reposition" onClick={onReposition}>
         <Icon name="swap" size={19} />
         Geser objek
+      </button>
+      <button
+        type="button"
+        className="nb-btn btn-small gameplay-controls__help"
+        data-testid="btn-control-guide"
+        aria-label="Cara menjalankan Thinman"
+        aria-expanded={guideOpen}
+        onClick={onToggleGuide}
+      >
+        <GuideHelpIcon />
       </button>
     </div>
   );

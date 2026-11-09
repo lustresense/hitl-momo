@@ -17,6 +17,7 @@ beforeEach(() => {
 const opts = { wasmRoot: "/w", modelUrl: "/m.task" };
 const delegateOf = (call: number) =>
   ((create.mock.calls[call]![1] as { baseOptions: { delegate: string } }).baseOptions.delegate);
+const numHandsOf = (call: number) => (create.mock.calls[call]![1] as { numHands: number }).numHands;
 
 describe("createHandLandmarker delegate policy", () => {
   it("uses GPU when it works and does not touch CPU", async () => {
@@ -49,5 +50,19 @@ describe("createHandLandmarker delegate policy", () => {
     create.mockRejectedValueOnce(new Error("gpu")).mockResolvedValueOnce({} as never);
     await createHandLandmarker(opts);
     expect(FilesetResolver.forVisionTasks).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("createHandLandmarker hand count", () => {
+  it("defaults to one hand, so the gameplay and wave trackers keep their single-hand input", async () => {
+    create.mockResolvedValueOnce({} as never);
+    await createHandLandmarker(opts);
+    expect(numHandsOf(0)).toBe(1);
+  });
+
+  it("passes the requested hand count to MediaPipe (the drawing driver asks for two)", async () => {
+    create.mockResolvedValueOnce({} as never);
+    await createHandLandmarker({ ...opts, numHands: 2 });
+    expect(numHandsOf(0)).toBe(2);
   });
 });

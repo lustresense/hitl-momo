@@ -1,0 +1,51 @@
+/*
+ * Momo's speech bubble, loaded from MomoChat.tsx. The shared rules live in app/styles/96-kit-base.css and
+ * 100-guide.css; these selectors are one step more specific so they win without touching those files.
+ */
+
+/* Readable size: 16 px minimum. Beats the 15 px kit rule and the 13 px phone rule in 100-guide.css. */
+.momo-chat .momo-chat__bubble.momo-chat__bubble {
+  font-size: 16px;
+  overflow-wrap: break-word;
+}
+
+/* The world win bubble keeps the larger size it already had. */
+.world-win .momo-chat .momo-chat__bubble.momo-chat__bubble {
+  font-size: 17px;
+}
+
+/* A bubble is click-through: it must never cover the drawing or a confirm button under it. */
+.momo-chat .momo-chat__bubble {
+  pointer-events: none;
+}
+
+/* The one exception: the line still typing takes a tap, Space or Enter (they show the whole line). */
+.momo-chat .momo-chat__bubble[data-skippable="true"] {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+/* Keyboard focus: ink ring, about 18:1 on the paper page (UI needs 3:1). */
+.momo-chat__bubble:focus-visible {
+  outline: 3px solid var(--nb-ink, #111111);
+  outline-offset: 3px;
+}
+
+/* A typed-out line swaps to its whole text once done; the text is already on screen, so it does not pop again. */
+.momo-chat__bubble.momo-chat__bubble--typed {
+  animation: none;
+}
+
+/* The live region lays out its own bubbles like the thread does. */
+.momo-chat .momo-chat__done {
+  display: flex;
+  flex-direction: column;
+  align-items: inherit;
+  gap: 6px;
+}
+
+/* An empty live region must still be in the page (screen readers need it there), but it takes no room:
+   the thread's gap would otherwise add 6 px above the line that follows it. */
+.momo-chat .momo-chat__done:empty {
+  margin-bottom: -6px;
+}

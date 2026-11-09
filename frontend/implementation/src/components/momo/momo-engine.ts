@@ -139,11 +139,14 @@ export class MomoEngine {
     host.innerHTML = momoSVG(id);
     const q = (s: string) => host.querySelector(s) as SVGElement;
     this.g = Object.fromEntries(PARTS.map((k) => [k, q("." + k)])) as Record<(typeof PARTS)[number], SVGElement>;
-    const tear = gsap.timeline({ repeat: -1, repeatDelay: 0.5, delay: Math.random() })
-      .fromTo(this.g.tearI, { attr: { opacity: 1 } }, { duration: 0.01 })
-      .to(this.g.tearI, { y: 95, opacity: 0, duration: 1.5, ease: "power1.in" }, 0);
-    const sweat = gsap.to(this.g.sweatI, { y: 18, duration: 1.1, yoyo: true, repeat: -1, ease: "sine.inOut" });
-    this.killers.push(() => tear.kill(), () => sweat.kill());
+    // Reduced motion: the falling tear and the bobbing sweat drop are endless loops, so they stay where they are.
+    if (!this.calm) {
+      const tear = gsap.timeline({ repeat: -1, repeatDelay: 0.5, delay: Math.random() })
+        .fromTo(this.g.tearI, { attr: { opacity: 1 } }, { duration: 0.01 })
+        .to(this.g.tearI, { y: 95, opacity: 0, duration: 1.5, ease: "power1.in" }, 0);
+      const sweat = gsap.to(this.g.sweatI, { y: 18, duration: 1.1, yoyo: true, repeat: -1, ease: "sine.inOut" });
+      this.killers.push(() => tear.kill(), () => sweat.kill());
+    }
     const blink = () => {
       if (this.destroyed) return;
       gsap.timeline().to(this, { bl: 0.08, duration: 0.07, ease: "power1.in" }).to(this, { bl: 1, duration: 0.12, ease: "power1.out" });
@@ -163,9 +166,19 @@ export class MomoEngine {
     this.react(instant ? 1.2 + Math.random() * 3 : 0);
   }
 
+  /** Reduced motion (the system asks for less motion): no endless loops, no hops or shakes at all. */
+  private get calm(): boolean {
+    return this.rm < 1;
+  }
+
   /** One-shot reaction of the current expression (hop, shake, ...). Repeats every few seconds by itself. */
   react(delay = 0): void {
     this.rt?.kill();
+    // The face still changes with the mood; only the body's hop is left out for reduced motion.
+    if (this.calm) {
+      this.rt = null;
+      return;
+    }
     const e = SPECS[this.i];
     const tl = gsap.timeline({ delay });
     this.rt = tl;

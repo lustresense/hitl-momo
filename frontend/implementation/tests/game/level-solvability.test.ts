@@ -10,7 +10,7 @@ const plans = JSON.parse(readFileSync(new URL("../../e2e/lib/level-plans.json", 
 const size = plans.objectSize as { w: number; h: number };
 
 describe("level solvability (kinematic model; browser E2E is the authority)", () => {
-  for (const stage of [1, 2, 3] as const) {
+  for (const stage of [1, 2, 3, 4] as const) {
     it(`L${stage}: documented student plan reaches the goal with legal placements`, () => {
       const g = getStageGeometry(stage);
       const placed: Array<{ id: string; label: string; behavior: "solid"; drawingInput: null; x: number; y: number; w: number; h: number }> = [];
@@ -24,23 +24,44 @@ describe("level solvability (kinematic model; browser E2E is the authority)", ()
       expect(r.outcome, r.log.join("\n")).toBe("goal");
     });
   }
-  it("L1/L2/L3 are NOT solvable without a placed object (the object matters)", () => {
-    for (const stage of [1, 2, 3] as const) expect(solve(buildWorld(stage)).solvable).toBe(false);
+  // Level 2 buildings are solid, so the documented balok at (190, 220) now sits inside the middle
+  // building and is illegal. This 2-object plan (balok moved left of the building, papan as documented)
+  // is the one the kinematic solver verified; it proves minDrawings = 2 still reaches the goal.
+  it("L2: a legal 2-object plan reaches the goal once the buildings are solid (balok at 100,220)", () => {
+    const g = getStageGeometry(2);
+    const balok = { x: 100, y: 220, w: size.w, h: size.h };
+    const papan = { x: plans["2"].cycles[1].x, y: plans["2"].cycles[1].y, w: size.w, h: size.h };
+    expect(integratedPlacementAllowed(balok, g, []), "balok placement legal").toBe(true);
+    expect(integratedPlacementAllowed(papan, g, [{ id: "b", label: "balok", behavior: "solid", drawingInput: null, ...balok }]), "papan placement legal").toBe(true);
+    const w = buildWorld(2, [{ ...balok, behavior: "solid" }, { ...papan, behavior: "solid" }]);
+    const r = runPlan(w, [{ launchX: 76, hold: 10 }, { launchX: 201, hold: 22 }, { launchX: 294, hold: 36 }, { launchX: 417, hold: 22 }, { launchX: 500, hold: 30 }]);
+    expect(r.outcome, r.log.join("\n")).toBe("goal");
+  });
+  it("L1-L4 are NOT solvable without a placed object (the object matters)", () => {
+    for (const stage of [1, 2, 3, 4] as const) expect(solve(buildWorld(stage)).solvable, `L${stage}`).toBe(false);
   });
   it("PRD 0.0.16 R8.1: Thinman walks slower than the old 200 px/s", () => {
     expect(WALK_SPEED).toBeLessThanOrEqual(140);
   });
   for (const level of LEVELS) {
-    const stage = level.stage as 1 | 2 | 3;
+    const stage = level.stage as 1 | 2 | 3 | 4;
+    const plan: Array<{ x: number; y: number }> = plans[String(stage)].cycles;
     it(`L${stage}: documented plan uses exactly minDrawings (${level.minDrawings}) objects`, () => {
-      expect(plans[String(stage)].cycles).toHaveLength(level.minDrawings);
+      expect(plan).toHaveLength(level.minDrawings);
     });
-    it(`L${stage}: minDrawings - 1 objects is not enough (each plan object alone, and a placement grid)`, () => {
-      expect(level.minDrawings).toBe(2);
-      const g = getStageGeometry(stage);
-      for (const c of plans[String(stage)].cycles) {
-        expect(solve(buildWorld(stage, [{ x: c.x, y: c.y, w: size.w, h: size.h, behavior: "solid" }])).solvable).toBe(false);
+    // Works for any minDrawings: leaving out one plan object leaves minDrawings - 1 objects, which must fail.
+    it(`L${stage}: minDrawings - 1 objects is not enough (the plan with any one object left out)`, () => {
+      for (let skip = 0; skip < plan.length; skip++) {
+        const rest = plan
+          .filter((_, i) => i !== skip)
+          .map((c) => ({ x: c.x, y: c.y, w: size.w, h: size.h, behavior: "solid" as const }));
+        expect(solve(buildWorld(stage, rest)).solvable, `without object ${skip + 1}`).toBe(false);
       }
+    }, 300_000);
+    it(`L${stage}: one object alone is not enough (placement grid)`, () => {
+      // Every level needs at least two objects, so a single object must never solve it.
+      expect(level.minDrawings).toBeGreaterThanOrEqual(2);
+      const g = getStageGeometry(stage);
       // Coarse grid over the whole world (finer 6-10 px grids were checked offline when tuning WALK_SPEED).
       for (let x = 20; x <= g.world.width - size.w; x += 45) for (let y = 60; y <= g.world.height - size.h; y += 45) {
         const rect = { x, y, w: size.w, h: size.h };

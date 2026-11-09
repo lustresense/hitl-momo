@@ -5,7 +5,8 @@
  * 
  * PROVISIONAL GESTURE (not product-final):
  * - Index fingertip (landmark 8) drives horizontal cursor position for left/right movement
- * - Thumb-index pinch toggles grab/drag (PLACE) in gameplay phase
+ * - Thumb-index pinch: grab/drag while placing (InputArbiter); a held pinch is jump in gameplay,
+ *   only when enableJump is set (the UI sets it for the gameplay phase)
  * - Mirror x (1-x) to match camera preview mirroring, same as hand-gesture.ts
  * - Zones: left < 0.35, right > 0.65, center stop zone
  * - Pinch threshold reuses existing isPinched logic from hand-gesture.ts

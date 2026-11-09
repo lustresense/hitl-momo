@@ -5,7 +5,7 @@
  * 
  * PROVISIONAL GESTURE MAPPING (not product-final):
  * - Index fingertip (landmark 8) drives horizontal cursor position for left/right movement
- * - Thumb-index pinch toggles grab/drag (PLACE) in gameplay phase
+ * - Thumb-index pinch: grab/drag while placing; held pinch = jump in gameplay (enableJump)
  * - Mirror x (1-x) exactly once via indexTipNormalized from hand-gesture.ts
  * - Movement zones: left < 0.35, right > 0.65, center stop (0.35–0.65)
  * - Pinch threshold 0.42 reused from hand-gesture.ts for grab/drag PLACE
@@ -32,7 +32,9 @@ import type { Landmark } from "./types";
 import { getSharedStream, subscribeSharedStream } from "../camera/shared-stream";
 import { createHandLandmarker, delegateLabel } from "../camera/hand-landmarker";
 import { classifyCameraError, messageFor, type CameraFailureReason } from "../camera/messages";
+import { publishHand, retireHand, startHandHeartbeat } from "../camera/hand-cursor-store";
 import { GameplayGestureFilter, type GameplayGestureFrame } from "./gameplay-gesture";
+import { indexTipNormalized } from "./hand-gesture";
 
 // Re-export frame type for consumers
 export type GameplayFrame = GameplayGestureFrame;
@@ -86,6 +88,8 @@ export class GameplayHandDriver {
   private neutralReported = false;
   private unsubscribeStream: (() => void) | null = null;
   private onVisibility: (() => void) | null = null;
+  /** Keeps this reader alive in the shared cursor store while the model loads (no frames yet). */
+  private stopHeartbeat: (() => void) | null = null;
 
   constructor(private readonly options: GameplayHandDriverOptions) {
     this.filter = new GameplayGestureFilter({ enableJump: options.enableJump });
@@ -133,6 +137,8 @@ export class GameplayHandDriver {
       }
       this.stream = shared;
       this.watchStream(shared);
+      // Visible to the dwell buttons from now on, so they never start a second model while this one loads.
+      this.beginReader();
 
       // Bind video element to borrowed stream (re-assigning the same stream restarts playback)
       if (video.srcObject !== this.stream) video.srcObject = this.stream;
@@ -157,6 +163,7 @@ export class GameplayHandDriver {
       this.setStatus("tracking");
       this.options.onDiagnostic?.({ delegate: delegateLabel(created) });
       this.watchVisibility();
+      this.endHeartbeat();
       this.loop();
     } catch (err) {
       if (stale()) return; // superseded by stop()/restart: caller already moved on
@@ -172,6 +179,8 @@ export class GameplayHandDriver {
     this.generation++;
     cancelAnimationFrame(this.rafId);
     this.rafId = 0;
+    this.endHeartbeat();
+    retireHand("gameplay");
     this.unsubscribeStream?.();
     this.unsubscribeStream = null;
     if (this.onVisibility && typeof document !== "undefined") {
@@ -219,7 +228,19 @@ export class GameplayHandDriver {
     document.addEventListener("visibilitychange", this.onVisibility);
   }
 
+  private beginReader(): void {
+    this.endHeartbeat();
+    publishHand({ cursor: null, source: "gameplay" });
+    this.stopHeartbeat = startHandHeartbeat("gameplay");
+  }
+
+  private endHeartbeat(): void {
+    this.stopHeartbeat?.();
+    this.stopHeartbeat = null;
+  }
+
   private reportNeutral(): void {
+    publishHand({ cursor: null, source: "gameplay" });
     this.filter.reset();
     if (!this.neutralReported) {
       this.neutralReported = true;
@@ -262,6 +283,8 @@ export class GameplayHandDriver {
       this.running = false;
       cancelAnimationFrame(this.rafId);
       this.rafId = 0;
+      this.endHeartbeat();
+      retireHand("gameplay");
       this.lastStatus = "error";
       this.options.onStatus("error");
       this.options.onDiagnostic?.({ reason: "tracker-error", message: messageFor("tracker-error") });
@@ -272,6 +295,8 @@ export class GameplayHandDriver {
 
     const landmarks: Landmark[] | undefined = result.landmarks[0];
     const frame = this.filter.update(landmarks, now);
+    // The raw fingertip (mirrored) for the dwell buttons; the gameplay filter keeps its own debounce.
+    publishHand({ cursor: landmarks ? indexTipNormalized(landmarks) : null, pinch: frame.pinched, source: "gameplay" });
     this.neutralReported = false;
     this.options.onFrame(frame);
     this.setStatus(frame.tracked ? "tracking" : "tracking-lost");

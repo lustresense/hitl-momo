@@ -5,6 +5,13 @@ import { DrawingScreen } from "@/src/components/drawing/DrawingScreen";
 import { LEVELS } from "@/src/domain/levels";
 import type { PredictionResult } from "@/src/domain/types";
 
+// Hand tracker stubbed: the decision buttons read the fingertip, and no camera exists in tests.
+vi.mock("@/src/hooks/useHandGesture", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/src/hooks/useHandGesture")>();
+  const stub = await import("./gesture-stub");
+  return { ...actual, useHandGesture: stub.useHandGestureStub };
+});
+
 afterEach(cleanup);
 
 const mockPrediction: PredictionResult = {
@@ -121,15 +128,16 @@ describe("Top3PredictionPopup Component", () => {
     expect(onAccept).toHaveBeenCalledTimes(1);
   });
 
-  it("commits Correct decision with the tapped rank (2 or 3) only", () => {
+  it("commits Correct decision with the tapped candidate rank (2 or 3) only", () => {
     const onCorrect = vi.fn();
+    const onAccept = vi.fn();
     render(
       <Top3PredictionPopup
         phase="evaluating"
         prediction={mockPrediction}
         predictionMode="mock"
         level={level1}
-        onAccept={vi.fn()}
+        onAccept={onAccept}
         onCorrect={onCorrect}
         onOverride={vi.fn()}
         onRedraw={vi.fn()}
@@ -137,13 +145,11 @@ describe("Top3PredictionPopup Component", () => {
       />
     );
 
-    fireEvent.click(screen.getByTestId("btn-correct"));
-    expect(onCorrect).not.toHaveBeenCalled(); // opening the picker is not a decision
-
-    // Tapping candidate #2 is the decision
-    fireEvent.click(document.querySelector('.correct-option[data-rank="2"]') as HTMLElement);
+    // Tapping candidate #2 is the decision: one tap, one commit
+    fireEvent.click(screen.getByTestId("btn-correct-2"));
     expect(onCorrect).toHaveBeenCalledTimes(1);
     expect(onCorrect).toHaveBeenCalledWith(2);
+    expect(onAccept).not.toHaveBeenCalled();
   });
 
   it("commits Override decision with the chosen vocabulary label only after confirming", () => {
@@ -164,8 +170,8 @@ describe("Top3PredictionPopup Component", () => {
 
     fireEvent.click(screen.getByTestId("btn-override"));
 
-    // Choosing a label alone does not commit; confirming does
-    fireEvent.change(document.getElementById("override-select") as HTMLSelectElement, { target: { value: "tangga" } });
+    // Choosing a label alone does not commit; Pakai does
+    fireEvent.click(screen.getByTestId("override-option-tangga"));
     expect(onOverride).not.toHaveBeenCalled();
     fireEvent.click(screen.getByTestId("override-confirm"));
     expect(onOverride).toHaveBeenCalledTimes(1);

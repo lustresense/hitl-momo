@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import {
   acquireThumbTracker,
   getHandGestureState,
+  simulatePinch,
   simulateThumb,
   subscribeHandGesture,
   type HandGestureState,
@@ -37,6 +38,8 @@ declare global {
   interface Window {
     /** TEST HOOKS ONLY: true = thumbs-up, false = hand without thumb, null = real tracking. */
     __skbThumb?: (value: boolean | null) => void;
+    /** TEST HOOKS ONLY: true = pinch (cubit), false = open hand, null = real tracking. */
+    __skbPinch?: (value: boolean | null) => void;
     /** TEST HOOKS ONLY: force "camera" or "fallback" mode, null = automatic. */
     __skbInputMode?: (mode: InputMode | null) => void;
   }
@@ -44,5 +47,6 @@ declare global {
 
 if (typeof window !== "undefined" && process.env.NEXT_PUBLIC_TEST_HOOKS === "1") {
   window.__skbThumb = simulateThumb;
+  window.__skbPinch = simulatePinch;
   window.__skbInputMode = forceInputMode;
 }

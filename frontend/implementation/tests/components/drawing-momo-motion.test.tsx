@@ -56,6 +56,12 @@ function mockRect(right: number, top: number, left = 0, bottom = 300, width = 44
   return { right, top, left, bottom, width, height, x: left, y: top, toJSON: () => ({}) };
 }
 
+/**
+ * Momo types each line out (dots, then one letter every 30 ms, at most 2.5 s per line), so a line is on screen
+ * after more than findBy's default 1 s. The wait is raised for Momo's copy only; the copy itself is unchanged.
+ */
+const findLine = (text: string) => screen.findByText(text, undefined, { timeout: 3000 });
+
 function mockSectionRect(left = 0, top = 0, right = 1920, bottom = 1080) {
   return { left, top, right, bottom, width: right - left, height: bottom - top, x: left, y: top, toJSON: () => ({}) };
 }
@@ -82,7 +88,7 @@ describe("DrawingScreen Momo state-based positioning - NEW CONTRACT", () => {
     expect(companion).not.toBeNull();
     expect(companion?.getAttribute("data-phase")).toBe("drawing");
     expect((companion as HTMLElement).style.transform).toContain("translate(28px, 24px)");
-    expect(await screen.findByText("Gambar objekmu dulu, ya. Nanti aku coba tebak!")).not.toBeNull();
+    expect(await findLine("Gambar objekmu dulu, ya. Nanti aku coba tebak!")).not.toBeNull();
   });
 
   it("moves Momo to popup.right+16 using EVALUATING geometry (440px) in predicting phase with NEW copy", async () => {
@@ -95,7 +101,7 @@ describe("DrawingScreen Momo state-based positioning - NEW CONTRACT", () => {
     render(<DrawingScreen {...defaultProps} phase="predicting" />);
     const companion = document.querySelector(".drawing-momo-companion");
     expect(companion?.getAttribute("data-phase")).toBe("predicting");
-    expect(await screen.findByText("Hmm... ini gambar apa, ya?")).not.toBeNull();
+    expect(await findLine("Hmm... ini gambar apa, ya?")).not.toBeNull();
     // x = geometryProbe.right(468) - section.left(0) + 16 = 484, y = 24
     expect((companion as HTMLElement).style.transform).toContain("translate(484px, 24px)");
   });
@@ -110,7 +116,7 @@ describe("DrawingScreen Momo state-based positioning - NEW CONTRACT", () => {
     render(<DrawingScreen {...defaultProps} phase="evaluating" prediction={mockPrediction} />);
     const companion = document.querySelector(".drawing-momo-companion");
     expect(companion?.getAttribute("data-phase")).toBe("evaluating");
-    expect(await screen.findByText("Gampang! Ini pasti jembatan, 88%. Bener gak?")).not.toBeNull();
+    expect(await findLine("Gampang! Ini pasti jembatan, 88%. Bener gak?")).not.toBeNull();
     expect((companion as HTMLElement).style.transform).toContain("translate(484px, 24px)");
   });
 
@@ -124,7 +130,7 @@ describe("DrawingScreen Momo state-based positioning - NEW CONTRACT", () => {
     render(<DrawingScreen {...defaultProps} phase="prediction-error" />);
     const companion = document.querySelector(".drawing-momo-companion");
     expect(companion?.getAttribute("data-phase")).toBe("prediction-error");
-    expect(await screen.findByText("Hmm, aku belum bisa membaca gambarmu. Mau coba lagi?")).not.toBeNull();
+    expect(await findLine("Hmm, aku belum bisa membaca gambarmu. Mau coba lagi?")).not.toBeNull();
     expect((companion as HTMLElement).style.transform).toContain("translate(484px, 24px)");
   });
 
@@ -140,10 +146,10 @@ describe("DrawingScreen Momo state-based positioning - NEW CONTRACT", () => {
     const end = new Event("transitionend", { bubbles: true });
     Object.defineProperty(end, "propertyName", { value: "transform" });
     fireEvent(companion, end);
-    expect(await screen.findByText("Gampang! Ini pasti jembatan, 88%. Bener gak?")).not.toBeNull();
+    expect(await findLine("Gampang! Ini pasti jembatan, 88%. Bener gak?")).not.toBeNull();
 
     rerender(<DrawingScreen {...defaultProps} phase="prediction-error" />);
-    expect(await screen.findByText("Hmm, aku belum bisa membaca gambarmu. Mau coba lagi?")).not.toBeNull();
+    expect(await findLine("Hmm, aku belum bisa membaca gambarmu. Mau coba lagi?")).not.toBeNull();
   });
 
   it("single Momo DOM element persists across phase changes (img identity)", () => {
@@ -208,7 +214,7 @@ describe("DrawingScreen Momo state-based positioning - NEW CONTRACT", () => {
 
   it("copy by .momo-bubble text content with NEW copy", async () => {
     render(<DrawingScreen {...defaultProps} phase="drawing" />);
-    await screen.findByText("Gambar objekmu dulu, ya. Nanti aku coba tebak!");
+    await findLine("Gambar objekmu dulu, ya. Nanti aku coba tebak!");
     const bubble = document.querySelector(".momo-bubble");
     expect(bubble).not.toBeNull();
     expect(bubble?.textContent).toContain("Gambar objekmu dulu, ya. Nanti aku coba tebak!");
@@ -216,7 +222,7 @@ describe("DrawingScreen Momo state-based positioning - NEW CONTRACT", () => {
 
   it("empty-drawing feedback retains existing cue", async () => {
     render(<DrawingScreen {...defaultProps} feedback="empty-drawing" phase="drawing" />);
-    expect(await screen.findByText("Gambar dulu sebelum menebak.")).not.toBeNull();
+    expect(await findLine("Gambar dulu sebelum menebak.")).not.toBeNull();
   });
 });
 

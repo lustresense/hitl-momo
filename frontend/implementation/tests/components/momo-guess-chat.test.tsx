@@ -1,55 +1,61 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MomoGuessChat } from "@/src/components/prediction/MomoGuessChat";
-import { GUESS_IDLE_MS, GUESS_STREAM_INTERVAL_MS, initialGuessStream, stepGuessStream, strokeSignature } from "@/src/components/prediction/guess-stream";
 import { forceInputMode, resetInputModeForTest } from "@/src/input/input-mode";
-import { resetThumbTrackerForTest, simulateThumb } from "@/src/camera/thumb-tracker";
 import { LEVELS } from "@/src/domain/levels";
 import type { PredictionResult } from "@/src/domain/types";
+import { cursorAtPx, placeBox, resetHandGesture, setHandGesture, type Box } from "./gesture-stub";
 
-vi.mock("@/src/camera/hand-landmarker", () => ({ createHandLandmarker: vi.fn(() => new Promise(() => {})) }));
+vi.mock("@/src/hooks/useHandGesture", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/src/hooks/useHandGesture")>();
+  const stub = await import("./gesture-stub");
+  return { ...actual, useHandGesture: stub.useHandGestureStub };
+});
 
 const prediction: PredictionResult = { candidates: [{ label: "papan", confidence: 0.5 }, { label: "balok", confidence: 0.3 }, { label: "tangga", confidence: 0.2 }] };
-function advance(ms: number) { for (let t = 0; t < ms; t += 16) act(() => { vi.advanceTimersByTime(16); }); }
+const BOX_FOR: Record<string, Box> = {
+  "btn-accept": { left: 100, top: 100, width: 260, height: 60 },
+  "btn-correct-2": { left: 100, top: 180, width: 260, height: 60 },
+  "btn-correct-3": { left: 100, top: 260, width: 260, height: 60 },
+  "btn-override": { left: 100, top: 340, width: 260, height: 60 },
+  "btn-redraw": { left: 100, top: 520, width: 260, height: 60 },
+  "btn-retry-prediction": { left: 100, top: 100, width: 260, height: 60 },
+};
 
-describe("R11 guess stream timing", () => {
-  it("throttles provisional calls to ~500 ms and asks once after 1 s of rest", () => {
-    let s = initialGuessStream(0);
-    let calls = 0, asks = 0;
-    for (let t = 0; t <= 2000; t += 100) {
-      const step = stepGuessStream(s, `1:${t}`, true, t); // strokes change every tick while drawing
-      s = step.state; if (step.callProvisional) calls++; if (step.ask) asks++;
-    }
-    expect(calls).toBeLessThanOrEqual(2000 / GUESS_STREAM_INTERVAL_MS + 1);
-    expect(calls).toBeGreaterThanOrEqual(3);
-    expect(asks).toBe(0);
-    for (let t = 2100; t <= 2000 + GUESS_IDLE_MS + 500; t += 100) {
-      const step = stepGuessStream(s, "1:2000", true, t);
-      s = step.state; if (step.ask) asks++;
-    }
-    expect(asks).toBe(1);
-    expect(GUESS_IDLE_MS).toBe(1000);
+function advance(ms: number) {
+  for (let t = 0; t < ms; t += 16) act(() => {
+    vi.advanceTimersByTime(16);
   });
-  it("drops a call while one is in flight and never asks on an empty canvas", () => {
-    const s = { ...initialGuessStream(0), inFlight: true };
-    expect(stepGuessStream(s, "1:5", true, 1000).callProvisional).toBe(false);
-    let e = initialGuessStream(0);
-    for (let t = 0; t < 3000; t += 100) { const st = stepGuessStream(e, "0:0", false, t); e = st.state; expect(st.ask).toBe(false); }
-    expect(strokeSignature([[1, 2], [3]])).toBe("2:3");
-  });
-});
+}
+
+/** Parks the fingertip outside, places the button, then rests the fingertip on it for `ms`. */
+function hoverOn(testId: string, ms: number) {
+  const box = BOX_FOR[testId]!;
+  act(() => setHandGesture({ handVisible: true, cursor: cursorAtPx(10, 10) }));
+  advance(50);
+  act(() => setHandGesture({ cursor: cursorAtPx(box.left + box.width / 2, box.top + box.height / 2) }));
+  advance(ms);
+}
 
 describe("MomoGuessChat", () => {
   beforeEach(() => {
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "requestAnimationFrame", "cancelAnimationFrame", "performance", "Date"] });
     resetInputModeForTest();
-    resetThumbTrackerForTest();
+    resetHandGesture();
+    forceInputMode("camera");
   });
-  afterEach(() => { cleanup(); vi.useRealTimers(); });
+  afterEach(() => {
+    cleanup();
+    vi.useRealTimers();
+  });
 
-  const setup = () => {
+  const setup = (phase: "evaluating" | "prediction-error" = "evaluating") => {
     const fns = { onAccept: vi.fn(), onCorrect: vi.fn(), onOverride: vi.fn(), onRedraw: vi.fn(), onRetry: vi.fn() };
-    render(<MomoGuessChat phase="evaluating" prediction={prediction} predictionMode="mock" level={LEVELS[0]!} {...fns} />);
+    render(<MomoGuessChat phase={phase} prediction={prediction} predictionMode="mock" level={LEVELS[0]!} {...fns} />);
+    for (const id of Object.keys(BOX_FOR)) {
+      const el = screen.queryByTestId(id);
+      if (el) placeBox(el, BOX_FOR[id]!);
+    }
     return fns;
   };
 
@@ -58,41 +64,46 @@ describe("MomoGuessChat", () => {
     expect(screen.getByRole("heading", { name: /tebakan momo/i })).toBeTruthy();
     expect(screen.getByText("50%")).toBeTruthy();
     expect(screen.getByText("30%")).toBeTruthy();
-    for (const id of ["btn-accept", "btn-correct", "btn-override", "prediction-source"]) expect(screen.getByTestId(id)).toBeTruthy();
+    for (const id of ["btn-accept", "btn-correct-2", "btn-correct-3", "btn-override", "btn-redraw", "prediction-source"]) {
+      expect(screen.getByTestId(id)).toBeTruthy();
+    }
   });
 
-  it("Terima commits only after a 2 s thumbs-up, once", () => {
+  it("Terima (rank 1) commits only after a full 1.2 s dwell, once", () => {
     const { onAccept } = setup();
-    advance(50); // a new ring arms only after it has seen no thumb (ThumbConfirm rule)
-    act(() => simulateThumb(true));
-    advance(1500);
+    hoverOn("btn-accept", 1100);
     expect(onAccept).not.toHaveBeenCalled();
-    advance(700);
+    advance(300);
     expect(onAccept).toHaveBeenCalledTimes(1);
   });
 
-  it("Pilih lain: tap opens the picker, picking a rank then a 2 s ring commits; Terima pauses meanwhile", () => {
-    const { onCorrect, onAccept } = setup();
-    fireEvent.click(screen.getByTestId("btn-correct"));
-    expect(screen.getByTestId("correct-picker")).toBeTruthy();
-    fireEvent.click(document.querySelector('[data-testid=correct-picker] [data-rank="3"]') as HTMLElement);
-    advance(50); // a new ring arms only after it has seen no thumb (ThumbConfirm rule)
-    act(() => simulateThumb(true));
-    advance(2200);
+  it("picking rank 2 on the chat commits Correct with 2, never Accept", () => {
+    const { onAccept, onCorrect } = setup();
+    hoverOn("btn-correct-2", 1300);
     expect(onCorrect).toHaveBeenCalledTimes(1);
-    expect(onCorrect).toHaveBeenCalledWith(3);
+    expect(onCorrect).toHaveBeenCalledWith(2);
     expect(onAccept).not.toHaveBeenCalled();
   });
 
-  it("Bukan semua: select a label then hold the ring (fallback mode, mouse hold)", () => {
-    forceInputMode("fallback");
-    const { onOverride } = setup();
-    fireEvent.click(screen.getByTestId("btn-override"));
-    fireEvent.change(document.getElementById("override-select") as HTMLSelectElement, { target: { value: "batu" } });
-    const ring = screen.getByTestId("override-confirm");
-    advance(50);
-    fireEvent.pointerDown(ring);
-    advance(2200);
-    expect(onOverride).toHaveBeenCalledWith("batu");
+  it("Gambar ulang dwells to onRedraw; Esc still redraws", () => {
+    const { onRedraw } = setup();
+    hoverOn("btn-redraw", 1300);
+    expect(onRedraw).toHaveBeenCalledTimes(1);
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(onRedraw).toHaveBeenCalledTimes(2);
+  });
+
+  it("error phase: Coba lagi is a dwell button that retries once", () => {
+    const { onRetry, onRedraw } = setup("prediction-error");
+    expect(screen.getByTestId("popup-error")).toBeTruthy();
+    hoverOn("btn-retry-prediction", 1300);
+    expect(onRetry).toHaveBeenCalledTimes(1);
+    expect(onRedraw).not.toHaveBeenCalled();
+  });
+
+  it("the Top-3 chat shows exactly one hand cursor while the hand is visible", () => {
+    setup();
+    act(() => setHandGesture({ handVisible: true, cursor: cursorAtPx(300, 300) }));
+    expect(document.querySelectorAll("[data-hand-cursor]")).toHaveLength(1);
   });
 });

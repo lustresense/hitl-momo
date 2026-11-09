@@ -59,7 +59,7 @@ export interface SceneSpec {
 
 export interface LevelContext {
   levelId: string;
-  stage: 1 | 2 | 3;
+  stage: 1 | 2 | 3 | 4;
   /**
    * DEV/PLACEHOLDER pacing: successful draw→decide→consequence cycles needed
    * to complete the level. Temporary dev value, not final level design.

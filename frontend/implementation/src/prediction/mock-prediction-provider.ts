@@ -22,7 +22,7 @@ export interface MockPredictionProviderOptions {
   /** Candidate labels this level allows (Top-3 ⊆ vocabulary). */
   vocabulary: string[];
   /** Stage emphasis influences fixture confidence spreads (dev fixtures only). */
-  stage: 1 | 2 | 3;
+  stage: 1 | 2 | 3 | 4;
   mode?: MockProviderMode;
   /** Simulated latency in ms; default 500. Tests use small/0 values. */
   latencyMs?: number;
@@ -46,10 +46,11 @@ export function hashDrawingInput(input: DrawingInput): number {
 }
 
 /** DEV fixture confidence spreads per stage emphasis. Not real model data. */
-const STAGE_SPREADS: Record<1 | 2 | 3, [number, number, number]> = {
+const STAGE_SPREADS: Record<1 | 2 | 3 | 4, [number, number, number]> = {
   1: [0.86, 0.09, 0.05],
   2: [0.42, 0.35, 0.23],
   3: [0.55, 0.38, 0.07],
+  4: [0.5, 0.33, 0.17],
 };
 
 function pickDistinctLabels(vocabulary: string[], seed: number): string[] {

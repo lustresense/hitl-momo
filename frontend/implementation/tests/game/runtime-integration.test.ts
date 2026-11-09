@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { integratedGoalReached, integratedPlacementAllowed, rectanglesOverlap } from "@/src/game/kaplay-runtime";
 import { getStageGeometry } from "@/src/game/stage-geometry";
+import { sourceToPhysics } from "@/src/game/stage-transform";
 
 describe("integrated runtime placement", () => {
   it("rejects penetrating solids, permits edge contact and air anchors", () => {
@@ -29,6 +30,12 @@ describe("integrated height-aware goal", () => {
     expect(integratedPlacementAllowed({ ...solid, y: solid.y - solid.h }, g, [solid])).toBe(true);
     expect(integratedPlacementAllowed({ ...solid, x: NaN }, g, [])).toBe(false);
     expect(integratedPlacementAllowed({ ...solid, x: 790 }, g, [])).toBe(false);
+  });
+  it("treats the level 2 building bodies as solids: a student object cannot sit inside a wall", () => {
+    const g = getStageGeometry(2);
+    const inWall = sourceToPhysics({ x: 165, y: 230 }, g);
+    const object = { id: "wall", label: "balok", behavior: "solid" as const, drawingInput: null, x: inWall.x, y: inWall.y, w: g.object.w, h: g.object.h };
+    expect(integratedPlacementAllowed(object, g, [])).toBe(false);
   });
 });
 
@@ -109,7 +116,8 @@ function physicsHarness() {
   const empty = () => ({});
   const k: any = {
     add, vec2, body: exports.body, pos: (x: number, y: number) => ({ id: "pos", pos: vec2(x, y) }),
-    area: () => ({ id: "area" }), Rect: class {},
+    area: (opt?: { shape?: unknown }) => ({ id: "area", shape: opt?.shape }),
+    Rect: class { constructor(readonly pos: unknown, readonly width: number, readonly height: number) {} },
     circle: empty, opacity: empty, rect: empty, text: (text: string, opt: {font?: string}) => { labels.push({text, font: opt.font}); return {}; }, color: empty, outline: empty, rgb: empty, polygon: empty,
     sprite: empty, scale: empty, loadSprite: () => Promise.resolve(),
     camPos: empty, camScale: empty, onResize: empty, quit: empty,
@@ -266,5 +274,22 @@ describe("desktop left boundary scope", () => {
       expect(h.player.pos.x).toBeCloseTo(integrated ? 12 - WALK_SPEED / 50 : 12); // Legacy movement runs on render cadence, unchanged.
       h.handle.destroy();
     } finally { vi.unstubAllGlobals(); }
+  });
+});
+
+describe("integrated world colliders", () => {
+  it.each([1, 2, 3] as const)("stage %i: every geometry platform is a static body with its exact collider", async (stage) => {
+    const h = await startPhysics(true, stage);
+    const g = getStageGeometry(stage);
+    const bodies = h.objects.filter((o) => o.is("stage-platform"));
+    expect(bodies).toHaveLength(g.platforms.length);
+    for (const p of g.platforms) {
+      const body = bodies.find((o) => o.geometryId === p.id);
+      expect(body, p.id).toBeDefined();
+      expect(body.isStatic, p.id).toBe(true);
+      expect(body.pos, p.id).toMatchObject({ x: p.x, y: p.y });
+      expect(body.shape, p.id).toMatchObject({ width: p.w, height: p.h });
+    }
+    h.handle.destroy();
   });
 });

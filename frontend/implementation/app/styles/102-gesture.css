@@ -1,5 +1,14 @@
 /* PRD 0.0.16 styles, owner: see task list. */
 
+/* Gesture ring tokens (ThumbConfirm and PinchRing). Checked by tests/components/nui-contrast.test.ts:
+   track 14:1 and fill 4:1 on the paper face, fill 3.5:1 against the track, focus ink 18:1 on paper. */
+:root {
+  --nb-ring-track: #2b2822; /* dark track: it shows on the paper face, and the green fill stands out on it */
+  --nb-ring-fill: #4a8c1f; /* the Owner's green */
+  --nb-ring-halo: #f0d487; /* yellow halo while held (decorative; the holding label also inverts) */
+  --nb-ring-focus: #111111; /* keyboard focus is ink: the pale sky tone is 1.7:1 on paper */
+}
+
 /* ---------- R4 ThumbConfirm: thumb with a progress ring (owner: input-qa) ---------- */
 .thumb-confirm {
   display: inline-flex; flex-direction: column; align-items: center; gap: 6px;
@@ -7,7 +16,7 @@
   user-select: none; -webkit-user-select: none; touch-action: none;
 }
 button.thumb-confirm { cursor: pointer; }
-button.thumb-confirm:focus-visible { outline: 3px solid var(--nb-sky); outline-offset: 4px; border-radius: 50%; }
+button.thumb-confirm:focus-visible { outline: 3px solid var(--nb-ring-focus); outline-offset: 4px; border-radius: 12px; }
 .thumb-confirm__face {
   position: relative; display: grid; place-items: center; width: 72px; height: 72px;
   border-radius: 50%; background: var(--nb-paper);
@@ -15,15 +24,22 @@ button.thumb-confirm:focus-visible { outline: 3px solid var(--nb-sky); outline-o
   transition: transform .15s var(--nb-ease-pop);
 }
 .thumb-confirm__ring { position: absolute; inset: -2px; width: calc(100% + 4px); height: calc(100% + 4px); }
-.thumb-confirm__track { fill: none; stroke: var(--nb-leaf-soft); stroke-width: 6; }
-.thumb-confirm__fill { fill: none; stroke: var(--nb-green); stroke-width: 6; stroke-linecap: round; }
+.thumb-confirm__track { fill: none; stroke: var(--nb-ring-track); stroke-width: 6; }
+.thumb-confirm__fill { fill: none; stroke: var(--nb-ring-fill); stroke-width: 6; stroke-linecap: round; }
 .thumb-confirm__thumb { position: relative; display: grid; place-items: center; }
-.thumb-confirm__label { font-weight: 800; font-size: 14px; }
-.thumb-confirm.is-holding .thumb-confirm__face { transform: scale(1.06); background: var(--nb-yellow); }
-.thumb-confirm.is-confirmed .thumb-confirm__face { animation: thumb-confirm-pulse .45s var(--nb-ease-pop); background: var(--nb-leaf); }
-.thumb-confirm.is-disabled { opacity: .5; }
+/* The label always sits in its own solid pill, so it reads on any page background. */
+.thumb-confirm__label {
+  font-weight: 800; font-size: 14px; line-height: 1.2; text-align: center;
+  padding: 4px 12px; border: var(--nb-border) solid var(--nb-ink); border-radius: 999px;
+  background: var(--nb-paper); color: var(--nb-ink);
+}
+/* Holding: the face lifts with a yellow halo, and the label inverts. Two cues, not only colour. */
+.thumb-confirm.is-holding .thumb-confirm__face { transform: scale(1.06); box-shadow: 0 0 0 6px var(--nb-ring-halo), var(--nb-shadow-sm); }
+.thumb-confirm.is-holding .thumb-confirm__label { background: var(--nb-ink); color: var(--nb-paper); }
+.thumb-confirm.is-confirmed .thumb-confirm__face { animation: thumb-confirm-pulse .45s var(--nb-ease-pop); }
+.thumb-confirm.is-disabled { opacity: .55; }
 @keyframes thumb-confirm-pulse {
-  0% { transform: scale(1); box-shadow: 0 0 0 0 var(--nb-green); }
+  0% { transform: scale(1); box-shadow: 0 0 0 0 var(--nb-ring-fill); }
   50% { transform: scale(1.18); box-shadow: 0 0 0 10px transparent; }
   100% { transform: scale(1); }
 }

@@ -58,17 +58,22 @@ describe("R12 drawing poses are mutually exclusive", () => {
 import { gateFrameByPose } from "@/src/input/mediapipe-input";
 import { evaluateGesture } from "@/src/input/hand-gesture";
 describe("gateFrameByPose (R12 wiring)", () => {
-  it("reports the pose and blocks ink while a command pose is shown", () => {
+  // Updated: a thumb touching the index tip is now a pinch even when the other fingers are folded
+  // (see hand-pose-classify tests), so this hand keeps its ink. The old expectation read it as a fist.
+  it("a thumb touching the index tip keeps its ink; a real fist (thumb tucked) blocks ink", () => {
     const seen: string[] = [];
-    const fistLm = pose(["down", "down", "down", "down"], { thumb: "pinch" });
-    const raw = evaluateGesture(fistLm);
+    const touchLm = pose(["down", "down", "down", "down"], { thumb: "pinch" });
+    const raw = evaluateGesture(touchLm);
     expect(raw.state === "tracking" && raw.pinched).toBe(true);
-    const gated = gateFrameByPose(raw, fistLm, 5, (p) => seen.push(p)).frame;
+    const kept0 = gateFrameByPose(raw, touchLm, 5, (p) => seen.push(p)).frame;
+    expect(kept0.state === "tracking" && kept0.pinched).toBe(true);
+    const fistLm = pose(["down", "down", "down", "down"]);
+    const gated = gateFrameByPose(evaluateGesture(fistLm), fistLm, 6, (p) => seen.push(p)).frame;
     expect(gated.state === "tracking" && gated.pinched).toBe(false);
     const pinchLm = pose(["up", "down", "down", "down"], { thumb: "pinch" });
-    const kept = gateFrameByPose(evaluateGesture(pinchLm), pinchLm, 6, (p) => seen.push(p)).frame;
+    const kept = gateFrameByPose(evaluateGesture(pinchLm), pinchLm, 7, (p) => seen.push(p)).frame;
     expect(kept.state === "tracking" && kept.pinched).toBe(true);
-    gateFrameByPose(evaluateGesture(undefined), undefined, 7, (p) => seen.push(p));
-    expect(seen).toEqual(["fist", "pinch", "none"]);
+    gateFrameByPose(evaluateGesture(undefined), undefined, 8, (p) => seen.push(p));
+    expect(seen).toEqual(["pinch", "fist", "pinch", "none"]);
   });
 });

@@ -1,8 +1,10 @@
 import type { DrawingInput } from "../domain/types";
 import { StrokeStore, type HandInputStatus, type InputModeId } from "./types";
 import { attachPointerDriver, strokesToDrawingInput } from "./pointer-input";
-import { HandDrawingDriver, gateFrameByPose, ERASER_RADIUS_PX } from "./mediapipe-input";
-import { evaluateGesture, mapToCanvas, type CursorState, type HandPose } from "./hand-gesture";
+import { HandDrawingDriver } from "./mediapipe-input";
+import { HandStrokePipeline, type HandCursor, type HandFrame } from "./hand-stroke-pipeline";
+import { ERASER_RADIUS_PX, ERASER_SIZE_STEP_PX, clampEraserRadius, eraserRadiusCanvasPx, type EraserControl } from "./eraser";
+import { mapToCanvas, type HandPose } from "./hand-gesture";
 import { PointSmoother } from "./smoothing";
 import { DRAWING_MODE_EVENT, HAND_STATUS_EVENT, messageFor } from "../camera/messages";
 
@@ -16,7 +18,7 @@ export interface DrawingSurfaceOptions {
   modelUrl?: string;
   onStatusChange?(status: HandInputStatus): void;
   onInkChange?(hasInk: boolean): void;
-  /** PRD 0.0.16 R12: classified hand pose once per hand frame ("none" when no hand); the UI debounces it into commands. */
+  /** PRD 0.0.16 R12: stable hand pose once per hand frame ("none" when no hand); the UI debounces it into commands. */
   onPose?(pose: HandPose, nowMs: number): void;
 }
 
@@ -24,9 +26,37 @@ export class DrawingSurface {
   readonly store = new StrokeStore();
   private detachPointer: (() => void) | null = null;
   private handDriver: HandDrawingDriver | null = null;
-  private cursor: { x: number; y: number; state: "hover" | "near" | "drawing" } | null = null;
+  private cursor: HandCursor | null = null;
   private readonly smoother = new PointSmoother();
   private lastReportedInk = false;
+  /** Frame pipeline for the test hook (the live driver owns its own). Created on first use. */
+  private testPipeline: HandStrokePipeline | null = null;
+  /** Hapus radius in CSS px (see setEraserRadius); canvas px follow the backing-store ratio. */
+  private eraserRadiusCss = ERASER_RADIUS_PX;
+  /** The eraser as the hand pipeline and the drivers see it: one radius, owned here. */
+  private readonly eraser: EraserControl = {
+    radiusCanvasPx: () => this.currentEraserRadiusCanvasPx(),
+    radiusCss: () => this.eraserRadiusCss,
+    setRadiusCss: (px) => {
+      this.setEraserRadius(px);
+    },
+  };
+
+  /** Mouse wheel over the canvas sizes the eraser while the Hapus tool is on; otherwise the page scrolls. */
+  private readonly onWheel = (e: WheelEvent) => {
+    if (!this.store.eraserMode || e.deltaY === 0) return;
+    e.preventDefault();
+    this.nudgeEraser(e.deltaY < 0 ? ERASER_SIZE_STEP_PX : -ERASER_SIZE_STEP_PX);
+  };
+
+  /** `[` and `]` size the eraser while the Hapus tool is on, unless the student is typing or using a shortcut. */
+  private readonly onKey = (e: KeyboardEvent) => {
+    if (!this.store.eraserMode || e.ctrlKey || e.metaKey || e.altKey || isTypingTarget(e.target)) return;
+    const step = e.key === "[" ? -ERASER_SIZE_STEP_PX : e.key === "]" ? ERASER_SIZE_STEP_PX : 0;
+    if (step === 0) return;
+    e.preventDefault();
+    this.nudgeEraser(step);
+  };
 
   constructor(
     private readonly canvas: HTMLCanvasElement,
@@ -35,6 +65,9 @@ export class DrawingSurface {
   ) {
     this.resizeForDpr();
     this.attachPointer();
+    // Non-passive so the wheel can be taken over (sizing the eraser) without scrolling the page.
+    this.canvas.addEventListener("wheel", this.onWheel, { passive: false });
+    if (typeof window !== "undefined") window.addEventListener("keydown", this.onKey);
     void this.setMode(options.initialMode ?? "pointer");
   }
 
@@ -77,6 +110,7 @@ export class DrawingSurface {
             this.cursor = c;
           },
           onPose: (pose, nowMs) => this.options.onPose?.(pose, nowMs),
+          eraser: this.eraser,
         });
         await this.handDriver.start();
       } catch {
@@ -112,6 +146,7 @@ export class DrawingSurface {
         this.cursor = c;
         this.render();
       },
+      () => this.currentEraserRadiusCanvasPx(),
     );
   }
 
@@ -159,42 +194,37 @@ export class DrawingSurface {
   /**
    * TEST HOOK (TASK 14): inject synthetic landmarks into the gesture pipeline.
    * Works with or without an active camera/driver so automation can exercise
-   * mapping/smoothing/stroke production headlessly.
+   * mapping/smoothing/stroke production headlessly. Same pipeline as the live driver.
    */
   feedHandLandmarksForTest(
     landmarks: Array<{ x: number; y: number; z?: number }> | undefined,
     _ts = 0,
   ): void {
-    const { frame, pose } = gateFrameByPose(evaluateGesture(landmarks), landmarks, _ts, this.options.onPose);
-    if (frame.state === "lost") {
-      if (this.store.hasInk()) this.store.endStroke();
-      if (this.store.isErasing()) this.store.endErase();
-      this.cursor = null;
-      this.smoother.reset();
-      this.render();
-      return;
-    }
-    const smoothed = this.smoother.smooth(frame.cursor, _ts);
-    const canvasPt = mapToCanvas(smoothed, this.canvas.width, this.canvas.height);
-    this.cursor = { x: canvasPt.x, y: canvasPt.y, state: frame.cursorState };
-    if (pose === "fist" || this.store.eraserMode) {
-      if (this.lastTestPinch) this.store.endStroke();
-      this.lastTestPinch = false;
-      this.store.eraseAt(canvasPt, ERASER_RADIUS_PX);
-      this.render();
-      this.reportInkChange();
-      return;
-    }
-    if (this.store.isErasing()) this.store.endErase();
-    if (frame.pinched && !this.lastTestPinch) this.store.beginStroke();
-    if (frame.pinched) this.store.addPoint(canvasPt);
-    else if (this.lastTestPinch) this.store.endStroke();
-    this.lastTestPinch = frame.pinched;
-    this.render();
-    this.reportInkChange();
+    this.feedHandsForTest(landmarks ? [landmarks] : undefined, _ts);
   }
 
-  private lastTestPinch = false;
+  /** TEST HOOK: every hand of one frame (two hands: a fist and a second hand that sizes the eraser). */
+  feedHandsForTest(
+    hands: Array<Array<{ x: number; y: number; z?: number }>> | undefined,
+    _ts = 0,
+  ): void {
+    this.testPipeline ??= new HandStrokePipeline({
+      store: this.store,
+      size: () => ({ width: this.canvas.width, height: this.canvas.height }),
+      eraser: this.eraser,
+      onPose: (pose, nowMs) => this.options.onPose?.(pose, nowMs),
+    });
+    this.applyFrame(this.testPipeline.feedHands(hands, _ts));
+  }
+
+  /** Cursor, ink flag and redraw for one hand frame (same contract as the live driver's reports). */
+  private applyFrame(frame: HandFrame): void {
+    this.cursor = frame.cursor;
+    if (frame.changed) {
+      this.render();
+      this.reportInkChange();
+    }
+  }
 
   /** Expose smoothed cursor for overlay rendering from gesture pipeline tests. */
   pushTestCursor(p: { x: number; y: number }): void {
@@ -214,8 +244,8 @@ export class DrawingSurface {
   }
 
   /**
-   * PRD 0.0.16 R12 Hapus tool: while on, pointer drags and the hand cursor erase the strokes they pass
-   * (radius about 28 px). One pass is one undo step. A held fist erases in hand mode even when off.
+   * PRD 0.0.16 R12 Hapus tool: while on, pointer drags and the hand cursor erase the strokes they pass.
+   * One pass is one undo step. A held fist erases in hand mode even when off.
    */
   setErasing(on: boolean): void {
     if (!on && this.store.isErasing()) this.store.endErase();
@@ -224,6 +254,30 @@ export class DrawingSurface {
 
   isErasingMode(): boolean {
     return this.store.eraserMode;
+  }
+
+  /**
+   * Eraser radius for the fist (hand) and the drag (pointer), in CSS px. Clamped to a safe range;
+   * NaN keeps the current value. Returns the radius now in use.
+   */
+  setEraserRadius(px: number): number {
+    if (!Number.isNaN(px)) this.eraserRadiusCss = clampEraserRadius(px);
+    return this.eraserRadiusCss;
+  }
+
+  /** The Hapus radius in CSS px now in use (fist, drag, wheel, `[ ]` and the two-hand sizer all share it). */
+  getEraserRadius(): number {
+    return this.eraserRadiusCss;
+  }
+
+  /** One wheel notch or one `[ ]` press: move the radius by `step` CSS px and redraw the ring. */
+  private nudgeEraser(step: number): void {
+    this.setEraserRadius(this.eraserRadiusCss + step);
+    this.render();
+  }
+
+  private currentEraserRadiusCanvasPx(): number {
+    return eraserRadiusCanvasPx(this.canvas, this.eraserRadiusCss);
   }
 
   isEmpty(): boolean {
@@ -260,6 +314,8 @@ export class DrawingSurface {
     void this.stopHand();
     this.detachPointer?.();
     this.detachPointer = null;
+    this.canvas.removeEventListener("wheel", this.onWheel);
+    if (typeof window !== "undefined") window.removeEventListener("keydown", this.onKey);
   }
 
   /* ---------------- rendering ---------------- */
@@ -300,6 +356,8 @@ export class DrawingSurface {
       const { x, y, state } = this.cursor;
       const cssW = this.canvas.clientWidth || (this.canvas.width / (window.devicePixelRatio || 1)) || this.canvas.width;
       const scale = this.canvas.width / (cssW || 1);
+      // The Hapus reach is drawn under the pointer dot, so the dot stays on top.
+      if (this.cursor.erasing || this.store.eraserMode) this.drawEraserRing(ctx, x, y, scale);
       const r = 6.5 * scale;
       ctx.save();
       ctx.beginPath();
@@ -312,6 +370,45 @@ export class DrawingSurface {
       ctx.restore();
     }
   }
+
+  /**
+   * The Hapus reach at (x, y): a dark ring as wide as the radius now in use, with a faint fill, so the student
+   * sees what one pass will cut. While the second hand sets the size, a dark badge shows the size in CSS px.
+   */
+  private drawEraserRing(ctx: CanvasRenderingContext2D, x: number, y: number, scale: number): void {
+    const radius = this.currentEraserRadiusCanvasPx();
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fillStyle = "rgba(255, 225, 105, 0.22)";
+    ctx.fill();
+    ctx.lineWidth = Math.max(2, Math.round(3 * scale));
+    ctx.strokeStyle = "#111111";
+    ctx.stroke();
+    const sizing = this.cursor?.sizingCss;
+    if (sizing != null) {
+      const badgeR = 13 * scale;
+      const bx = x;
+      const by = y - radius - badgeR - 4 * scale;
+      ctx.beginPath();
+      ctx.arc(bx, by, badgeR, 0, Math.PI * 2);
+      ctx.fillStyle = "#111111";
+      ctx.fill();
+      ctx.fillStyle = "#ffffff";
+      ctx.font = `bold ${Math.round(15 * scale)}px system-ui, sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(String(Math.round(sizing)), bx, by);
+    }
+    ctx.restore();
+  }
+}
+
+/** Keys typed into a field belong to the field, not to the eraser. */
+function isTypingTarget(target: EventTarget | null): boolean {
+  const el = target as HTMLElement | null;
+  if (!el || typeof el.tagName !== "string") return false;
+  return el.isContentEditable || el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT";
 }
 
 /** Transparent canvas clearing — allows full-bleed CSS sketchbook dot-grid to show through. */

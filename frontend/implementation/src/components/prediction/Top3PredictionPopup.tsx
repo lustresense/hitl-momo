@@ -1,8 +1,9 @@
 "use client";
 import { useEffect } from "react";
 import type { Top3PredictionPopupProps } from "./top3-popup-types";
-import { Top3Panel } from "./Top3Panel";
 import { DecisionPanel } from "../decision/DecisionPanel";
+import { DwellButton } from "../ui/DwellButton";
+import { HandCursor } from "../ui/HandCursor";
 import { Icon } from "../ui/Icon";
 
 /**
@@ -37,12 +38,7 @@ export function Top3PredictionPopup({
 
   if (phase === "prediction-error") {
     return (
-      <div
-        className="prediction-hitl-popup is-error"
-        role="alert"
-        aria-label="Kendala prediksi AI"
-        data-testid="popup-error"
-      >
+      <div className="prediction-hitl-popup is-error" role="alert" aria-label="Kendala prediksi AI" data-testid="popup-error">
         <div className="popup-badge error-badge">
           <Icon name="close" size={14} stroke={3.2} />
           Kendala
@@ -50,25 +46,26 @@ export function Top3PredictionPopup({
         <h3 className="popup-title">Momo belum bisa menebak</h3>
         <p className="popup-desc">{errorDetail || "Terjadi kesalahan pada layanan prediksi."}</p>
         <div className="popup-actions-error">
-          <button
-            type="button"
-            className="nb-btn nb-btn--primary"
-            onClick={onRetry}
-            data-testid="btn-retry-prediction"
+          <DwellButton
+            testId="btn-retry-prediction"
+            className="dwell-btn--primary momo-guess__action"
+            label="Coba lagi"
+            icon={<Icon name="again" size={20} />}
+            onActivate={onRetry}
           >
-            <Icon name="again" size={19} />
             Coba lagi
-          </button>
-          <button
-            type="button"
-            className="nb-btn"
-            onClick={onRedraw}
-            data-testid="btn-redraw-error"
+          </DwellButton>
+          <DwellButton
+            testId="btn-redraw-error"
+            className="momo-guess__action"
+            label="Revisi gambar"
+            icon={<Icon name="pencil" size={20} />}
+            onActivate={onRedraw}
           >
-            <Icon name="pencil" size={19} />
             Revisi gambar
-          </button>
+          </DwellButton>
         </div>
+        <HandCursor />
       </div>
     );
   }
@@ -93,10 +90,6 @@ export function Top3PredictionPopup({
         </span>
       </div>
 
-      <div className="popup-candidates">
-        <Top3Panel result={prediction} />
-      </div>
-
       <div className="popup-decision">
         <DecisionPanel
           prediction={prediction}
@@ -107,7 +100,7 @@ export function Top3PredictionPopup({
           onRedraw={onRedraw}
         />
       </div>
+      <HandCursor />
     </div>
   );
 }
-

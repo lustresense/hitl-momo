@@ -27,6 +27,7 @@ export const STAGE_WORLD = { width: 800, height: 450 } as const;
  * Four roof supports form an inscribed staircase approximation of the visible
  * triangle (330,130)-(378,62)-(432,130); no external invisible stairs.
  * Decorative ladder, paper and crown are not extra platforms/hazards.
+ * PRD 0.0.16 R8.1: L3 stone block lowered (top 238 -> 262) so one drawn object is not enough at WALK_SPEED.
  * Runtime owns object stacking, balancing and existing player body dimensions.
  */
 export function getStageGeometry(stage: 1 | 2 | 3): StageGeometry {
@@ -65,7 +66,7 @@ export function getStageGeometry(stage: 1 | 2 | 3): StageGeometry {
     case 3:
       platform('left-cliff', 0, 198, 130, 127);
       platform('right-cliff', 362, 160, 128, 165);
-      platform('stone-block', 184, 238, 66, 54);
+      platform('stone-block', 184, 262, 66, 30);
       platform('upper-ledge', 204, 150, 76, 9);
       platform('lower-ledge', 304, 212, 52, 9);
       g.hazards.push({ id: 'stage-3-spike-floor', ...rect(130, 278, 238, 47) });

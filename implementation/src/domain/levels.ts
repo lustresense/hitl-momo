@@ -29,6 +29,11 @@ export interface LevelDefinition extends LevelContext {
   stageEmphasis: string;
   /** Objects the student is allowed to draw for this level (catalog UI). */
   catalog: Array<{ labelId: string; displayName: string; icon?: string }>;
+  /**
+   * PRD 0.0.16 K2 (dummy for the partner): the fewest placed solid objects that make the stage geometry
+   * crossable. Proven by tests/game/level-solvability.test.ts (n-1 objects fail, n objects succeed).
+   */
+  minDrawings: number;
   /** Two-block summary copy for level completion. */
   summary: {
     /** Gameplay outcome narrative — what the student achieved. */
@@ -43,8 +48,9 @@ const STAGE_1: LevelDefinition = makeLevel({
   levelId: "stage-1-foundation",
   stage: 1,
   cyclesRequired: 1,
+  minDrawings: 2,
   title: "Bab 1 · Jembatan Pertama",
-  task: "Gambar satu objek untuk menyeberangi celah di buku.",
+  task: "Gambar dua objek untuk menyeberangi celah di buku.",
   stageEmphasis: "Pahami alur dasar: gambar → tebakan AI → keputusanmu → konsekuensi.",
   behaviorMap: {
     papan: "solid",
@@ -70,6 +76,7 @@ const STAGE_2: LevelDefinition = makeLevel({
   levelId: "stage-2-ambiguity",
   stage: 2,
   cyclesRequired: 2,
+  minDrawings: 2,
   title: "Bab 2 · Menara Lipatan",
   task: "Halaman terlipat ke atas. Susun pijakan agar {character} mencapai dataran yang lebih tinggi.",
   stageEmphasis: "Bandingkan Top-3 dan confidence — jangan berasumsi ranking pertama selalu yang paling tepat.",
@@ -106,6 +113,7 @@ const STAGE_3: LevelDefinition = makeLevel({
   levelId: "stage-3-validation",
   stage: 3,
   cyclesRequired: 1,
+  minDrawings: 2,
   title: "Bab 3 · Lorong Kabut Penghapus",
   task: "Lorong berkabut tebal. Pilih objek yang tepat agar aman melewati rute penuh bahaya.",
   stageEmphasis: "Validasi konsekuensi sebelum memutuskan — label benar belum tentu penempatannya aman di konteks ini.",

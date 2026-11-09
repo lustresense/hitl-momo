@@ -208,19 +208,20 @@ describe("GlobalCamera: wave loop robustness + cleanup", () => {
     };
     vi.mocked(HandLandmarker.createFromOptions).mockResolvedValue(lm as never);
     getUserMedia.mockResolvedValue(fakeStream().stream);
-    const onWave = vi.fn();
-    render(<GlobalCamera mode="cover" modelUrl="/m" waveStartDelayMs={0} onWave={onWave} />);
+    // PRD 0.0.16 R1: the wave wakes Momo (onWave navigates only after her lines + the book flip).
+    render(<GlobalCamera mode="cover" modelUrl="/m" waveStartDelayMs={0} />);
     fireEvent.click(toggle());
     await tick();
     await tick();
     const video = document.querySelector("video")!;
+    const widget = screen.getByTestId("global-camera-widget");
     let t = 0;
-    for (let i = 1; i <= 30 && !onWave.mock.calls.length; i++) {
+    for (let i = 1; i <= 30 && !widget.className.includes("has-momo-awake"); i++) {
       Object.defineProperty(video, "currentTime", { configurable: true, value: ++t });
-      stepRaf();
+      await act(async () => stepRaf());
     }
     expect(lm.detectForVideo.mock.calls.length).toBeGreaterThan(3);
-    expect(onWave).toHaveBeenCalledTimes(1);
+    expect(widget.className).toContain("has-momo-awake");
   });
 
   it("unmount stops every track, cancels the rAF loop and closes the landmarker", async () => {

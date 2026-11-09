@@ -56,6 +56,25 @@ function ArtworkDefinitions({ prefix }: { prefix: string }) {
   );
 }
 
+/** R15 (PRD 0.0.16): next destination named on each level's end signpost. */
+const SIGNPOST_NEXT: Record<1 | 2 | 3, string> = { 1: 'Menara Lipatan', 2: 'Lorong Kabut', 3: 'Pusat Halaman' };
+
+/**
+ * Sketch signpost replacing the level flag (R15). Foot at (0,0) like the flag, same footprint
+ * (post 52 units high), so the physics goal rect in stage-geometry stays unchanged.
+ */
+function Signpost({ level, transform }: { level: 1 | 2 | 3; transform: string }) {
+  return (
+    <g data-asset-role="goal-preview" data-goal-kind="signpost" transform={transform}>
+      <path d="M0 0V-54" stroke="#1e2126" strokeWidth="3.5" strokeLinecap="round" />
+      <path d="M-20 -54h40v13h-40z" fill="#f3ead2" stroke="#1e2126" strokeWidth="1.8" strokeLinejoin="round" />
+      <text x="0" y="-44.5" textAnchor="middle" fontSize="6.2" fontWeight="700" fill="#1e2126">{`Bab ${level} selesai`}</text>
+      <path d="M-14 -36h32l7 6l-7 6h-32z" fill="#df6930" stroke="#1e2126" strokeWidth="1.8" strokeLinejoin="round" />
+      <text x="3" y="-27.8" textAnchor="middle" fontSize="5" fontWeight="700" fill="#fffdf6">{SIGNPOST_NEXT[level]}</text>
+    </g>
+  );
+}
+
 function SceneLayers({ scene, prefix, gameplay }: { scene: SceneIndex; prefix: string; gameplay: boolean }) {
   switch (scene) {
     case 0:
@@ -103,7 +122,7 @@ function SceneLayers({ scene, prefix, gameplay }: { scene: SceneIndex; prefix: s
           <path d="M170 325l12-34l22-10l10 44M205 306l14-28l20 6l6 36M235 325l24-30l24 6l8 24M290 318l10-24l22 14" />
         </g>
         {!gameplay && <use data-asset-role="character-preview" href={`#${prefix}-man`} transform="translate(42 198) scale(1.1)" />}
-        <use data-asset-role="goal-preview" href={`#${prefix}-flag`} transform="translate(458 192)" />
+        <Signpost level={1} transform="translate(458 192)" />
         </>
       );
     case 2:
@@ -131,7 +150,7 @@ function SceneLayers({ scene, prefix, gameplay }: { scene: SceneIndex; prefix: s
           <path d="M349 140V325M366 140V325M349 162h17M349 186h17M349 210h17M349 234h17M349 258h17M349 282h17M349 306h17" />
         </g>
         {!gameplay && <use data-asset-role="character-preview" href={`#${prefix}-man`} transform="translate(77 190) scale(1.1)" />}
-        <use data-asset-role="goal-preview" href={`#${prefix}-flag`} transform="translate(379 66) scale(.75)" />
+        <Signpost level={2} transform="translate(379 66) scale(.75)" />
         </>
       );
     case 3:
@@ -144,15 +163,15 @@ function SceneLayers({ scene, prefix, gameplay }: { scene: SceneIndex; prefix: s
           <path d="M366 168h124v157H368z" fill={`url(#${prefix}-dirt)`} />
           <path d="M0 198h130v15H0zM362 160h128v15H362z" fill="#7ea142" />
           <rect x="130" y="278" width="238" height="47" fill="#df6930" />
-          <rect x="184" y="238" width="66" height="54" fill="#a39d90" />
-          <path d="M196 238l8-12l10 8l8-10l8 12z" fill="#c9a24b" strokeWidth="1.6" />
+          <rect x="184" y="262" width="66" height="30" fill="#a39d90" />
+          <path d="M196 262l8-12l10 8l8-10l8 12z" fill="#c9a24b" strokeWidth="1.6" />
           <rect x="204" y="150" width="76" height="9" fill="#a9733f" />
           <rect x="304" y="212" width="52" height="9" fill="#a9733f" />
           <path d="M18 250l22-4l6 26l-22 5zM428 214l26-6l8 28l-26 6z" fill="#f3ead2" strokeWidth="1.4" />
         </g>
         <rect x="132" y="282" width="236" height="43" fill={`url(#${prefix}-spk)`} />
         {!gameplay && <use data-asset-role="character-preview" href={`#${prefix}-man`} transform="translate(48 198) scale(1.1)" />}
-        <use data-asset-role="goal-preview" href={`#${prefix}-flag`} transform="translate(436 160)" />
+        <Signpost level={3} transform="translate(436 160)" />
         </>
       );
   }

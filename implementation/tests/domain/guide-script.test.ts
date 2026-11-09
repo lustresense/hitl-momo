@@ -21,9 +21,12 @@ describe("Momo page guide script", () => {
     }
   });
 
-  it("greets on the cover and then points at the ruler", () => {
-    expect(COVER_WAKE.lines[0]).toMatch(/Momo/);
-    expect(COVER_WAKE.lines.at(-1)).toMatch(/penggaris/i);
+  // PRD 0.0.16 R1/R17: greet, origin, then the invite; the book flip (not a line) leads to the ruler.
+  it("greets on the cover, tells her origin and invites the student in", () => {
+    expect(COVER_WAKE.lines[0]).toMatch(/^Halo! Aku Momo/);
+    expect(COVER_WAKE.lines.join(" ")).toMatch(/nggak bisa menggambar/);
+    expect(COVER_WAKE.lines.join(" ")).toMatch(/Thinman/);
+    expect(COVER_WAKE.lines.at(-1)).toBe("Ayo ikut aku masuk ke dunia Sketchbook!");
   });
 
   it("uses the character name in the walk step and points at the newest chapter on the level list", () => {

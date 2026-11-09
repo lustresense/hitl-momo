@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { LevelContext, PredictionResult } from "@/src/domain/types";
 import { Icon } from "../ui/Icon";
+import { ThumbConfirm } from "../ui/ThumbConfirm";
 
 export interface DecisionPanelProps {
   prediction: PredictionResult;
@@ -10,6 +11,12 @@ export interface DecisionPanelProps {
   onCorrect(rank: 2 | 3): void;
   onOverride(label: string): void;
   onRedraw(): void;
+  /**
+   * "tap" (default): a tap commits. "thumb" (R4/R11, Momo chat): Terima is a 2 s thumb ring; Pilih lain and
+   * Bukan semua stay tap buttons that open their picker, and the picked option is committed with a 2 s ring.
+   * Only one ring is live at a time (one thumbs-up fills every mounted ring).
+   */
+  confirm?: "tap" | "thumb";
 }
 
 /**
@@ -18,17 +25,22 @@ export interface DecisionPanelProps {
  * entering it into the world is a separate, explicit offer shown afterwards (GameStage).
  * Redraw is a recovery link outside the decision group, never a fourth decision.
  */
-export function DecisionPanel({ prediction, level, onAccept, onCorrect, onOverride, onRedraw }: DecisionPanelProps) {
+export function DecisionPanel({ prediction, level, onAccept, onCorrect, onOverride, onRedraw, confirm = "tap" }: DecisionPanelProps) {
   const committed = useRef(false);
   const [locked, setLocked] = useState(false);
   const [picker, setPicker] = useState<"none" | "correct" | "override">("none");
   const [overrideError, setOverrideError] = useState<string | null>(null);
   const [chosen, setChosen] = useState<string | null>(null);
+  const [pickedRank, setPickedRank] = useState<2 | 3 | null>(null);
+  const [pickedLabel, setPickedLabel] = useState("");
+  const thumb = confirm === "thumb";
 
   useEffect(() => {
     committed.current = false;
     setLocked(false);
     setChosen(null);
+    setPickedRank(null);
+    setPickedLabel("");
   }, [prediction]);
 
   const overrideOptions = useMemo(() => {
@@ -51,17 +63,28 @@ export function DecisionPanel({ prediction, level, onAccept, onCorrect, onOverri
   return (
     <aside className="side-panel">
       <div className="decision-row">
-        <button
-          type="button"
-          className={`nb-btn btn-accept${chosen === "accept" ? " is-selected" : ""}`}
-          data-testid="btn-accept"
-          aria-label={`Accept: terima peringkat 1, ${r1?.label ?? ""}`}
-          disabled={locked}
-          onClick={() => commit("accept", onAccept)}
-        >
-          <Icon name="check" size={19} stroke={3} />
-          Terima
-        </button>
+        {thumb ? (
+          <ThumbConfirm
+            holdMs={2000}
+            className={`btn-accept${chosen === "accept" ? " is-selected" : ""}`}
+            testId="btn-accept"
+            label={`Terima ${r1?.label ?? ""}`.trim()}
+            disabled={locked || picker !== "none"}
+            onConfirm={() => commit("accept", onAccept)}
+          />
+        ) : (
+          <button
+            type="button"
+            className={`nb-btn btn-accept${chosen === "accept" ? " is-selected" : ""}`}
+            data-testid="btn-accept"
+            aria-label={`Accept: terima peringkat 1, ${r1?.label ?? ""}`}
+            disabled={locked}
+            onClick={() => commit("accept", onAccept)}
+          >
+            <Icon name="check" size={19} stroke={3} />
+            Terima
+          </button>
+        )}
         <button
           type="button"
           className={`nb-btn btn-correct${chosen === "correct" ? " is-selected" : ""}`}
@@ -100,7 +123,8 @@ export function DecisionPanel({ prediction, level, onAccept, onCorrect, onOverri
                 className="nb-btn correct-option"
                 data-rank={rank}
                 disabled={locked}
-                onClick={() => commit("correct", () => onCorrect(rank as 2 | 3))}
+                aria-pressed={thumb ? pickedRank === rank : undefined}
+                onClick={() => (thumb ? setPickedRank(rank as 2 | 3) : commit("correct", () => onCorrect(rank as 2 | 3)))}
               >
                 <span className="correct-option__rank" aria-hidden="true">{rank}</span>
                 <span className="correct-option__label">{cand.label}</span>
@@ -108,13 +132,22 @@ export function DecisionPanel({ prediction, level, onAccept, onCorrect, onOverri
               </button>
             );
           })}
+          {thumb && pickedRank !== null && (
+            <ThumbConfirm
+              holdMs={2000}
+              testId="correct-confirm"
+              label={`Pakai ${(pickedRank === 2 ? r2 : r3)?.label ?? ""}`.trim()}
+              disabled={locked}
+              onConfirm={() => commit("correct", () => onCorrect(pickedRank))}
+            />
+          )}
         </div>
       )}
 
       {picker === "override" && (
         <div className="subpanel subpanel-row" data-testid="override-picker">
           <label htmlFor="override-select" className="sr-only">Label yang dimaksud</label>
-          <select id="override-select" defaultValue="" disabled={locked} onChange={() => setOverrideError(null)}>
+          <select id="override-select" defaultValue="" disabled={locked} onChange={(e) => { setOverrideError(null); setPickedLabel(e.target.value); }}>
             <option value="" disabled>
               Pilih benda
             </option>
@@ -124,24 +157,36 @@ export function DecisionPanel({ prediction, level, onAccept, onCorrect, onOverri
               </option>
             ))}
           </select>
-          <button
-            type="button"
-            className="nb-btn nb-btn--primary btn-small"
-            data-testid="override-confirm"
-            disabled={locked}
-            onClick={() => {
-              const el = document.getElementById("override-select") as HTMLSelectElement | null;
-              const value = el?.value ?? "";
-              if (!value || !overrideOptions.includes(value)) {
-                setOverrideError("Pilih label dulu.");
-                return;
-              }
-              setOverrideError(null);
-              commit("override", () => onOverride(value));
-            }}
-          >
-            Pakai
-          </button>
+          {thumb ? (
+            overrideOptions.includes(pickedLabel) && (
+              <ThumbConfirm
+                holdMs={2000}
+                testId="override-confirm"
+                label={`Pakai ${pickedLabel}`}
+                disabled={locked}
+                onConfirm={() => commit("override", () => onOverride(pickedLabel))}
+              />
+            )
+          ) : (
+            <button
+              type="button"
+              className="nb-btn nb-btn--primary btn-small"
+              data-testid="override-confirm"
+              disabled={locked}
+              onClick={() => {
+                const el = document.getElementById("override-select") as HTMLSelectElement | null;
+                const value = el?.value ?? "";
+                if (!value || !overrideOptions.includes(value)) {
+                  setOverrideError("Pilih label dulu.");
+                  return;
+                }
+                setOverrideError(null);
+                commit("override", () => onOverride(value));
+              }}
+            >
+              Pakai
+            </button>
+          )}
           <p className="feedback" role="alert">
             {overrideError}
           </p>

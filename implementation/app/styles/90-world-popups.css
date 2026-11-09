@@ -11,7 +11,7 @@
   animation: world-pop .22s ease-out;
 }
 .enter-world-popup .enter-preview { width: 100%; max-width: 220px; height: 74px; object-fit: contain; border: 1.5px dashed #111111; border-radius: 10px; background: #f7f5ea; }
-.enter-world-popup .enter-label { margin: 0; font-weight: 800; font-size: 16px; color: #111111; }
+.enter-world-popup .enter-label { margin: 0; font-weight: 800; font-size: var(--nb-body); color: #111111; }
 .enter-world-popup .btn { width: 100%; }
 
 .world-momo { position: fixed; z-index: 280; pointer-events: none; max-width: min(260px, calc(100vw - 32px)); transition: left .45s ease, top .45s ease; }

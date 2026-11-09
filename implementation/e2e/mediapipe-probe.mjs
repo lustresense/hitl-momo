@@ -4,6 +4,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { ROOT, startStaticServer, launch, gitInfo, sleep, writeJson } from "./lib/harness.mjs";
+import { pickStudentNumber, playTutorial } from "./lib/harness.mjs";
 const RUN = new Date().toISOString().replace(/[:.]/g, "-");
 const OUT = process.env.PROBE_OUT || path.join(ROOT, "docs/execution/evidence", `mediapipe-probe-${RUN}`);
 fs.mkdirSync(OUT, { recursive: true });
@@ -21,15 +22,24 @@ try {
   await sleep(6000);
   out.stages.cameraIntro = { bodyText: (await page.locator("body").innerText()).slice(0, 600), videoPlaying: await page.evaluate(() => { const v = document.querySelector("video"); return v ? { readyState: v.readyState, hasStream: !!v.srcObject, w: v.videoWidth, h: v.videoHeight } : null; }) };
   await page.screenshot({ path: path.join(OUT, "01-camera-intro.png") });
-  await page.locator(".camera-skip").click();
-  await page.locator("button.student-number-confirm").click();
-  await page.locator(".tutorial-skip").click({ timeout: 30000 });
+  // 0.0.16 cover: the camera is already on; a (simulated) wave wakes Momo, then ruler thumb, tutorial skip.
+  await page.evaluate(() => window.__skbWave?.());
+  await page.waitForURL(u => u.pathname === "/onboarding/number", { timeout: 40000 });
+  await pickStudentNumber(page);
+  const skip = page.locator(".tutorial-skip");
+  if (await skip.waitFor({ state: "visible", timeout: 6000 }).then(() => true, () => false)) await skip.click(); else await playTutorial(page);
   await page.locator(".level-card").first().click();
   await page.locator("[data-testid=draw-canvas]").waitFor({ state: "attached", timeout: 15000 });
   // The first entry plays Momo's story intro; skip it like a student can.
   const intro = page.locator("[data-testid=level-intro]");
   if (await intro.waitFor({ state: "visible", timeout: 6000 }).then(() => true, () => false)) { await page.locator("[data-testid=intro-skip]").click(); await intro.waitFor({ state: "detached", timeout: 5000 }); }
   await page.locator("[data-testid=draw-canvas]").waitFor({ timeout: 15000 });
+  // 0.0.16 R13: camera mode has no input picker (drawing starts in hand mode). Record that, then force the
+  // fallback mode (test hook) to exercise the picker: hand mode on the live stream, then back to pointer.
+  out.stages.cameraModeStartsInHand = await page.evaluate(() => window.__skbTestHooks?.surface?.getMode?.() ?? null);
+  out.stages.pickerHiddenInCameraMode = !(await page.getByTestId("btn-input-hand").isVisible().catch(() => false));
+  await page.evaluate(() => window.__skbInputMode?.("fallback"));
+  await sleep(600);
   const modeBtn = page.getByTestId("btn-input-hand");
   out.stages.modeButtonVisible = await modeBtn.isVisible().catch(() => false);
   if (out.stages.modeButtonVisible) {

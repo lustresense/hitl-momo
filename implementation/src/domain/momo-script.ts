@@ -69,3 +69,112 @@ const MOODS: Record<MomoMoment, MomoMood> = {
 export function momoMood(moment: MomoMoment): MomoMood {
   return MOODS[moment];
 }
+
+/* ------------------------------------------------------------------------------------------------
+ * R14: Momo makin "halu" per level (Kabut Penghapus). Tone and fog only: the numbers Momo says always
+ * come straight from the prediction provider (rule D: an effect never fakes confidence).
+ * ---------------------------------------------------------------------------------------------- */
+
+export type MomoTone = "confident" | "doubtful" | "humble";
+
+export interface MomoLevelTone {
+  tone: MomoTone;
+  /** Kabut Penghapus level over Momo's face, 0..1. */
+  fog: number;
+  /** Expression while Momo reads the drawing / asks. */
+  guessMood: MomoMood;
+}
+
+const TONES: Record<1 | 2 | 3, MomoLevelTone> = {
+  1: { tone: "confident", fog: 0, guessMood: "Semangat" },
+  2: { tone: "doubtful", fog: 0.4, guessMood: "Bingung" },
+  3: { tone: "humble", fog: 0.9, guessMood: "Khawatir" },
+};
+
+/** Tone and fog for a level stage (1..3). Unknown stages fall back to L1. */
+export function momoLevelTone(stage: number): MomoLevelTone {
+  return TONES[(stage === 2 || stage === 3 ? stage : 1) as 1 | 2 | 3];
+}
+
+/** Provider confidence 0..1 shown as a whole percent. The only way a number reaches Momo's lines. */
+export function confidencePercent(confidence: number): number {
+  return Math.round(Math.max(0, Math.min(1, confidence)) * 100);
+}
+
+/**
+ * Momo's question once the student pauses (R11 step 2), in the level's tone (R14).
+ * `label`/`confidence` are rank 1 from the provider, `second` is rank 2 (used by the doubtful tone).
+ */
+export function momoGuessQuestion(stage: number, label: string, confidence: number, second?: string): string {
+  const pct = confidencePercent(confidence);
+  switch (momoLevelTone(stage).tone) {
+    case "confident":
+      return `Gampang! Ini pasti ${label}, ${pct}%. Bener gak?`;
+    case "doubtful":
+      return second
+        ? `${cap(label)}? Eh, atau ${second}? Kok aku jadi bingung. ${cap(label)} ${pct}%, bener gak?`
+        : `${cap(label)}? Kok aku jadi bingung. ${pct}%, bener gak?`;
+    default:
+      return `Aku nggak bisa lihat jelas... mungkin ${label}, ${pct}%. Terserah kamu ya. Kamu yang lebih tahu.`;
+  }
+}
+
+/** Short provisional mumble while the student is still drawing (R11 step 1). */
+export function momoGuessMumble(stage: number, label: string | null): string {
+  if (!label) return "hmm...";
+  switch (momoLevelTone(stage).tone) {
+    case "confident":
+      return `${label}!`;
+    case "doubtful":
+      return `${label}? eh...`;
+    default:
+      return `${label}...?`;
+  }
+}
+
+function cap(s: string): string {
+  return s ? s[0]!.toUpperCase() + s.slice(1) : s;
+}
+
+/* ------------------------------------------------------------------------------------------------
+ * R16: the first time in a session the student corrects Momo (Pilih lain or Bukan semua), she reacts once:
+ * Kaget, then Malu, then Senang. A turning point of the story. Afterwards the usual reaction.
+ * ---------------------------------------------------------------------------------------------- */
+
+export interface MomoBeat {
+  line: string;
+  mood: MomoMood;
+}
+
+export const FIRST_CORRECTION_RELIEF: readonly MomoBeat[] = [
+  { line: "Oh... aku salah ya?", mood: "Kaget" },
+  { line: "Makasih udah benerin aku.", mood: "Malu" },
+  { line: "Ternyata nggak apa-apa salah.", mood: "Senang" },
+];
+
+let correctedThisSession = false;
+
+/**
+ * Call when the student corrects Momo. Returns the relief beats the first time in this session, otherwise null.
+ * Session = this page load (module state), so reloading starts a new session.
+ */
+export function takeFirstCorrectionRelief(): readonly MomoBeat[] | null {
+  if (correctedThisSession) return null;
+  correctedThisSession = true;
+  return FIRST_CORRECTION_RELIEF;
+}
+
+/** True once the relief has played this session (read only, does not consume). */
+export function hasPlayedCorrectionRelief(): boolean {
+  return correctedThisSession;
+}
+
+/** Tests only: start a fresh session. */
+export function resetCorrectionReliefForTests(): void {
+  correctedThisSession = false;
+}
+
+/** Relief beats for a decision kind: only a correction (Pilih lain / Bukan semua) can trigger it, once per session. */
+export function reliefForDecision(kind: "accept" | "correct" | "override"): readonly MomoBeat[] | null {
+  return kind === "accept" ? null : takeFirstCorrectionRelief();
+}

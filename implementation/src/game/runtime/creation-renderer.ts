@@ -45,20 +45,20 @@ export function createCreationRenderer(k: KAPLAYCtx, labelFont: string, isDestro
     ]);
     // Label chip above the object: paper pill with an ink outline; danger gets an orange chip and a "!" mark.
     const text = labelFor(item);
-    const size = 14;
+    const size = 11; // PRD 0.0.16 R8.3: secondary label, smaller than Thinman/Momo/objects
     // Proportional-font estimate: avoids a measuring pass and keeps the pill snug for short words.
     const textWidth = text.length * size * 0.58;
     const marked = item.behavior === "danger";
-    const pillW = Math.round(textWidth + 18 + (marked ? 18 : 0));
-    const pillH = 22;
+    const pillW = Math.round(textWidth + 14 + (marked ? 14 : 0));
+    const pillH = 17;
     const chip = art.add([
       k.rect(pillW, pillH, { radius: 7 }),
-      k.pos(Math.round((item.w - pillW) / 2), -pillH - 8),
+      k.pos(Math.round((item.w - pillW) / 2), -pillH - 6),
       k.color(marked ? WARN[0] : PAPER[0], marked ? WARN[1] : PAPER[1], marked ? WARN[2] : PAPER[2]),
       k.outline(2, k.rgb(INK[0], INK[1], INK[2])),
     ]);
-    if (marked) chip.add([k.text("!", { size: 15, font: labelFont }), k.pos(7, 3), k.color(INK[0], INK[1], INK[2])]);
-    chip.add([k.text(text, { size, font: labelFont }), k.pos(marked ? 24 : 9, 3), k.color(INK[0], INK[1], INK[2])]);
+    if (marked) chip.add([k.text("!", { size: 12, font: labelFont }), k.pos(6, 2), k.color(INK[0], INK[1], INK[2])]);
+    chip.add([k.text(text, { size, font: labelFont }), k.pos(marked ? 19 : 7, 3), k.color(INK[0], INK[1], INK[2])]);
 
     // Authentic student hand-drawn sketch sprite (single, uniformly scaled copy).
     const spriteName = `creation-sketch-${item.id}`;

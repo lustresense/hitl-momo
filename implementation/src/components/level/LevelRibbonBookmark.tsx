@@ -4,7 +4,7 @@
  *   open   = orange, ready to pull      done   = green with a check      locked = grey, short, with a padlock
  * Pull a ribbon down by its ring (mouse drag for now; the NUI thumb gesture maps to the same pull later).
  * While pulling, the ribbon "clicks" every notch (tek, tek). Past the last notch the ring turns green; on
- * release the ribbon snaps taut, sways, and only then does the level page fall into view.
+ * release (or a 2 s thumb on the next ribbon, PRD 0.0.16 R6) the ribbon bounces up and the book opens.
  * A click or Enter does the same pull by itself so nobody is stuck without a drag.
  * The ribbon that a win has just unlocked plays its own unlock animation when this page opens.
  */
@@ -13,6 +13,7 @@ import { gsap } from "gsap";
 import type { LevelDefinition } from "@/src/domain/levels";
 import { consumeFreshUnlock, isStageCompleted, nextStageToPlay } from "@/src/app/level-progress";
 import { Icon } from "../ui/Icon";
+import { ThumbConfirm } from "../ui/ThumbConfirm";
 
 export interface LevelRibbonBookmarkProps {
   levels: LevelDefinition[];
@@ -116,31 +117,26 @@ function Bookmark({ level, state, isNext, dims, unlocking, onLaunch, onLockedTug
     if (btnRef.current) gsap.killTweensOf(btnRef.current);
   }, []);
 
-  /** Snap taut, tek-tek, sway; the level starts falling in before the sway ends. */
+  /**
+   * PRD 0.0.16 R6: the confirmed ribbon snaps taut, then bounces UP (GSAP y negative + back.out) and the book
+   * opens into the world (BookFlip, owned by the app shell, starts when onLaunch fires).
+   */
   const launch = useCallback(() => {
     const btn = btnRef.current;
     if (!btn || busy.current) return;
     busy.current = true;
     const len = lenState.current;
     gsap.killTweensOf(len);
-    const taut = restLength + PULL_MAX * 0.55;
     const tl = gsap.timeline();
-    tl.to(len, { length: taut + 36, duration: 0.14, ease: "power2.out", onUpdate: () => paint(len.length) })
-      .to(len, { length: taut - 10, duration: 0.09, ease: "power1.in", onUpdate: () => paint(len.length) })
-      .to(len, { length: taut + 14, duration: 0.09, ease: "power1.out", onUpdate: () => paint(len.length) })
-      .to(len, { length: taut, duration: 0.08, onUpdate: () => paint(len.length) });
-    gsap.set(btn, { transformOrigin: "50% 0%" });
-    tl.to(btn, { rotation: 5, duration: 0.13, ease: "sine.inOut" }, 0.1)
-      .to(btn, { rotation: -4, duration: 0.15, ease: "sine.inOut" })
-      .to(btn, { rotation: 2.4, duration: 0.15, ease: "sine.inOut" })
-      .to(btn, { rotation: -1.2, duration: 0.14, ease: "sine.inOut" })
-      .to(btn, { rotation: 0, duration: 0.14, ease: "sine.out" });
-    tl.add(() => onLaunch(level), 0.55);
+    tl.to(len, { length: restLength + 24, duration: 0.12, ease: "power2.out", onUpdate: () => paint(len.length) })
+      .to(len, { length: restLength, duration: 0.18, ease: "power1.in", onUpdate: () => paint(len.length) });
+    tl.fromTo(btn, { y: 0 }, { y: -Math.round(dims.h * 0.22), duration: 0.42, ease: "back.out(2.2)" }, 0.12)
+      .to(btn, { y: 0, duration: 0.5, ease: "bounce.out" }, 0.62);
+    tl.add(() => onLaunch(level), 0.5);
     tl.add(() => {
-      // The page is down; the ribbon relaxes back while the level screen takes over.
-      gsap.to(len, { length: restLength, duration: 0.7, ease: "elastic.out(1, 0.5)", onUpdate: () => paint(len.length), onComplete: () => { busy.current = false; } });
-    }, 1.0);
-  }, [level, onLaunch, paint, restLength]);
+      busy.current = false;
+    }, 1.15);
+  }, [dims.h, level, onLaunch, paint, restLength]);
 
   /** A click: pull by itself, ticking through the notches like a real pull. */
   const autoPull = useCallback(() => {
@@ -297,12 +293,13 @@ function Bookmark({ level, state, isNext, dims, unlocking, onLaunch, onLockedTug
         </span>
       </button>
       {isNext && (
-        <span className="bm-hint" aria-hidden="true">
-          <span className="bm-hint__hand">
-            <Icon name="thumb-up" size={30} stroke={2.2} />
-          </span>
-          <Icon name="arrow-down" size={22} stroke={3.4} />
-        </span>
+        <ThumbConfirm
+          holdMs={2000}
+          onConfirm={launch}
+          label={`Mulai Bab ${level.stage}`}
+          className="bm-thumb"
+          testId={`level-thumb-${level.stage}`}
+        />
       )}
     </div>
   );

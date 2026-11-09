@@ -19,6 +19,8 @@ export interface GameplayScreenProps {
   /** Called before a redraw / "create another object" so the drawing screen remounts clean. */
   onBumpDrawingRevision: () => void;
   onBackToLevels: () => void;
+  /** The level was won (after progress is recorded). */
+  onWon?: () => void;
 }
 
 export function GameplayScreen({
@@ -31,6 +33,7 @@ export function GameplayScreen({
   onCreationsChange,
   onBumpDrawingRevision,
   onBackToLevels,
+  onWon,
 }: GameplayScreenProps) {
   const { behavior, decision } = snapshot;
   if (!behavior || !decision) return null;
@@ -49,7 +52,10 @@ export function GameplayScreen({
       decision={decision}
       onOutcomeReported={(outcome) => controller.reportGameplayOutcome(outcome)}
       summary={buildLevelSummary(level, decision, characterDisplayName)}
-      onLevelWon={() => recordCompletedStage(level.stage)}
+      onLevelWon={() => {
+        recordCompletedStage(level.stage);
+        onWon?.();
+      }}
       onBackToLevels={onBackToLevels}
       onOutcomeObserved={(outcome) => controller.recordGameplayAttempt(outcome)}
       onRetry={() => controller.recordGameplayRetry()}

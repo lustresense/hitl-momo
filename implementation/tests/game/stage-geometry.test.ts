@@ -56,7 +56,7 @@ describe('stage geometry contract', () => {
     const g = getStageGeometry(3);
     const expected = [
       { x: 0, y: 198, w: 130, h: 127 }, { x: 362, y: 160, w: 128, h: 165 },
-      { x: 184, y: 238, w: 66, h: 54 }, { x: 204, y: 150, w: 76, h: 9 },
+      { x: 184, y: 262, w: 66, h: 30 }, { x: 204, y: 150, w: 76, h: 9 },
       { x: 304, y: 212, w: 52, h: 9 },
     ];
     expect(g.platforms).toHaveLength(expected.length);

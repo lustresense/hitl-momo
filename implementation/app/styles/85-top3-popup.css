@@ -219,3 +219,45 @@
 .subpanel.subpanel-row .feedback { flex-basis: 100%; min-height: 0; font-size: 12px; }
 .prediction-hitl-popup.is-evaluating .redraw-link { align-self: center; min-height: 30px; padding: 3px 10px; font-size: 12px; border-width: 1.5px !important; }
 
+
+/* PRD 0.0.16 R11 + R8.2: Top-3 lives in Momo's chat (MomoGuessChat), about 80 % of the old popup. */
+.momo-guess {
+  background: var(--nb-paper, #fffaf0);
+  border: 2px solid var(--nb-ink, #111);
+  border-radius: 14px;
+  box-shadow: 3px 3px 0 var(--nb-ink, #111);
+  padding: 10px 12px;
+  box-sizing: border-box;
+  width: min(300px, calc(100vw - 40px));
+  max-width: 300px;
+  font-size: 13px;
+  display: grid;
+  gap: 8px;
+}
+.momo-guess__title { margin: 0; font-size: 14px; font-weight: 800; }
+.momo-guess__desc { margin: 0; }
+.momo-guess__row { display: flex; gap: 8px; flex-wrap: wrap; }
+.momo-guess__top3 { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.momo-guess__item {
+  display: grid;
+  grid-template-columns: 22px 1fr auto;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border: 2px solid var(--nb-ink, #111);
+  border-radius: 10px;
+  background: #fff;
+  font-weight: 700;
+}
+.momo-guess__item.is-rank1 { background: var(--nb-leaf-soft, #e3f2d3); }
+.momo-guess__rank {
+  display: inline-grid; place-items: center; width: 20px; height: 20px;
+  border-radius: 50%; background: var(--nb-ink, #111); color: #fff; font-size: 11px;
+}
+.momo-guess__pct { font-variant-numeric: tabular-nums; }
+.momo-guess .side-panel { display: grid; gap: 6px; }
+.momo-guess .decision-row { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.momo-guess * { min-width: 0; }
+.momo-guess select { max-width: 100%; }
+.momo-guess .nb-btn { font-size: 13px; padding: 6px 10px; }
+.momo-guess-chat .momo-chat__extras { pointer-events: auto; }

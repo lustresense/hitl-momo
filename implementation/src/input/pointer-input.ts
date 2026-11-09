@@ -1,6 +1,12 @@
 import type { DrawingInput } from "../domain/types";
 import { normalizeStrokes } from "./normalize";
 
+/** Eraser radius in canvas pixels: about 28 CSS px, scaled by the canvas backing-store ratio. */
+export function eraserRadius(canvas: HTMLCanvasElement): number {
+  const w = canvas.getBoundingClientRect().width;
+  return 28 * (w > 0 ? canvas.width / w : 1);
+}
+
 /**
  * TASK 06 — Pointer/touch driver (the always-available fallback input).
  * Pushes raw canvas-space points into the shared StrokeStore.
@@ -30,8 +36,13 @@ export function attachPointerDriver(
       /* capture is best-effort */
     }
     const p = pointOf(e);
-    store.beginStroke();
-    store.addPoint(p);
+    if (store.eraserMode) {
+      store.beginErase();
+      store.eraseAt(p, eraserRadius(canvas));
+    } else {
+      store.beginStroke();
+      store.addPoint(p);
+    }
     onCursor?.({ x: p.x, y: p.y, state: "drawing" });
     onRender();
   };
@@ -39,7 +50,8 @@ export function attachPointerDriver(
     const p = pointOf(e);
     if (active) {
       e.preventDefault();
-      store.addPoint(p);
+      if (store.isErasing()) store.eraseAt(p, eraserRadius(canvas));
+      else store.addPoint(p);
       onCursor?.({ x: p.x, y: p.y, state: "drawing" });
       onRender();
     } else {
@@ -49,7 +61,8 @@ export function attachPointerDriver(
   const onUp = (e?: PointerEvent) => {
     if (!active) return;
     active = false;
-    store.endStroke();
+    if (store.isErasing()) store.endErase();
+    else store.endStroke();
     if (e) {
       const p = pointOf(e);
       onCursor?.({ x: p.x, y: p.y, state: "hover" });
@@ -71,7 +84,10 @@ export function attachPointerDriver(
   canvas.addEventListener("pointerleave", onLeave);
 
   return () => {
-    if (active) store.endStroke();
+    if (active) {
+      if (store.isErasing()) store.endErase();
+      else store.endStroke();
+    }
     onCursor?.(null);
     canvas.removeEventListener("pointerdown", onDown);
     canvas.removeEventListener("pointermove", onMove);

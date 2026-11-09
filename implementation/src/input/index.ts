@@ -1,8 +1,8 @@
 import type { DrawingInput } from "../domain/types";
 import { StrokeStore, type HandInputStatus, type InputModeId } from "./types";
 import { attachPointerDriver, strokesToDrawingInput } from "./pointer-input";
-import { HandDrawingDriver } from "./mediapipe-input";
-import { evaluateGesture, mapToCanvas, type CursorState } from "./hand-gesture";
+import { HandDrawingDriver, gateFrameByPose, ERASER_RADIUS_PX } from "./mediapipe-input";
+import { evaluateGesture, mapToCanvas, type CursorState, type HandPose } from "./hand-gesture";
 import { PointSmoother } from "./smoothing";
 import { DRAWING_MODE_EVENT, HAND_STATUS_EVENT, messageFor } from "../camera/messages";
 
@@ -16,6 +16,8 @@ export interface DrawingSurfaceOptions {
   modelUrl?: string;
   onStatusChange?(status: HandInputStatus): void;
   onInkChange?(hasInk: boolean): void;
+  /** PRD 0.0.16 R12: classified hand pose once per hand frame ("none" when no hand); the UI debounces it into commands. */
+  onPose?(pose: HandPose, nowMs: number): void;
 }
 
 export class DrawingSurface {
@@ -74,6 +76,7 @@ export class DrawingSurface {
           onCursor: (c) => {
             this.cursor = c;
           },
+          onPose: (pose, nowMs) => this.options.onPose?.(pose, nowMs),
         });
         await this.handDriver.start();
       } catch {
@@ -162,9 +165,10 @@ export class DrawingSurface {
     landmarks: Array<{ x: number; y: number; z?: number }> | undefined,
     _ts = 0,
   ): void {
-    const frame = evaluateGesture(landmarks);
+    const { frame, pose } = gateFrameByPose(evaluateGesture(landmarks), landmarks, _ts, this.options.onPose);
     if (frame.state === "lost") {
       if (this.store.hasInk()) this.store.endStroke();
+      if (this.store.isErasing()) this.store.endErase();
       this.cursor = null;
       this.smoother.reset();
       this.render();
@@ -173,11 +177,21 @@ export class DrawingSurface {
     const smoothed = this.smoother.smooth(frame.cursor, _ts);
     const canvasPt = mapToCanvas(smoothed, this.canvas.width, this.canvas.height);
     this.cursor = { x: canvasPt.x, y: canvasPt.y, state: frame.cursorState };
+    if (pose === "fist" || this.store.eraserMode) {
+      if (this.lastTestPinch) this.store.endStroke();
+      this.lastTestPinch = false;
+      this.store.eraseAt(canvasPt, ERASER_RADIUS_PX);
+      this.render();
+      this.reportInkChange();
+      return;
+    }
+    if (this.store.isErasing()) this.store.endErase();
     if (frame.pinched && !this.lastTestPinch) this.store.beginStroke();
     if (frame.pinched) this.store.addPoint(canvasPt);
     else if (this.lastTestPinch) this.store.endStroke();
     this.lastTestPinch = frame.pinched;
     this.render();
+    this.reportInkChange();
   }
 
   private lastTestPinch = false;
@@ -197,6 +211,19 @@ export class DrawingSurface {
     if (hasInk === this.lastReportedInk) return;
     this.lastReportedInk = hasInk;
     this.options.onInkChange?.(hasInk);
+  }
+
+  /**
+   * PRD 0.0.16 R12 Hapus tool: while on, pointer drags and the hand cursor erase the strokes they pass
+   * (radius about 28 px). One pass is one undo step. A held fist erases in hand mode even when off.
+   */
+  setErasing(on: boolean): void {
+    if (!on && this.store.isErasing()) this.store.endErase();
+    this.store.eraserMode = on;
+  }
+
+  isErasingMode(): boolean {
+    return this.store.eraserMode;
   }
 
   isEmpty(): boolean {

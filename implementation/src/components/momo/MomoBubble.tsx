@@ -6,7 +6,7 @@ import { MomoChat } from "./MomoChat";
  * No chat input, no speech, no LLM, never creates objects or decides (lore).
  * The avatar is the Owner's Momo artwork (momo-engine.ts); its mood follows the moment.
  */
-export function MomoBubble({ moment, message, mood, avatarHeight = 96, trackMotion = false, flapKey, typing = false }: { moment: MomoMoment; message?: string | string[]; mood?: MomoMood; avatarHeight?: number; trackMotion?: boolean; flapKey?: number; typing?: boolean }) {
+export function MomoBubble({ moment, message, mood, avatarHeight = 96, trackMotion = false, flapKey, typing = false, fog = 0 }: { moment: MomoMoment; message?: string | string[]; mood?: MomoMood; avatarHeight?: number; trackMotion?: boolean; flapKey?: number; typing?: boolean; fog?: number }) {
   return (
     <MomoChat
       lines={message ?? momoLine(moment)}
@@ -15,6 +15,7 @@ export function MomoBubble({ moment, message, mood, avatarHeight = 96, trackMoti
       trackMotion={trackMotion}
       flapKey={flapKey}
       typing={typing}
+      fog={fog}
     />
   );
 }

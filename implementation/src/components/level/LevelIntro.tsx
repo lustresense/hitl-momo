@@ -1,8 +1,9 @@
 "use client";
 /**
- * Level intro. The pulled bookmark drops Thinman's world page into view; Momo flies in and tells the story
- * (where Thinman must get to so he can walk without the student's help). Then Momo flies up and the
- * camera follows her, so the student feels carried up into the sky, where the drawing page is.
+ * Level intro. The book has just opened onto Thinman's world (BookFlip, PRD 0.0.16 R6; no falling page);
+ * Momo flies in and tells the story (where Thinman must get to so he can walk without the student's help),
+ * then shows the few things that can come alive here (R10 nudge cards, never an order). A 1 s thumb (or a
+ * short linger) and Momo flies up; the camera follows her into the sky, where the drawing page is.
  *
  * The drawing screen is already mounted underneath with the same sky, so the last frame of the camera move
  * and the first frame of the drawing page are identical (no jump). Skippable at any moment.
@@ -10,18 +11,21 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 import type { LevelDefinition } from "@/src/domain/levels";
-import { introLines } from "@/src/domain/world-intro-script";
+import { introLines, nudgeLines, NUDGE_TO_SKY } from "@/src/domain/world-intro-script";
 import { MomoChat } from "../momo/MomoChat";
 import { StageWorld } from "../stage-preview/StageWorld";
 import { getStageGeometry } from "@/src/game/stage-geometry";
-import { Icon } from "../ui/Icon";
+import { Icon, ICON_NAMES, type IconName } from "../ui/Icon";
+import { ThumbConfirm } from "../ui/ThumbConfirm";
 import { ThinmanArt } from "../ui/ThinmanArt";
 import { CloudBand } from "../ui/SkyBackdrop";
 
 /** How long the finished story stays before Momo flies up on her own. */
-export const INTRO_LINGER_MS = 2200;
+export const INTRO_LINGER_MS = 4500;
+/** The BookFlip open takes about this long; Momo arrives once the page is visible. */
+export const BOOK_OPEN_MS = 900;
 
-type Phase = "drop" | "story" | "rise";
+type Phase = "drop" | "story" | "nudge" | "rise";
 /** The camera column is three screens tall: clean sky on top, a band of clouds, then the world. */
 const CAMERA_START = -66.6667;
 
@@ -52,6 +56,9 @@ export function LevelIntro({ level, characterDisplayName, onReveal, onFinish }: 
   const finishedRef = useRef(false);
   const [phase, setPhase] = useState<Phase>("drop");
   const [storyDone, setStoryDone] = useState(false);
+  /** Optional: the card the student pointed at (a suggestion only, never a lock). */
+  const [picked, setPicked] = useState<string | null>(null);
+  const nudge = [...nudgeLines(level.stage, characterDisplayName), NUDGE_TO_SKY];
   const [flap, setFlap] = useState(0);
   const lines = introLines(level.stage, characterDisplayName);
   const spawn = getStageGeometry(level.stage as 1 | 2 | 3).spawn;
@@ -71,7 +78,7 @@ export function LevelIntro({ level, characterDisplayName, onReveal, onFinish }: 
   }, []);
 
   const rise = useCallback(() => {
-    if (phase === "rise" || finishedRef.current) return;
+    if (phase === "rise" || phase === "drop" || finishedRef.current) return;
     if (lingerRef.current) clearTimeout(lingerRef.current);
     setPhase("rise");
     setFlap((n) => n + 1);
@@ -106,13 +113,12 @@ export function LevelIntro({ level, characterDisplayName, onReveal, onFinish }: 
       setPhase("story");
       return;
     }
-    gsap.set(root, { yPercent: -100, rotation: -1.5, transformOrigin: "50% 0%" });
+    gsap.set(root, { yPercent: 0, rotation: 0 });
     gsap.set(momo, { x: storyX() - 120, y: -260, opacity: 0 });
-    const tl = gsap.timeline({ onComplete: () => setPhase("story") });
+    const tl = gsap.timeline({ delay: BOOK_OPEN_MS / 1000, onComplete: () => setPhase("story") });
     timelineRef.current = tl;
-    tl.to(root, { yPercent: 0, rotation: 0, duration: 0.95, ease: "back.out(1.35)" })
-      .add(() => setFlap((n) => n + 1), 0.7)
-      .to(momo, { opacity: 1, x: storyX(), y: storyY(), duration: 0.95, ease: "power3.out" }, 0.7);
+    tl.add(() => setFlap((n) => n + 1), 0)
+      .to(momo, { opacity: 1, x: storyX(), y: storyY(), duration: 0.95, ease: "power3.out" }, 0);
     return () => {
       tl.kill();
     };
@@ -120,7 +126,7 @@ export function LevelIntro({ level, characterDisplayName, onReveal, onFinish }: 
 
   // 2. After the story is told, give a beat and then rise on her own; the thumb cue is the quick way.
   useEffect(() => {
-    if (!storyDone || phase !== "story") return;
+    if (!storyDone || phase !== "nudge") return;
     lingerRef.current = setTimeout(rise, INTRO_LINGER_MS);
     return () => {
       if (lingerRef.current) clearTimeout(lingerRef.current);
@@ -135,7 +141,7 @@ export function LevelIntro({ level, characterDisplayName, onReveal, onFinish }: 
   );
 
   return (
-    <div ref={rootRef} className="level-intro" data-testid="level-intro" data-phase={phase} data-stage={level.stage}>
+    <div ref={rootRef} className="level-intro" data-testid="level-intro" data-phase={phase} data-stage={level.stage} data-picked={picked ?? undefined}>
       <div ref={cameraRef} className="intro-camera">
         <div className="intro-sky" />
         <div className="intro-clouds">
@@ -156,10 +162,23 @@ export function LevelIntro({ level, characterDisplayName, onReveal, onFinish }: 
       </div>
 
       <div ref={momoRef} className={`intro-momo${phase === "rise" ? " is-flying" : ""}`}>
-        <MomoChat
+        {phase !== "nudge" && phase !== "rise" ? (
+          <MomoChat
+            key="story"
             lines={lines}
-            startDelay={reducedMotion() ? 0 : 1500}
-            mood={phase === "rise" ? "Semangat" : "Senang"}
+            startDelay={reducedMotion() ? 0 : 600}
+            mood="Senang"
+            avatarHeight={170}
+            trackMotion
+            flapKey={flap}
+            onDone={() => setPhase((p) => (p === "story" ? "nudge" : p))}
+            testId="intro-chat"
+          />
+        ) : (
+          <MomoChat
+            key="nudge"
+            lines={nudge}
+            mood={phase === "rise" ? "Semangat" : "Penasaran"}
             avatarHeight={170}
             trackMotion
             flapKey={flap}
@@ -167,14 +186,24 @@ export function LevelIntro({ level, characterDisplayName, onReveal, onFinish }: 
             onDone={() => setStoryDone(true)}
             testId="intro-chat"
           >
-            <button type="button" className="gesture-cue" data-testid="intro-continue" aria-label="Ke langit untuk menggambar" onClick={rise}>
-              <span className="gesture-cue__hand">
-                <Icon name="thumb-up" size={30} stroke={2.2} />
-              </span>
-              <span className="gesture-cue__label">Ke langit</span>
-              <Icon name="arrow-up" size={18} stroke={3} />
-            </button>
-        </MomoChat>
+            <div className="intro-cards" role="group" aria-label="Benda yang bisa dihidupkan Momo" data-testid="intro-cards">
+              {level.catalog.map((item) => (
+                <button
+                  key={item.labelId}
+                  type="button"
+                  className={`intro-card nb-card${picked === item.labelId ? " is-picked" : ""}`}
+                  data-testid={`intro-card-${item.labelId}`}
+                  aria-pressed={picked === item.labelId}
+                  onClick={() => setPicked(item.labelId)}
+                >
+                  <Icon name={(ICON_NAMES.includes(item.labelId as IconName) ? item.labelId : "pencil") as IconName} size={34} stroke={2.4} />
+                  <span className="intro-card__name">{item.displayName}</span>
+                </button>
+              ))}
+            </div>
+            <ThumbConfirm holdMs={1000} onConfirm={rise} label="Ke langit" className="intro-thumb" testId="intro-continue" />
+          </MomoChat>
+        )}
       </div>
 
       <button type="button" className="nb-iconbtn intro-skip" data-testid="intro-skip" aria-label="Lewati cerita" title="Lewati cerita" onClick={finish}>

@@ -1,12 +1,13 @@
 /**
  * Kinematic reachability model for stage geometry. NOT the shipped engine: it mirrors the
- * published constants (walk 200 u/s, jump 520, gravity 1600, body 24x40, KAPLAY 50 Hz fixed step)
+ * published constants (walk WALK_SPEED u/s, jump 520, gravity 1600, body 24x40, KAPLAY 50 Hz fixed step)
  * and resolves AABB overlaps by minimum penetration. It answers "is this level geometrically
  * solvable by normal controls", never "does the engine behave" — browser E2E is the authority.
  */
 import { getStageGeometry, type Rect, type StageGeometry } from "../../src/game/stage-geometry";
+import { GRAVITY, JUMP_FORCE, PLAYER_HEIGHT, PLAYER_WIDTH, WALK_SPEED } from "../../src/game/runtime/constants";
 
-export const PLAYER = { w: 24, h: 40, walk: 200, jump: 520, gravity: 1600, dt: 1 / 50 } as const;
+export const PLAYER = { w: PLAYER_WIDTH, h: PLAYER_HEIGHT, walk: WALK_SPEED, jump: JUMP_FORCE, gravity: GRAVITY, dt: 1 / 50 } as const;
 
 interface Sim { x: number; y: number; vy: number; grounded: boolean }
 export type Outcome = "goal" | "dead" | "landed" | "timeout";

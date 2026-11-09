@@ -172,6 +172,7 @@ export function GameStage(props: GameStageProps) {
         placementY={placement.placementY}
         poke={momoPoke}
         onPoke={() => setMomoPoke((n) => n + 1)}
+        decision={decision}
       />
 
       {integrated && input.mode === "camera" && (

@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getLevel, type LevelDefinition } from "@/src/domain/levels";
 import type { DrawingSurface } from "@/src/input";
 import { useFlowSnapshot } from "@/src/hooks/use-flow";
@@ -12,7 +12,10 @@ import { GlobalCamera } from "@/src/components/camera/GlobalCamera";
 import { DEFAULT_CHARACTER_NAME, resolveCharacterDisplayName } from "@/src/config/character-tokens";
 import { isLevelUnlocked } from "./level-progress";
 import { useEntryHold } from "./hooks/useEntryHold";
-import { useLevelSession } from "./hooks/useLevelSession";
+import { recapFromFlow, useLevelSession } from "./hooks/useLevelSession";
+import { CenterOfPage } from "@/src/components/ending/CenterOfPage";
+import { BookFlip } from "@/src/components/ui/BookFlip";
+import type { EndingChoice } from "@/src/components/ending/ending-types";
 import { useRouteState } from "./hooks/useRouteState";
 import { useRouteSync } from "./hooks/useRouteSync";
 import { AppShell } from "./screens/AppShell";
@@ -44,11 +47,62 @@ export function SketchbookApp() {
     [snapshot?.levelId],
   );
 
-  const { enterLevel, willPlayIntro } = session;
+  const { enterLevel, willPlayIntro, provider, recordRecap } = session;
+  const [book, setBook] = useState<{ key: number; direction: "open" | "close" }>({ key: 0, direction: "open" });
+  const pendingCloseRef = useRef<(() => void) | null>(null);
+
+  // R9: keep the first decided object of each level (strokes + decision) for the closing overview.
+  useEffect(() => {
+    if (controller && level && snapshot?.decision) recordRecap(recapFromFlow(level, controller));
+  }, [controller, level, snapshot?.decision, recordRecap]);
+
+  /** R9: Level 3 won -> the closing replaces the usual return to the level list. */
+  const wonFinalRef = useRef(false);
+  const [endingOpen, setEndingOpen] = useState(false);
+  const [finished, setFinished] = useState(false);
+  const leaveLevel = useCallback(() => {
+    session.exitToLevels();
+    if (wonFinalRef.current) {
+      wonFinalRef.current = false;
+      setEndingOpen(true);
+    }
+  }, [session]);
+  /** PRD 0.0.16 R8.6: returning to the list closes the book (top to bottom); the list shows once it is shut. */
+  const backToLevels = useCallback(() => {
+    pendingCloseRef.current = leaveLevel;
+    setBook((b) => ({ key: b.key + 1, direction: "close" }));
+    // Safety net: never strand the student if the flip cannot finish (hidden tab, animation blocked).
+    window.setTimeout(() => {
+      if (pendingCloseRef.current === leaveLevel) {
+        pendingCloseRef.current = null;
+        leaveLevel();
+      }
+    }, 2000);
+  }, [leaveLevel]);
+  const onBookDone = useCallback(() => {
+    const next = pendingCloseRef.current;
+    pendingCloseRef.current = null;
+    next?.();
+  }, []);
+  const chooseEnding = useCallback((choice: EndingChoice) => {
+    setEndingOpen(false);
+    if (choice === "finish") setFinished(true);
+  }, []);
+  const levelIdForGuess = snapshot?.levelId;
+  /** R11: Momo's provisional guess while drawing uses the level's own provider; failures just mean no guess. */
+  const provisionalGuess = useMemo(
+    () =>
+      provider
+        ? (surface: DrawingSurface) => provider.predict(surface.toDrawingInput(), { levelId: levelIdForGuess ?? undefined }).catch(() => null)
+        : null,
+    [provider, levelIdForGuess],
+  );
   const selectLevel = useCallback(
     (selected: LevelDefinition) => {
       // The level list stays under the falling intro page only when an intro plays.
       if (willPlayIntro(selected)) startEntryHold();
+      // PRD 0.0.16 R6: the book opens into the world; the page underneath swaps as the leaf lifts.
+      setBook((b) => ({ key: b.key + 1, direction: "open" }));
       enterLevel(selected);
     },
     [startEntryHold, enterLevel, willPlayIntro],
@@ -99,7 +153,7 @@ export function SketchbookApp() {
           )}
 
           {isLevelEntry && (
-            <LevelEntryScreen entryHold={entryHold} onSelectLevel={selectLevel} isLevelUnlocked={isLevelUnlocked} />
+            <LevelEntryScreen entryHold={entryHold} onSelectLevel={selectLevel} isLevelUnlocked={isLevelUnlocked} finished={finished} />
           )}
 
           {/* Hosts the drawing canvas and the floating Top-3 HITL popup. */}
@@ -117,7 +171,8 @@ export function SketchbookApp() {
               onOpenMission={() => session.setMissionOpen(true)}
               onCloseMission={() => session.setMissionOpen(false)}
               onSubmit={() => void handleSubmitDrawing()}
-              onExit={session.exitToLevels}
+              onExit={backToLevels}
+              provisionalGuess={provisionalGuess}
             />
             </div>
           )}
@@ -142,11 +197,18 @@ export function SketchbookApp() {
               creations={creationsRef.current}
               onCreationsChange={session.handleCreationsChange}
               onBumpDrawingRevision={() => setDrawingRevision((n) => n + 1)}
-              onBackToLevels={session.exitToLevels}
+              onBackToLevels={backToLevels}
+              onWon={() => {
+                if (level.stage === 3) wonFinalRef.current = true;
+              }}
             />
           )}
         </>
       )}
+
+      <BookFlip playKey={book.key} direction={book.direction} onDone={onBookDone} label={book.direction === "open" ? "Buku terbuka" : "Buku tertutup"} />
+
+      {endingOpen && <CenterOfPage recaps={session.getRecaps()} onChoose={chooseEnding} />}
 
       {routeNotice && (
         <div role="alert" data-testid="route-guard-notice" className="route-notice">

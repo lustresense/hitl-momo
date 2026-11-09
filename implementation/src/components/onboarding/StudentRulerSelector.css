@@ -21,7 +21,7 @@
 .student-number-screen h1 {
   max-width: 760px;
   margin: 0;
-  font-size: clamp(25px, 4vw, 38px);
+  font-size: var(--nb-h1);
   font-weight: 900;
   line-height: 1.12;
   letter-spacing: .025em;
@@ -37,7 +37,7 @@
 
 .student-number-value {
   min-width: 2ch;
-  font-size: clamp(108px, 15vw, 150px);
+  font-size: var(--nb-display);
   font-weight: 900;
   line-height: 1;
   color: #4a8c1f;
@@ -135,13 +135,13 @@
   }
   .student-number-screen h1 {
     max-width: 440px;
-    font-size: clamp(24px, 7vw, 34px);
+    font-size: var(--nb-h1);
   }
   .student-number-readout {
     margin: 24px 0 26px;
   }
   .student-number-value {
-    font-size: clamp(100px, 31vw, 136px);
+    font-size: 64px;
   }
   .student-ruler-wrap {
     margin-bottom: 28px;

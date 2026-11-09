@@ -2,13 +2,15 @@
  * Momo, the interactive mascot of the world stage: she moves with the moment and comes closer to
  * the screen (bigger) when it matters. Sizes are px of artwork height; Thinman is ~100 px on screen.
  */
-import type { CSSProperties, MutableRefObject } from "react";
+import { useEffect, useState, type CSSProperties, type MutableRefObject } from "react";
+import type { HumanDecision } from "@/src/domain/types";
+import { reliefForDecision, type MomoBeat } from "@/src/domain/momo-script";
 import type { StageGeometry } from "@/src/game/stage-geometry";
 import { physicsToClient } from "@/src/game/stage-transform";
 import { MomoChat } from "../momo/MomoChat";
 import type { StageOutcome, StagePhase } from "./game-stage-types";
 
-type MomoMood = "Penasaran" | "Tenang";
+type MomoMood = MomoBeat["mood"];
 
 interface MomoLook {
   message: string;
@@ -17,7 +19,7 @@ interface MomoLook {
   mood: MomoMood;
 }
 
-const PLAYING: MomoLook = { message: "Ayo jalan ke bendera!", className: "world-momo-play", size: 190, mood: "Tenang" };
+const PLAYING: MomoLook = { message: "Ayo jalan ke papan petunjuk!", className: "world-momo-play", size: 190, mood: "Tenang" };
 const PLACING: MomoLook = { message: "Geser objekmu ke tempat yang pas.", className: "world-momo-place", size: 170, mood: "Penasaran" };
 
 export interface WorldMomoProps {
@@ -31,7 +33,18 @@ export interface WorldMomoProps {
   placementY: number;
   poke: number;
   onPoke: () => void;
+  /** The decision that produced the current object; a first correction plays Momo's relief once (R16). */
+  decision?: HumanDecision | null;
 }
+
+/** Relief is consumed once per decision object (StrictMode-safe: a second render reads the cache). */
+const reliefCache = new WeakMap<object, readonly MomoBeat[] | null>();
+function reliefFor(decision: HumanDecision | null | undefined): readonly MomoBeat[] | null {
+  if (!decision) return null;
+  if (!reliefCache.has(decision)) reliefCache.set(decision, reliefForDecision(decision.type));
+  return reliefCache.get(decision) ?? null;
+}
+export const RELIEF_BEAT_MS = 2000;
 
 export function WorldMomo({
   entered,
@@ -43,7 +56,20 @@ export function WorldMomo({
   placementY,
   poke,
   onPoke,
+  decision = null,
 }: WorldMomoProps) {
+  const relief = reliefFor(decision);
+  const [beat, setBeat] = useState(0);
+  const [pointKey, setPointKey] = useState(0);
+  useEffect(() => {
+    if (!relief || beat >= relief.length) return;
+    const t = setTimeout(() => setBeat((n) => n + 1), RELIEF_BEAT_MS);
+    return () => clearTimeout(t);
+  }, [relief, beat]);
+  // R16: Momo points with a wing toward where the action is whenever the moment changes.
+  useEffect(() => {
+    if (entered) setPointKey((n) => n + 1);
+  }, [entered, phase]);
   // Success and failure are told by their own Momo chat (SuccessPopup / FailOverlay).
   if (!entered || outcome) return null;
 
@@ -60,11 +86,14 @@ export function WorldMomo({
     }
   }
 
+  const reliefBeat = relief && beat < relief.length ? relief[beat]! : null;
   return (
     <div className={`world-momo ${look.className}`} style={style} data-testid="world-momo" onClick={onPoke}>
       <MomoChat
-        lines={look.message}
-        mood={look.mood}
+        lines={reliefBeat ? reliefBeat.line : look.message}
+        mood={reliefBeat ? reliefBeat.mood : look.mood}
+        pointKey={pointKey}
+        pointSide="right"
         avatarHeight={look.size}
         trackMotion
         flapKey={poke}

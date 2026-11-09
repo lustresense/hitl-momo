@@ -40,6 +40,7 @@ import ts from "typescript";
 import { vi } from "vitest";
 import { createKaplayGame } from "@/src/game/kaplay-runtime";
 import { LEVELS } from "@/src/domain/levels";
+import { WALK_SPEED } from "@/src/game/runtime/constants";
 
 const engine = vi.hoisted(() => ({ current: null as any }));
 vi.mock("kaplay", () => ({ default: () => engine.current.k }));
@@ -192,7 +193,7 @@ it("applies integrated input every fixed step, never as a low-FPS render burst",
   h.handle.setInput({ left: false, right: true, jump: false });
   for (let i = 1; i <= 10; i++) {
     h.advanceFixed();
-    expect(h.player.pos.x).toBeCloseTo(spawn.x + i * 4);
+    expect(h.player.pos.x).toBeCloseTo(spawn.x + i * WALK_SPEED / 50);
   }
   const beforeRender = h.player.pos.x;
   h.advanceRender();
@@ -262,7 +263,7 @@ describe("desktop left boundary scope", () => {
       const h = await startPhysics(integrated, stage);
       h.handle.onFallComplete(); expect(h.handle.commitPlacementAt(340, 40)).toBe(true);
       h.player.pos.x = 12; h.handle.setInput({left: true, right: false, jump: false}); h.advanceFixed();
-      expect(h.player.pos.x).toBe(integrated ? 8 : 12); // Legacy movement runs on render cadence, unchanged.
+      expect(h.player.pos.x).toBeCloseTo(integrated ? 12 - WALK_SPEED / 50 : 12); // Legacy movement runs on render cadence, unchanged.
       h.handle.destroy();
     } finally { vi.unstubAllGlobals(); }
   });

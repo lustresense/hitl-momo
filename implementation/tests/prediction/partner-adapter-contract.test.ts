@@ -338,3 +338,20 @@ describe("mock provider provenance", () => {
     expect(r.candidates).toHaveLength(3);
   });
 });
+
+describe("receipt fields propagation in partner adapter", () => {
+  it("forwards predictionId, modelVersion, contractVersion from response payload", async () => {
+    const payloadWithReceipts = {
+      ...GOOD,
+      predictionId: "pred-xyz-99",
+      modelVersion: "model-release-42",
+      contractVersion: "1.0.0-draft",
+    };
+    const f = fetchReturning(() => jsonResponse(payloadWithReceipts));
+    const r = await new PartnerHttpPredictionProvider({ endpoint: EP, fetchImpl: f }).predict(INPUT);
+    expect(r.predictionId).toBe("pred-xyz-99");
+    expect(r.modelVersion).toBe("model-release-42");
+    expect(r.contractVersion).toBe("1.0.0-draft");
+    expect(r.provenance?.modelVersion).toBe("model-release-42");
+  });
+});

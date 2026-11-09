@@ -48,8 +48,10 @@ export interface PartnerResponsePayload {
     { label: string; confidence: number },
     { label: string; confidence: number }
   ];
+  predictionId?: string;
   /** PROPOSED optional model version (alternative to the X-Model-Version response header). */
   modelVersion?: string;
+  contractVersion?: string;
 }
 
 /**

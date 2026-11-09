@@ -110,8 +110,9 @@ export class PartnerHttpPredictionProvider implements PredictionProvider {
         vocabulary: this.options.vocabulary,
         outOfVocabulary: this.options.outOfVocabulary,
       });
+      const headerModelVersion = sanitizeModelVersion(res.headers?.get?.(MODEL_VERSION_HEADER));
       const modelVersion =
-        sanitizeModelVersion(res.headers?.get?.(MODEL_VERSION_HEADER)) ??
+        headerModelVersion ??
         sanitizeModelVersion((payload as { modelVersion?: unknown }).modelVersion);
       const provenance = makeProvenance("partner", elapsedMs(startedAt), modelVersion);
       try {
@@ -119,7 +120,13 @@ export class PartnerHttpPredictionProvider implements PredictionProvider {
       } catch {
         /* telemetry tap must never break prediction */
       }
-      return { ...validated, provenance };
+      return {
+        ...validated,
+        ...(validated.predictionId ? { predictionId: validated.predictionId } : {}),
+        ...(modelVersion ? { modelVersion } : {}),
+        ...(validated.contractVersion ? { contractVersion: validated.contractVersion } : {}),
+        provenance,
+      };
     } catch (err) {
       if (err instanceof PredictionError) throw err;
       if (isAbortError(err)) {

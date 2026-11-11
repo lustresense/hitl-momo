@@ -62,13 +62,14 @@ Aturan isi:
 |---|---|---|---|
 | R11-01 | Nama tokoh tetap **Thinman** (pakai H). "Finman" di pesan Owner = salah ketik STT. | SELESAI | D-20261111-01 |
 | R11-02 | Data dikirim ke backend saat siswa memilih di Top-3 (gestur 1/2/3, 4 = override) dan cincin konfirmasi penuh. Tidak perlu konfirmasi tambahan. Gestur 5 (gambar lagi) tidak mengirim. | SELESAI | Kode sudah begitu; D-20261111-01 |
-| R11-03 | Cover terlalu lama. Dari lambaian sampai cincin jempol maksimal 10 detik, lebih baik kurang (target kerja: ≤ 8 detik; sebelumnya 20,8 detik). Semua kalimat Momo tetap utuh. | JALAN | Worker W-COVER |
-| R11-04 | Deteksi tangan harus akurat untuk pameran kampus: kunci ke tangan pemain, abaikan tangan orang lain di belakang. | JALAN | Worker W-HAND |
-| R11-05 | Gambar tidak boleh bergetar dan goresan tidak putus-putus. | JALAN | Worker W-INK |
-| R11-06 | Tahan motion blur dan ruangan gelap (kamera 60 fps bila bisa, CLAHE saat gelap). | JALAN | Worker W-COVER (kamera), W-CLAHE |
+| R11-03 | Cover terlalu lama. Dari lambaian sampai cincin jempol maksimal 10 detik, lebih baik kurang (target kerja: ≤ 8 detik; sebelumnya 20,8 detik). Semua kalimat Momo tetap utuh. | SELESAI-BELUM-KAMERA | Cincin jempol siap 7,8 s setelah lambaian (sebelumnya 20,8 s); konfirmasi paling cepat ±8,8 s karena tahan 1 s. Keempat kalimat utuh, kecepatan ketik cover 0,45×. `308b125` |
+| R11-04 | Deteksi tangan harus akurat untuk pameran kampus: kunci ke tangan pemain, abaikan tangan orang lain di belakang. | SELESAI-BELUM-KAMERA | `af84c71`: numHands 2, confidence 0,6, tangan kecil/jauh diabaikan, kunci tangan pemain, tangan orang lain tidak bisa merebut saat tangan pemain hilang sesaat. Nilai awal, belum diukur di kamera |
+| R11-05 | Gambar tidak boleh bergetar dan goresan tidak putus-putus. | SELESAI-BELUM-KAMERA | `3d7ddab`: getar diam 0,39 → 0,08 px (sintetis), lag garis pelan ±55 ms. Hysteresis cubit sudah ada |
+| R11-06 | Tahan motion blur dan ruangan gelap (kamera 60 fps bila bisa, CLAHE saat gelap). | SELESAI-BELUM-KAMERA | Kamera minta 720p 24–60 fps (`308b125`); CLAHE otomatis saat gelap (`a4bf4e7`, ±2 ms/frame di sandbox) |
 | R11-07 | "Kombinasi" MediaPipe + filter + ONNX. ONNX dinilai dulu (model tangan 21 titik, lisensi, ukuran) sebelum dipasang. | MENUNGGU OWNER | Riset selesai: `docs/audit-2026-11-10/ONNX-HAND-RESEARCH.md`. Rekomendasi: ONNX tidak masuk build pameran (RTMPose hand butuh 2 model ±55 MB + onnxruntime-web, data latih non-komersial) |
-| R11-08 | Halaman uji NUI untuk Owner (FPS, getaran, waktu deteksi lambaian, CLAHE on/off) supaya bisa diukur di laptop sendiri sebelum pameran. | BELUM | Setelah R11-04..06 selesai |
+| R11-08 | Halaman uji NUI untuk Owner (FPS, getaran, waktu deteksi lambaian, CLAHE on/off) supaya bisa diukur di laptop sendiri sebelum pameran. | JALAN | Worker W-LAB, rute `/nui-lab` |
 | R11-09 | Promosi `claude-monorepo` ke `main`. | TERTUNDA | Owner: "nanti dulu" |
+| R11-11 | Bug tata letak dari visual-tour: bubble Momo menutupi kartu bab di rekap; kanvas tampak kosong di layar sempit 390 px; PIP kamera menutupi tombol gameplay di layar sempit; pita "Mode demo" menutupi instruksi kartu. | JALAN | Worker W-LAYOUT; bukti `run9/tour` |
 | R11-10 | Berkas `REVISIONS.md` ini sebagai daftar tugas dan penjabaran revisi Owner. | SELESAI | |
 
 ## Belum diuji (wajib Owner/tim di perangkat asli)

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { classifyHandPose, drawingCommandFor, isFist, isSplitPalm, isThumbUp, isTwoFingers, type HandPose } from "@/src/input/hand-gesture";
+import { MODE_CANVAS_DRAWING, MODE_TUTORIAL, actionFor } from "@/src/input/gesture-mode";
 import type { Landmark } from "@/src/input/types";
 
 /** Upright hand: wrist (0.5,0.8), middle MCP (0.5,0.6), span 0.2. Fingers at x columns, PIP at y 0.5. */
@@ -49,6 +50,14 @@ describe("R12 drawing poses are mutually exclusive", () => {
     // Owner (BIGPROMPT 6.3): "Redo telapak terbuka". The open palm was unused before; now it redoes too.
     expect(drawingCommandFor("open-palm")).toBe("redo");
     expect(drawingCommandFor("thumb-up")).toBeNull();
+  });
+
+  it("the drawing commands are the router's canvas and tutorial actions (one table, no copy)", () => {
+    for (const pose of ["fist", "two-fingers", "split-palm", "open-palm"] as const) {
+      expect(actionFor(MODE_TUTORIAL, pose)).toBe(actionFor(MODE_CANVAS_DRAWING, pose));
+      expect(drawingCommandFor(pose)).toBe(actionFor(MODE_CANVAS_DRAWING, pose));
+    }
+    expect(actionFor(MODE_CANVAS_DRAWING, "thumb-up")).toBeNull();
   });
   it("missing landmarks -> none", () => {
     expect(classifyHandPose(undefined)).toBe("none");

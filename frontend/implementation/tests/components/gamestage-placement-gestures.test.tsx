@@ -13,7 +13,7 @@ import { LEVELS } from "@/src/domain/levels";
 import { resetSharedStreamForTest, setSharedStream } from "@/src/camera/shared-stream";
 import { resetHandCursorForTest } from "@/src/camera/hand-cursor-store";
 import type { Landmark } from "@/src/input/types";
-import { poseHand, type FixturePose } from "../input/pose-fixtures";
+import { poseHand, rollHand, type FixturePose } from "../input/pose-fixtures";
 
 const mp = vi.hoisted(() => ({ hand: undefined as Landmark[] | undefined, created: 0 }));
 vi.mock("@mediapipe/tasks-vision", () => ({
@@ -77,8 +77,9 @@ async function sleep(ms: number) {
   });
 }
 
-function setHand(pose: FixturePose | undefined, dx = 0) {
-  mp.hand = pose ? poseHand(pose, dx) : undefined;
+/** `roll` turns the whole hand in the picture plane (degrees, clockwise positive): the palm's twist. */
+function setHand(pose: FixturePose | undefined, dx = 0, roll = 0) {
+  mp.hand = pose ? rollHand(poseHand(pose, dx), roll) : undefined;
 }
 
 function mountCameraVideo(): HTMLVideoElement {
@@ -253,12 +254,32 @@ describe("gameplay: exploration of a placed object", () => {
     expect(ctl.commitPlacementAt).toHaveBeenCalledTimes(1);
   });
 
-  it("open palm turns the object a quarter turn after its hold", async () => {
+  it("the palm starts the turn after its hold; a still palm turns nothing; a twist turns a quarter turn", async () => {
     await startInCamera({ phase: "gameplay" });
     setHand("open-palm");
     stepFrames(FILL_1_5_S + 20);
+    expect(screen.getByTestId("object-turn")).toBeTruthy();
+    expect(ctl.rotate).not.toHaveBeenCalled();
+
+    stepFrames(30);
+    expect(ctl.rotate).not.toHaveBeenCalled();
+
+    setHand("open-palm", 0, 50);
+    stepFrames(6);
     expect(ctl.rotate).toHaveBeenCalledTimes(1);
     expect(ctl.reposition).not.toHaveBeenCalled();
+  });
+
+  it("the thumbs-up ends the turn; the twist after it turns nothing", async () => {
+    await startInCamera({ phase: "gameplay" });
+    setHand("open-palm");
+    stepFrames(FILL_1_5_S + 20);
+    setHand("thumb-up");
+    stepFrames(6);
+    expect(screen.queryByTestId("object-turn")).toBeNull();
+    setHand("open-palm", 0, 60);
+    stepFrames(6);
+    expect(ctl.rotate).not.toHaveBeenCalled();
   });
 
   it("thumbs-up does nothing while the object is played", async () => {

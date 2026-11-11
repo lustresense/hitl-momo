@@ -4,8 +4,21 @@
  */
 import { useEffect, useRef, useState } from "react";
 import { subscribeHandCursor } from "@/src/camera/hand-cursor-store";
+import { subscribeHandRoll } from "@/src/input/hand-roll-store";
 import type { HandPose } from "@/src/input/hand-gesture";
-import { NOT_GRABBING, beginGrab, readGrab, GRAB_DROP_MS, type GrabState } from "../placement-gesture";
+import {
+  NOT_GRABBING,
+  TURN_LOST_MS,
+  beginTurn,
+  beginGrab,
+  isPalmPose,
+  readGrab,
+  readTurn,
+  GRAB_DROP_MS,
+  type GrabState,
+  type TurnReading,
+  type TurnState,
+} from "../placement-gesture";
 
 /**
  * The pose of the stage's own hand reader (source "gameplay"), or "none" while the stage is not asking for hand
@@ -108,4 +121,78 @@ export function usePlacementGrab({ pose, onHoldChange, onDrop }: PlacementGrabOp
   }
 
   return { holding, begin, cancel };
+}
+
+/**
+ * The object turn. `begin()` is called when the palm ring is full: from then on the palm's roll turns the object
+ * a quarter turn per 45 degrees (`onTurn(1)` clockwise, `onTurn(-1)` counter-clockwise). The turn ends on the
+ * thumbs-up, or when the palm has been gone for TURN_LOST_MS. A still palm never turns the object.
+ */
+export function useObjectTurn(onTurn: (direction: 1 | -1) => void) {
+  const [turning, setTurning] = useState(false);
+  const pose = useStagePose(true);
+  const stateRef = useRef<TurnState>(beginTurn(null));
+  const readingRef = useRef<TurnReading>({ palm: false, thumbUp: false, roll: null });
+  const onTurnRef = useRef(onTurn);
+  onTurnRef.current = onTurn;
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function clearTimer() {
+    if (timerRef.current !== null) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
+  }
+
+  /** One reading of the palm. Returns true when the turn has ended. */
+  function read(): boolean {
+    const result = readTurn(stateRef.current, readingRef.current, Date.now());
+    stateRef.current = result.state;
+    if (result.turn !== 0) onTurnRef.current(result.turn);
+    if (result.done) {
+      clearTimer();
+      setTurning(false);
+      return true;
+    }
+    return false;
+  }
+
+  function begin() {
+    clearTimer();
+    stateRef.current = beginTurn(null);
+    readingRef.current = { palm: true, thumbUp: false, roll: null };
+    setTurning(true);
+  }
+
+  // The pose: the thumbs-up ends the turn; a palm that is gone is re-read after TURN_LOST_MS (the reader decides).
+  useEffect(() => {
+    if (!turning) return;
+    readingRef.current = { ...readingRef.current, palm: isPalmPose(pose), thumbUp: pose === "thumb-up" };
+    clearTimer();
+    if (read()) return;
+    if (!readingRef.current.palm) {
+      timerRef.current = setTimeout(() => {
+        timerRef.current = null;
+        read();
+      }, TURN_LOST_MS);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pose, turning]);
+
+  // The roll: each change is a reading while the palm is there. Subscribing tells the current roll at once, which
+  // becomes the anchor the first time.
+  useEffect(() => {
+    if (!turning) return;
+    const off = subscribeHandRoll((roll) => {
+      readingRef.current = { ...readingRef.current, roll };
+      if (readingRef.current.palm) read();
+    });
+    return () => {
+      off();
+      clearTimer();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [turning]);
+
+  return { turning, begin };
 }

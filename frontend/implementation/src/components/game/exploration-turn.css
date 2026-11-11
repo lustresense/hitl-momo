@@ -1,0 +1,52 @@
+/* The turn indicator of the object (camera mode). Hard shadow on the element only, as in the Can kit. */
+.object-turn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  max-width: 220px;
+  padding: 10px 12px;
+  background: #fffdf6;
+  border: 2px solid #1e2126;
+  box-shadow: 4px 4px 0 #1e2126;
+}
+
+.object-turn__arrow {
+  width: 56px;
+  height: 56px;
+  overflow: visible;
+  animation: object-turn-spin 2.4s linear infinite;
+}
+
+.object-turn__arc {
+  fill: none;
+  stroke: #1e2126;
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+.object-turn__head {
+  fill: #3f9b57;
+  stroke: #1e2126;
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.object-turn__text {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.3;
+  color: #1e2126;
+  text-align: center;
+}
+
+@keyframes object-turn-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Reduced motion keeps the arrow still; the line and the arrow stay. */
+@media (prefers-reduced-motion: reduce) {
+  .object-turn__arrow { animation: none; }
+}

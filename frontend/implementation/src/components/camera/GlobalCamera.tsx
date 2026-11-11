@@ -262,11 +262,15 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
     );
   }, [flying]);
 
-  /** Camera card: the same node flies to the PIP box and ends there, so the floating layout takes over seamlessly. */
+  /**
+   * Camera card: the same node flies to the PIP box and ends there, so the floating layout takes over seamlessly.
+   * Without a camera (V1) the card makes the same single morph, so Momo gets the centre of the cover; the PIP then
+   * shows the existing "no camera" status instead of a picture.
+   */
   function startFlights() {
     if (unmountedRef.current) return;
     setFlying(true);
-    if (!streamRef.current) return; // no camera: the card stays put and the book covers the change
+    if (!streamRef.current) setStatusNote((note) => note || messageFor("camera-unavailable"));
     const card = cameraCardRef.current;
     const from = cameraFromRef.current;
     if (!card || !from || from.width < 2 || from.height < 2) {

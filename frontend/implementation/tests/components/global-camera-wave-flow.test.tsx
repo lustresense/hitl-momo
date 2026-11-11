@@ -231,14 +231,27 @@ describe("GlobalCamera cover choreography (R3)", () => {
     expect(fromToCalls()).toHaveLength(1);
   });
 
-  it("without a camera there is no camera flight; Momo still flies and the button wakes her", () => {
+  it("without a camera the button wakes Momo and the card still moves to the PIP once, so the centre stays free for her", () => {
     render(<GlobalCamera mode="cover" modelUrl="/m" />);
     act(() => forceInputMode("fallback"));
     fireEvent.click(screen.getByRole("button", { name: /Bangunkan Momo/ }));
-    act(() => { vi.advanceTimersByTime(1000); });
+    act(() => { vi.advanceTimersByTime(749); });
     expect(fromToCalls()).toHaveLength(0);
+    act(() => { vi.advanceTimersByTime(1); });
+    // Same morph as with a camera: one 0.8 s tween of the one camera card into the PIP box.
+    const cardCalls = fromToCalls();
+    expect(cardCalls).toHaveLength(1);
+    expect(cardCalls[0]![0]).toBe(screen.getByTestId("camera-card"));
+    expect(cardCalls[0]![2]).toMatchObject({ duration: 0.8, ease: "power2.inOut" });
     expect(momo.props?.className).toContain("is-centered");
-    expect(screen.getByTestId("global-camera-widget").className).toContain("mode-cover");
+    expect(momo.props?.height).toBe(320);
+    // Landed: the layout is the PIP, and its status line says why there is no picture.
+    act(() => { cardCalls[0]![2].onComplete(); });
+    expect(screen.getByTestId("global-camera-widget").className).toContain("mode-floating");
+    expect(screen.getByTestId("camera-status").textContent).toBe("Kamera tidak ditemukan. Pakai mouse atau keyboard.");
+    // Nothing flies again later.
+    act(() => { vi.advanceTimersByTime(5000); });
+    expect(fromToCalls()).toHaveLength(1);
   });
 
   it("unmounting during the wake beat cancels the flights and the wave timers", async () => {

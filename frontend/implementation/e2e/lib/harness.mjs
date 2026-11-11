@@ -53,6 +53,17 @@ export async function launch({ videoDir, viewport = { width: 1280, height: 720 }
 }
 
 /** Read-only telemetry snapshot from the integrated game canvas data-* attributes. */
+/** Optional screenshot sink for the showcase: enableSnaps(page, dir) once per run; snap(name) writes dir/name.png
+ *  the first time a name is seen (later passes keep the first picture). No-op when not enabled. */
+let snapPage = null, snapDir = null;
+export function enableSnaps(page, dir) { snapPage = page; snapDir = dir; fs.mkdirSync(dir, { recursive: true }); }
+const snapped = new Set();
+export async function snap(name) {
+  if (!snapPage || !snapDir || snapped.has(name)) return;
+  snapped.add(name);
+  await snapPage.screenshot({ path: path.join(snapDir, `${name}.png`) }).catch(() => {});
+}
+
 export const readGame = page => page.evaluate(() => {
   const c = document.querySelector("[data-testid=game-canvas]");
   if (!c) return null;
@@ -87,7 +98,7 @@ async function waitRingDone(el, holdMs) {
   await sleep(holdMs);
   let last = null;
   while (Date.now() < end) {
-    last = await el.evaluate(n => ({ p: Number(n.getAttribute("data-progress")), c: n.classList.contains("is-confirmed") })).catch(() => null);
+    last = await el.evaluate(n => ({ p: Number(n.getAttribute("data-progress")), c: n.classList.contains("is-confirmed") }), undefined, { timeout: 400 }).catch(() => null);
     if (!last || last.c || last.p >= 100) break;
     await sleep(80);
   }
@@ -97,30 +108,29 @@ async function waitRingDone(el, holdMs) {
 }
 
 export async function holdThumb(page, testId, { timeout = 15000, tries = 3 } = {}) {
-  const el = page.locator(`[data-testid="${testId}"]`);
+  const el = page.locator(`[data-testid="${testId}"] >> visible=true`);
   await el.waitFor({ state: "visible", timeout });
   const mode = await el.getAttribute("data-mode");
   const holdMs = Number(await el.getAttribute("data-hold-ms")) || 2000;
   if (mode === null) { await el.click(); return { mode: "tap", holdMs: 0 }; } // a plain tap control (DecisionPanel confirm="tap")
   for (let attempt = 1; attempt <= tries; attempt++) {
+    let confirmed;
     if (mode === "fallback") {
       await sleep(300); // let the ring settle (chat layout can still move it)
       const b = await el.boundingBox();
       await page.mouse.move(b.x + b.width / 2, b.y + Math.min(36, b.height / 3));
       await page.mouse.down();
-      await waitRingDone(el, holdMs);
+      confirmed = await waitRingDone(el, holdMs);
       await page.mouse.up();
     } else {
       const hasHook = await page.evaluate(() => typeof window.__skbThumb === "function");
       if (!hasHook) throw new Error("camera-mode ThumbConfirm needs a NEXT_PUBLIC_TEST_HOOKS=1 build (window.__skbThumb)");
       await page.evaluate(() => window.__skbThumb(true));
-      await waitRingDone(el, holdMs);
+      confirmed = await waitRingDone(el, holdMs);
       await page.evaluate(() => window.__skbThumb(null));
     }
-    // A confirmed ring leaves the screen with its step; one still there with no fill means the hold slipped.
-    const gone = await el.waitFor({ state: "detached", timeout: 2500 }).then(() => true, () => false)
-      || !(await el.isVisible().catch(() => false));
-    if (gone) return { mode, holdMs, attempt };
+    // The ring's own fill is the proof: a full ring fires once. A toggle that stays on screen (btn-override) is not re-held.
+    if (confirmed) return { mode, holdMs, attempt };
   }
   return { mode, holdMs, attempt: tries, stillVisible: true };
 }
@@ -152,6 +162,16 @@ export async function holdPinch(page, testId, ms, { timeout = 15000 } = {}) {
   return { testId, mode, holdMs };
 }
 
+/** Press any control of the new flow: rings and thumbs (they carry data-hold-ms) are held until they fill; plain
+ *  buttons (DwellButton: back to cover, draw again, undo...) are clicked. Trusted mouse only in fallback. */
+export async function press(page, testId, { timeout = 15000 } = {}) {
+  const el = page.locator(`[data-testid="${testId}"] >> visible=true`);
+  await el.waitFor({ state: "visible", timeout });
+  if ((await el.getAttribute("data-hold-ms")) !== null) return holdThumb(page, testId, { timeout });
+  await el.click();
+  return { testId, mode: "click" };
+}
+
 /** New draw flow (Owner rule 2026-11-09): Momo guesses only after the student holds a thumb on the finish ring
  *  (`btn-finish-drawing`, 2 s). Fallback (mouse): press it, keep it down until it confirms, release. The ring only
  *  shows once there is ink, so this is called after drawing. */
@@ -168,19 +188,21 @@ export async function holdFinishDrawing(page, { timeout = 15000 } = {}) {
 /** Top-3 decision by click (fallback) or dwell (camera): rank 1 = Terima (btn-accept), 2 and 3 = Pakai (btn-correct-N).
  *  A DwellButton is a real button, so a click commits at once; the decision locks the rest of the panel. */
 export async function pickCandidate(page, rank, { timeout = 15000 } = {}) {
-  const btn = page.locator(`[data-testid=${rank === 1 ? "btn-accept" : `btn-correct-${rank}`}]`);
+  // 2026-11-11 (T3): candidates are GestureRings, no quick click. Fallback = hold until the ring fills.
+  const testId = rank === 1 ? "btn-accept" : `btn-correct-${rank}`;
+  const btn = page.locator(`[data-testid=${testId}]`);
   await btn.waitFor({ state: "visible", timeout });
   const name = await btn.getAttribute("aria-label");
-  await btn.click();
+  await holdThumb(page, testId, { timeout });
   return name;
 }
 
 /** Override to a label outside the Top-3: open "Bukan ini, pilih lainnya", pick the label, press "Pakai <label>". */
 export async function overrideTo(page, label, { timeout = 15000 } = {}) {
-  await page.locator("[data-testid=btn-override]").click();
+  await press(page, "btn-override", { timeout });
   await page.locator(`[data-testid="override-option-${label}"]`).waitFor({ state: "visible", timeout });
-  await page.locator(`[data-testid="override-option-${label}"]`).click();
-  await page.locator("[data-testid=override-confirm]").click();
+  await press(page, `override-option-${label}`, { timeout });
+  await press(page, "override-confirm", { timeout });
 }
 
 /** PRD 0.0.16 R1: camera on, Momo sleeps; a (simulated) wave wakes her, she talks, the book opens to the ruler. */
@@ -190,6 +212,7 @@ export async function wakeMomoOnCover(page, base, log = () => {}) {
   // No camera: R13 fallback button "Bangunkan Momo".
   const toggle = page.locator("[data-testid=btn-camera-toggle-switch]");
   await toggle.waitFor({ state: "visible", timeout: 30000 });
+  await snap("01-cover-asleep");
   await toggle.click();
   log("cover: camera switch turned on");
   const how = await Promise.any([
@@ -200,60 +223,88 @@ export async function wakeMomoOnCover(page, base, log = () => {}) {
   if (how === "wave") await page.evaluate(() => window.__skbWave());
   else await page.locator("[data-testid=cover-wake]").click();
   log(`cover: Momo woken (${how})`);
+  // 2026-11-11 (R3): after her last line and a read pause, the 1 s thumb "Aku mengerti" opens the book by itself.
+  await holdThumb(page, "cover-thumb", { timeout: 90000 });
+  log("cover: thumb held, the book opens");
   await page.waitForURL(u => u.pathname === "/onboarding/number", { timeout: 30000 });
   log("cover: book opened to the ruler");
 }
 
-/** PRD 0.0.16 R3: move the ruler with the keyboard, let it settle, confirm with a 2 s thumb. */
-export async function pickStudentNumber(page, { steps = 0, log = () => {} } = {}) {
+/** PRD 0.0.16 R3 / R5: Momo speaks alone first (ruler locked), then the student moves the ruler. The question
+ *  "Benar ini nomor absenmu?" and the 2 s thumb appear only after a move and 0.6 s of rest, so at least one move is
+ *  made (default: 2 steps right). Returns the number the thumb confirmed. */
+export async function pickStudentNumber(page, { steps = 2, log = () => {} } = {}) {
   const ruler = page.getByRole("slider", { name: "Nomor absen" });
   await ruler.waitFor({ state: "visible", timeout: 20000 });
+  await sleep(1200); // Momo's focus phase: dimmed page, big Momo, ruler locked
+  await snap("penggaris-fase-fokus");
+  await page.waitForFunction(() => document.querySelector("[role=slider][aria-label='Nomor absen']")?.getAttribute("tabindex") === "0", null, { timeout: 60000 });
+  log("ruler: unlocked (Momo has moved to the corner)");
   await ruler.focus();
-  for (let i = 0; i < steps; i++) { await page.keyboard.press("ArrowRight"); await sleep(120); }
+  const moves = steps > 0 ? Array(steps).fill("ArrowRight") : ["ArrowRight", "ArrowLeft"];
+  for (const key of moves) { await page.keyboard.press(key); await sleep(120); }
   const value = await ruler.getAttribute("aria-valuenow");
-  await holdThumb(page, "number-thumb");
+  await holdThumb(page, "number-thumb", { timeout: 60000 });
   log(`ruler: number ${value} confirmed with thumb`);
   return Number(value);
 }
 
-/** Tutorial cards (PinchRing since 9ba76d2): walk Thinman, card 1 pinch ring (1.2 s), card 2 pinch (1 s),
- *  card 3 draw + Mundur, final pinch (2 s). Fallback: the ring is a button held with the mouse. */
+/** Wait until the card's thumb is unlocked (its gate passed: Momo done, practice done, 10 s read). */
+async function waitThumbUnlocked(page, testId, timeout = 90000) {
+  await page.waitForFunction(id => { const el = document.querySelector(`[data-testid="${id}"]`); return !!el && el.getAttribute("data-locked") !== "true"; }, testId, { timeout });
+}
+
+/** Tutorial (R4): card 1 walk by mouse drag to the flag (>= 76%), thumb 1 s; card 2 read + thumb 1 s; card 3 the four
+ *  tools on the practice canvas (draw, erase, undo, redo, each really changes the drawing), thumb 2 s. */
 export async function playTutorial(page, log = () => {}, { slow = false } = {}) {
   const walk = page.locator("[data-testid=tutorial-walk]");
   await walk.waitFor({ state: "visible", timeout: 30000 });
-  const thumb1 = page.locator("[data-testid=tutorial-pinch-1]");
+  await sleep(1200); // the page-open animation and Momo's first line
   for (let tries = 0; tries < 8; tries++) {
-    await sleep(1200); // let the page-open animation and Momo's line settle
     const wb = await walk.boundingBox();
     const y = wb.y + wb.height * 0.6;
     await page.mouse.move(wb.x + wb.width * 0.12, y);
     await page.mouse.down();
-    await page.mouse.move(wb.x + wb.width * 0.9, y, { steps: slow ? 60 : 24 });
+    await page.mouse.move(wb.x + wb.width * 0.92, y, { steps: slow ? 60 : 24 });
     await page.mouse.up();
-    if (await thumb1.waitFor({ state: "visible", timeout: 2500 }).then(() => true, () => false)) break;
-    log(`tutorial: walk try ${tries + 1} not done yet (${await walk.getAttribute("class")}, box ${Math.round(wb.x)},${Math.round(wb.width)})`);
+    // The practice counts as done once the walk reached the flag: the locked thumb then says "Baca dulu, ya".
+    if (await page.getByText("Baca dulu, ya").first().waitFor({ state: "visible", timeout: 2500 }).then(() => true, () => false)) break;
+    log(`tutorial: walk try ${tries + 1} not at the flag yet`);
   }
-  log("tutorial: Thinman walked");
-  await holdPinch(page, "tutorial-pinch-1", 1200); // the pinch ring walks the rest and moves on
-  log("tutorial: card 1 confirmed");
-  await holdPinch(page, "tutorial-pinch-2", 1000);
-  log("tutorial: card 2 confirmed");
+  log("tutorial: Thinman walked to the flag");
+  await snap("kartu1-cincin-terkunci");
+  await waitThumbUnlocked(page, "tutorial-thumb-1");
+  await holdThumb(page, "tutorial-thumb-1", { timeout: 15000 });
+  log("tutorial: card 1 thumb (1 s) confirmed");
+
+  await waitThumbUnlocked(page, "tutorial-thumb-2");
+  await holdThumb(page, "tutorial-thumb-2", { timeout: 15000 });
+  log("tutorial: card 2 thumb (1 s) confirmed");
+
   const canvas = page.locator("canvas.tut-draw__canvas");
-  await canvas.waitFor({ state: "visible", timeout: 15000 });
-  await sleep(1500); // page-open animation: the practice canvas is sized once its page is open
+  await canvas.waitFor({ state: "visible", timeout: 30000 });
+  // Card 2 closes (1.0 s), a 1.1 s pause, then card 3 opens (0.95 s): draw only once its page is open and still.
+  await page.locator(".tutorial-card-3.is-open").waitFor({ state: "attached", timeout: 30000 });
+  await sleep(3000);
   const cb = await canvas.boundingBox();
   const cx = cb.x + cb.width / 2, cy = cb.y + cb.height / 2;
-  for (const s of [[[-60, -20], [60, -20], [60, 25], [-60, 25]], [[-30, 0], [30, 0]]]) {
-    await page.mouse.move(cx + s[0][0], cy + s[0][1]);
+  const drag = async pts => {
+    await page.mouse.move(cx + pts[0][0], cy + pts[0][1]);
     await page.mouse.down();
-    for (const [dx, dy] of s.slice(1)) await page.mouse.move(cx + dx, cy + dy, { steps: slow ? 18 : 6 });
+    for (const [dx, dy] of pts.slice(1)) await page.mouse.move(cx + dx, cy + dy, { steps: slow ? 18 : 6 });
     await page.mouse.up();
-  }
-  log("tutorial: drew on the practice canvas");
-  await page.getByRole("button", { name: "Mundur satu goresan" }).click();
-  log("tutorial: Mundur (undo) clicked");
-  await holdPinch(page, "tutorial-pinch-3", 2000);
-  log("tutorial: card 3 confirmed, Mulai Level 1");
+  };
+  await drag([[-60, -20], [60, -20], [60, 25], [-60, 25]]); // draw (default tool)
+  await page.locator("[data-tool=erase]").click();
+  await drag([[-70, 0], [70, 0]]); // erase across the stroke
+  await page.locator("[data-tool=draw]").click();
+  await page.locator("[data-tool=undo]").click(); // undo the erase: the stroke is back
+  await page.locator("[data-tool=redo]").click(); // redo the erase
+  log("tutorial: card 3 tools draw, erase, undo, redo tried");
+  await snap("kartu3-alat");
+  await waitThumbUnlocked(page, "tutorial-thumb-3");
+  await holdThumb(page, "tutorial-thumb-3", { timeout: 15000 });
+  log("tutorial: card 3 thumb (2 s) confirmed, Mulai Level 1");
 }
 
 /** Full onboarding: wave, ruler thumb, whole tutorial. */
@@ -264,49 +315,45 @@ export async function onboardToLevels(page, base, log = () => {}) {
   await page.locator(".level-card").first().waitFor({ state: "visible", timeout: 30000 });
 }
 
-/** Fast variant for journey tests: wave, ruler thumb, then the visible tutorial skip. */
+/** Journey variant: wake, ruler, and the whole tutorial (the skip button is gone since R4). */
 export async function onboardToLevelsFast(page, base, log = () => {}) {
-  await wakeMomoOnCover(page, base, log);
-  await pickStudentNumber(page, { log });
-  // Fallback mode shows "Lewati Tutorial"; camera mode is full NUI (no buttons), so play it there.
-  const skip = page.locator(".tutorial-skip");
-  if (await skip.waitFor({ state: "visible", timeout: 6000 }).then(() => true, () => false)) { await skip.click(); log("onboarding: tutorial skipped via visible button"); }
-  else await playTutorial(page, log);
-  await page.locator(".level-card").first().waitFor({ state: "visible", timeout: 30000 });
+  await onboardToLevels(page, base, log);
 }
 
 /** Enter a level from the ribbon list.
  *  entry: "click" (pick the card, auto-pull; journey tests) or "thumb" (2 s level-thumb-N, R6).
- *  intro: "skip" (visible skip control) or "watch" (whole story, pick a card, 1 s Ke langit, Momo rises with the camera). */
-export async function enterLevel(page, stage, log = () => {}, { entry = "click", intro = "skip" } = {}) {
-  // "Mulai Level 1" at the end of the tutorial can open Level 1 directly (no list in between).
+ *  Story (L1): the thumb "intro-continue" (1 s) after Momo's last line; the book then rises through the clouds.
+ *  Canvas (L6): the focus phase first; the "Mulai Menggambar" thumb (btn-focus-start) closes its backdrop. */
+export async function enterLevel(page, stage, log = () => {}, { entry = "click" } = {}) {
   const alreadyIn = await page.locator("[data-testid=level-intro], [data-testid=draw-canvas]").first()
     .waitFor({ state: "attached", timeout: 2500 }).then(() => true, () => false);
   if (!alreadyIn) {
     const card = page.locator(".level-card").nth(stage - 1);
     await card.waitFor({ state: "visible", timeout: 20000 });
+    await snap("pilih-bab");
     await page.waitForFunction(i => document.querySelectorAll(".level-card")[i]?.dataset.state !== "locked", stage - 1, { timeout: 8000 });
     if (entry === "thumb") { await holdThumb(page, `level-thumb-${stage}`, { timeout: 20000 }); log(`L${stage}: ribbon thumb held`); }
     else await card.click();
   } else log(`L${stage}: opened straight from the tutorial`);
-  await page.locator("[data-testid=draw-canvas]").waitFor({ state: "attached", timeout: 15000 });
   const introEl = page.locator("[data-testid=level-intro]");
-  if (await introEl.waitFor({ state: "visible", timeout: 6000 }).then(() => true, () => false)) {
+  if (await introEl.waitFor({ state: "visible", timeout: 8000 }).then(() => true, () => false)) {
     log(`L${stage}: story intro visible`);
-    if (intro === "watch") {
-      await page.locator("[data-testid=intro-cards]").waitFor({ state: "visible", timeout: 60000 });
-      const first = page.locator("[data-testid^=intro-card-]").first();
-      await first.click(); await sleep(900);
-      log(`L${stage}: intro card picked`);
-      await holdThumb(page, "intro-continue", { timeout: 15000 }).catch(() => log(`L${stage}: intro rose by itself`));
-      // The intro fades out over the canvas (it may stay attached for a moment at opacity 0).
-      await page.waitForFunction(() => { const el = document.querySelector("[data-testid=level-intro]"); return !el || Number(getComputedStyle(el).opacity) < 0.05; }, null, { timeout: 90000 });
-      log(`L${stage}: Momo flew up with the camera to the sky canvas`);
-    } else {
-      await page.locator("[data-testid=intro-skip]").click();
-      await introEl.waitFor({ state: "detached", timeout: 5000 });
-      log(`L${stage}: story intro skipped`);
-    }
+    await sleep(2500);
+    await snap("intro-level-gelap");
+    await holdThumb(page, "intro-continue", { timeout: 45000 });
+    log(`L${stage}: intro thumb (1 s) held, Momo rises through the clouds`);
+    await introEl.waitFor({ state: "detached", timeout: 15000 });
+  }
+  await page.locator("[data-testid=draw-canvas]").waitFor({ state: "attached", timeout: 15000 });
+  // Focus phase on the canvas (L6): Momo reviews the four tools, then the "Mulai Menggambar" thumb opens the canvas.
+  const start = page.locator("[data-testid=btn-focus-start]");
+  if (await start.waitFor({ state: "visible", timeout: 90000 }).then(() => true, () => false)) {
+    log(`L${stage}: canvas focus phase`);
+    await sleep(1200);
+    await snap("kanvas-fase-fokus");
+    await holdThumb(page, "btn-focus-start", { timeout: 15000 });
+    await page.locator("[data-testid=drawing-focus-backdrop]").waitFor({ state: "detached", timeout: 10000 }).catch(() => {});
+    log(`L${stage}: "Mulai Menggambar" held, canvas open`);
   }
   await page.locator("[data-testid=draw-canvas]").waitFor({ state: "visible", timeout: 15000 });
 }
@@ -368,19 +415,20 @@ export async function submitAndDecide(page, { prefer = "balok", mode = "auto", l
   await heading.waitFor({ timeout: 15000 });
   const labels = (await page.locator(".momo-guess__label, .top3-item .label").allTextContents()).map(x => x.replace(/⭐.*$/s, "").trim());
   log(`Top-3 (MOCK provider): ${JSON.stringify(labels)}`);
+  await snap("top3");
   if (shot) await shot("top3");
   if (inspect) await inspect(); // runs while the Top-3 panel is still on screen (before the decision)
   const rank = labels.findIndex(x => x.toLowerCase() === prefer) + 1;
   let decision;
   if (mode === "accept") { await pickCandidate(page, 1); decision = { type: "Accept", rank: 1, label: labels[0] }; }
   else if (mode === "override") {
-    // Open the picker once (btn-override toggles it), read what it offers, then pick and confirm.
-    await page.locator("[data-testid=btn-override]").click();
+    // Open the picker once (btn-override is a ring: hold it), read what it offers, then pick and confirm (holds).
+    await press(page, "btn-override");
     await page.locator("[data-testid^=override-option-]").first().waitFor({ state: "visible", timeout: 15000 });
     const opts = await page.locator("[data-testid^=override-option-]").evaluateAll(xs => xs.map(x => x.dataset.testid.replace("override-option-", "")));
     const wanted = [].concat(prefer).find(p => opts.includes(p)) ?? opts[0];
-    await page.locator(`[data-testid="override-option-${wanted}"]`).click();
-    await page.locator("[data-testid=override-confirm]").click();
+    await press(page, `override-option-${wanted}`);
+    await press(page, "override-confirm");
     decision = { type: "Override", label: wanted, optionsOffered: opts };
   }
   else if (rank === 1) { await pickCandidate(page, 1); decision = { type: "Accept", rank, label: prefer }; }
@@ -392,9 +440,14 @@ export async function submitAndDecide(page, { prefer = "balok", mode = "auto", l
 
 /** Drag the pending object (visible on canvas) to a world-space target centre. Trusted mouse only. */
 export async function placeByDrag(page, targetCx, targetCy, { create = true } = {}) {
-  if (create) await page.locator("[data-testid=btn-enter-world]").click(); // decision already made the object; this is the "Masukkan ke dunia" offer
+  // 2026-11-11 (S1): after the decision the object is a sticker on the canvas; "Lempar" (2 s ring) drops it into the
+  // world and starts placement. There is no "Masukkan ke dunia" popup any more (btn-enter-world removed).
+  await page.locator("[data-testid=sticker-stamp]").waitFor({ state: "visible", timeout: 15000 }).catch(() => {});
+  await snap("stiker");
+  if (create) await press(page, "btn-throw-sticker");
   const game = page.locator("[data-testid=game-canvas]");
   await page.waitForFunction(() => document.querySelector("[data-testid=game-canvas]")?.dataset.phase === "placing", null, { timeout: 15000 });
+  await snap("penempatan");
   const gb = await game.boundingBox();
   const g = await readGame(page);
   const toScreen = (wx, wy) => ({ x: gb.x + wx / 800 * gb.width, y: gb.y + wy / 450 * gb.height });
@@ -415,17 +468,21 @@ export async function confirmPlacement(page) {
 
 export function writeJson(file, obj) { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, JSON.stringify(obj, null, 2)); }
 
-/** PRD 0.0.16 R9 ending (CenterOfPage) after the L3 win: Lanjut 1 s, epilog Lanjut 1 s, pick, 2 s thumb. */
-export async function playEnding(page, { choice = "finish", log = () => {} } = {}) {
+/** Ending (L4, Pusat Halaman) after the L3 win: the portal (~7 s), "Aku mengerti" (1 s), the neutral recap
+ *  (1 s "Lanjut"), then "Kembali ke sampul" (no quiz by default) to the cover. */
+export async function playEnding(page, { log = () => {} } = {}) {
   await page.locator("[data-testid=center-of-page]").waitFor({ state: "visible", timeout: 30000 });
-  log("ending: Pusat Halaman opened");
-  await holdThumb(page, "ending-next", { timeout: 30000 });
-  log("ending: overview confirmed");
-  await holdThumb(page, "ending-epilog-next", { timeout: 30000 });
-  log("ending: epilog confirmed");
-  await page.locator(`[data-testid=${choice === "again" ? "ending-play-again" : "ending-finish"}]`).click();
-  await holdThumb(page, "ending-confirm");
-  log(`ending: chose ${choice}`);
+  log("ending: Pusat Halaman opened (portal)");
+  await sleep(3000);
+  await snap("portal");
+  await holdThumb(page, "ending-understood", { timeout: 60000 });
+  log("ending: AI talk understood (1 s)");
+  await page.locator("[data-testid=ending-recap]").waitFor({ state: "visible", timeout: 30000 });
+  await holdThumb(page, "ending-recap-next", { timeout: 30000 });
+  log("ending: recap read (1 s)");
+  await snap("rekap");
+  await press(page, "ending-back-to-cover", { timeout: 30000 });
+  log("ending: back to cover");
 }
 
 /** Trusted-key level runner shared by the showcase: stand at launchX, jump, then walk right until an outcome. */

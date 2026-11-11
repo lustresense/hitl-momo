@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DrawingScreen } from "@/src/components/drawing/DrawingScreen";
 import { forceInputMode, resetInputModeForTest } from "@/src/input/input-mode";
 import { LEVELS } from "@/src/domain/levels";
+import { resetCanvasFocusForTest } from "@/src/components/drawing/hooks/useCanvasFocus";
 
 // Fake surface: records the ink gate so the test can check the canvas takes no strokes during the focus phase.
 interface FakeSurface {
@@ -79,6 +80,7 @@ const CUE_LINE = "Gambar objekmu dulu, ya. Nanti aku coba tebak!";
 
 describe("drawing canvas focus phase (REVISI §13: dark backdrop, tool review, catalog, Mulai Menggambar)", () => {
   beforeEach(() => {
+    resetCanvasFocusForTest();
     vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "setInterval", "clearInterval", "requestAnimationFrame", "cancelAnimationFrame", "performance", "Date"] });
     resetInputModeForTest();
     fake.surfaces.length = 0;

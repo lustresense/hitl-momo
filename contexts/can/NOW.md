@@ -5,6 +5,8 @@ Base ancestry: `54ebec1830760fe0b692d7a40b25ceb041bfdef9` (descendant of `840973
 Diperbarui: 2026-11-05. Satu halaman: keadaan paling baru. Keputusan: `DECISIONS.md` (D-20261105-01..24; riwayat GPT di Lampiran). Aturan kerja/TOV: `SOUL.md`. Instruksi Owner satu per satu: `project/OWNER_MANDATES.md`. Perubahan teknis per versi: `implementation/CHANGELOG.md` (0.0.13). Laporan progres yang bisa dibaca Owner dan Ujang: `implementation/docs/execution/PROGRESS_REPORT_2026-11-05.md`.
 
 ## 2026-11-11 — keadaan terbaru (monorepo `claude-monorepo`)
+- **Daftar tugas revisi Owner dan statusnya: `REVISIONS.md`.** Mulai dari sana kalau melanjutkan pekerjaan di sesi/agent lain.
+- Keputusan D-20261110-01..10 disahkan Owner 2026-11-11; D-20261111-01 (data dikirim saat cincin keputusan Top-3).
 - Lokasi game sekarang: `frontend/implementation/` di monorepo (branch `claude-monorepo`). Branch `can` tidak diubah.
 - Instruksi Owner 10 Nov (big prompt + REVISI-NUI) dikerjakan oleh tim AI. Audit, storyboard, rencana, rekonsiliasi dan draft keputusan: `contexts/can/docs/audit-2026-11-10/`. `DECISIONS.md` belum diubah; draft `D-20261110-01..10` menunggu `SETUJUI`.
 - Hanya tiga level (Level 4 dari 2026-11-09 dihapus).

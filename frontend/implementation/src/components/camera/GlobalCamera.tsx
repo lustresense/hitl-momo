@@ -56,8 +56,16 @@ const CARD_MORPH_S = 0.8;
 const MOMO_FLY_S = 1.1;
 const MOMO_COVER_PX = 250;
 const MOMO_CENTER_PX = 320;
-/** Her words start once she has landed (about 2 s after the wave). */
-const DIALOG_START_MS = 2000;
+/**
+ * Her words start right after the wave; the flight runs alongside them (NUI-2: the thumb ring must be holdable within
+ * 8 s of the wave). The beats overlap on purpose, the animations themselves keep their full duration.
+ */
+const DIALOG_START_MS = 300;
+/**
+ * Speech speed of Momo's wake dialog (MomoChat pace). At 1 the four lines end at ~16.9 s, too long for the budget.
+ * 0.45 types and reads them ~2.2x faster and puts the thumb ring at ~7.8 s; every line is still shown in full.
+ */
+const COVER_DIALOG_PACE = 0.45;
 /** Camera on, nobody waved: Momo mumbles at 8 s, a small button appears at 20 s. */
 const NUDGE_MUMBLE_MS = 8000;
 const NUDGE_BUTTON_MS = 20000;
@@ -125,6 +133,35 @@ function morphCameraCard(card: HTMLElement, from: CardRect | null, to: CardRect 
       clearProps: "width,height,x,y",
     },
   );
+}
+
+/**
+ * NUI-2 anti motion blur: 720p at 24-60 fps in the same single request, so a fast wave is not smeared. Existing
+ * fields (the 5:4 preference, the chosen device) are kept.
+ */
+function cameraConstraints(selectedDevice: string): MediaTrackConstraints {
+  const quality = { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 60, min: 24 } };
+  return selectedDevice
+    ? { deviceId: { exact: selectedDevice }, ...quality }
+    : { facingMode: "user", aspectRatio: { ideal: 5 / 4 }, ...quality };
+}
+
+function isOverconstrained(error: unknown): boolean {
+  return (error as { name?: unknown } | null)?.name === "OverconstrainedError";
+}
+
+/**
+ * One getUserMedia request with the quality constraints. A camera that cannot meet them must still start, so an
+ * OverconstrainedError retries with the plain request. A chosen device stays chosen: only the quality is dropped.
+ */
+async function requestCameraStream(selectedDevice: string): Promise<MediaStream> {
+  const devices = navigator.mediaDevices;
+  try {
+    return await devices.getUserMedia({ video: cameraConstraints(selectedDevice), audio: false });
+  } catch (error) {
+    if (!isOverconstrained(error)) throw error;
+    return devices.getUserMedia({ video: selectedDevice ? { deviceId: { exact: selectedDevice } } : true, audio: false });
+  }
 }
 
 /** Same wasm folder the wave tracker uses, so the warm-up and the tracker share one model file. */
@@ -208,6 +245,8 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
   const [nudge, setNudge] = useState(0);
   /** The book has been started: the cover text and the thumb confirmation are gone. */
   const [coverDone, setCoverDone] = useState(false);
+  /** Momo has typed her last line: the thumb ring appears now, not after the reading pause. */
+  const [coverLinesTyped, setCoverLinesTyped] = useState(false);
   /** Momo on the cover: on, fading (0.3 s after the midpoint), gone. */
   const [momoPhase, setMomoPhase] = useState<"on" | "fading" | "gone">("on");
   /** BookFlip play key: bumps once per confirmation. */
@@ -522,10 +561,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
     }
     let stream: MediaStream | null = null;
     try {
-      const videoConstraints: MediaTrackConstraints = selectedDevice
-        ? { deviceId: { exact: selectedDevice } }
-        : { facingMode: "user", aspectRatio: { ideal: 5 / 4 } };
-      stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: false });
+      stream = await requestCameraStream(selectedDevice);
       if (isStale()) {
         // Toggled off / switched / unmounted while the permission prompt was open: do not keep the lens live.
         stream.getTracks().forEach((track) => track.stop());
@@ -765,10 +801,12 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
             flapKey={awake ? wake.key : 0}
             waveKey={awake ? wake.wave : 0}
             startDelay={awake ? DIALOG_START_MS : 0}
-            extrasFrom="last"
+            pace={COVER_DIALOG_PACE}
+            extrasFrom="first"
+            onDone={() => setCoverLinesTyped(true)}
             testId="cover-momo"
           >
-            {awake && !coverDone && (
+            {awake && coverLinesTyped && !coverDone && (
               <ThumbConfirm holdMs={COVER_THUMB_HOLD_MS} label="Aku mengerti" onConfirm={onThumbConfirm} testId="cover-thumb" />
             )}
           </MomoGuide>

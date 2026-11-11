@@ -83,6 +83,8 @@ export interface MomoChatProps {
   startDelay?: number;
   /** Keep all lines visible together instead of replacing them one by one. */
   stack?: boolean;
+  /** Scales every timed beat (letters, dots, reading pause). 1 = reference speed; the cover uses less (NUI-2 budget). */
+  pace?: number;
   /** Fires once, when the last line is fully typed out. The reading pause after it may still be running. */
   onDone?: () => void;
   /** Fires once per set of lines, when the last line is typed out AND its reading pause has passed. */
@@ -139,25 +141,25 @@ function finishLine(run: Run, lines: readonly string[]): Run {
   return { ...run, index, chars: plainText(lines[index] ?? "").length, stage: "hold", due: null };
 }
 
-/** Milliseconds the current stage lasts, or null when nothing more happens. */
-function stageMs(run: Run, lines: readonly string[], startDelay: number): number | null {
+/** Milliseconds the current stage lasts, or null when nothing more happens. The start delay is not paced. */
+function stageMs(run: Run, lines: readonly string[], startDelay: number, pace: number): number | null {
   const line = lines[run.index] ?? "";
   switch (run.stage) {
     case "wait":
       return startDelay;
     case "dots":
-      return typingMs(line);
+      return typingMs(line) * pace;
     case "type":
-      return LETTER_MS;
+      return LETTER_MS * pace;
     case "hold":
-      return dwellMs(line);
+      return dwellMs(line) * pace;
     case "end":
       return null;
   }
 }
 
 /** The stage after the current one, timed from this stage's due time. */
-function advance(run: Run, lines: readonly string[], startDelay: number): Run {
+function advance(run: Run, lines: readonly string[], startDelay: number, pace: number): Run {
   const length = plainText(lines[run.index] ?? "").length;
   let next: Pick<Run, "index" | "chars" | "stage">;
   switch (run.stage) {
@@ -179,7 +181,7 @@ function advance(run: Run, lines: readonly string[], startDelay: number): Run {
       return run;
   }
   const following = { ...run, ...next };
-  const ms = stageMs(following, lines, startDelay);
+  const ms = stageMs(following, lines, startDelay, pace);
   return { ...following, due: ms === null || run.due === null ? null : run.due + ms };
 }
 
@@ -197,6 +199,7 @@ export function MomoChat({
   typing = true,
   startDelay = 0,
   stack = false,
+  pace = 1,
   onDone,
   onAllShown,
   extrasFrom = "last",
@@ -205,6 +208,8 @@ export function MomoChat({
   testId,
   side = "left",
 }: MomoChatProps) {
+  // A broken pace (zero, negative, NaN) would stop or freeze the typing; fall back to the reference speed.
+  const speed = Number.isFinite(pace) && pace > 0 ? pace : 1;
   const list = useMemo(() => (Array.isArray(lines) ? lines : [lines]), [lines]);
   const key = list.join("␞");
   const runId = `${key}␟${startDelay}`;
@@ -231,14 +236,14 @@ export function MomoChat({
       setStored((prev) => (prev === run ? finishLine(prev, list) : prev));
       return;
     }
-    const ms = stageMs(run, list, startDelay);
+    const ms = stageMs(run, list, startDelay, speed);
     if (ms === null) return;
     if (run.due === null) {
       // The stage starts now: time it from here, then the timer below takes over.
       setStored((prev) => (prev === run ? { ...prev, due: Date.now() + ms } : prev));
       return;
     }
-    const timer = setTimeout(() => setStored((prev) => (prev === run ? advance(prev, list, startDelay) : prev)), Math.max(0, run.due - Date.now()));
+    const timer = setTimeout(() => setStored((prev) => (prev === run ? advance(prev, list, startDelay, speed) : prev)), Math.max(0, run.due - Date.now()));
     return () => clearTimeout(timer);
     // `run` changes on every step; `list` is covered by `key` (same content, same run).
     // eslint-disable-next-line react-hooks/exhaustive-deps

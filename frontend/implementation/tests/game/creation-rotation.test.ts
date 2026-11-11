@@ -40,6 +40,24 @@ describe("creation rotation: quarter turns", () => {
     expect(quarterTurn(180)).toBe(270);
     expect(quarterTurn(270)).toBe(0);
   });
+
+  it("turns counter-clockwise with dir -1: 0 -> 270 -> 180 -> 90 -> 0", () => {
+    expect(quarterTurn(0, -1)).toBe(270);
+    expect(quarterTurn(270, -1)).toBe(180);
+    expect(quarterTurn(180, -1)).toBe(90);
+    expect(quarterTurn(90, -1)).toBe(0);
+  });
+
+  it("treats a missing angle as 0, in both directions", () => {
+    expect(quarterTurn(undefined)).toBe(90);
+    expect(quarterTurn(undefined, -1)).toBe(270);
+  });
+
+  it("one clockwise and one counter-clockwise turn cancel out", () => {
+    for (const start of [0, 90, 180, 270] as const) {
+      expect(quarterTurn(quarterTurn(start, 1), -1)).toBe(start);
+    }
+  });
 });
 
 describe("creation rotation: rotatedAround keeps the centre of the object", () => {
@@ -62,6 +80,14 @@ describe("creation rotation: rotatedAround keeps the centre of the object", () =
     expect(item.angle ?? 0).toBe(0);
     expect(footprintOf(item)).toEqual({ x: 100, y: 200, w: 150, h: 8 });
   });
+
+  it("a counter-clockwise turn to 270 keeps the same centre and the same swapped footprint", () => {
+    const turned = rotatedAround(base(), quarterTurn(0, -1));
+    expect(turned.angle).toBe(270);
+    expect(turned.x + 8 / 2).toBe(175);
+    expect(turned.y + 150 / 2).toBe(204);
+    expect(footprintOf(turned)).toEqual(footprintOf(rotatedAround(base(), 90)));
+  });
 });
 
 describe("creation rotation: legal placement uses the rotated footprint", () => {
@@ -72,6 +98,13 @@ describe("creation rotation: legal placement uses the rotated footprint", () => 
     // Put the object's centre on the platform top: the tall footprint must cross it.
     const item = base({ x: platform.x + 20, y: platform.y - 40, w: 150, h: 8 });
     const turned = rotatedAround(item, 90);
+    expect(integratedPlacementAllowed(footprintOf(turned), geometry, [], turned.id)).toBe(false);
+  });
+
+  it("the counter-clockwise tall footprint that pokes through a platform is illegal too", () => {
+    const platform = geometry.platforms.find((p) => p.w > 0)!;
+    const item = base({ x: platform.x + 20, y: platform.y - 40, w: 150, h: 8 });
+    const turned = rotatedAround(item, quarterTurn(item.angle, -1));
     expect(integratedPlacementAllowed(footprintOf(turned), geometry, [], turned.id)).toBe(false);
   });
 

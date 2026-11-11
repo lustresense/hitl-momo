@@ -170,8 +170,8 @@ export function GameStage(props: GameStageProps) {
             actions.reposition();
             grab.begin(true);
           }}
-          onRotate={() => {
-            actions.rotateCreation();
+          onRotate={(dir) => {
+            actions.rotateCreation(dir);
           }}
         />
       )}

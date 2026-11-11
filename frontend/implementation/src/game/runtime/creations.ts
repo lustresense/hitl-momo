@@ -129,10 +129,14 @@ export function footprintOf(item: Pick<WorldCreation, "x" | "y" | "w" | "h" | "a
   };
 }
 
-/** One quarter turn clockwise: 0 -> 90 -> 180 -> 270 -> 0. */
-export function quarterTurn(angle: CreationAngle | undefined): CreationAngle {
+/** 1 is clockwise as seen on screen, -1 counter-clockwise. */
+export type TurnDirection = 1 | -1;
+
+/** One quarter turn: clockwise 0 -> 90 -> 180 -> 270 -> 0, counter-clockwise the reverse. */
+export function quarterTurn(angle: CreationAngle | undefined, dir: TurnDirection = 1): CreationAngle {
   const current = angle ?? 0;
-  return ((current + 90) % 360) as CreationAngle;
+  // Adding 360 keeps the modulo positive for the counter-clockwise step from 0.
+  return ((current + 90 * dir + 360) % 360) as CreationAngle;
 }
 
 /**

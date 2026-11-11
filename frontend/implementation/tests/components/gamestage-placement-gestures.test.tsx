@@ -270,6 +270,16 @@ describe("gameplay: exploration of a placed object", () => {
     expect(ctl.reposition).not.toHaveBeenCalled();
   });
 
+  it("a twist the other way turns the object counter-clockwise (-1)", async () => {
+    await startInCamera({ phase: "gameplay" });
+    setHand("open-palm");
+    stepFrames(FILL_1_5_S + 20);
+    setHand("open-palm", 0, -50);
+    stepFrames(6);
+    expect(ctl.rotate).toHaveBeenCalledTimes(1);
+    expect(ctl.rotate).toHaveBeenLastCalledWith(-1);
+  });
+
   it("the thumbs-up ends the turn; the twist after it turns nothing", async () => {
     await startInCamera({ phase: "gameplay" });
     setHand("open-palm");

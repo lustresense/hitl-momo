@@ -95,6 +95,40 @@ describe("fallback bar: keyboard-era labels stay for mouse and keyboard players"
     expect(onRotateRequest).toHaveBeenCalledTimes(1);
   });
 
+  it("has a left and a right turn button; each asks for its own direction", () => {
+    const onRotateRequest = vi.fn();
+    bar({ mode: "fallback", onRotateRequest });
+    fireEvent.click(screen.getByTestId("btn-rotate-left"));
+    expect(onRotateRequest).toHaveBeenLastCalledWith(-1);
+    fireEvent.click(screen.getByTestId("btn-rotate"));
+    expect(onRotateRequest).toHaveBeenLastCalledWith(1);
+    expect(onRotateRequest).toHaveBeenCalledTimes(2);
+  });
+
+  it("Q turns left and E turns right from the keyboard, once per press", () => {
+    const onRotateRequest = vi.fn();
+    bar({ mode: "fallback", onRotateRequest });
+    fireEvent.keyDown(window, { code: "KeyQ" });
+    expect(onRotateRequest).toHaveBeenLastCalledWith(-1);
+    fireEvent.keyDown(window, { code: "KeyE" });
+    expect(onRotateRequest).toHaveBeenLastCalledWith(1);
+    fireEvent.keyDown(window, { code: "KeyE", repeat: true });
+    expect(onRotateRequest).toHaveBeenCalledTimes(2);
+  });
+
+  it("shows no keyboard hint for the turn buttons", () => {
+    const { container } = bar({ mode: "fallback" });
+    expect(container.textContent ?? "").not.toMatch(/\b[QE]\b/);
+  });
+
+  it("the camera bar takes no Q or E turn", () => {
+    const onRotateRequest = vi.fn();
+    bar({ mode: "camera", onRotateRequest });
+    fireEvent.keyDown(window, { code: "KeyQ" });
+    fireEvent.keyDown(window, { code: "KeyE" });
+    expect(onRotateRequest).not.toHaveBeenCalled();
+  });
+
   it("Geser objek reports the move request, and falls back to the reposition action without one", () => {
     const onMoveRequest = vi.fn();
     bar({ mode: "fallback", onMoveRequest });

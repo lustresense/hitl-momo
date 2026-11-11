@@ -313,6 +313,8 @@ export function drawingCommandFor(pose: HandPose): DrawingGestureCommand | null 
     case "pinch": return "draw";
     case "fist": return "erase";
     case "two-fingers": return "undo";
+    // Owner: redo is the open palm. The split palm stays a redo too, so either shape reads the same.
+    case "open-palm":
     case "split-palm": return "redo";
     default: return null;
   }

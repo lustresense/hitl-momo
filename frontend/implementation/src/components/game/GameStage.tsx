@@ -11,7 +11,7 @@ import { useInputMode } from "@/src/hooks/useHandGesture";
 import { StageWorld } from "../stage-preview/StageWorld";
 import { ControlGuide } from "./ControlGuide";
 import { CreationShortcuts } from "./CreationShortcuts";
-import { EnterWorldPopup } from "./EnterWorldPopup";
+import { ExplorationRings } from "./ExplorationRings";
 import { FailOverlay } from "./FailOverlay";
 import { GameplayControls } from "./GameplayControls";
 import { InputStatusChip } from "./InputStatusChip";
@@ -24,8 +24,10 @@ import { useGameController } from "./hooks/useGameController";
 import { useGameplayInput, useKeyboardInput } from "./hooks/useGameplayInput";
 import { useHandControl } from "./hooks/useHandControl";
 import { usePlacement } from "./hooks/usePlacement";
+import { usePlacementGrab, useStagePose } from "./hooks/usePlacementGesture";
 import { useSharedStreamLive } from "./hooks/useSharedStreamLive";
 import { useStageActions } from "./hooks/useStageActions";
+import { gestureFor, stageGestureMode } from "./placement-gesture";
 import type { GameStageProps, InputMode } from "./game-stage-types";
 import styles from "./game-stage.module.css";
 
@@ -39,8 +41,8 @@ export function GameStage(props: GameStageProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const controllerRef = useRef<GameController | null>(null);
   const geometry = integrated ? getStageGeometry(level.stage) : null;
-  // The decided object is offered to the world first (pop-up); the world only starts when the student enters it.
-  const [entered, setEntered] = useState(false);
+  // The stage mounts only when the sticker is thrown ("Lempar", S1), and that throw is the entry into the world.
+  const entered = true;
   const [momoPoke, setMomoPoke] = useState(0);
 
   // R13: the app-wide input mode, plus a live camera stream. Only "camera" lets the hand steer.
@@ -101,6 +103,25 @@ export function GameStage(props: GameStageProps) {
     onCreateAnotherObject: props.onCreateAnotherObject,
   });
 
+  // Hand actions of the object: placing (MODE_GAMEPLAY_PLACEMENT) or playing (MODE_GAMEPLAY_EXPLORATION_CAM).
+  // The pose comes from the reader's stable vote, never from a raw finger count (the thumb is counted there too).
+  const stageMode = stageGestureMode(phase, outcome);
+  const handActions = mode === "camera" && stageMode !== null;
+  const pose = useStagePose(handActions);
+  const gesture = handActions ? gestureFor(stageMode, pose) : null;
+  // A grab is a pinch held for its ring, then followed until let go. Releasing in exploration places the object.
+  const grab = usePlacementGrab({
+    pose,
+    onHoldChange: placement.setGrabbing,
+    onDrop: (commit) => {
+      if (commit) actions.confirmPlacement();
+    },
+  });
+  useEffect(() => {
+    if (stageMode === null) grab.cancel();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stageMode]);
+
   // Play-phase guide: opens when play starts, closes by itself or at the first movement.
   const guide = useControlGuide({
     active: phase === "gameplay" && !outcome && ready,
@@ -108,8 +129,8 @@ export function GameStage(props: GameStageProps) {
   });
 
   return (
-    <section id="screen-gameplay" className={integrated ? styles.root : "screen"} data-testid="world-stage">
-      <StageHeader characterName={characterName} decision={decision} onDrawAgain={actions.drawAgain} />
+    <section id="screen-gameplay" className={integrated ? styles.root : "screen"} data-testid="world-stage" data-input-mode={mode}>
+      <StageHeader characterName={characterName} decision={decision} onDrawAgain={actions.drawAgain} mode={mode} />
 
       <div className={integrated ? styles.surface : undefined}>
         {integrated && <StageWorld scene={level.stage} gameplay />}
@@ -130,9 +151,28 @@ export function GameStage(props: GameStageProps) {
 
       {phase === "placing" && !error && (
         <PlacementControls
+          mode={mode}
+          gesture={gesture}
+          holding={grab.holding}
           confirmDisabled={!ready || !placement.legal}
           placementError={placement.placementError}
           onConfirm={actions.confirmPlacement}
+          onGrab={() => grab.begin(false)}
+          onRedraw={actions.drawAgain}
+        />
+      )}
+
+      {phase === "gameplay" && !outcome && mode === "camera" && (
+        <ExplorationRings
+          gesture={gesture}
+          onMove={() => {
+            // Picking the object up goes back to placing (the same route as "Geser objek" in the bar); release places it.
+            actions.reposition();
+            grab.begin(true);
+          }}
+          onRotate={() => {
+            actions.rotateCreation();
+          }}
         />
       )}
 
@@ -177,16 +217,6 @@ export function GameStage(props: GameStageProps) {
         />
       )}
 
-      {!entered && (
-        <EnterWorldPopup
-          label={decision.finalLabel}
-          behavior={behavior}
-          drawingInput={drawingInput}
-          onEnter={() => setEntered(true)}
-          onRedraw={props.onRedraw}
-        />
-      )}
-
       <WorldMomo
         entered={entered}
         outcome={outcome}
@@ -200,13 +230,9 @@ export function GameStage(props: GameStageProps) {
         decision={decision}
       />
 
-      {integrated && mode === "camera" && (
-        <InputStatusChip>{hand.status} (uji coba)</InputStatusChip>
-      )}
-      {!integrated && (
-        <InputStatusChip>
-          {mode === "fallback" ? "FALLBACK pointer/keyboard — BUKAN NUI TERVERIFIKASI" : hand.status}
-        </InputStatusChip>
+      {/* The student sees the chip only for a camera or hand problem. The fallback is shown by its buttons, not by a label. */}
+      {(mode === "camera" || handFailed) && hand.needsAttention && (
+        <InputStatusChip>{hand.status}</InputStatusChip>
       )}
       <p data-testid="world-phase" style={{ display: "none" }}>
         {phase === "falling" ? "FALL_ANIMATION" : phase === "placing" ? "PLACE" : "PLAY"}

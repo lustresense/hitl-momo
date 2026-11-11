@@ -20,9 +20,11 @@ interface UseDrawingSurfaceOptions {
   active: boolean;
   /** Called only when the action changed the drawing: a stroke ended, a stroke was erased, or undo/redo moved. */
   onToolUsed?: (tool: DrawingToolUsed) => void;
+  /** Tutorial card 3 keeps the Hapus radius fixed (see DrawingSurfaceOptions.fixedEraser). */
+  fixedEraser?: boolean;
 }
 
-export function useDrawingSurface({ canvasRef, surfaceOut, initialMode, active, onToolUsed }: UseDrawingSurfaceOptions) {
+export function useDrawingSurface({ canvasRef, surfaceOut, initialMode, active, onToolUsed, fixedEraser }: UseDrawingSurfaceOptions) {
   const [inputMode, setInputMode] = useState<InputModeId>(initialMode);
   const [hasInk, setHasInk] = useState(false);
   const [handPose, setHandPose] = useState<HandPose>("none");
@@ -42,10 +44,11 @@ export function useDrawingSurface({ canvasRef, surfaceOut, initialMode, active, 
       setHandPose(pose);
     };
 
-    // R12: dua jari = Mundur, telapak terbelah = Maju, each once per held pose. Kepal (Hapus tool) erases inside DrawingSurface itself.
+    // R12: dua jari = Mundur, telapak = Maju, each once per held pose. Kepal (Hapus tool) erases inside DrawingSurface itself.
     const commander = createGestureCommander();
     const surface: DrawingSurface = new DrawingSurface(canvas, video, {
       initialMode,
+      fixedEraser,
       onInkChange: setHasInk,
       onStatusChange: (status) => {
         // Tracking stopped or lost: a pose seen earlier is no longer true, so a held thumb cannot confirm later.
@@ -101,7 +104,7 @@ export function useDrawingSurface({ canvasRef, surfaceOut, initialMode, active, 
       surface.dispose();
       surfaceOut.current = null;
     };
-  }, [canvasRef, initialMode, surfaceOut]);
+  }, [canvasRef, initialMode, surfaceOut, fixedEraser]);
 
   // Stable identity: callers may put it in an effect's dependency list.
   const switchMode = useCallback(

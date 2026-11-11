@@ -35,10 +35,11 @@ export function introLines(stage: number, characterDisplayName?: string | null):
  * PRD 0.0.16 R10: Momo points at what can be drawn without ordering it. Framed as a rule of the world,
  * a few visible choices (the level catalog, no invented labels), the student chooses, tied to the mission.
  */
+/** The card catalog moved to the drawing screen (up in the sky), so the nudge points her up there. */
 const NUDGE: Record<1 | 2 | 3, string> = {
-  1: "{character} butuh pijakan buat nyebrang. Kamu mau bikin yang mana?",
-  2: "{character} butuh pijakan buat naik. Kamu mau bikin yang mana?",
-  3: "Lantainya penuh duri. Benda mana yang aman buat {character}?",
+  1: "{character} butuh pijakan buat nyebrang. Kamu mau gambar pijakannya di langit?",
+  2: "{character} butuh pijakan buat naik. Kamu mau gambar pijakannya di langit?",
+  3: "Lantainya penuh duri. Kamu mau gambar benda yang aman buat {character} di langit?",
 };
 
 export function nudgeLines(stage: number, characterDisplayName?: string | null): string[] {

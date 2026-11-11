@@ -1,18 +1,14 @@
-/* Level NUI: the dwell ring on a level ribbon's pull ring, the picture cards and the skip of the level intro.
+/* Level NUI: the finger ring under a level ribbon, the picture cards and the skip of the level intro.
    Colours are the NUI ring tokens of app/styles/96-kit-base.css and 102-gesture.css (the same as DwellButton). */
 
-/* Ring: a fingertip resting on the ribbon fills it. It sits round the 42 px pull ring and never takes a click. */
-.bm-ring .bm-dwell {
-  position: absolute;
-  left: -7px;
-  top: -7px;
-  width: 56px;
-  height: 56px;
-  overflow: visible;
-  pointer-events: none;
+/* Finger ring: sits under its ribbon (a sibling, not inside the ribbon button). The GestureRing itself owns its
+   56 px dial, grey lock and fill (GestureRing.css). Only its place in the column is set here. */
+.bm-pick {
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+  width: 100%;
 }
-.bm-dwell__track { fill: none; stroke: var(--nb-ring-track, #2b2822); stroke-width: 5; }
-.bm-dwell__fill { fill: none; stroke: var(--nb-ring-fill, #4a8c1f); stroke-width: 5; stroke-linecap: round; }
 
 /* Picture cards: dwell buttons laid out as the card, the icon over the name, 56 px tall at least. */
 .level-intro .intro-cards .intro-card.dwell-btn {

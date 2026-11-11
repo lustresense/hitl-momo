@@ -170,6 +170,7 @@ describe("GameplayHandDriver lifecycle regression", () => {
       pinched: false,
       angle: null,
       input: { left: false, right: false, jump: false },
+      pose: "none",
     });
     // Resources must be cleaned up (landmarker closed)
     expect(mockLandmarker.close).toHaveBeenCalled();
@@ -218,6 +219,7 @@ describe("GameplayHandDriver lifecycle regression", () => {
       pinched: false,
       angle: null,
       input: { left: false, right: false, jump: false },
+      pose: "none",
     });
   });
 });

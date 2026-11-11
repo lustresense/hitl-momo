@@ -193,7 +193,8 @@ describe("gesture commands on the real surface", () => {
     { name: "fist", hand: fist, undo: 0, redo: 0, erases: true, ink: false },
     { name: "two fingers", hand: twoFingers, undo: 1, redo: 0, erases: false, ink: false },
     { name: "split palm", hand: splitPalm, undo: 0, redo: 1, erases: false, ink: false },
-    { name: "open palm", hand: openPalm, undo: 0, redo: 0, erases: false, ink: false },
+    // Owner: the open palm is the redo (held 300 ms once). It never draws or erases.
+    { name: "open palm", hand: openPalm, undo: 0, redo: 1, erases: false, ink: false },
     { name: "thumb-up", hand: thumbUp, undo: 0, redo: 0, erases: false, ink: false },
     { name: "no hand pose", hand: none, undo: 0, redo: 0, erases: false, ink: false },
   ];

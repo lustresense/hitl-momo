@@ -269,7 +269,8 @@ describe("Top3PredictionPopup Component", () => {
     // Floating popup is in document!
     expect(screen.getByTestId("popup-evaluating")).toBeDefined();
 
-    // Submit button is disabled while evaluating!
+    // Camera mode keeps Tebak behind "Bantuan": open it first, as a student would. It stays disabled while evaluating.
+    fireEvent.click(screen.getByTestId("btn-drawing-help"));
     expect(screen.getByTestId("btn-submit-drawing").hasAttribute("disabled")).toBe(true);
   });
 });

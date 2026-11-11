@@ -27,6 +27,7 @@ const gesture = read("app/styles/102-gesture.css");
 const tutorial99 = read("app/styles/99-tutorial.css");
 const pinch = read("src/components/ui/PinchRing.css");
 const tutorial = read("src/components/onboarding/TutorialBrochure.css");
+const thumb = read("src/components/onboarding/TutorialThumb.css");
 
 /** A `--name: #rrggbb` token from the kit or the gesture stylesheet. */
 function token(name: string): string {
@@ -120,11 +121,13 @@ describe("NUI gesture rings and advance controls: WCAG contrast", () => {
     expect(contrastRatio(token("nb-ink"), token("nb-leaf"))).toBeGreaterThanOrEqual(4.5);
   });
 
-  it("the locked advance still reads at 4.5:1 on the leaf card back", () => {
-    // A locked NUI button is a paper face with an ink label, dimmed as one group over the leaf card back.
-    const opacity = Number(value(tutorial, ".tut-back .brochure-cta.brochure-cta--locked", "opacity"));
-    const label = over(token("nb-ink"), token("nb-leaf"), opacity);
-    const face = over(token("nb-paper"), token("nb-leaf"), opacity);
-    expect(contrastRatio(label, face)).toBeGreaterThanOrEqual(4.5);
+  it("the locked advance ring keeps a 3:1 contrast between its padlock and its face", () => {
+    // The locked card advance is the grey thumb ring (.tut-thumb--locked): a grey face with a dark padlock.
+    // A UI component needs 3:1 (WCAG non-text contrast), so the lock must read on the face it sits on.
+    const face = value(thumb, ".tut-thumb--locked .thumb-confirm__face", "background");
+    const lock = value(thumb, ".tut-thumb--locked .thumb-confirm__face", "color");
+    expect(face).toBe("#e4dfd2");
+    expect(lock).toBe("#5b564c");
+    expect(contrastRatio(lock, face)).toBeGreaterThanOrEqual(3);
   });
 });

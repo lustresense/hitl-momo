@@ -1,13 +1,10 @@
 /* NUI placements of the game and drawing buttons: where each one sits and how big it is. Rules: targets at least
-   56 px, at least 12 px between neighbours. Only the fail overlay uses DwellButton (its fingertip dwell); the
-   other buttons here are plain nb-buttons, because the drawing and stage screens already run a hand reader
-   (see the notes in each component). */
+   56 px, at least 12 px between neighbours. The fail overlay's finger rings have their own rules in
+   FailOverlay.css; the other buttons here are plain nb-buttons, because the drawing and stage screens already
+   run a hand reader (see the notes in each component). */
 
-/* Fail overlay: three DwellButtons in a row that wraps on a narrow screen. */
+/* Fail overlay: three finger rings in a row that wraps on a narrow screen. */
 .world-fail__actions.nui-fail-actions { gap: 12px; }
-.dwell-btn.nui-fail-action { width: auto; }
-/* Orange primary fill, as the old nb-btn--primary (ink on orange is 6.7:1). */
-.dwell-btn.nui-primary { background: var(--nb-orange, #ef7a37); }
 
 /* Stage HUD: "Gambar lagi", a plain button. */
 .nb-btn.nui-header-action { min-height: 56px; }

@@ -2,6 +2,7 @@
 /**
  * R3 cover choreography on fake timers: wake beat, camera card to the PIP box (one tween), Momo's flight and wave,
  * the dialog delay, the help nudges, and cancellation on unmount. GSAP is mocked; the tweens are inspected, not run.
+ * I1: the wave ring follows the tracker's progress subscription, and the card morph is uniform (no stretched video).
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
@@ -29,11 +30,33 @@ vi.mock("@/src/components/ui/ThumbConfirm", () => ({
     <button type="button" data-testid="cover-thumb" onClick={p.onConfirm}>{p.label}</button>
   ),
 }));
-// The tracker is replaced: the test drives its progress seam and does not load MediaPipe.
-const trackers = vi.hoisted(() => [] as Array<{ opts: { onProgress?: (p: number) => void }; start: () => Promise<void>; stop: () => void }>);
+// The tracker is replaced: the test drives its progress subscription and does not load MediaPipe.
+interface FakeTracker {
+  opts: { onWave?: () => void };
+  listeners: Set<(p: number) => void>;
+  unsubscribes: number;
+  emit: (p: number) => void;
+  subscribeProgress: ReturnType<typeof vi.fn>;
+  start: () => Promise<void>;
+  stop: () => void;
+}
+const trackers = vi.hoisted(() => [] as FakeTracker[]);
 vi.mock("@/src/camera/wave-tracker", () => ({
   WaveTracker: class {
     opts: unknown;
+    listeners = new Set<(p: number) => void>();
+    unsubscribes = 0;
+    emit = (p: number) => {
+      for (const l of [...this.listeners]) l(p);
+    };
+    subscribeProgress = vi.fn((listener: (p: number) => void) => {
+      this.listeners.add(listener);
+      listener(0);
+      return () => {
+        this.listeners.delete(listener);
+        this.unsubscribes++;
+      };
+    });
     start = vi.fn(async () => undefined);
     stop = vi.fn();
     constructor(opts: unknown) {
@@ -41,6 +64,11 @@ vi.mock("@/src/camera/wave-tracker", () => ({
       trackers.push(this as never);
     }
   },
+}));
+// The model warm-up is a separate concern (its own tests); here it must not load MediaPipe.
+vi.mock("@/src/camera/landmarker-warmup", () => ({
+  warmHandLandmarker: vi.fn(async () => undefined),
+  subscribeHandLandmarkerStatus: vi.fn(() => () => undefined),
 }));
 
 const originalRect = Element.prototype.getBoundingClientRect;
@@ -73,10 +101,11 @@ beforeEach(() => {
   momo.props = null;
   trackers.length = 0;
   vi.clearAllMocks();
+  // A 320 x 300 cover card: taller than its 4:5 crop, as the real cover card is with the video on.
   Element.prototype.getBoundingClientRect = vi.fn(function (this: HTMLElement) {
     const card = this.dataset?.testid === "camera-card";
     const r = card
-      ? { top: 100, left: 100, width: 320, height: 240 }
+      ? { top: 100, left: 100, width: 320, height: 300 }
       : { top: 0, left: 0, width: 0, height: 0 };
     return { ...r, right: r.left + r.width, bottom: r.top + r.height, x: r.left, y: r.top, toJSON: () => ({}) };
   }) as never;
@@ -101,12 +130,36 @@ describe("GlobalCamera cover choreography (R3)", () => {
     expect(screen.getByTestId("cover-wake")).toBeTruthy();
   });
 
-  it("the wave ring follows the tracker's progress seam", async () => {
+  it("the wave ring is filled by the tracker's progress, and shows the value it was given", async () => {
     render(<GlobalCamera mode="cover" modelUrl="/m" />);
     await cameraOn();
-    expect(trackers.length).toBeGreaterThan(0);
-    act(() => { trackers[0]!.opts.onProgress?.(0.4); });
-    expect(screen.getByTestId("cover-wave-hint").dataset.progress).toBe("40");
+    expect(trackers.length).toBe(1);
+    expect(trackers[0]!.subscribeProgress).toHaveBeenCalledTimes(1);
+    act(() => { trackers[0]!.emit(0.4); });
+    const ring = screen.getByTestId("cover-wave-hint");
+    expect(ring.dataset.progress).toBe("40");
+    const fill = ring.querySelector("circle.cover-wave-ring__fill") as SVGCircleElement;
+    const circumference = 2 * Math.PI * 30;
+    expect(parseFloat(fill.style.getPropertyValue("stroke-dashoffset"))).toBeCloseTo(circumference * 0.6, 3);
+    act(() => { trackers[0]!.emit(1); });
+    expect(ring.dataset.progress).toBe("100");
+  });
+
+  it("the progress subscription is released when the wave is recognised, and on unmount", async () => {
+    const { unmount } = render(<GlobalCamera mode="cover" modelUrl="/m" />);
+    await cameraOn();
+    expect(trackers[0]!.unsubscribes).toBe(0);
+    act(() => { (window as Window & { __skbWave?: () => void }).__skbWave?.(); });
+    expect(trackers[0]!.unsubscribes).toBe(1);
+    unmount();
+    expect(trackers[0]!.unsubscribes).toBe(1); // already released: no double unsubscribe
+  });
+
+  it("unmounting while the camera waits for a wave releases the progress subscription", async () => {
+    const { unmount } = render(<GlobalCamera mode="cover" modelUrl="/m" />);
+    await cameraOn();
+    unmount();
+    expect(trackers[0]!.unsubscribes).toBe(1);
   });
 
   it("one wave: the card flies to the PIP box once, Momo flies to the centre and waves on landing, the dialog starts after 2 s", async () => {
@@ -125,9 +178,6 @@ describe("GlobalCamera cover choreography (R3)", () => {
     expect(cardCalls).toHaveLength(1);
     expect(cardCalls[0]![0]).toBe(screen.getByTestId("camera-card"));
     expect(cardCalls[0]![2]).toMatchObject({ duration: 0.8, ease: "power2.inOut" });
-    const expectedScaleX = 150 / 320;
-    expect(cardCalls[0]![2].scaleX).toBeCloseTo(expectedScaleX, 5);
-    expect(cardCalls[0]![2].scaleY).toBeCloseTo(120 / 240, 5);
     // Momo is centred and sized 320 px (the FLIP tween flies her from 250 px).
     expect(momo.props?.height).toBe(320);
     expect(momo.props?.fullSize).toBe(true);
@@ -148,6 +198,25 @@ describe("GlobalCamera cover choreography (R3)", () => {
     act(() => { vi.advanceTimersByTime(3000); });
     expect(fromToCalls()).toHaveLength(1);
     expect(momo.props?.waveKey).toBe(1);
+  });
+
+  it("the card morph is uniform and lands exactly on the 150 x 120 PIP box (the video is never stretched)", async () => {
+    render(<GlobalCamera mode="cover" modelUrl="/m" />);
+    await cameraOn();
+    act(() => { (window as Window & { __skbWave?: () => void }).__skbWave?.(); });
+    act(() => { vi.advanceTimersByTime(750); });
+    const [, from, to] = fromToCalls()[0]!;
+    // Card 320 x 300 at (100, 100): scale to the PIP width, crop the bottom to 5:4 so the visible part scales to 120 px.
+    expect(to.scale).toBeCloseTo(150 / 320, 6);
+    expect(to.scaleX).toBeUndefined();
+    expect(to.scaleY).toBeUndefined();
+    expect(to.scale * 320).toBeCloseTo(150, 6);
+    expect(to.scale * (300 - 44)).toBeCloseTo(120, 6);
+    expect(to.clipPath).toBe("inset(0px 0px 44px 0px round 14px)");
+    expect(from).toMatchObject({ scale: 1, transformOrigin: "0px 0px" });
+    // Top-left corner of the card goes to the PIP's top-left corner (24 px from the bottom-left of a 768 px window).
+    expect(to.x).toBeCloseTo(24 - 100, 6);
+    expect(to.y).toBeCloseTo(768 - 24 - 120 - 100, 6);
   });
 
   it("the camera morph is not repeated when the page switches to floating (no second flight)", async () => {

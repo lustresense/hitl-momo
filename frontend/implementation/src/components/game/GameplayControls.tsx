@@ -1,8 +1,9 @@
 /**
  * Floating gameplay controls.
- * Camera mode: a speedometer for the finger direction, icon-only direction lights, and the two
- * gesture affordances "Geser objek" (pinch) and "Putar" (open palm). No keyboard hints.
- * Fallback mode: the on-screen movement buttons with their words, plus the same two actions.
+ * Camera mode: a speedometer for the finger direction and icon-only direction lights. The object's actions
+ * "Geser objek" and "Putar" are the gesture rings in the stage (ExplorationRings), so the bar shows no button
+ * for them. No keyboard hints.
+ * Fallback mode: the on-screen movement buttons with their words, plus "Geser objek" and "Putar" as buttons.
  */
 import { Icon, type IconName } from "../ui/Icon";
 import { DirectionButton } from "./DirectionButton";
@@ -73,24 +74,28 @@ export function GameplayControls({
         {camera && <SteerDial />}
       </div>
       <span className="gameplay-controls__sep" aria-hidden="true" />
-      <button
-        type="button"
-        className="nb-btn btn-small gameplay-controls__action"
-        data-testid="btn-reposition"
-        onClick={() => (onMoveRequest ?? onReposition)()}
-      >
-        <Icon name={camera ? "hand-draw" : "swap"} size={camera ? 22 : 19} />
-        Geser objek
-      </button>
-      <button
-        type="button"
-        className="nb-btn btn-small gameplay-controls__action"
-        data-testid="btn-rotate"
-        onClick={() => onRotateRequest?.()}
-      >
-        <Icon name={camera ? "hand-redo" : "again"} size={camera ? 22 : 19} />
-        Putar
-      </button>
+      {!camera && (
+        <>
+          <button
+            type="button"
+            className="nb-btn btn-small gameplay-controls__action"
+            data-testid="btn-reposition"
+            onClick={() => (onMoveRequest ?? onReposition)()}
+          >
+            <Icon name="swap" size={19} />
+            Geser objek
+          </button>
+          <button
+            type="button"
+            className="nb-btn btn-small gameplay-controls__action"
+            data-testid="btn-rotate"
+            onClick={() => onRotateRequest?.()}
+          >
+            <Icon name="again" size={19} />
+            Putar
+          </button>
+        </>
+      )}
       <button
         type="button"
         className="nb-btn btn-small gameplay-controls__help"

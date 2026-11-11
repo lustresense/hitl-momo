@@ -345,7 +345,7 @@ export function TutorialBrochure({ onStart, characterDisplayName }: TutorialBroc
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<DrawingSurface | null>(null);
-  const drawing = useDrawingSurface({ canvasRef, surfaceOut: surfaceRef, initialMode: "pointer", active: open === 2, onToolUsed });
+  const drawing = useDrawingSurface({ canvasRef, surfaceOut: surfaceRef, initialMode: "pointer", active: open === 2, onToolUsed, fixedEraser: true });
   const { switchMode, undo, redo } = drawing;
 
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => getPrefersReducedMotion());

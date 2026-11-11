@@ -71,7 +71,7 @@ describe("NUI placements: targets of at least 56 px and gaps of at least 12 px",
 
 describe("NUI placements: colour contrast", () => {
   it("ink text on the orange primary fill is 4.5:1 or better", () => {
+    // The orange fill rule (.dwell-btn.nui-primary) was dead and is removed; the contrast of the token pair stays checked.
     expect(contrastRatio(token("nb-ink"), token("nb-orange"))).toBeGreaterThanOrEqual(4.5);
-    expect(nui).toMatch(/\.dwell-btn\.nui-primary\s*\{[^}]*background:\s*var\(--nb-orange/);
   });
 });

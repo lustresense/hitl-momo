@@ -89,6 +89,8 @@ export interface EraserControl {
   radiusCanvasPx(): number;
   radiusCss(): number;
   setRadiusCss(px: number): void;
+  /** True when the radius must stay put: the two-hand sizer then does not run at all. Optional for test stubs. */
+  isFixed?(): boolean;
 }
 
 /** A fixed radius for a driver with no surface (tests, tools): sizing requests are ignored. */
@@ -97,6 +99,7 @@ export function fixedEraserControl(canvas: HTMLCanvasElement, cssPx: number = ER
     radiusCanvasPx: () => eraserRadiusCanvasPx(canvas, cssPx),
     radiusCss: () => cssPx,
     setRadiusCss: () => undefined,
+    isFixed: () => true,
   };
 }
 

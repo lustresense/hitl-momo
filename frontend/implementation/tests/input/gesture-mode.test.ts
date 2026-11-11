@@ -35,7 +35,7 @@ const ALL_MODES: GestureMode[] = [
 ];
 
 const EXPECTED: Record<GestureMode, Partial<Record<HandPose, string>>> = {
-  [MODE_CANVAS_DRAWING]: { pinch: "draw", fist: "erase", "two-fingers": "undo", "split-palm": "redo" },
+  [MODE_CANVAS_DRAWING]: { pinch: "draw", fist: "erase", "two-fingers": "undo", "split-palm": "redo", "open-palm": "redo" },
   [MODE_CANVAS_PREDICT_TRIGGER]: { "thumb-up": "request-prediction" },
   [MODE_CANVAS_STAMP_READY]: { "thumb-up": "throw", "open-palm": "redraw" },
   [MODE_GAMEPLAY_PLACEMENT]: { "thumb-up": "place", "open-palm": "redraw", pinch: "grab" },
@@ -43,7 +43,7 @@ const EXPECTED: Record<GestureMode, Partial<Record<HandPose, string>>> = {
   [MODE_TOP3_PANEL]: { "one-finger": "choose-1", "two-fingers": "choose-2", "three-fingers": "choose-3", "open-palm": "not-this", pinch: "redraw" },
   [MODE_TOP3_ALTERNATIVES]: { "one-finger": "choose-1", "two-fingers": "choose-2", "three-fingers": "choose-3" },
   [MODE_DIALOG_ACK]: { "thumb-up": "ack" },
-  [MODE_TUTORIAL]: { "thumb-up": "ack", pinch: "pinch", fist: "erase", "two-fingers": "undo", "split-palm": "redo" },
+  [MODE_TUTORIAL]: { "thumb-up": "ack", pinch: "pinch", fist: "erase", "two-fingers": "undo", "split-palm": "redo", "open-palm": "redo" },
   [MODE_COVER_WAVE]: {},
   [MODE_LEVEL_SELECT]: { "one-finger": "level-1", "two-fingers": "level-2", "three-fingers": "level-3" },
   [MODE_FAIL]: { "one-finger": "retry", "two-fingers": "move-object", "three-fingers": "redraw" },

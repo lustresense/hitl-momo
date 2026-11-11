@@ -79,7 +79,7 @@ function isTransient(err: unknown): boolean {
 
 function httpFailureMessage(status: number): string {
   if (status >= 500 || status === 429) return "Model sedang tidak tersedia. Coba lagi, ya.";
-  return "Model tidak bisa membaca gambar ini. Coba gambar ulang, ya.";
+  return "Model tidak bisa membaca gambar ini. Coba gambar lagi, ya.";
 }
 
 type Top3 = PredictionResult["candidates"];

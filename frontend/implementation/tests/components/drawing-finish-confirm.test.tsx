@@ -23,6 +23,8 @@ const fake = vi.hoisted(() => ({ surfaces: [] as FakeSurface[] }));
 vi.mock("@/src/input", () => ({
   DrawingSurface: class {
     ink = false;
+    // useDrawingSurface wraps the store's stroke/erase methods, so the fake needs a store too.
+    store = { endStroke() {}, eraseAt: () => false, hasActiveStroke: () => false, lastActivePoint: () => null };
     toDrawingInput = vi.fn(() => ({ strokes: this.ink ? [[{ x: 1, y: 1 }]] : [], hasInk: this.ink, aspectRatio: 1 }));
     constructor(_canvas: unknown, _video: unknown, readonly options: FakeOptions) {
       fake.surfaces.push(this as unknown as FakeSurface);
@@ -58,6 +60,9 @@ function renderDrawing(extra: Partial<Props> = {}) {
     surfaceOut: { current: null },
     onSubmit,
     onExit: vi.fn(),
+    // The focus phase (dark backdrop, tool review) hides the finish ring and Tebak; it has its own tests.
+    // These tests start from a drawing that is already under way.
+    showCanvasFocus: false,
     ...extra,
   };
   const view = render(<DrawingScreen {...props} />);
@@ -196,6 +201,8 @@ describe("drawing finish: Momo waits for the student's thumbs-up (replaces R11 a
   it("the Tebak Gambarku button still submits with a plain click", () => {
     const { onSubmit, surface } = renderDrawing();
     putInk(surface);
+    // Camera mode (the default) keeps Tebak behind "Bantuan": open it first, as a student would.
+    fireEvent.click(screen.getByTestId("btn-drawing-help"));
     fireEvent.click(screen.getByTestId("btn-submit-drawing"));
     expect(onSubmit).toHaveBeenCalledTimes(1);
     expect(onSubmit).toHaveBeenCalledWith(null);

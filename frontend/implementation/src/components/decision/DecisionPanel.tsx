@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { LevelContext, PredictionResult } from "@/src/domain/types";
+import { actionFor, MODE_TOP3_ALTERNATIVES, MODE_TOP3_PANEL } from "@/src/input/gesture-mode";
 import type { HandPose } from "@/src/input/hand-gesture";
 import { useHandGesture, useInputMode } from "../../hooks/useHandGesture";
 import { Top3Panel } from "../prediction/Top3Panel";
@@ -27,8 +28,22 @@ export const COMMIT_HOLD_MS = 2000;
  */
 export const MAX_OVERRIDE_CHOICES = 4;
 
-/** Poses that are not a finger count: a thumb, a pinch and a fist never pick a label. */
+/** Poses that never pick a label: a thumb, a pinch, a fist and an unread hand. */
 const NOT_A_COUNT: ReadonlySet<HandPose> = new Set<HandPose>(["thumb-up", "pinch", "fist", "none"]);
+
+/**
+ * The label (1..4) the hand shows in the open list, or null. One to three fingers come from the pose through the
+ * router: the raw count includes the thumb, so a count of 1 can be a thumbs-up. Four has no pose of its own, so it
+ * is read from the count, and only for a pose that no other action claims.
+ */
+export function listChoiceFor(pose: HandPose, fingerCount: number): 1 | 2 | 3 | 4 | null {
+  const picked = actionFor(MODE_TOP3_ALTERNATIVES, pose);
+  if (picked === "choose-1") return 1;
+  if (picked === "choose-2") return 2;
+  if (picked === "choose-3") return 3;
+  if (NOT_A_COUNT.has(pose)) return null;
+  return fingerCount === 4 ? 4 : null;
+}
 
 /**
  * The three HITL decisions, chosen with the hand: 1, 2 or 3 fingers for the candidates, no cursor.
@@ -79,8 +94,11 @@ export function DecisionPanel({ prediction, level, onAccept, onCorrect, onOverri
     commit(() => onOverride(label));
   };
 
-  /** Finger count k picks the k-th label, but only while the list is open and the hand shows a count, not a thumb. */
-  const fingersPick = (k: number) => camera && !locked && pickerOpen && !NOT_A_COUNT.has(pose) && gesture.fingerCount === k;
+  /** The label the hand shows now; only while the list is open and nothing is committed. */
+  const shownChoice = camera && !locked && pickerOpen ? listChoiceFor(pose, gesture.fingerCount) : null;
+  // A hand of four fingers reads as open-palm too, so the open-palm ring stays off while the list is open.
+  const openPalmNow = camera && actionFor(MODE_TOP3_PANEL, pose) === "not-this";
+  const pinchNow = camera && actionFor(MODE_TOP3_PANEL, pose) === "redraw";
 
   return (
     <aside className="nui-decision">
@@ -90,7 +108,7 @@ export function DecisionPanel({ prediction, level, onAccept, onCorrect, onOverri
         testId="btn-override"
         className="nui-decision__open"
         label="Bukan ini, pilih lainnya"
-        active={camera && pose === "open-palm"}
+        active={openPalmNow && !pickerOpen}
         holdMs={OVERRIDE_HOLD_MS}
         locked={locked}
         expanded={pickerOpen}
@@ -108,7 +126,7 @@ export function DecisionPanel({ prediction, level, onAccept, onCorrect, onOverri
                   testId={`override-option-${v}`}
                   className="nui-choice"
                   label={`Pilih ${v}, ${i + 1} jari`}
-                  active={fingersPick(i + 1)}
+                  active={shownChoice === i + 1}
                   holdMs={OVERRIDE_HOLD_MS}
                   locked={locked}
                   pressed={pickedLabel === v}
@@ -142,7 +160,7 @@ export function DecisionPanel({ prediction, level, onAccept, onCorrect, onOverri
         testId="btn-redraw"
         className="nui-decision__redraw"
         label="Gambar lagi"
-        active={camera && pose === "pinch"}
+        active={pinchNow}
         holdMs={OVERRIDE_HOLD_MS}
         icon={<Icon name="pencil" size={20} />}
         onConfirm={onRedraw}

@@ -6,6 +6,7 @@ import { HandDrawingDriver } from "@/src/input/mediapipe-input";
 import { StrokeStore, type HandInputStatus, type Landmark } from "@/src/input/types";
 import { resetSharedStreamForTest, setSharedStream } from "@/src/camera/shared-stream";
 import { makeHand } from "./hand-fixtures";
+import { pointingHand } from "./gameplay-fixtures";
 
 vi.mock("@mediapipe/tasks-vision", () => ({
   FilesetResolver: { forVisionTasks: vi.fn() },
@@ -175,28 +176,33 @@ describe("GameplayHandDriver", () => {
     await driver.stop();
   });
 
-  it("applies hysteresis: a hand creeping back past 0.35 stays 'left' until 0.40", async () => {
-    let x = 0.2;
-    create.mockResolvedValue(lmk(() => ({ landmarks: [pose(x)] })) as never);
+  it("applies hysteresis: a finger creeping past 30 degrees keeps walking right until 35, then stops", async () => {
+    let theta = 0;
+    create.mockResolvedValue(lmk(() => ({ landmarks: [pointingHand(theta)] })) as never);
     const { driver, v, frames } = setup();
     await driver.start();
     for (let i = 1; i <= 6; i++) { v.currentTime = i; stepRaf(); }
-    x = 0.37; v.currentTime = 20; stepRaf();
-    expect(frames[frames.length - 1]!.input.left).toBe(true);
+    expect(frames[frames.length - 1]!.input.right).toBe(true);
+    theta = 33; v.currentTime = 20; stepRaf();
+    expect(frames[frames.length - 1]!.input.right).toBe(true);
+    theta = 40; v.currentTime = 21; stepRaf();
+    expect(frames[frames.length - 1]!.input.right).toBe(false);
     await driver.stop();
   });
 
+  // The pinch is no jump of its own any more (the finger angle is). Pointing right with a held pinch
+  // isolates the legacy opt-in: only enableJump turns a held pinch into a jump.
   it("enableJump maps a held pinch to jump; default does not", async () => {
-    create.mockResolvedValue(lmk(() => ({ landmarks: [pose(0.5, 0.2)] })) as never);
+    create.mockResolvedValue(lmk(() => ({ landmarks: [pointingHand(0, { pinchGap: 0.2 })] })) as never);
     const a = setup({ enableJump: true });
     await a.driver.start();
     for (let i = 1; i <= 8; i++) { a.v.currentTime = i; stepRaf(); }
-    expect(a.frames[a.frames.length - 1]!.input.jump).toBe(true);
+    expect(a.frames[a.frames.length - 1]!.input).toEqual({ left: false, right: true, jump: true });
     await a.driver.stop();
     const b = setup();
     await b.driver.start();
     for (let i = 1; i <= 8; i++) { b.v.currentTime = i; stepRaf(); }
-    expect(b.frames[b.frames.length - 1]!.input.jump).toBe(false);
+    expect(b.frames[b.frames.length - 1]!.input).toEqual({ left: false, right: true, jump: false });
     await b.driver.stop();
   });
 });

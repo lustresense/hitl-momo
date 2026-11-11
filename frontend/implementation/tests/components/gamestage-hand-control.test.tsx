@@ -118,9 +118,7 @@ async function startInCamera(phase: "placing" | "gameplay") {
       onReposition={() => {}}
     />,
   );
-  await act(async () => {
-    fireEvent.click(screen.getByTestId("btn-enter-world"));
-  });
+  await act(async () => {});
   await settle();
 }
 

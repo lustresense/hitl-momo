@@ -32,10 +32,13 @@ import { createHandLandmarker, delegateLabel } from "../camera/hand-landmarker";
 import { classifyCameraError, messageFor, type CameraFailureReason } from "../camera/messages";
 import { publishHand, retireHand, startHandHeartbeat } from "../camera/hand-cursor-store";
 import { GameplayGestureFilter, type GameplayGestureFrame } from "./gameplay-gesture";
-import { indexTipNormalized } from "./hand-gesture";
+import { StableVote, classifyHandPose, indexTipNormalized, type HandPose } from "./hand-gesture";
 
-// Re-export frame type for consumers
-export type GameplayFrame = GameplayGestureFrame;
+/**
+ * One gameplay frame: the steering/pinch reading plus the stable hand pose (voted over recent frames, "none"
+ * without a hand). Placement and exploration read `pose` through the gesture router; the finger count is not used.
+ */
+export type GameplayFrame = GameplayGestureFrame & { pose: HandPose };
 
 export type GameplayStatus = "initializing" | "tracking" | "tracking-lost" | "camera-unavailable" | "error";
 
@@ -69,7 +72,7 @@ const DEFAULT_WASM_ROOT = "/mediapipe/wasm";
 const DEFAULT_MODEL_URL = "/models/hand_landmarker.task";
 
 function neutralFrame(): GameplayFrame {
-  return { tracked: false, cursor: null, pinched: false, angle: null, input: { left: false, right: false, jump: false } };
+  return { tracked: false, cursor: null, pinched: false, angle: null, input: { left: false, right: false, jump: false }, pose: "none" };
 }
 
 export class GameplayHandDriver {
@@ -88,6 +91,9 @@ export class GameplayHandDriver {
   private onVisibility: (() => void) | null = null;
   /** Keeps this reader alive in the shared cursor store while the model loads (no frames yet). */
   private stopHeartbeat: (() => void) | null = null;
+  /** Stable pose: one noisy frame cannot change it (see StableVote). */
+  private readonly poseVote = new StableVote<HandPose>("none");
+  private lastPinched = false;
 
   constructor(private readonly options: GameplayHandDriverOptions) {
     this.filter = new GameplayGestureFilter({ enableJump: options.enableJump });
@@ -119,6 +125,8 @@ export class GameplayHandDriver {
     this.lastStatus = null;
     this.neutralReported = false;
     this.filter.reset();
+    this.poseVote.reset();
+    this.lastPinched = false;
     this.generation++;
     const myGen = this.generation;
     const stale = () => this.initAborted || !this.running || this.generation !== myGen;
@@ -189,6 +197,8 @@ export class GameplayHandDriver {
     // Output neutral input immediately on stop
     this.options.onFrame(neutralFrame());
     this.filter.reset();
+    this.poseVote.reset();
+    this.lastPinched = false;
 
     // Cleanup landmarker
     await this.cleanupLandmarker();
@@ -237,9 +247,16 @@ export class GameplayHandDriver {
     this.stopHeartbeat = null;
   }
 
+  private resetPose(): HandPose {
+    this.poseVote.reset();
+    return "none";
+  }
+
   private reportNeutral(): void {
     publishHand({ cursor: null, source: "gameplay" });
     this.filter.reset();
+    this.poseVote.reset();
+    this.lastPinched = false;
     if (!this.neutralReported) {
       this.neutralReported = true;
       this.options.onFrame(neutralFrame());
@@ -293,10 +310,15 @@ export class GameplayHandDriver {
 
     const landmarks: Landmark[] | undefined = result.landmarks[0];
     const frame = this.filter.update(landmarks, now);
+    // Pose is voted over frames (placement and exploration act on it); no hand = "none" and the vote restarts.
+    const pose = landmarks
+      ? this.poseVote.push(classifyHandPose(landmarks, { pinchHeld: this.lastPinched }))
+      : this.resetPose();
+    this.lastPinched = frame.tracked && frame.pinched;
     // The raw fingertip (mirrored) for the dwell buttons; the gameplay filter keeps its own debounce.
-    publishHand({ cursor: landmarks ? indexTipNormalized(landmarks) : null, pinch: frame.pinched, source: "gameplay" });
+    publishHand({ cursor: landmarks ? indexTipNormalized(landmarks) : null, pinch: frame.pinched, pose, source: "gameplay" });
     this.neutralReported = false;
-    this.options.onFrame(frame);
+    this.options.onFrame({ ...frame, pose });
     this.setStatus(frame.tracked ? "tracking" : "tracking-lost");
   };
 

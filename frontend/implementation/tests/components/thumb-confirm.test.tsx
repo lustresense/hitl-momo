@@ -73,6 +73,40 @@ describe("ThumbConfirm (PRD 0.0.16 R4)", () => {
     expect(onConfirm).toHaveBeenCalledTimes(2);
   });
 
+  it("camera mode: a silent mouse or Enter hold fills the ring and confirms once, still with no button", () => {
+    const onConfirm = vi.fn();
+    render(<ThumbConfirm holdMs={1000} onConfirm={onConfirm} />);
+    expect(screen.queryByRole("button")).toBeNull();
+    const ring = screen.getByRole("progressbar");
+    advance(32); // arms after seeing no thumb and no press
+    fireEvent.pointerDown(ring);
+    advance(1200);
+    expect(onConfirm).toHaveBeenCalledTimes(1);
+    fireEvent.pointerUp(ring);
+    advance(100);
+    fireEvent.keyDown(ring, { key: "Enter" });
+    advance(1200);
+    expect(onConfirm).toHaveBeenCalledTimes(2);
+    fireEvent.keyUp(ring, { key: "Enter" });
+    advance(100);
+    expect(screen.queryByRole("button")).toBeNull();
+  });
+
+  it("camera mode: a press released early does not confirm, and a press still held does not count while disabled", () => {
+    const onConfirm = vi.fn();
+    const { rerender } = render(<ThumbConfirm holdMs={1000} onConfirm={onConfirm} />);
+    advance(32);
+    fireEvent.pointerDown(screen.getByRole("progressbar"));
+    advance(500);
+    fireEvent.pointerUp(screen.getByRole("progressbar"));
+    advance(1500);
+    expect(onConfirm).not.toHaveBeenCalled();
+    rerender(<ThumbConfirm holdMs={1000} onConfirm={onConfirm} disabled />);
+    fireEvent.pointerDown(screen.getByRole("progressbar"));
+    advance(1500);
+    expect(onConfirm).not.toHaveBeenCalled();
+  });
+
   it("fallback mode: hold-able button with pointer and Enter", () => {
     act(() => forceInputMode("fallback"));
     const onConfirm = vi.fn();

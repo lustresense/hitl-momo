@@ -5,11 +5,17 @@
  * "fallback" = the camera cannot be used (missing, denied, MediaPipe failed): hold-able buttons appear.
  * A live shared stream clears a camera failure, so the buttons disappear again when the camera returns.
  * Framework-free store so drivers and React (useInputMode) read the same value.
+ *
+ * A camera failure is remembered for this tab (sessionStorage), so a refresh on a canvas route does not bring the camera
+ * mode back while no camera is running. It is restored on the first subscription (a hook's effect, after hydration),
+ * never while rendering, so the server and first client render still agree. A live stream clears it again.
  */
 import { subscribeSharedStream } from "../camera/shared-stream";
 
 export type InputMode = "camera" | "fallback";
 export type InputModeListener = (mode: InputMode) => void;
+
+const FALLBACK_STORAGE_KEY = "skb-input-mode-fallback";
 
 let cameraFailed = false;
 let trackerFailed = false;
@@ -23,7 +29,27 @@ export function getInputMode(): InputMode {
   return cameraFailed || trackerFailed ? "fallback" : "camera";
 }
 
+function readStoredFallback(): boolean {
+  try {
+    return typeof window !== "undefined" && window.sessionStorage.getItem(FALLBACK_STORAGE_KEY) === "1";
+  } catch {
+    // Blocked or private storage: the mode simply starts from the camera again.
+    return false;
+  }
+}
+
+function writeStoredFallback(on: boolean): void {
+  try {
+    if (typeof window === "undefined") return;
+    if (on) window.sessionStorage.setItem(FALLBACK_STORAGE_KEY, "1");
+    else window.sessionStorage.removeItem(FALLBACK_STORAGE_KEY);
+  } catch {
+    // Storage unavailable: nothing is remembered, which is the old behaviour.
+  }
+}
+
 function emit(): void {
+  writeStoredFallback(cameraFailed || trackerFailed);
   const mode = getInputMode();
   for (const l of [...listeners]) l(mode);
 }
@@ -31,6 +57,7 @@ function emit(): void {
 function wire(): void {
   if (wired) return;
   wired = true;
+  if (readStoredFallback()) cameraFailed = true;
   subscribeSharedStream((stream) => {
     const next = stream !== null;
     if (next === hasStream) return;
@@ -81,6 +108,7 @@ export function subscribeInputMode(listener: InputModeListener): () => void {
 
 /** TEST ONLY. */
 export function resetInputModeForTest(): void {
+  writeStoredFallback(false);
   cameraFailed = false;
   trackerFailed = false;
   forced = null;

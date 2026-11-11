@@ -8,6 +8,8 @@ import { getSharedStream, subscribeSharedStream } from "../camera/shared-stream"
 import { publishHand, retireHand, startHandHeartbeat } from "../camera/hand-cursor-store";
 import { delegateLabel } from "../camera/hand-landmarker";
 import { takeHandLandmarker } from "../camera/landmarker-warmup";
+import { frameForDetection } from "../camera/frame-source";
+import { isLargeEnough } from "../camera/primary-hand";
 import { classifyCameraError, messageFor, type CameraFailureReason } from "../camera/messages";
 
 export { ERASER_RADIUS_PX };
@@ -202,7 +204,7 @@ export class HandDrawingDriver {
     this.lastVideoTime = video.currentTime;
     let result: HandLandmarkerResult;
     try {
-      result = this.landmarker.detectForVideo(video, now);
+      result = this.landmarker.detectForVideo(frameForDetection(video), now);
     } catch {
       // A throwing tracker will keep throwing: end the stroke, stop, and let the caller fall back.
       this.apply(this.pipeline.reset(now));
@@ -212,12 +214,17 @@ export class HandDrawingDriver {
     this.process(result.landmarks, now);
   };
 
-  /** `hands`: every hand MediaPipe reports this frame (none = undefined or empty). */
+  /**
+   * `hands`: every hand MediaPipe reports this frame (none = undefined or empty).
+   * The pipeline keeps its own fist/pinch choice between the two hands; here only far-away hands are dropped
+   * (a person across the room must not draw or resize the eraser).
+   */
   private process(hands: Landmark[][] | undefined, nowMs: number): void {
     this.lastFedMs = nowMs;
-    const frame = this.pipeline.feedHands(hands, nowMs);
+    const near = hands?.filter((h) => h && isLargeEnough(h));
+    const frame = this.pipeline.feedHands(near, nowMs);
     this.apply(frame);
-    const hand = cursorHandOf(hands);
+    const hand = cursorHandOf(near);
     publishHand({
       cursor: hand ? indexTipNormalized(hand) : null,
       pose: frame.pose,

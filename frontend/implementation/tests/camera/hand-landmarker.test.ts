@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
 import { createHandLandmarker, delegateLabel } from "@/src/camera/hand-landmarker";
+import { HAND_DETECTION_CONFIDENCE, HAND_PRESENCE_CONFIDENCE, HAND_TRACKING_CONFIDENCE } from "@/src/camera/hand-config";
 
 vi.mock("@mediapipe/tasks-vision", () => ({
   FilesetResolver: { forVisionTasks: vi.fn() },
@@ -54,10 +55,20 @@ describe("createHandLandmarker delegate policy", () => {
 });
 
 describe("createHandLandmarker hand count", () => {
-  it("defaults to one hand, so the gameplay and wave trackers keep their single-hand input", async () => {
+  it("defaults to two hands, so the trackers can tell the player's hand from a bystander's", async () => {
     create.mockResolvedValueOnce({} as never);
     await createHandLandmarker(opts);
-    expect(numHandsOf(0)).toBe(1);
+    expect(numHandsOf(0)).toBe(2);
+  });
+
+  it("passes the starting detection thresholds (exported, not measured) to every landmarker", async () => {
+    create.mockResolvedValueOnce({} as never);
+    await createHandLandmarker(opts);
+    const cfg = create.mock.calls[0]![1] as Record<string, number>;
+    expect(cfg.minHandDetectionConfidence).toBe(HAND_DETECTION_CONFIDENCE);
+    expect(cfg.minHandPresenceConfidence).toBe(HAND_PRESENCE_CONFIDENCE);
+    expect(cfg.minTrackingConfidence).toBe(HAND_TRACKING_CONFIDENCE);
+    expect(HAND_DETECTION_CONFIDENCE).toBe(0.6);
   });
 
   it("passes the requested hand count to MediaPipe (the drawing driver asks for two)", async () => {

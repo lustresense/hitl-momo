@@ -7,6 +7,7 @@
  * If CPU also fails the CPU error is thrown (the model/wasm itself is bad).
  */
 import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
+import { DEFAULT_NUM_HANDS, HAND_DETECTION_CONFIDENCE, HAND_PRESENCE_CONFIDENCE, HAND_TRACKING_CONFIDENCE } from "./hand-config";
 
 export type HandDelegate = "GPU" | "CPU";
 
@@ -15,6 +16,7 @@ export interface CreateHandLandmarkerOptions {
   modelUrl: string;
   numHands?: number;
 }
+
 
 export interface CreatedHandLandmarker {
   landmarker: HandLandmarker;
@@ -31,7 +33,10 @@ export async function createHandLandmarker(
     HandLandmarker.createFromOptions(vision, {
       baseOptions: { modelAssetPath: options.modelUrl, delegate },
       runningMode: "VIDEO",
-      numHands: options.numHands ?? 1,
+      numHands: options.numHands ?? DEFAULT_NUM_HANDS,
+      minHandDetectionConfidence: HAND_DETECTION_CONFIDENCE,
+      minHandPresenceConfidence: HAND_PRESENCE_CONFIDENCE,
+      minTrackingConfidence: HAND_TRACKING_CONFIDENCE,
     });
   try {
     return { landmarker: await build("GPU"), delegate: "GPU", fellBack: false };

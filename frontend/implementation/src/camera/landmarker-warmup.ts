@@ -9,6 +9,7 @@
  */
 import type { HandLandmarker } from "@mediapipe/tasks-vision";
 import { createHandLandmarker, delegateLabel, type CreatedHandLandmarker } from "./hand-landmarker";
+import { DEFAULT_NUM_HANDS } from "./hand-config";
 import { classifyCameraError, messageFor } from "./messages";
 
 export interface HandLandmarkerOptions {
@@ -55,7 +56,7 @@ function build(options: HandLandmarkerOptions): Promise<CreatedHandLandmarker> {
   return createHandLandmarker({
     wasmRoot: options.wasmRoot,
     modelUrl: options.modelUrl,
-    numHands: options.numHands ?? 1,
+    numHands: options.numHands ?? DEFAULT_NUM_HANDS,
   });
 }
 
@@ -74,7 +75,7 @@ function blankInference(landmarker: HandLandmarker): void {
 
 /** Load and warm the model. Safe to call many times; never throws (the status says what happened). */
 export async function warmHandLandmarker(options: HandLandmarkerOptions): Promise<void> {
-  const numHands = options.numHands ?? 1;
+  const numHands = options.numHands ?? DEFAULT_NUM_HANDS;
   if (warm?.numHands === numHands || pending?.numHands === numHands) return;
   publish({ kind: "loading" });
   const promise = build({ ...options, numHands });
@@ -99,7 +100,7 @@ export async function warmHandLandmarker(options: HandLandmarkerOptions): Promis
 
 /** Gives the warm instance (or the one still loading) to a reader. The reader closes it when it stops. */
 export async function takeHandLandmarker(options: HandLandmarkerOptions): Promise<CreatedHandLandmarker> {
-  const numHands = options.numHands ?? 1;
+  const numHands = options.numHands ?? DEFAULT_NUM_HANDS;
   if (warm?.numHands === numHands) {
     const created = warm.created;
     warm = null;

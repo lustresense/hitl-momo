@@ -106,9 +106,18 @@ describe("takeHandLandmarker hands the warm instance over once", () => {
 
   it("a warm instance with a different hand count is not reused", async () => {
     vi.mocked(createHandLandmarker).mockResolvedValue(fake() as never);
-    await warmHandLandmarker(OPTS);
+    // The default is two hands now (hand-config.ts), so the warm-up asks for one explicitly.
+    await warmHandLandmarker({ ...OPTS, numHands: 1 });
     await takeHandLandmarker({ ...OPTS, numHands: 2 });
     expect(createHandLandmarker).toHaveBeenLastCalledWith(expect.objectContaining({ numHands: 2 }));
     expect(createHandLandmarker).toHaveBeenCalledTimes(2);
+  });
+
+  it("the default warm instance asks for two hands, the same as a taker with no hand count", async () => {
+    vi.mocked(createHandLandmarker).mockResolvedValue(fake() as never);
+    await warmHandLandmarker(OPTS);
+    await takeHandLandmarker(OPTS);
+    expect(createHandLandmarker).toHaveBeenCalledTimes(1);
+    expect(createHandLandmarker).toHaveBeenCalledWith(expect.objectContaining({ numHands: 2 }));
   });
 });

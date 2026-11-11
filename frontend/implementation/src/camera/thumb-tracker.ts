@@ -8,6 +8,8 @@
  */
 import type { HandLandmarker } from "@mediapipe/tasks-vision";
 import { takeHandLandmarker } from "./landmarker-warmup";
+import { frameForDetection } from "./frame-source";
+import { pickPrimaryHand, type PrimaryHandState } from "./primary-hand";
 import { subscribeSharedStream } from "./shared-stream";
 import { StableVote, classifyHandPose, countExtendedFingers, indexTipNormalized, isThumbUp, type HandPose } from "../input/hand-gesture";
 import { reportTrackerFailed } from "../input/input-mode";
@@ -48,6 +50,8 @@ let rafId: number | null = null;
 let unsubStream: (() => void) | null = null;
 let lastVideoTime = -1;
 let failures = 0;
+/** The player's hand, locked across frames (see primary-hand.ts). */
+let primary: PrimaryHandState | null = null;
 let modelUrl = "/models/hand_landmarker.task";
 let wasmRoot = "/mediapipe/wasm";
 
@@ -206,6 +210,7 @@ async function bind(stream: MediaStream): Promise<void> {
     landmarker = created.landmarker;
     failures = 0;
     lastVideoTime = -1;
+    primary = null;
     reportTrackerFailed(false);
     publish({ ready: true, handVisible: false, thumbUp: false, pinch: false, cursor: null, pose: "none", fingerCount: 0 });
     loop();
@@ -227,6 +232,7 @@ function unbind(): void {
     video.srcObject = null;
   }
   video = null;
+  primary = null;
   publish(IDLE);
 }
 
@@ -239,8 +245,9 @@ function loop(): void {
   if (v.readyState < 2 || v.currentTime === lastVideoTime) return;
   lastVideoTime = v.currentTime;
   let result;
+  const now = performance.now();
   try {
-    result = lm.detectForVideo(v, performance.now());
+    result = lm.detectForVideo(frameForDetection(v), now);
     failures = 0;
   } catch {
     failures++;
@@ -250,7 +257,10 @@ function loop(): void {
     }
     return;
   }
-  publish({ ready: true, ...readHand(result.landmarks[0], raw.pinch) });
+  // The player's hand, not whichever hand MediaPipe lists first; a lost lock reads as no hand.
+  const pick = pickPrimaryHand(result.landmarks, primary, now);
+  primary = pick.state;
+  publish({ ready: true, ...readHand(pick.index === null ? undefined : result.landmarks[pick.index], raw.pinch) });
 }
 
 /** TEST ONLY. */
@@ -259,6 +269,7 @@ export function resetThumbTrackerForTest(): void {
   holders = 0;
   simulated = null;
   simulatedPinch = null;
+  primary = null;
   poseVote.reset();
   fingerVote.reset();
   state = IDLE;

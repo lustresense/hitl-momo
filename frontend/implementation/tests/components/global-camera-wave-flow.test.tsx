@@ -17,7 +17,7 @@ vi.mock("gsap", () => {
 });
 
 const momo = vi.hoisted(() => ({
-  props: null as null | { sleeping?: boolean; step: { lines: string[] } | null; height?: number; fullSize?: boolean; className?: string; waveKey?: number; startDelay?: number },
+  props: null as null | { sleeping?: boolean; step: { lines: string[] } | null; height?: number; fullSize?: boolean; className?: string; waveKey?: number; startDelay?: number; onDone?: () => void },
 }));
 vi.mock("@/src/components/momo/MomoGuide", () => ({
   MomoGuide: (p: typeof momo.props & { children?: React.ReactNode }) => {
@@ -162,12 +162,12 @@ describe("GlobalCamera cover choreography (R3)", () => {
     expect(trackers[0]!.unsubscribes).toBe(1);
   });
 
-  it("one wave: the card flies to the PIP box once, Momo flies to the centre and waves on landing, the dialog starts after 2 s", async () => {
+  it("one wave: the card flies to the PIP box once, Momo flies to the centre and waves on landing, the dialog starts 0.3 s after the wave", async () => {
     render(<GlobalCamera mode="cover" modelUrl="/m" />);
     await cameraOn();
     act(() => { (window as Window & { __skbWave?: () => void }).__skbWave?.(); });
     expect(momo.props?.sleeping).toBe(false);
-    expect(momo.props?.startDelay).toBe(2000);
+    expect(momo.props?.startDelay).toBe(300);
     expect(momo.props?.height).toBe(250);
 
     act(() => { vi.advanceTimersByTime(749); });
@@ -268,6 +268,8 @@ describe("GlobalCamera cover choreography (R3)", () => {
     const { rerender } = render(<GlobalCamera mode="cover" modelUrl="/m" onWave={onWave} />);
     act(() => { (window as Window & { __skbWave?: () => void }).__skbWave?.(); });
     act(() => { vi.advanceTimersByTime(3000); });
+    // The thumb appears once Momo has typed her last line (MomoGuide's onDone).
+    act(() => { momo.props?.onDone?.(); });
     act(() => { fireEvent.click(screen.getByTestId("cover-thumb")); });
     // The leaf takes 0.9 s; with GSAP mocked the safety net reports the midpoint at 1.4 s, which navigates.
     act(() => { vi.advanceTimersByTime(1400); });

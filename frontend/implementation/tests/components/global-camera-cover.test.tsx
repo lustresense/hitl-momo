@@ -11,7 +11,7 @@ vi.mock("gsap", () => {
 });
 // Momo's chat is replaced by a stub that records the props the cover drives.
 const momo = vi.hoisted(() => ({
-  props: null as null | { sleeping?: boolean; step: { lines: string[] } | null; startDelay?: number; extrasFrom?: string; className?: string; height?: number },
+  props: null as null | { sleeping?: boolean; step: { lines: string[] } | null; startDelay?: number; extrasFrom?: string; className?: string; height?: number; onDone?: () => void },
 }));
 vi.mock("@/src/components/momo/MomoGuide", () => ({
   MomoGuide: (p: typeof momo.props & { children?: React.ReactNode }) => {
@@ -83,9 +83,12 @@ describe("GlobalCamera cover (R1, R3: camera, wave, Momo, book)", () => {
     expect(screen.getByTestId("cover-momo").dataset.asleep).toBe("false");
     expect(momo.props?.step?.lines.at(-1)).toBe("Yuk, antar dia ke tempat yang tepat.");
     expect(momo.props?.step?.lines.join(" ")).toMatch(/gambar satu-satunya/);
-    // Her words start once she has landed (about 2 s after the wave), and the thumb waits for the last line.
-    expect(momo.props?.startDelay).toBe(2000);
-    expect(momo.props?.extrasFrom).toBe("last");
+    // Her words start right after the wave (the flight runs alongside them, NUI-2 budget), and the thumb waits for the last line.
+    expect(momo.props?.startDelay).toBe(300);
+    expect(momo.props?.extrasFrom).toBe("first");
+    expect(screen.queryByTestId("cover-thumb")).toBeNull();
+    // The last line is typed: the thumb appears now, not after the reading pause.
+    act(() => { momo.props?.onDone?.(); });
     // Nothing opens without the thumb, however long Momo waits.
     act(() => { vi.advanceTimersByTime(5000); });
     expect(onWave).not.toHaveBeenCalled();

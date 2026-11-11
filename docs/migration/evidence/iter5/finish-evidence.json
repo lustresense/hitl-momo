@@ -1,0 +1,144 @@
+{
+  "run": "2026-11-11T22-12-25-685Z",
+  "result": "PASS",
+  "failure": null,
+  "git": {
+    "head": "9b80137f19dc59bc1b476bf2e1d954c5d155c38a",
+    "branch": "claude-monorepo",
+    "dirty": true
+  },
+  "checks": [
+    {
+      "name": "before any ink there is no finish thumb",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "with ink the finish thumb appears (btn-finish-drawing)",
+      "ok": true
+    },
+    {
+      "name": "this run is fallback (mouse) mode, as the sandbox has no camera",
+      "ok": true,
+      "detail": "fallback"
+    },
+    {
+      "name": "nothing covers the finish thumb at its centre",
+      "ok": true,
+      "detail": {}
+    },
+    {
+      "name": "still for 5 s: Momo does NOT guess (no 'Tebakan Momo')",
+      "ok": true
+    },
+    {
+      "name": "still for 5 s: no Top-3 candidate buttons",
+      "ok": true
+    },
+    {
+      "name": "a 700 ms press on the finish thumb does NOT trigger a guess",
+      "ok": true
+    },
+    {
+      "name": "after holding the finish thumb Momo's guess appears ('Tebakan Momo')",
+      "ok": true
+    },
+    {
+      "name": "Top-3 shows three candidate buttons",
+      "ok": true,
+      "detail": 3
+    },
+    {
+      "name": "the hold took at least 2 s (not a tap)",
+      "ok": true,
+      "detail": 2902
+    },
+    {
+      "name": "Terima puts the object on the canvas as a sticker (sticker-stamp)",
+      "ok": true
+    },
+    {
+      "name": "no console/page errors",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "steps": [
+    {
+      "t": "2026-11-11T22:12:26.946Z",
+      "m": "run-start {\"head\":\"9b80137f19dc59bc1b476bf2e1d954c5d155c38a\",\"branch\":\"claude-monorepo\",\"dirty\":true}"
+    },
+    {
+      "t": "2026-11-11T22:12:27.417Z",
+      "m": "cover: camera switch turned on"
+    },
+    {
+      "t": "2026-11-11T22:12:28.292Z",
+      "m": "cover: Momo woken (button)"
+    },
+    {
+      "t": "2026-11-11T22:12:50.713Z",
+      "m": "cover: thumb held, the book opens"
+    },
+    {
+      "t": "2026-11-11T22:12:51.017Z",
+      "m": "cover: book opened to the ruler"
+    },
+    {
+      "t": "2026-11-11T22:12:55.729Z",
+      "m": "ruler: unlocked (Momo has moved to the corner)"
+    },
+    {
+      "t": "2026-11-11T22:13:02.804Z",
+      "m": "ruler: number 3 confirmed with thumb"
+    },
+    {
+      "t": "2026-11-11T22:13:11.266Z",
+      "m": "tutorial: walk try 1 not at the flag yet"
+    },
+    {
+      "t": "2026-11-11T22:13:11.824Z",
+      "m": "tutorial: Thinman walked to the flag"
+    },
+    {
+      "t": "2026-11-11T22:13:23.801Z",
+      "m": "tutorial: card 1 thumb (1 s) confirmed"
+    },
+    {
+      "t": "2026-11-11T22:14:08.326Z",
+      "m": "tutorial: card 2 thumb (1 s) confirmed"
+    },
+    {
+      "t": "2026-11-11T22:14:11.968Z",
+      "m": "tutorial: card 3 tools draw, erase, undo, redo tried"
+    },
+    {
+      "t": "2026-11-11T22:14:24.493Z",
+      "m": "tutorial: card 3 thumb (2 s) confirmed, Mulai Level 1"
+    },
+    {
+      "t": "2026-11-11T22:14:31.144Z",
+      "m": "L1: story intro visible"
+    },
+    {
+      "t": "2026-11-11T22:15:04.106Z",
+      "m": "L1: intro thumb (1 s) held, Momo rises through the clouds"
+    },
+    {
+      "t": "2026-11-11T22:15:22.788Z",
+      "m": "L1: canvas focus phase"
+    },
+    {
+      "t": "2026-11-11T22:15:25.489Z",
+      "m": "L1: \"Mulai Menggambar\" held, canvas open"
+    },
+    {
+      "t": "2026-11-11T22:15:35.821Z",
+      "m": "finish thumb held: {\"mode\":\"fallback\",\"holdMs\":2000,\"attempt\":1} in 2902 ms"
+    },
+    {
+      "t": "2026-11-11T22:15:38.686Z",
+      "m": "picked: Terima tangga, peringkat 1, keyakinan 86 persen"
+    }
+  ]
+}

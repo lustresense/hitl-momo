@@ -33,6 +33,8 @@ vi.mock("@/src/input", async (importOriginal) => {
     constructor(_canvas: HTMLCanvasElement, _video: HTMLVideoElement, options: { onInkChange?: (value: boolean) => void }) {
       if (mockHasInk) options.onInkChange?.(true);
     }
+    // useDrawingSurface wraps the store's stroke/erase methods, so the stub needs a store too.
+    store = { endStroke() {}, eraseAt: () => false, hasActiveStroke: () => false, lastActivePoint: () => null };
     resizeForDpr() {}
     dispose() {}
     undo() { return true; }
@@ -43,8 +45,12 @@ vi.mock("@/src/input", async (importOriginal) => {
 afterEach(cleanup);
 
 describe("DrawingScreen explicit prediction", () => {
- it("shows disabled prediction submit before ink and no placeholder catalog",()=>{mockHasInk=false;render(<DrawingScreen level={LEVELS[0]!} initialMode="pointer" feedback={null} surfaceOut={{current:null}} onSubmit={vi.fn()} onExit={vi.fn()}/>);expect(screen.queryByText(/Katalog DEMO/)).toBeNull();expect(screen.getByTestId("btn-submit-drawing").hasAttribute("disabled")).toBe(true);expect(screen.queryByLabelText("Tebakan AI")).toBeNull();});
- it("submit requests prediction without selecting catalog intent",()=>{mockHasInk=true;const submit=vi.fn();render(<DrawingScreen level={LEVELS[0]!} initialMode="pointer" feedback={null} surfaceOut={{current:null}} onSubmit={submit} onExit={vi.fn()}/>);expect(submit).not.toHaveBeenCalled();fireEvent.click(screen.getByTestId("btn-submit-drawing"));expect(submit).toHaveBeenCalledWith(null);mockHasInk=false;});
+ // Camera mode (the default) keeps Tebak behind "Bantuan"; a student opens it first, so the test does the same.
+ const openBantuanIfHidden = () => {
+   if (!screen.queryByTestId("btn-submit-drawing")) fireEvent.click(screen.getByTestId("btn-drawing-help"));
+ };
+ it("shows disabled prediction submit before ink and no placeholder catalog",()=>{mockHasInk=false;render(<DrawingScreen level={LEVELS[0]!} initialMode="pointer" feedback={null} surfaceOut={{current:null}} onSubmit={vi.fn()} onExit={vi.fn()}/>);expect(screen.queryByText(/Katalog DEMO/)).toBeNull();openBantuanIfHidden();expect(screen.getByTestId("btn-submit-drawing").hasAttribute("disabled")).toBe(true);expect(screen.queryByLabelText("Tebakan AI")).toBeNull();});
+ it("submit requests prediction without selecting catalog intent",()=>{mockHasInk=true;const submit=vi.fn();render(<DrawingScreen level={LEVELS[0]!} initialMode="pointer" feedback={null} surfaceOut={{current:null}} onSubmit={submit} onExit={vi.fn()} showCanvasFocus={false}/>);expect(submit).not.toHaveBeenCalled();openBantuanIfHidden();fireEvent.click(screen.getByTestId("btn-submit-drawing"));expect(submit).toHaveBeenCalledWith(null);mockHasInk=false;});
 });
 
 describe("StudentRulerSelector", () => {
@@ -181,14 +187,14 @@ describe("PredictingScreen (TASK 13 states)", () => {
     expect(screen.queryByTestId("btn-retry-prediction")).toBeNull();
   });
 
-  it("error state exposes retry + redraw recovery routes", () => {
+  it("error state exposes retry + redraw recovery routes as hand rings (the hold is tested in predicting-recovery)", () => {
     const onRetry = vi.fn();
     const onRedraw = vi.fn();
     render(<PredictingScreen error detail="provider-unavailable" onRetry={onRetry} onRedraw={onRedraw} />);
-    fireEvent.click(screen.getByTestId("btn-retry-prediction"));
-    fireEvent.click(screen.getByTestId("btn-redraw-from-error"));
-    expect(onRetry).toHaveBeenCalledTimes(1);
-    expect(onRedraw).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("btn-retry-prediction").getAttribute("aria-label")).toBe("Coba Lagi");
+    expect(screen.getByTestId("btn-redraw-from-error").getAttribute("aria-label")).toBe("Gambar lagi");
+    expect(onRetry).not.toHaveBeenCalled();
+    expect(onRedraw).not.toHaveBeenCalled();
     expect(screen.getByRole("alert").textContent).toContain("provider-unavailable");
   });
 });

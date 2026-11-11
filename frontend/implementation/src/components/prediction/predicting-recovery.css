@@ -1,0 +1,8 @@
+/* PredictingScreen recovery choices (S1): two GestureRings stacked under the error text. Each ring is a full-width
+   target of 56 px or more; the stack wraps to one column on a phone. */
+.predicting-recovery {
+  display: grid;
+  gap: 12px;
+  width: min(100%, 420px);
+  margin-top: 12px;
+}

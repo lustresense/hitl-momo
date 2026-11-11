@@ -146,9 +146,7 @@ function stage(phase: "placing" | "gameplay") {
 /** Integrated stage, student enters the world. No hand-control toggle is clicked. */
 async function startStage(phase: "placing" | "gameplay") {
   const view = render(stage(phase));
-  await act(async () => {
-    fireEvent.click(screen.getByTestId("btn-enter-world"));
-  });
+  await act(async () => {});
   return view;
 }
 

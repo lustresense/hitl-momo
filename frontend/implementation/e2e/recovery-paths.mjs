@@ -1,6 +1,6 @@
 // Recovery/negative paths with trusted input only (MOCK prediction):
 //  A) L1: fall into the chasm -> FAIL overlay -> "Coba dari checkpoint" -> respawn -> WIN
-//  B) L3: HITL Override to a DANGER label -> hazard contact FAIL -> "Gambar ulang" (Redraw) ->
+//  B) L3: HITL Override to a DANGER label -> hazard contact FAIL -> "Gambar lagi" (Redraw) ->
 //     second drawing/decision -> WIN. Also checks Redraw is not a 4th decision button on the Top-3 panel.
 import fs from "node:fs";
 import path from "node:path";

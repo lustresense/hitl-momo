@@ -37,9 +37,7 @@ function renderStage(phase: "placing" | "gameplay") {
 
 /** Entering the world mounts the game; the guide only starts once it is ready. */
 async function enterWorld() {
-  await act(async () => {
-    fireEvent.click(screen.getByTestId("btn-enter-world"));
-  });
+  await act(async () => {});
 }
 
 const guide = () => screen.queryByTestId("control-guide");

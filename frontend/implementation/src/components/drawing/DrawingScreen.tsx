@@ -5,7 +5,7 @@
  */
 import { useEffect, useRef, useState } from "react";
 import type { LevelDefinition } from "@/src/domain/levels";
-import type { PredictionResult } from "@/src/domain/types";
+import type { DrawingInput, ObjectBehavior, PredictionResult } from "@/src/domain/types";
 import type { MissionConfig } from "@/src/domain/mission-config";
 import { MissionBriefing } from "../mission/MissionBriefing";
 import type { DrawingSurface } from "@/src/input";
@@ -27,6 +27,7 @@ import { useCanvasFocus } from "./hooks/useCanvasFocus";
 import { useDrawingIdle } from "./hooks/useDrawingIdle";
 import { useHandStatusKind } from "./hooks/useHandStatusKind";
 import { CanvasFocusExtras } from "./CanvasFocusExtras";
+import { StickerStamp, stampMomoLine } from "./StickerStamp";
 import { resolveMomoCue } from "./momo-cue";
 import {
   FOCUS_CATALOG_LINES_CAMERA,
@@ -40,11 +41,16 @@ import { momoLine as momoLineFor } from "@/src/domain/momo-script";
 import "./canvas-focus.css";
 
 /**
- * The ink gate on the surface: while the focus phase or the level intro covers the canvas, no stroke may start,
- * a hand pinch included. DrawingSurface.setInkEnabled is the input contract (src/input); until it exists the call is
- * skipped and the gate is open.
+ * The decided drawing as a sticker on this canvas (REVISI §18A). While it is set the canvas takes no ink, the
+ * Top-3 and the drawing actions are replaced by the sticker's two rings, and Momo speaks the sticker line.
  */
-type InkGated = DrawingSurface & { setInkEnabled?(on: boolean): void };
+export interface DrawingStamp {
+  label: string;
+  behavior: ObjectBehavior;
+  drawingInput: DrawingInput | null;
+  onThrow(): void;
+  onRedraw(): void;
+}
 
 export interface DrawingScreenProps {
   level: LevelDefinition;
@@ -69,6 +75,8 @@ export interface DrawingScreenProps {
   onCloseMission?: () => void;
   /** Opens the focus phase (dark backdrop, tool review, catalog, "Mulai Menggambar") once the intro has lifted. */
   showCanvasFocus?: boolean;
+  /** The decided drawing waiting on the canvas as a sticker (Lempar / Gambar lagi). */
+  stamp?: DrawingStamp | null;
 }
 
 /**
@@ -99,7 +107,9 @@ export function DrawingScreen({
   onOpenMission = () => void 0,
   onCloseMission = () => void 0,
   showCanvasFocus = true,
+  stamp = null,
 }: DrawingScreenProps) {
+  const stamped = stamp !== null;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
   // R13: camera mode always draws by hand (no picker); pointer only in fallback mode.
@@ -138,10 +148,12 @@ export function DrawingScreen({
   const { companionRef, momoLayout } = useMomoCompanionLayout();
 
   const focus = useCanvasFocus(showCanvasFocus && active && phase === "drawing" && !introCovers);
-  const inkBlocked = focus.open || introCovers;
-  // The canvas takes no ink while it is covered (the hand reader keeps running; only the strokes are gated).
+  const inkBlocked = focus.open || introCovers || stamped;
+  // The canvas takes no ink while it is covered or a sticker waits on it: no stroke, eraser pass, undo or redo,
+  // a hand pinch included. The hand reader keeps running; only the drawing is gated (DrawingSurface.setInkEnabled).
+  // The optional call lets a surface double without the method keep the gate open.
   useEffect(() => {
-    (surfaceOut.current as InkGated | null)?.setInkEnabled?.(!inkBlocked);
+    surfaceOut.current?.setInkEnabled?.(!inkBlocked);
   }, [inkBlocked, inputMode, surfaceOut]);
 
   // Only a held pinch (brush) or fist (eraser) counts as hand activity; the rest of the time the clock runs.
@@ -162,8 +174,8 @@ export function DrawingScreen({
       : cameraMode ? FOCUS_CATALOG_LINES_CAMERA : FOCUS_CATALOG_LINES_POINTER
     : null;
   // Outside the focus phase Momo's cue line; while drawing she stays quiet otherwise (no mumbled guess).
-  const momoLines = focusLines ?? momoCue.message ?? momoLineFor(momoCue.moment);
-  const showGuess = isProbe && (phase === "evaluating" || phase === "prediction-error");
+  const momoLines = stamp ? stampMomoLine(stamp.label) : focusLines ?? momoCue.message ?? momoLineFor(momoCue.moment);
+  const showGuess = isProbe && !stamped && (phase === "evaluating" || phase === "prediction-error");
   const externalThumbUp = inputMode === "hand" && handPose === "thumb-up";
 
   return (
@@ -245,8 +257,8 @@ export function DrawingScreen({
       >
         <MomoChat
           lines={momoLines}
-          mood={focus.open ? "Senang" : momoCue.mood ?? momoMood(momoCue.moment)}
-          fog={focus.open ? 0 : momoCue.fog}
+          mood={focus.open || stamped ? "Senang" : momoCue.mood ?? momoMood(momoCue.moment)}
+          fog={focus.open || stamped ? 0 : momoCue.fog}
           // Emphasis: a little larger while she guesses and shows the result (170 px -> 190 px).
           avatarHeight={showGuess ? 190 : 170}
           extrasFrom={focus.open ? "last" : "always"}
@@ -257,7 +269,7 @@ export function DrawingScreen({
             focus.step === "catalog" ? (
               <CanvasFocusExtras catalog={level.catalog} externalThumbUp={externalThumbUp} onStart={focus.dismiss} />
             ) : null
-          ) : showGuess ? (
+          ) : showGuess && !stamp ? (
             <MomoGuessChat
               phase={phase as "evaluating" | "prediction-error"}
               prediction={prediction}
@@ -281,18 +293,20 @@ export function DrawingScreen({
         </p>
       </div>
 
-      <DrawingActions
-        phase={phase}
-        active={active}
-        inputMode={inputMode}
-        hasInk={hasInk}
-        // The drawing surface runs the one hand tracker; the finish ring reads its thumb (never a second tracker).
-        externalThumbUp={externalThumbUp}
-        finishPaused={missionOpen || focus.open}
-        handMissing={handMissing}
-        onSwitchMode={(mode: InputModeId) => void switchMode(mode)}
-        onSubmit={() => onSubmit(null)}
-      />
+      {!stamped && (
+        <DrawingActions
+          phase={phase}
+          active={active}
+          inputMode={inputMode}
+          hasInk={hasInk}
+          // The drawing surface runs the one hand tracker; the finish ring reads its thumb (never a second tracker).
+          externalThumbUp={externalThumbUp}
+          finishPaused={missionOpen || focus.open}
+          handMissing={handMissing}
+          onSwitchMode={(mode: InputModeId) => void switchMode(mode)}
+          onSubmit={() => onSubmit(null)}
+        />
+      )}
       <canvas
         ref={canvasRef}
         width={1920}
@@ -302,6 +316,17 @@ export function DrawingScreen({
         aria-label="Kanvas menggambar"
         data-testid="draw-canvas"
       />
+      {stamp && (
+        <StickerStamp
+          label={stamp.label}
+          behavior={stamp.behavior}
+          drawingInput={stamp.drawingInput}
+          // The drawing hand's stable pose; the fallback mode has no hand, so no pose reaches the rings.
+          pose={inputMode === "hand" ? handPose : "none"}
+          onThrow={stamp.onThrow}
+          onRedraw={stamp.onRedraw}
+        />
+      )}
     </section>
   );
 }

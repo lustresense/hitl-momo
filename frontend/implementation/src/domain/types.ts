@@ -12,6 +12,10 @@ export interface PredictionCandidate {
   label: string;
   /** Confidence in [0,1]. Display value, not proof of correctness (PG-01). */
   confidence: number;
+  /** Level object this candidate maps to (label map); null = known to the model but not part of the level. */
+  gameLabel?: string | null;
+  /** Raw label sent by the model, kept for logging. */
+  modelLabel?: string;
 }
 
 /** Exactly-Top-3 prediction result shape returned by any PredictionProvider. */

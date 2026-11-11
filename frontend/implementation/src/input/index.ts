@@ -1,4 +1,4 @@
-import type { DrawingInput } from "../domain/types";
+import type { DrawingInput, StrokePoint } from "../domain/types";
 import { StrokeStore, type HandInputStatus, type InputModeId } from "./types";
 import { attachPointerDriver, strokesToDrawingInput } from "./pointer-input";
 import { HandDrawingDriver } from "./mediapipe-input";
@@ -24,10 +24,46 @@ export interface DrawingSurfaceOptions {
   onInkChange?(hasInk: boolean): void;
   /** PRD 0.0.16 R12: stable hand pose once per hand frame ("none" when no hand); the UI debounces it into commands. */
   onPose?(pose: HandPose, nowMs: number): void;
+  /**
+   * Tutorial card 3: the Hapus radius stays at its default. The wheel, `[ ]`, setEraserRadius and a second hand
+   * do not change it. Off by default: the level canvas keeps the resizable eraser.
+   */
+  fixedEraser?: boolean;
+}
+
+/**
+ * The store the surface writes to. While the ink gate is shut, nothing is written: no stroke starts, no point is
+ * added, no eraser pass runs, and undo or redo do nothing. Reads and the end of an open line still work, so a
+ * shut gate never leaves a half-open line behind.
+ */
+class GatedStrokeStore extends StrokeStore {
+  constructor(private readonly inkOpen: () => boolean) {
+    super();
+  }
+  override beginStroke(): void {
+    if (this.inkOpen()) super.beginStroke();
+  }
+  override addPoint(p: StrokePoint): void {
+    if (this.inkOpen()) super.addPoint(p);
+  }
+  override beginErase(): void {
+    if (this.inkOpen()) super.beginErase();
+  }
+  override eraseAt(p: StrokePoint, radius: number): boolean {
+    return this.inkOpen() && super.eraseAt(p, radius);
+  }
+  override undo(): boolean {
+    return this.inkOpen() && super.undo();
+  }
+  override redo(): boolean {
+    return this.inkOpen() && super.redo();
+  }
 }
 
 export class DrawingSurface {
-  readonly store = new StrokeStore();
+  readonly store: StrokeStore = new GatedStrokeStore(() => this.inkOn);
+  /** The ink gate (see setInkEnabled). Open until a cover or a sticker asks otherwise. */
+  private inkOn = true;
   private detachPointer: (() => void) | null = null;
   private handDriver: HandDrawingDriver | null = null;
   private cursor: HandCursor | null = null;
@@ -44,18 +80,20 @@ export class DrawingSurface {
     setRadiusCss: (px) => {
       this.setEraserRadius(px);
     },
+    isFixed: () => this.options.fixedEraser === true,
   };
 
   /** Mouse wheel over the canvas sizes the eraser while the Hapus tool is on; otherwise the page scrolls. */
   private readonly onWheel = (e: WheelEvent) => {
-    if (!this.store.eraserMode || e.deltaY === 0) return;
+    // A fixed eraser leaves the wheel to the page: nothing to size, so no scroll is taken over.
+    if (!this.store.eraserMode || this.options.fixedEraser || e.deltaY === 0) return;
     e.preventDefault();
     this.nudgeEraser(e.deltaY < 0 ? ERASER_SIZE_STEP_PX : -ERASER_SIZE_STEP_PX);
   };
 
   /** `[` and `]` size the eraser while the Hapus tool is on, unless the student is typing or using a shortcut. */
   private readonly onKey = (e: KeyboardEvent) => {
-    if (!this.store.eraserMode || e.ctrlKey || e.metaKey || e.altKey || isTypingTarget(e.target)) return;
+    if (!this.store.eraserMode || this.options.fixedEraser || e.ctrlKey || e.metaKey || e.altKey || isTypingTarget(e.target)) return;
     const step = e.key === "[" ? -ERASER_SIZE_STEP_PX : e.key === "]" ? ERASER_SIZE_STEP_PX : 0;
     if (step === 0) return;
     e.preventDefault();
@@ -248,6 +286,22 @@ export class DrawingSurface {
   }
 
   /**
+   * The ink gate. DrawingScreen shuts it while a cover (focus phase, level intro) or the sticker is on the canvas.
+   * Shut: the pointer and the hand take no ink, run no eraser pass, and undo or redo nothing; the eraser ring is
+   * not drawn either. An open line is closed at once, so it cannot grow while the gate is shut.
+   */
+  setInkEnabled(on: boolean): void {
+    if (on === this.inkOn) return;
+    this.inkOn = on;
+    if (!on) {
+      if (this.store.hasActiveStroke()) this.store.endStroke();
+      if (this.store.isErasing()) this.store.endErase();
+      this.reportInkChange();
+    }
+    this.render();
+  }
+
+  /**
    * PRD 0.0.16 R12 Hapus tool: while on, pointer drags and the hand cursor erase the strokes they pass.
    * One pass is one undo step. A held fist erases in hand mode even when off.
    */
@@ -265,6 +319,7 @@ export class DrawingSurface {
    * NaN keeps the current value. Returns the radius now in use.
    */
   setEraserRadius(px: number): number {
+    if (this.options.fixedEraser) return this.eraserRadiusCss;
     if (!Number.isNaN(px)) this.eraserRadiusCss = clampEraserRadius(px);
     return this.eraserRadiusCss;
   }
@@ -361,7 +416,7 @@ export class DrawingSurface {
       const cssW = this.canvas.clientWidth || (this.canvas.width / (window.devicePixelRatio || 1)) || this.canvas.width;
       const scale = this.canvas.width / (cssW || 1);
       // The Hapus reach is drawn under the pointer dot, so the dot stays on top.
-      if (this.cursor.erasing || this.store.eraserMode) this.drawEraserRing(ctx, x, y, scale);
+      if (this.inkOn && (this.cursor.erasing || this.store.eraserMode)) this.drawEraserRing(ctx, x, y, scale);
       const r = 6.5 * scale;
       ctx.save();
       ctx.beginPath();

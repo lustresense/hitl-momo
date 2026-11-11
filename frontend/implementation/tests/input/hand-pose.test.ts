@@ -41,12 +41,13 @@ describe("R12 drawing poses are mutually exclusive", () => {
       expect(isThumbUp(lm)).toBe(expected === "thumb-up");
     });
   }
-  it("mapping: pinch draw, fist erase, two fingers undo, split palm redo", () => {
+  it("mapping: pinch draw, fist erase, two fingers undo, open or split palm redo", () => {
     expect(drawingCommandFor("pinch")).toBe("draw");
     expect(drawingCommandFor("fist")).toBe("erase");
     expect(drawingCommandFor("two-fingers")).toBe("undo");
     expect(drawingCommandFor("split-palm")).toBe("redo");
-    expect(drawingCommandFor("open-palm")).toBeNull();
+    // Owner (BIGPROMPT 6.3): "Redo telapak terbuka". The open palm was unused before; now it redoes too.
+    expect(drawingCommandFor("open-palm")).toBe("redo");
     expect(drawingCommandFor("thumb-up")).toBeNull();
   });
   it("missing landmarks -> none", () => {

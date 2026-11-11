@@ -1,5 +1,6 @@
 /**
- * R12: drawing commands from hand poses (pinch = Coret, kepal = Hapus, dua jari = Mundur, telapak terbelah = Maju).
+ * R12: drawing commands from hand poses (pinch = Coret, kepal = Hapus, dua jari = Mundur, telapak = Maju).
+ * The palm is open or split (both redo, see drawingCommandFor).
  * Edge-triggered with a short hold so a pose fires once: the pose must be held HOLD ms, then a different pose must
  * be seen before it can fire again. "draw" is handled by the pinch pipeline itself and never fires here.
  * Kepal is the Hapus tool: it is a held state (erasing while the fist is shown), not a one-shot command.

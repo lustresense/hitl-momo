@@ -11,6 +11,7 @@ import { useInputMode } from "@/src/hooks/useHandGesture";
 import { COVER_NO_CAMERA_HINT, COVER_SLEEP_NUDGE, COVER_WAKE } from "@/src/domain/guide-script";
 import { reportCameraAvailable, reportCameraUnavailable, reportTrackerFailed } from "../../input/input-mode";
 import { WaveTracker, type WaveTrackerOptions } from "../../camera/wave-tracker";
+import { subscribeHandLandmarkerStatus, warmHandLandmarker } from "../../camera/landmarker-warmup";
 import { DRAWING_MODE_EVENT, HAND_STATUS_EVENT, classifyCameraError, messageFor } from "../../camera/messages";
 import type { HandInputStatus } from "../../input/types";
 
@@ -126,8 +127,21 @@ function morphCameraCard(card: HTMLElement, from: CardRect | null, to: CardRect 
   );
 }
 
-/** The wave tracker reports its 0..1 progress through this seam (N1 adds it to WaveTrackerOptions). */
-type WaveTrackerOptionsWithProgress = WaveTrackerOptions & { onProgress?: (progress: number) => void };
+/** Same wasm folder the wave tracker uses, so the warm-up and the tracker share one model file. */
+const WASM_ROOT = "/mediapipe/wasm";
+
+/**
+ * Cover card -> PIP as ONE uniform scale plus a bottom crop (I1). The PIP is 5:4, the cover card is taller (the controls
+ * sit under the video), so the crop keeps the top 5:4 part and that part scales exactly onto the PIP box. The video is
+ * never stretched. A card already shorter than 5:4 cannot be cropped; it is only scaled.
+ * The origin is the card's top-left, so `x`/`y` move that corner onto the PIP's corner.
+ */
+export function pipMorph(from: CardRect, to: CardRect): { x: number; y: number; scale: number; cutBottom: number } {
+  const scale = to.width / from.width;
+  const visibleHeight = from.width * (to.height / to.width);
+  const cutBottom = Math.max(0, from.height - visibleHeight);
+  return { x: to.left - from.left, y: to.top - from.top, scale, cutBottom };
+}
 
 export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveStartDelayMs = WAKE_SETTLE_MS }: GlobalCameraProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -146,6 +160,10 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
   const modelUrlRef = useRef(modelUrl);
   modelUrlRef.current = modelUrl;
   const trackerRef = useRef<WaveTracker | null>(null);
+  /** Release function of the wave ring's progress subscription; null while not subscribed. */
+  const progressUnsubRef = useRef<(() => void) | null>(null);
+  /** The model warm-up starts once per mount, after the camera permission. */
+  const warmStartedRef = useRef(false);
   const handDelegateRef = useRef("");
   /** The one camera card node: ref'd so GSAP can morph it between layouts. */
   const cameraCardRef = useRef<HTMLDivElement>(null);
@@ -204,7 +222,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
   const wakeMomo = () => {
     if (modeRef.current !== "cover" || wokenRef.current) return;
     wokenRef.current = true;
-    trackerRef.current?.stop();
+    stopWaveTracking();
     cameraFromRef.current = readRect(cameraCardRef.current);
     momoFromRef.current = readRect(momoRef.current);
     setAwake(true);
@@ -255,15 +273,15 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
       setPipReached(true);
       return;
     }
-    const to = pipRect();
+    const morph = pipMorph(from, pipRect());
     cameraTweenRef.current = gsap.fromTo(
       card,
-      { x: 0, y: 0, scaleX: 1, scaleY: 1 },
+      { x: 0, y: 0, scale: 1, clipPath: "inset(0px 0px 0px 0px round 20px)", transformOrigin: "0px 0px" },
       {
-        x: to.left + to.width / 2 - (from.left + from.width / 2),
-        y: to.top + to.height / 2 - (from.top + from.height / 2),
-        scaleX: to.width / from.width,
-        scaleY: to.height / from.height,
+        x: morph.x,
+        y: morph.y,
+        scale: morph.scale,
+        clipPath: `inset(0px 0px ${morph.cutBottom}px 0px round 14px)`,
         duration: CARD_MORPH_S,
         ease: "power2.inOut",
         onComplete: () => {
@@ -284,7 +302,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
   const handOff = () => {
     if (leftCoverRef.current) return;
     leftCoverRef.current = true;
-    trackerRef.current?.stop();
+    stopWaveTracking();
     setCoverDone(true);
     onWaveRef.current?.();
   };
@@ -313,6 +331,15 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
     };
   }, [hasStream, awake, mode]);
 
+  /** Only a failed warm-up is shown (one honest sentence); loading and GPU/CPU states stay hidden from the student. */
+  useEffect(() => {
+    if (mode !== "cover") return;
+    return subscribeHandLandmarkerStatus((status) => {
+      if (unmountedRef.current || status.kind !== "failed") return;
+      setStatusNote(status.message);
+    });
+  }, [mode]);
+
   // Test hooks (R1): simulate a wave on a fake camera. Never installed in production builds.
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_TEST_HOOKS !== "1" || mode !== "cover") return;
@@ -330,7 +357,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
 
   function getTracker(): WaveTracker {
     if (!trackerRef.current) {
-      const options: WaveTrackerOptionsWithProgress = {
+      const options: WaveTrackerOptions = {
         getVideo: () => videoRef.current,
         modelUrl: () => modelUrlRef.current,
         onWave: () => {
@@ -348,9 +375,6 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
             setStatusNote(status.message);
             reportTrackerFailed(true);
           }
-        },
-        onProgress: (progress) => {
-          if (!unmountedRef.current) setWaveProgress(Math.min(1, Math.max(0, progress)));
         },
       };
       trackerRef.current = new WaveTracker(options);
@@ -416,7 +440,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
     if (layoutMode === "floating") {
       // The PIP is anchored from its first paint; no cached cover/phase FLIP.
       gsap.killTweensOf(card);
-      gsap.set(card, { clearProps: "transform,width,height,x,y" });
+      gsap.set(card, { clearProps: "transform,width,height,x,y,clipPath,transformOrigin" });
       lastPlacementRef.current = placement;
     } else if (placement !== lastPlacementRef.current) {
       const from = lastRectRef.current;
@@ -441,8 +465,12 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
     }
   }
 
+  /** Releases the progress subscription first (so the reset to 0 is not shown), then stops the detector. */
   function stopWaveTracking() {
+    progressUnsubRef.current?.();
+    progressUnsubRef.current = null;
     trackerRef.current?.stop();
+    if (!unmountedRef.current) setWaveProgress(0);
   }
 
   function stopStream() {
@@ -504,6 +532,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
       streamRef.current = stream;
       setSharedStream(stream);
       reportCameraAvailable();
+      if (modeRef.current === "cover") warmModelOnce();
       // Camera unplugged / permission revoked mid-session: tear down and say why.
       const live = stream;
       stream.getVideoTracks().forEach((track) =>
@@ -546,8 +575,26 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
     }
   }
 
+  /**
+   * Cold start (I1): on the cover, the hand model starts loading as soon as the camera permission is granted, in the
+   * background and once per mount. It starts before the tracker asks for a model, so the tracker takes this same
+   * load instead of building a second one. It never touches the camera and never blocks the UI.
+   */
+  function warmModelOnce() {
+    if (warmStartedRef.current) return;
+    warmStartedRef.current = true;
+    void warmHandLandmarker({ wasmRoot: WASM_ROOT, modelUrl: modelUrlRef.current }).catch(() => undefined);
+  }
+
   async function startWaveTracking() {
-    await getTracker().start();
+    const tracker = getTracker();
+    // One subscription per tracking run: the ring fills with the tracker's real progress.
+    if (!progressUnsubRef.current) {
+      progressUnsubRef.current = tracker.subscribeProgress((progress) => {
+        if (!unmountedRef.current) setWaveProgress(Math.min(1, Math.max(0, progress)));
+      });
+    }
+    await tracker.start();
   }
 
   async function setCameraState(nextOn: boolean) {
@@ -630,13 +677,14 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
               <div className="cover-wave-ring" data-testid="cover-wave-hint" data-progress={Math.round(waveProgress * 100)} aria-hidden="true">
                 <svg className="cover-wave-ring__svg" viewBox="0 0 72 72">
                   <circle className="cover-wave-ring__track" cx="36" cy="36" r="30" />
+                  {/* The offset is a style, so the CSS transition smooths each progress step. */}
                   <circle
                     className="cover-wave-ring__fill"
                     cx="36"
                     cy="36"
                     r="30"
                     strokeDasharray={2 * Math.PI * 30}
-                    strokeDashoffset={2 * Math.PI * 30 * (1 - waveProgress)}
+                    style={{ strokeDashoffset: 2 * Math.PI * 30 * (1 - waveProgress) }}
                     transform="rotate(-90 36 36)"
                   />
                 </svg>

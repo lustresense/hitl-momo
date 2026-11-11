@@ -13,6 +13,8 @@ vi.mock("@/src/input", () => ({
     dispose() {}
     setMode(m: string) { switched.push(m); return Promise.resolve(); }
     setErasing() {}
+    // useDrawingSurface wraps the store's stroke/erase methods, so the fake needs a store too.
+    store = { endStroke() {}, eraseAt: () => false, hasActiveStroke: () => false, lastActivePoint: () => null };
     clear() {}
     undo() {}
     redo() {}

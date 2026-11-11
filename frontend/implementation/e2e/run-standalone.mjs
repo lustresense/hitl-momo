@@ -103,7 +103,7 @@ async function main() {
     // Redraw from evaluation (AC-08)
     await drawPointer();
     await submitAndAwaitTop3();
-    await page.getByRole("button", { name: /gambar ulang \(revisi\)/i }).click();
+    await page.getByRole("button", { name: /^gambar lagi$/i }).click();
     check("10 redraw from evaluation returns to canvas", await page.locator("[data-testid=draw-canvas]").isVisible());
 
     // Correct #3

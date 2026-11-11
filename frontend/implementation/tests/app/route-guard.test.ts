@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { LEVELS } from "@/src/domain/levels";
-import { LOCKED_LEVEL_NOTICE, resolveAppRoute } from "@/src/app/route-guard";
+import { LOCKED_LEVEL_NOTICE, expectedLevelPath, resolveAppRoute } from "@/src/app/route-guard";
 
 describe("resolveAppRoute", () => {
   it("opens Bab 1 for a direct /level1 load", () => {
@@ -32,5 +32,28 @@ describe("resolveAppRoute", () => {
 
   it("maps direct camera cover route", () => {
     expect(resolveAppRoute("/onboarding/cam")).toEqual({ kind: "camera" });
+  });
+});
+
+describe("canvas routes (one per level, sky view)", () => {
+  it("opens the canvas of an unlocked level", () => {
+    expect(resolveAppRoute("/canvas1")).toEqual({ kind: "canvas", level: LEVELS[0] });
+  });
+
+  it("sends a locked canvas to the level list with the locked notice", () => {
+    expect(resolveAppRoute("/canvas2")).toEqual({ kind: "levels", notice: LOCKED_LEVEL_NOTICE });
+  });
+
+  it("sends unknown canvases (only three levels exist) to the level list without a notice", () => {
+    expect(resolveAppRoute("/canvas4")).toEqual({ kind: "levels", notice: null });
+    expect(resolveAppRoute("/canvas")).toEqual({ kind: "camera" });
+  });
+
+  it("maps the sky while drawing and the ground otherwise", () => {
+    expect(expectedLevelPath(1, "drawing", false)).toBe("/canvas1");
+    expect(expectedLevelPath(1, "evaluating", false)).toBe("/canvas1");
+    expect(expectedLevelPath(1, "drawing", true)).toBe("/level1");
+    expect(expectedLevelPath(1, "falling", false)).toBe("/level1");
+    expect(expectedLevelPath(2, "gameplay", false)).toBe("/level2");
   });
 });

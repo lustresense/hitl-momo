@@ -1,14 +1,34 @@
 import { LEVELS, type LevelDefinition } from "@/src/domain/levels";
+import type { AppPhase } from "./state-machine";
 
 export type AppRouteResolution =
   | { kind: "level"; level: LevelDefinition }
+  | { kind: "canvas"; level: LevelDefinition }
   | { kind: "levels"; notice: string | null }
   | { kind: "tutorial" }
   | { kind: "number" }
-  | { kind: "canvas" }
   | { kind: "camera" };
 
 const LOCKED_LEVEL_NOTICE = "Bab ini masih terkunci. Selesaikan bab sebelumnya dulu ya.";
+
+/** Phases in which the drawing canvas (the sky) is the screen: Momo's cloud rise has happened. */
+const CANVAS_PHASES: ReadonlySet<AppPhase> = new Set<AppPhase>(["drawing", "predicting", "prediction-error", "evaluating"]);
+
+export function levelPath(stage: number): string {
+  return `/level${stage}`;
+}
+
+export function canvasPath(stage: number): string {
+  return `/canvas${stage}`;
+}
+
+/**
+ * The URL a running level should show. `/canvasN` while the student draws in the sky; `/levelN` on the ground
+ * (level entry, the story intro, and once the sticker is thrown and falls back into the world).
+ */
+export function expectedLevelPath(stage: number, phase: AppPhase, introPending: boolean): string {
+  return CANVAS_PHASES.has(phase) && !introPending ? canvasPath(stage) : levelPath(stage);
+}
 
 /** Resolves direct paths before rendering; locked and unknown levels never enter a canvas. */
 export function resolveAppRoute(path: string, isLevelUnlocked: (stage: number) => boolean = (stage) => stage <= 1): AppRouteResolution {
@@ -19,10 +39,18 @@ export function resolveAppRoute(path: string, isLevelUnlocked: (stage: number) =
     if (!level || !isLevelUnlocked(stage)) return { kind: "levels", notice: LOCKED_LEVEL_NOTICE };
     return { kind: "level", level };
   }
+  const canvasMatch = /^\/canvas(\d+)$/.exec(path);
+  if (canvasMatch) {
+    const stage = Number(canvasMatch[1]);
+    const level = LEVELS.find((item) => item.stage === stage);
+    // A refresh on a canvas opens it when the level is open; anything else lands safely on the level list.
+    if (!level) return { kind: "levels", notice: null };
+    if (!isLevelUnlocked(stage)) return { kind: "levels", notice: LOCKED_LEVEL_NOTICE };
+    return { kind: "canvas", level };
+  }
   if (path === "/levels") return { kind: "levels", notice: null };
   if (path === "/onboarding/card") return { kind: "tutorial" };
   if (path === "/onboarding/number") return { kind: "number" };
-  if (path === "/canvas") return { kind: "canvas" };
   return { kind: "camera" };
 }
 

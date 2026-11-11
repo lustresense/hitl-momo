@@ -38,9 +38,14 @@ export function usePlacement({
   // The active object's quarter turn. It decides which box the legality check and the grab centre use.
   const [angle, setAngle] = useState<CreationAngle>(0);
   const dragging = useRef(false);
+  // True while the student holds the object by a pinch (see usePlacementGrab). Only then does the hand move it.
+  const grabbing = useRef(false);
   const sideways = angle === 90 || angle === 270;
   const boxW = geometry ? (sideways ? geometry.object.h : geometry.object.w) : level.scene.gapWidth + 24;
   const boxH = geometry ? (sideways ? geometry.object.w : geometry.object.h) : 8;
+  // The hand reader keeps the callback it was given at its start: it reads the box and phase from here, not from a closure.
+  const latest = useRef({ geometry, boxW, boxH, phase });
+  latest.current = { geometry, boxW, boxH, phase };
 
   function movePlacement(x: number, y: number = 320) {
     setPosition(x);
@@ -72,20 +77,30 @@ export function usePlacement({
     movePlacement(point.x - boxW / 2, point.y - boxH / 2);
   }
 
-  /** Hand pinch: `cursor` is normalised (0..1) over the canvas. */
+  /**
+   * Hand: `cursor` is normalised (0..1) over the canvas. The object follows only while it is grabbed (the ring
+   * filled and the pinch is still held); a pinch that merely passes over the stage moves nothing.
+   */
   function movePlacementToHandCursor(cursor: { x: number; y: number }) {
+    if (!grabbing.current || latest.current.phase !== "placing") return;
+    const { geometry: geo, boxW: w, boxH: h } = latest.current;
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
     const x = cursor.x * rect.width;
     const y = cursor.y * rect.height;
-    const point = geometry
+    const point = geo
       ? clientToPhysics(
           { x, y },
           { left: 0, top: 0, width: rect.width, height: rect.height },
-          geometry,
+          geo,
         )
       : screenToWorld(x, y, worldViewport(rect.width, rect.height));
-    movePlacement(point.x - boxW / 2, point.y - boxH / 2);
+    movePlacement(point.x - w / 2, point.y - h / 2);
+  }
+
+  /** Grab on or off. Synchronous, so the hand frame that follows already obeys it. */
+  function setGrabbing(holding: boolean) {
+    grabbing.current = holding;
   }
 
   const canvasPointerHandlers = {
@@ -117,6 +132,7 @@ export function usePlacement({
     setAngle,
     legal,
     movePlacementToHandCursor,
+    setGrabbing,
     canvasPointerHandlers,
   };
 }

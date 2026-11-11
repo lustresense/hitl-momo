@@ -2,19 +2,24 @@
 /**
  * Level select: three bookmarks hang from the sketchbook's spiral binding.
  *   open   = orange, ready to pull      done   = green with a check      locked = grey, short, with a padlock
- * NUI: a fingertip resting on a ribbon for 1.2 s pulls it by itself (the ring fills on its pull ring); a click or
- * Enter does the same at once, and a mouse drag pulls it by hand. The thumb of the next ribbon is a 2 s confirm.
+ * NUI (camera mode): hold 1, 2 or 3 fingers on a bab's GestureRing until it fills (1.5 s) and that bab is pulled, as
+ * a click would pull it. The ring of a locked bab stays grey and never fills. The thumb of the next ribbon is a 2 s
+ * confirm. Fallback (mouse, no camera): no ring; a click or Enter pulls a ribbon at once, and a drag pulls it by hand.
  * Pull a ribbon down by its ring (mouse drag); while pulling, the ribbon "clicks" every notch (tek, tek). Past the
  * last notch the ring turns green; on release (or the 2 s thumb, PRD 0.0.16 R6) the ribbon bounces up and the book opens.
  * The ribbon that a win has just unlocked plays its own unlock animation when this page opens.
- * The ribbon stays a real <button>: its drag, click and Enter live on it, and a DwellButton cannot host pointer
- * handlers. The dwell is the same useDwell hook as DwellButton, so the same single owner and reader apply.
+ * The ribbon stays a real <button>: its drag, click and Enter live on it, so the finger ring sits beside it, not in it.
+ * Finger poses go through the one gesture router (MODE_LEVEL_SELECT), so a thumb or an open palm picks nothing here.
  */
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { gsap } from "gsap";
 import type { LevelDefinition } from "@/src/domain/levels";
 import { consumeFreshUnlock, isStageCompleted, nextStageToPlay } from "@/src/app/level-progress";
-import { useDwell } from "@/src/hooks/useDwell";
+import { useHandReaderLive } from "@/src/hooks/useHandCursor";
+import { useHandGesture, useInputMode } from "@/src/hooks/useHandGesture";
+import { MODE_LEVEL_SELECT, actionFor } from "@/src/input/gesture-mode";
+import type { HandPose } from "@/src/input/hand-gesture";
+import { FingerGlyph, GestureRing } from "../ui/GestureRing";
 import { Icon } from "../ui/Icon";
 import { ThumbConfirm } from "../ui/ThumbConfirm";
 import { usePageThumb } from "./use-page-thumb";
@@ -96,6 +101,12 @@ const stitchPath = (w: number, l: number) => `M15 15H${w - 15}V${l - 15}L${w / 2
 
 type SlotState = "open" | "done" | "locked";
 
+/** Hold time of a bab's finger ring: 1.5 s, the same for 1, 2 and 3 fingers. Not shortened for tests. */
+export const BAB_RING_HOLD_MS = 1500;
+/** Finger count of a bab on the ring: bab 1 = one finger, bab 2 = two, bab 3 = three. */
+const FINGERS_FOR_STAGE: Record<number, 1 | 2 | 3> = { 1: 1, 2: 2, 3: 3 };
+const HOLD_TEXT: Record<1 | 2 | 3, string> = { 1: "Tahan satu jari", 2: "Tahan dua jari", 3: "Tahan tiga jari" };
+
 interface BookmarkProps {
   level: LevelDefinition;
   state: SlotState;
@@ -103,31 +114,15 @@ interface BookmarkProps {
   dims: Dims;
   /** Play the lock-breaking animation once. */
   unlocking: boolean;
-  /** The list is behind a level intro: no dwell, no thumb. */
+  /** The list is behind a level intro: no ring, no thumb. */
   paused: boolean;
+  /** Camera mode: the finger ring and the finger icon show. Fallback: the arrow and the drag only. */
+  camera: boolean;
+  /** The finger pose the shared tracker reports now ("none" when the list does not read the hand). */
+  pose: HandPose;
   onLaunch: (level: LevelDefinition) => void;
   onLockedTug: (level: LevelDefinition) => void;
   onNotch: (count: number) => void;
-}
-
-/** Dwell ring round the pull ring: the same track and fill as DwellButton, drawn only in camera mode. */
-const DWELL_R = 24;
-const DWELL_CIRC = 2 * Math.PI * DWELL_R;
-function DwellRing({ progress }: { progress: number }) {
-  return (
-    <svg className="bm-dwell" viewBox="0 0 56 56" aria-hidden="true" focusable="false">
-      <circle className="bm-dwell__track" cx="28" cy="28" r={DWELL_R} />
-      <circle
-        className="bm-dwell__fill"
-        cx="28"
-        cy="28"
-        r={DWELL_R}
-        strokeDasharray={DWELL_CIRC}
-        strokeDashoffset={DWELL_CIRC * (1 - progress)}
-        transform="rotate(-90 28 28)"
-      />
-    </svg>
-  );
 }
 
 function stageName(level: LevelDefinition): string {
@@ -135,7 +130,7 @@ function stageName(level: LevelDefinition): string {
   return (part ?? level.title).trim();
 }
 
-function Bookmark({ level, state, isNext, dims, unlocking, paused, onLaunch, onLockedTug, onNotch }: BookmarkProps) {
+function Bookmark({ level, state, isNext, dims, unlocking, paused, camera, pose, onLaunch, onLockedTug, onNotch }: BookmarkProps) {
   const slotRef = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
   const lenState = useRef({ length: 0 });
@@ -314,17 +309,9 @@ function Bookmark({ level, state, isNext, dims, unlocking, paused, onLaunch, onL
     autoPull();
   };
 
-  // A resting fingertip: a locked ribbon says what to finish first, an open one pulls itself (as a click does).
-  // A drag in progress already owns the pull, so the dwell stays out of it.
-  const dwell = useDwell({
-    ref: btnRef,
-    enabled: !paused,
-    onActivate: () => {
-      if (drag.current) return;
-      if (locked) onLockedTug(level);
-      else autoPull();
-    },
-  });
+  // The finger ring of this bab: 1, 2 or 3 fingers, read through the one router. A locked bab's ring never fills.
+  const fingers: 1 | 2 | 3 | undefined = FINGERS_FOR_STAGE[level.stage];
+  const pickActive = fingers !== undefined && !paused && actionFor(MODE_LEVEL_SELECT, pose) === `level-${level.stage}`;
   // The next ribbon's 2 s thumb follows a page reader's thumbs-up when one is live, else the shared tracker.
   const pageThumb = usePageThumb();
 
@@ -343,8 +330,7 @@ function Bookmark({ level, state, isNext, dims, unlocking, paused, onLaunch, onL
         data-level-id={`level-${level.stage}`}
         data-stage={level.stage}
         data-state={state}
-        data-mode={dwell.mode}
-        data-progress={Math.round(dwell.progress * 100)}
+        data-mode={camera ? "camera" : "fallback"}
         aria-label={label}
         onPointerDown={begin}
         onPointerMove={move}
@@ -375,8 +361,7 @@ function Bookmark({ level, state, isNext, dims, unlocking, paused, onLaunch, onL
           </span>
         </span>
         <span className="bm-ring" aria-hidden="true">
-          <Icon name="arrow-down" size={20} stroke={3.2} />
-          {dwell.mode === "camera" && <DwellRing progress={dwell.progress} />}
+          {camera && fingers !== undefined ? <FingerGlyph count={fingers} size={20} /> : <Icon name="arrow-down" size={20} stroke={3.2} />}
         </span>
         <span className="bm-notches" aria-hidden="true">
           {Array.from({ length: NOTCHES_TO_ARM }, (_, i) => (
@@ -385,6 +370,22 @@ function Bookmark({ level, state, isNext, dims, unlocking, paused, onLaunch, onL
         </span>
         </span>
       </button>
+      {camera && fingers !== undefined && (
+        <div className="bm-pick">
+          <GestureRing
+            active={pickActive}
+            holdMs={BAB_RING_HOLD_MS}
+            onConfirm={autoPull}
+            label={locked ? `Bab ${level.stage} terkunci` : `Pilih Bab ${level.stage}`}
+            icon={<FingerGlyph count={fingers} size={26} />}
+            locked={locked}
+            disabled={paused}
+            testId={`level-pick-${level.stage}`}
+          >
+            {locked ? (level.stage > 1 ? `Selesaikan Bab ${level.stage - 1} dulu` : "Belum bisa dipilih") : HOLD_TEXT[fingers]}
+          </GestureRing>
+        </div>
+      )}
       {isNext && (
         <ThumbConfirm
           holdMs={2000}
@@ -406,6 +407,14 @@ export function LevelRibbonBookmark({ levels, onSelectLevel, isLevelUnlocked, pa
   const [freshStage] = useState(() => consumeFreshUnlock());
   const [revealed, setRevealed] = useState(freshStage === null);
   const notchTick = useRef(0);
+  const mode = useInputMode();
+  const camera = mode === "camera";
+  // The finger rings read the shared tracker only in camera mode, with no intro on top and no page reader live
+  // (a page reader owns its own hand; its thumb is passed down instead). Otherwise the pose is "none".
+  const readerLive = useHandReaderLive();
+  const pickEnabled = camera && !paused && !readerLive;
+  const gesture = useHandGesture(pickEnabled);
+  const pose: HandPose = pickEnabled ? gesture.pose : "none";
 
   useEffect(() => {
     const onResize = () => setDims(currentShelf(levels.length));
@@ -471,6 +480,8 @@ export function LevelRibbonBookmark({ levels, onSelectLevel, isLevelUnlocked, pa
               dims={dims}
               unlocking={fresh && revealed}
               paused={paused}
+              camera={camera}
+              pose={pose}
               onLaunch={onSelectLevel}
               onLockedTug={onLockedTug}
               onNotch={onNotch}

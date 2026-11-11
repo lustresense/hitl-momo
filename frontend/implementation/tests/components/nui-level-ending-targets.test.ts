@@ -7,6 +7,7 @@ const read = (rel: string) => readFileSync(resolve(process.cwd(), rel), "utf8");
 const levelNui = read("src/components/level/level-nui.css");
 const endingNui = read("src/components/ending/ending-nui.css");
 const kit = read("app/styles/96-kit-base.css");
+const gestureRing = read("src/components/ui/GestureRing.css");
 
 /** The declarations of the rule whose selector is exactly `selector` (one rule per selector in these files). */
 function rule(src: string, selector: string): string {
@@ -82,8 +83,8 @@ describe("level and ending NUI targets: at least 56 px, gaps at least 12 px", ()
     expect(px(endingNui, ".center-page__options", "gap")).toBeGreaterThanOrEqual(12);
   });
 
-  it("the dwell ring on a level ribbon is drawn on its pull ring, at least 48 px across", () => {
-    expect(px(levelNui, ".bm-ring .bm-dwell", "width")).toBeGreaterThanOrEqual(48);
-    expect(px(levelNui, ".bm-ring .bm-dwell", "height")).toBeGreaterThanOrEqual(48);
+  it("the finger ring under a level ribbon has a 56 px dial, at least 48 px across", () => {
+    expect(px(gestureRing, ".gesture-ring__dial", "width")).toBeGreaterThanOrEqual(48);
+    expect(px(gestureRing, ".gesture-ring__dial", "height")).toBeGreaterThanOrEqual(48);
   });
 });

@@ -1,5 +1,6 @@
 "use client";
 import type { PredictionResult } from "@/src/domain/types";
+import { actionFor, MODE_TOP3_PANEL } from "@/src/input/gesture-mode";
 import { useHandGesture, useInputMode } from "../../hooks/useHandGesture";
 import { FingerGlyph, GestureRing } from "../ui/GestureRing";
 import { Icon } from "../ui/Icon";
@@ -18,13 +19,13 @@ export interface Top3PanelProps {
 /** Holding a finger count this long fills the ring. Not shortened: the tests advance fake time. */
 export const TOP3_HOLD_MS = 1500;
 
-/** The finger pose that picks each rank. */
-export const RANK_POSE = { 1: "one-finger", 2: "two-fingers", 3: "three-fingers" } as const;
+/** The router action that picks each rank: the pose is read through MODE_TOP3_PANEL, never the raw finger count. */
+export const RANK_ACTION = { 1: "choose-1", 2: "choose-2", 3: "choose-3" } as const;
 
 /**
  * Top-3 + confidence presentation.
  * Exactly 3 items when valid; confidence shown as a comparable value, never framed as correctness.
- * Rank 1 is marked with a star, not with the word "Utama". No cursor: a candidate is picked by its finger count.
+ * Rank 1 is marked with a star, not with the word "Utama". No cursor: a candidate is picked by its finger pose (one, two or three fingers, via the gesture router).
  */
 export function Top3Panel({ result, onPick, disabled = false }: Top3PanelProps) {
   const camera = useInputMode() === "camera";
@@ -71,7 +72,7 @@ export function Top3Panel({ result, onPick, disabled = false }: Top3PanelProps) 
               className={`top3-item top3-item--pick ${i === 0 ? "top3-item-rank1" : ""}`}
               testId={rank === 1 ? "btn-accept" : `btn-correct-${rank}`}
               label={`${verb} ${c.label}, peringkat ${rank}, keyakinan ${percent} persen`}
-              active={camera && gesture.pose === RANK_POSE[rank]}
+              active={camera && actionFor(MODE_TOP3_PANEL, gesture.pose) === RANK_ACTION[rank]}
               holdMs={TOP3_HOLD_MS}
               locked={disabled}
               icon={<FingerGlyph count={rank} size={28} />}

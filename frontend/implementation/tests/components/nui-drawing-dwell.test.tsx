@@ -16,6 +16,8 @@ vi.mock("@/src/input", () => ({
     dispose() {}
     setMode() { return Promise.resolve({ kind: "idle" }); }
     setErasing() {}
+    // useDrawingSurface wraps the store's stroke/erase methods, so the fake needs a store too.
+    store = { endStroke() {}, eraseAt: () => false, hasActiveStroke: () => false, lastActivePoint: () => null };
     clear() {}
     undo() {}
     redo() {}
@@ -79,6 +81,8 @@ function drawingScreen(extra: Partial<Parameters<typeof DrawingScreen>[0]> = {})
     onExit: vi.fn(),
     missionConfig: config,
     onOpenMission: vi.fn(),
+    // The focus phase has its own tests; these start from a drawing already under way.
+    showCanvasFocus: false,
     ...extra,
   };
   render(<DrawingScreen {...props} />);
@@ -125,6 +129,8 @@ describe("Tebak Gambarku picks by dwell (2 s) and by click", () => {
 
   it("fires once after 2 s with the fingertip resting on it", () => {
     const onSubmit = actions();
+    // Camera mode keeps Tebak behind "Bantuan": open it first, as a student would.
+    fireEvent.click(screen.getByTestId("btn-drawing-help"));
     restOn(screen.getByTestId("btn-submit-drawing"));
     advance(1900);
     expect(onSubmit).not.toHaveBeenCalled();
@@ -134,6 +140,7 @@ describe("Tebak Gambarku picks by dwell (2 s) and by click", () => {
 
   it("a click submits at once", () => {
     const onSubmit = actions();
+    fireEvent.click(screen.getByTestId("btn-drawing-help"));
     fireEvent.click(screen.getByTestId("btn-submit-drawing"));
     expect(onSubmit).toHaveBeenCalledTimes(1);
   });

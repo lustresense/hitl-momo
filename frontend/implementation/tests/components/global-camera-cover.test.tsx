@@ -19,6 +19,13 @@ vi.mock("@/src/components/momo/MomoGuide", () => ({
     return <div data-testid="cover-momo" data-asleep={p?.sleeping ? "true" : "false"}>{p?.children}</div>;
   },
 }));
+// The model warm-up has its own tests (global-camera-warmup); here MediaPipe must not load.
+vi.mock("@/src/camera/landmarker-warmup", () => ({
+  warmHandLandmarker: vi.fn(async () => undefined),
+  subscribeHandLandmarkerStatus: vi.fn(() => () => undefined),
+  // A model that is still loading: the tracker stays "starting", as in the browser before the model is ready.
+  takeHandLandmarker: vi.fn(() => new Promise(() => undefined)),
+}));
 // The thumb is a plain button here: the real ring needs the hand tracker (covered by thumb-confirm tests).
 vi.mock("@/src/components/ui/ThumbConfirm", () => ({
   ThumbConfirm: (p: { label?: string; onConfirm: () => void }) => (

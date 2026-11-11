@@ -107,7 +107,8 @@ export class HandStrokePipeline {
 
     const other = visible.find((_, i) => i !== primary);
     let sizingCss: number | null = null;
-    if (other && this.stable === "fist") sizingCss = this.sizeFrom(other);
+    // A fixed eraser (tutorial card 3) does not take a size from the second hand, so no size badge either.
+    if (other && this.stable === "fist" && this.options.eraser.isFixed?.() !== true) sizingCss = this.sizeFrom(other);
     else this.sizer.end();
     if (frame.cursor) frame.cursor.sizingCss = sizingCss;
     return this.done(frame, nowMs);
@@ -182,8 +183,9 @@ export class HandStrokePipeline {
     this.stable = this.vote(raw);
     const drawing = raw === "pinch";
     // With the Hapus tool on, any pose erases under the cursor except the commands: a thumbs-up
-    // confirmation, undo or redo must never cut the drawing.
-    const command = raw === "thumb-up" || raw === "two-fingers" || raw === "split-palm" || raw === "one-finger" || raw === "three-fingers";
+    // confirmation, undo or redo must never cut the drawing, and an open palm is no tool at all.
+    const command =
+      raw === "thumb-up" || raw === "two-fingers" || raw === "split-palm" || raw === "open-palm" || raw === "one-finger" || raw === "three-fingers";
     const erasing = (this.stable === "fist" && !drawing) || (store.eraserMode && !command);
 
     const ink = this.toCanvas(this.inkSmoother.smooth(indexTipNormalized(lm), nowMs));

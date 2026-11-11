@@ -67,23 +67,11 @@ describe("camera bar: gesture affordances, no keyboard hints", () => {
     expect(left.textContent).toBe("");
   });
 
-  it("offers Geser objek (pinch) and Putar (open palm) and reports the requests", () => {
-    const onMoveRequest = vi.fn();
-    const onRotateRequest = vi.fn();
-    bar({ mode: "camera", onMoveRequest, onRotateRequest });
-    expect(screen.getByTestId("btn-reposition").textContent).toContain("Geser objek");
-    expect(screen.getByTestId("btn-rotate").textContent).toContain("Putar");
-    fireEvent.click(screen.getByTestId("btn-reposition"));
-    fireEvent.click(screen.getByTestId("btn-rotate"));
-    expect(onMoveRequest).toHaveBeenCalledTimes(1);
-    expect(onRotateRequest).toHaveBeenCalledTimes(1);
-  });
-
-  it("Geser objek falls back to the existing reposition action when no move request is given", () => {
-    const onReposition = vi.fn();
-    bar({ mode: "camera", onReposition });
-    fireEvent.click(screen.getByTestId("btn-reposition"));
-    expect(onReposition).toHaveBeenCalledTimes(1);
+  it("shows no Geser objek or Putar button: in camera mode the rings in the stage carry those actions", () => {
+    bar({ mode: "camera" });
+    expect(screen.queryByTestId("btn-reposition")).toBeNull();
+    expect(screen.queryByTestId("btn-rotate")).toBeNull();
+    expect(screen.getByTestId("btn-control-guide")).toBeTruthy();
   });
 });
 
@@ -105,5 +93,17 @@ describe("fallback bar: keyboard-era labels stay for mouse and keyboard players"
     expect(onPress).toHaveBeenCalledWith(3, "right");
     fireEvent.click(screen.getByTestId("btn-rotate"));
     expect(onRotateRequest).toHaveBeenCalledTimes(1);
+  });
+
+  it("Geser objek reports the move request, and falls back to the reposition action without one", () => {
+    const onMoveRequest = vi.fn();
+    bar({ mode: "fallback", onMoveRequest });
+    fireEvent.click(screen.getByTestId("btn-reposition"));
+    expect(onMoveRequest).toHaveBeenCalledTimes(1);
+    cleanup();
+    const onReposition = vi.fn();
+    bar({ mode: "fallback", onReposition });
+    fireEvent.click(screen.getByTestId("btn-reposition"));
+    expect(onReposition).toHaveBeenCalledTimes(1);
   });
 });

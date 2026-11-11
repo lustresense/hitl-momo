@@ -31,7 +31,7 @@ const LINES: Record<MomoMoment, string | string[]> = {
   "drawing-cue": "Gambar objekmu di kanvas. Aku akan menebak apa yang kamu buat.",
   "drawing-empty": "Kanvasnya masih kosong. Gambar sesuatu dulu ya.",
   predicting: "Sedang kubaca goresanmu...",
-  "provider-error": "Aku belum bisa membaca polanya. Coba lagi atau gambar ulang.",
+  "provider-error": "Aku belum bisa membaca polanya. Coba lagi atau gambar lagi.",
   "top3-compare": "Ini tiga tebakanku. Persen bukan jaminan benar, bandingkan dulu.",
   "decision-accepted": "Kamu setuju dengan tebakan peringkat 1. Keputusan bagus kalau kamu sudah yakin.",
   "decision-corrected": "Kamu memilih tebakan lain dari Top-3. Bagus, kamu membandingkan dulu.",
@@ -40,7 +40,7 @@ const LINES: Record<MomoMoment, string | string[]> = {
   "danger-consequence": "Objek itu berbahaya di halaman ini... hati-hati!",
   "fallback-consequence": "Hmm, aku belum tahu perilaku objek ini. Kuberikan versi netral dulu.",
   "cycle-success": "Berhasil! Mau lanjut?",
-  "cycle-fail": "Tidak apa-apa gagal. Coba putuskan lagi, atau gambar ulang objekmu.",
+  "cycle-fail": "Tidak apa-apa gagal. Coba putuskan lagi, atau gambar lagi objekmu.",
   "level-complete": "Bab ini selesai! Keputusanmu tadi yang menentukan jalannya cerita.",
 };
 

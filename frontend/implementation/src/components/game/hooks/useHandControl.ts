@@ -18,6 +18,9 @@ const STATUS_TEXT: Record<GameplayStatus, string> = {
   error: "Kamera gagal, pakai keyboard",
 };
 
+/** Statuses that ask the student to fix something: the hand is gone or the camera or reader failed. */
+const ATTENTION_STATUS: ReadonlySet<GameplayStatus> = new Set<GameplayStatus>(["tracking-lost", "camera-unavailable", "error"]);
+
 interface UseHandControlOptions {
   ready: boolean;
   phase: StagePhase;
@@ -44,6 +47,8 @@ export function useHandControl({
 }: UseHandControlOptions) {
   // The student never sees a developer label: the first status is the honest "preparing" one.
   const [status, setStatus] = useState(PREPARING_CAMERA);
+  // Set from the driver's status and diagnostics, not read back from the text: the chip must not depend on wording.
+  const [needsAttention, setNeedsAttention] = useState(false);
   const { arbiter, sendCombinedInput } = input;
   // Placing and gameplay share one reader. The phase change alone must not reload MediaPipe.
   const readerWanted = ready && mode === "camera" && !outcome && (phase === "placing" || phase === "gameplay");
@@ -62,6 +67,7 @@ export function useHandControl({
       const video = document.querySelector<HTMLVideoElement>(".global-camera-host .camera-video");
       if (!video) {
         setStatus("Kamera belum tersedia");
+        setNeedsAttention(true);
         onHandFailed();
         return;
       }
@@ -70,6 +76,7 @@ export function useHandControl({
         onStatus: (next) => {
           if (cancelled) return;
           setStatus(STATUS_TEXT[next]);
+          setNeedsAttention(ATTENTION_STATUS.has(next));
           if (next === "camera-unavailable") arbiter.dispatch({ type: "camera", status: "revoked" });
           if (next === "camera-unavailable" || next === "error") {
             onHandFailed();
@@ -78,8 +85,12 @@ export function useHandControl({
         },
         onDiagnostic: (info) => {
           if (cancelled) return;
-          if (info.message) setStatus(info.message);
-          else if (info.delegate) setStatus("Tangan (" + info.delegate + ")");
+          if (info.message) {
+            setStatus(info.message);
+            setNeedsAttention(true);
+          } else if (info.delegate) {
+            setStatus("Tangan (" + info.delegate + ")");
+          }
         },
         onFrame: (frame) => {
           if (cancelled) return;
@@ -119,5 +130,5 @@ export function useHandControl({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [readerWanted]);
 
-  return { status };
+  return { status, needsAttention };
 }

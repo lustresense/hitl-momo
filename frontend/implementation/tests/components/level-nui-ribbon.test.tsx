@@ -1,47 +1,49 @@
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { publishHand, resetHandCursorForTest, type HandCursorPoint, type HandSource } from "@/src/camera/hand-cursor-store";
-import { acquireThumbTracker } from "@/src/camera/thumb-tracker";
+import { publishHand, resetHandCursorForTest } from "@/src/camera/hand-cursor-store";
 import { LevelRibbonBookmark } from "@/src/components/level/LevelRibbonBookmark";
 import { LEVELS } from "@/src/domain/levels";
 import { forceInputMode, resetInputModeForTest } from "@/src/input/input-mode";
-import { cursorAtPx, placeBox, type Box } from "./gesture-stub";
+import type { HandPose } from "@/src/input/hand-gesture";
+import { resetPose, setPose } from "./pose-stub";
 
-// The level list is the NUI screen of the level pick: a resting fingertip pulls a ribbon, a click pulls it at once.
-// Like every dwell control, the ribbons read the one shared hand cursor and start the shared tracker only when no
-// page reader is on the screen (see nui-no-second-reader.test.tsx).
-vi.mock("@/src/camera/hand-landmarker", () => ({ createHandLandmarker: vi.fn(() => new Promise(() => {})) }));
-vi.mock("@/src/camera/thumb-tracker", async (importOriginal) => {
-  const actual = await importOriginal<typeof import("@/src/camera/thumb-tracker")>();
-  return { ...actual, acquireThumbTracker: vi.fn(actual.acquireThumbTracker) };
+// The level list in camera mode: a finger count held on a bab's ring picks that bab (1, 2 or 3 fingers).
+// The ring is a GestureRing under each ribbon. The hand is the pose stub: the real hook is replaced, as on the
+// other finger-ring screens. Mouse fallback: the ribbon is pulled by hand or by a click, with no ring.
+vi.mock("@/src/hooks/useHandGesture", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/src/hooks/useHandGesture")>();
+  const stub = await import("./pose-stub");
+  return { ...actual, useHandGesture: stub.usePoseStub };
 });
+vi.mock("@/src/camera/hand-landmarker", () => ({ createHandLandmarker: vi.fn(() => new Promise(() => {})) }));
 
-/** Ribbon i sits at its own column, so a fingertip can rest on exactly one of them. */
-const BOX = (i: number): Box => ({ left: 40 + i * 220, top: 200, width: 160, height: 300 });
-const at = (box: Box) => cursorAtPx(box.left + box.width / 2, box.top + box.height / 2);
-const OUTSIDE = cursorAtPx(5, 5);
-
-/** The fingertip source the test plays: a page reader (drawing) or the shared tracker (no page reader). */
-let reader: { cursor: HandCursorPoint | null; source: HandSource; thumbUp?: boolean } | null = null;
-function readFrom(cursor: HandCursorPoint | null, source: HandSource = "tracker", thumbUp?: boolean) {
-  reader = { cursor, source, thumbUp };
-  act(() => publishHand({ cursor, source, thumbUp }));
-}
-function advance(ms: number) {
-  for (let t = 0; t < ms; t += 16) {
-    act(() => {
-      if (reader) publishHand({ cursor: reader.cursor, source: reader.source, thumbUp: reader.thumbUp });
-      vi.advanceTimersByTime(16);
-    });
-  }
-}
-const card = (stage: number) => screen.getByTestId(`level-card-${stage}`) as HTMLElement;
+/** The ring hold time (GestureRing holdMs for a bab). Tests play it through fake timers, never a shorter one. */
+const RING_HOLD_MS = 1500;
 
 function setup(props: { isLevelUnlocked?: (stage: number) => boolean; paused?: boolean } = {}) {
   const onSelect = vi.fn();
   render(<LevelRibbonBookmark levels={LEVELS} onSelectLevel={onSelect} {...props} />);
-  for (let i = 0; i < LEVELS.length; i++) placeBox(card(LEVELS[i]!.stage), BOX(i));
   return { onSelect };
+}
+
+const ring = (stage: number) => screen.getByTestId(`level-pick-${stage}`) as HTMLElement;
+const card = (stage: number) => screen.getByTestId(`level-card-${stage}`) as HTMLElement;
+
+function advance(ms: number) {
+  for (let t = 0; t < ms; t += 16) {
+    act(() => {
+      vi.advanceTimersByTime(16);
+    });
+  }
+}
+
+/** The ring arms on the empty hand first; then the pose is held for `ms` and released. */
+function hold(pose: HandPose, ms: number) {
+  advance(64);
+  act(() => setPose(pose));
+  advance(ms);
+  act(() => setPose("none"));
+  advance(64);
 }
 
 function fakeClock() {
@@ -51,8 +53,7 @@ function fakeClock() {
 beforeEach(() => {
   resetInputModeForTest();
   resetHandCursorForTest();
-  reader = null;
-  vi.mocked(acquireThumbTracker).mockClear();
+  resetPose();
   forceInputMode("camera");
 });
 afterEach(() => {
@@ -60,123 +61,137 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe("level list, camera mode: a resting fingertip shows the ring and picks a ribbon", () => {
+describe("level list, camera mode: a finger count held on a bab's ring picks that bab", () => {
   beforeEach(fakeClock);
 
-  it("the ring fills on the ribbon while the fingertip rests there", () => {
-    setup();
-    readFrom(null);
-    advance(50);
-    readFrom(at(BOX(0)));
-    advance(600);
-    const pct = Number(card(1).getAttribute("data-progress"));
-    expect(pct).toBeGreaterThan(40);
-    expect(pct).toBeLessThan(60);
-    expect(card(1).getAttribute("data-mode")).toBe("camera");
-    // The ring is drawn on the ribbon's pull ring.
-    expect(card(1).querySelector(".bm-ring .bm-dwell")).not.toBeNull();
-  });
-
-  it("only the ribbon under the fingertip fills; its neighbour stays empty", () => {
+  it("one finger fills Bab 1's ring, and no other bab's ring moves", () => {
     setup({ isLevelUnlocked: () => true });
-    readFrom(null);
-    advance(50);
-    readFrom(at(BOX(1)));
+    advance(64);
+    act(() => setPose("one-finger"));
     advance(600);
-    expect(Number(card(2).getAttribute("data-progress"))).toBeGreaterThan(0);
-    expect(card(1).getAttribute("data-progress")).toBe("0");
-    expect(card(3).getAttribute("data-progress")).toBe("0");
+    const pct = Number(ring(1).getAttribute("data-progress"));
+    expect(pct).toBeGreaterThan(30);
+    expect(pct).toBeLessThan(50);
+    expect(ring(1).getAttribute("data-state")).toBe("filling");
+    expect(ring(2).getAttribute("data-progress")).toBe("0");
+    expect(ring(3).getAttribute("data-progress")).toBe("0");
   });
 
-  it("a resting fingertip on a locked ribbon says what to finish first and starts nothing", () => {
+  it("two fingers fill only Bab 2's ring", () => {
+    setup({ isLevelUnlocked: () => true });
+    advance(64);
+    act(() => setPose("two-fingers"));
+    advance(600);
+    expect(Number(ring(2).getAttribute("data-progress"))).toBeGreaterThan(0);
+    expect(ring(1).getAttribute("data-progress")).toBe("0");
+    expect(ring(3).getAttribute("data-progress")).toBe("0");
+  });
+
+  it("a hold shorter than the ring drains it and picks nothing", () => {
+    const { onSelect } = setup({ isLevelUnlocked: () => true });
+    hold("one-finger", 800);
+    advance(2000);
+    expect(ring(1).getAttribute("data-progress")).toBe("0");
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+
+  it("open palm and pinch pick no bab, however long they are held", () => {
+    setup({ isLevelUnlocked: () => true });
+    hold("open-palm", 2500);
+    hold("pinch", 2500);
+    expect(ring(1).getAttribute("data-progress")).toBe("0");
+    expect(ring(2).getAttribute("data-progress")).toBe("0");
+  });
+
+  it("a locked bab's ring stays grey with a padlock, never fills, and says which bab to finish first", () => {
     const { onSelect } = setup({ isLevelUnlocked: (stage) => stage === 1 });
-    readFrom(null);
-    advance(50);
-    readFrom(at(BOX(1)));
-    advance(1300);
+    hold("two-fingers", 2500);
+    expect(ring(2).getAttribute("data-state")).toBe("locked");
+    expect(ring(2).querySelector(".gesture-ring__lock")).not.toBeNull();
+    expect(ring(2).textContent).toContain("Selesaikan Bab 1 dulu");
+    expect(ring(2).getAttribute("data-progress")).toBe("0");
     expect(onSelect).not.toHaveBeenCalled();
-    expect(screen.getByRole("status").textContent).toContain("Selesaikan Bab 1 dulu");
   });
 
-  it("a paused list (a level intro plays above it) does not read the hand at all", () => {
-    const { onSelect } = setup({ paused: true });
-    readFrom(null);
-    advance(50);
-    readFrom(at(BOX(0)));
-    advance(1600);
-    expect(onSelect).not.toHaveBeenCalled();
-    expect(card(1).getAttribute("data-progress")).toBe("0");
-    expect(vi.mocked(acquireThumbTracker)).not.toHaveBeenCalled();
+  it("a paused list (a level intro is on top) reads no fingers", () => {
+    setup({ paused: true, isLevelUnlocked: () => true });
+    hold("one-finger", 2500);
+    expect(ring(1).getAttribute("data-state")).toBe("disabled");
+    expect(ring(1).getAttribute("data-progress")).toBe("0");
+  });
+
+  it("each ring sits under its own ribbon", () => {
+    setup({ isLevelUnlocked: () => true });
+    for (const level of LEVELS.filter((l) => l.stage <= 3)) {
+      expect(card(level.stage).closest(".bm-slot")?.contains(ring(level.stage))).toBe(true);
+    }
+  });
+
+  it("the ribbon's circle shows as many fingers as its bab number", () => {
+    setup({ isLevelUnlocked: () => true });
+    for (const stage of [1, 2, 3]) {
+      expect(card(stage).querySelectorAll(".bm-ring .finger-glyph rect")).toHaveLength(stage);
+    }
   });
 });
 
-describe("level list, fallback mode: a click pulls the ribbon, no ring", () => {
+describe("level list: the next ribbon's thumb follows a page reader instead of a second tracker", () => {
   beforeEach(fakeClock);
 
-  it("a resting fingertip shows nothing (no ring, no dwell)", () => {
-    forceInputMode("fallback");
-    const { onSelect } = setup();
-    readFrom(null);
-    advance(50);
-    readFrom(at(BOX(0)));
-    advance(1600);
-    expect(onSelect).not.toHaveBeenCalled();
-    expect(card(1).getAttribute("data-mode")).toBe("fallback");
-    expect(card(1).querySelector(".bm-dwell")).toBeNull();
-  });
-});
-
-describe("level list starts at most one hand tracker", () => {
-  beforeEach(fakeClock);
-
-  it("with no page reader the ribbons start the shared tracker after the short wait", () => {
-    setup();
-    advance(400);
-    expect(vi.mocked(acquireThumbTracker)).toHaveBeenCalled();
-  });
-
-  it("with a page reader on the screen no ribbon starts a tracker, not even the next ribbon's thumb", () => {
-    readFrom(null, "drawing");
-    setup();
-    advance(1000);
-    expect(vi.mocked(acquireThumbTracker)).not.toHaveBeenCalled();
-  });
-
-  it("the next ribbon's thumb follows a page reader's thumbs-up instead of a second tracker", () => {
-    readFrom(null, "drawing", false);
-    setup();
-    advance(100); // the thumb ring arms after it has seen no thumb once
-    readFrom(null, "drawing", true);
-    advance(600);
+  it("a page reader's thumbs-up fills the next ribbon's thumb ring", () => {
+    setup({ isLevelUnlocked: () => true });
+    for (let t = 0; t < 120; t += 16) {
+      act(() => {
+        publishHand({ cursor: null, source: "drawing", thumbUp: false });
+        vi.advanceTimersByTime(16);
+      });
+    }
+    for (let t = 0; t < 600; t += 16) {
+      act(() => {
+        publishHand({ cursor: null, source: "drawing", thumbUp: true });
+        vi.advanceTimersByTime(16);
+      });
+    }
     expect(Number(screen.getByTestId("level-thumb-1").getAttribute("data-progress"))).toBeGreaterThan(0);
-    expect(vi.mocked(acquireThumbTracker)).not.toHaveBeenCalled();
   });
 });
 
-// GSAP ticks on the animation frame it captured at load, so the pull animation itself runs on the real clock
-// (as in ribbon-pull.test.tsx). The fingertip is played by a real interval here.
+describe("level list, fallback mode: no ring, the ribbon is pulled by hand or a click", () => {
+  beforeEach(fakeClock);
+
+  it("there is no finger ring, and the circle shows the arrow, not fingers", () => {
+    forceInputMode("fallback");
+    setup({ isLevelUnlocked: () => true });
+    expect(screen.queryByTestId("level-pick-1")).toBeNull();
+    expect(card(1).querySelector(".bm-ring .finger-glyph")).toBeNull();
+    expect(card(1).getAttribute("data-mode")).toBe("fallback");
+  });
+
+  it("fingers held in fallback mode pick nothing", () => {
+    forceInputMode("fallback");
+    const { onSelect } = setup({ isLevelUnlocked: () => true });
+    hold("one-finger", 2500);
+    expect(onSelect).not.toHaveBeenCalled();
+  });
+});
+
 describe("level list, real clock: the pull animation finishes and starts the level once", () => {
   beforeEach(() => {
     vi.useRealTimers();
   });
   const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
-  it("a fingertip resting 1.2 s on an open ribbon pulls it: the level starts once, not again while it rests", async () => {
-    const { onSelect } = setup();
-    let cursor: HandCursorPoint | null = OUTSIDE;
-    const tick = setInterval(() => act(() => publishHand({ cursor, source: "tracker" })), 16);
-    try {
-      await sleep(100); // arms: the fingertip has been outside once
-      cursor = at(BOX(0));
-      await sleep(900);
-      expect(onSelect).not.toHaveBeenCalled(); // not yet: the dwell is 1.2 s
-      await waitFor(() => expect(onSelect).toHaveBeenCalledTimes(1), { timeout: 4000 });
-      expect(onSelect).toHaveBeenCalledWith(LEVELS[0]);
-      await sleep(1500); // still resting on the ribbon: latched
-      expect(onSelect).toHaveBeenCalledTimes(1);
-    } finally {
-      clearInterval(tick);
-    }
+  it("one finger held through the ring picks Bab 1: the level starts once, not again while held", async () => {
+    const { onSelect } = setup({ isLevelUnlocked: () => true });
+    await sleep(100); // the ring arms on the empty hand first
+    act(() => setPose("one-finger"));
+    await sleep(RING_HOLD_MS - 300);
+    expect(onSelect).not.toHaveBeenCalled(); // not yet: the ring needs its full hold
+    await waitFor(() => expect(onSelect).toHaveBeenCalledTimes(1), { timeout: 4000 });
+    expect(onSelect).toHaveBeenCalledWith(LEVELS[0]);
+    await sleep(1200); // still held: latched
+    expect(onSelect).toHaveBeenCalledTimes(1);
+    act(() => setPose("none"));
   });
 
   it("with a mouse click (fallback) the pull animation finishes and starts the level once", async () => {

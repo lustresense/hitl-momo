@@ -2,14 +2,15 @@
 /**
  * PRD 0.0.16 R4 — thumbs-up confirmation with a progress ring (replaces gesture-cue).
  *
- * Camera mode (default, full NUI): the ring fills ONLY while the shared tracker sees a thumbs-up;
- * nothing to click. Fallback mode (R13, camera unusable): the thumb is a button that fills while
- * held with mouse, touch, Enter or Space for the same duration.
+ * Camera mode (default, full NUI): the ring fills while the shared tracker sees a thumbs-up, and it also fills
+ * from a silent press (mouse, touch, Enter or Space) for the same duration, so a student without a working camera
+ * is never stuck. No button and no keyboard hint are shown in camera mode. Fallback mode (R13, camera unusable): the
+ * thumb is a button that fills while held with mouse, touch, Enter or Space for the same duration.
  * Losing the thumb drains the ring slowly (not straight to zero). Full ring = pulse + onConfirm once;
  * the thumb must be released before the ring can fill again. A newly mounted ring is armed only after it has seen
  * no thumb once, so a thumb carried over from the previous screen cannot confirm the next one.
  */
-import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
 import { useHandGesture, useInputMode } from "../../hooks/useHandGesture";
 import { Icon } from "./Icon";
 
@@ -52,7 +53,8 @@ export function ThumbConfirm({
   const [progress, setProgress] = useState(0);
   const [pulse, setPulse] = useState(false);
 
-  const holding = !disabled && (mode === "camera" ? thumbUp : pressing);
+  // A press counts in both modes: in camera mode it is the silent fallback, in fallback mode it is the only input.
+  const holding = !disabled && (mode === "camera" ? thumbUp || pressing : pressing);
   const holdingRef = useRef(holding);
   holdingRef.current = holding;
   const onConfirmRef = useRef(onConfirm);
@@ -100,6 +102,24 @@ export function ThumbConfirm({
     if (disabled) setPressing(false);
   }, [disabled]);
 
+  const press = (e: PointerEvent<HTMLElement>) => {
+    e.preventDefault();
+    if (!disabled) setPressing(true);
+  };
+  const stop = () => setPressing(false);
+  const onKeyDown = (e: KeyboardEvent<HTMLElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      if (!disabled) setPressing(true);
+    }
+  };
+  const onKeyUp = (e: KeyboardEvent<HTMLElement>) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      stop();
+    }
+  };
+
   const ring = (
     <svg className="thumb-confirm__ring" viewBox="0 0 72 72" aria-hidden="true">
       <circle className="thumb-confirm__track" cx="36" cy="36" r={R} />
@@ -138,37 +158,38 @@ export function ThumbConfirm({
   };
 
   if (mode === "camera") {
+    // Still no button role in camera mode: the ring is a progress indicator that also takes a silent press.
     return (
-      <div {...common} role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}>
+      <div
+        {...common}
+        role="progressbar"
+        tabIndex={disabled ? undefined : 0}
+        aria-label={label}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-valuenow={pct}
+        onPointerDown={press}
+        onPointerUp={stop}
+        onPointerLeave={stop}
+        onPointerCancel={stop}
+        onBlur={stop}
+        onKeyDown={onKeyDown}
+        onKeyUp={onKeyUp}
+        onContextMenu={(e) => e.preventDefault()}
+      >
         {face}
         <span className="thumb-confirm__label">{label}</span>
       </div>
     );
   }
 
-  const stop = () => setPressing(false);
-  const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      setPressing(true);
-    }
-  };
-  const onKeyUp = (e: KeyboardEvent<HTMLButtonElement>) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      stop();
-    }
-  };
   return (
     <button
       {...common}
       type="button"
       aria-label={label}
       disabled={disabled}
-      onPointerDown={(e) => {
-        e.preventDefault();
-        setPressing(true);
-      }}
+      onPointerDown={press}
       onPointerUp={stop}
       onPointerLeave={stop}
       onPointerCancel={stop}

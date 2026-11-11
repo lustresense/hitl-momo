@@ -1,4 +1,4 @@
-# Draft entri DECISIONS — 2026-11-10 (BELUM AKTIF)
+# Draft entri DECISIONS — 2026-11-10 (DISAHKAN Owner 2026-11-11, sudah dipindah ke `contexts/can/DECISIONS.md`)
 
 Draft ini disusun dari instruksi Owner 10 November 2026 (big prompt dan REVISI-NUI). Sesuai aturan `contexts/can/DECISIONS.md`, entri baru baru berlaku setelah Owner mengesahkan. `DECISIONS.md` tidak diubah. Untuk mengesahkan, tulis `SETUJUI D-20261110-01..10` atau sebut nomor yang disetujui.
 

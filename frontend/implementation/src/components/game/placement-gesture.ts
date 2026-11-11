@@ -5,6 +5,7 @@
  */
 import { MODE_GAMEPLAY_EXPLORATION_CAM, MODE_GAMEPLAY_PLACEMENT, actionFor, type GestureAction, type GestureMode } from "@/src/input/gesture-mode";
 import type { HandPose } from "@/src/input/hand-gesture";
+import { rollSteps } from "@/src/input/hand-rotation";
 import type { StageOutcome, StagePhase } from "./game-stage-types";
 
 /** Ring hold times, in ms. A confirm is deliberate: a pose must stay for the whole hold. */
@@ -12,6 +13,8 @@ export const PLACE_HOLD_MS = 2000;
 export const REDRAW_HOLD_MS = 2000;
 export const GRAB_HOLD_MS = 1500;
 export const ROTATE_HOLD_MS = 1500;
+/** Turn mode ends when the palm is gone (closed, or the hand out of view) for this long. */
+export const TURN_LOST_MS = 400;
 /** A pinch that is gone for less than this keeps the object: a flicker of the hand is not a release. */
 export const GRAB_DROP_MS = 150;
 
@@ -56,4 +59,46 @@ export function readGrab(state: GrabState, pinched: boolean, nowMs: number): { s
   const releasedAt = state.releasedAt ?? nowMs;
   if (nowMs - releasedAt >= GRAB_DROP_MS) return { state: NOT_GRABBING, drop: true };
   return { state: { holding: true, releasedAt }, drop: false };
+}
+
+/** The palm that starts and keeps a turn: open or split (the router maps both to "rotate"). */
+export function isPalmPose(pose: HandPose): boolean {
+  return pose === "open-palm" || pose === "split-palm";
+}
+
+/**
+ * Turn mode: the object turns with the roll of the palm. `anchor` is the roll the next step is measured from;
+ * `lostSince` is when the palm was first gone in the current gap (null while the palm is there).
+ */
+export interface TurnState {
+  anchor: number | null;
+  lostSince: number | null;
+}
+
+export interface TurnReading {
+  palm: boolean;
+  thumbUp: boolean;
+  /** The palm's roll in degrees (see handRollAngle), or null while no hand is read. */
+  roll: number | null;
+}
+
+export function beginTurn(roll: number | null): TurnState {
+  return { anchor: roll, lostSince: null };
+}
+
+/**
+ * One reading in turn mode. `turn` is +1 or -1 for a quarter turn to do now (at most one per reading), 0 otherwise.
+ * `done` is true when the thumb says "finished", or when the palm has been gone for TURN_LOST_MS.
+ */
+export function readTurn(state: TurnState, reading: TurnReading, nowMs: number): { state: TurnState; turn: -1 | 0 | 1; done: boolean } {
+  if (reading.thumbUp) return { state, turn: 0, done: true };
+  if (!reading.palm) {
+    const lostSince = state.lostSince ?? nowMs;
+    return { state: { anchor: state.anchor, lostSince }, turn: 0, done: nowMs - lostSince >= TURN_LOST_MS };
+  }
+  const cleared: TurnState = { anchor: state.anchor, lostSince: null };
+  if (reading.roll === null) return { state: cleared, turn: 0, done: false };
+  if (cleared.anchor === null) return { state: { anchor: reading.roll, lostSince: null }, turn: 0, done: false };
+  const step = rollSteps(cleared.anchor, reading.roll);
+  return { state: { anchor: step.anchor, lostSince: null }, turn: step.turn, done: false };
 }

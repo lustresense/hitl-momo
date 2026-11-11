@@ -7,6 +7,7 @@
  * - Index finger direction (knuckle 5 to tip 8, mirrored once) steers Thinman: walk left/right,
  *   jump on the spot or jump and walk diagonally; pointing down stops
  * - Thumb-index pinch: grab/drag while placing; it does not jump (enableJump is a legacy opt-in)
+ * - Palm roll (wrist to middle knuckle, degrees): published per frame for the object turn (hand-roll-store)
  * - Pinch threshold 0.42 reused from hand-gesture.ts for grab/drag PLACE
  * - Hysteresis/debounce live in GameplayGestureFilter (zone bands widened by a few degrees to
  *   keep; 3 stable frames before input after (re)acquiring the hand; tracking loss = instant neutral)
@@ -21,7 +22,7 @@
  * 
  * EXPORTS:
  * - GameplayHandDriver class
- * - GameplayFrame type {tracked, cursor, pinched, input}
+ * - GameplayFrame type {tracked, cursor, pinched, input, pose, roll}
  * - Status string: "initializing" | "tracking" | "tracking-lost" | "camera-unavailable" | "error"
  */
 
@@ -33,12 +34,15 @@ import { classifyCameraError, messageFor, type CameraFailureReason } from "../ca
 import { publishHand, retireHand, startHandHeartbeat } from "../camera/hand-cursor-store";
 import { GameplayGestureFilter, type GameplayGestureFrame } from "./gameplay-gesture";
 import { StableVote, classifyHandPose, indexTipNormalized, type HandPose } from "./hand-gesture";
+import { handRollAngle } from "./hand-rotation";
+import { publishHandRoll } from "./hand-roll-store";
 
 /**
  * One gameplay frame: the steering/pinch reading plus the stable hand pose (voted over recent frames, "none"
- * without a hand). Placement and exploration read `pose` through the gesture router; the finger count is not used.
+ * without a hand) and the palm roll in degrees (null without a hand). Placement and exploration read `pose` through
+ * the gesture router; the finger count is not used.
  */
-export type GameplayFrame = GameplayGestureFrame & { pose: HandPose };
+export type GameplayFrame = GameplayGestureFrame & { pose: HandPose; roll: number | null };
 
 export type GameplayStatus = "initializing" | "tracking" | "tracking-lost" | "camera-unavailable" | "error";
 
@@ -72,7 +76,7 @@ const DEFAULT_WASM_ROOT = "/mediapipe/wasm";
 const DEFAULT_MODEL_URL = "/models/hand_landmarker.task";
 
 function neutralFrame(): GameplayFrame {
-  return { tracked: false, cursor: null, pinched: false, angle: null, input: { left: false, right: false, jump: false }, pose: "none" };
+  return { tracked: false, cursor: null, pinched: false, angle: null, input: { left: false, right: false, jump: false }, pose: "none", roll: null };
 }
 
 export class GameplayHandDriver {
@@ -195,6 +199,7 @@ export class GameplayHandDriver {
     this.onVisibility = null;
 
     // Output neutral input immediately on stop
+    publishHandRoll(null);
     this.options.onFrame(neutralFrame());
     this.filter.reset();
     this.poseVote.reset();
@@ -254,6 +259,7 @@ export class GameplayHandDriver {
 
   private reportNeutral(): void {
     publishHand({ cursor: null, source: "gameplay" });
+    publishHandRoll(null);
     this.filter.reset();
     this.poseVote.reset();
     this.lastPinched = false;
@@ -300,6 +306,7 @@ export class GameplayHandDriver {
       this.rafId = 0;
       this.endHeartbeat();
       retireHand("gameplay");
+      publishHandRoll(null);
       this.lastStatus = "error";
       this.options.onStatus("error");
       this.options.onDiagnostic?.({ reason: "tracker-error", message: messageFor("tracker-error") });
@@ -317,8 +324,10 @@ export class GameplayHandDriver {
     this.lastPinched = frame.tracked && frame.pinched;
     // The raw fingertip (mirrored) for the dwell buttons; the gameplay filter keeps its own debounce.
     publishHand({ cursor: landmarks ? indexTipNormalized(landmarks) : null, pinch: frame.pinched, pose, source: "gameplay" });
+    const roll = landmarks ? handRollAngle(landmarks) : null;
+    publishHandRoll(roll);
     this.neutralReported = false;
-    this.options.onFrame({ ...frame, pose });
+    this.options.onFrame({ ...frame, pose, roll });
     this.setStatus(frame.tracked ? "tracking" : "tracking-lost");
   };
 

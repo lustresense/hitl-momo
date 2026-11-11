@@ -1,4 +1,5 @@
 import type { Landmark } from "./types";
+import { MODE_CANVAS_DRAWING, actionFor } from "./gesture-mode";
 
 /**
  * TASK 05 — Provisional hand-gesture mapping (pure, fully unit-tested).
@@ -306,18 +307,14 @@ export const isTwoFingers = (lm: Landmark[] | undefined): boolean => classifyHan
 /** Telapak terbelah = Maju (redo). */
 export const isSplitPalm = (lm: Landmark[] | undefined): boolean => classifyHandPose(lm) === "split-palm";
 
-/** Drawing command for a pose under the R12 mapping; null = no command. */
+/**
+ * Drawing command for a pose under the R12 mapping; null = no command. Read from the gesture router (the canvas
+ * map): pinch draws, fist erases, two fingers undo, open or split palm redo (Owner: "redo is the open palm").
+ */
 export type DrawingGestureCommand = "draw" | "erase" | "undo" | "redo";
 export function drawingCommandFor(pose: HandPose): DrawingGestureCommand | null {
-  switch (pose) {
-    case "pinch": return "draw";
-    case "fist": return "erase";
-    case "two-fingers": return "undo";
-    // Owner: redo is the open palm. The split palm stays a redo too, so either shape reads the same.
-    case "open-palm":
-    case "split-palm": return "redo";
-    default: return null;
-  }
+  const action = actionFor(MODE_CANVAS_DRAWING, pose);
+  return action === "draw" || action === "erase" || action === "undo" || action === "redo" ? action : null;
 }
 
 

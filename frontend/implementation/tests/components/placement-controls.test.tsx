@@ -126,7 +126,7 @@ describe("PlacementControls in fallback mode: the plain button stays", () => {
 });
 
 describe("ExplorationRings: pinch picks the object up, open palm turns it", () => {
-  it("pinch fires onMove after 1.5 s, and the palm fires onRotate after its hold, never each other's", () => {
+  it("pinch fires onMove after 1.5 s; the palm starts the turn after its hold, and the hold itself turns nothing", () => {
     let gesture: GestureAction | null = null;
     const onMove = vi.fn();
     const onRotate = vi.fn();
@@ -140,7 +140,8 @@ describe("ExplorationRings: pinch picks the object up, open palm turns it", () =
     expect(onRotate).not.toHaveBeenCalled();
 
     hold("rotate", ROTATE_HOLD_MS + 200, set);
-    expect(onRotate).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("object-turn")).toBeTruthy();
+    expect(onRotate).not.toHaveBeenCalled();
     expect(onMove).toHaveBeenCalledTimes(1);
   });
 

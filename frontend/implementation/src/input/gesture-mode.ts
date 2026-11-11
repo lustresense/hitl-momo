@@ -15,7 +15,7 @@ export const MODE_CANVAS_PREDICT_TRIGGER = "MODE_CANVAS_PREDICT_TRIGGER";
 export const MODE_CANVAS_STAMP_READY = "MODE_CANVAS_STAMP_READY";
 /** A new sticker has landed: put it here, draw again, or grab it. */
 export const MODE_GAMEPLAY_PLACEMENT = "MODE_GAMEPLAY_PLACEMENT";
-/** The object is placed and the camera drives Thinman / the object: grab, rotate 90 degrees, steer. */
+/** The object is placed and the camera drives Thinman / the object: grab, turn it (palm and twist), steer. */
 export const MODE_GAMEPLAY_EXPLORATION_CAM = "MODE_GAMEPLAY_EXPLORATION_CAM";
 /** Top-3 candidates: 1/2/3 fingers pick, open palm = not this one, pinch = draw again. */
 export const MODE_TOP3_PANEL = "MODE_TOP3_PANEL";
@@ -79,7 +79,8 @@ const MAPS: Record<GestureMode, ActionMap> = {
   [MODE_CANVAS_PREDICT_TRIGGER]: { "thumb-up": "request-prediction" },
   [MODE_CANVAS_STAMP_READY]: { "thumb-up": "throw", "open-palm": "redraw" },
   [MODE_GAMEPLAY_PLACEMENT]: { "thumb-up": "place", "open-palm": "redraw", pinch: "grab" },
-  [MODE_GAMEPLAY_EXPLORATION_CAM]: { pinch: "grab", "open-palm": "rotate", "one-finger": "steer" },
+  // The palm (open or split) starts the turn; the stage reads its roll, so a still palm does not turn the object.
+  [MODE_GAMEPLAY_EXPLORATION_CAM]: { pinch: "grab", "open-palm": "rotate", "split-palm": "rotate", "one-finger": "steer" },
   [MODE_TOP3_PANEL]: { "one-finger": "choose-1", "two-fingers": "choose-2", "three-fingers": "choose-3", "open-palm": "not-this", pinch: "redraw" },
   [MODE_TOP3_ALTERNATIVES]: { "one-finger": "choose-1", "two-fingers": "choose-2", "three-fingers": "choose-3" },
   [MODE_DIALOG_ACK]: { "thumb-up": "ack" },

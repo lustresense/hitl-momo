@@ -41,3 +41,19 @@ export function poseHand(pose: FixturePose, dx = 0): Landmark[] {
   return lm.map((p) => ({ x: p.x + dx, y: p.y }));
 }
 
+
+/**
+ * Rolls a synthetic hand in the picture plane by `deg` around its wrist (clockwise on the mirrored preview is
+ * positive, the sign handRollAngle reads). Distances to the wrist stay the same, so the pose does not change.
+ */
+export function rollHand(lm: Landmark[], deg: number): Landmark[] {
+  const phi = (-deg * Math.PI) / 180;
+  const cos = Math.cos(phi);
+  const sin = Math.sin(phi);
+  const wrist = lm[0]!;
+  return lm.map((p) => {
+    const x = p.x - wrist.x;
+    const y = p.y - wrist.y;
+    return { x: wrist.x + x * cos - y * sin, y: wrist.y + x * sin + y * cos };
+  });
+}

@@ -66,7 +66,7 @@ Aturan isi:
 | R11-04 | Deteksi tangan harus akurat untuk pameran kampus: kunci ke tangan pemain, abaikan tangan orang lain di belakang. | JALAN | Worker W-HAND |
 | R11-05 | Gambar tidak boleh bergetar dan goresan tidak putus-putus. | JALAN | Worker W-INK |
 | R11-06 | Tahan motion blur dan ruangan gelap (kamera 60 fps bila bisa, CLAHE saat gelap). | JALAN | Worker W-COVER (kamera), W-CLAHE |
-| R11-07 | "Kombinasi" MediaPipe + filter + ONNX. ONNX dinilai dulu (model tangan 21 titik, lisensi, ukuran) sebelum dipasang. | JALAN | Riset R-ONNX → keputusan Owner |
+| R11-07 | "Kombinasi" MediaPipe + filter + ONNX. ONNX dinilai dulu (model tangan 21 titik, lisensi, ukuran) sebelum dipasang. | MENUNGGU OWNER | Riset selesai: `docs/audit-2026-11-10/ONNX-HAND-RESEARCH.md`. Rekomendasi: ONNX tidak masuk build pameran (RTMPose hand butuh 2 model ±55 MB + onnxruntime-web, data latih non-komersial) |
 | R11-08 | Halaman uji NUI untuk Owner (FPS, getaran, waktu deteksi lambaian, CLAHE on/off) supaya bisa diukur di laptop sendiri sebelum pameran. | BELUM | Setelah R11-04..06 selesai |
 | R11-09 | Promosi `claude-monorepo` ke `main`. | TERTUNDA | Owner: "nanti dulu" |
 | R11-10 | Berkas `REVISIONS.md` ini sebagai daftar tugas dan penjabaran revisi Owner. | SELESAI | |

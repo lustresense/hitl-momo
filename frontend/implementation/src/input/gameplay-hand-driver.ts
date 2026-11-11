@@ -36,6 +36,8 @@ import { GameplayGestureFilter, type GameplayGestureFrame } from "./gameplay-ges
 import { StableVote, classifyHandPose, indexTipNormalized, type HandPose } from "./hand-gesture";
 import { handRollAngle } from "./hand-rotation";
 import { publishHandRoll } from "./hand-roll-store";
+import { frameForDetection } from "../camera/frame-source";
+import { pickPrimaryHand, type PrimaryHandState } from "../camera/primary-hand";
 
 /**
  * One gameplay frame: the steering/pinch reading plus the stable hand pose (voted over recent frames, "none"
@@ -98,6 +100,8 @@ export class GameplayHandDriver {
   /** Stable pose: one noisy frame cannot change it (see StableVote). */
   private readonly poseVote = new StableVote<HandPose>("none");
   private lastPinched = false;
+  /** The player's hand, locked across frames so a bystander's hand cannot steer Momo. */
+  private primary: PrimaryHandState | null = null;
 
   constructor(private readonly options: GameplayHandDriverOptions) {
     this.filter = new GameplayGestureFilter({ enableJump: options.enableJump });
@@ -131,6 +135,7 @@ export class GameplayHandDriver {
     this.filter.reset();
     this.poseVote.reset();
     this.lastPinched = false;
+    this.primary = null;
     this.generation++;
     const myGen = this.generation;
     const stale = () => this.initAborted || !this.running || this.generation !== myGen;
@@ -197,6 +202,7 @@ export class GameplayHandDriver {
       document.removeEventListener("visibilitychange", this.onVisibility);
     }
     this.onVisibility = null;
+    this.primary = null;
 
     // Output neutral input immediately on stop
     publishHandRoll(null);
@@ -263,6 +269,7 @@ export class GameplayHandDriver {
     this.filter.reset();
     this.poseVote.reset();
     this.lastPinched = false;
+    this.primary = null;
     if (!this.neutralReported) {
       this.neutralReported = true;
       this.options.onFrame(neutralFrame());
@@ -299,7 +306,7 @@ export class GameplayHandDriver {
 
     let result: HandLandmarkerResult;
     try {
-      result = this.landmarker.detectForVideo(video, now);
+      result = this.landmarker.detectForVideo(frameForDetection(video), now);
     } catch {
       this.running = false;
       cancelAnimationFrame(this.rafId);
@@ -315,7 +322,10 @@ export class GameplayHandDriver {
       return;
     }
 
-    const landmarks: Landmark[] | undefined = result.landmarks[0];
+    // The player's hand, not whichever hand MediaPipe lists first; a lost lock reads as no hand.
+    const pick = pickPrimaryHand(result.landmarks, this.primary, now);
+    this.primary = pick.state;
+    const landmarks: Landmark[] | undefined = pick.index === null ? undefined : result.landmarks[pick.index];
     const frame = this.filter.update(landmarks, now);
     // Pose is voted over frames (placement and exploration act on it); no hand = "none" and the vote restarts.
     const pose = landmarks

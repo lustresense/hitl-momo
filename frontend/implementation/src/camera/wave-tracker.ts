@@ -13,6 +13,8 @@ import type { HandLandmarker } from "@mediapipe/tasks-vision";
 import { delegateLabel } from "./hand-landmarker";
 import { takeHandLandmarker } from "./landmarker-warmup";
 import { classifyCameraError, messageFor, type CameraFailureReason } from "./messages";
+import { frameForDetection } from "./frame-source";
+import { pickPrimaryHand, type PrimaryHandState } from "./primary-hand";
 
 export interface WaveSample {
   x: number;
@@ -112,6 +114,8 @@ export class WaveTracker {
   private failures = 0;
   private samples: WaveSample[] = [];
   private missingFrames = 0;
+  /** The player's hand, locked across frames so a second person's hand never feeds the sweep. */
+  private primary: PrimaryHandState | null = null;
   private progressValue = 0;
   private readonly progressListeners = new Set<(progress: number) => void>();
 
@@ -163,6 +167,7 @@ export class WaveTracker {
       this.missingFrames = 0;
       this.failures = 0;
       this.lastVideoTime = -1;
+      this.primary = null;
       this.options.onStatus?.({ kind: "ready", delegate: delegateLabel(created) });
       this.loop();
     } catch (err) {
@@ -181,6 +186,7 @@ export class WaveTracker {
     this.reported = false;
     this.release();
     this.samples = [];
+    this.primary = null;
     this.missingFrames = 0;
     this.lastVideoTime = -1;
     this.failures = 0;
@@ -209,7 +215,7 @@ export class WaveTracker {
     this.lastVideoTime = video.currentTime;
     let result;
     try {
-      result = landmarker.detectForVideo(video, performance.now());
+      result = landmarker.detectForVideo(frameForDetection(video), performance.now());
       this.failures = 0;
     } catch {
       this.failures++;
@@ -219,7 +225,10 @@ export class WaveTracker {
       }
       return;
     }
-    const wrist = result.landmarks[0]?.[0];
+    const now = performance.now();
+    const pick = pickPrimaryHand(result.landmarks, this.primary, now);
+    this.primary = pick.state;
+    const wrist = pick.index === null ? undefined : result.landmarks[pick.index]?.[0];
     if (!wrist) {
       // A blurred or dropped frame keeps the sweep; only a longer gap restarts it.
       this.missingFrames++;
@@ -230,7 +239,6 @@ export class WaveTracker {
       return;
     }
     this.missingFrames = 0;
-    const now = performance.now();
     this.samples.push({ x: wrist.x, time: now });
     while (this.samples.length && now - this.samples[0]!.time > WINDOW_MS) this.samples.shift();
     this.setProgress(waveProgress(this.samples));

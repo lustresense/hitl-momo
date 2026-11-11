@@ -2,6 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
 import { WaveTracker, detectWave, waveProgress, type WaveSample } from "@/src/camera/wave-tracker";
+import { handAt } from "./hand-points";
 
 vi.mock("@mediapipe/tasks-vision", () => ({
   FilesetResolver: { forVisionTasks: vi.fn() },
@@ -80,7 +81,7 @@ describe("WaveTracker tolerates short tracking gaps and reports progress", () =>
     const lm = {
       detectForVideo: vi.fn(() => {
         const x = frames[i++ % frames.length];
-        return { landmarks: x === null || x === undefined ? [] : [[{ x, y: 0.5 }]] };
+        return { landmarks: x === null || x === undefined ? [] : [handAt(x)] };
       }),
       close: vi.fn(),
     };

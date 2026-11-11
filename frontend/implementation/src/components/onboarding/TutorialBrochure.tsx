@@ -306,6 +306,9 @@ export function TutorialBrochure({ onStart, characterDisplayName }: TutorialBroc
   const layoutRef = useRef<TutorialLayout | null>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const busyRef = useRef(false);
+  // The card whose page is open right now (-1 while none is). Read by timeline callbacks and resize, which
+  // cannot see the state of this render.
+  const openedRef = useRef<number>(-1);
   const onStartRef = useRef(onStart);
   onStartRef.current = onStart;
   const reducedRef = useRef(false);
@@ -394,6 +397,7 @@ export function TutorialBrochure({ onStart, characterDisplayName }: TutorialBroc
         .to(play, { rotationY: 0, duration: O.bifold, ease: "power3.out" }, O.bifoldAt)
         .to(card, { x: (-l.pw / 2) * l.fit, duration: O.bifold, ease: "power3.out" }, O.bifoldAt)
         .add(() => {
+          openedRef.current = i;
           setOpen(i);
           send({ type: "OPENED", index: i });
         }, O.openedAt);
@@ -413,7 +417,10 @@ export function TutorialBrochure({ onStart, characterDisplayName }: TutorialBroc
       const play = playRefs.current[i]!;
       const C = T.close;
       const tl = gsap.timeline();
-      tl.add(() => setOpen(-1), 0);
+      tl.add(() => {
+        openedRef.current = -1;
+        setOpen(-1);
+      }, 0);
       tl.to(play, { rotationY: -92, duration: C.duration, ease: C.ease }, 0)
         .set(play, { opacity: 0 }, C.duration)
         .to(flip, { rotationY: 0, duration: C.duration, ease: C.ease }, 0)
@@ -428,7 +435,14 @@ export function TutorialBrochure({ onStart, characterDisplayName }: TutorialBroc
     (from: CardIndex) => {
       if (busyRef.current) return;
       busyRef.current = true;
-      const tl = gsap.timeline({ onComplete: () => (busyRef.current = false) });
+      // When the whole step has ended, measure the practice canvas again if card 3 is the open page. A resize
+      // during the turn was skipped by onResize, and a measure taken mid-turn reads a transformed box.
+      const tl = gsap.timeline({
+        onComplete: () => {
+          busyRef.current = false;
+          if (openedRef.current === 2) surfaceRef.current?.resizeForDpr();
+        },
+      });
       timelineRef.current = tl;
       const at = T.close.duration + T.pause;
       tl.add(closeTimeline(from), 0);
@@ -468,6 +482,8 @@ export function TutorialBrochure({ onStart, characterDisplayName }: TutorialBroc
         if (i === current) gsap.set(c, { scale: next.fit, x: (-next.pw / 2) * next.fit });
         else gsap.set(c, restPose(i, current, next));
       });
+      // The canvas is sized from its transformed box: measure it again at the new fit scale.
+      if (openedRef.current === 2) surfaceRef.current?.resizeForDpr();
     };
     window.addEventListener("resize", onResize);
     return () => {

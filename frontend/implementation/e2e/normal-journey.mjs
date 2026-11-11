@@ -4,7 +4,7 @@
 // Prediction is MOCK (deterministic fixture provider) and is reported as such.
 import fs from "node:fs";
 import path from "node:path";
-import { ROOT, startStaticServer, launch, gitInfo, onboardToLevels, enterLevel, drawScribble, submitAndDecide, placeByDrag, confirmPlacement, readGame, sleep, sha256, writeJson, playEnding , holdThumb } from "./lib/harness.mjs";
+import { ROOT, startStaticServer, launch, gitInfo, onboardToLevels, enterLevel, drawScribble, submitAndDecide, placeByDrag, confirmPlacement, readGame, sleep, sha256, writeJson, playEnding, holdThumb, press, enableSnaps } from "./lib/harness.mjs";
 
 const plans = JSON.parse(fs.readFileSync(path.join(ROOT, "e2e/lib/level-plans.json"), "utf8"));
 const RUN = new Date().toISOString().replace(/[:.]/g, "-");
@@ -21,6 +21,8 @@ const hookCheck = [];
 
 const { server, base } = await startStaticServer();
 const { browser, context, page, errors } = await launch({ videoDir: process.env.NO_VIDEO ? undefined : OUT, deviceScaleFactor: Number(process.env.DSF || 1) });
+// 2026-11-11: the showcase pictures of the new flow (1280x720) go to their own folder, first picture per name.
+enableSnaps(page, process.env.SHOTS_OUT || path.join(OUT, "shots"));
 let result = "FAIL", failure = null;
 
 const shot = async name => { await page.screenshot({ path: path.join(OUT, `${name}.png`) }).catch(() => {}); };
@@ -93,10 +95,15 @@ async function runLevel(stage) {
   const plan = plans[String(stage)];
   log(`=== LEVEL ${stage} ===`);
   await enterLevel(page, stage, m => log(m));
+  // Route (REVISI 18C): the canvas of a level lives at /canvasN, reached by pushState from /levelN (no reload).
+  await page.waitForURL(u => u.pathname === `/canvas${stage}`, { timeout: 15000 }).catch(() => {});
+  const routeNow = new URL(page.url()).pathname;
+  log(`L${stage}: canvas route`, routeNow);
+  if (routeNow !== `/canvas${stage}`) throw new Error(`L${stage}: expected route /canvas${stage}, got ${routeNow}`);
   await shot(`L${stage}-00-mission-and-canvas`);
   const decisions = [];
   for (const [ci, cycle] of plan.cycles.entries()) {
-    if (ci > 0) { await page.locator("[data-testid=btn-draw-again]").click(); log(`L${stage}: 'Ciptakan objek lagi' (cycle ${ci + 1})`); }
+    if (ci > 0) { await press(page, "btn-draw-again"); log(`L${stage}: 'Ciptakan objek lagi' (cycle ${ci + 1})`); }
     await drawScribble(page, ci % 2 ? "spike" : "block");
     // Cover both ways to say "selesai": the 2 s finish thumb (even cycles) and the Tebak Gambarku button (odd cycles).
     const submitVia = ci % 2 ? "button" : "finish";
@@ -117,14 +124,14 @@ async function runLevel(stage) {
       const partial = plan.steps.slice(0, stage === 2 ? 2 : 1);
       const r = await playSteps(stage, partial, { label: `L${stage}c${ci + 1} test-run` });
       log(`L${stage}c${ci + 1}: test-run result`, { x: +r.x.toFixed(1), y: +r.y.toFixed(1), outcome: r.outcome });
-      if (r.outcome) { await page.locator("[data-testid=btn-retry-cycle]").click(); }
+      if (r.outcome) { await press(page, "btn-retry-cycle"); }
     }
   }
   // Full attempt(s) with all objects placed.
   let win = false;
   for (let attempt = 1; attempt <= MAX_ATTEMPTS && !win; attempt++) {
     const g0 = await readGame(page);
-    if (g0.outcome) { await page.locator("[data-testid=btn-retry-cycle]").click(); await sleep(400); }
+    if (g0.outcome) { await press(page, "btn-retry-cycle"); await sleep(400); }
     const t = Date.now();
     let r = await playSteps(stage, plan.steps, { label: `L${stage} attempt ${attempt}` });
     if (!r.outcome) { await walkRightUntilOutcome(); r = await readGame(page); }
@@ -158,7 +165,7 @@ try {
     if (stage === ENDING_AFTER) {
       // 0.0.16 R9: after the final level the book opens the ending (Pusat Halaman) instead of the level list.
       await holdThumb(page, "btn-continue", { timeout: 8000 }).catch(() => {});
-      await playEnding(page, { choice: "finish", log: m => log(m) });
+      await playEnding(page, { log: m => log(m) });
       await shot("L3-06-ending-done");
       break;
     }

@@ -4,7 +4,7 @@
 //     second drawing/decision -> WIN. Also checks Redraw is not a 4th decision button on the Top-3 panel.
 import fs from "node:fs";
 import path from "node:path";
-import { ROOT, startStaticServer, launch, gitInfo, onboardToLevelsFast, enterLevel, drawScribble, submitAndDecide, placeByDrag, confirmPlacement, readGame, sleep, writeJson , holdThumb } from "./lib/harness.mjs";
+import { ROOT, startStaticServer, launch, gitInfo, onboardToLevelsFast, enterLevel, drawScribble, submitAndDecide, placeByDrag, confirmPlacement, readGame, sleep, writeJson, holdThumb, press } from "./lib/harness.mjs";
 
 const plans = JSON.parse(fs.readFileSync(path.join(ROOT, "e2e/lib/level-plans.json"), "utf8"));
 const RUN = new Date().toISOString().replace(/[:.]/g, "-");
@@ -46,7 +46,7 @@ const toCentre = c => [c.x + plans.objectSize.w / 2, c.y + plans.objectSize.h / 
 /** Second (and later) cycles of a level plan: draw again, decide, place. */
 async function placeSecond(stage, from = 1) {
   for (const cycle of plans[String(stage)].cycles.slice(from)) {
-    await page.locator("[data-testid=btn-draw-again]").click();
+    await press(page, "btn-draw-again");
     await drawScribble(page, "block");
     await submitAndDecide(page, { prefer: cycle.label, log: m => log(m) });
     await placeByDrag(page, ...toCentre(cycle)); await confirmPlacement(page);
@@ -73,13 +73,13 @@ try {
       check("Top-3 panel is compact (<= 340 px wide)", box && box.width <= 340, box && Math.round(box.width));
     },
   });
-  check("Decision immediately offers the object to the world ('Masukkan ke dunia')", await page.getByTestId("enter-world-popup").isVisible());
+  check("Decision puts the object on the canvas as a sticker (sticker-stamp, 'Lempar')", await page.getByTestId("sticker-stamp").isVisible());
   await placeByDrag(page, ...toCentre(plans["1"].cycles[0])); await confirmPlacement(page);
   // The fall is the student's test run with only the first object (a partial try is allowed).
   // 0.0.16 world: the placed balok now blocks the walk at the cliff edge, so the student first moves it
   // out of the way with the visible "Geser" control, then walks off the cliff.
   const geser = async (cx, cy) => {
-    await page.locator("[data-testid=reposition-0]").click();
+    await press(page, "btn-reposition");
     await page.waitForFunction(() => document.querySelector("[data-testid=game-canvas]")?.dataset.phase === "placing", null, { timeout: 8000 });
     await placeByDrag(page, cx, cy, { create: false }); await confirmPlacement(page);
   };
@@ -95,7 +95,7 @@ try {
   await page.locator("[data-testid=btn-retry-cycle]").waitFor({ state: "visible", timeout: 6000 }).catch(() => {}); // Momo's first bubble comes first, then the actions
   check("A: fail overlay offers retry / reposition / redraw", await page.locator("[data-testid=btn-retry-cycle]").isVisible() && await page.locator("[data-testid=btn-reposition]").isVisible() && await page.locator("[data-testid=btn-redraw-gameplay]").isVisible());
   await shot("A-01-fail-overlay");
-  await page.locator("[data-testid=btn-retry-cycle]").click(); await sleep(500);
+  await press(page, "btn-retry-cycle"); await sleep(500);
   const afterRetry = await readGame(page);
   check("A: retry respawns at checkpoint, gameplay phase, no stale outcome", afterRetry.phase === "gameplay" && !afterRetry.outcome && afterRetry.x < 80 && afterRetry.y < 300, afterRetry);
   // Put the balok back on its spot; minDrawings = 2, so the second object goes in before the winning run.
@@ -123,7 +123,7 @@ try {
   const reasonB = await page.locator("[data-testid=fail-reason]").textContent({ timeout: 3000 }).catch(() => null);
   check("B: touching the danger object FAILS with a danger reason", rb.outcome === "fail" && /berbahaya|bahaya/i.test(reasonB ?? ""), { outcome: rb.outcome, reasonB });
   await shot("B-02-danger-fail");
-  await page.locator("[data-testid=btn-redraw-gameplay]").click();
+  await press(page, "btn-redraw-gameplay");
   await page.locator("[data-testid=draw-canvas]").waitFor({ state: "visible", timeout: 10000 });
   check("B: Redraw returns to the drawing phase", true);
   await drawScribble(page, "block");
@@ -140,7 +140,7 @@ try {
   await confirmPlacement(page);
   // The earlier danger object is still in the world (by design: creations persist). The student
   // moves it away with the visible "Geser tali 1" control instead of it being silently deleted.
-  await page.locator("[data-testid=reposition-0]").click();
+  await press(page, "btn-reposition");
   await page.waitForFunction(() => document.querySelector("[data-testid=game-canvas]")?.dataset.phase === "placing", null, { timeout: 8000 });
   await placeByDrag(page, 130, 110, { create: false });
   await confirmPlacement(page);

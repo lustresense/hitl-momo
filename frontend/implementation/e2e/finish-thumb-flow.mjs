@@ -83,8 +83,8 @@ try {
   // 5) Terima (rank 1)
   const picked = await pickCandidate(page, 1);
   log(`picked: ${picked}`);
-  await page.locator("[data-testid=enter-world-popup]").waitFor({ state: "visible", timeout: 8000 }).catch(() => {});
-  check("Terima offers the object to the world ('Masukkan ke dunia')", await page.getByTestId("enter-world-popup").isVisible());
+  await page.locator("[data-testid=sticker-stamp]").waitFor({ state: "visible", timeout: 8000 }).catch(() => {});
+  check("Terima puts the object on the canvas as a sticker (sticker-stamp)", await page.getByTestId("sticker-stamp").isVisible());
   await shot("05-decision-accept");
 } catch (e) {
   failure = String(e?.stack || e);

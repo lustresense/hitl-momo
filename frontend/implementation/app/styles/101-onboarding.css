@@ -77,3 +77,23 @@
 .cover-fallback { display: grid; gap: 10px; justify-items: start; margin-top: 20px; }
 .cover-fallback__note { margin: 0; font-weight: 700; }
 
+
+/* V1: the PIP has no room for the cover's status line. Pin it to the top of the small card so it reads at 11 px,
+   and move the placeholder icon to the lower part so the two never sit on each other. */
+.global-camera-host.mode-floating .camera-status {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  z-index: 5;
+  max-width: none;
+  margin: 0;
+  padding: 2px 5px;
+  font-size: 11px;
+  line-height: 1.25;
+  pointer-events: none;
+}
+.global-camera-host.mode-floating .video-inner {
+  justify-content: flex-end !important;
+  padding-bottom: 10px !important;
+}

@@ -147,7 +147,7 @@ export function DrawingScreen({
   const isDrawingFlow = active || isProbe;
   const { companionRef, momoLayout } = useMomoCompanionLayout();
 
-  const focus = useCanvasFocus(showCanvasFocus && active && phase === "drawing" && !introCovers);
+  const focus = useCanvasFocus(showCanvasFocus && active && phase === "drawing" && !introCovers, level.levelId);
   const inkBlocked = focus.open || introCovers || stamped;
   // The canvas takes no ink while it is covered or a sticker waits on it: no stroke, eraser pass, undo or redo,
   // a hand pinch included. The hand reader keeps running; only the drawing is gated (DrawingSurface.setInkEnabled).

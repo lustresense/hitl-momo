@@ -32,3 +32,11 @@ Lapor ke Owner hanya saat milestone tuntas.
 - ZA selesai. Sisa: GameStage pakai hand.needsAttention (P2). PredictingScreen masih DwellButton+HandCursor (kursor) -> worker S1/ZB ganti ke GestureRing (Coba lagi/Gambar lagi via pose).
 - S1 selesai. Z2 (setelah P2+ZB): GameStage ~230 hapus EnterWorldPopup "Masukkan ke dunia" setelah Lempar + tes gamestage btn-enter-world; DrawingSurface.setInkEnabled(false) mematikan tinta DAN perintah (undo/redo/erase) -> dipakai fase fokus L6 dan stiker S1. Keputusan lead: submit tetap saat keputusan HITL (catatan keputusan; dicatat di dokumen). Predicting screen "Gambar lagi" = telapak (diterima).
 - VISUAL: cover tanpa kamera: kartu kamera tetap di tengah, Momo (tengah) menutupinya + bubble menimpa kartu. Perbaikan: saat bangun (tombol), kartu juga morph ke PIP kiri bawah. (probe b-15s.png)
+
+## Jawaban Owner 2026-11-11 (dicatat lead, kata-kata Owner diringkas)
+1. Label map Dias: ditunda, nanti Dias yang menyesuaikan.
+2. D-20261110-01..10: Owner minta penjelasan dulu (belum SETUJUI).
+3. Nama tokoh: tetap **Thinman** (pakai H).
+4. Waktu kirim data: saat siswa memilih tebakan Top-3 (gestur 1/2/3, 4 = override, 5 = gambar lagi) dan cincin konfirmasi penuh. Cincin itu sudah cukup, tidak perlu konfirmasi tambahan. Kode saat ini sudah begitu: `applyDecision` (`src/app/state-machine.ts`) memanggil `onDecisionApplied` → `SubmissionAdapter.handleDecisionApplied` → outbox, sebelum "Lempar". Tidak ada perubahan kode.
+5. Waktu cover sampai cincin pertama: Owner minta penjelasan.
+6. Promosi ke `main`: ditunda.

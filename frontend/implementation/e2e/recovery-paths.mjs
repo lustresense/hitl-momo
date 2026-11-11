@@ -79,7 +79,7 @@ try {
   // 0.0.16 world: the placed balok now blocks the walk at the cliff edge, so the student first moves it
   // out of the way with the visible "Geser" control, then walks off the cliff.
   const geser = async (cx, cy) => {
-    await press(page, "btn-reposition");
+    await page.locator("[data-testid=reposition-0]").click();
     await page.waitForFunction(() => document.querySelector("[data-testid=game-canvas]")?.dataset.phase === "placing", null, { timeout: 8000 });
     await placeByDrag(page, cx, cy, { create: false }); await confirmPlacement(page);
   };
@@ -95,7 +95,10 @@ try {
   await page.locator("[data-testid=btn-retry-cycle]").waitFor({ state: "visible", timeout: 6000 }).catch(() => {}); // Momo's first bubble comes first, then the actions
   check("A: fail overlay offers retry / reposition / redraw", await page.locator("[data-testid=btn-retry-cycle]").isVisible() && await page.locator("[data-testid=btn-reposition]").isVisible() && await page.locator("[data-testid=btn-redraw-gameplay]").isVisible());
   await shot("A-01-fail-overlay");
-  await press(page, "btn-retry-cycle"); await sleep(500);
+  await press(page, "btn-retry-cycle");
+  // Retry is a hold/press that resolves after the overlay closes; wait for the stale outcome to clear.
+  await page.waitForFunction(() => { const d = document.querySelector("[data-testid=game-canvas]")?.dataset; return d && d.phase === "gameplay" && !d.outcome; }, null, { timeout: 8000 }).catch(() => {});
+  await sleep(300);
   const afterRetry = await readGame(page);
   check("A: retry respawns at checkpoint, gameplay phase, no stale outcome", afterRetry.phase === "gameplay" && !afterRetry.outcome && afterRetry.x < 80 && afterRetry.y < 300, afterRetry);
   // Put the balok back on its spot; minDrawings = 2, so the second object goes in before the winning run.
@@ -107,7 +110,8 @@ try {
 
   // ---------- B) L3 danger -> fail -> Redraw -> win ----------
   await page.locator("[data-testid=success-chat][data-finished=true]").waitFor({ timeout: 25000 });
-  await holdThumb(page, "btn-continue"); // the thumb cue opens the level list
+  // The thumb cue opens the level list; the hand-over may also happen automatically (see normal-journey stage 2).
+  await holdThumb(page, "btn-continue", { timeout: 8000 }).catch(() => {});
   await page.locator(".level-card").nth(2).waitFor({ state: "visible", timeout: 15000 });
   await enterLevel(page, 3, m => log(m));
   await drawScribble(page, "spike");
@@ -140,7 +144,7 @@ try {
   await confirmPlacement(page);
   // The earlier danger object is still in the world (by design: creations persist). The student
   // moves it away with the visible "Geser tali 1" control instead of it being silently deleted.
-  await press(page, "btn-reposition");
+  await page.locator("[data-testid=reposition-0]").click();
   await page.waitForFunction(() => document.querySelector("[data-testid=game-canvas]")?.dataset.phase === "placing", null, { timeout: 8000 });
   await placeByDrag(page, 130, 110, { create: false });
   await confirmPlacement(page);

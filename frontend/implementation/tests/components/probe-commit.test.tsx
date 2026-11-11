@@ -1,16 +1,43 @@
-import { afterEach, describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { afterEach, beforeEach, describe, it, expect, vi } from "vitest";
+import { act, render, screen, cleanup } from "@testing-library/react";
 import { DecisionPanel } from "@/src/components/decision/DecisionPanel";
 import { LEVELS } from "@/src/domain/levels";
+import type { HandPose } from "@/src/input/hand-gesture";
+import { forceInputMode, resetInputModeForTest } from "@/src/input/input-mode";
+import { resetPose, setPose } from "./pose-stub";
 
-// Hand tracker stubbed: the decision buttons read the fingertip, and no camera exists in tests.
+// The decision rings read the hand pose (no camera exists in tests).
 vi.mock("@/src/hooks/useHandGesture", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/src/hooks/useHandGesture")>();
-  const stub = await import("./gesture-stub");
-  return { ...actual, useHandGesture: stub.useHandGestureStub };
+  const stub = await import("./pose-stub");
+  return { ...actual, useHandGesture: stub.usePoseStub };
 });
 
-afterEach(cleanup);
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "requestAnimationFrame", "cancelAnimationFrame", "performance", "Date"] });
+  resetInputModeForTest();
+  resetPose();
+  forceInputMode("camera");
+});
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
+
+function advance(ms: number) {
+  for (let t = 0; t < ms; t += 16) act(() => {
+    vi.advanceTimersByTime(16);
+  });
+}
+
+/** The ring arms on the empty hand first, then the pose is held for `ms` and released. */
+function hold(pose: HandPose, ms = 1600) {
+  advance(64);
+  act(() => setPose(pose));
+  advance(ms);
+  act(() => setPose("none"));
+  advance(64);
+}
 
 const prediction = { candidates: [{ label: "papan", confidence: 0.6 }, { label: "batu", confidence: 0.3 }, { label: "tangga", confidence: 0.1 }] } as const;
 
@@ -28,33 +55,34 @@ function setup() {
       onRedraw={vi.fn()}
     />,
   );
+  advance(64);
   return { onAccept, onCorrect, onOverride };
 }
 
-describe("Decision commits exactly once, on the decisive tap", () => {
-  it("Correct: a tap on rank 2 commits once; a second tap does nothing", () => {
+describe("Decision commits exactly once, on the decisive hold", () => {
+  it("Correct: a two-finger hold on rank 2 commits once; a second hold does nothing", () => {
     const { onCorrect } = setup();
-    const pick = () => screen.getByTestId("btn-correct-2");
-    fireEvent.click(pick());
-    fireEvent.click(pick());
+    hold("two-fingers");
+    hold("two-fingers");
     expect(onCorrect).toHaveBeenCalledTimes(1);
     expect(onCorrect).toHaveBeenCalledWith(2);
   });
 
   it("Override: choosing a label alone does not commit; Pakai commits", () => {
     const { onOverride } = setup();
-    fireEvent.click(screen.getByTestId("btn-override"));
-    fireEvent.click(screen.getByTestId("override-option-balok"));
+    hold("open-palm");
+    // balok is the first label outside the Top-3 here, so one finger picks it
+    hold("one-finger");
     expect(onOverride).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByTestId("override-confirm"));
+    hold("thumb-up", 2100);
     expect(onOverride).toHaveBeenCalledTimes(1);
     expect(onOverride).toHaveBeenCalledWith("balok");
   });
 
-  it("double tap emits one Accept", () => {
+  it("a held one-finger pose emits one Accept, however long it is held", () => {
     const { onAccept } = setup();
-    fireEvent.click(screen.getByTestId("btn-accept"));
-    fireEvent.click(screen.getByTestId("btn-accept"));
+    hold("one-finger", 1600);
+    advance(3000);
     expect(onAccept).toHaveBeenCalledTimes(1);
   });
 });

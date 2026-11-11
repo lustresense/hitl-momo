@@ -6,6 +6,7 @@ import { useEffect, useState, type MutableRefObject } from "react";
 import type { GameplayHandDriver, GameplayStatus } from "@/src/input/gameplay-hand-driver";
 import type { GameplayInput } from "./useGameplayInput";
 import type { GameStageProps, InputMode, StageOutcome, StagePhase } from "../game-stage-types";
+import { publishSteerAngle } from "../steer-reading";
 
 const PREPARING_CAMERA = "Menyiapkan kamera";
 
@@ -41,7 +42,8 @@ export function useHandControl({
   movePlacementToHandCursor,
   onHandFailed,
 }: UseHandControlOptions) {
-  const [status, setStatus] = useState("NUI NOT VERIFIED");
+  // The student never sees a developer label: the first status is the honest "preparing" one.
+  const [status, setStatus] = useState(PREPARING_CAMERA);
   const { arbiter, sendCombinedInput } = input;
   // Placing and gameplay share one reader. The phase change alone must not reload MediaPipe.
   const readerWanted = ready && mode === "camera" && !outcome && (phase === "placing" || phase === "gameplay");
@@ -59,15 +61,12 @@ export function useHandControl({
       if (cancelled) return;
       const video = document.querySelector<HTMLVideoElement>(".global-camera-host .camera-video");
       if (!video) {
-        setStatus("Kamera belum tersedia · NUI NOT VERIFIED");
+        setStatus("Kamera belum tersedia");
         onHandFailed();
         return;
       }
       driver = new DriverClass({
         video,
-        // Always on, so placing and gameplay can share one reader. The arbiter drops hand jump
-        // outside gameplay (handDragFrame), so a pinch that grabs the object never jumps.
-        enableJump: true,
         onStatus: (next) => {
           if (cancelled) return;
           setStatus(STATUS_TEXT[next]);
@@ -84,6 +83,8 @@ export function useHandControl({
         },
         onFrame: (frame) => {
           if (cancelled) return;
+          // The dial reads the finger angle; no direction (no hand, flat finger) shows as "not read".
+          publishSteerAngle(frame.tracked ? frame.angle : null);
           arbiter.dispatch({
             type: "hand-frame",
             frame: {
@@ -112,6 +113,7 @@ export function useHandControl({
     return () => {
       cancelled = true;
       void driver?.stop();
+      publishSteerAngle(null);
       sendCombinedInput();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

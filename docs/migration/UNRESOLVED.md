@@ -52,7 +52,7 @@ Daftar ini tidak diselesaikan oleh integrator sendiri. Setiap item butuh keputus
 |---|---|---|
 | E1 | Selesai gambar dengan tahan jempol, bukan auto-ask. Menggantikan R11 | Tahan 2 detik. Owner menyebut sekitar 3 detik, komponen hanya mendukung 1 atau 2 detik |
 | E2 | Mode kamera: kontrol tangan otomatis, tombol arah jadi indikator | Menyimpang dari tombol "Pakai keyboard" lama. Keyboard tetap aktif |
-| E3 | Level 4 "Pembuktian" (usulan saya, Owner belum memberi desain) | Tiga objek dibutuhkan. Teks dan nada Bab 4 draf. Tamat pindah ke setelah Bab 4 |
+| E3 | ~~Level 4 "Pembuktian"~~ | DIBATALKAN 2026-11-10: Owner menolak; hanya tiga level, tamat setelah Bab 3 |
 | E4 | Pijakan bawah Level 2 diperpanjang 58 ke 68 satuan | Perubahan gambar, supaya celah tidak lebih sempit dari badan pemain |
 | E5 | Tombol "melayang" 1,2 detik dan kursor tangan dipetakan x kali lebar jendela | Pemetaan kamera ke layar belum diuji dengan kamera |
 | E6 | Ambang gestur (cubit 0,42 masuk dan 0,55 keluar, kepal, dua jari, telapak terbelah, ukuran penghapus) | Tebakan dari landmark sintetis. Perlu kalibrasi pada tangan anak |

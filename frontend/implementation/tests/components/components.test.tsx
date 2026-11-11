@@ -1,5 +1,14 @@
-import { describe, expect, it, vi, afterEach } from "vitest";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { describe, expect, it, vi, afterEach, beforeEach } from "vitest";
+import { act, render, screen, fireEvent, cleanup } from "@testing-library/react";
+import type { HandPose } from "@/src/input/hand-gesture";
+import { forceInputMode, resetInputModeForTest } from "@/src/input/input-mode";
+import { resetHandGesture, setHandGesture } from "./gesture-stub";
+
+/** The decision rings read the hand pose from the same tracker stub as the rest of this file. */
+const FINGERS: Partial<Record<HandPose, number>> = { "one-finger": 1, "two-fingers": 2, "three-fingers": 3, "open-palm": 5 };
+function setPose(pose: HandPose) {
+  setHandGesture({ pose, fingerCount: FINGERS[pose] ?? 0, handVisible: pose !== "none", thumbUp: pose === "thumb-up", pinch: pose === "pinch" } as never);
+}
 import { Top3Panel } from "@/src/components/prediction/Top3Panel";
 import { DecisionPanel } from "@/src/components/decision/DecisionPanel";
 import { PredictingScreen } from "@/src/components/prediction/PredictingScreen";
@@ -52,10 +61,13 @@ describe("StudentRulerSelector", () => {
     render(<StudentRulerSelector onConfirm={onConfirm} />);
 
     expect(screen.getByRole("heading", { name: "GESER PENGGARIS SESUAI NOMOR ABSENMU" })).toBeTruthy();
+    // Momo's focus phase locks the ruler (BIGPROMPT 6.2): a key press does nothing yet.
+    // Moving, saving and the thumbs-up are covered in tests/components/ruler-confirm.test.tsx.
     const slider = screen.getByRole("slider", { name: "Nomor absen" });
     fireEvent.keyDown(slider, { key: "ArrowRight" });
-    expect(slider.getAttribute("aria-valuenow")).toBe("21");
-    expect(window.localStorage.getItem("sketchbook.studentNumber")).toBe("21");
+    // A new student starts at number 1 (BIGPROMPT 6.2 default), not 20.
+    expect(slider.getAttribute("aria-valuenow")).toBe("1");
+    expect(window.localStorage.getItem("sketchbook.studentNumber")).toBeNull();
 
     // PRD 0.0.16 R3: no "Lanjut ke Tutorial" button; confirmation is Momo's thumbs-up (tests/components/ruler-confirm.test.tsx).
     expect(screen.queryByRole("button", { name: /Lanjut ke Tutorial/ })).toBeNull();
@@ -106,12 +118,34 @@ describe("Top3Panel (TASK 08)", () => {
 });
 
 describe("DecisionPanel (TASK 09)", () => {
-  it("Correct: a tap on candidate 3 commits once with rank 3; no other decision fires", () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "requestAnimationFrame", "cancelAnimationFrame", "performance", "Date"] });
+    resetInputModeForTest();
+    resetHandGesture();
+    forceInputMode("camera");
+  });
+  afterEach(() => vi.useRealTimers());
+
+  const advance = (ms: number) => {
+    for (let t = 0; t < ms; t += 16) act(() => {
+      vi.advanceTimersByTime(16);
+    });
+  };
+  /** The ring arms on the empty hand first, then the pose is held for `ms` and released. */
+  const hold = (pose: HandPose, ms = 1600) => {
+    advance(64);
+    act(() => setPose(pose));
+    advance(ms);
+    act(() => setPose("none"));
+    advance(64);
+  };
+
+  it("Correct: a three-finger hold on candidate 3 commits once with rank 3; no other decision fires", () => {
     const onCorrect = vi.fn();
     const onAccept = vi.fn();
     render(<DecisionPanel prediction={RESULT} level={LEVEL} onAccept={onAccept} onCorrect={onCorrect} onOverride={() => {}} onRedraw={() => {}} />);
     expect(onCorrect).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: /tali/i }));
+    hold("three-fingers");
     expect(onCorrect).toHaveBeenCalledTimes(1);
     expect(onCorrect).toHaveBeenCalledWith(3);
     expect(onAccept).not.toHaveBeenCalled();
@@ -120,14 +154,14 @@ describe("DecisionPanel (TASK 09)", () => {
   it("Override list offers only labels outside the Top-3 and needs Pakai to commit", () => {
     const onOverride = vi.fn();
     render(<DecisionPanel prediction={RESULT} level={LEVEL} onAccept={() => {}} onCorrect={() => {}} onOverride={onOverride} onRedraw={() => {}} />);
-    fireEvent.click(screen.getByTestId("btn-override"));
+    hold("open-palm");
     expect(screen.queryByTestId("override-option-papan")).toBeNull();
     expect(screen.getByTestId("override-option-tangga")).toBeTruthy();
     expect(screen.getByTestId("override-option-ember")).toBeTruthy();
     expect(screen.queryByTestId("override-confirm")).toBeNull(); // nothing chosen yet
-    fireEvent.click(screen.getByTestId("override-option-ember"));
+    hold("two-fingers"); // ember is the second label offered: two fingers
     expect(onOverride).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByTestId("override-confirm"));
+    hold("thumb-up", 2100);
     expect(onOverride).toHaveBeenCalledTimes(1);
     expect(onOverride).toHaveBeenCalledWith("ember");
   });
@@ -135,7 +169,7 @@ describe("DecisionPanel (TASK 09)", () => {
   it("Redraw is a separate recovery action outside the three decisions", () => {
     const onRedraw = vi.fn();
     render(<DecisionPanel prediction={RESULT} level={LEVEL} onAccept={() => {}} onCorrect={() => {}} onOverride={() => {}} onRedraw={onRedraw} />);
-    fireEvent.click(screen.getByTestId("btn-redraw"));
+    hold("pinch");
     expect(onRedraw).toHaveBeenCalledTimes(1);
   });
 });
@@ -215,10 +249,10 @@ describe("GlobalCamera (Persistent Floating Camera)", () => {
 });
 
 describe("LevelRibbonBookmark shelf", () => {
-  it("renders four bookmarks on the spiral binding with a short heading", () => {
+  it("renders three bookmarks on the spiral binding with a short heading", () => {
     render(<LevelRibbonBookmark levels={LEVELS} onSelectLevel={vi.fn()} />);
     const list = screen.getByTestId("level-list");
-    expect(list.querySelectorAll(".bm-slot")).toHaveLength(4);
+    expect(list.querySelectorAll(".bm-slot")).toHaveLength(3);
     expect(screen.getByText("Pilih bab")).toBeTruthy();
     expect(screen.getByTestId("level-card-1").querySelector(".bm-outer--body")?.getAttribute("d")).toContain("L");
   });

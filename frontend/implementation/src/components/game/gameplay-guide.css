@@ -150,3 +150,64 @@
   padding: 0;
   justify-content: center;
 }
+
+/*
+ * Camera bar: icon-only direction lights, a speedometer for the finger direction, and the two
+ * gesture affordances. Contrast: the active band is dark green on paper (about 6.6:1), the words
+ * and needle are ink on paper.
+ */
+#screen-gameplay .stage-floating-controls .gameplay-controls__row .game-input-button.is-icon-only {
+  min-width: 56px;
+}
+
+.steer-dial {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 120px;
+  color: var(--nb-ink, #111111);
+}
+
+.steer-dial__svg {
+  display: block;
+  overflow: visible;
+}
+
+.steer-dial__track {
+  fill: none;
+  stroke: rgba(17, 17, 17, 0.2);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.steer-dial__band {
+  fill: none;
+  stroke: rgba(17, 17, 17, 0.4);
+  stroke-width: 6;
+}
+
+.steer-dial__band.is-active {
+  stroke: #356614;
+}
+
+.steer-dial__needle {
+  stroke: var(--nb-ink, #111111);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.steer-dial__hub {
+  fill: var(--nb-ink, #111111);
+}
+
+.steer-dial__text {
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+#screen-gameplay .stage-floating-controls .gameplay-controls__action .nb-icon {
+  flex: none;
+}

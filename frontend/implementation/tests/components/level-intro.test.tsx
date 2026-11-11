@@ -7,16 +7,30 @@ import { resetInputModeForTest } from "@/src/input/input-mode";
 import { resetThumbTrackerForTest, simulateThumb } from "@/src/camera/thumb-tracker";
 
 vi.mock("@/src/camera/hand-landmarker", () => ({ createHandLandmarker: vi.fn(() => new Promise(() => {})) }));
+vi.mock("gsap", async () => {
+  const { gsapClockStub } = await import("./gsap-clock-stub");
+  const gsap = gsapClockStub();
+  return { gsap, default: gsap };
+});
 
 beforeEach(() => {
-  // Reduced motion: no GSAP timing, the intro goes straight to the story.
+  // Reduced motion: the story is typed without letters, and the thumb and the rise run at their normal length.
   vi.stubGlobal("matchMedia", (q: string) => ({ matches: q.includes("reduce"), addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {} }));
   vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "setInterval", "clearInterval", "requestAnimationFrame", "cancelAnimationFrame", "performance", "Date"] });
   resetInputModeForTest();
   resetThumbTrackerForTest();
 });
 afterEach(() => { cleanup(); vi.useRealTimers(); vi.unstubAllGlobals(); });
-const advance = (ms: number) => { for (let t = 0; t < ms; t += 50) act(() => { vi.advanceTimersByTime(50); }); };
+const advance = (ms: number) => { for (let t = 0; t < ms; t += 25) act(() => { vi.advanceTimersByTime(25); }); };
+
+/** Runs the story until the thumb is on screen (its lines are typed and read first). */
+function advanceUntilThumb(limit = 180000) {
+  for (let t = 0; t < limit; t += 25) {
+    if (screen.queryByTestId("intro-continue")) return;
+    advance(25);
+  }
+  throw new Error("the thumb never appeared");
+}
 
 describe("LevelIntro (PRD 0.0.16 R6, R10, R15)", () => {
   it("story names the signpost, never the flag; nudge never orders", () => {
@@ -27,22 +41,25 @@ describe("LevelIntro (PRD 0.0.16 R6, R10, R15)", () => {
       expect(n).not.toMatch(/jangan|harus gambar|\(|\)/i);
     }
   });
-  it("after the story, the level catalog cards and a 1 s thumb lead to the sky", () => {
-    const onFinish = vi.fn();
-    const level = LEVELS[0]!;
-    render(<LevelIntro level={level} onFinish={onFinish} />);
+
+  it("the intro shows no picture cards: the drawing page offers them instead", () => {
+    render(<LevelIntro level={LEVELS[0]!} onFinish={vi.fn()} />);
+    advanceUntilThumb();
     expect(screen.queryByTestId("intro-cards")).toBeNull();
-    advance(9000);
-    const cards = screen.getByTestId("intro-cards");
-    for (const item of level.catalog) expect(cards.querySelector(`[data-testid="intro-card-${item.labelId}"] svg`)).not.toBeNull();
+    expect(document.querySelector("[data-testid^=intro-card-]")).toBeNull();
     expect(screen.getByTestId("intro-continue")).toBeTruthy();
   });
-  it("a thumbs-up during the nudge rises to the sky", () => {
+
+  it("a thumbs-up after the story rises to the sky and hands over", () => {
     const onFinish = vi.fn();
     render(<LevelIntro level={LEVELS[1]!} onFinish={onFinish} />);
-    advance(9000);
+    advanceUntilThumb();
+    act(() => simulateThumb(false));
+    advance(100); // the thumb is down first: the ring arms only after it has been seen down
     act(() => simulateThumb(true));
-    advance(1500);
-    expect(onFinish).toHaveBeenCalled();
+    advance(1200);
+    expect(screen.getByTestId("level-intro").getAttribute("data-phase")).toBe("rise");
+    advance(3500);
+    expect(onFinish).toHaveBeenCalledTimes(1);
   });
 });

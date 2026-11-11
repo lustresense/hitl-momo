@@ -20,6 +20,8 @@ export interface KaplayGameHandle {
   setPlacement(x: number, y: number): boolean;
   retry(): void;
   reposition(): void;
+  /** Turn the object being placed or the last placed object a quarter turn; false when not legal. */
+  rotate?(): boolean;
 }
 
 export interface KaplayGameOptions {

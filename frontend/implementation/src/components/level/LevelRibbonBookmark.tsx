@@ -38,7 +38,7 @@ const TAIL = 44;
 const SHADOW = 7;
 /** Offset of each ribbon's shadow; the ribbon's svg is this much wider than the ribbon. */
 export const RIBBON_SHADOW = SHADOW;
-/** Narrowest ribbon that still fits "Pembuktian" (the longest label) beside its edge. */
+/** Narrowest ribbon that keeps the longest label readable: "Lorong Kabut Penghapus" (Bab 3), longest word "Penghapus". Not measured in a browser. */
 export const MIN_RIBBON_W = 84;
 /** Width of the "Mulai Bab n" thumb pill under the next ribbon (ThumbConfirm, 14px text). It can be wider than a ribbon. */
 export const THUMB_PILL_W = 124;
@@ -65,7 +65,7 @@ const clamp = (value: number, low: number, high: number) => Math.max(low, Math.m
 
 /**
  * Ribbon size for a screen. A row must fit the page: its ribbons, their shadows, the gaps, and the thumb pill under
- * the next ribbon (the pill can be the widest item of its row). When four ribbons cannot keep a readable label in
+ * the next ribbon (the pill can be the widest item of its row). When the ribbons cannot keep a readable label in
  * one row, they wrap to two rows and get shorter, so the page stays near one screen tall. Pure, so tests can check
  * the arithmetic at any width.
  */

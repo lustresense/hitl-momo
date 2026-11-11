@@ -70,6 +70,16 @@ function statusToCode(status: number): ApiErrorCode {
   return "unknown";
 }
 
+/**
+ * The session token goes only to the class backend's relative /api/ paths.
+ * An absolute URL (possibly another origin) never gets it.
+ */
+export function isClassApiPath(path: string): boolean {
+  if (/^https?:\/\//i.test(path)) return false;
+  const clean = path.startsWith("/") ? path : `/${path}`;
+  return clean.startsWith("/api/");
+}
+
 export class HttpClient {
   private readonly baseUrl: string;
   private readonly timeoutMs: number;
@@ -89,13 +99,14 @@ export class HttpClient {
     return `${this.baseUrl}${cleanPath}`;
   }
 
-  private async buildHeaders(customHeaders?: Record<string, string>): Promise<Record<string, string>> {
+  private async buildHeaders(customHeaders: Record<string, string> | undefined, attachToken: boolean): Promise<Record<string, string>> {
     const headers: Record<string, string> = {
       "content-type": "application/json",
       ...(customHeaders ?? {}),
     };
 
-    if (this.tokenProvider && !headers["authorization"]) {
+    // Token only for the class backend's own /api/ paths (see isClassApiPath).
+    if (attachToken && this.tokenProvider && !headers["authorization"]) {
       try {
         const token = await this.tokenProvider();
         if (token) {
@@ -134,7 +145,7 @@ export class HttpClient {
     }
 
     try {
-      const headers = await this.buildHeaders(options.headers);
+      const headers = await this.buildHeaders(options.headers, isClassApiPath(path));
       const res = await this.fetchImpl(url, {
         method,
         headers,

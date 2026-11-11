@@ -1,4 +1,5 @@
-import type { DrawingInput, PredictionResult } from "../domain/types";
+import type { DrawingInput, PredictionCandidate, PredictionResult } from "../domain/types";
+import { lookupModelLabel } from "./label-map";
 import { CONTRACT_VERSION, CONTRACT_VERSION_HEADER, MODEL_VERSION_HEADER } from "./model-contract";
 import { PredictionError, type PredictionContext, type PredictionProvider } from "./prediction-provider";
 import { elapsedMs, makeProvenance, nowMs, sanitizeModelVersion } from "./provenance";
@@ -6,51 +7,45 @@ import type { PredictionProvenance } from "./provenance";
 import { validatePredictionResponse, type OutOfVocabularyPolicy } from "./validation";
 
 /**
- * TASK 07 — Partner integration edge (client adapter ONLY; no backend here).
+ * Partner integration edge (client adapter ONLY; no backend here).
  *
  * - Enabled only when a partner endpoint is configured (env/config).
  * - Calls the partner endpoint directly from the browser.
- * - Timeout/abort, non-2xx handling, runtime response validation,
- *   Top-3 + confidence validation, explicit mapping to internal result.
- * - The wire schema is PARTNER-TBD: this adapter implements the DRAFT contract in
- *   docs/execution/PARTNER_CONTRACT_ACTUAL.md until the real contract arrives.
+ * - Maps the model's class names (config.py, English) to Indonesian Top-3 labels.
+ *   The model's own label and confidence are kept: confidence is never changed.
+ * - Timeout, at most one retry for transient failures, honest Indonesian errors,
+ *   and an in-flight guard so a held thumbs-up cannot send the same drawing twice.
+ * - The wire schema is still a DRAFT (see contracts/openapi.json, /predict has no typed response).
  *
- * Nothing here is verified against a real partner endpoint (NOT TESTED beyond
- * injected fake fetch in tests/prediction/).
+ * Nothing here is verified against a real partner endpoint (tests use injected fake fetch).
  */
 export interface PartnerHttpPredictionProviderOptions {
   /** Partner endpoint URL. Required non-empty http(s) to construct. */
   endpoint: string;
-  /** Abort timeout in ms (default 8000). */
+  /** Abort timeout per attempt, in ms (default 8000). */
   timeoutMs?: number;
   /** Injectable fetch for tests. Defaults to global fetch (browser). */
   fetchImpl?: typeof fetch;
   /**
-   * Level vocabulary used for label normalisation (trim + case-insensitive
-   * match -> exact canonical spelling). Omit to keep partner labels as sent (trimmed).
+   * Optional level vocabulary for canonical spelling of labels (trim + case-insensitive).
+   * Not used for the model's classes: those are judged by the label map.
    */
   vocabulary?: readonly string[];
   /**
-   * PROPOSED: policy for labels outside `vocabulary`. Default "allow" (current
-   * behaviour: resolved later to the inert "unresolved" placeholder).
+   * "allow" (default): a label the label map does not know is shown as sent, with no gameLabel.
+   * "reject": such a label fails with PredictionError "out-of-vocabulary".
    */
   outOfVocabulary?: OutOfVocabularyPolicy;
-  /**
-   * Extra NON-SECRET static headers (e.g. X-Contract-Version). Must already be
-   * sanitized (see headers.ts); anything credential-like is not accepted by the env path.
-   */
+  /** Extra NON-SECRET static headers (e.g. X-Contract-Version). Sanitized in headers.ts. */
   extraHeaders?: Record<string, string>;
   /**
-   * Code-injected token provider for FUTURE authentication. When it returns a
-   * non-empty string the adapter sends `Authorization: Bearer <token>`.
-   * Never wired to env (a static client cannot keep a secret).
+   * Token provider. When it returns a non-empty string the adapter sends `Authorization: Bearer <token>`.
+   * env.ts passes it ONLY for /api/* on the class backend origin (sessionTokenAllowedFor). Never for /predict.
    */
   tokenProvider?: () => string | undefined | Promise<string | undefined>;
   /**
-   * PROPOSED / default OFF: add additive optional body fields
-   * `levelId`, `attemptId`, `contractVersion` and the `X-Contract-Version`
-   * header. Off by default because the partner has not agreed to them and a
-   * strict partner schema/CORS allow-list could reject unknown fields/headers.
+   * PROPOSED / default OFF: add additive optional body fields `levelId`, `attemptId`,
+   * `contractVersion` and the `X-Contract-Version` header. The partner has not agreed to them.
    */
   sendContext?: boolean;
   /** Supplies levelId/attemptId when predict() is called without an explicit context. */
@@ -59,6 +54,11 @@ export interface PartnerHttpPredictionProviderOptions {
   contractVersion?: string;
   /** Called with the provenance of every successful prediction (telemetry tap). Never throws into predict(). */
   onProvenance?: (provenance: PredictionProvenance) => void;
+  /**
+   * Extra attempts after a transient failure: network error, HTTP 5xx or 429. Default 1.
+   * Never retried: timeout (the student already waited), 4xx (the drawing was refused), malformed body.
+   */
+  maxRetries?: number;
 }
 
 function isAbortError(err: unknown): boolean {
@@ -67,8 +67,27 @@ function isAbortError(err: unknown): boolean {
   return name === "AbortError" || name === "TimeoutError";
 }
 
+/** Failures worth one more try. Prediction has no side effects, so a retry is safe. */
+function isTransient(err: unknown): boolean {
+  if (!(err instanceof PredictionError)) return false;
+  if (err.reason === "unknown") return true;
+  if (err.reason === "provider-unavailable" && err.httpStatus !== undefined) {
+    return err.httpStatus >= 500 || err.httpStatus === 429;
+  }
+  return false;
+}
+
+function httpFailureMessage(status: number): string {
+  if (status >= 500 || status === 429) return "Model sedang tidak tersedia. Coba lagi, ya.";
+  return "Model tidak bisa membaca gambar ini. Coba gambar ulang, ya.";
+}
+
+type Top3 = PredictionResult["candidates"];
+
 export class PartnerHttpPredictionProvider implements PredictionProvider {
   private readonly fetchImpl: typeof fetch;
+  /** The request currently in flight, keyed by its body. Lets an identical call share it. */
+  private inFlight: { key: string; promise: Promise<PredictionResult> } | null = null;
 
   constructor(private readonly options: PartnerHttpPredictionProviderOptions) {
     if (!options.endpoint || !/^https?:\/\//i.test(options.endpoint)) {
@@ -78,7 +97,31 @@ export class PartnerHttpPredictionProvider implements PredictionProvider {
   }
 
   async predict(input: DrawingInput, context?: PredictionContext): Promise<PredictionResult> {
+    const body = this.buildBody(input, context);
+    const key = JSON.stringify(body);
+    // A second identical call while the first is running (e.g. a held thumbs-up) gets the same answer.
+    if (this.inFlight && this.inFlight.key === key) return this.inFlight.promise;
+
     const startedAt = nowMs();
+    const promise: Promise<PredictionResult> = this.predictWithRetry(body, startedAt).finally(() => {
+      if (this.inFlight?.promise === promise) this.inFlight = null;
+    });
+    this.inFlight = { key, promise };
+    return promise;
+  }
+
+  private async predictWithRetry(body: Record<string, unknown>, startedAt: number): Promise<PredictionResult> {
+    const maxRetries = Math.max(0, this.options.maxRetries ?? 1);
+    for (let retries = 0; ; retries++) {
+      try {
+        return await this.attempt(body, startedAt);
+      } catch (err) {
+        if (retries >= maxRetries || !isTransient(err)) throw err;
+      }
+    }
+  }
+
+  private async attempt(body: Record<string, unknown>, startedAt: number): Promise<PredictionResult> {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), this.options.timeoutMs ?? 8000);
     try {
@@ -86,15 +129,11 @@ export class PartnerHttpPredictionProvider implements PredictionProvider {
       const res = await this.fetchImpl(this.options.endpoint, {
         method: "POST",
         headers,
-        body: JSON.stringify(this.buildBody(input, context)),
+        body: JSON.stringify(body),
         signal: controller.signal,
       });
       if (!res.ok) {
-        throw new PredictionError(
-          "provider-unavailable",
-          `Endpoint partner merespons ${res.status}.`,
-          res.status,
-        );
+        throw new PredictionError("provider-unavailable", httpFailureMessage(res.status), res.status);
       }
       let payload: unknown;
       try {
@@ -102,14 +141,14 @@ export class PartnerHttpPredictionProvider implements PredictionProvider {
       } catch (jsonErr) {
         // An abort/timeout while the body streams is a timeout, not a bad body.
         if (isAbortError(jsonErr) || controller.signal.aborted) {
-          throw new PredictionError("timeout", "Permintaan ke partner melebihi batas waktu.");
+          throw new PredictionError("timeout", "Model terlalu lama menjawab. Coba lagi, ya.");
         }
-        throw new PredictionError("malformed-response", "Respons partner bukan JSON valid.");
+        throw new PredictionError("malformed-response", "Jawaban model tidak bisa dibaca. Coba lagi, ya.");
       }
-      const validated = validatePredictionResponse(payload, {
-        vocabulary: this.options.vocabulary,
-        outOfVocabulary: this.options.outOfVocabulary,
-      });
+      // Structural checks only (3 candidates, confidence in [0,1], sorted, unique). Label judgement follows.
+      const validated = validatePredictionResponse(payload, { vocabulary: this.options.vocabulary });
+      const candidates = this.toTop3(validated.candidates);
+
       const headerModelVersion = sanitizeModelVersion(res.headers?.get?.(MODEL_VERSION_HEADER));
       const modelVersion =
         headerModelVersion ??
@@ -121,7 +160,7 @@ export class PartnerHttpPredictionProvider implements PredictionProvider {
         /* telemetry tap must never break prediction */
       }
       return {
-        ...validated,
+        candidates,
         ...(validated.predictionId ? { predictionId: validated.predictionId } : {}),
         ...(modelVersion ? { modelVersion } : {}),
         ...(validated.contractVersion ? { contractVersion: validated.contractVersion } : {}),
@@ -129,16 +168,30 @@ export class PartnerHttpPredictionProvider implements PredictionProvider {
       };
     } catch (err) {
       if (err instanceof PredictionError) throw err;
-      if (isAbortError(err)) {
-        throw new PredictionError("timeout", "Permintaan ke partner melebihi batas waktu.");
+      if (isAbortError(err) || controller.signal.aborted) {
+        throw new PredictionError("timeout", "Model terlalu lama menjawab. Coba lagi, ya.");
       }
-      throw new PredictionError(
-        "unknown",
-        err instanceof Error ? err.message : "Kegagalan jaringan tidak diketahui.",
-      );
+      throw new PredictionError("unknown", "Tidak bisa tersambung ke model. Periksa koneksi, lalu coba lagi.");
     } finally {
       clearTimeout(timeout);
     }
+  }
+
+  /** Model class -> Top-3 shown to students. Order and confidence are the model's, untouched. */
+  private toTop3(raw: PredictionResult["candidates"]): Top3 {
+    const unknown: string[] = [];
+    const mapped: PredictionCandidate[] = raw.map((c) => {
+      const entry = lookupModelLabel(c.label);
+      if (!entry) {
+        unknown.push(c.label);
+        return { label: c.label, confidence: c.confidence, modelLabel: c.label, gameLabel: null };
+      }
+      return { label: entry.displayName, confidence: c.confidence, modelLabel: c.label, gameLabel: entry.gameLabel };
+    });
+    if (this.options.outOfVocabulary === "reject" && unknown.length > 0) {
+      throw new PredictionError("out-of-vocabulary", `Model mengenali benda di luar daftarnya: ${unknown.join(", ")}.`);
+    }
+    return mapped as Top3;
   }
 
   private async buildHeaders(): Promise<Record<string, string>> {

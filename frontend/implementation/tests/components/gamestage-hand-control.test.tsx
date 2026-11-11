@@ -9,16 +9,20 @@ import { GameStage } from "@/src/components/game/GameStage";
 import { LEVELS } from "@/src/domain/levels";
 import { resetSharedStreamForTest, setSharedStream } from "@/src/camera/shared-stream";
 import type { Landmark } from "@/src/input/types";
+import { pointingHand } from "../input/gameplay-fixtures";
 
 // The next frame "sees" this hand (undefined = no hand in view).
-const mp = vi.hoisted(() => ({ hand: undefined as Landmark[] | undefined }));
+const mp = vi.hoisted(() => ({ hand: undefined as Landmark[] | undefined, created: 0 }));
 vi.mock("@mediapipe/tasks-vision", () => ({
   FilesetResolver: { forVisionTasks: async () => ({}) },
   HandLandmarker: {
-    createFromOptions: async () => ({
-      detectForVideo: () => ({ landmarks: mp.hand ? [mp.hand] : [] }),
-      close: () => undefined,
-    }),
+    createFromOptions: async () => {
+      mp.created++;
+      return {
+        detectForVideo: () => ({ landmarks: mp.hand ? [mp.hand] : [] }),
+        close: () => undefined,
+      };
+    },
   },
 }));
 
@@ -35,19 +39,7 @@ vi.mock("@/src/game/game-controller", () => ({
   },
 }));
 
-/**
- * Hand seen by the student. `side` is where the index fingertip sits on the student's screen
- * (0 = far left, 1 = far right); the camera image is mirrored, so the raw x is 1 - side.
- * Hand span is 0.2, so a thumb gap of 0.2 is a pinch (ratio 1.0 is open).
- */
-function hand(side: number, pinchGap = 1): Landmark[] {
-  const lm: Landmark[] = Array.from({ length: 21 }, () => ({ x: 0.5, y: 0.5 }));
-  lm[0] = { x: 0.5, y: 0.9 };
-  lm[9] = { x: 0.5, y: 0.7 };
-  lm[8] = { x: 1 - side, y: 0.4 };
-  lm[4] = { x: 1 - side - pinchGap * 0.2, y: 0.4 };
-  return lm;
-}
+// Hands are built with pointingHand(angle): the index finger's direction on the student's screen.
 
 let video: HTMLVideoElement;
 let frameClock = 0;
@@ -96,7 +88,13 @@ const everSentJump = () => ctl.setInput.mock.calls.some(([i]) => (i as { jump: b
  */
 async function settle() {
   await act(async () => {
-    await vi.waitFor(() => expect(rafQueue.length).toBeGreaterThan(0), { timeout: 3000, interval: 5 });
+    // Both: the model exists AND the driver has queued its first frame. A queued rAF alone can be
+    // another component's frame, which would let the steps run before the driver loop starts.
+    await vi.waitFor(() => {
+      expect(mp.created).toBeGreaterThan(0);
+      expect(rafQueue.length).toBeGreaterThan(0);
+    }, { timeout: 3000, interval: 5 });
+    await new Promise((resolve) => setTimeout(resolve, 0));
   });
 }
 
@@ -128,6 +126,7 @@ async function startInCamera(phase: "placing" | "gameplay") {
 
 beforeEach(() => {
   mp.hand = undefined;
+  mp.created = 0;
   ctl.setInput.mockClear();
   resetSharedStreamForTest();
   setSharedStream(liveStream());
@@ -152,35 +151,40 @@ describe("hand control reaches Thinman in the gameplay phase", () => {
   it("hand on the left side -> left, right side -> right, centre -> stop", async () => {
     await startInCamera("gameplay");
 
-    mp.hand = hand(0.2);
+    mp.hand = pointingHand(170);
     for (let i = 0; i < 4; i++) stepFrame();
     expect(lastInput()).toEqual({ left: true, right: false, jump: false });
 
-    mp.hand = hand(0.8);
+    mp.hand = pointingHand(10);
     for (let i = 0; i < 4; i++) stepFrame();
     expect(lastInput()).toEqual({ left: false, right: true, jump: false });
 
-    mp.hand = hand(0.5);
+    mp.hand = pointingHand(-60);
     for (let i = 0; i < 4; i++) stepFrame();
     expect(lastInput()).toEqual({ left: false, right: false, jump: false });
   });
 
-  it("a held pinch is jump, and opening the hand ends it", async () => {
+  it("a finger pointing straight up is a jump, and lowering it ends the jump", async () => {
     await startInCamera("gameplay");
 
-    mp.hand = hand(0.5, 0.2);
+    mp.hand = pointingHand(90);
     for (let i = 0; i < 6; i++) stepFrame();
     expect(lastInput()).toEqual({ left: false, right: false, jump: true });
 
-    mp.hand = hand(0.5, 1);
+    mp.hand = pointingHand(-60);
     for (let i = 0; i < 3; i++) stepFrame();
     expect(lastInput().jump).toBe(false);
+  });
+
+  it("the hand status never shows the old 'NUI NOT VERIFIED' label to the student", async () => {
+    await startInCamera("gameplay");
+    expect(screen.queryByText(/NUI NOT VERIFIED/)).toBeNull();
   });
 
   it("losing the hand stops Thinman at once", async () => {
     await startInCamera("gameplay");
 
-    mp.hand = hand(0.2);
+    mp.hand = pointingHand(170);
     for (let i = 0; i < 4; i++) stepFrame();
     expect(lastInput().left).toBe(true);
 
@@ -192,12 +196,12 @@ describe("hand control reaches Thinman in the gameplay phase", () => {
   it("the on-screen direction button lights up while the hand gives that direction", async () => {
     await startInCamera("gameplay");
 
-    mp.hand = hand(0.2);
+    mp.hand = pointingHand(170);
     for (let i = 0; i < 4; i++) stepFrame();
     expect(screen.getByTestId("move-left").classList.contains("is-hand-active")).toBe(true);
     expect(screen.getByTestId("move-right").classList.contains("is-hand-active")).toBe(false);
 
-    mp.hand = hand(0.5);
+    mp.hand = pointingHand(-60);
     for (let i = 0; i < 4; i++) stepFrame();
     expect(screen.getByTestId("move-left").classList.contains("is-hand-active")).toBe(false);
   });
@@ -207,7 +211,9 @@ describe("hand control reaches Thinman in the gameplay phase", () => {
     const guide = screen.getByTestId("control-guide");
     expect(guide.getAttribute("data-mode")).toBe("camera");
     expect(guide.textContent).toContain("Pakai tanganmu");
-    expect(screen.getByTestId("guide-card-jump").textContent).toContain("Satukan telunjuk dan jempol untuk lompat.");
+    expect(screen.getByTestId("guide-card-jump").textContent).toContain(
+      "Telunjuk tegak ke atas untuk lompat. Miring ke kiri atau kanan untuk lompat sambil jalan.",
+    );
   });
 });
 
@@ -215,7 +221,7 @@ describe("placing the object keeps the pinch for grabbing", () => {
   it("a pinch while placing never sends a jump", async () => {
     await startInCamera("placing");
 
-    mp.hand = hand(0.5, 0.2);
+    mp.hand = pointingHand(0, { pinchGap: 0.2 });
     for (let i = 0; i < 8; i++) stepFrame();
     expect(everSentJump()).toBe(false);
   });

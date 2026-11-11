@@ -11,6 +11,6 @@ export class GameController {
  setPlacement(x:number,y:number):boolean{return this.handle?.setPlacement(x,y)??false;}
  commitPlacementAt(x:number,y:number):boolean{return this.handle?.commitPlacementAt(x,y)??false;}
  selectCreation(id:string){return this.handle?.selectCreation?.(id)??false;}
- retry(){this.handle?.retry();}reposition(){this.handle?.reposition();}
+ retry(){this.handle?.retry();}reposition(){this.handle?.reposition();}rotate():boolean{return this.handle?.rotate?.()??false;}
  unmount(){this.generation++;this.handle?.destroy();this.handle=null;}
 }

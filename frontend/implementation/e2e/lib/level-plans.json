@@ -101,45 +101,5 @@
         "hold": 29
       }
     ]
-  },
-  "4": {
-    "cycles": [
-      {
-        "label": "papan",
-        "behavior": "solid",
-        "x": 166,
-        "y": 223
-      },
-      {
-        "label": "balok",
-        "behavior": "solid",
-        "x": 330,
-        "y": 163
-      },
-      {
-        "label": "tangga",
-        "behavior": "solid",
-        "x": 470,
-        "y": 103
-      }
-    ],
-    "steps": [
-      {
-        "launchX": 87,
-        "hold": 26
-      },
-      {
-        "launchX": 251,
-        "hold": 26
-      },
-      {
-        "launchX": 389,
-        "hold": 26
-      },
-      {
-        "launchX": 547,
-        "hold": 26
-      }
-    ]
   }
 }

@@ -6,7 +6,8 @@ import { HandStrokePipeline, type HandCursor, type HandFrame } from "./hand-stro
 import { ERASER_RADIUS_PX, fixedEraserControl, type EraserControl } from "./eraser";
 import { getSharedStream, subscribeSharedStream } from "../camera/shared-stream";
 import { publishHand, retireHand, startHandHeartbeat } from "../camera/hand-cursor-store";
-import { createHandLandmarker, delegateLabel } from "../camera/hand-landmarker";
+import { delegateLabel } from "../camera/hand-landmarker";
+import { takeHandLandmarker } from "../camera/landmarker-warmup";
 import { classifyCameraError, messageFor, type CameraFailureReason } from "../camera/messages";
 
 export { ERASER_RADIUS_PX };
@@ -104,7 +105,7 @@ export class HandDrawingDriver {
       this.watchBorrowedStream();
 
       // Two hands: one draws or erases (the fist or the pinch), the other sets the eraser size.
-      const created = await createHandLandmarker({
+      const created = await takeHandLandmarker({
         wasmRoot: this.options.wasmRoot ?? "/mediapipe/wasm",
         modelUrl: this.options.modelUrl,
         numHands: 2,
@@ -299,7 +300,7 @@ function cursorHandOf(hands: Landmark[][] | undefined): Landmark[] | undefined {
 export const CAMERA_STALL_MS = 500;
 
 /** Poses that are commands, never ink: a pinch-like thumb/index distance inside them must not draw. */
-const COMMAND_POSES: ReadonlySet<HandPose> = new Set(["fist", "two-fingers", "split-palm", "thumb-up"]);
+const COMMAND_POSES: ReadonlySet<HandPose> = new Set(["fist", "one-finger", "two-fingers", "three-fingers", "split-palm", "thumb-up"]);
 
 /** Classify the pose once, report it, and suppress ink while a command pose is shown (single-frame helper). */
 export function gateFrameByPose(

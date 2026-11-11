@@ -8,7 +8,8 @@
 .tut-skip:focus-visible { outline: 3px solid var(--nb-sky); outline-offset: 2px; }
 .tut-stage { position: absolute; inset: 0; perspective: 1700px; }
 
-.tut-card { position: absolute; left: 50%; top: 50%; width: var(--gw); height: var(--oh); margin-left: calc(var(--gw) / -2); margin-top: calc(var(--oh) / -2); transform-style: preserve-3d; }
+/* --cy is the book's vertical centre (TutorialBrochure applyLayout): the bottom 22% stays free for the camera and Momo. */
+.tut-card { position: absolute; left: 50%; top: var(--cy, 50%); width: var(--gw); height: var(--oh); margin-left: calc(var(--gw) / -2); margin-top: calc(var(--oh) / -2); transform-style: preserve-3d; }
 .tut-flip { position: absolute; inset: 0; transform-style: preserve-3d; }
 .tut-face { position: absolute; inset: 0; border: 4px solid var(--nb-ink); border-radius: 20px; box-shadow: 8px 8px 0 var(--nb-ink); overflow: hidden; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
 

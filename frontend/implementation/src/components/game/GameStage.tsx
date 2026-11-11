@@ -95,6 +95,7 @@ export function GameStage(props: GameStageProps) {
     setPosition: placement.setPosition,
     setPlacementY: placement.setPlacementY,
     setPlacementError: placement.setPlacementError,
+    setAngle: placement.setAngle,
     onRetry: props.onRetry,
     onRedraw: props.onRedraw,
     onCreateAnotherObject: props.onCreateAnotherObject,
@@ -143,9 +144,14 @@ export function GameStage(props: GameStageProps) {
           onPress={input.pressPointer}
           onRelease={input.releasePointer}
           onReposition={actions.reposition}
+          onMoveRequest={actions.reposition}
+          onRotateRequest={actions.rotateCreation}
           guideOpen={guide.open}
           onToggleGuide={guide.toggle}
         />
+      )}
+      {phase === "gameplay" && !outcome && placement.placementError && (
+        <p className="placement-controls__error" role="status">{placement.placementError}</p>
       )}
       {phase === "gameplay" && !outcome && guide.open && (
         <ControlGuide mode={mode} onClose={guide.close} />

@@ -1,6 +1,6 @@
 import type { DecisionType, StrokePoint } from "@/src/domain/types";
 
-/** What the closing (R9) needs per finished level; world stores it in useLevelSession. */
+/** What the closing needs per finished level; world stores it in useLevelSession. */
 export interface LevelRecap {
   levelId: string;
   /** Short chapter title shown above the object, e.g. "Bab 1". */
@@ -14,6 +14,10 @@ export interface LevelRecap {
   decision: DecisionType;
   /** Momo's rank 1 guess, from the provider. */
   firstGuess: string;
+  /** Confidence of that guess in [0,1], when the provider gave one. Shown as a percent only when present. */
+  firstGuessConfidence?: number;
+  /** Redraws on this level, when the flow recorded them. Missing = "tidak tercatat". */
+  redrawCount?: number;
 }
 
 export type EndingChoice = "again" | "finish";
@@ -24,15 +28,23 @@ export const DECISION_TEXT: Record<DecisionType, string> = {
   override: "Bukan semua",
 };
 
-export const EPILOG_LINES = [
-  "Dulu aku pikir aku harus selalu benar.",
-  "Ternyata yang penting ada yang mau mengoreksiku.",
-  "Kalau ketemu AI lain, jangan langsung percaya ya. Cek dulu.",
-] as const;
-
 /** Stage order of the closing. Durations in ms for the timed (non-interactive) stages. */
-export type EndingStage = "page" | "alive" | "overview" | "epilog" | "choice";
-export const ENDING_TIMING = { page: 2200, alive: 5200 } as const;
+export type EndingStage = "portal" | "talk" | "recap" | "quiz" | "finish";
+
+/**
+ * Portal timeline (ms from the start of the portal). The CSS in ending-flow.css uses the same numbers.
+ * Full length is kept on reduced motion: only the repeated glints and the bob amplitude are reduced.
+ */
+export const ENDING_TIMING = {
+  /** Thinman starts walking in. */
+  walkIn: 600,
+  /** Thinman is inside the portal; the glints flash. */
+  inside: 3200,
+  /** Thinman steps out alive. Momo reacts. */
+  out: 4200,
+  /** The portal is over; Momo starts her overview. */
+  portal: 7000,
+} as const;
 
 /** Fit strokes into a box, keeping aspect. Pure, for rendering the student's drawing small. */
 export function strokesToPath(strokes: StrokePoint[][], w: number, h: number, pad = 6): string {

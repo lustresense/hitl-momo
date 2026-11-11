@@ -1,5 +1,5 @@
-/* DecisionPanel: the candidates and the decisions as one stack of big NUI targets, 12 px apart so a resting
-   fingertip on one never fills its neighbour. Scoped to .nui-decision so the older Top-3 styles stay as they are
+/* DecisionPanel: the candidates and the decisions as one stack of big NUI targets, 12 px apart. Each one is a
+   finger pose ring, so one pose only ever fills its own ring. Scoped to .nui-decision so the older Top-3 styles stay as they are
    for the display-only list. */
 .nui-decision {
   display: flex;
@@ -9,8 +9,8 @@
   width: 100%;
 }
 
-/* Candidates: the Top-3 list in decision mode. Selectors are deliberately longer than the older Top-3 popup
-   rules in app/styles/85 and 97, which target the same classes inside .prediction-hitl-popup. */
+/* Candidates: the Top-3 list in decision mode, one GestureRing per candidate. Selectors are deliberately longer than
+   the older Top-3 popup rules in app/styles/85 and 97, which target the same classes inside .prediction-hitl-popup. */
 .nui-decision .top3 {
   flex: none;
   gap: 12px;
@@ -19,7 +19,7 @@
   list-style: none;
 }
 .nui-decision .top3-slot { margin: 0; padding: 0; list-style: none; }
-.nui-decision .top3-item.dwell-btn {
+.nui-decision .top3-item.gesture-ring {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -29,14 +29,14 @@
   box-shadow: 3px 3px 0 var(--nb-ink, #111111);
   transform: none;
 }
-.nui-decision .top3-item.dwell-btn:hover { transform: translateY(-1px); }
-.nui-decision .top3-item-rank1.dwell-btn { background: var(--nb-leaf-soft, #eff3db); }
-.nui-decision .top3-item.dwell-btn .top3-item__rank {
+.nui-decision .top3-item.gesture-ring:hover { transform: translateY(-1px); }
+.nui-decision .top3-item-rank1.gesture-ring { background: var(--nb-leaf-soft, #eff3db); }
+.nui-decision .top3-item.gesture-ring .top3-item__rank {
   font-weight: 900;
   font-size: 18px;
   line-height: 1;
 }
-.nui-decision .top3-item.dwell-btn .top3-item__body {
+.nui-decision .top3-item.gesture-ring .top3-item__body {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas:
@@ -49,7 +49,7 @@
   width: 100%;
   min-width: 0;
 }
-.nui-decision .top3-item.dwell-btn .top3-item__verb {
+.nui-decision .top3-item.gesture-ring .top3-item__verb {
   grid-area: verb;
   display: flex;
   align-items: center;
@@ -58,14 +58,14 @@
   font-weight: 800;
   color: var(--nb-ink, #111111);
 }
-.nui-decision .top3-item.dwell-btn .top3-item__body .label {
+.nui-decision .top3-item.gesture-ring .top3-item__body .label {
   grid-area: label;
   font-size: 18px;
   font-weight: 900;
   overflow-wrap: anywhere;
   color: var(--nb-ink, #111111);
 }
-.nui-decision .top3-item.dwell-btn .top3-item__body .conf-num {
+.nui-decision .top3-item.gesture-ring .top3-item__body .conf-num {
   grid-area: pct;
   font-size: 15px;
   font-weight: 800;
@@ -73,7 +73,7 @@
   font-variant-numeric: tabular-nums;
   color: var(--nb-ink, #111111);
 }
-.nui-decision .top3-item.dwell-btn .top3-item__body .conf-bar {
+.nui-decision .top3-item.gesture-ring .top3-item__body .conf-bar {
   grid-area: bar;
   display: block;
   height: 10px;
@@ -82,13 +82,13 @@
   background: #ffffff;
   overflow: hidden;
 }
-.nui-decision .top3-item.dwell-btn .top3-item__body .conf-fill {
+.nui-decision .top3-item.gesture-ring .top3-item__body .conf-fill {
   display: block;
   height: 100%;
   background: var(--nb-ring-fill, #4a8c1f);
 }
 /* The star sits in the verb row of the rank-1 candidate, so it never covers the percentage. */
-.nui-decision .top3-item.dwell-btn .top3-item__body .rank1-badge {
+.nui-decision .top3-item.gesture-ring .top3-item__body .rank1-badge {
   display: inline-grid;
   place-items: center;
   width: 22px;
@@ -120,5 +120,6 @@
 .nui-choice { min-height: 56px; }
 .nui-decision__confirm { min-height: 56px; }
 
-/* Gambar ulang sits last, quieter than the decisions. */
-.nui-decision__redraw { min-height: 56px; }
+/* Gambar lagi is the recovery, not a fourth decision: it sits last, a little apart, and smaller than the decision
+   targets. It stays a ring, at the 44 px touch minimum. Two classes so it beats the ring's own 64 px minimum. */
+.nui-decision .nui-decision__redraw { min-height: 48px; margin-top: 4px; font-size: 15px; }

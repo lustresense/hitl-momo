@@ -30,7 +30,7 @@ describe("Momo script line length (brief e)", () => {
   });
 
   it("world intro lines are at most 90 characters too (the stage 3 story line was 92)", () => {
-    for (const stage of [1, 2, 3, 4]) {
+    for (const stage of [1, 2, 3]) {
       for (const line of introLines(stage, "Thinman")) {
         expect(line.length, `stage ${stage}: ${line}`).toBeLessThanOrEqual(MAX_LINE);
       }

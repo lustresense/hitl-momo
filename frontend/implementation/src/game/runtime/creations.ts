@@ -2,8 +2,8 @@
  * Pure helpers for WorldCreation records: deep copies, the initial "pending" creation and the
  * visual plan of a creation's art. Nothing here touches KAPLAY, so it can be tested directly.
  */
-import type { WorldCreation } from "../creation-store";
-import type { StageGeometry } from "../stage-geometry";
+import type { CreationAngle, WorldCreation } from "../creation-store";
+import type { Rect, StageGeometry } from "../stage-geometry";
 import { generateSketchDataUri } from "../sketch-renderer";
 import type { KaplayGameOptions } from "./types";
 
@@ -112,5 +112,42 @@ export function createArtPlanCache(): (item: WorldCreation) => CreationArtPlan {
     const plan = planCreationArt(item);
     plans.set(key, plan);
     return plan;
+  };
+}
+
+/**
+ * The box an object occupies right now (collision, legality, drawing box). A quarter turn swaps
+ * width and height; the top-left stays where the object is stored.
+ */
+export function footprintOf(item: Pick<WorldCreation, "x" | "y" | "w" | "h" | "angle">): Rect {
+  const sideways = item.angle === 90 || item.angle === 270;
+  return {
+    x: item.x,
+    y: item.y,
+    w: sideways ? item.h : item.w,
+    h: sideways ? item.w : item.h,
+  };
+}
+
+/** One quarter turn clockwise: 0 -> 90 -> 180 -> 270 -> 0. */
+export function quarterTurn(angle: CreationAngle | undefined): CreationAngle {
+  const current = angle ?? 0;
+  return ((current + 90) % 360) as CreationAngle;
+}
+
+/**
+ * The object turned to `angle`, with its centre unchanged, so a turn does not drift the object.
+ * Coordinates are rounded to whole pixels to keep the world grid stable.
+ */
+export function rotatedAround(item: WorldCreation, angle: CreationAngle): WorldCreation {
+  const before = footprintOf(item);
+  const cx = before.x + before.w / 2;
+  const cy = before.y + before.h / 2;
+  const turned: WorldCreation = { ...item, angle };
+  const after = footprintOf(turned);
+  return {
+    ...turned,
+    x: Math.round(cx - after.w / 2),
+    y: Math.round(cy - after.h / 2),
   };
 }

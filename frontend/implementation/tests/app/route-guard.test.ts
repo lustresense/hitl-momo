@@ -18,12 +18,6 @@ describe("resolveAppRoute", () => {
     });
   });
 
-  it("opens Bab 4 only after Bab 3 is won, and never before", () => {
-    // The predicate answers "is this stage open?": after Bab 3 is won, stage 4 is open.
-    expect(resolveAppRoute("/level4", (stage) => stage <= 4)).toEqual({ kind: "level", level: LEVELS[3] });
-    expect(resolveAppRoute("/level4", (stage) => stage <= 3)).toEqual({ kind: "levels", notice: LOCKED_LEVEL_NOTICE });
-  });
-
   it("resolves the direct student number route", () => {
     expect(resolveAppRoute("/onboarding/number")).toEqual({ kind: "number" });
   });

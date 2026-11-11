@@ -7,10 +7,10 @@ afterEach(cleanup);
 /** Exact sentences are the spec: each must describe the gesture or key the code really reads. */
 const CAMERA = {
   title: "Pakai tanganmu",
-  left: "Taruh telunjuk di sebelah kiri.",
-  right: "Taruh telunjuk di sebelah kanan.",
-  jump: "Satukan telunjuk dan jempol untuk lompat.",
-  note: "Telunjuk di tengah, Thinman berhenti.",
+  left: "Telunjuk mendatar ke kiri, Thinman jalan ke kiri.",
+  right: "Telunjuk mendatar ke kanan, Thinman jalan ke kanan.",
+  jump: "Telunjuk tegak ke atas untuk lompat. Miring ke kiri atau kanan untuk lompat sambil jalan.",
+  note: "Telunjuk turun ke bawah, Thinman berhenti.",
 };
 const FALLBACK = {
   title: "Pakai keyboard atau tombol",

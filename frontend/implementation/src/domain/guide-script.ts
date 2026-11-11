@@ -4,6 +4,7 @@
  * Momo never decides or creates anything (lore invariant).
  */
 import type { MomoMood } from "./momo-script";
+import { DEFAULT_CHARACTER_NAME } from "../config/character-tokens";
 
 export interface GuideStep {
   lines: string[];
@@ -11,17 +12,28 @@ export interface GuideStep {
 }
 
 /**
- * The cover (PRD 0.0.16 R1, R17): Momo sleeps until the student waves. Woken, she greets, tells her origin and invites
- * the student in; after the last line the book opens onto the ruler page.
+ * The cover (R3): Momo sleeps until the student waves. Woken, she introduces the world, names the character she just
+ * found (the name comes from character-tokens, bold with `**`) and invites the student to take him there. The name is
+ * a parameter so the token stays the single source of the display name.
  */
-export const COVER_WAKE: GuideStep = {
-  mood: "Senang",
-  lines: [
-    "Halo! Aku Momo, gambar pertama di buku ini yang bisa hidup.",
-    "Aku bisa nebak gambar, tapi aku nggak bisa menggambar.",
-    "Temanku Thinman cuma garis tipis yang belum selesai. Bantu dia hidup, ya!",
-    "Ayo ikut aku masuk ke dunia Sketchbook!",
-  ],
+export function coverWakeStep(characterName: string = DEFAULT_CHARACTER_NAME): GuideStep {
+  return {
+    mood: "Senang",
+    lines: [
+      "Aku Momo, gambar satu-satunya yang hidup di dunia Sketchbook Universe.",
+      `Aku barusan menemukan **${characterName}**.`,
+      "Kayaknya dia butuh bantuanmu supaya bisa hidup juga sepertiku.",
+      "Yuk, antar dia ke tempat yang tepat.",
+    ],
+  };
+}
+
+export const COVER_WAKE: GuideStep = coverWakeStep();
+
+/** Cover, camera on but no wave for 8 s: Momo mumbles from her sleep. */
+export const COVER_SLEEP_NUDGE: GuideStep = {
+  mood: "Ngantuk",
+  lines: ["Zzz... coba sapa aku, dong."],
 };
 
 /** Cover in fallback mode (R13): the camera cannot be used, Momo says so before the wake button appears. */

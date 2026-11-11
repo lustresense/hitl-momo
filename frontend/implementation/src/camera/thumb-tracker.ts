@@ -7,9 +7,9 @@
  * release stops the loop and closes the landmarker.
  */
 import type { HandLandmarker } from "@mediapipe/tasks-vision";
-import { createHandLandmarker } from "./hand-landmarker";
+import { takeHandLandmarker } from "./landmarker-warmup";
 import { subscribeSharedStream } from "./shared-stream";
-import { classifyHandPose, indexTipNormalized, isThumbUp } from "../input/hand-gesture";
+import { StableVote, classifyHandPose, countExtendedFingers, indexTipNormalized, isThumbUp, type HandPose } from "../input/hand-gesture";
 import { reportTrackerFailed } from "../input/input-mode";
 import type { Landmark } from "../input/types";
 import { publishHand, retireHand } from "./hand-cursor-store";
@@ -23,11 +23,15 @@ export interface HandGestureState {
   pinch: boolean;
   /** Index fingertip, mirrored and clamped to 0..1 (the drawing cursor space); null without a hand. */
   cursor: { x: number; y: number } | null;
+  /** Stable pose (voted over recent frames); "none" without a hand. Test hooks may force thumb-up or pinch. */
+  pose: HandPose;
+  /** Stable extended-finger count 0..5 (voted over recent frames); 0 without a hand. */
+  fingerCount: number;
 }
 
 export type HandGestureListener = (state: HandGestureState) => void;
 
-const IDLE: HandGestureState = { ready: false, handVisible: false, thumbUp: false, pinch: false, cursor: null };
+const IDLE: HandGestureState = { ready: false, handVisible: false, thumbUp: false, pinch: false, cursor: null, pose: "none", fingerCount: 0 };
 
 let state: HandGestureState = IDLE;
 let raw: HandGestureState = IDLE;
@@ -51,7 +55,10 @@ let wasmRoot = "/mediapipe/wasm";
  * One frame's reading of a hand. Pure: the loop calls it, tests call it with synthetic landmarks.
  * `pinchHeld` is last frame's pinch: a held pinch needs a looser gap to end (hysteresis), so the ring does not flicker.
  */
-export function gestureSnapshot(hand: Landmark[] | undefined, pinchHeld = false): Omit<HandGestureState, "ready"> {
+export function gestureSnapshot(
+  hand: Landmark[] | undefined,
+  pinchHeld = false,
+): Omit<HandGestureState, "ready" | "pose" | "fingerCount"> {
   return {
     handVisible: !!hand,
     thumbUp: isThumbUp(hand),
@@ -60,11 +67,35 @@ export function gestureSnapshot(hand: Landmark[] | undefined, pinchHeld = false)
   };
 }
 
+/** Voted pose and finger count: one noisy frame cannot flip them (see StableVote). Reset when the hand is lost. */
+const poseVote = new StableVote<HandPose>("none");
+const fingerVote = new StableVote<number>(0);
+
+/** One frame's full reading: the snapshot plus the voted pose and finger count. */
+function readHand(hand: Landmark[] | undefined, pinchHeld: boolean): Omit<HandGestureState, "ready"> {
+  const snap = gestureSnapshot(hand, pinchHeld);
+  if (!hand) {
+    poseVote.reset();
+    fingerVote.reset();
+    return { ...snap, pose: "none", fingerCount: 0 };
+  }
+  return {
+    ...snap,
+    pose: poseVote.push(classifyHandPose(hand, { pinchHeld })),
+    fingerCount: fingerVote.push(countExtendedFingers(hand)),
+  };
+}
+
 /** The state consumers see: a test hook replaces the real reading where it is set. */
 function effective(next: HandGestureState): HandGestureState {
   const pinch = simulatedPinch ?? (simulated === null ? next.pinch : false);
-  if (simulated === null) return { ...next, pinch };
-  return { ready: true, handVisible: simulated, thumbUp: simulated, pinch, cursor: next.cursor };
+  let pose = next.pose;
+  if (simulated === true) pose = "thumb-up";
+  else if (simulated === false && pose === "thumb-up") pose = "none";
+  if (simulatedPinch === true) pose = "pinch";
+  else if (simulatedPinch === false && pose === "pinch") pose = "none";
+  if (simulated === null) return { ...next, pinch, pose };
+  return { ready: true, handVisible: simulated, thumbUp: simulated, pinch, cursor: next.cursor, pose, fingerCount: next.fingerCount };
 }
 
 function publish(next: HandGestureState): void {
@@ -76,7 +107,13 @@ function publish(next: HandGestureState): void {
   else retireHand("tracker");
   // Listeners hear a change of a discrete field, or a moved fingertip: the hand cursor and the dwell read the
   // cursor from the hook state, so it must reach them. An identical frame (nothing moved) stays silent.
-  const discrete = state.ready === prev.ready && state.handVisible === prev.handVisible && state.thumbUp === prev.thumbUp && state.pinch === prev.pinch;
+  const discrete =
+    state.ready === prev.ready &&
+    state.handVisible === prev.handVisible &&
+    state.thumbUp === prev.thumbUp &&
+    state.pinch === prev.pinch &&
+    state.pose === prev.pose &&
+    state.fingerCount === prev.fingerCount;
   if (discrete && sameCursor(state.cursor, prev.cursor)) return;
   for (const l of [...listeners]) l(state);
 }
@@ -111,7 +148,7 @@ export function simulateThumb(value: boolean | null): void {
 
 /** TEST ONLY: feed one frame of landmarks through the same path the loop uses (undefined = no hand). */
 export function publishHandForTest(hand: Landmark[] | undefined): void {
-  publish({ ready: true, ...gestureSnapshot(hand, raw.pinch) });
+  publish({ ready: true, ...readHand(hand, raw.pinch) });
 }
 
 /** Dev/e2e: force a pinch (true), open hand (false) or real tracking (null). Gate callers behind test hooks. */
@@ -161,7 +198,7 @@ async function bind(stream: MediaStream): Promise<void> {
     /* fake/blocked autoplay: readyState check in loop still guards */
   }
   try {
-    const created = await createHandLandmarker({ wasmRoot, modelUrl });
+    const created = await takeHandLandmarker({ wasmRoot, modelUrl });
     if (gen !== generation) {
       try { created.landmarker.close(); } catch { /* best-effort */ }
       return;
@@ -170,7 +207,7 @@ async function bind(stream: MediaStream): Promise<void> {
     failures = 0;
     lastVideoTime = -1;
     reportTrackerFailed(false);
-    publish({ ready: true, handVisible: false, thumbUp: false, pinch: false, cursor: null });
+    publish({ ready: true, handVisible: false, thumbUp: false, pinch: false, cursor: null, pose: "none", fingerCount: 0 });
     loop();
   } catch {
     if (gen !== generation) return;
@@ -213,7 +250,7 @@ function loop(): void {
     }
     return;
   }
-  publish({ ready: true, ...gestureSnapshot(result.landmarks[0], raw.pinch) });
+  publish({ ready: true, ...readHand(result.landmarks[0], raw.pinch) });
 }
 
 /** TEST ONLY. */
@@ -222,6 +259,8 @@ export function resetThumbTrackerForTest(): void {
   holders = 0;
   simulated = null;
   simulatedPinch = null;
+  poseVote.reset();
+  fingerVote.reset();
   state = IDLE;
   raw = IDLE;
   listeners.clear();

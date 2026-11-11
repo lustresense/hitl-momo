@@ -8,6 +8,10 @@ import { mapToCanvas, type HandPose } from "./hand-gesture";
 import { PointSmoother } from "./smoothing";
 import { DRAWING_MODE_EVENT, HAND_STATUS_EVENT, messageFor } from "../camera/messages";
 
+// N1 public API for the screens: finger count, stable vote, and the single gesture router.
+export { countExtendedFingers, classifyHandPose, StableVote, type HandPose } from "./hand-gesture";
+export * from "./gesture-mode";
+
 /**
  * TASK 06 — Drawing workspace orchestrator.
  * One stroke store, swappable input drivers (pointer default, MediaPipe hand),

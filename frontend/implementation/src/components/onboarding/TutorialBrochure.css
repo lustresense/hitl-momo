@@ -6,12 +6,9 @@
   background: var(--nb-paper); border: 2.5px solid var(--nb-ink); border-radius: 14px;
 }
 .tut-back .tut-gesture > svg { flex: none; }
-/* Every advance is a pinch ring: the ring sits beside its label on the card back. */
-.tut-back .brochure-cta--thumb { justify-content: center; }
-.tut-back .brochure-cta--thumb .pinch-ring { flex-direction: row; }
-.tut-back .brochure-cta--thumb .pinch-ring__label { font-size: 16px; }
-/* Locked: dimmed, but the label still reads (4.5:1 on the card back, see the contrast test). */
-.tut-back .brochure-cta.brochure-cta--locked { opacity: .65; }
+/* Every advance is the thumb: the ring sits centred above its label on the card back (TutorialThumb.css). */
+.tut-back .brochure-cta--thumb { justify-content: center; min-height: 0; background: none; border: 0; box-shadow: none; }
+.tut-back .brochure-cta--thumb .thumb-confirm__label { font-size: 16px; }
 /* Keyboard focus on the skip button and the practice tools: the kit's sky outline is about 1.7:1 on paper,
    so the tutorial uses ink (3:1). Scoped here so the kit stylesheets stay as they are. */
 .tutorial-prototype-root .tut-skip:focus-visible,

@@ -38,9 +38,14 @@ export function MomoAvatar({ expression, height = 64, trackMotion = false, flapK
     return () => { e.destroy(); engine.current = null; };
   }, [trackMotion]);
 
+  // Going from asleep to awake plays the eyelid blinks first (wake), then the expression; otherwise set it at once.
+  const wasSleeping = useRef(false);
   useEffect(() => {
-    if (sleeping) engine.current?.sleep();
-    else engine.current?.set(expression);
+    const e = engine.current;
+    if (sleeping) e?.sleep();
+    else if (wasSleeping.current) e?.wake(expression);
+    else e?.set(expression);
+    wasSleeping.current = sleeping;
   }, [expression, sleeping, trackMotion]);
   useEffect(() => { if (flapKey > 0) engine.current?.flap(); }, [flapKey]);
   useEffect(() => { engine.current?.setFog(fog); }, [fog, trackMotion]);

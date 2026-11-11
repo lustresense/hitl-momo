@@ -22,7 +22,7 @@ export interface MockPredictionProviderOptions {
   /** Candidate labels this level allows (Top-3 ⊆ vocabulary). */
   vocabulary: string[];
   /** Stage emphasis influences fixture confidence spreads (dev fixtures only). */
-  stage: 1 | 2 | 3 | 4;
+  stage: 1 | 2 | 3;
   mode?: MockProviderMode;
   /** Simulated latency in ms; default 500. Tests use small/0 values. */
   latencyMs?: number;
@@ -46,11 +46,10 @@ export function hashDrawingInput(input: DrawingInput): number {
 }
 
 /** DEV fixture confidence spreads per stage emphasis. Not real model data. */
-const STAGE_SPREADS: Record<1 | 2 | 3 | 4, [number, number, number]> = {
+const STAGE_SPREADS: Record<1 | 2 | 3, [number, number, number]> = {
   1: [0.86, 0.09, 0.05],
   2: [0.42, 0.35, 0.23],
   3: [0.55, 0.38, 0.07],
-  4: [0.5, 0.33, 0.17],
 };
 
 function pickDistinctLabels(vocabulary: string[], seed: number): string[] {
@@ -110,8 +109,10 @@ export class MockPredictionProvider implements PredictionProvider {
         { label: labels[2]!, confidence: c },
       ],
     });
-    // Provenance is always "mock": downstream logs can never mistake DEV fixtures for model output.
-    return { ...result, provenance: makeProvenance("mock", elapsedMs(startedAt)) };
+    // Provenance is always "mock" (source "demo"): downstream logs can never mistake DEV fixtures for model output.
+    // The fixture labels are level words already, so each candidate's game label is its own label.
+    const candidates = result.candidates.map((c) => ({ ...c, gameLabel: c.label })) as typeof result.candidates;
+    return { ...result, candidates, provenance: makeProvenance("mock", elapsedMs(startedAt)) };
   }
 }
 

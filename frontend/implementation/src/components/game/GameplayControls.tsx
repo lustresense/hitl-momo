@@ -1,9 +1,13 @@
 /**
- * Floating gameplay controls: the three on-screen movement buttons plus "Geser objek".
+ * Floating gameplay controls.
+ * Camera mode: a speedometer for the finger direction, icon-only direction lights, and the two
+ * gesture affordances "Geser objek" (pinch) and "Putar" (open palm). No keyboard hints.
+ * Fallback mode: the on-screen movement buttons with their words, plus the same two actions.
  */
 import { Icon, type IconName } from "../ui/Icon";
 import { DirectionButton } from "./DirectionButton";
 import { GuideHelpIcon } from "./ControlGuide";
+import { SteerDial } from "./SteerDial";
 import type { DirectionKey, InputMode } from "./game-stage-types";
 import "./gameplay-guide.css";
 
@@ -28,7 +32,12 @@ export interface GameplayControlsProps {
   handDirs: DirectionKey[];
   onPress: (pointerId: number, dir: DirectionKey) => void;
   onRelease: (pointerId: number) => void;
+  /** The existing reposition action; "Geser objek" uses it until onMoveRequest is wired. */
   onReposition: () => void;
+  /** "Geser objek" request (the placement work owns the action). Defaults to onReposition. */
+  onMoveRequest?: () => void;
+  /** "Putar" request: turn the object 90 degrees. Owned by the placement work. */
+  onRotateRequest?: () => void;
   guideOpen: boolean;
   onToggleGuide: () => void;
 }
@@ -40,11 +49,14 @@ export function GameplayControls({
   onPress,
   onRelease,
   onReposition,
+  onMoveRequest,
+  onRotateRequest,
   guideOpen,
   onToggleGuide,
 }: GameplayControlsProps) {
+  const camera = mode === "camera";
   return (
-    <div className="stage-floating-controls" data-testid="gameplay-controls">
+    <div className="stage-floating-controls" data-testid="gameplay-controls" data-input-mode={mode}>
       <div className="gameplay-controls__row">
         {DIRECTION_BUTTONS.map((button) => (
           <DirectionButton
@@ -52,16 +64,32 @@ export function GameplayControls({
             {...button}
             pressed={heldDirs.includes(button.dir)}
             handActive={handDirs.includes(button.dir)}
-            indicator={mode === "camera"}
+            indicator={camera}
+            iconOnly={camera}
             onPress={onPress}
             onRelease={onRelease}
           />
         ))}
+        {camera && <SteerDial />}
       </div>
       <span className="gameplay-controls__sep" aria-hidden="true" />
-      <button className="nb-btn btn-small" data-testid="btn-reposition" onClick={onReposition}>
-        <Icon name="swap" size={19} />
+      <button
+        type="button"
+        className="nb-btn btn-small gameplay-controls__action"
+        data-testid="btn-reposition"
+        onClick={() => (onMoveRequest ?? onReposition)()}
+      >
+        <Icon name={camera ? "hand-draw" : "swap"} size={camera ? 22 : 19} />
         Geser objek
+      </button>
+      <button
+        type="button"
+        className="nb-btn btn-small gameplay-controls__action"
+        data-testid="btn-rotate"
+        onClick={() => onRotateRequest?.()}
+      >
+        <Icon name={camera ? "hand-redo" : "again"} size={camera ? 22 : 19} />
+        Putar
       </button>
       <button
         type="button"

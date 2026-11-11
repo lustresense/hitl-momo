@@ -7,7 +7,7 @@ import { formatCharacterText } from "../config/character-tokens";
 
 const TO_SKY = "Yuk kita ke langit, tempat kamu menggambar!";
 
-const SCRIPT: Record<1 | 2 | 3 | 4, string[]> = {
+const SCRIPT: Record<1 | 2 | 3, string[]> = {
   1: [
     "Ini dunia {character}. Dia harus sampai ke papan petunjuk di seberang.",
     "Kalau berhasil, dia bisa jalan sendiri tanpa bantuanmu.",
@@ -24,16 +24,10 @@ const SCRIPT: Record<1 | 2 | 3 | 4, string[]> = {
     "Kalau selamat, dia bisa jalan sendiri tanpa bantuanmu.",
     "Pilih benda yang aman buat dia.",
   ],
-  // Bab 4: the gap is the widest and the spikes are under it. Momo says to check, not to trust a number.
-  4: [
-    "Ini bab terakhir. Celahnya paling lebar, dan di bawahnya ada kolam duri.",
-    "{character} harus naik sampai ke menara. Jalannya harus benar-benar aman.",
-    "Jangan cuma percaya persen. Buktikan dulu tiap benda aman.",
-  ],
 };
 
 export function introLines(stage: number, characterDisplayName?: string | null): string[] {
-  const key = (stage >= 1 && stage <= 4 ? stage : 1) as 1 | 2 | 3 | 4;
+  const key = (stage >= 1 && stage <= 3 ? stage : 1) as 1 | 2 | 3;
   return SCRIPT[key].map((line) => formatCharacterText(line, characterDisplayName));
 }
 
@@ -41,16 +35,14 @@ export function introLines(stage: number, characterDisplayName?: string | null):
  * PRD 0.0.16 R10: Momo points at what can be drawn without ordering it. Framed as a rule of the world,
  * a few visible choices (the level catalog, no invented labels), the student chooses, tied to the mission.
  */
-const NUDGE: Record<1 | 2 | 3 | 4, string> = {
+const NUDGE: Record<1 | 2 | 3, string> = {
   1: "{character} butuh pijakan buat nyebrang. Kamu mau bikin yang mana?",
   2: "{character} butuh pijakan buat naik. Kamu mau bikin yang mana?",
   3: "Lantainya penuh duri. Benda mana yang aman buat {character}?",
-  // Bab 4 needs three objects; one is not enough, and the student has to find out which ones.
-  4: "Satu pijakan belum cukup buat {character} naik. Kamu mau bikin yang mana?",
 };
 
 export function nudgeLines(stage: number, characterDisplayName?: string | null): string[] {
-  const key = (stage >= 1 && stage <= 4 ? stage : 1) as 1 | 2 | 3 | 4;
+  const key = (stage >= 1 && stage <= 3 ? stage : 1) as 1 | 2 | 3;
   return [
     "Di dunia ini, cuma beberapa benda yang bisa hidup dari gambarmu.",
     formatCharacterText(NUDGE[key], characterDisplayName),

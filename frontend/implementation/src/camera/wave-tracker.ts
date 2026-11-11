@@ -10,7 +10,8 @@
  * - after the wave is reported the loop and landmarker are released at once.
  */
 import type { HandLandmarker } from "@mediapipe/tasks-vision";
-import { createHandLandmarker, delegateLabel } from "./hand-landmarker";
+import { delegateLabel } from "./hand-landmarker";
+import { takeHandLandmarker } from "./landmarker-warmup";
 import { classifyCameraError, messageFor, type CameraFailureReason } from "./messages";
 
 export interface WaveSample {
@@ -18,15 +19,73 @@ export interface WaveSample {
   time: number;
 }
 
-/** Pure wake-up wave rule: wide horizontal sweep within 1.3 s that returns near its start. */
+/*
+ * Wave calibration (lambaian di webcam biasa; motion blur memperkecil ayunan).
+ * Old rule: >= 8 samples, span > 0.22, returns within 0.18, no swing count.
+ * New rule: >= 6 samples, span >= 0.16, returns within 0.18, and at least two swings of >= 0.05 each
+ * (a left-right-left sweep). Fewer samples and a smaller span catch a blurred wave; the two swings keep a
+ * single slow lean or a one-way slide from counting as a wave.
+ */
+export const WAVE_MIN_SAMPLES = 6;
+export const WAVE_MIN_SPAN = 0.16;
+export const WAVE_RETURN_TOLERANCE = 0.18;
+export const WAVE_MIN_SWINGS = 2;
+export const WAVE_MIN_SWING_SPAN = 0.05;
+
+/** Number of swings: direction reversals that each move at least `minSwing`. */
+export function countSwings(values: number[], minSwing = WAVE_MIN_SWING_SPAN): number {
+  if (values.length < 2) return 0;
+  let swings = 0;
+  let dir = 0; // 0 = not yet moving, 1 = rising, -1 = falling
+  let extreme = values[0]!;
+  for (const x of values.slice(1)) {
+    if (dir === 0) {
+      if (Math.abs(x - extreme) >= minSwing) {
+        dir = Math.sign(x - extreme);
+        extreme = x;
+      }
+    } else if (dir > 0) {
+      if (x > extreme) extreme = x;
+      else if (extreme - x >= minSwing) {
+        swings++;
+        dir = -1;
+        extreme = x;
+      }
+    } else if (x < extreme) extreme = x;
+    else if (x - extreme >= minSwing) {
+      swings++;
+      dir = 1;
+      extreme = x;
+    }
+  }
+  return swings;
+}
+
+/** Pure wake-up wave rule (see the calibration note above). */
 export function detectWave(samples: WaveSample[]): boolean {
-  if (samples.length < 8) return false;
+  if (samples.length < WAVE_MIN_SAMPLES) return false;
   const values = samples.map((s) => s.x);
   const first = values[0]!;
   const last = values[values.length - 1]!;
   const span = Math.max(...values) - Math.min(...values);
-  return span > 0.22 && Math.abs(last - first) < 0.18;
+  return span >= WAVE_MIN_SPAN && Math.abs(last - first) < WAVE_RETURN_TOLERANCE && countSwings(values) >= WAVE_MIN_SWINGS;
 }
+
+/**
+ * 0..1 progress toward the wave rule for the cincin lambaian: the smaller of the swing share and the span share.
+ * It reaches 1 exactly when the sweep and the swings are there; the return to the start is checked by detectWave.
+ */
+export function waveProgress(samples: WaveSample[]): number {
+  if (samples.length === 0) return 0;
+  const values = samples.map((s) => s.x);
+  const span = Math.max(...values) - Math.min(...values);
+  const swings = countSwings(values);
+  const p = Math.min(1, swings / WAVE_MIN_SWINGS, span / WAVE_MIN_SPAN);
+  return Math.max(0, p);
+}
+
+/** Frames without a hand that a wave survives (a blurred frame or a dropped detection), before the sweep restarts. */
+export const WAVE_MAX_MISSING_FRAMES = 3;
 
 export type WaveTrackerStatus =
   | { kind: "ready"; delegate: string }
@@ -52,8 +111,32 @@ export class WaveTracker {
   private lastVideoTime = -1;
   private failures = 0;
   private samples: WaveSample[] = [];
+  private missingFrames = 0;
+  private progressValue = 0;
+  private readonly progressListeners = new Set<(progress: number) => void>();
 
   constructor(private readonly options: WaveTrackerOptions) {}
+
+  /** 0..1 progress toward the wave (drives the cincin lambaian). */
+  get progress(): number {
+    return this.progressValue;
+  }
+
+  /** Hears the progress now and on every change (rounded to 0.01). Returns the unsubscribe function. */
+  subscribeProgress(listener: (progress: number) => void): () => void {
+    this.progressListeners.add(listener);
+    listener(this.progressValue);
+    return () => {
+      this.progressListeners.delete(listener);
+    };
+  }
+
+  private setProgress(next: number): void {
+    const rounded = Math.round(Math.min(1, Math.max(0, next)) * 100) / 100;
+    if (rounded === this.progressValue) return;
+    this.progressValue = rounded;
+    for (const l of [...this.progressListeners]) l(rounded);
+  }
 
   /** True while a landmarker exists or is being created. */
   get active(): boolean {
@@ -65,7 +148,8 @@ export class WaveTracker {
     const gen = ++this.generation;
     this.starting = true;
     try {
-      const created = await createHandLandmarker({
+      // Takes the warm instance when the cover pre-loaded it (cold start), else builds one.
+      const created = await takeHandLandmarker({
         wasmRoot: this.options.wasmRoot ?? "/mediapipe/wasm",
         modelUrl: this.options.modelUrl(),
       });
@@ -76,6 +160,7 @@ export class WaveTracker {
       }
       this.landmarker = created.landmarker;
       this.samples = [];
+      this.missingFrames = 0;
       this.failures = 0;
       this.lastVideoTime = -1;
       this.options.onStatus?.({ kind: "ready", delegate: delegateLabel(created) });
@@ -96,8 +181,10 @@ export class WaveTracker {
     this.reported = false;
     this.release();
     this.samples = [];
+    this.missingFrames = 0;
     this.lastVideoTime = -1;
     this.failures = 0;
+    this.setProgress(0);
   }
 
   private release(): void {
@@ -134,14 +221,22 @@ export class WaveTracker {
     }
     const wrist = result.landmarks[0]?.[0];
     if (!wrist) {
-      this.samples = [];
+      // A blurred or dropped frame keeps the sweep; only a longer gap restarts it.
+      this.missingFrames++;
+      if (this.missingFrames > WAVE_MAX_MISSING_FRAMES) {
+        this.samples = [];
+        this.setProgress(0);
+      }
       return;
     }
+    this.missingFrames = 0;
     const now = performance.now();
     this.samples.push({ x: wrist.x, time: now });
     while (this.samples.length && now - this.samples[0]!.time > WINDOW_MS) this.samples.shift();
+    this.setProgress(waveProgress(this.samples));
     if (detectWave(this.samples)) {
       this.reported = true;
+      this.setProgress(1);
       this.release();
       this.options.onWave();
     }

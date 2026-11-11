@@ -22,7 +22,7 @@ Satu-satunya changelog engineering yang aktif. Riwayat lama diarsipkan di `docs/
 - Feature: panduan kontrol Thinman (kiri, kanan, lompat). Kontrol tangan otomatis di mode kamera.
 - Fix: collider Level 2. Tiga gedung menjadi blok padat sampai dasar halaman. Pijakan bawah diperpanjang ke dinding (gambar ikut berubah).
 - Feature: gambar asli siswa tampil sebagai objek di dunia, dengan label, tanpa kotak pembungkus.
-- Feature (usulan): Level 4 "Pembuktian" dan layar tamat setelahnya.
+- Revert: Level 4 "Pembuktian" (ditambah 2026-11-09) dihapus atas instruksi Owner 2026-11-10. Produk hanya tiga level; penutup setelah Bab 3.
 - Fix: cincin selesai-gambar tertutup kartu kamera di kiri bawah. Dipindah ke kanan bawah.
 - Change: UX chat Momo. Efek ketik bisa dilewati, `prefers-reduced-motion` dihormati, baris panjang dipecah.
 - Staging: `frontend/implementation/Dockerfile` ditambahkan dari donor Dias (service `web` membutuhkannya).

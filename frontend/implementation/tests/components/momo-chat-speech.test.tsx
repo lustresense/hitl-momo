@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render } from "@testing-library/react";
-import { MomoChat, dwellMs, typingMs } from "@/src/components/momo/MomoChat";
+import { LETTER_MS, MomoChat, dwellMs, typingMs } from "@/src/components/momo/MomoChat";
 
 // The avatar is a separate animated slot (its own tests cover it); these tests are about the speech bubble.
 vi.mock("@/src/components/momo/MomoAvatar", () => ({ MomoAvatar: () => null }));
@@ -8,6 +8,8 @@ vi.mock("@/src/components/momo/MomoAvatar", () => ({ MomoAvatar: () => null }));
 const SHORT = "Halo, aku Momo."; // 15 letters: dots 410 ms, then one letter every 30 ms
 const SECOND = "Ayo kita mulai!"; // 15 letters
 const LONG = "Lorong ini berkabut dan lantainya penuh duri, jadi jalan pelan-pelan ya, Thinman harus keluar sampai papan petunjuk!";
+const BOLD = "Aku barusan menemukan **Thinman**."; // shown as "Aku barusan menemukan Thinman."
+const PLAIN_BOLD = "Aku barusan menemukan Thinman.";
 
 /** Moves the fake clock in 5 ms steps. React commits (and schedules the next letter) between the steps. */
 function tick(ms: number) {
@@ -57,59 +59,94 @@ describe("MomoChat typing effect (brief a)", () => {
     expect(bubbleText()).toBe(SHORT);
   });
 
-  it("finishes a long line within 2.5 s in total, dots included", () => {
+  it("a long line is typed at the same 30 ms per letter as a short one (no speed-up to make it fit)", () => {
     expect(LONG.length).toBeGreaterThan(90);
+    expect(LETTER_MS).toBe(30);
     render(<MomoChat lines={LONG} testId="speech" />);
-    tick(2400);
+    const doneAt = typingMs(LONG) + LONG.length * 30; // dots, then every letter
+    tick(doneAt - 30);
     expect(bubbleText()).not.toBe(LONG);
-    tick(100);
+    tick(35);
     expect(bubbleText()).toBe(LONG);
   });
 });
 
-describe("MomoChat tap to finish the line (brief b)", () => {
-  it("a tap on the bubble shows the whole line at once and does not move the conversation on", () => {
-    const onDone = vi.fn();
-    render(<MomoChat lines={[SHORT, SECOND]} testId="speech" onDone={onDone} />);
+describe("MomoChat has no skip: a tap, click, Space or Enter never shows a line early (Owner: the thumb is not a skip)", () => {
+  it("a click on the typing line changes nothing", () => {
+    render(<MomoChat lines={[SHORT, SECOND]} testId="speech" />);
     tick(500);
-    expect(bubbleText()).toBe(SHORT.slice(0, 3)); // still typing: the tap is what completes it
-    fireEvent.click(bubble()!); // at 500 ms
-    expect(bubbleText()).toBe(SHORT);
-    tick(dwellMs(SHORT) - 20); // 1890 ms: the first line's dwell has not ended yet
-    expect(bubbleText()).toBe(SHORT); // still the first line: the tap did not skip ahead
-    expect(onDone).not.toHaveBeenCalled();
-    tick(40); // 1930 ms: the dwell (ends at 1910 ms) is over, the second line starts with dots
-    expect(dotsShown()).toBe(true);
-    expect(bubbleText()).toBeNull();
-    tick(1000); // 2930 ms: the second line is fully typed
-    expect(bubbleText()).toBe(SECOND);
-    expect(onDone).toHaveBeenCalledTimes(1);
+    expect(bubbleText()).toBe(SHORT.slice(0, 3));
+    fireEvent.click(bubble()!);
+    expect(bubbleText()).toBe(SHORT.slice(0, 3));
+    tick(30);
+    expect(bubbleText()).toBe(SHORT.slice(0, 4)); // typing carried on as normal
   });
 
-  it("Space on the bubble shows the whole line", () => {
-    render(<MomoChat lines={SHORT} testId="speech" />);
-    tick(445); // only "H" is on screen
-    expect(bubbleText()).toBe("H");
-    fireEvent.keyDown(bubble()!, { key: " " });
-    expect(bubbleText()).toBe(SHORT);
-  });
-
-  it("Enter on the bubble shows the whole line", () => {
+  it("Space and Enter on the typing line change nothing", () => {
     render(<MomoChat lines={SHORT} testId="speech" />);
     tick(445);
-    expect(bubbleText()).toBe("H"); // still typing when Enter is pressed
+    expect(bubbleText()).toBe("H");
+    fireEvent.keyDown(bubble()!, { key: " " });
+    expect(bubbleText()).toBe("H");
     fireEvent.keyDown(bubble()!, { key: "Enter" });
-    expect(bubbleText()).toBe(SHORT);
+    expect(bubbleText()).toBe("H");
   });
 
-  it("a tap after the line is finished changes nothing", () => {
+  it("the typing line is plain text: no button role, no tab stop, no skip marker", () => {
+    render(<MomoChat lines={SHORT} testId="speech" />);
+    tick(440);
+    const row = bubble()!;
+    expect(row.getAttribute("role")).toBeNull();
+    expect(row.getAttribute("tabindex")).toBeNull();
+    expect(row.getAttribute("data-skippable")).toBeNull();
+    expect(row.getAttribute("aria-label")).toBeNull();
+  });
+
+  it("the live region is kept (screen readers still get the lines)", () => {
+    render(<MomoChat lines={SHORT} testId="speech" />);
+    expect(document.querySelector('[role="status"]')?.getAttribute("aria-live")).toBe("polite");
+  });
+});
+
+describe("MomoChat reading pauses match the reference timing", () => {
+  it("dots and reading pause are the same functions as the Can reference (typingMs, dwellMs unchanged)", () => {
+    expect(typingMs(SHORT)).toBe(410);
+    expect(typingMs(LONG)).toBe(800);
+    expect(dwellMs(SHORT)).toBe(1410);
+    expect(dwellMs(LONG)).toBe(900 + LONG.length * 34);
+  });
+
+  it("the line stays on screen for its full dwell before the next one starts", () => {
     render(<MomoChat lines={[SHORT, SECOND]} testId="speech" />);
-    tick(865); // first line complete, waiting out its dwell
+    tick(860 + dwellMs(SHORT) - 20);
     expect(bubbleText()).toBe(SHORT);
-    fireEvent.click(bubble()!);
-    expect(bubbleText()).toBe(SHORT);
-    tick(dwellMs(SHORT) - 100);
-    expect(bubbleText()).toBe(SHORT);
+    tick(40);
+    expect(dotsShown()).toBe(true);
+  });
+});
+
+describe("MomoChat bold markers: **word** is shown in bold, the markers are never shown or typed", () => {
+  it("renders **word** as strong text and never shows the stars", () => {
+    render(<MomoChat lines={BOLD} testId="speech" />);
+    tick(typingMs(PLAIN_BOLD) + PLAIN_BOLD.length * 30 + 5);
+    const strong = document.querySelector('[data-testid="speech"] strong');
+    expect(strong?.textContent).toBe("Thinman");
+    expect(bubbleText()).toBe(PLAIN_BOLD);
+    expect(document.querySelector('[role="status"]')!.textContent).toBe(PLAIN_BOLD);
+  });
+
+  it("types the bold word letter by letter, and no star is ever on screen", () => {
+    render(<MomoChat lines={BOLD} testId="speech" />);
+    const prefix = PLAIN_BOLD.indexOf("Thinman") + 2; // "Th" is on screen
+    tick(typingMs(PLAIN_BOLD) + prefix * 30 + 5);
+    expect(bubbleText()).toBe(PLAIN_BOLD.slice(0, prefix));
+    expect(document.querySelector('[data-testid="speech"] strong')?.textContent).toBe("Th");
+    expect(bubbleText()!.includes("*")).toBe(false);
+  });
+
+  it("the timing counts the visible letters only, never the markers", () => {
+    expect(typingMs(BOLD)).toBe(typingMs(PLAIN_BOLD));
+    expect(dwellMs(BOLD)).toBe(dwellMs(PLAIN_BOLD));
   });
 });
 
@@ -195,23 +232,19 @@ describe("MomoChat screen reader text (brief f)", () => {
     expect(spoken).toEqual([SHORT]);
   });
 
-  it("the line still typing is outside the live region, named as a button and never aria-hidden while focusable", () => {
+  it("the line still typing is outside the live region", () => {
     render(<MomoChat lines={SHORT} testId="speech" />);
     tick(440); // one letter on screen
     const typingRow = bubble()!;
     expect(typingRow.textContent).toBe("H");
     expect(typingRow.closest('[role="status"]')).toBeNull();
-    expect(typingRow.getAttribute("aria-hidden")).toBeNull();
-    expect(typingRow.tabIndex).toBe(0);
-    expect(typingRow.getAttribute("role")).toBe("button");
-    expect(typingRow.getAttribute("aria-label")).toBe("Tampilkan teks lengkap");
     tick(420); // complete: the whole line is now the one the live region reads
     expect(bubble()!.closest('[role="status"]')).not.toBeNull();
   });
 });
 
-describe("MomoChat finishing and stacked lines", () => {
-  it("calls onDone once, when the last line is fully typed, and shows the cue only then", () => {
+describe("MomoChat finishing: onDone (last line typed) and onAllShown (typed and read)", () => {
+  it("onDone fires once when the last line is fully typed; the cue waits for onAllShown", () => {
     const onDone = vi.fn();
     render(
       <MomoChat lines={[SHORT]} testId="speech" onDone={onDone}>
@@ -220,11 +253,48 @@ describe("MomoChat finishing and stacked lines", () => {
     );
     tick(440);
     expect(onDone).not.toHaveBeenCalled();
-    expect(document.querySelector('[data-testid="cue"]')).toBeNull();
     tick(420);
     expect(onDone).toHaveBeenCalledTimes(1);
+    expect(document.querySelector('[data-testid="cue"]')).toBeNull();
+    tick(dwellMs(SHORT));
     expect(document.querySelector('[data-testid="cue"]')).not.toBeNull();
     tick(2000);
     expect(onDone).toHaveBeenCalledTimes(1);
+  });
+
+  it("onAllShown fires once, after the last line is typed AND its reading pause has passed", () => {
+    const onAllShown = vi.fn();
+    render(<MomoChat lines={[SHORT, SECOND]} testId="speech" onAllShown={onAllShown} />);
+    // Line 1: dots 410 + 450 typing, then dwell 1410. Line 2: dots 410 + 450 typing, then dwell 1410.
+    const lastTyped = 860 + dwellMs(SHORT) + 410 + 450; // 3130 ms
+    tick(lastTyped + dwellMs(SECOND) - 20);
+    expect(onAllShown).not.toHaveBeenCalled();
+    tick(25);
+    expect(onAllShown).toHaveBeenCalledTimes(1);
+    tick(5000);
+    expect(onAllShown).toHaveBeenCalledTimes(1);
+  });
+
+  it("onAllShown with reduced motion waits for the dwell of the last line too", () => {
+    setReducedMotion(true);
+    const onAllShown = vi.fn();
+    render(<MomoChat lines={SHORT} testId="speech" onAllShown={onAllShown} />);
+    expect(onAllShown).not.toHaveBeenCalled();
+    tick(dwellMs(SHORT) - 20);
+    expect(onAllShown).not.toHaveBeenCalled();
+    tick(25);
+    expect(onAllShown).toHaveBeenCalledTimes(1);
+  });
+
+  it("extrasFrom=last shows its children only once onAllShown has fired", () => {
+    render(
+      <MomoChat lines={SHORT} testId="speech" extrasFrom="last">
+        <button type="button" data-testid="cue">Lanjut</button>
+      </MomoChat>,
+    );
+    tick(860 + dwellMs(SHORT) - 20);
+    expect(document.querySelector('[data-testid="cue"]')).toBeNull();
+    tick(25);
+    expect(document.querySelector('[data-testid="cue"]')).not.toBeNull();
   });
 });

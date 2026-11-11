@@ -13,10 +13,10 @@ import { getStageGeometry, type StageGeometry } from "../stage-geometry";
 import { CharacterSpriteLayer } from "./character-sprite";
 import { FALL_DURATION, FALL_START_Y, GRAVITY, JUMP_FORCE, PLAYER_HEIGHT, PLAYER_WIDTH } from "./constants";
 import { createCreationRenderer } from "./creation-renderer";
-import { cloneCreation, createPendingCreation } from "./creations";
+import { cloneCreation, createPendingCreation, footprintOf, quarterTurn, rotatedAround } from "./creations";
 import { releaseEngine } from "./engine";
 import { resolveHorizontalMovementIntent } from "./movement";
-import { integratedGoalReached, integratedPlacementAllowed } from "./rules";
+import { integratedGoalReached, integratedPlacementAllowed, rectanglesOverlap } from "./rules";
 import { writeIntegratedTelemetry } from "./telemetry";
 import type {
   DirectionInput,
@@ -34,6 +34,8 @@ const FIXED_STEP_SECONDS = 1 / 60;
 /** Desktop landscape level 1 starts at world x=0: keep the rendered sprite inside the left edge. */
 const DESKTOP_MIN_WIDTH = 761;
 const noInput = (): DirectionInput => ({ left: false, right: false, jump: false });
+/** A creation as the legality rules see it: its box as it stands now (quarter turns swap w and h). */
+const asBox = (item: WorldCreation): WorldCreation => ({ ...item, ...footprintOf(item) });
 
 /** Custom data the scene attaches to hazard objects (stage hazards and "danger" creations). */
 interface HazardInfo {
@@ -138,8 +140,9 @@ class IntegratedScene {
   }
 
   /** The handle the GameController drives the scene with. */
-  handle(): KaplayGameHandle {
+  handle(): KaplayGameHandle & { rotate(): boolean } {
     return {
+      rotate: () => this.rotate(),
       destroy: () => this.destroy(),
       setInput: (i) => this.setInput(i),
       onFallComplete: () => this.enterPlace(),
@@ -247,7 +250,12 @@ class IntegratedScene {
   private setPlacement(x: number, y: number): boolean {
     if (
       this.phase !== "placing" ||
-      !integratedPlacementAllowed({ ...this.pending, x, y }, this.geometry, this.snapshot(), this.pending.id)
+      !integratedPlacementAllowed(
+        footprintOf({ ...this.pending, x, y }),
+        this.geometry,
+        this.snapshot().map(asBox),
+        this.pending.id,
+      )
     ) {
       return false;
     }
@@ -280,6 +288,39 @@ class IntegratedScene {
     this.writeTelemetry();
     this.o.onReposition();
     return true;
+  }
+
+  /**
+   * Turn the active object (the one being placed, or the one just committed) a quarter turn about its
+   * centre. Refused when the turned box is not legal, or would sit on Thinman in the play phase.
+   */
+  private rotate(): boolean {
+    if (this.destroyed || this.phase === "falling") return false;
+    const current = this.pending;
+    const turned = rotatedAround(current, quarterTurn(current.angle));
+    const box = footprintOf(turned);
+    const others = this.snapshot().filter((item) => item.id !== current.id).map(asBox);
+    if (!integratedPlacementAllowed(box, this.geometry, others)) return false;
+    if (this.phase === "gameplay" && this.playerOverlaps(box)) return false;
+
+    const committed = this.phase === "gameplay";
+    const previousArt = this.rendered.get(current.id);
+    this.pendingArt.destroy();
+    if (previousArt && previousArt !== this.pendingArt) previousArt.destroy();
+    this.rendered.delete(current.id);
+    this.pending = turned;
+    this.pendingArt = this.drawCreation(turned, committed);
+    if (committed) {
+      this.creations.set(turned.id, cloneCreation(turned));
+      this.rendered.set(turned.id, this.pendingArt);
+      this.o.onCreationsChange?.(this.snapshot());
+    }
+    this.writeTelemetry();
+    return true;
+  }
+
+  private playerOverlaps(box: { x: number; y: number; w: number; h: number }): boolean {
+    return rectanglesOverlap({ x: this.player.pos.x, y: this.player.pos.y, w: PLAYER_WIDTH, h: PLAYER_HEIGHT }, box);
   }
 
   /** Lock the pending object in at (x, y) and start the play phase. */
@@ -361,7 +402,7 @@ class IntegratedScene {
       settled: this.settled,
       player: this.player,
       pendingArt,
-      pending: this.pending,
+      pending: asBox(this.pending),
       committed: this.creations,
       committedSnapshot: this.snapshot(),
       geometry: this.geometry,

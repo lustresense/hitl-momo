@@ -1,6 +1,12 @@
 import type { DrawingInput, ObjectBehavior } from "../domain/types";
 
-/** A committed drawing in world coordinates; pending drawings are not stored. */
+/** Quarter turns of an object. Absent means 0 (objects saved before rotation existed). */
+export type CreationAngle = 0 | 90 | 180 | 270;
+
+/**
+ * A committed drawing in world coordinates; pending drawings are not stored.
+ * x, y: top-left of the box as it stands now. w, h: size at 0 degrees; a quarter turn swaps them.
+ */
 export interface WorldCreation {
   id: string;
   label: string;
@@ -10,6 +16,7 @@ export interface WorldCreation {
   y: number;
   w: number;
   h: number;
+  angle?: CreationAngle;
 }
 
 function copyCreation(item: WorldCreation): WorldCreation {

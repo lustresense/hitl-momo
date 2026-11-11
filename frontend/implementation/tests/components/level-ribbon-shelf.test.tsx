@@ -33,18 +33,22 @@ describe("shelf layout: ribbons fit the screen (pure width arithmetic)", () => {
     expect(shelfGap(1600)).toBe(76);
   });
 
-  it("a wide screen keeps all four bookmarks in one row", () => {
+  it("a wide screen keeps all three bookmarks in one row", () => {
     const d = shelfLayout(LEVELS.length, 1000, 768);
     expect(d.perRow).toBe(LEVELS.length);
     expect(rowWidth(d.w, d.perRow, 1000)).toBeLessThanOrEqual(1000 - 2 * PAGE_GUTTER);
   });
 
-  it.each([320, 360, 375, 390, 414, 430])("a %i px phone wraps four bookmarks into two rows", (width) => {
+  it.each([320, 360, 375, 390])("a %i px phone wraps three bookmarks into two rows", (width) => {
     const d = shelfLayout(LEVELS.length, width, 700);
     expect(d.perRow).toBe(2);
     expect(Math.ceil(LEVELS.length / d.perRow)).toBe(2);
     // Two rows are kept shorter so the whole page stays near one screen tall.
     expect(d.h).toBeLessThanOrEqual(330);
+  });
+
+  it.each([414, 430])("a %i px phone keeps three bookmarks in one row", (width) => {
+    expect(shelfLayout(LEVELS.length, width, 700).perRow).toBe(3);
   });
 
   it("from 320 to 1280 px every row fits the page and no ribbon is narrower than MIN_RIBBON_W", () => {
@@ -55,10 +59,10 @@ describe("shelf layout: ribbons fit the screen (pure width arithmetic)", () => {
     }
   });
 
-  it("the old fixed 84 px minimum would have put four ribbons in one row wider than a 375 px screen", () => {
-    // 4 * (84 + 7) + 3 * 14 = 406 px > 343 px: why four ribbons now wrap to two rows on a phone.
-    const oneRow = 4 * (MIN_RIBBON_W + RIBBON_SHADOW) + 3 * shelfGap(375);
-    expect(oneRow).toBeGreaterThan(375 - 2 * PAGE_GUTTER);
+  it("at 375 px a single row would leave each ribbon 71 px wide, below MIN_RIBBON_W, so three ribbons wrap", () => {
+    // Room 375 - 2 * 16 - 2 * 14 = 315. Minus 2 gaps (28) and 3 shadows (21) = 266. Keeping the 124 px thumb pill
+    // clear beside the other two ribbons leaves (266 - 124) / 2 = 71 px per ribbon.
+    expect(Math.floor((266 - 124) / 2)).toBeLessThan(MIN_RIBBON_W);
     expect(shelfLayout(LEVELS.length, 375, 700).perRow).toBe(2);
   });
 });

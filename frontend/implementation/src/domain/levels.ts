@@ -141,48 +141,7 @@ const STAGE_3: LevelDefinition = makeLevel({
   },
 });
 
-/**
- * Stage 4 — Pembuktian (closing). PROPOSAL, not yet approved by Can/Owner (no Owner design was given).
- * Uses only labels that levels 1-3 already teach, with the same behaviour each. The gap is wider than
- * level 3 and a spike pit runs under it. Two objects are not enough (the climb to the tower needs a
- * third step), so the student has to build and check the whole route.
- */
-const STAGE_4: LevelDefinition = makeLevel({
-  levelId: "stage-4-proof",
-  stage: 4,
-  cyclesRequired: 1,
-  minDrawings: 3,
-  title: "Bab 4 · Pembuktian",
-  task: "Celah paling lebar dan kolam duri di bawahnya. Buat jalan naik sampai ke menara.",
-  stageEmphasis: "Periksa Top-3 dan akibatnya satu per satu. Persen tinggi tidak membuktikan benda itu aman.",
-  scene: {
-    groundEndX: 260,
-    gapStartX: 260,
-    gapWidth: 300,
-    goalX: 760,
-  },
-  behaviorMap: {
-    papan: "solid",
-    balok: "solid",
-    tangga: "solid",
-    tali: "danger",
-    batu: "danger",
-  },
-  vocabulary: ["papan", "balok", "tangga", "tali", "batu", "ember"],
-  catalog: [
-    { labelId: "papan", displayName: "Papan", icon: "🪵" },
-    { labelId: "balok", displayName: "Balok", icon: "🧱" },
-    { labelId: "tangga", displayName: "Tangga", icon: "🪜" },
-    { labelId: "tali", displayName: "Tali", icon: "🪢" },
-    { labelId: "batu", displayName: "Batu", icon: "🪨" },
-  ],
-  summary: {
-    gameplay: "Kamu membuktikan jalanmu aman sampai ke menara. {character} berhasil!",
-    literacy: "Bukti lebih kuat daripada persen. Periksa ketiga tebakan dan akibatnya.",
-  },
-});
-
-export const LEVELS: LevelDefinition[] = [STAGE_1, STAGE_2, STAGE_3, STAGE_4];
+export const LEVELS: LevelDefinition[] = [STAGE_1, STAGE_2, STAGE_3];
 
 /** The last level: winning it opens the closing (Pusat Halaman) instead of the level list. */
 export const FINAL_LEVEL_STAGE = Math.max(...LEVELS.map((level) => level.stage));

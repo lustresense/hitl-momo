@@ -67,8 +67,9 @@ describe("Momo bubble does not cover what lies under it (drawing area, confirm b
     expect(chatCss()).toMatch(/\.momo-chat \.momo-chat__bubble\s*\{[^}]*pointer-events:\s*none/);
   });
 
-  it("only the line still typing takes a tap (it shows the whole line)", () => {
-    expect(chatCss()).toMatch(/\.momo-chat \.momo-chat__bubble\[data-skippable="true"\]\s*\{[^}]*pointer-events:\s*auto/);
+  it("no bubble takes a tap: there is no skip, so no exception to click-through either", () => {
+    expect(chatCss()).not.toMatch(/data-skippable/);
+    expect(chatCss()).not.toMatch(/pointer-events:\s*auto/);
   });
 });
 

@@ -4,23 +4,16 @@ import { FailOverlay } from "@/src/components/game/FailOverlay";
 import { StageHeader } from "@/src/components/game/StageHeader";
 import { SuccessPopup } from "@/src/components/game/SuccessPopup";
 import { forceInputMode, resetInputModeForTest } from "@/src/input/input-mode";
-import { cursorAtPx, placeBox, resetHandGesture, setHandGesture, type Box } from "./gesture-stub";
+import type { HandPose } from "@/src/input/hand-gesture";
+import { resetPose, setPose } from "./pose-stub";
+import { placeBox, type Box } from "./gesture-stub";
 
 vi.mock("@/src/hooks/useHandGesture", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/src/hooks/useHandGesture")>();
-  const stub = await import("./gesture-stub");
-  return { ...actual, useHandGesture: stub.useHandGestureStub };
+  const stub = await import("./pose-stub");
+  return { ...actual, useHandGesture: stub.usePoseStub };
 });
 vi.mock("@/src/camera/hand-landmarker", () => ({ createHandLandmarker: vi.fn(() => new Promise(() => {})) }));
-
-// Three action buttons side by side, as on the fail overlay. Each fingertip spot is inside exactly one of them.
-const ROW: Record<"retry" | "reposition" | "redraw", Box> = {
-  retry: { left: 40, top: 500, width: 220, height: 60 },
-  reposition: { left: 300, top: 500, width: 220, height: 60 },
-  redraw: { left: 560, top: 500, width: 220, height: 60 },
-};
-const at = (box: Box) => cursorAtPx(box.left + box.width / 2, box.top + box.height / 2);
-const OUTSIDE = cursorAtPx(10, 10);
 
 function advance(ms: number) {
   for (let t = 0; t < ms; t += 16) act(() => {
@@ -28,10 +21,19 @@ function advance(ms: number) {
   });
 }
 
+/** The ring arms on the empty hand first, then the pose is held for `ms` and released. */
+function hold(pose: HandPose, ms = 1600) {
+  advance(64);
+  act(() => setPose(pose));
+  advance(ms);
+  act(() => setPose("none"));
+  advance(64);
+}
+
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "requestAnimationFrame", "cancelAnimationFrame", "performance", "Date"] });
   resetInputModeForTest();
-  resetHandGesture();
+  resetPose();
 });
 afterEach(() => {
   cleanup();
@@ -41,32 +43,27 @@ afterEach(() => {
 function renderFail() {
   const handlers = { onRetry: vi.fn(), onReposition: vi.fn(), onRedraw: vi.fn() };
   render(<FailOverlay failReason="Papan terlalu pendek." {...handlers} />);
-  // Momo types her lines first; the action buttons appear after that.
+  // Momo types her lines first; the action rings appear after that.
   advance(4000);
-  const retry = screen.getByTestId("btn-retry-cycle");
-  const reposition = screen.getByTestId("btn-reposition");
-  const redraw = screen.getByTestId("btn-redraw-gameplay");
-  placeBox(retry, ROW.retry);
-  placeBox(reposition, ROW.reposition);
-  placeBox(redraw, ROW.redraw);
-  return { ...handlers, retry, reposition, redraw };
+  return { ...handlers, retry: screen.getByTestId("btn-retry-cycle"), reposition: screen.getByTestId("btn-reposition"), redraw: screen.getByTestId("btn-redraw-gameplay") };
 }
 
-describe("FailOverlay: the three actions are NUI buttons", () => {
-  it("in camera mode each action shows the dwell ring", () => {
+describe("FailOverlay: the three actions are finger rings", () => {
+  it("in camera mode each action shows the ring, and there is no cursor", () => {
     forceInputMode("camera");
     const { retry, reposition, redraw } = renderFail();
     expect(retry.getAttribute("data-mode")).toBe("camera");
     expect(reposition.getAttribute("data-mode")).toBe("camera");
     expect(redraw.getAttribute("data-mode")).toBe("camera");
+    expect(document.querySelector(".hand-cursor")).toBeNull();
+    expect(document.querySelector(".dwell-btn")).toBeNull();
   });
 
-  it("a fingertip resting on Coba lagi fires it once after 1.2 s, and no other action", () => {
+  it("one finger holds Coba lagi: it fires once at 1.5 s, and no other action", () => {
     forceInputMode("camera");
     const { onRetry, onReposition, onRedraw } = renderFail();
-    advance(50);
-    act(() => setHandGesture({ handVisible: true, cursor: at(ROW.retry) }));
-    advance(1100);
+    act(() => setPose("one-finger"));
+    advance(1300);
     expect(onRetry).not.toHaveBeenCalled();
     advance(300);
     expect(onRetry).toHaveBeenCalledTimes(1);
@@ -74,39 +71,69 @@ describe("FailOverlay: the three actions are NUI buttons", () => {
     expect(onRedraw).not.toHaveBeenCalled();
   });
 
-  it("only the action under the fingertip fills; the neighbours stay empty", () => {
+  it("two fingers hold Geser objek, three fingers hold Gambar lagi, each alone", () => {
+    forceInputMode("camera");
+    const { onRetry, onReposition, onRedraw } = renderFail();
+    hold("two-fingers");
+    expect(onReposition).toHaveBeenCalledTimes(1);
+    hold("three-fingers");
+    expect(onRedraw).toHaveBeenCalledTimes(1);
+    expect(onRetry).not.toHaveBeenCalled();
+    expect(onReposition).toHaveBeenCalledTimes(1);
+  });
+
+  it("only the ring whose pose is held fills; the neighbours stay empty", () => {
     forceInputMode("camera");
     const { reposition, redraw, retry } = renderFail();
-    advance(50);
-    act(() => setHandGesture({ handVisible: true, cursor: at(ROW.reposition) }));
+    advance(64);
+    act(() => setPose("two-fingers"));
     advance(600);
     expect(Number(reposition.getAttribute("data-progress"))).toBeGreaterThan(0);
     expect(retry.getAttribute("data-progress")).toBe("0");
     expect(redraw.getAttribute("data-progress")).toBe("0");
   });
 
-  it("with the mouse (fallback) a plain click fires the action at once, with no ring", () => {
+  it("with the mouse (fallback) a press held for the ring time fires; a plain click does nothing", () => {
     forceInputMode("fallback");
     const { onRetry, onReposition, onRedraw, retry, reposition, redraw } = renderFail();
-    act(() => setHandGesture({ handVisible: true, cursor: at(ROW.redraw) }));
-    advance(1500);
-    expect(onRedraw).not.toHaveBeenCalled();
-    expect(redraw.getAttribute("data-mode")).toBe("fallback");
     fireEvent.click(retry);
     fireEvent.click(reposition);
     fireEvent.click(redraw);
-    expect(onRetry).toHaveBeenCalledTimes(1);
-    expect(onReposition).toHaveBeenCalledTimes(1);
+    expect(onRetry).not.toHaveBeenCalled();
+    expect(onReposition).not.toHaveBeenCalled();
+    expect(onRedraw).not.toHaveBeenCalled();
+    fireEvent.pointerDown(redraw);
+    advance(1600);
+    fireEvent.pointerUp(redraw);
     expect(onRedraw).toHaveBeenCalledTimes(1);
+    expect(redraw.getAttribute("data-mode")).toBe("fallback");
   });
 
-  it("a fingertip outside every action fires nothing", () => {
+  it("the recovery action reads Gambar lagi, never Gambar ulang", () => {
     forceInputMode("camera");
-    const { onReposition } = renderFail();
-    advance(50);
-    act(() => setHandGesture({ handVisible: true, cursor: OUTSIDE }));
-    advance(200);
+    const { redraw } = renderFail();
+    expect(redraw.textContent).toContain("Gambar lagi");
+    expect(screen.queryByText(/Gambar ulang/)).toBeNull();
+  });
+
+  it("a thumbs-up on the fail screen picks no action (the thumb only confirms where a ring is shown)", () => {
+    forceInputMode("camera");
+    const { onRetry, onReposition, onRedraw } = renderFail();
+    act(() => setPose("thumb-up"));
+    advance(3000);
+    expect(onRetry).not.toHaveBeenCalled();
     expect(onReposition).not.toHaveBeenCalled();
+    expect(onRedraw).not.toHaveBeenCalled();
+  });
+
+  it("a hand shape that is no count (a fist, an open palm) fires nothing", () => {
+    forceInputMode("camera");
+    const { onRetry, onReposition, onRedraw } = renderFail();
+    hold("fist", 2600);
+    hold("open-palm", 2600);
+    expect(onRetry).not.toHaveBeenCalled();
+    expect(onReposition).not.toHaveBeenCalled();
+    expect(onRedraw).not.toHaveBeenCalled();
   });
 });
 

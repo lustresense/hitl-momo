@@ -172,3 +172,105 @@
     animation: none;
   }
 }
+
+/* Grab handle: a papercraft tab on the centre marker, so the student sees that the ruler moves (about 48 x 70 px). */
+.student-ruler-handle {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 2;
+  width: 48px;
+  height: 70px;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  border: 3px solid #111;
+  border-radius: 12px;
+  background: #fffaf0;
+  box-shadow: 4px 4px 0 #111;
+  pointer-events: none;
+}
+
+.student-ruler-handle span {
+  display: block;
+  width: 26px;
+  height: 3px;
+  border-radius: 2px;
+  background: #111;
+}
+
+/* The heading stays in the accessibility tree for screen readers; the student sees only the ruler and its number. */
+.student-number-screen .student-number-content .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus phase dims the page under Momo. It takes the clicks, so the locked ruler cannot be moved through it. */
+.student-ruler-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 870;
+  background: rgba(17, 17, 17, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s ease;
+}
+
+.student-ruler-scrim.is-on {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/*
+ * Momo's box is MomoGuide's own fixed element. Focus = her centre of the screen, docked = the bottom-right corner.
+ * Only position and size move; the durations are the story's, and reduced motion does not shorten them.
+ */
+.student-ruler-momo .momo-guide {
+  right: 18px;
+  bottom: 14px;
+  transform: translate(0, 0);
+  transition: right 0.6s cubic-bezier(0.45, 0, 0.2, 1), bottom 0.6s cubic-bezier(0.45, 0, 0.2, 1), transform 0.6s cubic-bezier(0.45, 0, 0.2, 1);
+}
+
+.student-ruler-momo .momo-chat__avatar {
+  transition: height 0.6s cubic-bezier(0.45, 0, 0.2, 1), width 0.6s cubic-bezier(0.45, 0, 0.2, 1);
+}
+
+/* Right and bottom at the centre, then pulled back by half its own size: the box sits in the middle. */
+.student-ruler-momo.is-focus .momo-guide,
+.student-ruler-momo.is-docking .momo-guide {
+  right: 50%;
+  bottom: 50%;
+  transform: translate(50%, 50%);
+}
+
+/* Docked: the bubble stays left of Momo and never crosses the middle, where the needle and the number are. */
+.student-ruler-momo .momo-guide .momo-chat__thread {
+  max-width: clamp(180px, calc(50vw - 200px), 340px);
+}
+
+@media (max-width: 600px) {
+  .student-ruler-momo.is-docked .momo-guide {
+    right: 8px;
+    bottom: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .student-ruler-scrim,
+  .student-ruler-momo .momo-guide,
+  .student-ruler-momo .momo-chat__avatar {
+    transition-duration: 0.6s;
+  }
+}

@@ -127,8 +127,11 @@ describe("thumb tracker hand state (pinch and cursor)", () => {
     expect(seen).toHaveLength(start + 2);
     expect(seen.at(-1)!.cursor?.x).toBeCloseTo(0.63);
 
+    // The voted pose and finger count settle on the third agreeing frame: one more notice, then silence.
     publishHandForTest(moved);
-    expect(seen).toHaveLength(start + 2);
+    expect(seen).toHaveLength(start + 3);
+    publishHandForTest(moved);
+    expect(seen).toHaveLength(start + 3);
   });
 
   it("listeners hear a pinch change once, not on every repeated value", () => {

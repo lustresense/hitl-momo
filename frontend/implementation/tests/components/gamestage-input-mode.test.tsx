@@ -10,6 +10,7 @@ import { LEVELS } from "@/src/domain/levels";
 import { resetSharedStreamForTest, setSharedStream } from "@/src/camera/shared-stream";
 import { forceInputMode, resetInputModeForTest } from "@/src/input/input-mode";
 import type { Landmark } from "@/src/input/types";
+import { pointingHand } from "../input/gameplay-fixtures";
 import type { HumanDecision } from "@/src/domain/types";
 
 const mp = vi.hoisted(() => ({
@@ -63,14 +64,7 @@ beforeAll(() => {
 });
 
 /** Hand seen by the student: side 0 = far left, 1 = far right; a pinch gap of 0.2 is a pinch. */
-function hand(side: number, pinchGap = 1): Landmark[] {
-  const lm: Landmark[] = Array.from({ length: 21 }, () => ({ x: 0.5, y: 0.5 }));
-  lm[0] = { x: 0.5, y: 0.9 };
-  lm[9] = { x: 0.5, y: 0.7 };
-  lm[8] = { x: 1 - side, y: 0.4 };
-  lm[4] = { x: 1 - side - pinchGap * 0.2, y: 0.4 };
-  return lm;
-}
+// Hands are built with pointingHand(angle): the index finger's direction on the student's screen.
 
 let video: HTMLVideoElement;
 let frameClock = 0;
@@ -118,7 +112,13 @@ const button = (testId: string) => screen.getByTestId(testId);
 /** The lazily imported driver has created its landmarker and queued its first frame. */
 async function settle() {
   await act(async () => {
-    await vi.waitFor(() => expect(rafQueue.length).toBeGreaterThan(0), { timeout: 3000, interval: 5 });
+    // The model exists AND the driver has queued its first frame (another component's rAF alone
+    // would let the steps run before the driver loop starts).
+    await vi.waitFor(() => {
+      expect(mp.attempts).toBeGreaterThan(0);
+      expect(rafQueue.length).toBeGreaterThan(0);
+    }, { timeout: 3000, interval: 5 });
+    await new Promise((resolve) => setTimeout(resolve, 0));
   });
 }
 
@@ -183,7 +183,7 @@ describe("camera mode: hand control on by itself, buttons only show the hand", (
     await startStage("gameplay");
     await settle();
 
-    mp.hand = hand(0.2);
+    mp.hand = pointingHand(170);
     for (let i = 0; i < 4; i++) stepFrame();
     expect(current()).toEqual({ left: true, right: false, jump: false });
     expect(mp.attempts).toBe(1);
@@ -201,7 +201,7 @@ describe("camera mode: hand control on by itself, buttons only show the hand", (
     fireEvent.pointerDown(button("move-right"), { pointerId: 1 });
     expect(current().right).toBe(false);
 
-    mp.hand = hand(0.2);
+    mp.hand = pointingHand(170);
     for (let i = 0; i < 4; i++) stepFrame();
     expect(left.classList.contains("is-hand-active")).toBe(true);
   });
@@ -288,7 +288,7 @@ describe("camera trouble turns the buttons back on (R13), and the hand returns w
     await settle();
     expect(button("move-left").getAttribute("aria-disabled")).toBe("true");
 
-    mp.hand = hand(0.8);
+    mp.hand = pointingHand(10);
     for (let i = 0; i < 4; i++) stepFrame();
     expect(current()).toEqual({ left: false, right: true, jump: false });
   });
@@ -304,7 +304,7 @@ describe("one hand reader per stage visit", () => {
     act(() => view.rerender(stage("gameplay")));
     await act(async () => {});
 
-    mp.hand = hand(0.5, 0.2);
+    mp.hand = pointingHand(90);
     for (let i = 0; i < 6; i++) stepFrame();
     expect(mp.attempts).toBe(1);
     expect(current().jump).toBe(true);

@@ -1,8 +1,9 @@
 /**
  * "Cara menjalankan Thinman": three cards (Kiri, Kanan, Lompat). Camera mode shows the real hand
  * gesture, fallback mode the real key or on-screen button. The sentences must match what the code
- * reads: left/right = index fingertip in the outer thirds of the mirrored camera image, jump = held
- * pinch (gameplay only), centre = stop; keyboard/buttons = arrows, A/D, Space/W, and the buttons.
+ * reads (gameplay-gesture.ts): the index finger points level left or right to walk, straight up to
+ * jump, up and to the side to jump and walk, down to stop; keyboard/buttons = arrows, A/D, Space/W,
+ * and the buttons.
  */
 import { Icon, type IconName } from "../ui/Icon";
 import type { DirectionKey, InputMode } from "./game-stage-types";
@@ -18,11 +19,11 @@ const COPY: Record<InputMode, { title: string; sentence: Record<DirectionKey, st
   camera: {
     title: "Pakai tanganmu",
     sentence: {
-      left: "Taruh telunjuk di sebelah kiri.",
-      right: "Taruh telunjuk di sebelah kanan.",
-      jump: "Satukan telunjuk dan jempol untuk lompat.",
+      left: "Telunjuk mendatar ke kiri, Thinman jalan ke kiri.",
+      right: "Telunjuk mendatar ke kanan, Thinman jalan ke kanan.",
+      jump: "Telunjuk tegak ke atas untuk lompat. Miring ke kiri atau kanan untuk lompat sambil jalan.",
     },
-    note: "Telunjuk di tengah, Thinman berhenti.",
+    note: "Telunjuk turun ke bawah, Thinman berhenti.",
   },
   fallback: {
     title: "Pakai keyboard atau tombol",
@@ -68,11 +69,7 @@ export function ControlGuide({ mode, onClose }: ControlGuideProps) {
           <li key={card.dir} className="control-guide__card" data-testid={`guide-card-${card.dir}`}>
             <span className="control-guide__art">
               {mode === "camera" ? (
-                card.dir === "jump" ? (
-                  <Icon name="hand-draw" size={56} />
-                ) : (
-                  <PointingHand flip={card.dir === "right"} />
-                )
+                <PointingHand flip={card.dir === "right"} up={card.dir === "jump"} />
               ) : (
                 <Icon name={card.fallbackIcon} size={30} stroke={3} />
               )}
@@ -88,10 +85,11 @@ export function ControlGuide({ mode, onClose }: ControlGuideProps) {
 }
 
 /**
- * Simple pointing hand for Kiri (flip = Kanan): index finger out, palm behind it, arrow above.
- * Outline layer and fill layer share one silhouette, so the joins show no inner lines.
+ * Simple pointing hand for Kiri (flip = Kanan, up = Lompat): index finger out, palm behind it,
+ * arrow above. Outline layer and fill layer share one silhouette, so the joins show no inner lines.
  */
-function PointingHand({ flip }: { flip: boolean }) {
+function PointingHand({ flip, up = false }: { flip: boolean; up?: boolean }) {
+  const transform = up ? "rotate(90 36 36)" : flip ? "translate(72 0) scale(-1 1)" : undefined;
   const silhouette = (
     <>
       <rect x="6" y="27" width="36" height="12" rx="6" />
@@ -100,7 +98,7 @@ function PointingHand({ flip }: { flip: boolean }) {
   );
   return (
     <svg className="control-guide__hand" viewBox="0 0 72 72" width={56} height={56} aria-hidden="true" focusable="false">
-      <g transform={flip ? "translate(72 0) scale(-1 1)" : undefined}>
+      <g transform={transform}>
         <g fill="currentColor" stroke="currentColor" strokeWidth={5} strokeLinejoin="round">
           {silhouette}
         </g>

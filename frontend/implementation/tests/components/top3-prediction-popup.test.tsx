@@ -1,18 +1,45 @@
-import { afterEach, describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { afterEach, beforeEach, describe, it, expect, vi } from "vitest";
+import { act, render, screen, fireEvent, cleanup } from "@testing-library/react";
 import { Top3PredictionPopup } from "@/src/components/prediction/Top3PredictionPopup";
 import { DrawingScreen } from "@/src/components/drawing/DrawingScreen";
 import { LEVELS } from "@/src/domain/levels";
 import type { PredictionResult } from "@/src/domain/types";
+import type { HandPose } from "@/src/input/hand-gesture";
+import { forceInputMode, resetInputModeForTest } from "@/src/input/input-mode";
+import { resetPose, setPose } from "./pose-stub";
 
-// Hand tracker stubbed: the decision buttons read the fingertip, and no camera exists in tests.
+// The decision rings read the hand pose: one finger, two, three, the open palm, the thumb and the pinch.
 vi.mock("@/src/hooks/useHandGesture", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/src/hooks/useHandGesture")>();
-  const stub = await import("./gesture-stub");
-  return { ...actual, useHandGesture: stub.useHandGestureStub };
+  const stub = await import("./pose-stub");
+  return { ...actual, useHandGesture: stub.usePoseStub };
 });
 
-afterEach(cleanup);
+beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "requestAnimationFrame", "cancelAnimationFrame", "performance", "Date"] });
+  resetInputModeForTest();
+  resetPose();
+  forceInputMode("camera");
+});
+afterEach(() => {
+  cleanup();
+  vi.useRealTimers();
+});
+
+function advance(ms: number) {
+  for (let t = 0; t < ms; t += 16) act(() => {
+    vi.advanceTimersByTime(16);
+  });
+}
+
+/** Holds a hand pose for `ms`, after the ring has seen the empty hand once (so it is armed), then lets go. */
+function hold(pose: HandPose, ms = 1600) {
+  advance(64);
+  act(() => setPose(pose));
+  advance(ms);
+  act(() => setPose("none"));
+  advance(64);
+}
 
 const mockPrediction: PredictionResult = {
   candidates: [
@@ -70,10 +97,10 @@ describe("Top3PredictionPopup Component", () => {
     expect(screen.getByTestId("popup-error")).toBeDefined();
     expect(screen.getByText("Network timeout")).toBeDefined();
 
-    fireEvent.click(screen.getByTestId("btn-retry-prediction"));
+    hold("one-finger");
     expect(onRetry).toHaveBeenCalledTimes(1);
 
-    fireEvent.click(screen.getByTestId("btn-redraw-error"));
+    hold("pinch");
     expect(onRedraw).toHaveBeenCalledTimes(1);
   });
 
@@ -108,7 +135,7 @@ describe("Top3PredictionPopup Component", () => {
     expect(screen.getByLabelText("Pilihan Utama")).toBeDefined();
   });
 
-  it("commits Accept decision on tap (no separate confirm button)", () => {
+  it("commits Accept decision on a one-finger hold (no separate confirm button)", () => {
     const onAccept = vi.fn();
     render(
       <Top3PredictionPopup
@@ -124,11 +151,11 @@ describe("Top3PredictionPopup Component", () => {
       />
     );
 
-    fireEvent.click(screen.getByTestId("btn-accept"));
+    hold("one-finger");
     expect(onAccept).toHaveBeenCalledTimes(1);
   });
 
-  it("commits Correct decision with the tapped candidate rank (2 or 3) only", () => {
+  it("commits Correct decision with the held finger count (2 or 3) only", () => {
     const onCorrect = vi.fn();
     const onAccept = vi.fn();
     render(
@@ -145,8 +172,8 @@ describe("Top3PredictionPopup Component", () => {
       />
     );
 
-    // Tapping candidate #2 is the decision: one tap, one commit
-    fireEvent.click(screen.getByTestId("btn-correct-2"));
+    // Holding two fingers on candidate #2 is the decision: one hold, one commit
+    hold("two-fingers");
     expect(onCorrect).toHaveBeenCalledTimes(1);
     expect(onCorrect).toHaveBeenCalledWith(2);
     expect(onAccept).not.toHaveBeenCalled();
@@ -168,17 +195,17 @@ describe("Top3PredictionPopup Component", () => {
       />
     );
 
-    fireEvent.click(screen.getByTestId("btn-override"));
+    hold("open-palm");
 
     // Choosing a label alone does not commit; Pakai does
-    fireEvent.click(screen.getByTestId("override-option-tangga"));
+    hold("one-finger");
     expect(onOverride).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByTestId("override-confirm"));
+    hold("thumb-up", 2100);
     expect(onOverride).toHaveBeenCalledTimes(1);
     expect(onOverride).toHaveBeenCalledWith("tangga");
   });
 
-  it("invokes onRedraw when redraw link is clicked", () => {
+  it("invokes onRedraw when the pinch on Gambar lagi is held", () => {
     const onRedraw = vi.fn();
     render(
       <Top3PredictionPopup
@@ -194,7 +221,7 @@ describe("Top3PredictionPopup Component", () => {
       />
     );
 
-    fireEvent.click(screen.getByText(/Gambar ulang/));
+    hold("pinch");
     expect(onRedraw).toHaveBeenCalledTimes(1);
   });
 

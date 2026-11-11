@@ -1,12 +1,11 @@
 import { sourceToPhysics } from './stage-transform';
-import { getFinalStageGeometry } from './stage-geometry-final';
 
 export interface Point { x: number; y: number }
 /** Top-left axis-aligned rectangle. */
 export interface Rect extends Point { w: number; h: number }
 export interface StageGeometry {
-  stage: 1 | 2 | 3 | 4;
-  sceneIndex: 1 | 2 | 3 | 4;
+  stage: 1 | 2 | 3;
+  sceneIndex: 1 | 2 | 3;
   source: { width: number; height: number };
   world: { width: number; height: number };
   platforms: Array<Rect & { id: string }>;
@@ -31,8 +30,7 @@ export const STAGE_WORLD = { width: 800, height: 450 } as const;
  * PRD 0.0.16 R8.1: L3 stone block lowered (top 238 -> 262) so one drawn object is not enough at WALK_SPEED.
  * Runtime owns object stacking, balancing and existing player body dimensions.
  */
-export function getStageGeometry(stage: 1 | 2 | 3 | 4): StageGeometry {
-  if (stage === 4) return getFinalStageGeometry();
+export function getStageGeometry(stage: 1 | 2 | 3): StageGeometry {
   const g: StageGeometry = {
     stage, sceneIndex: stage, source: { ...STAGE_SOURCE }, world: { ...STAGE_WORLD },
     platforms: [], hazards: [], spawn: { x: 0, y: 0 },

@@ -20,6 +20,8 @@ export interface DirectionButtonProps {
   primary?: boolean;
   /** Camera mode: show the direction, take no press (the hand moves Thinman). */
   indicator?: boolean;
+  /** Camera mode: the icon alone; the words are not needed next to the speedometer. */
+  iconOnly?: boolean;
   onPress: (pointerId: number, dir: DirectionKey) => void;
   onRelease: (pointerId: number) => void;
 }
@@ -34,10 +36,11 @@ export function DirectionButton({
   handActive = false,
   primary = false,
   indicator = false,
+  iconOnly = false,
   onPress,
   onRelease,
 }: DirectionButtonProps) {
-  const className = `nb-btn btn-small game-input-button${primary ? " nb-btn--primary" : ""}${pressed ? " is-pressed" : ""}${handActive ? " is-hand-active" : ""}${indicator ? " is-indicator" : ""}`;
+  const className = `nb-btn btn-small game-input-button${primary ? " nb-btn--primary" : ""}${pressed ? " is-pressed" : ""}${handActive ? " is-hand-active" : ""}${indicator ? " is-indicator" : ""}${iconOnly ? " is-icon-only" : ""}`;
   // An indicator gets no press handlers at all, so a stray mouse event cannot move Thinman.
   const pressHandlers = indicator
     ? {}
@@ -65,7 +68,7 @@ export function DirectionButton({
       onContextMenu={(event) => event.preventDefault()}
     >
       <Icon name={icon} size={22} stroke={3} />
-      <span className="game-input-button__label">{label}</span>
+      {!iconOnly && <span className="game-input-button__label">{label}</span>}
     </button>
   );
 }

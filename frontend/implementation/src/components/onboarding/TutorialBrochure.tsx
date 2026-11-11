@@ -1,63 +1,50 @@
 "use client";
 /**
  * Tutorial: three number cards deal in, fan out, and each one in turn flies to the centre, flips and unfolds
- * into a little book (guide page + practice page). Holding a pinch on "Lanjut" closes the book into a card again, which
- * slides onto the "done" pile on the left while the next card is already travelling in from the pile on the right.
+ * into a little book (guide page + practice page). A card closes only on its thumb ("aku mengerti"), which is
+ * offered after Momo has explained, the practice is done and the student has read for CARD_READ_MS (tutorial-card-gate).
  *
- * One GSAP timeline per step, overlapped so nothing waits for anything: transform-only (no width/height
- * animation), pages are built at their final size and scaled down while they are cards, so text is sharp the
- * moment a book is open. Practice pages use the same Thinman and the same gesture glyphs as the game.
+ * One GSAP timeline per step, transform-only. Practice pages use the same Thinman and the same gesture glyphs as the
+ * game. The practice canvas is the real DrawingSurface, so the gestures are the drawing screen's gestures.
  */
-import { useCallback, useEffect, useLayoutEffect, useRef, useState, type PointerEvent } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState, type PointerEvent, type RefObject } from "react";
 import { gsap } from "gsap";
 import { resolveCharacterDisplayName } from "@/src/config/character-tokens";
 import { Icon, type IconName } from "../ui/Icon";
 import { MomoGuide } from "../momo/MomoGuide";
-import { tutorialStep, type TutorialMoment } from "@/src/domain/guide-script";
 import { ThinmanArt } from "../ui/ThinmanArt";
-import { PinchRing } from "../ui/PinchRing";
-import { useInputMode } from "@/src/hooks/useHandGesture";
+import { useHandGesture, useInputMode } from "@/src/hooks/useHandGesture";
 import { renderCharacterASideSvg } from "@/src/game/character/character-a-svg";
 import { walkT } from "@/src/game/character/pose-math";
+import { tutorialCardCopy, tutorialHint, tutorialStep, TUTORIAL_PRACTICE_TOOLS, type TutorialMoment } from "@/src/domain/tutorial-script";
+import { useDrawingSurface, type DrawingToolUsed } from "../drawing/hooks/useDrawingSurface";
+import type { DrawingSurface } from "@/src/input";
 import { getPrefersReducedMotion, subscribePrefersReducedMotion } from "./tutorial-motion";
+import { CARD_READ_MS, cardGate, cardPhase, startCardGate, type CardEvent, type CardGate, type CardIndex } from "./tutorial-card-gate";
+import { TUTORIAL_TIMING as T } from "./tutorial-timing";
+import { tutorialLayout, type TutorialLayout } from "./tutorial-layout";
+import { advanceWalkPhase, clampWalk, handWalkTarget, KEY_STEP, WALK_END } from "./tutorial-walk";
+import { TutorialThumb } from "./TutorialThumb";
 import "./TutorialBrochure.css";
+
+export { CARD_READ_MS } from "./tutorial-card-gate";
+export { advanceWalkPhase, TUTORIAL_STRIDE_PCT, WALK_END } from "./tutorial-walk";
 
 interface TutorialBrochureProps {
   onStart(): void;
+  /** Kept for the caller's signature. The tutorial has no skip: every card needs its practice. */
   onSkip?: () => void;
   characterDisplayName?: string | null;
 }
 
-type CardIndex = 0 | 1 | 2;
 type Tool = "draw" | "erase";
-
-interface Layout {
-  gw: number; // guide page width (final)
-  pw: number; // practice page width (final)
-  oh: number; // page height (final)
-  fit: number; // scale that makes the open book fit the viewport
-  s0: number; // card scale while closed
-  gap: number; // spacing of the fan
-  mini: number; // scale of a resting card in the row at the bottom
-  miniGap: number;
-  miniY: number;
-  vh: number;
-}
-
-function computeLayout(): Layout {
-  const vw = window.innerWidth;
-  const vh = window.innerHeight;
-  const gw = Math.round(Math.max(270, Math.min(360, vw * 0.3)));
-  const pw = Math.round(gw * 1.75);
-  const oh = Math.round(Math.max(360, Math.min(520, vh * 0.7)));
-  const fit = Math.min(1, (vw * 0.94) / (gw + pw), (vh * 0.86) / oh);
-  const closedW = Math.min(214, Math.max(150, vw * 0.17));
-  const s0 = closedW / gw;
-  const mini = 46 / gw;
-  return { gw, pw, oh, fit, s0, gap: closedW * 1.1, mini, miniGap: 62, miniY: vh / 2 - (oh * mini) / 2 - 22, vh };
-}
-
+const CARDS: CardIndex[] = [0, 1, 2];
 const FAN_ROT = [-5, 1.5, 5.5];
+const EXIT = T.exit;
+
+function computeLayout(): TutorialLayout {
+  return tutorialLayout(window.innerWidth, window.innerHeight);
+}
 
 function Flag({ waving }: { waving: boolean }) {
   return (
@@ -68,91 +55,107 @@ function Flag({ waving }: { waving: boolean }) {
   );
 }
 
-/** Percent of the scene width Thinman covers in one full walk cycle (two steps). */
-export const TUTORIAL_STRIDE_PCT = 9;
-
-/** Walk-cycle phase after moving `dxPct` percent: the step rate follows the drag speed (R5). */
-export function advanceWalkPhase(phase: number, dxPct: number): number {
-  return (((phase + Math.abs(dxPct) / TUTORIAL_STRIDE_PCT) % 1) + 1) % 1;
-}
-
-/** Thinman's walk ends at the flag (percent of the scene width). */
-const WALK_END = 76;
-/** A full pinch ring walks Thinman the rest of the way in about a second and a half. */
-const WALK_MS = 1400;
-/** How long a pinch (or a press, without a camera) fills the card-1 ring. */
-const PINCH_HOLD_MS = 1200;
-
-/** The gesture line on each card: what to do, in the input mode the student is in. Every advance is a pinch. */
-function gestureHint(index: CardIndex, camera: boolean, walked: boolean): { icon: IconName; text: string } {
-  if (index === 0) {
-    if (camera) return { icon: "hand-draw", text: "Cubit tanganmu, lalu tahan sampai cincin penuh." };
-    return walked
-      ? { icon: "hand-draw", text: "Tahan tombolnya sampai cincin penuh." }
-      : { icon: "arrow-right", text: "Geser Thinman ke bendera dulu." };
-  }
-  if (index === 1) return { icon: "hand-draw", text: camera ? "Cubit tanganmu, lalu tahan sampai cincin penuh." : "Tahan tombolnya sampai cincin penuh." };
-  return {
-    icon: "hand-draw",
-    text: camera ? "Coba tiap gestur di kanvas, lalu cubit dan tahan buat mulai." : "Coba tiap alat di kanan, lalu tahan tombolnya buat mulai.",
-  };
-}
-
 /* ---------- Practice page 1: walk Thinman to the flag ---------- */
-function WalkPlayground({ onComplete, walkRequest }: { onComplete(): void; walkRequest: { ms: number } | null }) {
+interface WalkPlaygroundProps {
+  onComplete(): void;
+  /** Camera mode and card 1 open: a pinch drives Thinman with the hand. */
+  live: boolean;
+  /** Card 1 open: the arrow keys step Thinman. */
+  keys: boolean;
+}
+
+function WalkPlayground({ onComplete, live, keys }: WalkPlaygroundProps) {
+  const hand = useHandGesture(live);
   const [walk, setWalk] = useState({ pos: 14, phase: 0, facing: 1 });
   const [moved, setMoved] = useState(false);
-  const pos = walk.pos;
-  const done = pos >= WALK_END;
-  const posRef = useRef(pos);
-  posRef.current = pos;
+  const [done, setDone] = useState(false);
+  const posRef = useRef(14);
+  const doneRef = useRef(false);
+  const dragRef = useRef(false);
+  const anchorRef = useRef<{ pos: number; x: number } | null>(null);
   const completeRef = useRef(onComplete);
   completeRef.current = onComplete;
 
-  /** Drag and the pinch walk both move Thinman through here, so the walk cycle follows the distance (R5).
-   *  Tiny drag jitter is skipped; the walk's last step is exact, so Thinman always lands on the flag. */
-  const place = useCallback((next: number, exact = false) => {
-    setWalk((prev) => {
-      const dx = next - prev.pos;
-      if (!exact && Math.abs(dx) <= 0.2) return prev;
-      return { pos: next, phase: advanceWalkPhase(prev.phase, dx), facing: dx < 0 ? -1 : 1 };
-    });
+  /** Every way of moving Thinman lands here. He stops at the flag and cannot be moved on afterwards. */
+  const place = useCallback((target: number) => {
+    if (doneRef.current || !Number.isFinite(target)) return;
+    const from = posRef.current;
+    const next = clampWalk(target);
+    if (Math.abs(next - from) <= 0.2 && next < WALK_END) return; // tiny jitter does not move him
+    posRef.current = next;
+    const dx = next - from;
+    setWalk((prev) => ({ pos: next, phase: advanceWalkPhase(prev.phase, dx), facing: dx < 0 ? -1 : 1 }));
     setMoved(true);
+    if (next >= WALK_END) {
+      posRef.current = WALK_END;
+      doneRef.current = true;
+      setDone(true);
+      completeRef.current();
+    }
   }, []);
 
-  function move(event: PointerEvent<HTMLDivElement>) {
+  const percentOf = (event: PointerEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
-    const next = Math.max(10, Math.min(78, ((event.clientX - rect.left) / rect.width) * 100));
-    place(next, next >= WALK_END);
-    if (next >= WALK_END) completeRef.current();
-  }
+    return ((event.clientX - rect.left) / rect.width) * 100;
+  };
 
-  // A full pinch ring: Thinman walks the rest of the way in one smooth stride, then the card may move on.
+  // Hand: the pinch anchors the hand, Thinman follows its travel, and letting go stops him.
   useEffect(() => {
-    if (!walkRequest) return;
-    const from = posRef.current;
-    if (from >= WALK_END) {
-      completeRef.current();
+    const cursor = hand.cursor;
+    if (!live || doneRef.current || !hand.pinch || !cursor) {
+      anchorRef.current = null;
       return;
     }
-    const steps = Math.max(1, Math.round(walkRequest.ms / 16));
-    let step = 0;
-    const timer = window.setInterval(() => {
-      step++;
-      const t = Math.min(1, step / steps);
-      place(from + (WALK_END - from) * t * t * (3 - 2 * t)); // smoothstep: soft start and stop
-      if (step >= steps) {
-        window.clearInterval(timer);
-        place(WALK_END, true);
-        completeRef.current();
+    if (!anchorRef.current) {
+      anchorRef.current = { pos: posRef.current, x: cursor.x };
+      return;
+    }
+    place(handWalkTarget(anchorRef.current.pos, anchorRef.current.x, cursor.x));
+  }, [live, hand.pinch, hand.cursor, place]);
+
+  // Keyboard fallback: the arrow keys step him (no key hint on screen).
+  useEffect(() => {
+    if (!keys) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        place(posRef.current + KEY_STEP);
+      } else if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        place(posRef.current - KEY_STEP);
       }
-    }, 16);
-    return () => window.clearInterval(timer);
-  }, [walkRequest, place]);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [keys, place]);
+
   // The real rig walk cycle (same walkT the game's CharacterAnimationAdapter uses), not two alternating poses.
+  const pos = walk.pos;
   const walkSvg = moved ? renderCharacterASideSvg(walkT(walk.phase), 0) : "";
   return (
-    <div className={`tut-scene tut-walk${done ? " is-complete" : ""}`} onPointerMove={move} onPointerDown={move} onClick={(e) => e.stopPropagation()} data-testid="tutorial-walk">
+    <div
+      className={`tut-scene tut-walk${done ? " is-complete" : ""}`}
+      onPointerDown={(event) => {
+        if (doneRef.current) return;
+        dragRef.current = true;
+        try {
+          event.currentTarget.setPointerCapture(event.pointerId);
+        } catch {
+          /* no capture support: the drag still works while the pointer stays over the scene */
+        }
+        place(percentOf(event));
+      }}
+      onPointerMove={(event) => {
+        if (dragRef.current) place(percentOf(event));
+      }}
+      onPointerUp={() => {
+        dragRef.current = false;
+      }}
+      onPointerCancel={() => {
+        dragRef.current = false;
+      }}
+      data-testid="tutorial-walk"
+    >
       <div className={`tut-handhint${moved ? " is-gone" : ""}`} aria-hidden="true">
         <Icon name="arrow-left" size={26} stroke={3} />
         <span className="tut-handhint__hand">
@@ -185,33 +188,33 @@ function WalkPlayground({ onComplete, walkRequest }: { onComplete(): void; walkR
 /* ---------- Practice page 2: safe vs dangerous ---------- */
 function SafetyPlayground() {
   return (
-    <div className="tut-scene tut-safety" onClick={(e) => e.stopPropagation()}>
+    <div className="tut-scene tut-safety">
       <section className="tut-zone tut-zone--safe" aria-label="Aman dipijak">
         <span className="tut-zone__badge tut-zone__badge--ok">
           <Icon name="check" size={16} stroke={3.6} />
           Aman dipijak
         </span>
         <div className="tut-zone__stage">
-        <svg viewBox="0 0 240 240" className="tut-zone__art" aria-hidden="true" focusable="false">
-          <path d="M6 204Q120 198 234 204" fill="none" stroke="#111" strokeWidth="5" strokeLinecap="round" />
-          {/* block with brick lines */}
-          <g stroke="#111" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round">
-            <rect x="30" y="140" width="92" height="62" rx="4" fill="#d9a066" />
-            <path d="M30 171h92M76 140v31M53 171v31M99 171v31" fill="none" strokeWidth="3" />
-          </g>
-          {/* ladder */}
-          <g stroke="#111" strokeWidth="4" strokeLinecap="round" fill="none">
-            <path d="M158 202L170 96M196 202L208 96" />
-            <path d="M162 176h36M165 148h36M168 122h36" strokeWidth="3.6" />
-          </g>
-          {/* plank */}
-          <g stroke="#111" strokeWidth="3.6" strokeLinejoin="round">
-            <rect x="130" y="206" width="104" height="14" rx="3" fill="#c28a52" transform="translate(-4 -8) rotate(-0.5 180 213)" />
-          </g>
-        </svg>
-        <div className="tut-zone__man tut-zone__man--hop">
-          <ThinmanArt pose="hop" />
-        </div>
+          <svg viewBox="0 0 240 240" className="tut-zone__art" aria-hidden="true" focusable="false">
+            <path d="M6 204Q120 198 234 204" fill="none" stroke="#111" strokeWidth="5" strokeLinecap="round" />
+            {/* block with brick lines */}
+            <g stroke="#111" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round">
+              <rect x="30" y="140" width="92" height="62" rx="4" fill="#d9a066" />
+              <path d="M30 171h92M76 140v31M53 171v31M99 171v31" fill="none" strokeWidth="3" />
+            </g>
+            {/* ladder */}
+            <g stroke="#111" strokeWidth="4" strokeLinecap="round" fill="none">
+              <path d="M158 202L170 96M196 202L208 96" />
+              <path d="M162 176h36M165 148h36M168 122h36" strokeWidth="3.6" />
+            </g>
+            {/* plank */}
+            <g stroke="#111" strokeWidth="3.6" strokeLinejoin="round">
+              <rect x="130" y="206" width="104" height="14" rx="3" fill="#c28a52" transform="translate(-4 -8) rotate(-0.5 180 213)" />
+            </g>
+          </svg>
+          <div className="tut-zone__man tut-zone__man--hop">
+            <ThinmanArt pose="hop" />
+          </div>
         </div>
       </section>
       <section className="tut-zone tut-zone--danger" aria-label="Kertas sobek">
@@ -220,23 +223,18 @@ function SafetyPlayground() {
           Kertas sobek
         </span>
         <div className="tut-zone__stage">
-        <svg viewBox="0 0 240 240" className="tut-zone__art" aria-hidden="true" focusable="false">
-          <path d="M6 204Q120 198 234 204" fill="none" stroke="#111" strokeWidth="5" strokeLinecap="round" />
-          {/* spikes */}
-          <g stroke="#111" strokeWidth="4" strokeLinejoin="round">
-            <path d="M16 204l20-70 20 70z" fill="#f0e4cf" />
-            <path d="M58 204l20-70 20 70z" fill="#f0e4cf" />
-            <path d="M100 204l20-70 20 70z" fill="#f0e4cf" />
-          </g>
-          {/* knife */}
-          <g stroke="#111" strokeWidth="4" strokeLinejoin="round" strokeLinecap="round" transform="translate(-92 -86) rotate(32 170 148)">
-            <path d="M150 140h58c8 0 14 6 8 12l-6 6h-60z" fill="#e8e6df" />
-            <rect x="130" y="142" width="26" height="14" rx="4" fill="#ef7a37" />
-          </g>
-        </svg>
-        <div className="tut-zone__man tut-zone__man--ouch">
-          <ThinmanArt pose="ouch" />
-        </div>
+          <svg viewBox="0 0 240 240" className="tut-zone__art" aria-hidden="true" focusable="false">
+            <path d="M6 204Q120 198 234 204" fill="none" stroke="#111" strokeWidth="5" strokeLinecap="round" />
+            {/* spikes: the only danger on this card */}
+            <g stroke="#111" strokeWidth="4" strokeLinejoin="round">
+              <path d="M16 204l20-70 20 70z" fill="#f0e4cf" />
+              <path d="M58 204l20-70 20 70z" fill="#f0e4cf" />
+              <path d="M100 204l20-70 20 70z" fill="#f0e4cf" />
+            </g>
+          </svg>
+          <div className="tut-zone__man tut-zone__man--ouch">
+            <ThinmanArt pose="ouch" />
+          </div>
         </div>
       </section>
       <i className="tut-tear" aria-hidden="true" />
@@ -244,36 +242,34 @@ function SafetyPlayground() {
   );
 }
 
-/* ---------- Practice page 3: gesture practice ---------- */
-const TOOLS: Array<{ id: "draw" | "erase" | "undo" | "redo"; icon: IconName; label: string; aria: string }> = [
+/* ---------- Practice page 3: gesture practice on the real drawing surface ---------- */
+const TOOLS: Array<{ id: (typeof TUTORIAL_PRACTICE_TOOLS)[number]; icon: IconName; label: string; aria: string }> = [
   { id: "draw", icon: "hand-draw", label: "Coret", aria: "Coret, gestur cubit" },
-  { id: "erase", icon: "hand-erase", label: "Hapus", aria: "Hapus, gestur telapak" },
-  { id: "undo", icon: "hand-undo", label: "Mundur", aria: "Mundur satu goresan" },
-  { id: "redo", icon: "hand-redo", label: "Maju", aria: "Maju satu goresan" },
+  { id: "erase", icon: "hand-erase", label: "Hapus", aria: "Hapus, gestur kepal" },
+  { id: "undo", icon: "hand-undo", label: "Mundur", aria: "Mundur satu goresan, gestur dua jari" },
+  { id: "redo", icon: "hand-redo", label: "Maju", aria: "Maju satu goresan, gestur telapak" },
 ];
 
 interface DrawPlaygroundProps {
-  canvasRef: React.RefObject<HTMLCanvasElement>;
+  canvasRef: RefObject<HTMLCanvasElement>;
   tool: Tool;
   used: Record<string, boolean>;
   onTool(tool: Tool): void;
-  onBeginStroke(event: PointerEvent<HTMLCanvasElement>): void;
-  onMoveStroke(event: PointerEvent<HTMLCanvasElement>): void;
-  onEndStroke(event: PointerEvent<HTMLCanvasElement>): void;
   onUndo(): void;
   onRedo(): void;
 }
 
-function DrawPlayground({ canvasRef, tool, used, onTool, onBeginStroke, onMoveStroke, onEndStroke, onUndo, onRedo }: DrawPlaygroundProps) {
+/** The canvas itself draws through DrawingSurface (pointer or hand); this page only shows the canvas and the tools. */
+function DrawPlayground({ canvasRef, tool, used, onTool, onUndo, onRedo }: DrawPlaygroundProps) {
   const act = (id: (typeof TOOLS)[number]["id"]) => {
     if (id === "draw" || id === "erase") onTool(id);
     else if (id === "undo") onUndo();
     else onRedo();
   };
   return (
-    <div className="tut-scene tut-draw" onClick={(e) => e.stopPropagation()}>
+    <div className="tut-scene tut-draw">
       <div className="tut-draw__paper">
-        <canvas ref={canvasRef} className="tut-draw__canvas" data-draw-canvas onPointerDown={onBeginStroke} onPointerMove={onMoveStroke} onPointerUp={onEndStroke} onPointerCancel={onEndStroke} aria-label="Kanvas latihan" />
+        <canvas ref={canvasRef} className="tut-draw__canvas" data-draw-canvas aria-label="Kanvas latihan" />
         {!used.draw && (
           <span className="tut-draw__ghost" aria-hidden="true">
             <Icon name="pencil" size={34} stroke={2.2} />
@@ -299,17 +295,17 @@ function DrawPlayground({ canvasRef, tool, used, onTool, onBeginStroke, onMoveSt
 }
 
 /* ---------- Component ---------- */
-export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: TutorialBrochureProps) {
+export function TutorialBrochure({ onStart, characterDisplayName }: TutorialBrochureProps) {
   const characterName = resolveCharacterDisplayName(characterDisplayName);
   const inputMode = useInputMode();
+  const camera = inputMode === "camera";
   const rootRef = useRef<HTMLDivElement>(null);
   const cardRefs = useRef<Array<HTMLElement | null>>([]);
   const flipRefs = useRef<Array<HTMLDivElement | null>>([]);
   const playRefs = useRef<Array<HTMLElement | null>>([]);
-  const layoutRef = useRef<Layout | null>(null);
+  const layoutRef = useRef<TutorialLayout | null>(null);
   const timelineRef = useRef<gsap.core.Timeline | null>(null);
   const busyRef = useRef(false);
-  const doneCountRef = useRef(0);
   const onStartRef = useRef(onStart);
   onStartRef.current = onStart;
   const reducedRef = useRef(false);
@@ -318,25 +314,43 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
   const activeIndex = useRef<number>(0);
   activeIndex.current = active < 0 ? 0 : active;
   const [open, setOpen] = useState<CardIndex | -1>(-1);
-  const [walked, setWalked] = useState(false);
+
+  // One gate for the whole brochure. The ref answers synchronously (a double thumb cannot slip through);
+  // the state re-renders the rings and Momo.
+  const [gate, setGate] = useState<CardGate>(() => startCardGate(0));
+  const gateRef = useRef(gate);
+  const send = useCallback((event: CardEvent): boolean => {
+    const before = gateRef.current;
+    const after = cardGate(before, event);
+    if (after === before) return false;
+    gateRef.current = after;
+    setGate(after);
+    return true;
+  }, []);
+  const phase = cardPhase(gate);
+  const [readStartedAt, setReadStartedAt] = useState<number | null>(null);
+
   const [tool, setTool] = useState<Tool>("draw");
   const [used, setUsed] = useState<Record<string, boolean>>({});
+  const mark = useCallback((id: DrawingToolUsed) => setUsed((prev) => (prev[id] ? prev : { ...prev, [id]: true })), []);
+  /** A tool counts only for a real change of the drawing, and only while card 3 is open. */
+  const onToolUsed = useCallback(
+    (id: DrawingToolUsed) => {
+      const g = gateRef.current;
+      if (g.index !== 2 || !g.opened || g.closing) return;
+      mark(id);
+    },
+    [mark],
+  );
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const drawingRef = useRef(false);
-  const lastPointRef = useRef<{ x: number; y: number } | null>(null);
-  const historyRef = useRef<ImageData[]>([]);
-  const redoRef = useRef<ImageData[]>([]);
-  const toolRef = useRef<Tool>("draw");
-  toolRef.current = tool;
-  // Card 1: a full pinch ring asks Thinman to walk to the flag, and the card then moves on.
-  const [walkRequest, setWalkRequest] = useState<{ ms: number } | null>(null);
-  const advanceAfterWalk = useRef(false);
+  const surfaceRef = useRef<DrawingSurface | null>(null);
+  const drawing = useDrawingSurface({ canvasRef, surfaceOut: surfaceRef, initialMode: "pointer", active: open === 2, onToolUsed });
+  const { switchMode, undo, redo } = drawing;
 
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => getPrefersReducedMotion());
   useEffect(() => subscribePrefersReducedMotion(setPrefersReducedMotion), []);
   reducedRef.current = prefersReducedMotion;
-
-  const mark = useCallback((id: string) => setUsed((prev) => (prev[id] ? prev : { ...prev, [id]: true })), []);
 
   const applyLayout = useCallback(() => {
     const l = computeLayout();
@@ -346,82 +360,91 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
       root.style.setProperty("--gw", `${l.gw}px`);
       root.style.setProperty("--pw", `${l.pw}px`);
       root.style.setProperty("--oh", `${l.oh}px`);
+      root.style.setProperty("--cy", `${l.cy}px`);
     }
     return l;
   }, []);
 
   /** Where a card rests when it is not the open one: a little numbered stamp in the row at the bottom. */
-  const restPose = useCallback((i: number, _current: number, l: Layout) => {
+  const restPose = useCallback((i: number, _current: number, l: TutorialLayout) => {
     return { x: (i - 1) * l.miniGap, y: l.miniY, rotation: 0, scale: l.mini, opacity: 1 };
   }, []);
 
-  /** Card i flies to the centre, flips, then its practice page unfolds. */
+  /** Card i flies to the centre, flips, then its practice page unfolds. Momo's explanation starts at openedAt. */
   const openTimeline = useCallback(
     (i: CardIndex): gsap.core.Timeline => {
       const l = layoutRef.current!;
       const card = cardRefs.current[i]!;
       const flip = flipRefs.current[i]!;
       const play = playRefs.current[i]!;
+      const O = T.open;
       const tl = gsap.timeline();
       tl.add(() => {
         setActive(i);
         cardRefs.current.forEach((c, j) => c && gsap.set(c, { zIndex: j === i ? 60 : j < i ? 10 + j : 30 - j }));
       }, 0);
-      // The other cards tuck into the row at the bottom.
-      for (let j = 0; j < 3; j++) {
+      // The cards still waiting slide to the right-hand pile.
+      for (let j = i + 1; j < 3; j++) {
         const c = cardRefs.current[j];
-        if (c && j !== i) tl.to(c, { ...restPose(j, i, l), duration: 0.55, ease: "power3.inOut" }, 0);
+        if (c) tl.to(c, { ...restPose(j, i, l), duration: T.tuck.duration, ease: T.tuck.ease }, 0);
       }
-      tl.to(card, { x: 0, y: 0, rotation: 0, scale: l.fit, opacity: 1, duration: 0.8, ease: "power3.inOut" }, 0)
-        .to(flip, { rotationY: 180, duration: 0.8, ease: "power2.inOut" }, 0)
-        .set(play, { opacity: 1 }, 0.72)
-        .fromTo(play, { filter: "brightness(.62)" }, { filter: "brightness(1)", duration: 0.55, ease: "power2.out" }, 0.72)
-        .to(play, { rotationY: 0, duration: 0.6, ease: "power3.out" }, 0.72)
-        .to(card, { x: (-l.pw / 2) * l.fit, duration: 0.6, ease: "power3.out" }, 0.72)
-        .add(() => setOpen(i), 1.25);
+      tl.to(card, { x: 0, y: 0, rotation: 0, scale: l.fit, opacity: 1, duration: O.toCentre, ease: "power3.inOut" }, 0)
+        .to(flip, { rotationY: 180, duration: O.flip, ease: "power2.inOut" }, 0)
+        .set(play, { opacity: 1 }, O.pageShowAt)
+        .to(play, { rotationY: 0, duration: O.bifold, ease: "power3.out" }, O.bifoldAt)
+        .to(card, { x: (-l.pw / 2) * l.fit, duration: O.bifold, ease: "power3.out" }, O.bifoldAt)
+        .add(() => {
+          setOpen(i);
+          send({ type: "OPENED", index: i });
+        }, O.openedAt);
+      // The practice canvas is sized once the page is flat and at its final scale.
+      if (i === 2) tl.add(() => surfaceRef.current?.resizeForDpr(), O.canvasSizedAt);
       return tl;
     },
-    [restPose],
+    [restPose, send],
   );
 
-  /** The open book folds shut and joins the done pile; the next one (if any) is already on its way. */
+  /** The open book folds shut in one step and joins the done pile. */
   const closeTimeline = useCallback(
     (i: CardIndex): gsap.core.Timeline => {
       const l = layoutRef.current!;
       const card = cardRefs.current[i]!;
       const flip = flipRefs.current[i]!;
       const play = playRefs.current[i]!;
+      const C = T.close;
       const tl = gsap.timeline();
       tl.add(() => setOpen(-1), 0);
-      tl.to(play, { rotationY: -92, duration: 0.42, ease: "power2.in" }, 0)
-        .to(play, { filter: "brightness(.62)", duration: 0.42, ease: "power2.in" }, 0)
-        .set(play, { opacity: 0 }, 0.42)
-        .to(card, { x: 0, duration: 0.42, ease: "power2.inOut" }, 0)
-        .to(flip, { rotationY: 0, duration: 0.5, ease: "power2.inOut" }, 0.32)
-        .to(card, { ...restPose(i, i + 1, l), duration: 0.6, ease: "power3.inOut" }, 0.36);
+      tl.to(play, { rotationY: -92, duration: C.duration, ease: C.ease }, 0)
+        .set(play, { opacity: 0 }, C.duration)
+        .to(flip, { rotationY: 0, duration: C.duration, ease: C.ease }, 0)
+        .to(card, { ...restPose(i, i + 1, l), duration: C.duration, ease: C.ease }, 0);
       return tl;
     },
     [restPose],
   );
 
+  /** Close card `from` (its thumb was confirmed), pause, then open the next card. Card 3 leaves and the level list follows. */
   const goNext = useCallback(
     (from: CardIndex) => {
       if (busyRef.current) return;
       busyRef.current = true;
       const tl = gsap.timeline({ onComplete: () => (busyRef.current = false) });
       timelineRef.current = tl;
+      const at = T.close.duration + T.pause;
       tl.add(closeTimeline(from), 0);
       if (from < 2) {
-        tl.add(openTimeline((from + 1) as CardIndex), 0.55);
+        const next = (from + 1) as CardIndex;
+        tl.add(() => send({ type: "START", index: next }), T.close.duration);
+        tl.add(openTimeline(next), at);
       } else {
-        // Everything is put away, then on to the level list.
         const cards = cardRefs.current.filter(Boolean) as HTMLElement[];
-        tl.to(cards, { y: window.innerHeight, opacity: 0, duration: 0.45, ease: "power2.in", stagger: 0.05 }, 0.95)
-          .add(() => onStartRef.current(), 1.45);
+        tl.to(cards, { y: -window.innerHeight, rotation: (i: number) => (i % 2 ? EXIT.startRotation : -EXIT.startRotation), duration: EXIT.duration, ease: EXIT.ease, stagger: EXIT.stagger }, at).add(
+          () => onStartRef.current(),
+          at + EXIT.duration + EXIT.stagger * 2,
+        );
       }
-      if (reducedRef.current) tl.timeScale(6);
     },
-    [closeTimeline, openTimeline],
+    [closeTimeline, openTimeline, send],
   );
 
   // Deal in, fan out, open the first card.
@@ -429,14 +452,13 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
     const l = applyLayout();
     const cards = cardRefs.current as HTMLElement[];
     const plays = playRefs.current as HTMLElement[];
+    const D = T.deal;
     gsap.set(plays, { transformPerspective: 1800, transformOrigin: "0% 50%", rotationY: -92, opacity: 0 });
     gsap.set(flipRefs.current as HTMLElement[], { rotationY: 0 });
-    gsap.set(cards, { scale: l.s0 * 0.9, x: (i: number) => (i - 1) * l.gap, y: -l.vh * 0.55, rotation: 0, opacity: 0, zIndex: (i: number) => 30 - i });
+    gsap.set(cards, { scale: l.s0 * 0.9, x: (i: number) => (i - 1) * l.gap, y: -l.vh * D.fromAboveVh, rotation: 0, opacity: 0, zIndex: (i: number) => 30 - i });
     const tl = gsap.timeline();
     timelineRef.current = tl;
-    tl.to(cards, { opacity: 1, y: 0, scale: l.s0, rotation: (i: number) => FAN_ROT[i]!, duration: 0.7, ease: "power3.out", stagger: 0.09 })
-      .add(openTimeline(0), "+=0.25");
-    if (reducedRef.current) tl.timeScale(6);
+    tl.to(cards, { opacity: 1, y: 0, scale: l.s0, rotation: (i: number) => FAN_ROT[i]!, duration: D.duration, ease: D.ease, stagger: D.stagger }).add(openTimeline(0), `+=${D.afterDeal}`);
     const onResize = () => {
       if (busyRef.current || timelineRef.current?.isActive()) return;
       const next = applyLayout();
@@ -457,147 +479,57 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Size the practice canvas once its page is open.
+  // Camera: the practice canvas draws with the hand while card 3 is open; otherwise (and in fallback) the pointer.
   useEffect(() => {
-    if (open === 2) window.requestAnimationFrame(() => resizeCanvas());
-  }, [open]);
+    void switchMode(open === 2 && camera ? "hand" : "pointer");
+  }, [open, camera, switchMode]);
 
-  function resizeCanvas() {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const rect = canvas.getBoundingClientRect();
-    if (!rect.width || !rect.height) return;
-    const scale = layoutRef.current?.fit ?? 1;
-    const cssW = rect.width / scale;
-    const cssH = rect.height / scale;
-    const dpr = Math.min(window.devicePixelRatio || 1, 3);
-    canvas.width = Math.round(cssW * dpr);
-    canvas.height = Math.round(cssH * dpr);
-    const context = canvas.getContext("2d");
-    if (!context) return;
-    context.setTransform(dpr, 0, 0, dpr, 0, 0);
-    context.lineCap = "round";
-    context.lineJoin = "round";
-    historyRef.current = [context.getImageData(0, 0, canvas.width, canvas.height)];
-    redoRef.current = [];
-  }
-
-  function point(event: PointerEvent<HTMLCanvasElement>) {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const scale = layoutRef.current?.fit ?? 1;
-    return { x: (event.clientX - rect.left) / scale, y: (event.clientY - rect.top) / scale };
-  }
-  function beginStroke(event: PointerEvent<HTMLCanvasElement>) {
-    event.stopPropagation();
-    event.currentTarget.setPointerCapture(event.pointerId);
-    drawingRef.current = true;
-    lastPointRef.current = point(event);
-    const context = canvasRef.current?.getContext("2d");
-    if (context && historyRef.current.length === 0) historyRef.current.push(context.getImageData(0, 0, context.canvas.width, context.canvas.height));
-  }
-  function moveStroke(event: PointerEvent<HTMLCanvasElement>) {
-    if (!drawingRef.current) return;
-    const next = point(event);
-    const previous = lastPointRef.current;
-    const context = canvasRef.current?.getContext("2d");
-    if (!context || !previous) return;
-    const erasing = toolRef.current === "erase";
-    context.save();
-    context.globalCompositeOperation = erasing ? "destination-out" : "source-over";
-    context.lineWidth = erasing ? 26 : 5;
-    context.strokeStyle = "#111111";
-    context.beginPath();
-    context.moveTo(previous.x, previous.y);
-    context.lineTo(next.x, next.y);
-    context.stroke();
-    context.restore();
-    lastPointRef.current = next;
-    mark(erasing ? "erase" : "draw");
-  }
-  function endStroke(event: PointerEvent<HTMLCanvasElement>) {
-    if (!drawingRef.current) return;
-    drawingRef.current = false;
-    lastPointRef.current = null;
-    const context = canvasRef.current?.getContext("2d");
-    if (context) {
-      historyRef.current.push(context.getImageData(0, 0, context.canvas.width, context.canvas.height));
-      redoRef.current = [];
+  // The read time: starts once Momo and the practice are both done; the thumb is offered when it ends.
+  useEffect(() => {
+    if (phase !== "reading") {
+      setReadStartedAt(null);
+      return;
     }
-    try {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    } catch {
-      /* pointer may already be released */
-    }
-  }
-  function undoDrawing() {
-    const current = historyRef.current.pop();
-    const previous = historyRef.current[historyRef.current.length - 1];
-    const context = canvasRef.current?.getContext("2d");
-    mark("undo");
-    if (!current || !previous || !context) return;
-    redoRef.current.push(current);
-    context.putImageData(previous, 0, 0);
-  }
-  function redoDrawing() {
-    mark("redo");
-    const image = redoRef.current.pop();
-    const context = canvasRef.current?.getContext("2d");
-    if (!image || !context) return;
-    historyRef.current.push(image);
-    context.putImageData(image, 0, 0);
-  }
-  function selectTool(next: Tool) {
-    setTool(next);
-    if (next === "erase") mark("erase");
-  }
+    const index = gate.index;
+    setReadStartedAt(Date.now());
+    const timer = window.setTimeout(() => send({ type: "READ_DONE", index }), CARD_READ_MS);
+    return () => window.clearTimeout(timer);
+  }, [phase, gate.index, send]);
 
-  // Card 1 with the camera: the pinch ring is the practice, so it is ready at once. With a mouse, Thinman walks first.
-  const ready = (index: CardIndex) => (index === 0 ? walked || inputMode === "camera" : index === 1 ? true : Boolean(used.draw && used.undo));
-  const next = (index: CardIndex) => {
-    if (open === index && ready(index)) goNext(index);
-  };
-  /** Thinman reached the flag, by a drag or by the pinch ring's walk. A pinch ring also moves the card on. */
-  const onWalkDone = () => {
-    setWalked(true);
-    if (!advanceAfterWalk.current) return;
-    advanceAfterWalk.current = false;
-    goNext(0);
-  };
-  /** The card-1 pinch ring is the practice itself: it walks Thinman to the flag and moves on. */
-  const pinchWalk = () => {
-    advanceAfterWalk.current = true;
-    setWalkRequest({ ms: reducedRef.current ? 300 : WALK_MS });
-  };
+  // Card 3 is practised once all four tools have really changed the drawing.
+  useEffect(() => {
+    if (gate.index === 2 && TUTORIAL_PRACTICE_TOOLS.every((id) => used[id])) send({ type: "PRACTICE_DONE", index: 2 });
+  }, [used, gate.index, send]);
+
+  const onWalkComplete = useCallback(() => {
+    send({ type: "PRACTICE_DONE", index: 0 });
+  }, [send]);
 
   // Momo guides each card. While a card is folding shut the last thing she said stays (no flicker back to the start).
   const momentRef = useRef<TutorialMoment>("deal");
-  const moment: TutorialMoment =
-    open === 0 ? (walked ? "walk-done" : "walk")
-    : open === 1 ? "safety"
-    : open === 2 ? (ready(2) ? "gesture-done" : "gesture")
-    : momentRef.current;
+
+  /** Momo explained the card (her explanation lines, not the follow-up line after the practice). */
+  const onMomoDone = () => {
+    if (momentRef.current === "walk" || momentRef.current === "safety" || momentRef.current === "gesture") {
+      send({ type: "MOMO_DONE", index: gateRef.current.index });
+    }
+  };
+
+  const moment: TutorialMoment = momentFor(open, gate, momentRef.current);
   momentRef.current = moment;
 
-  // holdMs: card 1 is the walk ring (PINCH_HOLD_MS); "Lanjut" 1 s; "Mulai Level 1" 2 s (R5).
-  const pages: Array<{ title: string; copy: string; cta: string; ctaIcon: IconName; holdMs: number }> = [
-    { title: `Kenalin ${characterName}`, copy: "Dia mau menyeberangi buku gambar ini. Bantu dia jalan sampai ke bendera.", cta: "Lanjut", ctaIcon: "arrow-right", holdMs: PINCH_HOLD_MS },
-    { title: "Pijakan aman, atau bahaya", copy: `Gambar benda padat kayak balok atau tangga biar ${characterName} bisa lewat. Hindari benda bahaya kayak duri biar bukunya nggak sobek.`, cta: "Lanjut", ctaIcon: "arrow-right", holdMs: 1000 },
-    { title: "Coba gestur tanganmu", copy: "Coret di kanvas pakai jarimu, lalu coba hapus, mundur, dan maju. Tiap gestur yang kamu coba akan tercentang.", cta: "Mulai Level 1", ctaIcon: "play", holdMs: 2000 },
-  ];
+  const confirm = (i: CardIndex) => {
+    if (send({ type: "THUMB", index: i })) goNext(i);
+  };
 
   return (
     <div ref={rootRef} className="tutorial-prototype-root tut" data-active={active}>
-      {onSkip && inputMode === "fallback" && (
-        <button type="button" className="tutorial-skip tut-skip" onClick={onSkip}>
-          Lewati Tutorial
-          <Icon name="arrow-right" size={17} stroke={2.8} />
-        </button>
-      )}
       <main className="tut-stage" aria-label="Tutorial tiga kartu">
-        {pages.map((page, index) => {
-          const i = index as CardIndex;
-          const isReady = ready(i);
-          const hint = gestureHint(i, inputMode === "camera", walked);
+        {CARDS.map((i) => {
+          const copy = tutorialCardCopy(i, characterName);
+          const hint = tutorialHint(i, camera, i === gate.index ? gate.practiceDone : true);
+          const current = gate.index === i;
+          const unlocked = current && open === i && phase === "ackEligible";
           return (
             <article
               key={i}
@@ -627,30 +559,26 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
                       <i key={s} className={s === i ? "is-now" : s < i ? "is-done" : ""} />
                     ))}
                   </div>
-                  <h2 className="guide-title">{page.title}</h2>
-                  <p className="guide-copy">{page.copy}</p>
+                  <h2 className="guide-title">{copy.title}</h2>
+                  <p className="guide-copy">{copy.copy}</p>
                   <p className="tut-gesture">
                     <Icon name={hint.icon} size={22} stroke={2.4} />
                     <span>{hint.text}</span>
                   </p>
-                  {/* Every card advances with a pinch ring: a round cubit button that fills while pinched (or held
-                      with the mouse) and moves the card on when full. Locked until the practice is done (camera mode on
-                      card 1: the pinch ring is the practice itself, so it is ready at once). */}
-                  {isReady && open === i ? (
-                    <div className="brochure-cta brochure-cta--thumb is-ready" onClick={(event) => event.stopPropagation()}>
-                      <PinchRing
-                        holdMs={page.holdMs}
-                        label={page.cta}
-                        onConfirm={i === 0 ? pinchWalk : () => next(i)}
-                        testId={`tutorial-pinch-${i + 1}`}
-                      />
-                    </div>
-                  ) : (
-                    <div className="brochure-cta brochure-cta--locked nb-btn" aria-disabled="true" data-locked={isReady ? undefined : "true"}>
-                      {page.cta}
-                      <Icon name={isReady ? page.ctaIcon : "lock"} size={20} stroke={2.8} />
-                    </div>
-                  )}
+                  {/* The thumb is always on the card. Locked (grey, with a lock) until Momo, the practice and the read
+                      time are done; then it is the real thumb. Card 3 reads the thumbs-up of the drawing surface. */}
+                  <div className="brochure-cta brochure-cta--thumb" onClick={(event) => event.stopPropagation()}>
+                    <TutorialThumb
+                      testId={`tutorial-thumb-${i + 1}`}
+                      holdMs={copy.holdMs}
+                      label={copy.cta}
+                      locked={!unlocked}
+                      lockedLabel={current && gate.practiceDone ? "Baca dulu, ya" : "Coba dulu, ya"}
+                      readStartedAt={current ? readStartedAt : null}
+                      externalThumbUp={i === 2 ? drawing.handPose === "thumb-up" : undefined}
+                      onConfirm={() => confirm(i)}
+                    />
+                  </div>
                 </section>
               </div>
               <section
@@ -659,15 +587,36 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
                 }}
                 className="tut-play play-panel"
               >
-                {i === 0 && <WalkPlayground onComplete={onWalkDone} walkRequest={walkRequest} />}
+                {i === 0 && <WalkPlayground onComplete={onWalkComplete} live={camera && open === 0 && !gate.practiceDone} keys={open === 0} />}
                 {i === 1 && <SafetyPlayground />}
-                {i === 2 && <DrawPlayground canvasRef={canvasRef} tool={tool} used={used} onTool={selectTool} onBeginStroke={beginStroke} onMoveStroke={moveStroke} onEndStroke={endStroke} onUndo={undoDrawing} onRedo={redoDrawing} />}
+                {i === 2 && (
+                  <DrawPlayground
+                    canvasRef={canvasRef}
+                    tool={tool}
+                    used={used}
+                    onTool={(next) => {
+                      setTool(next);
+                      surfaceRef.current?.setErasing(next === "erase");
+                    }}
+                    onUndo={() => undo()}
+                    onRedo={() => redo()}
+                  />
+                )}
               </section>
             </article>
           );
         })}
       </main>
-      <MomoGuide step={tutorialStep(moment, characterName)} startDelay={moment === "deal" ? 900 : 250} testId="tutorial-momo" />
+      <MomoGuide step={tutorialStep(moment, characterName, camera)} startDelay={moment === "deal" ? 900 : 250} onDone={onMomoDone} testId="tutorial-momo" />
     </div>
   );
+}
+
+/** Momo's moment: the card she is explaining, or the follow-up once the card's practice and her explanation are done. */
+function momentFor(open: CardIndex | -1, gate: CardGate, last: TutorialMoment): TutorialMoment {
+  if (open < 0) return last; // deal, or a card folding shut: keep what she last said
+  const followUp = gate.momoDone && gate.practiceDone;
+  if (open === 0) return followUp ? "walk-done" : "walk";
+  if (open === 1) return "safety";
+  return followUp ? "gesture-done" : "gesture";
 }

@@ -39,19 +39,24 @@ describe("Momo avatar with prefers-reduced-motion (brief c)", () => {
     expect(momo.rt).not.toBeNull();
   });
 
-  it("reduced motion: no hop, shake or repeat is scheduled; the face still changes", () => {
+  it("reduced motion: the hop is still scheduled at a smaller amplitude; the face still changes", () => {
     const { host, momo } = makeMomo(true);
-    expect(momo.rt).toBeNull();
+    expect(momo.rt).not.toBeNull();
     // Kaget opens the mouth (.mO). Reduced motion must not freeze the face on the old mood.
     engine!.set("Kaget", true);
     (engine as unknown as { step(dt: number): void }).step(0.016);
     expect(host.querySelector(".mO")!.getAttribute("opacity")).toBe("1");
   });
 
-  it("reduced motion: the sweat drop and the tear do not bob or fall on a loop", () => {
+  it("reduced motion: the sweat drop and the tear keep looping, at 35 % of their travel", () => {
     const { host } = makeMomo(true);
-    expect(gsap.getTweensOf(host.querySelector(".sweatI")!).length).toBe(0);
-    expect(gsap.getTweensOf(host.querySelector(".tearI")!).length).toBe(0);
+    const sweat = gsap.getTweensOf(host.querySelector(".sweatI")!);
+    const tear = gsap.getTweensOf(host.querySelector(".tearI")!);
+    expect(sweat.length).toBeGreaterThan(0);
+    expect(tear.length).toBeGreaterThan(0);
+    const fall = tear.find((t) => "y" in t.vars)!;
+    expect(Number(fall.vars.y)).toBeCloseTo(95 * 0.35, 5);
+    expect(Number(sweat.find((t) => "y" in t.vars)!.vars.y)).toBeCloseTo(18 * 0.35, 5);
   });
 
   it("normal motion: the sweat drop and the tear loop as before", () => {

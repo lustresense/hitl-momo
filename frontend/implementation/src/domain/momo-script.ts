@@ -90,17 +90,15 @@ export interface MomoLevelTone {
   guessMood: MomoMood;
 }
 
-const TONES: Record<1 | 2 | 3 | 4, MomoLevelTone> = {
+const TONES: Record<1 | 2 | 3, MomoLevelTone> = {
   1: { tone: "confident", fog: 0, guessMood: "Semangat" },
   2: { tone: "doubtful", fog: 0.4, guessMood: "Bingung" },
   3: { tone: "humble", fog: 0.9, guessMood: "Khawatir" },
-  // Bab 4 keeps Momo humble, with the fog at its maximum (R14: the fog only grows from level to level).
-  4: { tone: "humble", fog: 1, guessMood: "Khawatir" },
 };
 
-/** Tone and fog for a level stage (1..4). Unknown stages fall back to L1. */
+/** Tone and fog for a level stage (1..3). Unknown stages fall back to L1. */
 export function momoLevelTone(stage: number): MomoLevelTone {
-  return TONES[(Number.isInteger(stage) && stage >= 1 && stage <= 4 ? stage : 1) as 1 | 2 | 3 | 4];
+  return TONES[(stage === 2 || stage === 3 ? stage : 1) as 1 | 2 | 3];
 }
 
 /** Provider confidence 0..1 shown as a whole percent. The only way a number reaches Momo's lines. */

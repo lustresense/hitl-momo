@@ -2,9 +2,8 @@
 import { useEffect } from "react";
 import type { Top3PredictionPopupProps } from "./top3-popup-types";
 import { DecisionPanel } from "../decision/DecisionPanel";
-import { DwellButton } from "../ui/DwellButton";
-import { HandCursor } from "../ui/HandCursor";
 import { Icon } from "../ui/Icon";
+import { PredictionErrorActions } from "./PredictionErrorActions";
 
 /**
  * Top-3 HITL Prediction Floating Popup.
@@ -45,27 +44,7 @@ export function Top3PredictionPopup({
         </div>
         <h3 className="popup-title">Momo belum bisa menebak</h3>
         <p className="popup-desc">{errorDetail || "Terjadi kesalahan pada layanan prediksi."}</p>
-        <div className="popup-actions-error">
-          <DwellButton
-            testId="btn-retry-prediction"
-            className="dwell-btn--primary momo-guess__action"
-            label="Coba lagi"
-            icon={<Icon name="again" size={20} />}
-            onActivate={onRetry}
-          >
-            Coba lagi
-          </DwellButton>
-          <DwellButton
-            testId="btn-redraw-error"
-            className="momo-guess__action"
-            label="Revisi gambar"
-            icon={<Icon name="pencil" size={20} />}
-            onActivate={onRedraw}
-          >
-            Revisi gambar
-          </DwellButton>
-        </div>
-        <HandCursor />
+        <PredictionErrorActions className="popup-actions-error" onRetry={onRetry} onRedraw={onRedraw} />
       </div>
     );
   }
@@ -100,7 +79,6 @@ export function Top3PredictionPopup({
           onRedraw={onRedraw}
         />
       </div>
-      <HandCursor />
     </div>
   );
 }

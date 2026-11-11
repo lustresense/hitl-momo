@@ -57,14 +57,13 @@ function ArtworkDefinitions({ prefix }: { prefix: string }) {
 }
 
 /** R15 (PRD 0.0.16): next destination named on each level's end signpost. */
-// Bab 4 has a flag, not a signpost (the closing follows it), so its entry is only for completeness.
-const SIGNPOST_NEXT: Record<1 | 2 | 3 | 4, string> = { 1: 'Menara Lipatan', 2: 'Lorong Kabut', 3: 'Pembuktian', 4: 'Pusat Halaman' };
+const SIGNPOST_NEXT: Record<1 | 2 | 3, string> = { 1: 'Menara Lipatan', 2: 'Lorong Kabut', 3: 'Pusat Halaman' };
 
 /**
  * Sketch signpost replacing the level flag (R15). Foot at (0,0) like the flag, same footprint
  * (post 52 units high), so the physics goal rect in stage-geometry stays unchanged.
  */
-function Signpost({ level, transform }: { level: 1 | 2 | 3 | 4; transform: string }) {
+function Signpost({ level, transform }: { level: 1 | 2 | 3; transform: string }) {
   return (
     <g data-asset-role="goal-preview" data-goal-kind="signpost" transform={transform}>
       <path d="M0 0V-54" stroke="#1e2126" strokeWidth="3.5" strokeLinecap="round" />

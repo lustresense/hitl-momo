@@ -168,6 +168,7 @@ describe("GameplayHandDriver lifecycle regression", () => {
       tracked: false,
       cursor: null,
       pinched: false,
+      angle: null,
       input: { left: false, right: false, jump: false },
     });
     // Resources must be cleaned up (landmarker closed)
@@ -215,6 +216,7 @@ describe("GameplayHandDriver lifecycle regression", () => {
       tracked: false,
       cursor: null,
       pinched: false,
+      angle: null,
       input: { left: false, right: false, jump: false },
     });
   });

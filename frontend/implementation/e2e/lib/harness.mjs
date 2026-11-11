@@ -415,7 +415,7 @@ export async function confirmPlacement(page) {
 
 export function writeJson(file, obj) { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, JSON.stringify(obj, null, 2)); }
 
-/** PRD 0.0.16 R9 ending (CenterOfPage) after the final level (Bab 4): Lanjut 1 s, epilog Lanjut 1 s, pick, 2 s thumb. */
+/** PRD 0.0.16 R9 ending (CenterOfPage) after the L3 win: Lanjut 1 s, epilog Lanjut 1 s, pick, 2 s thumb. */
 export async function playEnding(page, { choice = "finish", log = () => {} } = {}) {
   await page.locator("[data-testid=center-of-page]").waitFor({ state: "visible", timeout: 30000 });
   log("ending: Pusat Halaman opened");

@@ -9,9 +9,9 @@ import { ROOT, startStaticServer, launch, gitInfo, onboardToLevels, enterLevel, 
 const plans = JSON.parse(fs.readFileSync(path.join(ROOT, "e2e/lib/level-plans.json"), "utf8"));
 const RUN = new Date().toISOString().replace(/[:.]/g, "-");
 const OUT = process.env.JOURNEY_OUT || path.join(ROOT, "docs/execution/evidence", `journey-${RUN}`);
-const LEVELS = (process.env.LEVELS || "1,2,3,4").split(",").map(Number);
-// 2026-11-09: the ending (Pusat Halaman) follows the FINAL level (Bab 4), not Bab 3.
-const ENDING_AFTER = 4;
+const LEVELS = (process.env.LEVELS || "1,2,3").split(",").map(Number);
+// The ending (Pusat Halaman) follows the last level (Bab 3).
+const ENDING_AFTER = 3;
 const MAX_ATTEMPTS = Number(process.env.MAX_ATTEMPTS || 4);
 fs.mkdirSync(OUT, { recursive: true });
 const steps = [];

@@ -1,0 +1,10 @@
+/* Bantuan: the small button that opens the fallback controls while the camera works. It stays quieter than
+   Tebak Gambarku, so the student's eye goes to the drawing and the thumb ring, not to the mouse controls. */
+.dwell-btn.drawing-help-toggle {
+  width: auto;
+  min-height: 48px;
+  padding: 6px 14px 6px 8px;
+  box-shadow: none;
+  background: transparent;
+  font-size: 15px;
+}

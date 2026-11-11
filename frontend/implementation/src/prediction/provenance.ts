@@ -6,6 +6,11 @@
 export interface PredictionProvenance {
   /** "mock" = local DEV fixture; "partner" = result of the partner HTTP adapter. */
   mode: "mock" | "partner";
+  /**
+   * "model" = output of the partner classifier; "demo" = local fixture. Derived from `mode`
+   * by makeProvenance. Only "model" may be shown as a model result or sent as research data.
+   */
+  source: "model" | "demo";
   /** Model version reported by the partner (header X-Model-Version or body.modelVersion), if any. PROPOSED. */
   modelVersion?: string;
   /** Client-side measured latency of the predict() call, in ms. */
@@ -56,5 +61,6 @@ export function makeProvenance(
   latencyMs: number,
   modelVersion?: string,
 ): PredictionProvenance {
-  return modelVersion ? { mode, latencyMs, modelVersion } : { mode, latencyMs };
+  const source: PredictionProvenance["source"] = mode === "partner" ? "model" : "demo";
+  return modelVersion ? { mode, source, latencyMs, modelVersion } : { mode, source, latencyMs };
 }

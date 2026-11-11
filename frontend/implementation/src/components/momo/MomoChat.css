@@ -19,10 +19,9 @@
   pointer-events: none;
 }
 
-/* The one exception: the line still typing takes a tap, Space or Enter (they show the whole line). */
-.momo-chat .momo-chat__bubble[data-skippable="true"] {
-  pointer-events: auto;
-  cursor: pointer;
+/* `**word**` in a line: bold, a step heavier than the body text so it reads as the key word. */
+.momo-chat .momo-chat__bubble strong {
+  font-weight: 800;
 }
 
 /* Keyboard focus: ink ring, about 18:1 on the paper page (UI needs 3:1). */

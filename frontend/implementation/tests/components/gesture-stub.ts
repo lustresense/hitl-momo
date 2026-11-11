@@ -8,7 +8,7 @@ import { vi } from "vitest";
 import type { HandGestureState } from "@/src/camera/thumb-tracker";
 import { publishHand, retireHand, touchHandReader } from "@/src/camera/hand-cursor-store";
 
-const IDLE: HandGestureState = { ready: true, handVisible: false, thumbUp: false, pinch: false, cursor: null };
+const IDLE: HandGestureState = { ready: true, handVisible: false, thumbUp: false, pinch: false, cursor: null, pose: "none", fingerCount: 0 };
 
 let current: HandGestureState = IDLE;
 const listeners = new Set<(state: HandGestureState) => void>();

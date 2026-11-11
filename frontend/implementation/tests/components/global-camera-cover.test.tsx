@@ -6,16 +6,24 @@ import { forceInputMode, resetInputModeForTest } from "@/src/input/input-mode";
 
 vi.mock("gsap", () => {
   const tl = { fromTo: vi.fn().mockReturnThis(), call: vi.fn().mockReturnThis(), kill: vi.fn() };
-  const g = { fromTo: vi.fn(), killTweensOf: vi.fn(), to: vi.fn(), set: vi.fn(), timeline: vi.fn(() => tl) };
+  const g = { fromTo: vi.fn(() => ({ kill: vi.fn() })), killTweensOf: vi.fn(), to: vi.fn(), set: vi.fn(), timeline: vi.fn(() => tl) };
   return { default: g, ...g };
 });
-// Momo's chat is replaced by a stub that reports "lines done" on demand.
-const momo = vi.hoisted(() => ({ props: null as null | { sleeping?: boolean; step: { lines: string[] } | null; onDone?: () => void } }));
+// Momo's chat is replaced by a stub that records the props the cover drives.
+const momo = vi.hoisted(() => ({
+  props: null as null | { sleeping?: boolean; step: { lines: string[] } | null; startDelay?: number; extrasFrom?: string; className?: string; height?: number },
+}));
 vi.mock("@/src/components/momo/MomoGuide", () => ({
-  MomoGuide: (p: typeof momo.props) => {
+  MomoGuide: (p: typeof momo.props & { children?: React.ReactNode }) => {
     momo.props = p;
-    return <div data-testid="cover-momo" data-asleep={p?.sleeping ? "true" : "false"} />;
+    return <div data-testid="cover-momo" data-asleep={p?.sleeping ? "true" : "false"}>{p?.children}</div>;
   },
+}));
+// The thumb is a plain button here: the real ring needs the hand tracker (covered by thumb-confirm tests).
+vi.mock("@/src/components/ui/ThumbConfirm", () => ({
+  ThumbConfirm: (p: { label?: string; onConfirm: () => void }) => (
+    <button type="button" data-testid="cover-thumb" onClick={p.onConfirm}>{p.label}</button>
+  ),
 }));
 
 beforeEach(() => {
@@ -29,7 +37,7 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe("GlobalCamera cover (PRD 0.0.16 R1, R13, R17)", () => {
+describe("GlobalCamera cover (R1, R3: camera, wave, Momo, book)", () => {
   it("Momo sleeps and there are no buttons other than the camera switch in camera mode", () => {
     render(<GlobalCamera mode="cover" modelUrl="/m" />);
     expect(screen.getByTestId("cover-momo").dataset.asleep).toBe("true");
@@ -38,7 +46,7 @@ describe("GlobalCamera cover (PRD 0.0.16 R1, R13, R17)", () => {
     expect(screen.queryByTestId("cover-continue")).toBeNull();
   });
 
-  it("turning the camera on keeps Momo asleep, changes the title and shows the wave hint", async () => {
+  it("turning the camera on keeps Momo asleep, shows no headline and shows the wave ring", async () => {
     const track = { stop: vi.fn(), addEventListener: vi.fn(), getSettings: () => ({ deviceId: "c" }) };
     const stream = { getTracks: () => [track], getVideoTracks: () => [track] } as unknown as MediaStream;
     Object.defineProperty(navigator, "mediaDevices", {
@@ -49,30 +57,39 @@ describe("GlobalCamera cover (PRD 0.0.16 R1, R13, R17)", () => {
     render(<GlobalCamera mode="cover" modelUrl="/m" />);
     await act(async () => { fireEvent.click(screen.getByTestId("btn-camera-toggle-switch")); });
     await act(async () => { await new Promise((r) => setTimeout(r, 0)); });
-    expect(screen.getByText("Lambaikan Tanganmu!")).toBeTruthy();
+    // The old "Lambaikan Tanganmu!" headline is gone from the display (R3).
+    expect(screen.queryByText("Lambaikan Tanganmu!")).toBeNull();
     expect(screen.getByTestId("camera-card").className).toContain("has-stream");
     expect(screen.getByTestId("cover-momo").dataset.asleep).toBe("true");
-    expect(screen.getByTestId("cover-wave-hint")).toBeTruthy();
+    expect(screen.getByTestId("cover-wave-hint").dataset.progress).toBe("0");
   });
 
-  it("a wave wakes Momo with her origin lines; after the last line the book opens and onWave navigates", async () => {
+  it("a wave wakes Momo with her lines, and only a confirmed thumb opens the book, which navigates at its midpoint", () => {
     vi.useFakeTimers();
     const onWave = vi.fn();
     render(<GlobalCamera mode="cover" modelUrl="/m" onWave={onWave} />);
-    // The empty asleep chat finishing must not leave the cover.
-    act(() => momo.props?.onDone?.());
     act(() => { vi.advanceTimersByTime(5000); });
     expect(onWave).not.toHaveBeenCalled();
+    expect(momo.props?.step).toBeNull();
 
     act(() => { (window as Window & { __skbWave?: () => void }).__skbWave?.(); });
     expect(screen.getByTestId("cover-momo").dataset.asleep).toBe("false");
-    expect(momo.props?.step?.lines.at(-1)).toBe("Ayo ikut aku masuk ke dunia Sketchbook!");
-    expect(momo.props?.step?.lines.join(" ")).toMatch(/gambar pertama/);
-    act(() => momo.props?.onDone?.());
-    expect(onWave).not.toHaveBeenCalled(); // the last line stays readable first
-    act(() => { vi.advanceTimersByTime(2000); });
-    expect(onWave).toHaveBeenCalledTimes(1);
+    expect(momo.props?.step?.lines.at(-1)).toBe("Yuk, antar dia ke tempat yang tepat.");
+    expect(momo.props?.step?.lines.join(" ")).toMatch(/gambar satu-satunya/);
+    // Her words start once she has landed (about 2 s after the wave), and the thumb waits for the last line.
+    expect(momo.props?.startDelay).toBe(2000);
+    expect(momo.props?.extrasFrom).toBe("last");
+    // Nothing opens without the thumb, however long Momo waits.
+    act(() => { vi.advanceTimersByTime(5000); });
+    expect(onWave).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("cover-book-flip")).toBeNull();
+
+    act(() => { fireEvent.click(screen.getByTestId("cover-thumb")); });
     expect(screen.getByTestId("cover-book-flip").dataset.direction).toBe("open");
+    // The book plays; the page under it changes at the midpoint (the safety net fires it when GSAP is mocked).
+    expect(onWave).not.toHaveBeenCalled();
+    act(() => { vi.advanceTimersByTime(1500); });
+    expect(onWave).toHaveBeenCalledTimes(1);
   });
 
   it("the W key simulates a wave only behind test hooks", () => {

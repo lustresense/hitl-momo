@@ -10,7 +10,7 @@ const plans = JSON.parse(readFileSync(new URL("../../e2e/lib/level-plans.json", 
 const size = plans.objectSize as { w: number; h: number };
 
 describe("level solvability (kinematic model; browser E2E is the authority)", () => {
-  for (const stage of [1, 2, 3, 4] as const) {
+  for (const stage of [1, 2, 3] as const) {
     it(`L${stage}: documented student plan reaches the goal with legal placements`, () => {
       const g = getStageGeometry(stage);
       const placed: Array<{ id: string; label: string; behavior: "solid"; drawingInput: null; x: number; y: number; w: number; h: number }> = [];
@@ -37,14 +37,14 @@ describe("level solvability (kinematic model; browser E2E is the authority)", ()
     const r = runPlan(w, [{ launchX: 76, hold: 10 }, { launchX: 201, hold: 22 }, { launchX: 294, hold: 36 }, { launchX: 417, hold: 22 }, { launchX: 500, hold: 30 }]);
     expect(r.outcome, r.log.join("\n")).toBe("goal");
   });
-  it("L1-L4 are NOT solvable without a placed object (the object matters)", () => {
-    for (const stage of [1, 2, 3, 4] as const) expect(solve(buildWorld(stage)).solvable, `L${stage}`).toBe(false);
+  it("L1-L3 are NOT solvable without a placed object (the object matters)", () => {
+    for (const stage of [1, 2, 3] as const) expect(solve(buildWorld(stage)).solvable, `L${stage}`).toBe(false);
   });
   it("PRD 0.0.16 R8.1: Thinman walks slower than the old 200 px/s", () => {
     expect(WALK_SPEED).toBeLessThanOrEqual(140);
   });
   for (const level of LEVELS) {
-    const stage = level.stage as 1 | 2 | 3 | 4;
+    const stage = level.stage as 1 | 2 | 3;
     const plan: Array<{ x: number; y: number }> = plans[String(stage)].cycles;
     it(`L${stage}: documented plan uses exactly minDrawings (${level.minDrawings}) objects`, () => {
       expect(plan).toHaveLength(level.minDrawings);

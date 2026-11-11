@@ -1,0 +1,10 @@
+/* Locked thumb of a tutorial card: the ThumbConfirm faces, greyed out with a lock. Colours are the kit tokens
+   (the ink label reads on paper at 4.5:1; the grey ring is decorative). */
+.tut-thumb-slot { display: flex; justify-content: center; min-height: 104px; }
+.tut-thumb.tut-thumb--locked { cursor: default; }
+.tut-thumb--locked .thumb-confirm__face { background: #e4dfd2; color: #5b564c; }
+.tut-thumb--locked .thumb-confirm__fill { stroke: #8a8477; }
+.tut-thumb--locked .thumb-confirm__label { color: var(--nb-ink); background: var(--nb-paper); }
+@media (prefers-reduced-motion: reduce) {
+  .tut-thumb--locked .thumb-confirm__face { transition: none; }
+}

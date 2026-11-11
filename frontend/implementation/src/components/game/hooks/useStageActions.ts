@@ -3,11 +3,13 @@
  * pick an earlier creation). They bridge the GameController and the stage's React state.
  */
 import type { MutableRefObject } from "react";
-import type { WorldCreation } from "@/src/game/creation-store";
+import type { CreationAngle, WorldCreation } from "@/src/game/creation-store";
 import type { GameController } from "@/src/game/game-controller";
+import { quarterTurn } from "@/src/game/runtime/creations";
 import type { StageOutcome } from "../game-stage-types";
 
 const ILLEGAL_PLACEMENT_MESSAGE = "Penempatan tidak legal. Objek tidak hilang.";
+const ROTATE_BLOCKED_MESSAGE = "Objek tidak bisa diputar di sini.";
 
 interface UseStageActionsOptions {
   controllerRef: MutableRefObject<GameController | null>;
@@ -20,6 +22,7 @@ interface UseStageActionsOptions {
   setPosition: (x: number) => void;
   setPlacementY: (y: number) => void;
   setPlacementError: (message: string) => void;
+  setAngle: (update: (previous: CreationAngle) => CreationAngle) => void;
   onRetry?: () => void;
   onRedraw: () => void;
   onCreateAnotherObject?: () => void;
@@ -36,6 +39,7 @@ export function useStageActions({
   setPosition,
   setPlacementY,
   setPlacementError,
+  setAngle,
   onRetry,
   onRedraw,
   onCreateAnotherObject,
@@ -53,6 +57,7 @@ export function useStageActions({
     const { x, y } = pendingPositionFromCanvas(position, placementY);
     if (controllerRef.current?.commitPlacementAt(x, y)) {
       setOutcome(null);
+      setPlacementError("");
     } else {
       setPlacementError(ILLEGAL_PLACEMENT_MESSAGE);
     }
@@ -78,7 +83,22 @@ export function useStageActions({
       setOutcome(null);
       setPosition(creation.x);
       setPlacementY(creation.y);
+      setAngle(() => creation.angle ?? 0);
     }
+  }
+
+  /** "Putar": one quarter turn of the active object. The scene refuses turns that are not legal. */
+  function rotateCreation(): boolean {
+    const turned = controllerRef.current?.rotate() ?? false;
+    if (!turned) {
+      setPlacementError(ROTATE_BLOCKED_MESSAGE);
+      return false;
+    }
+    setAngle(quarterTurn);
+    setPosition(Number(canvasRef.current?.dataset.objectX ?? position));
+    setPlacementY(Number(canvasRef.current?.dataset.objectY ?? placementY));
+    setPlacementError("");
+    return true;
   }
 
   function drawAgain() {
@@ -86,5 +106,5 @@ export function useStageActions({
     else onCreateAnotherObject();
   }
 
-  return { confirmPlacement, reposition, retryFromCheckpoint, selectCreation, drawAgain };
+  return { confirmPlacement, reposition, retryFromCheckpoint, selectCreation, rotateCreation, drawAgain };
 }

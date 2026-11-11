@@ -183,7 +183,7 @@ export class HandStrokePipeline {
     const drawing = raw === "pinch";
     // With the Hapus tool on, any pose erases under the cursor except the commands: a thumbs-up
     // confirmation, undo or redo must never cut the drawing.
-    const command = raw === "thumb-up" || raw === "two-fingers" || raw === "split-palm";
+    const command = raw === "thumb-up" || raw === "two-fingers" || raw === "split-palm" || raw === "one-finger" || raw === "three-fingers";
     const erasing = (this.stable === "fist" && !drawing) || (store.eraserMode && !command);
 
     const ink = this.toCanvas(this.inkSmoother.smooth(indexTipNormalized(lm), nowMs));

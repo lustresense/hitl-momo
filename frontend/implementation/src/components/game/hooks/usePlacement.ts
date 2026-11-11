@@ -6,6 +6,7 @@ import { useRef, useState, type MutableRefObject, type PointerEvent } from "reac
 import type { LevelDefinition } from "@/src/domain/levels";
 import { env } from "@/src/config/env";
 import type { GameController } from "@/src/game/game-controller";
+import type { CreationAngle } from "@/src/game/creation-store";
 import { isLegalPlacement } from "@/src/game/placement-rules";
 import type { StageGeometry } from "@/src/game/stage-geometry";
 import { clientToPhysics } from "@/src/game/stage-transform";
@@ -34,7 +35,12 @@ export function usePlacement({
   const [position, setPosition] = useState(integrated ? 360 : level.scene.gapStartX - 10);
   const [placementY, setPlacementY] = useState(integrated ? 300 : 320);
   const [placementError, setPlacementError] = useState("");
+  // The active object's quarter turn. It decides which box the legality check and the grab centre use.
+  const [angle, setAngle] = useState<CreationAngle>(0);
   const dragging = useRef(false);
+  const sideways = angle === 90 || angle === 270;
+  const boxW = geometry ? (sideways ? geometry.object.h : geometry.object.w) : level.scene.gapWidth + 24;
+  const boxH = geometry ? (sideways ? geometry.object.w : geometry.object.h) : 8;
 
   function movePlacement(x: number, y: number = 320) {
     setPosition(x);
@@ -49,10 +55,7 @@ export function usePlacement({
   }
 
   const legal = geometry
-    ? position >= 0 &&
-      placementY >= 0 &&
-      position + geometry.object.w <= 800 &&
-      placementY + geometry.object.h <= 450
+    ? position >= 0 && placementY >= 0 && position + boxW <= 800 && placementY + boxH <= 450
     : isLegalPlacement(position, placementY, level.scene.gapWidth + 20, 8);
 
   /** Mouse/touch drag on the canvas: the pointer is the centre of the object. */
@@ -66,15 +69,11 @@ export function usePlacement({
           event.clientY - rect.top,
           worldViewport(rect.width, rect.height),
         );
-    movePlacement(
-      point.x - (geometry?.object.w ?? level.scene.gapWidth + 24) / 2,
-      point.y - (geometry?.object.h ?? 8) / 2,
-    );
+    movePlacement(point.x - boxW / 2, point.y - boxH / 2);
   }
 
   /** Hand pinch: `cursor` is normalised (0..1) over the canvas. */
   function movePlacementToHandCursor(cursor: { x: number; y: number }) {
-    const objectWidth = geometry?.object.w ?? level.scene.gapWidth + 20;
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
     const x = cursor.x * rect.width;
@@ -86,7 +85,7 @@ export function usePlacement({
           geometry,
         )
       : screenToWorld(x, y, worldViewport(rect.width, rect.height));
-    movePlacement(point.x - objectWidth / 2, point.y - (geometry?.object.h ?? 8) / 2);
+    movePlacement(point.x - boxW / 2, point.y - boxH / 2);
   }
 
   const canvasPointerHandlers = {
@@ -114,6 +113,8 @@ export function usePlacement({
     setPlacementY,
     placementError,
     setPlacementError,
+    angle,
+    setAngle,
     legal,
     movePlacementToHandCursor,
     canvasPointerHandlers,

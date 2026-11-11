@@ -5,34 +5,64 @@
  * stacked bubbles. There is no name label: it is obviously Momo. Display only: Momo never takes input, decides, or
  * creates objects (lore invariant).
  *
- * A tap, click, Space or Enter on a bubble that is still typing shows the whole line at once. It never moves the
- * conversation on: the next line still waits for its dwell.
+ * Nothing skips ahead: a tap, click, Space or Enter does nothing, and every line types out and is read in full.
+ * `**word**` in a line is shown in bold; the stars are never shown or typed.
  * `stack` keeps every line on screen at once; only the mission hint uses it.
  */
-import { useEffect, useMemo, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import type { MomoMood } from "@/src/domain/momo-script";
 import { MomoAvatar } from "./MomoAvatar";
 import "./MomoChat.css";
 
-/** Typing beat (the dots) before a line starts: short for one-liners, a little longer for long lines. */
-export function typingMs(line: string): number {
-  return Math.min(800, 320 + line.length * 6);
+/** Time between two letters. Every line types at this speed, short or long. */
+export const LETTER_MS = 30;
+
+/** The line as the student reads it: the `**` bold markers are not letters, so they never count. */
+export function plainText(line: string): string {
+  return line.replace(/\*\*/g, "");
 }
 
-/** Time between two letters. */
-export const LETTER_MS = 30;
-/** The dots and all letters of one line take at most this long, so a long line never drags on. */
-export const TYPING_CAP_MS = 2500;
-
-/** Milliseconds per letter: LETTER_MS, slower only when a long line would otherwise pass the cap. Whole ms. */
-export function letterMs(line: string): number {
-  const room = TYPING_CAP_MS - typingMs(line);
-  return Math.max(1, Math.min(LETTER_MS, Math.floor(room / Math.max(1, line.length))));
+/** Typing beat (the dots) before a line starts: short for one-liners, a little longer for long lines. */
+export function typingMs(line: string): number {
+  return Math.min(800, 320 + plainText(line).length * 6);
 }
 
 /** How long a line stays before the next one replaces it (long enough to read, never long enough to bore). */
 export function dwellMs(line: string): number {
-  return 900 + line.length * 34;
+  return 900 + plainText(line).length * 34;
+}
+
+/** A piece of a line: plain or bold. Unbalanced `**` markers are not bold at all (the line shows plain). */
+export interface Segment {
+  text: string;
+  strong: boolean;
+}
+
+export function emphasisSegments(line: string): Segment[] {
+  const parts = line.split("**");
+  if (parts.length % 2 === 0) return [{ text: plainText(line), strong: false }];
+  return parts.map((text, i) => ({ text, strong: i % 2 === 1 })).filter((s) => s.text.length > 0);
+}
+
+/** The first `n` letters of the segments, keeping their bold. */
+function takeChars(segments: Segment[], n: number): Segment[] {
+  let left = n;
+  const out: Segment[] = [];
+  for (const s of segments) {
+    if (left <= 0) break;
+    const text = s.text.slice(0, left);
+    out.push({ text, strong: s.strong });
+    left -= text.length;
+  }
+  return out;
+}
+
+function Segments({ segments }: { segments: Segment[] }) {
+  return (
+    <>
+      {segments.map((s, i) => (s.strong ? <strong key={i}>{s.text}</strong> : <span key={i}>{s.text}</span>))}
+    </>
+  );
 }
 
 export interface MomoChatProps {
@@ -53,9 +83,11 @@ export interface MomoChatProps {
   startDelay?: number;
   /** Keep all lines visible together instead of replacing them one by one. */
   stack?: boolean;
-  /** Fires once, when the last line is fully shown (typed out, or shown at once by a tap). */
+  /** Fires once, when the last line is fully typed out. The reading pause after it may still be running. */
   onDone?: () => void;
-  /** Rendered under the bubble: from the first line (`first`) or only once the last line is shown (`last`). */
+  /** Fires once per set of lines, when the last line is typed out AND its reading pause has passed. */
+  onAllShown?: () => void;
+  /** Rendered under the bubble: from the first line (`first`) or only once everything is shown (`last`, see onAllShown). */
   extrasFrom?: "first" | "last" | "always";
   children?: ReactNode;
   className?: string;
@@ -85,6 +117,7 @@ type Stage = "wait" | "dots" | "type" | "hold" | "end";
  * One playthrough of the lines. A new content key starts a new run, so no frame shows the old position on new text.
  * `due` is the clock time (ms) when the current stage ends. Each stage is timed from the previous due time, not from
  * "now", so a slow frame never adds up over a long line. `null` = the stage has not been timed yet.
+ * `chars` counts visible letters (bold markers excluded).
  */
 interface Run {
   id: string;
@@ -99,11 +132,11 @@ function startRun(id: string, lines: readonly string[], startDelay: number): Run
   return { id, index: 0, chars: 0, stage: startDelay > 0 ? "wait" : "dots", due: null };
 }
 
-/** Shows the line on screen in full at once. The dwell still runs, so the conversation keeps its pace. */
+/** Shows the line on screen in full at once (fast mode only). The dwell still runs, so the conversation keeps its pace. */
 function finishLine(run: Run, lines: readonly string[]): Run {
   if (run.stage !== "wait" && run.stage !== "dots" && run.stage !== "type") return run;
   const index = Math.max(0, run.index);
-  return { ...run, index, chars: lines[index]?.length ?? 0, stage: "hold", due: null };
+  return { ...run, index, chars: plainText(lines[index] ?? "").length, stage: "hold", due: null };
 }
 
 /** Milliseconds the current stage lasts, or null when nothing more happens. */
@@ -115,7 +148,7 @@ function stageMs(run: Run, lines: readonly string[], startDelay: number): number
     case "dots":
       return typingMs(line);
     case "type":
-      return letterMs(line);
+      return LETTER_MS;
     case "hold":
       return dwellMs(line);
     case "end":
@@ -125,18 +158,18 @@ function stageMs(run: Run, lines: readonly string[], startDelay: number): number
 
 /** The stage after the current one, timed from this stage's due time. */
 function advance(run: Run, lines: readonly string[], startDelay: number): Run {
-  const line = lines[run.index] ?? "";
+  const length = plainText(lines[run.index] ?? "").length;
   let next: Pick<Run, "index" | "chars" | "stage">;
   switch (run.stage) {
     case "wait":
       next = { index: run.index, chars: 0, stage: "dots" };
       break;
     case "dots":
-      next = line.length === 0 ? { index: run.index, chars: 0, stage: "hold" } : { index: run.index, chars: 0, stage: "type" };
+      next = length === 0 ? { index: run.index, chars: 0, stage: "hold" } : { index: run.index, chars: 0, stage: "type" };
       break;
     case "type": {
       const chars = run.chars + 1;
-      next = chars >= line.length ? { index: run.index, chars: line.length, stage: "hold" } : { index: run.index, chars, stage: "type" };
+      next = chars >= length ? { index: run.index, chars: length, stage: "hold" } : { index: run.index, chars, stage: "type" };
       break;
     }
     case "hold":
@@ -165,6 +198,7 @@ export function MomoChat({
   startDelay = 0,
   stack = false,
   onDone,
+  onAllShown,
   extrasFrom = "last",
   children,
   className,
@@ -188,7 +222,7 @@ export function MomoChat({
 
   // Stacked lines in fast mode are all on screen at once (mission hint); otherwise lines replace each other.
   const view: Run = fast && stack
-    ? { id: runId, index: last, chars: list[last]?.length ?? 0, stage: "end", due: null }
+    ? { id: runId, index: last, chars: plainText(list[last] ?? "").length, stage: "end", due: null }
     : fast ? finishLine(run, list) : run;
 
   useEffect(() => {
@@ -210,46 +244,50 @@ export function MomoChat({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [run, fast, stack]);
 
+  const lastTyped = view.index === last && (view.stage === "hold" || view.stage === "end");
+  const allShown = view.index === last && view.stage === "end";
+
   const doneRef = useRef(onDone);
   doneRef.current = onDone;
-  const lastDone = view.index === last && (view.stage === "hold" || view.stage === "end");
   const doneFor = useRef<string | null>(null);
   useEffect(() => {
-    if (!lastDone || list.length === 0 || doneFor.current === runId) return;
+    if (!lastTyped || list.length === 0 || doneFor.current === runId) return;
     doneFor.current = runId;
     doneRef.current?.();
-  }, [lastDone, runId, list.length]);
+  }, [lastTyped, runId, list.length]);
 
-  /** A tap, click, Space or Enter on a bubble still typing: show its whole line now. Anything else does nothing. */
-  const skip = () => setStored((prev) => (prev.id === runId && (prev.stage === "dots" || prev.stage === "type") ? finishLine(prev, list) : prev));
-  const onKey = (e: KeyboardEvent<HTMLDivElement>) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      skip();
-    }
-  };
+  const allShownRef = useRef(onAllShown);
+  allShownRef.current = onAllShown;
+  const allShownFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (!allShown || list.length === 0 || allShownFor.current === runId) return;
+    allShownFor.current = runId;
+    allShownRef.current?.();
+  }, [allShown, runId, list.length]);
 
-  const current = view.index >= 0 ? (list[view.index] ?? "") : "";
+  const currentRaw = view.index >= 0 ? (list[view.index] ?? "") : "";
+  const currentSegments = emphasisSegments(currentRaw);
   const typed = view.stage === "type";
-  const shown = view.stage === "hold" || view.stage === "end" ? current : typed ? current.slice(0, view.chars) : "";
-  const showCurrent = shown.length > 0;
+  const fullNow = view.stage === "hold" || view.stage === "end";
+  const shownSegments: Segment[] = fullNow ? currentSegments : typed ? takeChars(currentSegments, view.chars) : [];
+  const showCurrent = shownSegments.some((s) => s.text.length > 0);
   /** A line typed out is replaced by its whole text once done: that replacement is the one thing screen readers announce. */
-  const replacedAfterTyping = !fast && (view.stage === "hold" || view.stage === "end");
+  const replacedAfterTyping = !fast && fullNow;
   const showDots = view.stage === "dots";
-  const finished = lastDone;
+  const finished = allShown;
   const firstShown = view.index > 0 || (view.index === 0 && (view.chars > 0 || view.stage === "hold" || view.stage === "end"));
   const showExtras = children && list.length > 0 && (extrasFrom === "always" || (extrasFrom === "first" ? firstShown : finished));
 
   // Lines that are done (stacked ones, and the current one once typed) sit in the live region, so each is read once,
-  // whole. The line still typing sits beside it: it is focusable (Space/Enter/tap show the whole line), so it must
-  // not be aria-hidden, and it is not in the live region, so no letter is read out.
-  const doneRows: Array<{ key: string; text: string; settled: boolean }> = [];
+  // whole. The line still typing sits beside it, outside the live region and hidden from assistive tech, so no
+  // half-typed letter is read out; its whole text is announced when it completes.
+  const doneRows: Array<{ key: string; segments: Segment[]; settled: boolean }> = [];
   if (stack) {
-    for (let i = 0; i < view.index; i++) doneRows.push({ key: `line-${i}`, text: list[i] ?? "", settled: false });
+    for (let i = 0; i < view.index; i++) doneRows.push({ key: `line-${i}`, segments: emphasisSegments(list[i] ?? ""), settled: false });
   }
   const typingNow = typed && showCurrent;
   if (showCurrent && !typed) {
-    doneRows.push({ key: `line-${view.index}`, text: shown, settled: replacedAfterTyping });
+    doneRows.push({ key: `line-${view.index}`, segments: shownSegments, settled: replacedAfterTyping });
   }
 
   return (
@@ -260,7 +298,7 @@ export function MomoChat({
           <div className="momo-chat__done" role="status" aria-live="polite" aria-relevant="additions">
             {doneRows.map((row) => (
               <div key={row.key} className={`momo-bubble momo-chat__bubble${row.settled ? " momo-chat__bubble--typed" : ""}`}>
-                {row.text}
+                <Segments segments={row.segments} />
               </div>
             ))}
           </div>
@@ -272,17 +310,8 @@ export function MomoChat({
             </div>
           )}
           {typingNow && (
-            <div
-              key={`typing-${view.index}`}
-              className="momo-bubble momo-chat__bubble"
-              role="button"
-              aria-label="Tampilkan teks lengkap"
-              tabIndex={0}
-              data-skippable="true"
-              onClick={skip}
-              onKeyDown={onKey}
-            >
-              {shown}
+            <div key={`typing-${view.index}`} className="momo-bubble momo-chat__bubble" aria-hidden="true">
+              <Segments segments={shownSegments} />
             </div>
           )}
         </div>

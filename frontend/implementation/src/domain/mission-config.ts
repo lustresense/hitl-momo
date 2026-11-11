@@ -9,7 +9,7 @@ export interface MissionExampleItem {
 }
 
 export interface MissionConfig {
-  stage: 1 | 2 | 3 | 4;
+  stage: 1 | 2 | 3;
   title: string;
   instruction: string;
   examples: MissionExampleItem[];
@@ -21,14 +21,13 @@ export interface MissionConfig {
  * Stage 1: horizontal gap crossing
  * Stage 2: vertical climbing
  * Stage 3: hazard avoidance / safe route
- * Stage 4: wide gap over spikes, several objects, check the consequences before deciding
  */
 interface StageTemplate {
   titleTemplate: string;
   instructionTemplate: string;
 }
 
-const STAGE_TEMPLATES: Record<1 | 2 | 3 | 4, StageTemplate> = {
+const STAGE_TEMPLATES: Record<1 | 2 | 3, StageTemplate> = {
   1: {
     titleTemplate: "Bantu {character} menyeberang!",
     instructionTemplate:
@@ -44,11 +43,6 @@ const STAGE_TEMPLATES: Record<1 | 2 | 3 | 4, StageTemplate> = {
     instructionTemplate:
       "Perhatikan rintangan di depan, lalu gambar benda yang menurutmu aman dan berguna untuk {character}.",
   },
-  4: {
-    titleTemplate: "Bantu {character} sampai ke menara!",
-    instructionTemplate:
-      "Ada duri di bawah celah. Gambar pijakan naik untuk {character}, lalu cek akibatnya dulu.",
-  },
 };
 
 /**
@@ -61,7 +55,7 @@ export function getMissionConfigForLevel(
   level: LevelDefinition,
   characterDisplayName?: string | null,
 ): MissionConfig {
-  const stage = (level.stage >= 1 && level.stage <= 4 ? level.stage : 1) as 1 | 2 | 3 | 4;
+  const stage = (level.stage >= 1 && level.stage <= 3 ? level.stage : 1) as 1 | 2 | 3;
   const template = STAGE_TEMPLATES[stage];
 
   const title = formatCharacterText(template.titleTemplate, characterDisplayName);

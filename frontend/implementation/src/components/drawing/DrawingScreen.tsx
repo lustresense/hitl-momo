@@ -23,8 +23,28 @@ import { useDrawingSurface } from "./hooks/useDrawingSurface";
 import { useInputMode } from "@/src/hooks/useHandGesture";
 import { drawModeFor } from "./draw-mode";
 import { useMomoCompanionLayout } from "./hooks/useMomoCompanionLayout";
+import { useCanvasFocus } from "./hooks/useCanvasFocus";
+import { useDrawingIdle } from "./hooks/useDrawingIdle";
+import { useHandStatusKind } from "./hooks/useHandStatusKind";
+import { CanvasFocusExtras } from "./CanvasFocusExtras";
 import { resolveMomoCue } from "./momo-cue";
+import {
+  FOCUS_CATALOG_LINES_CAMERA,
+  FOCUS_CATALOG_LINES_POINTER,
+  FOCUS_TOOL_LINES_CAMERA,
+  FOCUS_TOOL_LINES_POINTER,
+  IDLE_PROMPT_LINE_CAMERA,
+  IDLE_PROMPT_LINE_POINTER,
+} from "./canvas-focus";
 import { momoLine as momoLineFor } from "@/src/domain/momo-script";
+import "./canvas-focus.css";
+
+/**
+ * The ink gate on the surface: while the focus phase or the level intro covers the canvas, no stroke may start,
+ * a hand pinch included. DrawingSurface.setInkEnabled is the input contract (src/input); until it exists the call is
+ * skipped and the gate is open.
+ */
+type InkGated = DrawingSurface & { setInkEnabled?(on: boolean): void };
 
 export interface DrawingScreenProps {
   level: LevelDefinition;
@@ -47,6 +67,8 @@ export interface DrawingScreenProps {
   missionOpen?: boolean;
   onOpenMission?: () => void;
   onCloseMission?: () => void;
+  /** Opens the focus phase (dark backdrop, tool review, catalog, "Mulai Menggambar") once the intro has lifted. */
+  showCanvasFocus?: boolean;
 }
 
 /**
@@ -76,10 +98,13 @@ export function DrawingScreen({
   missionOpen = false,
   onOpenMission = () => void 0,
   onCloseMission = () => void 0,
+  showCanvasFocus = true,
 }: DrawingScreenProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const sectionRef = useRef<HTMLElement>(null);
   // R13: camera mode always draws by hand (no picker); pointer only in fallback mode.
   const appInputMode = useInputMode();
+  const cameraMode = appInputMode === "camera";
   const [startMode] = useState<InputModeId>(() => drawModeFor(appInputMode, initialMode));
   const { inputMode, hasInk, handPose, switchMode } = useDrawingSurface({ canvasRef, surfaceOut, initialMode: startMode, active });
   useEffect(() => {
@@ -104,26 +129,54 @@ export function DrawingScreen({
     }
   }, [phase, surfaceOut]);
 
+  // The level intro is mounted over this screen while the host marks it (SketchbookApp: data-intro="true").
+  // The focus phase and the idle clock wait until it has lifted, so the student sees them.
+  const introCovers = useIntroCovers(sectionRef);
+
   const isProbe = phase !== "drawing";
   const isDrawingFlow = active || isProbe;
-  const { companionRef, geometryRef, momoLayout, waitingForArrival, handleTransitionEnd } =
-    useMomoCompanionLayout(isProbe);
+  const { companionRef, momoLayout } = useMomoCompanionLayout();
 
-  // Hold the retained result back until Momo has arrived beside the popup.
-  const visualPhase = waitingForArrival && phase === "evaluating" ? "predicting" : phase;
-  const momoCue = resolveMomoCue(feedback, visualPhase, { stage: level.stage, prediction });
-  // While drawing Momo stays idle: her cue line only, no mumbled guess.
-  const momoLines = momoCue.message ?? momoLineFor(momoCue.moment);
-  const showGuess = isProbe && !waitingForArrival && (phase === "evaluating" || phase === "prediction-error");
+  const focus = useCanvasFocus(showCanvasFocus && active && phase === "drawing" && !introCovers);
+  const inkBlocked = focus.open || introCovers;
+  // The canvas takes no ink while it is covered (the hand reader keeps running; only the strokes are gated).
+  useEffect(() => {
+    (surfaceOut.current as InkGated | null)?.setInkEnabled?.(!inkBlocked);
+  }, [inkBlocked, inputMode, surfaceOut]);
+
+  // Only a held pinch (brush) or fist (eraser) counts as hand activity; the rest of the time the clock runs.
+  const handBusy = inputMode === "hand" && (handPose === "pinch" || handPose === "fist");
+  const drawingLive = active && phase === "drawing" && !focus.open && !introCovers && !missionOpen;
+  const idlePrompting = useDrawingIdle({ enabled: drawingLive && hasInk, canvasRef, handBusy });
+
+  // No hand in view for 15 s: DrawingActions reveals the fallback controls. A pose of "none" alone does not count.
+  const handKind = useHandStatusKind();
+  const handMissing =
+    cameraMode && drawingLive && (inputMode !== "hand" || handKind === "tracking-lost" || handKind === "error");
+
+  const idleLine = idlePrompting ? (cameraMode ? IDLE_PROMPT_LINE_CAMERA : IDLE_PROMPT_LINE_POINTER) : null;
+  const momoCue = resolveMomoCue(feedback, phase, { stage: level.stage, prediction, idleLine });
+  const focusLines = focus.open
+    ? focus.step === "tools"
+      ? cameraMode ? FOCUS_TOOL_LINES_CAMERA : FOCUS_TOOL_LINES_POINTER
+      : cameraMode ? FOCUS_CATALOG_LINES_CAMERA : FOCUS_CATALOG_LINES_POINTER
+    : null;
+  // Outside the focus phase Momo's cue line; while drawing she stays quiet otherwise (no mumbled guess).
+  const momoLines = focusLines ?? momoCue.message ?? momoLineFor(momoCue.moment);
+  const showGuess = isProbe && (phase === "evaluating" || phase === "prediction-error");
+  const externalThumbUp = inputMode === "hand" && handPose === "thumb-up";
 
   return (
     <section
+      ref={sectionRef}
       hidden={!isDrawingFlow}
       style={{ display: isDrawingFlow ? undefined : "none" }}
       id="screen-drawing"
       className="screen drawing-screen-svg"
       aria-label="Menggambar"
       data-drawing-active={active ? "true" : "false"}
+      data-focus={focus.open ? focus.step : "off"}
+      data-idle-prompt={idlePrompting ? "on" : "off"}
     >
       <DrawingToolbar
         enabled={phase === "drawing"}
@@ -172,11 +225,10 @@ export function DrawingScreen({
       {missionConfig && (
         <MissionBriefing isOpen={missionOpen} config={missionConfig} onStartDrawing={onCloseMission} onClose={onCloseMission} />
       )}
+      {focus.open && <div className="drawing-focus-backdrop" data-testid="drawing-focus-backdrop" aria-hidden="true" />}
       <div
         ref={companionRef}
         className="drawing-momo-companion"
-        data-motion={waitingForArrival ? "moving" : "settled"}
-        onTransitionEnd={handleTransitionEnd}
         data-phase={phase}
         style={{
           position: "absolute",
@@ -187,19 +239,25 @@ export function DrawingScreen({
           zIndex: 101,
           // One Momo at a time: the mission hint has her own.
           visibility: missionOpen ? "hidden" : "visible",
-          pointerEvents: showGuess ? "auto" : "none",
+          pointerEvents: showGuess || focus.open ? "auto" : "none",
           width: `min(480px, ${momoLayout.available}px)`,
         }}
       >
         <MomoChat
           lines={momoLines}
-          mood={momoCue.mood ?? momoMood(momoCue.moment)}
-          fog={momoCue.fog}
-          avatarHeight={showGuess ? 136 : 170}
-          extrasFrom="always"
+          mood={focus.open ? "Senang" : momoCue.mood ?? momoMood(momoCue.moment)}
+          fog={focus.open ? 0 : momoCue.fog}
+          // Emphasis: a little larger while she guesses and shows the result (170 px -> 190 px).
+          avatarHeight={showGuess ? 190 : 170}
+          extrasFrom={focus.open ? "last" : "always"}
+          onAllShown={focus.open ? focus.advance : undefined}
           className="momo-guess-chat"
         >
-          {showGuess ? (
+          {focus.open ? (
+            focus.step === "catalog" ? (
+              <CanvasFocusExtras catalog={level.catalog} externalThumbUp={externalThumbUp} onStart={focus.dismiss} />
+            ) : null
+          ) : showGuess ? (
             <MomoGuessChat
               phase={phase as "evaluating" | "prediction-error"}
               prediction={prediction}
@@ -215,8 +273,8 @@ export function DrawingScreen({
           ) : null}
         </MomoChat>
       </div>
-      {/* Empty, inaccessible measuring box shares the actual result CSS geometry. */}
-      <div ref={geometryRef} className="prediction-hitl-geometry" data-geometry-probe="true" aria-hidden="true" />
+      {/* Empty, inaccessible measuring box: the result's CSS sizes the card through this geometry. */}
+      <div className="prediction-hitl-geometry" data-geometry-probe="true" aria-hidden="true" />
       <div className="drawing-feedback">
         <p id="drawing-feedback" className="feedback" role="alert">
           {feedback === "empty-drawing" ? "Gambar dulu sebelum menebak." : ""}
@@ -229,8 +287,9 @@ export function DrawingScreen({
         inputMode={inputMode}
         hasInk={hasInk}
         // The drawing surface runs the one hand tracker; the finish ring reads its thumb (never a second tracker).
-        externalThumbUp={inputMode === "hand" && handPose === "thumb-up"}
-        finishPaused={missionOpen}
+        externalThumbUp={externalThumbUp}
+        finishPaused={missionOpen || focus.open}
+        handMissing={handMissing}
         onSwitchMode={(mode: InputModeId) => void switchMode(mode)}
         onSubmit={() => onSubmit(null)}
       />
@@ -239,10 +298,28 @@ export function DrawingScreen({
         width={1920}
         height={1080}
         className="draw-canvas"
-        style={{ pointerEvents: active ? "auto" : "none" }}
+        style={{ pointerEvents: active && !inkBlocked ? "auto" : "none" }}
         aria-label="Kanvas menggambar"
         data-testid="draw-canvas"
       />
     </section>
   );
+}
+
+/**
+ * True while the level intro covers this screen. SketchbookApp marks the drawing host with data-intro="true" for the
+ * intro's length; the observer follows that mark, so the focus phase opens the moment the intro lifts.
+ */
+function useIntroCovers(sectionRef: { current: HTMLElement | null }): boolean {
+  const [covered, setCovered] = useState(false);
+  useEffect(() => {
+    const host = sectionRef.current?.closest(".drawing-flow-host");
+    if (!host) return;
+    const sync = () => setCovered(host.getAttribute("data-intro") === "true");
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(host, { attributes: true, attributeFilter: ["data-intro"] });
+    return () => observer.disconnect();
+  }, [sectionRef]);
+  return covered;
 }

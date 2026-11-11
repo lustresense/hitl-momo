@@ -22,6 +22,11 @@ const INK = "#2E0D06";
 export const MOMO_ART_HEIGHT = 2058;
 /** width / height of the artwork. */
 export const MOMO_ASPECT = 0.6749;
+/** Length of wake(): the eyelid blinks before the expression is set. Same numbers as the timeline in wake(). */
+export const MOMO_WAKE_MS = 810;
+/** Asleep float: the body rises and sinks 3.5 px either way (7 px in all), and leans 2 degrees; one 4 s cycle. */
+const FLOAT_PX = 3.5;
+const FLOAT_DEG = 2;
 const TAU = Math.PI * 2;
 const cl = (v: number, a: number, b: number) => Math.max(a, Math.min(b, v));
 const tf = (el: SVGElement, x: number, y: number, r: number, sx: number, sy: number, px: number, py: number) =>
@@ -99,7 +104,7 @@ const SPECS: Record<MomoExpression, Spec> = {
   Kaget: { f: { ex: 1.2, ey: 1.28, brA: 1, bLy: -44, bRy: -44, mS: 0, mO: 1, dy: -8 }, m: { amp: .5, fl: -16, flut: .8 }, re: [[0, .08, { y: 90, sy: .93, sx: 1.05 }], [.08, .16, { y: -150, sy: 1.08, sx: .95, k: [140, 90] }, "power3.out"], [.24, .8, { y: 0, sy: 1, sx: 1 }, "elastic.out(1,.5)"]] },
   Sedih: { f: { brA: 1, bLr: -16, bRr: 16, bLy: 6, bRy: 6, mS: 0, mK: 1, tear: 1, ex: .95, ey: .95, dy: 12 }, m: { amp: .6, spd: .7, fl: 16, flut: .6, sway: .5, r: -3 }, re: [[0, 1.2, { y: 60, r: -3 }], [1.2, 1.4, { y: 0, r: 0 }]] },
   Bingung: { f: { brA: 1, bLr: -8, bLy: -6, bRr: 4, bRy: -26, mS: 0, mW: 1, mrot: -8, dx: -24 }, m: {}, re: [[0, .35, { r: -8 }], [.35, .5, { r: 7 }], [.85, .5, { r: -5 }], [1.35, .6, { r: 0 }]] },
-  Ngantuk: { f: { el: .45, er: .45, brA: 1, bLy: 30, bRy: 30, mS: 0, mO: 1, os: .45, dy: 6 }, m: { amp: .7, spd: .55, fl: 8, flut: .5, sway: .6 }, re: [[0, 1, { r: 9, y: 50 }, "sine.in"], [1, .16, { r: -3, y: -30 }, "power2.out"], [1.16, .9, { r: 0, y: 0 }]] },
+  Ngantuk: { f: { el: .45, er: .45, brA: 1, bLy: 30, bRy: 30, mS: 0, mO: 1, os: .45, dy: 6 }, m: { amp: .7, spd: .55, fl: 8, flut: .15, sway: .6 }, re: [[0, 1, { r: 9, y: 50 }, "sine.in"], [1, .16, { r: -3, y: -30 }, "power2.out"], [1.16, .9, { r: 0, y: 0 }]] },
   Malu: { f: { dx: -34, dy: 30, ms: .6, ex: .95, ey: .95 }, m: { amp: .8, r: 5 }, re: [[0, .4, { r: 5, y: 20 }], [.4, .8, { r: 0, y: 0 }]] },
   Semangat: { f: { mS: 0, mD: 1, ex: 1.1, ey: 1.1, brA: 1, bLy: -28, bRy: -28 }, m: { amp: 1.6, spd: 1.7, flut: 2, sway: 1.6 }, re: [[0, .1, { y: 40, sy: .93 }], [.1, .22, { y: -190, sy: 1.07, sx: .96, r: -6, k: [160, 110] }, "power2.out"], [.32, .2, { y: 0, sy: .95, sx: 1.04, r: 0 }, "power2.in"], [.52, .2, { y: -110, sy: 1.04, r: 6 }, "power2.out"], [.72, .5, { y: 0, sy: 1, sx: 1, r: 0 }, "elastic.out(1,.55)"]] },
   Kedip: { f: { el: 0, ms: 1.1, mrot: -5 }, m: { amp: 1.1 }, re: [[0, .4, { y: -60, r: -5 }], [.4, .7, { y: 0, r: 0 }]] },
@@ -131,6 +136,15 @@ export class MomoEngine {
   private wt: gsap.core.Timeline | null = null;
   private bt: gsap.core.Animation | null = null;
   private lastRect: { x: number; y: number } | null = null;
+  /** Asleep breath, 0..0.015: the body swells by this much and narrows by 0.6 times it (read in step()). */
+  private breath = 0;
+  /** Asleep float: px up/down and degrees of lean, read in step(). */
+  private bob = 0;
+  private tilt = 0;
+  private br: gsap.core.Tween | null = null;
+  private sway: gsap.core.Timeline[] = [];
+  private droop: gsap.core.Tween | null = null;
+  private wkt: gsap.core.Timeline | null = null;
   private tick: (time: number, deltaMs: number) => void;
   private destroyed = false;
 
@@ -139,14 +153,12 @@ export class MomoEngine {
     host.innerHTML = momoSVG(id);
     const q = (s: string) => host.querySelector(s) as SVGElement;
     this.g = Object.fromEntries(PARTS.map((k) => [k, q("." + k)])) as Record<(typeof PARTS)[number], SVGElement>;
-    // Reduced motion: the falling tear and the bobbing sweat drop are endless loops, so they stay where they are.
-    if (!this.calm) {
-      const tear = gsap.timeline({ repeat: -1, repeatDelay: 0.5, delay: Math.random() })
-        .fromTo(this.g.tearI, { attr: { opacity: 1 } }, { duration: 0.01 })
-        .to(this.g.tearI, { y: 95, opacity: 0, duration: 1.5, ease: "power1.in" }, 0);
-      const sweat = gsap.to(this.g.sweatI, { y: 18, duration: 1.1, yoyo: true, repeat: -1, ease: "sine.inOut" });
-      this.killers.push(() => tear.kill(), () => sweat.kill());
-    }
+    // The falling tear and the bobbing sweat drop loop on; with reduced motion they keep looping at 35 % of the fall.
+    const tear = gsap.timeline({ repeat: -1, repeatDelay: 0.5, delay: Math.random() })
+      .fromTo(this.g.tearI, { attr: { opacity: 1 } }, { duration: 0.01 })
+      .to(this.g.tearI, { y: 95 * this.rm, opacity: 0, duration: 1.5, ease: "power1.in" }, 0);
+    const sweat = gsap.to(this.g.sweatI, { y: 18 * this.rm, duration: 1.1, yoyo: true, repeat: -1, ease: "sine.inOut" });
+    this.killers.push(() => tear.kill(), () => sweat.kill());
     const blink = () => {
       if (this.destroyed) return;
       gsap.timeline().to(this, { bl: 0.08, duration: 0.07, ease: "power1.in" }).to(this, { bl: 1, duration: 0.12, ease: "power1.out" });
@@ -161,31 +173,55 @@ export class MomoEngine {
   set(expression: MomoExpression, instant = false): void {
     this.i = expression;
     const e = SPECS[expression];
+    // Any sleep or wake in progress ends here: the new expression takes the face and the body.
+    this.wkt?.kill();
+    this.droop?.kill();
+    this.droop = null;
+    this.stopSleep(false);
     gsap.to(this.F, { ...FD, ...e.f, duration: instant ? 0 : 0.5, ease: "back.out(1.5)", overwrite: true });
     gsap.to(this.mo, { ...MD, ...e.m, duration: instant ? 0 : 0.7, ease: "sine.inOut", overwrite: true });
     this.react(instant ? 1.2 + Math.random() * 3 : 0);
   }
 
-  /** Reduced motion (the system asks for less motion): no endless loops, no hops or shakes at all. */
-  private get calm(): boolean {
-    return this.rm < 1;
+  /** Scales a motion to the reduced-motion amplitude: distances by `rm`, squash and stretch toward 1. Nothing is switched off. */
+  private scaled(vals: Record<string, number>): Record<string, number> {
+    const out: Record<string, number> = {};
+    for (const [key, n] of Object.entries(vals)) out[key] = key === "sx" || key === "sy" ? 1 + (n - 1) * this.rm : n * this.rm;
+    return out;
+  }
+
+  /**
+   * Stops the asleep motion (breath and float). `settle` eases the body back to normal over 0.3 s, as on waking;
+   * otherwise it snaps (used when the expression is set).
+   */
+  private stopSleep(settle: boolean): void {
+    this.br?.kill();
+    this.br = null;
+    this.sway.forEach((t) => t.kill());
+    this.sway = [];
+    if (settle) this.br = gsap.to(this, { breath: 0, bob: 0, tilt: 0, duration: 0.3, ease: "sine.out", overwrite: "auto" });
+    else { this.breath = 0; this.bob = 0; this.tilt = 0; }
+  }
+
+  /** A slow sine loop on one property, 4 s per cycle: up to `amp`, down to -`amp`, back to 0, so it starts with no jump. */
+  private loop(prop: "bob" | "tilt", amp: number): gsap.core.Timeline {
+    const ease = "sine.inOut";
+    return gsap.timeline({ repeat: -1 })
+      .to(this, { [prop]: amp, duration: 1, ease })
+      .to(this, { [prop]: -amp, duration: 2, ease })
+      .to(this, { [prop]: 0, duration: 1, ease });
   }
 
   /** One-shot reaction of the current expression (hop, shake, ...). Repeats every few seconds by itself. */
   react(delay = 0): void {
     this.rt?.kill();
-    // The face still changes with the mood; only the body's hop is left out for reduced motion.
-    if (this.calm) {
-      this.rt = null;
-      return;
-    }
     const e = SPECS[this.i];
     const tl = gsap.timeline({ delay });
     this.rt = tl;
     e.re.forEach(([at, d, v, ease]) => {
       const { k, ...vals } = v as { k?: number[] } & Record<string, number>;
-      tl.to(this.P, { ...vals, duration: d, ease: ease || "sine.inOut" }, at);
-      if (k) tl.call(() => this.kick(k), undefined, at);
+      tl.to(this.P, { ...this.scaled(vals), duration: d, ease: ease || "sine.inOut" }, at);
+      if (k) tl.call(() => this.kick(k.map((n) => n * this.rm)), undefined, at);
     });
     tl.to(this.P, { x: 0, y: 0, r: 0, sx: 1, sy: 1, duration: 0.3 }, ">").call(() => {
       if (!this.destroyed) this.rt = gsap.delayedCall(4 + Math.random() * 3.5, () => this.react());
@@ -197,10 +233,36 @@ export class MomoEngine {
     s.fL.v += k[0]!; s.fR.v += k[0]!; s.t1.v += k[1]!; s.t2.v += k[1]! * 0.6; s.bow.v += k[1]! * 0.5;
   }
 
-  /** Asleep: eyes shut, slow breathing from the Ngantuk motion. Waking up is `set(expression)`. */
+  /**
+   * Asleep: eyes shut, a slow breath (the body swells 1.5 % and narrows), a gentle float (rises and sinks 7 px,
+   * leans 2 degrees), and the wings sag slowly and lift again. All of it keeps moving in reduced motion, at 35 %.
+   */
   sleep(): void {
     this.set("Ngantuk");
     gsap.to(this.F, { el: 0, er: 0, os: 0.3, duration: 0.6, ease: "sine.inOut", overwrite: "auto" });
+    const k = this.rm;
+    this.br = gsap.to(this, { breath: 0.015 * k, duration: 2.1, yoyo: true, repeat: -1, ease: "sine.inOut" });
+    this.sway = [this.loop("bob", FLOAT_PX * k), this.loop("tilt", FLOAT_DEG * k)];
+    // Starts after set("Ngantuk") has moved the wings to 8, so the sag runs from 8 down to 12 (at 35 %: 9.4) and back.
+    this.droop = gsap.to(this.mo, { fl: 8 + 4 * k, duration: 3, yoyo: true, repeat: -1, ease: "sine.inOut", delay: 0.7 });
+  }
+
+  /**
+   * Wakes her: the eyelids blink (open, shut, open, shut, open wide) and only then `expression` is set.
+   * The blinks come first because set() would overwrite the eyelid tweens if it ran sooner.
+   */
+  wake(expression: MomoExpression): void {
+    this.droop?.kill();
+    this.droop = null;
+    this.stopSleep(true);
+    this.wkt?.kill();
+    this.wkt = gsap.timeline()
+      .to(this.F, { el: 0.35, er: 0.35, duration: 0.15, ease: "sine.out" })
+      .to(this.F, { el: 0, er: 0, duration: 0.12, ease: "sine.in" })
+      .to(this.F, { el: 0.5, er: 0.5, duration: 0.14, ease: "sine.out" })
+      .to(this.F, { el: 0, er: 0, duration: 0.1, ease: "sine.in" })
+      .to(this.F, { el: 1, er: 1, duration: 0.3, ease: "back.out(1.5)" })
+      .call(() => this.set(expression));
   }
 
   /** Greets with one wing: the screen-left wing tip lifts high and swings a few times (a wave hello), the body leans into it. */
@@ -253,6 +315,8 @@ export class MomoEngine {
     // Optional: derive velocity from how the host moves on screen so tail/wings trail behind real movement.
     let vx = 0, vy = 0, vxPx = 0;
     const hostH = this.host.getBoundingClientRect();
+    // The float is in screen px, the SVG in art units. Without a layout (hidden host, tests) it is 1:1.
+    const artPerPx = hostH.height > 0 ? MOMO_ART_HEIGHT / hostH.height : 1;
     if (this.opts.trackMotion && hostH.height > 0) {
       const art = MOMO_ART_HEIGHT / hostH.height;
       const cx = hostH.left + hostH.width / 2, cy = hostH.top + hostH.height / 2;
@@ -278,7 +342,9 @@ export class MomoEngine {
       spring(sp.t3, sp.t2.a * 0.85 + sw * 0.7 * Math.sin(TAU * tt / 2.6 - 2), k * 0.8, c, h);
       spring(sp.bow, -0.25 * R + 0.35 * sp.t1.a + sw * 0.35 * Math.sin(TAU * tt / 2.2), k, c, h);
     }
-    tf(g.root, X, Y, R, P.sx, P.sy, 695, 640);
+    // Float and breath sit on the body only (they never feed the hop springs). Breath multiplies the react squash,
+    // so a hop's squash and the sleep breath never overwrite each other.
+    tf(g.root, X, Y + this.bob * artPerPx, R + this.tilt, P.sx * (1 - 0.6 * this.breath), P.sy * (1 + this.breath), 695, 640);
     g.fL.setAttribute("transform", wingTransform("L", cl(sp.fL.a, -32, 32) + P.wv)); g.fR.setAttribute("transform", wingTransform("R", cl(sp.fR.a, -32, 32) + P.wvR));
     this.fogT += dt;
     const fogNow = fogFrame(this.fogLevel, this.fogT * this.rm);
@@ -302,6 +368,8 @@ export class MomoEngine {
     this.destroyed = true;
     gsap.ticker.remove(this.tick);
     this.rt?.kill(); this.ft?.kill(); this.wt?.kill(); this.bt?.kill();
+    this.br?.kill(); this.droop?.kill(); this.wkt?.kill();
+    this.sway.forEach((t) => t.kill());
     gsap.killTweensOf([this.F, this.mo, this.P, this]);
     this.killers.forEach((k) => k());
     this.killers = [];

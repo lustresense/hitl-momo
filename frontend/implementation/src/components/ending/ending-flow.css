@@ -1,0 +1,219 @@
+/*
+ * Penutup (Pusat Halaman): portal, talk, recap, quiz placeholder and the finish control.
+ * Timings match ENDING_TIMING in ending-types.ts: Thinman walks in from 600 ms, is inside the gate at 3200 ms,
+ * steps out alive at 4200 ms. Reduced motion keeps these lengths; only the repeated glints are softened.
+ * Colours come from the kit tokens in 96-kit-base.css, with the same fallbacks the kit uses.
+ */
+
+.ending-page {
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 24px 16px;
+}
+
+.ending-page .visually-hidden {
+  position: absolute !important;
+}
+
+/* Portal */
+.ending-portal {
+  position: relative;
+  width: min(720px, 100%);
+  height: min(380px, 56vh);
+}
+
+.ending-portal__gate {
+  position: absolute;
+  left: 38%;
+  bottom: 8%;
+  width: 150px;
+  height: 220px;
+  transform: translateX(-50%);
+  overflow: hidden;
+  border: var(--nb-border, 2.5px) solid var(--nb-ink, #111111);
+  border-radius: 75px 75px 10px 10px;
+  background: radial-gradient(circle at 50% 60%, #ffffff 0%, var(--nb-sky, #a8c8d8) 70%);
+  box-shadow: var(--nb-shadow, 4px 4px 0 #111111);
+}
+
+.ending-portal__glint {
+  position: absolute;
+  left: 18%;
+  right: 18%;
+  height: 6px;
+  border-radius: 6px;
+  background: var(--nb-orange, #ef7a37);
+  opacity: 0;
+}
+.ending-portal__glint:nth-child(1) { top: 30%; }
+.ending-portal__glint:nth-child(2) { top: 50%; }
+.ending-portal__glint:nth-child(3) { top: 70%; }
+
+.ending-portal--inside .ending-portal__glint {
+  animation: ending-glint 0.5s ease-in-out infinite alternate;
+}
+.ending-portal--inside .ending-portal__glint:nth-child(2) { animation-delay: 0.16s; }
+.ending-portal--inside .ending-portal__glint:nth-child(3) { animation-delay: 0.32s; }
+
+@keyframes ending-glint {
+  from { opacity: 0.1; }
+  to { opacity: 1; }
+}
+
+.ending-portal__thinman {
+  position: absolute;
+  bottom: 10%;
+  left: 6%;
+  width: 96px;
+}
+
+/* Walk in from 600 ms; the figure is gone by 3200 ms (end of the walk, then the phase switches). */
+.ending-portal--enter .ending-portal__thinman {
+  animation: ending-walk-in 2600ms linear 600ms both;
+}
+@keyframes ending-walk-in {
+  from { left: 6%; opacity: 1; }
+  to { left: calc(38% - 48px); opacity: 0; }
+}
+
+/* Out of the gate at 4200 ms: the phase is "alive", so he stands by the gate and walks out to the left. */
+.ending-portal--alive .ending-portal__thinman {
+  animation: ending-walk-out 1000ms ease-out both;
+}
+@keyframes ending-walk-out {
+  from { left: calc(38% - 48px); opacity: 0; }
+  to { left: 6%; opacity: 1; }
+}
+
+.ending-portal__momo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: min(420px, 100%);
+}
+
+/* Reduced motion: same length, the glints move slowly and softly instead of flashing. */
+.ending-page.is-reduce .ending-portal--inside .ending-portal__glint {
+  animation: ending-glint-soft 2.4s ease-in-out infinite alternate;
+}
+@keyframes ending-glint-soft {
+  from { opacity: 0.3; }
+  to { opacity: 0.6; }
+}
+
+/* Talk */
+.ending-talk {
+  display: grid;
+  justify-items: center;
+  width: min(720px, 100%);
+}
+
+/* Recap */
+.ending-recap {
+  display: grid;
+  gap: 14px;
+  width: min(860px, 100%);
+}
+
+.ending-recap__counts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 16px;
+}
+.ending-recap__counts li {
+  padding: 8px 12px;
+  border: 2px solid var(--nb-ink, #111111);
+  border-radius: 12px;
+  background: #ffffff;
+  color: var(--nb-ink, #111111);
+}
+
+.ending-recap__empty {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.ending-recap__cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ending-recap__card {
+  display: grid;
+  justify-items: center;
+  gap: 4px;
+  padding: 10px;
+  border: var(--nb-border, 2.5px) solid var(--nb-ink, #111111);
+  border-radius: 14px;
+  background: #ffffff;
+  box-shadow: var(--nb-shadow-sm, 3px 3px 0 #111111);
+  color: var(--nb-ink, #111111);
+  font-size: 16px;
+}
+.ending-recap__card--bahaya {
+  background: #fde8e0;
+}
+
+.ending-recap__chapter {
+  font-weight: 800;
+}
+
+.ending-recap__drawing {
+  width: 120px;
+  height: 80px;
+  color: var(--nb-ink, #111111);
+}
+
+.ending-recap__none {
+  font-style: italic;
+}
+
+.ending-recap__line {
+  text-align: center;
+}
+
+/* Quiz placeholder (flag ON only) */
+.ending-quiz {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  width: min(720px, 100%);
+}
+
+.ending-quiz__placeholder {
+  margin: 0;
+  padding: 14px 18px;
+  border: 2.5px dashed var(--nb-ink, #111111);
+  border-radius: 14px;
+  background: #ffffff;
+  color: var(--nb-ink, #111111);
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* Finish */
+.ending-finish {
+  display: grid;
+  justify-items: center;
+  gap: 16px;
+  width: min(720px, 100%);
+}
+
+.ending-finish .center-page__options {
+  display: flex;
+  justify-content: center;
+}
+
+.ending-finish .ending-option.dwell-btn {
+  min-width: 240px;
+}

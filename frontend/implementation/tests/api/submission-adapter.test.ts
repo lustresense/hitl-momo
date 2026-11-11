@@ -21,6 +21,7 @@ describe("SubmissionAdapter (CAN-05 & CAN-06 Orchestration)", () => {
       ],
       predictionId: "pred-rec-123",
       modelVersion: "cnn-v1",
+      provenance: { mode: "partner", source: "model", latencyMs: 1 },
     },
     decision: {
       type: "accept",

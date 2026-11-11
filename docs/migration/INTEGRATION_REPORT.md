@@ -71,7 +71,7 @@ Dikerjakan oleh tim worker Haiku (effort xhigh), diintegrasikan dan diverifikasi
 
 Bukti: `docs/migration/evidence/iter4/`. E2E menemukan satu bug produk nyata (cincin selesai-gambar tertutup kartu kamera) dan sudah diperbaiki.
 
-**Belum terbukti:** kamera fisik, MediaPipe, dua tangan nyata, kalibrasi ambang gestur, pemetaan kursor ke layar, tampilan di HP. Level 4 lolos di browser pada percobaan ke-3 (jatuh ke duri dua kali), jadi mungkin terlalu ketat untuk siswa. Build image Docker tetap belum dicoba.
+**Belum terbukti:** kamera fisik, MediaPipe, dua tangan nyata, kalibrasi ambang gestur, pemetaan kursor ke layar, tampilan di HP. Level 4 yang sempat ditambahkan di iterasi ini sudah dihapus lagi (Owner 2026-11-10).
 
 ## Perubahan kode di iterasi ini
 

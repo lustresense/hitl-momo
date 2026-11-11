@@ -3,15 +3,13 @@
 /**
  * TASK 14 — MediaPipe gameplay input driver (real camera only).
  * 
- * PROVISIONAL GESTURE MAPPING (not product-final):
- * - Index fingertip (landmark 8) drives horizontal cursor position for left/right movement
- * - Thumb-index pinch: grab/drag while placing; held pinch = jump in gameplay (enableJump)
- * - Mirror x (1-x) exactly once via indexTipNormalized from hand-gesture.ts
- * - Movement zones: left < 0.35, right > 0.65, center stop (0.35–0.65)
+ * GESTURE MAPPING (see gameplay-gesture.ts):
+ * - Index finger direction (knuckle 5 to tip 8, mirrored once) steers Thinman: walk left/right,
+ *   jump on the spot or jump and walk diagonally; pointing down stops
+ * - Thumb-index pinch: grab/drag while placing; it does not jump (enableJump is a legacy opt-in)
  * - Pinch threshold 0.42 reused from hand-gesture.ts for grab/drag PLACE
- * - Jump: false unless the caller opts in with enableJump (then a held pinch = jump; PROVISIONAL)
- * - Hysteresis/debounce live in GameplayGestureFilter (zones 0.35/0.65 enter, 0.40/0.60 leave;
- *   3 stable frames before input after (re)acquiring the hand; tracking loss = instant neutral)
+ * - Hysteresis/debounce live in GameplayGestureFilter (zone bands widened by a few degrees to
+ *   keep; 3 stable frames before input after (re)acquiring the hand; tracking loss = instant neutral)
  * 
  * ARCHITECTURE:
  * - Borrows shared camera stream only (getSharedStream) — never opens own camera
@@ -71,7 +69,7 @@ const DEFAULT_WASM_ROOT = "/mediapipe/wasm";
 const DEFAULT_MODEL_URL = "/models/hand_landmarker.task";
 
 function neutralFrame(): GameplayFrame {
-  return { tracked: false, cursor: null, pinched: false, input: { left: false, right: false, jump: false } };
+  return { tracked: false, cursor: null, pinched: false, angle: null, input: { left: false, right: false, jump: false } };
 }
 
 export class GameplayHandDriver {

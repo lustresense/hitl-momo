@@ -7,16 +7,20 @@ import { LEVELS } from "@/src/domain/levels";
 import { forceInputMode, resetInputModeForTest } from "@/src/input/input-mode";
 import { cursorAtPx, placeBox, type Box } from "./gesture-stub";
 
-// The level intro is NUI too: the picture cards and the skip are dwell controls, and its "Ke langit" thumb follows a
-// page reader when the drawing page under the intro runs one (no second tracker, nui-no-second-reader.test.tsx).
+// The level intro is NUI too: the skip is a dwell control, and its "Aku mengerti" thumb follows a page reader when
+// the drawing page under the intro runs one (no second tracker, nui-no-second-reader.test.tsx).
 vi.mock("@/src/camera/hand-landmarker", () => ({ createHandLandmarker: vi.fn(() => new Promise(() => {})) }));
+vi.mock("gsap", async () => {
+  const { gsapClockStub } = await import("./gsap-clock-stub");
+  const gsap = gsapClockStub();
+  return { gsap, default: gsap };
+});
 vi.mock("@/src/camera/thumb-tracker", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/src/camera/thumb-tracker")>();
   return { ...actual, acquireThumbTracker: vi.fn(actual.acquireThumbTracker) };
 });
 
 const level = LEVELS[0]!;
-const CARD_BOX = (i: number): Box => ({ left: 40 + i * 150, top: 520, width: 130, height: 90 });
 const SKIP_BOX: Box = { left: 900, top: 20, width: 60, height: 60 };
 const at = (box: Box) => cursorAtPx(box.left + box.width / 2, box.top + box.height / 2);
 const OUTSIDE = cursorAtPx(5, 5);
@@ -35,23 +39,18 @@ function advance(ms: number) {
   }
 }
 
-/** Reduced motion: the story goes straight on, and skip or the thumb finishes at once. */
+/** Reduced motion: the story is shown at once, and the rise keeps its normal length. */
 function stubReducedMotion() {
   vi.stubGlobal("matchMedia", (q: string) => ({ matches: q.includes("reduce"), addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {} }));
 }
 
-/** Renders the intro and lets Momo finish her story, so the picture cards and the thumb are on screen. */
+/** Renders the intro and lets Momo finish her story, so the thumb is on screen. */
 function renderNudge(props: { onFinish?: () => void } = {}) {
   const onFinish = props.onFinish ?? vi.fn();
   render(<LevelIntro level={level} onFinish={onFinish} />);
-  advance(9000);
-  const cards = level.catalog.map((item, i) => {
-    const el = screen.getByTestId(`intro-card-${item.labelId}`);
-    placeBox(el, CARD_BOX(i));
-    return el;
-  });
+  for (let t = 0; t < 180000 && !screen.queryByTestId("intro-continue"); t += 16) advance(16);
   placeBox(screen.getByTestId("intro-skip"), SKIP_BOX);
-  return { onFinish, cards };
+  return { onFinish };
 }
 
 beforeEach(() => {
@@ -70,30 +69,8 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-describe("level intro, camera mode: the picture cards and the skip are dwell controls", () => {
-  it("a fingertip resting 1.2 s on a picture card picks it, and the intro does not rise", () => {
-    const { onFinish, cards } = renderNudge();
-    expect(cards[0]!.getAttribute("data-mode")).toBe("camera");
-    readFrom(null);
-    advance(50);
-    readFrom(at(CARD_BOX(0)));
-    advance(1300);
-    expect(cards[0]!.getAttribute("aria-pressed")).toBe("true");
-    expect(screen.getByTestId("level-intro").getAttribute("data-picked")).toBe(level.catalog[0]!.labelId);
-    expect(onFinish).not.toHaveBeenCalled();
-  });
-
-  it("only one picture card fills under the fingertip", () => {
-    const { cards } = renderNudge();
-    readFrom(null);
-    advance(50);
-    readFrom(at(CARD_BOX(1)));
-    advance(600);
-    expect(Number(cards[1]!.getAttribute("data-progress"))).toBeGreaterThan(0);
-    expect(cards[0]!.getAttribute("data-progress")).toBe("0");
-  });
-
-  it("a resting fingertip on Lewati cerita 1.2 s ends the intro", () => {
+describe("level intro, camera mode: the skip is a dwell control", () => {
+  it("a resting fingertip 1.2 s on Lewati cerita ends the intro", () => {
     const { onFinish } = renderNudge();
     readFrom(null);
     advance(50);
@@ -101,17 +78,19 @@ describe("level intro, camera mode: the picture cards and the skip are dwell con
     advance(1300);
     expect(onFinish).toHaveBeenCalledTimes(1);
   });
+
+  it("a fingertip outside the skip does not end the intro", () => {
+    const { onFinish } = renderNudge();
+    readFrom(null);
+    advance(50);
+    readFrom(OUTSIDE);
+    advance(1300);
+    expect(onFinish).not.toHaveBeenCalled();
+    expect(screen.getByTestId("level-intro").getAttribute("data-phase")).toBe("nudge");
+  });
 });
 
-describe("level intro, fallback mode: a click picks a card or skips at once", () => {
-  it("a click on a picture card picks it with no ring", () => {
-    forceInputMode("fallback");
-    const { cards } = renderNudge();
-    expect(cards[0]!.getAttribute("data-mode")).toBe("fallback");
-    fireEvent.click(cards[0]!);
-    expect(cards[0]!.getAttribute("aria-pressed")).toBe("true");
-  });
-
+describe("level intro, fallback mode: a click skips at once", () => {
   it("a click on Lewati cerita ends the intro", () => {
     forceInputMode("fallback");
     const { onFinish } = renderNudge();
@@ -120,7 +99,7 @@ describe("level intro, fallback mode: a click picks a card or skips at once", ()
   });
 });
 
-describe("level intro: the Ke langit thumb never starts a second tracker", () => {
+describe("level intro: the Aku mengerti thumb never starts a second tracker", () => {
   it("with no page reader the thumb starts the shared tracker", () => {
     renderNudge();
     expect(vi.mocked(acquireThumbTracker)).toHaveBeenCalled();
@@ -131,10 +110,13 @@ describe("level intro: the Ke langit thumb never starts a second tracker", () =>
     readFrom(null, "drawing", false);
     renderNudge({ onFinish });
     expect(vi.mocked(acquireThumbTracker)).not.toHaveBeenCalled();
+    // The ring arms only after it has seen the thumb down once; the page's thumb goes up after that.
+    readFrom(null, "drawing", false);
+    advance(100);
     readFrom(null, "drawing", true);
     advance(600);
     expect(Number(screen.getByTestId("intro-continue").getAttribute("data-progress"))).toBeGreaterThan(0);
-    advance(1000);
+    advance(4000);
     expect(onFinish).toHaveBeenCalledTimes(1);
     expect(vi.mocked(acquireThumbTracker)).not.toHaveBeenCalled();
   });
@@ -142,8 +124,11 @@ describe("level intro: the Ke langit thumb never starts a second tracker", () =>
   it("the shared thumb still rises the intro when no page reader is live", () => {
     const onFinish = vi.fn();
     renderNudge({ onFinish });
+    act(() => simulateThumb(false));
+    advance(100);
     act(() => simulateThumb(true));
-    advance(1500);
+    advance(1200);
+    advance(3500);
     expect(onFinish).toHaveBeenCalled();
   });
 });

@@ -1,12 +1,12 @@
 /**
- * The student failed the level: Momo says it kindly in chat and offers three icon actions
- * (retry from checkpoint, move the same object, draw again). Each action is a NUI button: a resting
- * fingertip picks it in camera mode, a click picks it in fallback.
+ * The student failed the level: Momo says it kindly in chat and offers three actions, each picked with a finger count:
+ * one finger = retry from the checkpoint, two = move the same object, three = draw again. Each action is a ring
+ * that fills while the pose is held (1.5 s). A mouse, touch or keyboard holds the same ring in fallback.
  */
+import { useHandGesture, useInputMode } from "../../hooks/useHandGesture";
 import { MomoChat } from "../momo/MomoChat";
-import { DwellButton } from "../ui/DwellButton";
-import { Icon } from "../ui/Icon";
-import "../ui/nui-actions.css";
+import { FingerGlyph, GestureRing } from "../ui/GestureRing";
+import "./FailOverlay.css";
 
 export interface FailOverlayProps {
   failReason: string;
@@ -15,7 +15,14 @@ export interface FailOverlayProps {
   onRedraw: () => void;
 }
 
+/** Holding a finger count this long fills the ring. */
+export const FAIL_HOLD_MS = 1500;
+
 export function FailOverlay({ failReason, onRetry, onReposition, onRedraw }: FailOverlayProps) {
+  const camera = useInputMode() === "camera";
+  const gesture = useHandGesture(camera);
+  const pose = gesture.pose;
+
   return (
     <div className="world-fail" data-testid="outcome-overlay">
       <MomoChat
@@ -26,30 +33,33 @@ export function FailOverlay({ failReason, onRetry, onReposition, onRedraw }: Fai
         testId="fail-chat"
       >
         <div className="world-fail__actions nui-fail-actions">
-          <DwellButton
-            className="dwell-btn--primary nui-primary nui-fail-action"
+          <GestureRing
+            className="gesture-ring--primary nui-fail-action"
             testId="btn-retry-cycle"
-            icon={<Icon name="again" size={20} />}
-            onActivate={onRetry}
-          >
-            Coba lagi
-          </DwellButton>
-          <DwellButton
+            label="Coba lagi"
+            active={camera && pose === "one-finger"}
+            holdMs={FAIL_HOLD_MS}
+            icon={<FingerGlyph count={1} size={26} />}
+            onConfirm={onRetry}
+          />
+          <GestureRing
             className="nui-fail-action"
             testId="btn-reposition"
-            icon={<Icon name="swap" size={20} />}
-            onActivate={onReposition}
-          >
-            Geser objek
-          </DwellButton>
-          <DwellButton
+            label="Geser objek"
+            active={camera && pose === "two-fingers"}
+            holdMs={FAIL_HOLD_MS}
+            icon={<FingerGlyph count={2} size={26} />}
+            onConfirm={onReposition}
+          />
+          <GestureRing
             className="nui-fail-action"
             testId="btn-redraw-gameplay"
-            icon={<Icon name="pencil" size={20} />}
-            onActivate={onRedraw}
-          >
-            Gambar ulang
-          </DwellButton>
+            label="Gambar lagi"
+            active={camera && pose === "three-fingers"}
+            holdMs={FAIL_HOLD_MS}
+            icon={<FingerGlyph count={3} size={26} />}
+            onConfirm={onRedraw}
+          />
         </div>
       </MomoChat>
       <h3 className="overlay-title visually-hidden" data-testid="outcome-title">

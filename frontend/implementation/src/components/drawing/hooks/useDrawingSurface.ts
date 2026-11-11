@@ -3,11 +3,14 @@
  * selected input mode (pointer vs camera hand), the "has ink" flag that enables submitting and
  * the hand pose the finish ring reads (so the screen runs only one hand tracker).
  */
-import { useEffect, useState, type RefObject } from "react";
+import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import { DrawingSurface } from "@/src/input";
 import type { InputModeId } from "@/src/input/types";
 import type { HandPose } from "@/src/input/hand-gesture";
 import { createGestureCommander } from "../gesture-commands";
+
+/** A real change of the drawing, reported once per action (never for a gesture that did nothing). */
+export type DrawingToolUsed = "draw" | "erase" | "undo" | "redo";
 
 interface UseDrawingSurfaceOptions {
   canvasRef: RefObject<HTMLCanvasElement>;
@@ -15,12 +18,16 @@ interface UseDrawingSurfaceOptions {
   surfaceOut: { current: DrawingSurface | null };
   initialMode: InputModeId;
   active: boolean;
+  /** Called only when the action changed the drawing: a stroke ended, a stroke was erased, or undo/redo moved. */
+  onToolUsed?: (tool: DrawingToolUsed) => void;
 }
 
-export function useDrawingSurface({ canvasRef, surfaceOut, initialMode, active }: UseDrawingSurfaceOptions) {
+export function useDrawingSurface({ canvasRef, surfaceOut, initialMode, active, onToolUsed }: UseDrawingSurfaceOptions) {
   const [inputMode, setInputMode] = useState<InputModeId>(initialMode);
   const [hasInk, setHasInk] = useState(false);
   const [handPose, setHandPose] = useState<HandPose>("none");
+  const toolRef = useRef(onToolUsed);
+  toolRef.current = onToolUsed;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -47,11 +54,30 @@ export function useDrawingSurface({ canvasRef, surfaceOut, initialMode, active }
       onPose: (pose, nowMs) => {
         setPose(pose);
         const action = commander.feed(pose, nowMs);
-        if (action === "undo") surface.undo();
-        else if (action === "redo") surface.redo();
+        if (action === "undo") {
+          if (surface.undo()) toolRef.current?.("undo");
+        } else if (action === "redo") {
+          if (surface.redo()) toolRef.current?.("redo");
+        }
       },
     });
     surfaceOut.current = surface;
+
+    // Report real changes only. The store is the one place a stroke ends or a pass erases, so wrap its two methods
+    // on this instance: a stroke with points is a draw, and an eraser pass that removed something is an erase.
+    const store = surface.store;
+    const endStroke = store.endStroke.bind(store);
+    store.endStroke = () => {
+      const real = store.hasActiveStroke() && store.lastActivePoint() !== null;
+      endStroke();
+      if (real) toolRef.current?.("draw");
+    };
+    const eraseAt = store.eraseAt.bind(store);
+    store.eraseAt = (p, radius) => {
+      const changed = eraseAt(p, radius);
+      if (changed) toolRef.current?.("erase");
+      return changed;
+    };
 
     if (process.env.NEXT_PUBLIC_TEST_HOOKS === "1") {
       const existing = window.__skbTestHooks ?? {};
@@ -77,12 +103,28 @@ export function useDrawingSurface({ canvasRef, surfaceOut, initialMode, active }
     };
   }, [canvasRef, initialMode, surfaceOut]);
 
-  async function switchMode(next: InputModeId) {
-    const surface = surfaceOut.current;
-    if (!surface) return;
-    setInputMode(next);
-    await surface.setMode(next);
-  }
+  // Stable identity: callers may put it in an effect's dependency list.
+  const switchMode = useCallback(
+    async (next: InputModeId) => {
+      const surface = surfaceOut.current;
+      if (!surface) return;
+      setInputMode(next);
+      await surface.setMode(next);
+    },
+    [surfaceOut],
+  );
+
+  /** Undo / redo for buttons. Reports only when the drawing actually moved. */
+  const undo = useCallback((): boolean => {
+    const ok = surfaceOut.current?.undo() ?? false;
+    if (ok) toolRef.current?.("undo");
+    return ok;
+  }, [surfaceOut]);
+  const redo = useCallback((): boolean => {
+    const ok = surfaceOut.current?.redo() ?? false;
+    if (ok) toolRef.current?.("redo");
+    return ok;
+  }, [surfaceOut]);
 
   // Other parts of the app can switch the drawing input mode with a window event.
   useEffect(() => {
@@ -102,5 +144,5 @@ export function useDrawingSurface({ canvasRef, surfaceOut, initialMode, active }
     if (!active) void surfaceOut.current?.setMode("pointer");
   }, [active, surfaceOut]);
 
-  return { inputMode, hasInk, handPose, switchMode };
+  return { inputMode, hasInk, handPose, switchMode, undo, redo };
 }

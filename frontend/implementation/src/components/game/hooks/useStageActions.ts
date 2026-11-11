@@ -5,7 +5,7 @@
 import type { MutableRefObject } from "react";
 import type { CreationAngle, WorldCreation } from "@/src/game/creation-store";
 import type { GameController } from "@/src/game/game-controller";
-import { quarterTurn } from "@/src/game/runtime/creations";
+import { quarterTurn, type TurnDirection } from "@/src/game/runtime/creations";
 import type { StageOutcome } from "../game-stage-types";
 
 const ILLEGAL_PLACEMENT_MESSAGE = "Penempatan tidak legal. Objek tidak hilang.";
@@ -87,14 +87,14 @@ export function useStageActions({
     }
   }
 
-  /** "Putar": one quarter turn of the active object. The scene refuses turns that are not legal. */
-  function rotateCreation(): boolean {
-    const turned = controllerRef.current?.rotate() ?? false;
+  /** "Putar": one quarter turn of the active object (1 clockwise, -1 counter-clockwise). The scene refuses turns that are not legal. */
+  function rotateCreation(dir: TurnDirection = 1): boolean {
+    const turned = controllerRef.current?.rotate(dir) ?? false;
     if (!turned) {
       setPlacementError(ROTATE_BLOCKED_MESSAGE);
       return false;
     }
-    setAngle(quarterTurn);
+    setAngle((previous) => quarterTurn(previous, dir));
     setPosition(Number(canvasRef.current?.dataset.objectX ?? position));
     setPlacementY(Number(canvasRef.current?.dataset.objectY ?? placementY));
     setPlacementError("");

@@ -3,9 +3,12 @@
  * Camera mode: a speedometer for the finger direction and icon-only direction lights. The object's actions
  * "Geser objek" and "Putar" are the gesture rings in the stage (ExplorationRings), so the bar shows no button
  * for them. No keyboard hints.
- * Fallback mode: the on-screen movement buttons with their words, plus "Geser objek" and "Putar" as buttons.
+ * Fallback mode: the on-screen movement buttons with their words, plus "Geser objek" and the two turn buttons.
+ * Q (left) and E (right) turn the object from the keyboard too; no key is named on screen.
  */
+import { useEffect } from "react";
 import { Icon, type IconName } from "../ui/Icon";
+import type { TurnDirection } from "@/src/game/runtime/creations";
 import { DirectionButton } from "./DirectionButton";
 import { GuideHelpIcon } from "./ControlGuide";
 import { SteerDial } from "./SteerDial";
@@ -37,8 +40,8 @@ export interface GameplayControlsProps {
   onReposition: () => void;
   /** "Geser objek" request (the placement work owns the action). Defaults to onReposition. */
   onMoveRequest?: () => void;
-  /** "Putar" request: turn the object 90 degrees. Owned by the placement work. */
-  onRotateRequest?: () => void;
+  /** "Putar" request: turn the object 90 degrees, 1 clockwise or -1 counter-clockwise. */
+  onRotateRequest?: (dir: TurnDirection) => void;
   guideOpen: boolean;
   onToggleGuide: () => void;
 }
@@ -56,6 +59,19 @@ export function GameplayControls({
   onToggleGuide,
 }: GameplayControlsProps) {
   const camera = mode === "camera";
+
+  // Keyboard turn: Q left, E right. Camera mode has the rings for turning instead, so it takes no keys here.
+  useEffect(() => {
+    if (camera || !onRotateRequest) return;
+    const turnByKey = (event: KeyboardEvent) => {
+      if (event.repeat || event.ctrlKey || event.metaKey || event.altKey) return;
+      if (event.code === "KeyQ") onRotateRequest(-1);
+      else if (event.code === "KeyE") onRotateRequest(1);
+    };
+    window.addEventListener("keydown", turnByKey);
+    return () => window.removeEventListener("keydown", turnByKey);
+  }, [camera, onRotateRequest]);
+
   return (
     <div className="stage-floating-controls" data-testid="gameplay-controls" data-input-mode={mode}>
       <div className="gameplay-controls__row">
@@ -88,11 +104,22 @@ export function GameplayControls({
           <button
             type="button"
             className="nb-btn btn-small gameplay-controls__action"
+            data-testid="btn-rotate-left"
+            aria-keyshortcuts="Q"
+            onClick={() => onRotateRequest?.(-1)}
+          >
+            <Icon name="again" size={19} style={{ transform: "scaleX(-1)" }} />
+            Putar kiri
+          </button>
+          <button
+            type="button"
+            className="nb-btn btn-small gameplay-controls__action"
             data-testid="btn-rotate"
-            onClick={() => onRotateRequest?.()}
+            aria-keyshortcuts="E"
+            onClick={() => onRotateRequest?.(1)}
           >
             <Icon name="again" size={19} />
-            Putar
+            Putar kanan
           </button>
         </>
       )}

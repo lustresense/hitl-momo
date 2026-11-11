@@ -13,7 +13,7 @@ import { getStageGeometry, type StageGeometry } from "../stage-geometry";
 import { CharacterSpriteLayer } from "./character-sprite";
 import { FALL_DURATION, FALL_START_Y, GRAVITY, JUMP_FORCE, PLAYER_HEIGHT, PLAYER_WIDTH } from "./constants";
 import { createCreationRenderer } from "./creation-renderer";
-import { cloneCreation, createPendingCreation, footprintOf, quarterTurn, rotatedAround } from "./creations";
+import { cloneCreation, createPendingCreation, footprintOf, quarterTurn, rotatedAround, type TurnDirection } from "./creations";
 import { releaseEngine } from "./engine";
 import { resolveHorizontalMovementIntent } from "./movement";
 import { integratedGoalReached, integratedPlacementAllowed, rectanglesOverlap } from "./rules";
@@ -140,9 +140,9 @@ class IntegratedScene {
   }
 
   /** The handle the GameController drives the scene with. */
-  handle(): KaplayGameHandle & { rotate(): boolean } {
+  handle(): KaplayGameHandle & { rotate(dir?: TurnDirection): boolean } {
     return {
-      rotate: () => this.rotate(),
+      rotate: (dir) => this.rotate(dir),
       destroy: () => this.destroy(),
       setInput: (i) => this.setInput(i),
       onFallComplete: () => this.enterPlace(),
@@ -294,10 +294,10 @@ class IntegratedScene {
    * Turn the active object (the one being placed, or the one just committed) a quarter turn about its
    * centre. Refused when the turned box is not legal, or would sit on Thinman in the play phase.
    */
-  private rotate(): boolean {
+  private rotate(dir: TurnDirection = 1): boolean {
     if (this.destroyed || this.phase === "falling") return false;
     const current = this.pending;
-    const turned = rotatedAround(current, quarterTurn(current.angle));
+    const turned = rotatedAround(current, quarterTurn(current.angle, dir));
     const box = footprintOf(turned);
     const others = this.snapshot().filter((item) => item.id !== current.id).map(asBox);
     if (!integratedPlacementAllowed(box, this.geometry, others)) return false;

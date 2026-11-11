@@ -1,5 +1,5 @@
 /**
- * Wake-up wave detector shared by GlobalCamera and CameraIntro.
+ * Wake-up wave detector used by GlobalCamera.
  *
  * Owns exactly one HandLandmarker + one rAF loop. Guarantees:
  * - start()/stop() are race-safe (a landmarker that finishes loading after

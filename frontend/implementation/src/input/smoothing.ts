@@ -78,6 +78,8 @@ export interface OneEuroParams {
   minCutoff: number;
   beta: number;
   dCutoff: number;
+  /** Output holds still while the filtered point stays within this radius (0..1 frame units). 0 = off. */
+  deadZone?: number;
 }
 
 /** Gameplay default, unchanged. */
@@ -86,14 +88,21 @@ const DEFAULT_ONE_EURO: OneEuroParams = { minCutoff: 0.8, beta: 0.015, dCutoff: 
 /**
  * Hand drawing works in 0..1 frame coordinates, not pixels. With the gameplay beta (0.015) the filter
  * stayed a fixed ~0.8 Hz low-pass, so the ink lagged the hand by about 0.2 s. A larger beta lets it follow fast moves.
+ * NUI-2 W-INK: a low minCutoff and a heavily smoothed speed estimate (dCutoff) keep a still hand at rest, while a
+ * high beta keeps a moving line close to the hand. The dead zone (0.0025 frame, about 1 px at 400 px) removes the
+ * remaining tremor. Tuned on synthetic noise (sigma 0.003), not on a camera: starting values, re-tune on the real camera.
  */
-export const DRAWING_ONE_EURO: OneEuroParams = { minCutoff: 1.0, beta: 5.0, dCutoff: 1.0 };
+export const DRAWING_ONE_EURO: OneEuroParams = { minCutoff: 0.2, beta: 20, dCutoff: 0.2, deadZone: 0.0025 };
 
 export class PointSmoother {
   private last: { x: number; y: number } | null = null;
   private oneEuro: OneEuroFilter2D | null = null;
+  /** Last output of the dead zone (drawing only); null until the first point. */
+  private held: { x: number; y: number } | null = null;
+  private readonly deadZone: number;
 
   constructor(private readonly alphaParam?: number, params: OneEuroParams = DEFAULT_ONE_EURO) {
+    this.deadZone = params.deadZone ?? 0;
     if (alphaParam === undefined) {
       this.oneEuro = new OneEuroFilter2D(params.minCutoff, params.beta, params.dCutoff);
     }
@@ -101,12 +110,13 @@ export class PointSmoother {
 
   reset(): void {
     this.last = null;
+    this.held = null;
     this.oneEuro?.reset();
   }
 
   smooth(p: { x: number; y: number }, timestamp?: number): { x: number; y: number } {
     if (this.oneEuro) {
-      return this.oneEuro.filter(p, timestamp);
+      return this.holdInDeadZone(this.oneEuro.filter(p, timestamp));
     }
     if (!this.last) {
       this.last = { ...p };
@@ -118,5 +128,24 @@ export class PointSmoother {
       y: this.last.y * (1 - a) + p.y * a,
     };
     return { ...this.last };
+  }
+
+  /**
+   * Soft dead zone: inside the radius the output stays put (no tremor at rest); outside it the output
+   * follows the target minus the radius, so there is no step at the edge. Costs a constant
+   * `deadZone` of lag on a steady move.
+   */
+  private holdInDeadZone(target: { x: number; y: number }): { x: number; y: number } {
+    if (this.deadZone <= 0 || !this.held) {
+      this.held = { ...target };
+      return { ...target };
+    }
+    const dx = target.x - this.held.x;
+    const dy = target.y - this.held.y;
+    const d = Math.hypot(dx, dy);
+    if (d <= this.deadZone) return { ...this.held };
+    const k = (d - this.deadZone) / d;
+    this.held = { x: this.held.x + dx * k, y: this.held.y + dy * k };
+    return { ...this.held };
   }
 }

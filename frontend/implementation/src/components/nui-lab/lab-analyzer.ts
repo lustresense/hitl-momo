@@ -15,8 +15,11 @@ const INFER_WINDOW_MS = 2000;
 const FPS_WINDOW_MS = 1000;
 /** Window for the jitter meter; long enough to see tremor, short enough to follow a hand that stops. */
 const JITTER_WINDOW_MS = 1500;
-/** Fewer points than this (about half a second at 30 fps) is not enough to call a hand still. */
-const JITTER_MIN_SAMPLES = 15;
+/**
+ * Fewer points than this is not enough to call a hand still. At the gate's 8 Hz floor the 1.5 s window holds
+ * about 12 samples, so the minimum must stay below that or the meter would never show at a slow detector.
+ */
+const JITTER_MIN_SAMPLES = 10;
 /** Jitter is shown in px of a canvas this wide (the same scale the page draws at). */
 const JITTER_CANVAS_PX = 400;
 const INK_SIZE = { width: 400, height: 300 };

@@ -8,13 +8,14 @@
 import type { HandLandmarker } from "@mediapipe/tasks-vision";
 import { useEffect, useRef, useState } from "react";
 import { frameForDetection, getFrameSourceStats, setLowLightEnhancement, type LowLightMode } from "@/src/camera/frame-source";
-import { createHandLandmarker, delegateLabel } from "@/src/camera/hand-landmarker";
+import { createHandLandmarker, delegateLabel, getDelegateInfo } from "@/src/camera/hand-landmarker";
+import { getInferenceStats, pollDetection, type InferenceStats } from "@/src/camera/inference-scheduler";
 import { classifyCameraError, messageFor } from "@/src/camera/messages";
 import type { Landmark } from "@/src/input/types";
 import { drawHands } from "./hand-overlay";
 import { startLabCamera } from "./lab-camera";
 import { LabAnalyzer, type LabSnapshot } from "./lab-analyzer";
-import { poseLabel } from "./lab-metrics";
+import { busyPercent, delegateReasonText, poseLabel, switchStateText } from "./lab-metrics";
 import "./NuiLabPage.css";
 
 const WASM_ROOT = "/mediapipe/wasm";
@@ -37,7 +38,6 @@ interface CameraInfo {
   width: number | null;
   height: number | null;
   frameRate: number | null;
-  delegate: string | null;
 }
 
 interface Readout {
@@ -46,10 +46,26 @@ interface Readout {
   luma: number | null;
   claheMs: number | null;
   enhancing: boolean;
+  /** Detector stats from the shared gate: effective rate, average time, skipped frames. */
+  sched: InferenceStats | null;
+  /** Engine as the game labels it: "GPU", "CPU (tanpa GPU)", ... */
+  engine: string;
+  reason: string;
+  switchText: string;
 }
 
-const EMPTY_INFO: CameraInfo = { width: null, height: null, frameRate: null, delegate: null };
-const EMPTY_READOUT: Readout = { snapshot: null, deliveredFps: 0, luma: null, claheMs: null, enhancing: false };
+const EMPTY_INFO: CameraInfo = { width: null, height: null, frameRate: null };
+const EMPTY_READOUT: Readout = {
+  snapshot: null,
+  deliveredFps: 0,
+  luma: null,
+  claheMs: null,
+  enhancing: false,
+  sched: null,
+  engine: "—",
+  reason: "—",
+  switchText: "—",
+};
 
 /** Everything one camera session owns; released together. */
 interface Session {
@@ -85,6 +101,7 @@ function releaseSession(s: Session | null): void {
 
 const fmtMs = (v: number | null): string => (v === null ? "—" : `${Math.round(v)} ms`);
 const fmtPx = (v: number | null): string => (v === null ? "tahan tangan diam" : `${v.toFixed(1)} px`);
+const fmtPct = (v: number | null): string => (v === null ? "—" : `${Math.round(v)}%`);
 
 export function NuiLabPage() {
   const [supported, setSupported] = useState<boolean | null>(null);
@@ -184,7 +201,6 @@ export function NuiLabPage() {
         return;
       }
       s.landmarker = created.landmarker;
-      setInfo((prev) => ({ ...prev, delegate: delegateLabel(created) }));
     } catch (err) {
       // The preview keeps running; the numbers just show no hands.
       if (stillWanted()) setMessage(messageFor(classifyCameraError(err)));
@@ -204,9 +220,20 @@ export function NuiLabPage() {
       cur.lastVideoTime = v.currentTime;
       const t0 = performance.now();
       cur.frameTimes.push(t0);
-      let landmarks: Landmark[][];
+      // Through the app-wide gate, so the lab shows the rate and load the game would really get. A frame the
+      // gate skips is not analysed; the next camera frame is asked for afresh (latest frame wins).
+      const landmarker = cur.landmarker;
+      let inferMs = 0;
+      let landmarks: Landmark[][] | null;
       try {
-        landmarks = cur.landmarker.detectForVideo(frameForDetection(v), t0).landmarks;
+        landmarks = pollDetection(cur, v, (timestamp) => {
+          const start = performance.now();
+          try {
+            return landmarker.detectForVideo(frameForDetection(v), timestamp).landmarks;
+          } finally {
+            inferMs = performance.now() - start;
+          }
+        });
         cur.failures = 0;
       } catch {
         cur.failures++;
@@ -216,7 +243,8 @@ export function NuiLabPage() {
         }
         return;
       }
-      cur.analyzer.analyse({ landmarks, inferMs: performance.now() - t0, nowMs: t0 });
+      if (landmarks === null) return;
+      cur.analyzer.analyse({ landmarks, inferMs, nowMs: t0 });
       paintOverlay(v, cur);
       paintInk(cur);
     };
@@ -254,12 +282,26 @@ export function NuiLabPage() {
       const now = performance.now();
       s.frameTimes = s.frameTimes.filter((t) => now - t <= 1000);
       const stats = getFrameSourceStats();
+      // Read live: a runtime GPU-to-CPU switch shows up here within one refresh.
+      const delegate = getDelegateInfo();
       setReadout({
         snapshot: s.analyzer.snapshot(now),
         deliveredFps: s.frameTimes.length,
         luma: stats.lastLuma,
         claheMs: stats.lastClaheMs,
         enhancing: stats.enhancing,
+        sched: getInferenceStats(),
+        // getDelegateInfo is process-wide: without a landmarker of this session it may describe an older one.
+        engine:
+          s.landmarker && delegate.delegate
+            ? delegateLabel({
+                delegate: delegate.delegate,
+                fellBack: delegate.reason === "gpu-failed",
+                reason: delegate.reason ?? undefined,
+              })
+            : "—",
+        reason: delegateReasonText(delegate.reason),
+        switchText: switchStateText(delegate.switchState, delegate.switchError),
       });
     };
     s.rafId = requestAnimationFrame(tick);
@@ -272,6 +314,7 @@ export function NuiLabPage() {
   };
 
   const snap = readout.snapshot;
+  const sched = readout.sched;
   const running = phase === "on";
   const wave = snap?.wave;
 
@@ -337,10 +380,14 @@ export function NuiLabPage() {
             <Stat label="Resolusi kamera" value={info.width && info.height ? `${info.width} × ${info.height}` : "—"} />
             <Stat label="FPS kamera (pengaturan)" value={info.frameRate ? `${Math.round(info.frameRate)}` : "—"} />
             <Stat label="FPS frame diterima" value={running ? `${readout.deliveredFps} /detik` : "—"} />
-            <Stat label="FPS deteksi" value={snap ? `${snap.detectFps} /detik` : "—"} />
+            <Stat label="Deteksi efektif" value={sched ? `${sched.effectiveHz} /detik` : "—"} />
+            <Stat label="Waktu deteksi rata-rata" value={fmtMs(sched?.avgMs ?? null)} />
             <Stat label="Waktu deteksi p50" value={fmtMs(snap?.inferP50 ?? null)} />
             <Stat label="Waktu deteksi p95" value={fmtMs(snap?.inferP95 ?? null)} />
-            <Stat label="Mesin (GPU/CPU)" value={info.delegate ?? "—"} />
+            <Stat label="Sibuk (perkiraan)" value={fmtPct(busyPercent(sched?.avgMs ?? null, sched?.effectiveHz ?? 0))} />
+            <Stat label="Mesin (GPU/CPU)" value={readout.engine} />
+            <Stat label="Alasan mesin" value={readout.reason} />
+            <Stat label="Status pindah mesin" value={readout.switchText} />
             <Stat label="Tangan terlihat" value={snap ? `${snap.handCount} (jauh, diabaikan: ${snap.farHandCount})` : "—"} />
             <Stat
               label="Tangan utama"

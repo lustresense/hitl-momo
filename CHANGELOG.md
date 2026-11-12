@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.14.2-alpha | 2026-11-12 | Perbaikan | `(0.14.2-alpha)` |
 | 0.14.1-alpha | 2026-11-12 | Tes | `(0.14.1-alpha)` |
 | 0.14.0-alpha | 2026-11-12 | Fitur | `(0.14.0-alpha)` |
 | 0.13.0-alpha | 2026-11-12 | Fitur | `(0.13.0-alpha)` |
@@ -96,6 +97,21 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.14.2-alpha — 2026-11-12 — Perbaikan
+
+**Sumber:** REVISIONS R12-03 (sisa)
+
+**Perubahan:**
+- Penggaris → kartu → daftar level → dunia berpindah dengan balikan halaman buku, bukan ganti langsung.
+- Layar baru hanya muncul di tengah balikan; Momo lama memudar keluar dan Momo baru memudar masuk, tidak ada dua Momo.
+- Durasi tetap penuh saat reduced motion (D-20261110-03).
+
+**Commit:** commit berjudul `(0.14.2-alpha)`
+
+**Bukti:** vitest tests/app 83 lulus; belum diuji di browser
 
 ---
 

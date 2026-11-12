@@ -1,10 +1,17 @@
 /*
- * R12-03b: the incoming screen fades in after the cover's Momo has faded out, so the student never sees two Momos.
- * The wrapper is display: contents (no layout change); the fade runs on the screen's own top-level boxes for the
- * short window SketchbookApp keeps the class on. Delay comes from COVER_MOMO_FADE_MS through --handoff-delay.
+ * R12-03b / R12b-FLOW: screen hand-offs. The wrapper is display: contents (no layout change).
+ * - is-leaving (page turn): the outgoing Momo fades while the leaf lifts; the page itself stays visible, so the
+ *   student sees Momo go before the swap. Duration comes from PAGE_LEAVE_MS through --handoff-leave.
+ * - is-entering: the incoming screen fades in after the outgoing Momo has gone (cover: COVER_MOMO_FADE_MS through
+ *   --handoff-delay; page turn: no delay, the fade starts at the midpoint).
+ * Story durations are not shortened for reduced motion (D-20261110-03).
  */
 .screen-handoff {
   display: contents;
+}
+.screen-handoff.is-leaving .momo-guide {
+  opacity: 0;
+  transition: opacity var(--handoff-leave, 450ms) ease;
 }
 .screen-handoff.is-entering > * {
   animation: screen-handoff-in 0.3s ease var(--handoff-delay, 0ms) both;

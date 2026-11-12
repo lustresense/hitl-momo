@@ -8,7 +8,7 @@ from . import classroom, dashboard
 from .db import init_db
 from .inference import load_model, predict_from_drawing
 
-app = FastAPI(title="Momo Backend", version="0.14.1-alpha")
+app = FastAPI(title="Momo Backend", version="0.14.2-alpha")
 app.include_router(dashboard.router)
 app.include_router(classroom.router)
 

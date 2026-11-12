@@ -51,4 +51,46 @@ describe("useScreenHandoff (R12-03)", () => {
     expect(COVER_MOMO_FADE_MS).toBeGreaterThan(0);
     expect(SCREEN_FADE_MS).toBeGreaterThan(0);
   });
+
+  it("a page turn starts the outgoing Momo fade at once, but the screen change waits for the midpoint", () => {
+    const { result } = renderHook(() => useScreenHandoff());
+    const change = vi.fn();
+    act(() => result.current.turn(change));
+    expect(result.current.leaving).toBe(true);
+    expect(result.current.entering).toBe(false);
+    expect(change).not.toHaveBeenCalled();
+    act(() => result.current.midpoint());
+    expect(change).toHaveBeenCalledTimes(1);
+    expect(result.current.leaving).toBe(false);
+  });
+
+  it("after a page turn the incoming screen fades in from the midpoint with no delay, then settles", () => {
+    const { result } = renderHook(() => useScreenHandoff());
+    act(() => result.current.turn(() => undefined));
+    act(() => result.current.midpoint());
+    expect(result.current.entering).toBe(true);
+    expect(result.current.delayMs).toBe(0);
+    act(() => vi.advanceTimersByTime(SCREEN_FADE_MS - 1));
+    expect(result.current.entering).toBe(true);
+    act(() => vi.advanceTimersByTime(1));
+    expect(result.current.entering).toBe(false);
+  });
+
+  it("a page turn with no change queued at the midpoint does not start an incoming fade", () => {
+    const { result } = renderHook(() => useScreenHandoff());
+    act(() => result.current.turn(() => undefined));
+    act(() => result.current.midpoint());
+    act(() => result.current.midpoint());
+    expect(result.current.entering).toBe(false);
+    expect(result.current.leaving).toBe(false);
+  });
+
+  it("a cover swap keeps the cover delay, even after an earlier page turn", () => {
+    const { result } = renderHook(() => useScreenHandoff());
+    act(() => result.current.turn(() => undefined));
+    act(() => result.current.midpoint());
+    act(() => vi.advanceTimersByTime(SCREEN_FADE_MS));
+    act(() => result.current.swap(() => undefined));
+    expect(result.current.delayMs).toBe(COVER_MOMO_FADE_MS);
+  });
 });

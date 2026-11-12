@@ -85,6 +85,21 @@ export function SketchbookApp() {
     introPending,
   });
 
+  const [book, setBook] = useState<{ key: number; direction: "open" | "close" }>({ key: 0, direction: "open" });
+  const pendingCloseRef = useRef<(() => void) | null>(null);
+  /** R12-03: screen changes wait for the book's midpoint; the incoming screen then fades in after the cover Momo. */
+  const handoff = useScreenHandoff();
+  const { turn: turnAtMidpoint, midpoint: atBookMidpoint, swap: swapScreen } = handoff;
+  /** R12b-FLOW: ruler -> cards -> levels. The book turns; the outgoing Momo fades; the new screen mounts at the midpoint. */
+  const turnPage = useCallback(
+    (change: () => void) => {
+      turnAtMidpoint(change);
+      setBook((b) => ({ key: b.key + 1, direction: "open" }));
+    },
+    [turnAtMidpoint],
+  );
+  const turnPageTo = useCallback((path: string) => turnPage(() => navigateTo(path)), [turnPage, navigateTo]);
+
   const [joinAttempt, setJoinAttempt] = useState<JoinAttempt>("none");
   const classStatus: JoinAttempt | "joined" = classroom.session ? "joined" : classroom.joinToken ? joinAttempt : "none";
   /** Confirms the student number. A failed join is reported to the ruler (classStatus), never swallowed. */
@@ -96,24 +111,18 @@ export function SketchbookApp() {
         /* Continue if storage is unavailable. */
       }
       if (!classroom.joinToken) {
-        navigateTo("/onboarding/card");
+        turnPageTo("/onboarding/card");
         return;
       }
       setJoinAttempt("joining");
       const outcome = await waitForJoin(classroom.joinClass(studentNumber, `Siswa ${studentNumber}`));
       setJoinAttempt(outcome === "joined" ? "none" : "failed");
-      navigateTo("/onboarding/card");
+      turnPageTo("/onboarding/card");
     },
-    [classroom, navigateTo],
+    [classroom, turnPageTo],
   );
 
   const { enterLevel, willPlayIntro, provider, recordRecap } = session;
-  const [book, setBook] = useState<{ key: number; direction: "open" | "close" }>({ key: 0, direction: "open" });
-  const pendingCloseRef = useRef<(() => void) | null>(null);
-  /** R12-03: screen changes wait for the book's midpoint; the incoming screen then fades in after the cover Momo. */
-  const handoff = useScreenHandoff();
-  const { later: laterAtMidpoint, midpoint: atBookMidpoint, swap: swapScreen } = handoff;
-
   // R9: keep the first decided object of each level (strokes + decision) for the closing overview.
   useEffect(() => {
     if (controller && level && snapshot?.decision) recordRecap(recapFromFlow(level, controller));
@@ -159,10 +168,9 @@ export function SketchbookApp() {
       // The level list stays under the falling intro page only when an intro plays.
       if (willPlayIntro(selected)) startEntryHold();
       // PRD 0.0.16 R6 / R12-03: the book opens into the world; the world appears at the midpoint, not before.
-      laterAtMidpoint(() => enterLevel(selected));
-      setBook((b) => ({ key: b.key + 1, direction: "open" }));
+      turnPage(() => enterLevel(selected));
     },
-    [startEntryHold, enterLevel, willPlayIntro, laterAtMidpoint],
+    [startEntryHold, enterLevel, willPlayIntro, turnPage],
   );
 
   async function handleSubmitDrawing() {
@@ -211,8 +219,12 @@ export function SketchbookApp() {
   return (
     <AppShell mode={bannerMode} onboarding={isCameraCover || isOnboarding || isLevelEntry}>
       <div
-        className={handoff.entering ? "screen-handoff is-entering" : "screen-handoff"}
-        style={{ "--handoff-delay": `${handoff.delayMs}ms` } as CSSProperties}
+        className={
+          ["screen-handoff", handoff.entering ? "is-entering" : "", handoff.leaving ? "is-leaving" : ""]
+            .filter(Boolean)
+            .join(" ")
+        }
+        style={{ "--handoff-delay": `${handoff.delayMs}ms`, "--handoff-leave": `${handoff.leaveMs}ms` } as CSSProperties}
       >
       {!isCameraCover && (
         <>
@@ -223,8 +235,8 @@ export function SketchbookApp() {
           {onboarding === "tutorial" && (
             <TutorialBrochure
               characterDisplayName={characterDisplayName}
-              onStart={() => navigateTo("/levels")}
-              onSkip={() => navigateTo("/levels")}
+              onStart={() => turnPageTo("/levels")}
+              onSkip={() => turnPageTo("/levels")}
             />
           )}
 

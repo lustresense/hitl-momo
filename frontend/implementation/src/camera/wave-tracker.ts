@@ -8,6 +8,7 @@
  *   short Indonesian reason instead of silently dying;
  * - no inference while document.hidden, none when video.currentTime is unchanged;
  * - after the wave is reported the loop and landmarker are released at once.
+ * - with a face in view, only a hand near that face counts (face-anchor.ts, primary-hand.ts).
  */
 import type { HandLandmarker, HandLandmarkerResult } from "@mediapipe/tasks-vision";
 import { delegateLabel } from "./hand-landmarker";
@@ -16,6 +17,7 @@ import { classifyCameraError, messageFor, type CameraFailureReason } from "./mes
 import { frameForDetection } from "./frame-source";
 import { pollDetection } from "./inference-scheduler";
 import { pickPrimaryHand, type PrimaryHandState } from "./primary-hand";
+import { FaceAnchor, type FaceBox, type FaceSource } from "./face-anchor";
 
 export interface WaveSample {
   x: number;
@@ -23,20 +25,36 @@ export interface WaveSample {
 }
 
 /*
- * Wave calibration (lambaian di webcam biasa; motion blur memperkecil ayunan).
- * Old rule: >= 8 samples, span > 0.22, returns within 0.18, no swing count.
- * New rule: >= 6 samples, span >= 0.16, returns within 0.18, and at least two swings of >= 0.05 each
- * (a left-right-left sweep). Fewer samples and a smaller span catch a blurred wave; the two swings keep a
- * single slow lean or a one-way slide from counting as a wave.
+ * Wave rule: the wrist sweeps left and right, and turns at least WAVE_MIN_REVERSALS times within WAVE_WINDOW_MS.
+ * Each leg (one direction of the sweep) must cover a minimum distance that scales with the hand size, so a small,
+ * far hand still counts and a jitter of a few pixels does not. Two turns are a left-right-left sweep, about 1.5 swings.
+ *
+ * Earlier rule: it also needed the wrist back near its start (0.18), a span of 0.16 and 2 swings of 0.05. The return
+ * check delayed the wave by up to a full swing, and the span rule never fired for a normal sweep of a small reach.
  */
+/** Samples older than this are dropped. With real timestamps, a slower detection rate only means fewer samples. */
+export const WAVE_WINDOW_MS = 1000;
 export const WAVE_MIN_SAMPLES = 6;
-export const WAVE_MIN_SPAN = 0.16;
-export const WAVE_RETURN_TOLERANCE = 0.18;
-export const WAVE_MIN_SWINGS = 2;
-export const WAVE_MIN_SWING_SPAN = 0.05;
+export const WAVE_MIN_REVERSALS = 2;
+/** A leg must cover this share of the hand size ... */
+export const WAVE_LEG_RATIO = 0.25;
+/** ... but never less than this (normalised frame units), so a far hand's jitter is not a sweep. */
+export const WAVE_MIN_LEG = 0.03;
+/** Hand size assumed when the caller gives none (a hand about 30 % of the frame). */
+export const WAVE_DEFAULT_HAND_SIZE = 0.3;
+/**
+ * The face box may move this far (share of its width) during one sweep before the sweep starts again: a head turn
+ * carries a hand held on the head sideways in the picture, and that is not a wave.
+ */
+export const FACE_STILL_SHIFT = 0.6;
+
+/** Minimum leg (normalised) for a hand of this size. */
+export function waveLeg(handSize: number): number {
+  return Math.max(WAVE_MIN_LEG, WAVE_LEG_RATIO * handSize);
+}
 
 /** Number of swings: direction reversals that each move at least `minSwing`. */
-export function countSwings(values: number[], minSwing = WAVE_MIN_SWING_SPAN): number {
+export function countSwings(values: number[], minSwing = WAVE_MIN_LEG): number {
   if (values.length < 2) return 0;
   let swings = 0;
   let dir = 0; // 0 = not yet moving, 1 = rising, -1 = falling
@@ -64,27 +82,20 @@ export function countSwings(values: number[], minSwing = WAVE_MIN_SWING_SPAN): n
   return swings;
 }
 
-/** Pure wake-up wave rule (see the calibration note above). */
-export function detectWave(samples: WaveSample[]): boolean {
+/** Pure wake-up wave rule (see the note above). `handSize` scales the minimum leg. */
+export function detectWave(samples: WaveSample[], handSize = WAVE_DEFAULT_HAND_SIZE): boolean {
   if (samples.length < WAVE_MIN_SAMPLES) return false;
-  const values = samples.map((s) => s.x);
-  const first = values[0]!;
-  const last = values[values.length - 1]!;
-  const span = Math.max(...values) - Math.min(...values);
-  return span >= WAVE_MIN_SPAN && Math.abs(last - first) < WAVE_RETURN_TOLERANCE && countSwings(values) >= WAVE_MIN_SWINGS;
+  return countSwings(samples.map((s) => s.x), waveLeg(handSize)) >= WAVE_MIN_REVERSALS;
 }
 
 /**
- * 0..1 progress toward the wave rule for the cincin lambaian: the smaller of the swing share and the span share.
- * It reaches 1 exactly when the sweep and the swings are there; the return to the start is checked by detectWave.
+ * 0..1 progress toward the wave rule for the cincin lambaian: the share of the required turns made so far.
+ * It reaches 1 exactly when detectWave fires (same turns, same leg).
  */
-export function waveProgress(samples: WaveSample[]): number {
+export function waveProgress(samples: WaveSample[], handSize = WAVE_DEFAULT_HAND_SIZE): number {
   if (samples.length === 0) return 0;
-  const values = samples.map((s) => s.x);
-  const span = Math.max(...values) - Math.min(...values);
-  const swings = countSwings(values);
-  const p = Math.min(1, swings / WAVE_MIN_SWINGS, span / WAVE_MIN_SPAN);
-  return Math.max(0, p);
+  const swings = countSwings(samples.map((s) => s.x), waveLeg(handSize));
+  return Math.max(0, Math.min(1, swings / WAVE_MIN_REVERSALS));
 }
 
 /** Frames without a hand that a wave survives (a blurred frame or a dropped detection), before the sweep restarts. */
@@ -100,11 +111,11 @@ export interface WaveTrackerOptions {
   wasmRoot?: string;
   onWave(): void;
   onStatus?(status: WaveTrackerStatus): void;
+  /** Where the player's face is. Default: a FaceAnchor (falls back to the plain hand rule without a face model). */
+  face?: FaceSource;
 }
 
 const MAX_CONSECUTIVE_DETECT_FAILURES = 3;
-/** Samples older than this are dropped. With real timestamps, a slower detection rate only means fewer samples. */
-export const WAVE_WINDOW_MS = 1300;
 
 export class WaveTracker {
   private landmarker: HandLandmarker | null = null;
@@ -118,10 +129,15 @@ export class WaveTracker {
   private missingFrames = 0;
   /** The player's hand, locked across frames so a second person's hand never feeds the sweep. */
   private primary: PrimaryHandState | null = null;
+  /** Face centre x when the current sweep began; a head turn that moves it restarts the sweep. */
+  private sweepFaceCx: number | null = null;
   private progressValue = 0;
   private readonly progressListeners = new Set<(progress: number) => void>();
+  private readonly face: FaceSource;
 
-  constructor(private readonly options: WaveTrackerOptions) {}
+  constructor(private readonly options: WaveTrackerOptions) {
+    this.face = options.face ?? new FaceAnchor();
+  }
 
   /** 0..1 progress toward the wave (drives the cincin lambaian). */
   get progress(): number {
@@ -170,6 +186,7 @@ export class WaveTracker {
       this.failures = 0;
       this.lastVideoTime = -1;
       this.primary = null;
+      this.sweepFaceCx = null;
       this.options.onStatus?.({ kind: "ready", delegate: delegateLabel(created) });
       this.loop();
     } catch (err) {
@@ -190,6 +207,7 @@ export class WaveTracker {
     this.samples = [];
     this.primary = null;
     this.missingFrames = 0;
+    this.sweepFaceCx = null;
     this.lastVideoTime = -1;
     this.failures = 0;
     this.setProgress(0);
@@ -205,6 +223,13 @@ export class WaveTracker {
     } catch {
       /* best-effort */
     }
+  }
+
+  /** Starts the sweep again: the samples go, and the face (if any) becomes the new reference. */
+  private restartSweep(faceCx: number | null): void {
+    this.samples = [];
+    this.sweepFaceCx = faceCx;
+    this.setProgress(0);
   }
 
   private loop = (): void => {
@@ -230,23 +255,29 @@ export class WaveTracker {
     }
     if (!result) return;
     const now = performance.now();
-    const pick = pickPrimaryHand(result.landmarks, this.primary, now);
+    // The face has its own, slower clock (face-anchor.ts). It only narrows which hand is the player's.
+    this.face.update(video, now);
+    const face: FaceBox | null = this.face.current(now);
+    const pick = pickPrimaryHand(result.landmarks, this.primary, now, face);
     this.primary = pick.state;
     const wrist = pick.index === null ? undefined : result.landmarks[pick.index]?.[0];
     if (!wrist) {
       // A blurred or dropped frame keeps the sweep; only a longer gap restarts it.
       this.missingFrames++;
-      if (this.missingFrames > WAVE_MAX_MISSING_FRAMES) {
-        this.samples = [];
-        this.setProgress(0);
-      }
+      if (this.missingFrames > WAVE_MAX_MISSING_FRAMES) this.restartSweep(null);
       return;
     }
     this.missingFrames = 0;
+    if (face) {
+      const cx = face.x + face.w / 2;
+      if (this.sweepFaceCx === null) this.sweepFaceCx = cx;
+      else if (Math.abs(cx - this.sweepFaceCx) > FACE_STILL_SHIFT * face.w) this.restartSweep(cx);
+    }
     this.samples.push({ x: wrist.x, time: now });
     while (this.samples.length && now - this.samples[0]!.time > WAVE_WINDOW_MS) this.samples.shift();
-    this.setProgress(waveProgress(this.samples));
-    if (detectWave(this.samples)) {
+    const handSize = pick.state?.size ?? WAVE_DEFAULT_HAND_SIZE;
+    this.setProgress(waveProgress(this.samples, handSize));
+    if (detectWave(this.samples, handSize)) {
       this.reported = true;
       this.setProgress(1);
       this.release();

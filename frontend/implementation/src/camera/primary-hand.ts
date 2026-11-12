@@ -5,6 +5,7 @@
  * The values are STARTING VALUES for a live exhibition, not measured on a camera (sandbox has none).
  */
 import type { Landmark } from "../input/types";
+import type { FaceBox } from "./face-anchor";
 
 /** Hands whose larger side is below this (fraction of the frame) are far away: other people, not the player. */
 export const MIN_HAND_SIZE = 0.08;
@@ -14,6 +15,15 @@ export const MAX_JUMP = 0.18;
 export const LOCK_LOST_MS = 600;
 /** A lone unmatched hand within this size ratio of the locked hand is the player moving fast, not a bystander. */
 export const SAME_HAND_SIZE_RATIO = 1.35;
+/*
+ * Player region around the face, in face units. Starting values, not measured on a camera: a waving arm stays
+ * within about 0.6 face widths of the head, and a raised hand may reach one face height above the top of the head.
+ */
+export const HAND_REGION_HALF_WIDTH = 1.6;
+export const HAND_REGION_ABOVE = 1.0;
+export const HAND_REGION_BELOW = 4.0;
+/** A hand whose box is more than this share inside the face box is the face itself, misread as a hand. */
+export const HAND_FACE_OVERLAP_MAX = 0.5;
 
 export interface PrimaryHandState {
   /** Wrist of the locked hand on its last matched frame (normalised). */
@@ -35,8 +45,8 @@ export function isLargeEnough(hand: Landmark[]): boolean {
   return handSize(hand) >= MIN_HAND_SIZE;
 }
 
-/** Larger side of the bounding box around all landmarks (normalised units). */
-export function handSize(hand: Landmark[]): number {
+/** Bounding box around all landmarks (normalised units). */
+export function handBounds(hand: Landmark[]): { minX: number; maxX: number; minY: number; maxY: number } {
   let minX = Infinity;
   let maxX = -Infinity;
   let minY = Infinity;
@@ -47,7 +57,32 @@ export function handSize(hand: Landmark[]): number {
     if (p.y < minY) minY = p.y;
     if (p.y > maxY) maxY = p.y;
   }
-  return Math.max(maxX - minX, maxY - minY);
+  return { minX, maxX, minY, maxY };
+}
+
+/** Larger side of the bounding box around all landmarks (normalised units). */
+export function handSize(hand: Landmark[]): number {
+  const b = handBounds(hand);
+  return Math.max(b.maxX - b.minX, b.maxY - b.minY);
+}
+
+/**
+ * True when the hand can be the player's, given the face: its wrist is in the region around and above the head, and
+ * its box is not mostly the face itself. Whoever sits to the side or further down the frame is not the player.
+ */
+export function isPlayerHand(hand: Landmark[], face: FaceBox): boolean {
+  const wrist = hand[0];
+  if (!wrist) return false;
+  const centreX = face.x + face.w / 2;
+  if (Math.abs(wrist.x - centreX) > HAND_REGION_HALF_WIDTH * face.w) return false;
+  if (wrist.y < face.y - HAND_REGION_ABOVE * face.h || wrist.y > face.y + HAND_REGION_BELOW * face.h) return false;
+
+  const b = handBounds(hand);
+  const area = (b.maxX - b.minX) * (b.maxY - b.minY);
+  if (!(area > 0)) return false;
+  const overlapW = Math.max(0, Math.min(b.maxX, face.x + face.w) - Math.max(b.minX, face.x));
+  const overlapH = Math.max(0, Math.min(b.maxY, face.y + face.h) - Math.max(b.minY, face.y));
+  return (overlapW * overlapH) / area <= HAND_FACE_OVERLAP_MAX;
 }
 
 function dist(a: { x: number; y: number }, b: { x: number; y: number }): number {
@@ -60,13 +95,23 @@ function dist(a: { x: number; y: number }, b: { x: number; y: number }): number 
  * same size as the locked one (a quick sweep that jumped further than MAX_JUMP). Any other unmatched hand is a
  * bystander: the frame gets index null and the lock is kept. After LOCK_LOST_MS without the player the lock
  * expires and the largest valid hand (the closest person) starts a new lock.
+ *
+ * With a `face` in view, only hands that pass isPlayerHand are valid at all. Without one (null) the rule is the
+ * plain one above.
  */
-export function pickPrimaryHand(hands: Landmark[][], previous: PrimaryHandState | null, nowMs: number): PrimaryHandPick {
+export function pickPrimaryHand(
+  hands: Landmark[][],
+  previous: PrimaryHandState | null,
+  nowMs: number,
+  face: FaceBox | null = null,
+): PrimaryHandPick {
   const valid: { index: number; wrist: { x: number; y: number }; size: number }[] = [];
   hands.forEach((h, index) => {
     const wrist = h?.[0];
     if (!wrist) return;
-    if (isLargeEnough(h)) valid.push({ index, wrist, size: handSize(h) });
+    if (!isLargeEnough(h)) return;
+    if (face && !isPlayerHand(h, face)) return;
+    valid.push({ index, wrist, size: handSize(h) });
   });
 
   const lock = previous && nowMs - previous.lastSeenMs <= LOCK_LOST_MS ? previous : null;

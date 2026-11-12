@@ -54,8 +54,9 @@ describe("calibrated wave rule (blur-tolerant)", () => {
     expect(detectWave(samplesOf([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8]))).toBe(false);
   });
 
-  it("a wave that ends far from where it started is not a wave yet", () => {
-    expect(detectWave(samplesOf([0.2, 0.35, 0.2, 0.35, 0.2, 0.35, 0.8]))).toBe(false);
+  it("a wave that is followed by a long move away is still a wave (it was made at the second turn)", () => {
+    // The old rule demanded the wrist back near its start. That check made a normal wave wait for a full swing.
+    expect(detectWave(samplesOf([0.2, 0.35, 0.2, 0.35, 0.2, 0.35, 0.8]))).toBe(true);
   });
 });
 

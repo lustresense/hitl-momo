@@ -9,7 +9,8 @@
  */
 import type { HandLandmarker } from "@mediapipe/tasks-vision";
 import { createHandLandmarker, delegateLabel, type CreatedHandLandmarker } from "./hand-landmarker";
-import { DEFAULT_NUM_HANDS } from "./hand-config";
+import { DEFAULT_NUM_HANDS, FACE_MODEL_PATH } from "./hand-config";
+import { loadFaceDetector } from "./face-anchor";
 import { classifyCameraError, messageFor } from "./messages";
 
 export interface HandLandmarkerOptions {
@@ -84,6 +85,9 @@ export async function warmHandLandmarker(options: HandLandmarkerOptions): Promis
   try {
     const created = await promise;
     if (pending === job) pending = null;
+    // The face model loads once the hand model is ready, so the two do not compete during the cold start.
+    // A failure is harmless: the wave then runs on the plain hand rule.
+    void loadFaceDetector(options.wasmRoot, FACE_MODEL_PATH).catch(() => undefined);
     if (job.claimed) {
       publish({ kind: "ready", delegate: delegateLabel(created) });
       return;

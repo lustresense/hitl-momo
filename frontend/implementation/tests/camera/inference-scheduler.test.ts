@@ -2,12 +2,16 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   BUDGET_SHARE,
+  FACE_LANE,
+  HAND_LANE,
   InferenceScheduler,
   MAX_BUSY_SHARE,
   MAX_INTERVAL_MS,
+  SECONDARY_MAX_WAIT_MS,
   getInferenceStats,
   pollDetection,
   resetInferenceSchedulerForTest,
+  type InferenceLane,
 } from "@/src/camera/inference-scheduler";
 
 /** A fake main-thread clock: the scheduler reads it, and a detection moves it forward by its cost. */
@@ -27,7 +31,7 @@ function fakeVideo(currentTime = 0): HTMLVideoElement {
 function simulate(
   s: InferenceScheduler,
   clock: { t: number },
-  opts: { costMs: number; durationMs: number; consumers?: number; stepMs?: number },
+  opts: { costMs: number; durationMs: number; consumers?: number; stepMs?: number; lane?: InferenceLane },
 ) {
   const video = fakeVideo();
   const readers = Array.from({ length: opts.consumers ?? 1 }, () => ({}));
@@ -39,7 +43,7 @@ function simulate(
   while (clock.t < end) {
     clock.t += opts.stepMs ?? 16;
     video.currentTime = clock.t / 1000;
-    for (const r of readers) s.poll(r, video, detect);
+    for (const r of readers) s.poll(r, video, detect, opts.lane);
   }
   return detect;
 }
@@ -240,6 +244,156 @@ describe("InferenceScheduler: stats", () => {
       spy.mockRestore();
       resetInferenceSchedulerForTest();
     }
+  });
+});
+
+describe("InferenceScheduler: one budget for hand and face", () => {
+  it("one camera frame gets at most one inference, whichever model asks first", () => {
+    const { now } = makeClock();
+    const s = new InferenceScheduler({ now });
+    const video = fakeVideo(1);
+    const hand = vi.fn(() => ({ kind: "hand" }));
+    const face = vi.fn(() => ({ kind: "face" }));
+
+    s.poll({}, video, hand, HAND_LANE);
+    expect(s.poll({}, video, face, FACE_LANE)).toBeNull();
+
+    expect(hand).toHaveBeenCalledTimes(1);
+    expect(face).not.toHaveBeenCalled();
+  });
+
+  it("hand and face results never mix: each model gets the value of its own detector", () => {
+    const { clock, now } = makeClock();
+    const s = new InferenceScheduler({ now });
+    const video = fakeVideo(1);
+    const hand = {};
+    const face = {};
+
+    expect(s.poll(hand, video, () => ({ kind: "hand" }), HAND_LANE)).toEqual({ kind: "hand" });
+    clock.t += 1000;
+    video.currentTime = 2;
+    expect(s.poll(face, video, () => ({ kind: "face" }), FACE_LANE)).toEqual({ kind: "face" });
+  });
+
+  it("face looks about 4 times a second when the hand is idle", () => {
+    const { clock, now } = makeClock();
+    const s = new InferenceScheduler({ now });
+    const face = simulate(s, clock, { costMs: 5, durationMs: 2000, lane: FACE_LANE });
+
+    expect(face.mock.calls.length).toBeGreaterThanOrEqual(6);
+    expect(face.mock.calls.length).toBeLessThanOrEqual(9);
+  });
+
+  it("face yields to a busy hand, but still gets a look at least every SECONDARY_MAX_WAIT_MS", () => {
+    const { clock, now } = makeClock();
+    const s = new InferenceScheduler({ now });
+    const video = fakeVideo();
+    const handCalls = vi.fn();
+    const faceStarts: number[] = [];
+    const end = clock.t + 5000;
+
+    while (clock.t < end) {
+      clock.t += 16;
+      video.currentTime = clock.t / 1000;
+      s.poll({}, video, () => {
+        clock.t += 20;
+        handCalls();
+        return null;
+      }, HAND_LANE);
+      s.poll({}, video, () => {
+        faceStarts.push(clock.t);
+        clock.t += 5;
+        return null;
+      }, FACE_LANE);
+    }
+
+    expect(faceStarts.length).toBeGreaterThanOrEqual(5);
+    for (let i = 1; i < faceStarts.length; i++) {
+      const gap = faceStarts[i]! - faceStarts[i - 1]!;
+      expect(gap).toBeGreaterThanOrEqual(SECONDARY_MAX_WAIT_MS);
+      expect(gap).toBeLessThanOrEqual(SECONDARY_MAX_WAIT_MS + 100);
+    }
+    // The hand keeps most of its rate: the face only takes about one slot in every half second.
+    expect(handCalls.mock.calls.length).toBeGreaterThanOrEqual(60);
+  });
+
+  it("a face that stops asking (model failed, no face yet) does not hold the hand back", () => {
+    const { clock, now } = makeClock();
+    const s = new InferenceScheduler({ now });
+    const video = fakeVideo();
+    // The face asks once, then goes quiet for good.
+    s.poll({}, fakeVideo(0.5), () => null, FACE_LANE);
+    let handCalls = 0;
+    const start = clock.t;
+    while (clock.t < start + 3000) {
+      clock.t += 16;
+      video.currentTime = clock.t / 1000;
+      s.poll({}, video, () => {
+        handCalls++;
+        clock.t += 20;
+        return null;
+      }, HAND_LANE);
+    }
+    expect(handCalls).toBeGreaterThanOrEqual(40);
+  });
+
+  it("hand and face together keep busy time at or below 50%, even with a slow face", () => {
+    const { clock, now } = makeClock();
+    const s = new InferenceScheduler({ now });
+    const video = fakeVideo();
+    let handCount = 0;
+    let faceCount = 0;
+    const start = clock.t;
+    const end = clock.t + 10000;
+
+    while (clock.t < end) {
+      clock.t += 16;
+      video.currentTime = clock.t / 1000;
+      s.poll({}, video, () => {
+        handCount++;
+        clock.t += 20;
+        return null;
+      }, HAND_LANE);
+      s.poll({}, video, () => {
+        faceCount++;
+        clock.t += 300;
+        return null;
+      }, FACE_LANE);
+    }
+
+    const busy = handCount * 20 + faceCount * 300;
+    expect(faceCount).toBeGreaterThan(0);
+    expect(busy / (clock.t - start)).toBeLessThanOrEqual(MAX_BUSY_SHARE + 0.02);
+  });
+
+  it("reports per-model stats next to the totals, and busy share of the last second", () => {
+    const { clock, now } = makeClock();
+    const s = new InferenceScheduler({ now });
+    s.poll({}, fakeVideo(1), () => {
+      clock.t += 20;
+      return null;
+    }, HAND_LANE); // starts at 1000 ms
+    clock.t = 1500;
+    s.poll({}, fakeVideo(2), () => {
+      clock.t += 10;
+      return null;
+    }, FACE_LANE);
+
+    const stats = s.getStats();
+    expect(stats.detections).toBe(2);
+    expect(stats.avgMs).toBe(15);
+    expect(stats.models.hand).toMatchObject({ detections: 1, avgMs: 20, lastMs: 20, effectiveHz: 1 });
+    expect(stats.models.face).toMatchObject({ detections: 1, avgMs: 10, lastMs: 10, effectiveHz: 1 });
+    expect(stats.busyShare).toBeCloseTo(0.03, 5);
+  });
+
+  it("per-model stats are zero before the first detection of that model", () => {
+    const { now } = makeClock();
+    const s = new InferenceScheduler({ now });
+    const stats = s.getStats();
+    expect(stats.models.hand).toEqual({ detections: 0, avgMs: null, lastMs: null, effectiveHz: 0 });
+    expect(stats.models.face).toEqual({ detections: 0, avgMs: null, lastMs: null, effectiveHz: 0 });
+    expect(stats.busyShare).toBe(0);
   });
 });
 

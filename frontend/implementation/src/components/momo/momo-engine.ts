@@ -24,6 +24,11 @@ export const MOMO_ART_HEIGHT = 2058;
 export const MOMO_ASPECT = 0.6749;
 /** Length of wake(): the eyelid blinks before the expression is set. Same numbers as the timeline in wake(). */
 export const MOMO_WAKE_MS = 810;
+/**
+ * Asleep motion with prefers-reduced-motion. The sleep is slow (4 s+ cycles), so it can keep more of its size than
+ * the hops do. At the 0.35 used for hops, the breath and float were about 1 px on screen and read as frozen (R12-02).
+ */
+const SLEEP_REDUCED = 0.6;
 /** Asleep float: the body rises and sinks 3.5 px either way (7 px in all), and leans 2 degrees; one 4 s cycle. */
 const FLOAT_PX = 3.5;
 const FLOAT_DEG = 2;
@@ -130,6 +135,8 @@ export class MomoEngine {
   private sp: Record<"fL" | "fR" | "t1" | "t2" | "t3" | "bow", Spring> = { fL: { a: 0, v: 0 }, fR: { a: 0, v: 0 }, t1: { a: 0, v: 0 }, t2: { a: 0, v: 0 }, t3: { a: 0, v: 0 }, bow: { a: 0, v: 0 } };
   private prev = { x: 0, y: 0, r: 0 };
   private rm = reducedMotionFactor();
+  /** Amplitude of the asleep motion (breath, float, nod, wing sag): full, or SLEEP_REDUCED with reduced motion. */
+  private sk = this.rm < 1 ? SLEEP_REDUCED : 1;
   private killers: Array<() => void> = [];
   private rt: gsap.core.Animation | null = null;
   private ft: gsap.core.Timeline | null = null;
@@ -183,10 +190,10 @@ export class MomoEngine {
     this.react(instant ? 1.2 + Math.random() * 3 : 0);
   }
 
-  /** Scales a motion to the reduced-motion amplitude: distances by `rm`, squash and stretch toward 1. Nothing is switched off. */
-  private scaled(vals: Record<string, number>): Record<string, number> {
+  /** Scales a motion by `f` (the reduced-motion amplitude by default): distances by `f`, squash and stretch toward 1. Nothing is switched off. */
+  private scaled(vals: Record<string, number>, f = this.rm): Record<string, number> {
     const out: Record<string, number> = {};
-    for (const [key, n] of Object.entries(vals)) out[key] = key === "sx" || key === "sy" ? 1 + (n - 1) * this.rm : n * this.rm;
+    for (const [key, n] of Object.entries(vals)) out[key] = key === "sx" || key === "sy" ? 1 + (n - 1) * f : n * f;
     return out;
   }
 
@@ -218,10 +225,12 @@ export class MomoEngine {
     const e = SPECS[this.i];
     const tl = gsap.timeline({ delay });
     this.rt = tl;
+    // The asleep nod keeps the sleep amplitude, so it stays visible with reduced motion; hops use the lower factor.
+    const f = this.i === "Ngantuk" ? this.sk : this.rm;
     e.re.forEach(([at, d, v, ease]) => {
       const { k, ...vals } = v as { k?: number[] } & Record<string, number>;
-      tl.to(this.P, { ...this.scaled(vals), duration: d, ease: ease || "sine.inOut" }, at);
-      if (k) tl.call(() => this.kick(k.map((n) => n * this.rm)), undefined, at);
+      tl.to(this.P, { ...this.scaled(vals, f), duration: d, ease: ease || "sine.inOut" }, at);
+      if (k) tl.call(() => this.kick(k.map((n) => n * f)), undefined, at);
     });
     tl.to(this.P, { x: 0, y: 0, r: 0, sx: 1, sy: 1, duration: 0.3 }, ">").call(() => {
       if (!this.destroyed) this.rt = gsap.delayedCall(4 + Math.random() * 3.5, () => this.react());
@@ -235,15 +244,15 @@ export class MomoEngine {
 
   /**
    * Asleep: eyes shut, a slow breath (the body swells 1.5 % and narrows), a gentle float (rises and sinks 7 px,
-   * leans 2 degrees), and the wings sag slowly and lift again. All of it keeps moving in reduced motion, at 35 %.
+   * leans 2 degrees), and the wings sag slowly and lift again. All of it keeps moving in reduced motion, at 60 %.
    */
   sleep(): void {
     this.set("Ngantuk");
     gsap.to(this.F, { el: 0, er: 0, os: 0.3, duration: 0.6, ease: "sine.inOut", overwrite: "auto" });
-    const k = this.rm;
+    const k = this.sk;
     this.br = gsap.to(this, { breath: 0.015 * k, duration: 2.1, yoyo: true, repeat: -1, ease: "sine.inOut" });
     this.sway = [this.loop("bob", FLOAT_PX * k), this.loop("tilt", FLOAT_DEG * k)];
-    // Starts after set("Ngantuk") has moved the wings to 8, so the sag runs from 8 down to 12 (at 35 %: 9.4) and back.
+    // Starts after set("Ngantuk") has moved the wings to 8, so the sag runs from 8 down to 12 (at 60 %: 10.4) and back.
     this.droop = gsap.to(this.mo, { fl: 8 + 4 * k, duration: 3, yoyo: true, repeat: -1, ease: "sine.inOut", delay: 0.7 });
   }
 

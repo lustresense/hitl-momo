@@ -3,6 +3,7 @@
  * through the real GameplayHandDriver (MediaPipe is mocked), the real InputArbiter and the
  * real useHandControl wiring, and must reach the game controller as the right DirectionInput.
  */
+import { resetInferenceSchedulerForTest } from "@/src/camera/inference-scheduler";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent, cleanup, act } from "@testing-library/react";
 import { GameStage } from "@/src/components/game/GameStage";
@@ -47,7 +48,13 @@ let rafQueue: FrameRequestCallback[] = [];
 let rafSpy: { mockRestore: () => void } | null = null;
 
 /** One camera frame: a new video time makes the driver run detection and the arbiter once. */
+/**
+ * Real camera frames arrive 33 ms apart and the shared inference gate (src/camera/inference-scheduler.ts) budgets by
+ * wall time. Frames stepped back to back on a busy machine would be throttled, so the gate runs on this frame clock.
+ */
+let frameNowMs = 1000;
 function stepFrame() {
+  frameNowMs += 33;
   frameClock += 1;
   video.currentTime = frameClock;
   act(() => {
@@ -123,6 +130,9 @@ async function startInCamera(phase: "placing" | "gameplay") {
 }
 
 beforeEach(() => {
+  frameNowMs = 1000;
+  vi.spyOn(performance, "now").mockImplementation(() => frameNowMs);
+  resetInferenceSchedulerForTest();
   mp.hand = undefined;
   mp.created = 0;
   ctl.setInput.mockClear();

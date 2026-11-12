@@ -3,6 +3,7 @@
  * itself (no toggle) and the direction buttons only show the hand. Fallback mode: mouse and
  * keyboard buttons work and no hand reader runs. Synthetic 21-point hands and a fake camera only.
  */
+import { resetInferenceSchedulerForTest } from "@/src/camera/inference-scheduler";
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { render, screen, fireEvent, cleanup, act } from "@testing-library/react";
 import { GameStage } from "@/src/components/game/GameStage";
@@ -72,7 +73,13 @@ let rafQueue: FrameRequestCallback[] = [];
 let rafSpy: { mockRestore: () => void } | null = null;
 
 /** One camera frame: a new video time makes the driver run detection once. */
+/**
+ * Real camera frames arrive 33 ms apart and the shared inference gate (src/camera/inference-scheduler.ts) budgets by
+ * wall time. Frames stepped back to back on a busy machine would be throttled, so the gate runs on this frame clock.
+ */
+let frameNowMs = 1000;
 function stepFrame() {
+  frameNowMs += 33;
   frameClock += 1;
   video.currentTime = frameClock;
   act(() => {
@@ -151,6 +158,9 @@ async function startStage(phase: "placing" | "gameplay") {
 }
 
 beforeEach(() => {
+  frameNowMs = 1000;
+  vi.spyOn(performance, "now").mockImplementation(() => frameNowMs);
+  resetInferenceSchedulerForTest();
   mp.hand = undefined;
   mp.attempts = 0;
   mp.fail = false;

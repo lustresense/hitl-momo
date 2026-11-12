@@ -24,12 +24,18 @@
 .cover-wave-ring__fill { fill: none; stroke: var(--nb-green, #2f9e44); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 0.25s linear; }
 .cover-wave-ring__hand {
   position: relative;
+  transform-box: fill-box;
   transform-origin: 50% 90%;
-  animation: cover-wave-bye 1.1s ease-in-out infinite;
+  animation: cover-wave-bye 1.2s ease-in-out infinite;
 }
 @keyframes cover-wave-bye {
-  0%, 100% { transform: rotate(-18deg); }
-  50% { transform: rotate(18deg); }
+  0% { transform: rotate(0deg); }
+  15% { transform: rotate(-25deg); }
+  30% { transform: rotate(20deg); }
+  45% { transform: rotate(-22deg); }
+  60% { transform: rotate(15deg); }
+  75% { transform: rotate(-6deg); }
+  100% { transform: rotate(0deg); }
 }
 @media (prefers-reduced-motion: reduce) {
   .cover-wave-ring__hand { animation: none; }

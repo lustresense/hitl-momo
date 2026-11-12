@@ -14,7 +14,7 @@ export const MAX_JUMP = 0.18;
 /** After this long with no valid hand in view the lock is dropped (a lone or largest hand then starts a new lock). */
 export const LOCK_LOST_MS = 600;
 /** A lone unmatched hand within this size ratio of the locked hand is the player moving fast, not a bystander. */
-export const SAME_HAND_SIZE_RATIO = 1.35;
+export const SAME_HAND_SIZE_RATIO = 1.7;
 /*
  * Player region around the face, in face units. Starting values, not measured on a camera: a waving arm stays
  * within about 0.6 face widths of the head, and a raised hand may reach one face height above the top of the head.
@@ -23,7 +23,7 @@ export const HAND_REGION_HALF_WIDTH = 1.6;
 export const HAND_REGION_ABOVE = 1.0;
 export const HAND_REGION_BELOW = 4.0;
 /** A hand whose box is more than this share inside the face box is the face itself, misread as a hand. */
-export const HAND_FACE_OVERLAP_MAX = 0.5;
+export const HAND_FACE_OVERLAP_MAX = 0.75;
 
 export interface PrimaryHandState {
   /** Wrist of the locked hand on its last matched frame (normalised). */
@@ -74,7 +74,8 @@ export function isPlayerHand(hand: Landmark[], face: FaceBox): boolean {
   const wrist = hand[0];
   if (!wrist) return false;
   const centreX = face.x + face.w / 2;
-  if (Math.abs(wrist.x - centreX) > HAND_REGION_HALF_WIDTH * face.w) return false;
+  const maxSpanX = Math.max(0.36, HAND_REGION_HALF_WIDTH * face.w);
+  if (Math.abs(wrist.x - centreX) > maxSpanX) return false;
   if (wrist.y < face.y - HAND_REGION_ABOVE * face.h || wrist.y > face.y + HAND_REGION_BELOW * face.h) return false;
 
   const b = handBounds(hand);

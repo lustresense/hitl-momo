@@ -1,0 +1,81 @@
+/* BookFlip (PRD 0.0.16 R2, R12-04 / M-019): a paper leaf hinged at the top edge, lifting up in semi-3D. */
+
+.book-flip {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  pointer-events: none;
+  /* Perspective anchored at the hinge, so the leaf reads as turning towards the viewer, not sliding. */
+  perspective: 1600px;
+  perspective-origin: 50% 0%;
+}
+
+/* Soft shadow band cast by the leaf onto the page underneath. Starts fully below the screen (see BookFlip.tsx). */
+.book-flip__shade {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 60%;
+  pointer-events: none;
+  background: linear-gradient(
+    to top,
+    rgba(17, 17, 17, 0) 0%,
+    rgba(17, 17, 17, 0.32) 50%,
+    rgba(17, 17, 17, 0) 100%
+  );
+  will-change: transform;
+}
+
+.book-flip__leaf {
+  position: absolute;
+  inset: 0;
+  transform-origin: 50% 0%;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.book-flip__face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border: 4px solid var(--nb-ink, #111);
+  display: grid;
+  place-items: center;
+}
+
+.book-flip__face--front {
+  background: var(--nb-paper, #fffaf0);
+  box-shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+}
+
+/* The back of the leaf is the paper's underside, seen while it lifts past edge-on. */
+.book-flip__face--back {
+  transform: rotateX(180deg);
+  background: linear-gradient(180deg, #d9d2c3 0%, #a79f90 100%);
+}
+
+/* Page thickness: a striped strip along the bottom edge, folded back behind the leaf so it shows as the stack. */
+.book-flip__edge {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 14px;
+  transform-origin: 50% 0%;
+  transform: rotateX(-90deg);
+  background: repeating-linear-gradient(to bottom, #f4efe3 0 2px, #cfc6b3 2px 3px);
+  border-left: 4px solid var(--nb-ink, #111);
+  border-right: 4px solid var(--nb-ink, #111);
+}
+
+.book-flip__label {
+  font-family: var(--font-display, inherit);
+  font-size: var(--nb-h1, 40px);
+  font-weight: 800;
+}
+
+/* Reduced motion: same turn and duration, no moving shadow band. */
+.book-flip--calm .book-flip__shade {
+  display: none;
+}

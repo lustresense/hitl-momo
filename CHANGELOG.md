@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.12.7-alpha | 2026-11-12 | Perbaikan | `(0.12.7-alpha)` |
 | 0.12.6-alpha | 2026-11-12 | Dokumen | `(0.12.6-alpha)` |
 | 0.12.5-alpha | 2026-11-12 | Dokumen | `(0.12.5-alpha)` |
 | 0.12.4-alpha | 2026-11-12 | Dokumen | `(0.12.4-alpha)` |
@@ -90,6 +91,21 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.12.7-alpha — 2026-11-12 — Perbaikan
+
+**Sumber:** Owner 2026-11-12, REVISIONS R12-04 (M-019)
+
+**Perubahan:**
+- Buka buku semi-3D: lembar berengsel di tepi atas naik ke atas dengan perspektif, tanpa miring ke samping.
+- Bayangan lembut menyapu halaman di bawahnya; tebal kertas terlihat di tepi bawah; tanpa kilatan di awal.
+- Reduced motion: durasi tetap 0,9 s, hanya bayangan yang diam.
+
+**Commit:** commit berjudul `(0.12.7-alpha)`
+
+**Bukti:** vitest BookFlip 13/13, 18 file cover/kamera 117 lulus; tsc bersih; tampilan belum dilihat di browser
 
 ---
 

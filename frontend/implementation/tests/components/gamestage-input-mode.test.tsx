@@ -187,17 +187,24 @@ describe("camera mode: hand control on by itself, buttons only show the hand", (
     expect(mp.attempts).toBe(1);
   });
 
-  it("direction buttons are not clickable, but light up while the hand gives that direction", async () => {
+  it("direction buttons take a silent press and hold, and light up while the hand gives that direction", async () => {
     forceInputMode("camera");
     await startStage("gameplay");
     await settle();
 
     const left = button("move-left");
-    expect(left.getAttribute("aria-disabled")).toBe("true");
-    expect(left.style.pointerEvents).toBe("none");
+    expect(left.getAttribute("aria-disabled")).toBeNull();
+    expect(left.style.pointerEvents).not.toBe("none");
 
     fireEvent.pointerDown(button("move-right"), { pointerId: 1 });
+    expect(current().right).toBe(true);
+    fireEvent.pointerUp(button("move-right"), { pointerId: 1 });
     expect(current().right).toBe(false);
+
+    fireEvent.pointerDown(button("move-jump"), { pointerId: 2 });
+    expect(current().jump).toBe(true);
+    fireEvent.pointerUp(button("move-jump"), { pointerId: 2 });
+    expect(current().jump).toBe(false);
 
     mp.hand = pointingHand(170);
     for (let i = 0; i < 4; i++) stepFrame();
@@ -255,7 +262,7 @@ describe("camera trouble turns the buttons back on (R13), and the hand returns w
 
     await act(async () => {
       await vi.waitFor(() => expect(mp.attempts).toBeGreaterThan(0), { timeout: 3000, interval: 5 });
-      await vi.waitFor(() => expect(button("move-left").getAttribute("aria-disabled")).toBeNull(), {
+      await vi.waitFor(() => expect(button("move-left").classList.contains("is-indicator")).toBe(false), {
         timeout: 3000,
         interval: 5,
       });
@@ -269,11 +276,11 @@ describe("camera trouble turns the buttons back on (R13), and the hand returns w
     forceInputMode("camera");
     await startStage("gameplay");
     await settle();
-    expect(button("move-left").getAttribute("aria-disabled")).toBe("true");
+    expect(button("move-left").classList.contains("is-indicator")).toBe(true);
 
     act(() => setSharedStream(null));
     await act(async () => {
-      await vi.waitFor(() => expect(button("move-left").getAttribute("aria-disabled")).toBeNull(), {
+      await vi.waitFor(() => expect(button("move-left").classList.contains("is-indicator")).toBe(false), {
         timeout: 3000,
         interval: 20,
       });
@@ -284,7 +291,7 @@ describe("camera trouble turns the buttons back on (R13), and the hand returns w
       await vi.waitFor(() => expect(mp.attempts).toBe(2), { timeout: 3000, interval: 20 });
     });
     await settle();
-    expect(button("move-left").getAttribute("aria-disabled")).toBe("true");
+    expect(button("move-left").classList.contains("is-indicator")).toBe(true);
 
     mp.hand = pointingHand(10);
     for (let i = 0; i < 4; i++) stepFrame();

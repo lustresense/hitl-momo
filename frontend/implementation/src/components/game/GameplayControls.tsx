@@ -1,8 +1,9 @@
 /**
  * Floating gameplay controls.
- * Camera mode: a speedometer for the finger direction and icon-only direction lights. The object's actions
- * "Geser objek" and "Putar" are the gesture rings in the stage (ExplorationRings), so the bar shows no button
- * for them. No keyboard hints.
+ * Camera mode: a speedometer for the finger direction and icon-only direction lights. The hand steers, and the
+ * lights also take a silent press and hold (mouse or touch, no visible text) for a student whose hand is not
+ * seen. The object's actions "Geser objek" and "Putar" are the gesture rings in the stage (ExplorationRings),
+ * so the bar shows no button for them. No keyboard hints.
  * Fallback mode: the on-screen movement buttons with their words, plus "Geser objek" and the two turn buttons.
  * Q (left) and E (right) turn the object from the keyboard too; no key is named on screen.
  */
@@ -29,7 +30,7 @@ const DIRECTION_BUTTONS: ReadonlyArray<{
 ];
 
 export interface GameplayControlsProps {
-  /** "camera": the hand steers, the buttons only show it. "fallback": the buttons are the controls. */
+  /** "camera": the hand steers; the lights also take a silent press. "fallback": the buttons are the controls. */
   mode: InputMode;
   heldDirs: DirectionKey[];
   /** Directions the hand is giving right now (highlight only). */

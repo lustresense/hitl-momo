@@ -1,7 +1,8 @@
 /**
- * One on-screen movement button (left / right / jump). Reports pointer presses and releases by
- * pointer id so several fingers can hold different directions at once. In camera mode it is only
- * an indicator: the hand gives the direction, so the button takes no press.
+ * One movement button (left / right / jump). Reports pointer presses and releases by pointer id so
+ * several fingers can hold different directions at once. In camera mode it is an icon-only light
+ * that also takes a silent press and hold (no visible text, no keyboard label): a student whose hand
+ * is not seen can still steer with the mouse or a finger.
  */
 import type { PointerEvent as ReactPointerEvent } from "react";
 import { Icon, type IconName } from "../ui/Icon";
@@ -18,7 +19,7 @@ export interface DirectionButtonProps {
   handActive?: boolean;
   /** Highlights the button as the primary action (jump). */
   primary?: boolean;
-  /** Camera mode: show the direction, take no press (the hand moves Thinman). */
+  /** Camera mode look: the hand shows the direction here; a press is still accepted (silent fallback). */
   indicator?: boolean;
   /** Camera mode: the icon alone; the words are not needed next to the speedometer. */
   iconOnly?: boolean;
@@ -41,29 +42,25 @@ export function DirectionButton({
   onRelease,
 }: DirectionButtonProps) {
   const className = `nb-btn btn-small game-input-button${primary ? " nb-btn--primary" : ""}${pressed ? " is-pressed" : ""}${handActive ? " is-hand-active" : ""}${indicator ? " is-indicator" : ""}${iconOnly ? " is-icon-only" : ""}`;
-  // An indicator gets no press handlers at all, so a stray mouse event cannot move Thinman.
-  const pressHandlers = indicator
-    ? {}
-    : {
-        onPointerDown: (event: ReactPointerEvent<HTMLButtonElement>) => {
-          event.preventDefault();
-          try {
-            event.currentTarget.setPointerCapture(event.pointerId);
-          } catch {}
-          onPress(event.pointerId, dir);
-        },
-        onPointerUp: (event: ReactPointerEvent<HTMLButtonElement>) => onRelease(event.pointerId),
-        onPointerCancel: (event: ReactPointerEvent<HTMLButtonElement>) => onRelease(event.pointerId),
-        onLostPointerCapture: (event: ReactPointerEvent<HTMLButtonElement>) => onRelease(event.pointerId),
-      };
+  // Same press handlers in both modes: the camera bar only changes the look, not the input path.
+  const pressHandlers = {
+    onPointerDown: (event: ReactPointerEvent<HTMLButtonElement>) => {
+      event.preventDefault();
+      try {
+        event.currentTarget.setPointerCapture(event.pointerId);
+      } catch {}
+      onPress(event.pointerId, dir);
+    },
+    onPointerUp: (event: ReactPointerEvent<HTMLButtonElement>) => onRelease(event.pointerId),
+    onPointerCancel: (event: ReactPointerEvent<HTMLButtonElement>) => onRelease(event.pointerId),
+    onLostPointerCapture: (event: ReactPointerEvent<HTMLButtonElement>) => onRelease(event.pointerId),
+  };
   return (
     <button
       className={className}
       data-testid={testId}
       aria-label={ariaLabel}
-      aria-disabled={indicator ? true : undefined}
       tabIndex={indicator ? -1 : undefined}
-      style={indicator ? { pointerEvents: "none" } : undefined}
       {...pressHandlers}
       onContextMenu={(event) => event.preventDefault()}
     >

@@ -58,13 +58,39 @@ describe("camera bar: gesture affordances, no keyboard hints", () => {
     expect(screen.getByTestId("steer-dial")).toBeTruthy();
   });
 
-  it("keeps the direction buttons as icon-only indicators that take no press", () => {
+  it("shows the direction buttons icon-only, with no label text and no disabled state", () => {
     bar({ mode: "camera", handDirs: ["left"] });
     const left = screen.getByTestId("move-left");
     expect(left.classList.contains("is-icon-only")).toBe(true);
     expect(left.classList.contains("is-hand-active")).toBe(true);
-    expect(left.getAttribute("aria-disabled")).toBe("true");
+    expect(left.getAttribute("aria-disabled")).toBeNull();
+    expect(left.style.pointerEvents).not.toBe("none");
     expect(left.textContent).toBe("");
+    expect(document.querySelectorAll(".game-input-button__label").length).toBe(0);
+  });
+
+  it("press and hold on left or right moves the same way as the keyboard, and release stops", () => {
+    const onPress = vi.fn();
+    const onRelease = vi.fn();
+    bar({ mode: "camera", onPress, onRelease });
+    fireEvent.pointerDown(screen.getByTestId("move-left"), { pointerId: 4 });
+    expect(onPress).toHaveBeenLastCalledWith(4, "left");
+    fireEvent.pointerUp(screen.getByTestId("move-left"), { pointerId: 4 });
+    expect(onRelease).toHaveBeenLastCalledWith(4);
+
+    fireEvent.pointerDown(screen.getByTestId("move-right"), { pointerId: 5 });
+    expect(onPress).toHaveBeenLastCalledWith(5, "right");
+    fireEvent.pointerUp(screen.getByTestId("move-right"), { pointerId: 5 });
+    expect(onRelease).toHaveBeenLastCalledWith(5);
+  });
+
+  it("a press on the jump icon jumps, with no visible text", () => {
+    const onPress = vi.fn();
+    bar({ mode: "camera", onPress });
+    const jump = screen.getByTestId("move-jump");
+    fireEvent.pointerDown(jump, { pointerId: 6 });
+    expect(onPress).toHaveBeenLastCalledWith(6, "jump");
+    expect(jump.textContent).toBe("");
   });
 
   it("shows no Geser objek or Putar button: in camera mode the rings in the stage carry those actions", () => {

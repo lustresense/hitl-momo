@@ -7,6 +7,7 @@ import {
 } from "@/src/camera/thumb-tracker";
 import { setSharedStream } from "@/src/camera/shared-stream";
 import { takeHandLandmarker } from "@/src/camera/landmarker-warmup";
+import { resetInferenceSchedulerForTest } from "@/src/camera/inference-scheduler";
 import type { Landmark } from "@/src/input/types";
 
 vi.mock("@/src/camera/landmarker-warmup", () => ({ takeHandLandmarker: vi.fn() }));
@@ -39,6 +40,12 @@ let rafQueue: Array<{ id: number; cb: FrameRequestCallback }>;
 let frame: number;
 let current: Landmark[][];
 let release: (() => void) | null = null;
+/**
+ * Frame clock in ms. The shared inference gate and the primary-hand lock both read performance.now(). Frames stepped
+ * back to back are microseconds apart on the wall clock, so the gate sometimes skipped a frame and the test flaked
+ * (1 in ~10 alone). Each frame is 33 ms here, like a camera, so the result depends on the frames only.
+ */
+let clockMs = 1000;
 
 function step() {
   const q = rafQueue.splice(0);
@@ -51,6 +58,10 @@ beforeEach(() => {
   rafQueue = [];
   frame = 0;
   current = [];
+  clockMs = 1000;
+  // A gate with no history: a detection from an earlier test must not hold this test's budget closed.
+  resetInferenceSchedulerForTest();
+  vi.spyOn(performance, "now").mockImplementation(() => clockMs);
   let nextId = 1;
   vi.spyOn(globalThis, "requestAnimationFrame").mockImplementation((cb) => {
     const id = nextId++;
@@ -85,6 +96,7 @@ async function track(frames: Landmark[][][]) {
   }
   for (const hands of frames) {
     frame++;
+    clockMs += 33;
     current = hands;
     step();
   }

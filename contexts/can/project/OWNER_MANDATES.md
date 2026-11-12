@@ -5,6 +5,7 @@ Aturan pakai: setiap instruksi baru Owner ditambahkan di atas (nomor berikutnya;
 
 | ID | Tanggal | Mandat (kata-kata Owner) | Status | Bukti / rujukan |
 |---|---|---|---|---|
+| M-031 | 2026-11-12 | "pls jangan gw ingetin mulu ya, lu kalo spawn subagent boleh yang banyak tapi perhatiin dependensi biar ga saling timpa, atur pls." | `contexts/can/AGENTS.md` aturan kerja butir 7 |
 | M-030 | 2026-11-12 | "catet aja di agents.md soal versioning ini, gw rasa opsi 2 aja (global)... gw mau biar agent sangat patuh dan harus nanyain atau kasih tau, soalnya versioning harus auto. Kalau udah aman semua merge ke main juga setelah push." | Root `AGENTS.md` "Versioning and release flow"; `VERSION`; `scripts/bump_version.py` |
 | M-029 | 2026-11-12 | "penulisan changelog semua md itu dari bawah ke atas, yang atas terbaru." N pada alpha membingungkan. "hasil perubahan dari worker itu juga lu masukin patch dll, dan worker atau elu yang udah pantau hasil worker layak push itu harus ubah changelog juga, kayak IT profesional." | Skema `0.MINOR.PATCH-alpha`, satu versi per push, CHANGELOG terbaru di atas |
 | M-028 | 2026-11-12 | "changelog gaada versioning? ... kasih satu worker buat ngasih versioning ke changelog, setiap perubahan. 0.0.0-alpha karena masih dev, beta kalau gw rasa udah cukup aman untuk dites ke user, rilis nanti kalau PA gw selesai. Gpp nyentuh 1.0.0 asal ada -alpha." | CHANGELOG berversi |

@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.14.0-alpha | 2026-11-12 | Fitur | `(0.14.0-alpha)` |
 | 0.13.0-alpha | 2026-11-12 | Fitur | `(0.13.0-alpha)` |
 | 0.12.9-alpha | 2026-11-12 | Perbaikan | `(0.12.9-alpha)` |
 | 0.12.8-alpha | 2026-11-12 | Perbaikan | `(0.12.8-alpha)` |
@@ -94,6 +95,22 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.14.0-alpha — 2026-11-12 — Fitur
+
+**Sumber:** REVISIONS R11-08, R12-05; Owner M-031
+
+**Perubahan:**
+- `/nui-lab` menampilkan kotak wajah pemain dan area tangan pemain.
+- Tiap tangan diberi alasan bila ditolak: diabaikan (jauh), wajah bukan tangan, di luar area pemain.
+- Uji lambaian menampilkan jumlah balik arah dan memakai aturan lambaian baru.
+- Aturan kerja M-031 (spawn worker paralel tanpa menunggu diingatkan, file tidak tumpang tindih) dicatat di `contexts/can/AGENTS.md`.
+
+**Commit:** commit berjudul `(0.14.0-alpha)`
+
+**Bukti:** vitest nui-lab 82 lulus; belum dibuka dengan kamera asli
 
 ---
 

@@ -2,8 +2,9 @@
  * Draws the 21 landmarks of every hand over the mirrored preview. Pure over a 2D-context subset, so the
  * test can check colours and positions without a real canvas.
  */
-import { MIN_HAND_SIZE, handSize } from "@/src/camera/primary-hand";
+import type { FaceBox } from "@/src/camera/face-anchor";
 import type { Landmark } from "@/src/input/types";
+import { HAND_ROLE_LABEL, classifyHandRoles, playerRegion, type HandRole } from "./lab-roles";
 
 /** MediaPipe hand skeleton: 21 points, wrist = 0. */
 export const HAND_CONNECTIONS: readonly (readonly [number, number])[] = [
@@ -35,6 +36,7 @@ export type OverlayContext = Pick<
   | "fill"
   | "arc"
   | "fillRect"
+  | "strokeRect"
   | "fillText"
   | "measureText"
   | "fillStyle"
@@ -44,9 +46,16 @@ export type OverlayContext = Pick<
   | "textBaseline"
 >;
 
+/** Outline of the player's face and the area its hand may be in. Blue, so it differs from the hand colours. */
+export const FACE_COLORS = {
+  face: "#2563eb",
+  region: "#7c3aed",
+} as const;
+
 /**
  * `hands` are in camera space (0..1); the preview is mirrored, so x is flipped here. `primaryIndex` is
- * drawn in orange, the rest in grey. A hand smaller than MIN_HAND_SIZE is labelled as far away.
+ * drawn in orange, the rest in grey. With a `face`, each rejected hand is labelled with its reason
+ * (far, face misread, outside the player area); without one only a far hand is labelled.
  */
 export function drawHands(
   ctx: OverlayContext,
@@ -54,8 +63,10 @@ export function drawHands(
   primaryIndex: number | null,
   width: number,
   height: number,
+  face: FaceBox | null = null,
 ): void {
   ctx.clearRect(0, 0, width, height);
+  const roles = classifyHandRoles(hands, primaryIndex, face);
   hands.forEach((hand, i) => {
     if (hand.length < 21) return;
     const isPrimary = i === primaryIndex;
@@ -78,11 +89,30 @@ export function drawHands(
       ctx.fill();
     }
 
-    if (handSize(hand) < MIN_HAND_SIZE) drawFarLabel(ctx, "diabaikan (jauh)", pts[0]!);
+    const role: HandRole = roles[i]!;
+    if (role !== "primary" && role !== "other") drawLabel(ctx, HAND_ROLE_LABEL[role], pts[0]!);
   });
 }
 
-function drawFarLabel(ctx: OverlayContext, text: string, at: { x: number; y: number }): void {
+/**
+ * Outlines the player's face and the region its hand may be in, over the preview. Does not clear: call it after
+ * drawHands. Both boxes are mirrored like the hands so they line up with the preview.
+ */
+export function drawFaceArea(ctx: OverlayContext, face: FaceBox | null, width: number, height: number): void {
+  if (!face) return;
+  const mirror = (x0: number, x1: number) => ({ left: (1 - x1) * width, w: (x1 - x0) * width });
+  const f = mirror(face.x, face.x + face.w);
+  const r = playerRegion(face);
+  const reg = mirror(r.x0, r.x1);
+  ctx.lineWidth = 2;
+  ctx.strokeStyle = FACE_COLORS.face;
+  ctx.strokeRect(f.left, face.y * height, f.w, face.h * height);
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = FACE_COLORS.region;
+  ctx.strokeRect(reg.left, r.y0 * height, reg.w, (r.y1 - r.y0) * height);
+}
+
+function drawLabel(ctx: OverlayContext, text: string, at: { x: number; y: number }): void {
   ctx.font = "600 13px system-ui, sans-serif";
   ctx.textBaseline = "top";
   const w = ctx.measureText(text).width + 10;

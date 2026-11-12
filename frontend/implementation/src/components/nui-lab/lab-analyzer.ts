@@ -3,6 +3,7 @@
  * primary hand come out. It reuses the game's own pieces (primary-hand lock, pose classifier, drawing
  * smoother, ink pipeline) so the page shows what the drawing and the wave really see.
  */
+import type { FaceBox } from "@/src/camera/face-anchor";
 import { handSize, isLargeEnough, pickPrimaryHand, type PrimaryHandState } from "@/src/camera/primary-hand";
 import { classifyHandPose, indexTipNormalized, type HandPose } from "@/src/input/hand-gesture";
 import { HandStrokePipeline } from "@/src/input/hand-stroke-pipeline";
@@ -10,6 +11,7 @@ import type { EraserControl } from "@/src/input/eraser";
 import { DRAWING_ONE_EURO, PointSmoother } from "@/src/input/smoothing";
 import { StrokeStore, type Landmark, type RawStroke } from "@/src/input/types";
 import { LAB_STILL_SPAN, WaveLabSampler, isStill, jitterStdDevPx, percentile } from "./lab-metrics";
+import { classifyHandRoles, type HandRole } from "./lab-roles";
 
 const INFER_WINDOW_MS = 2000;
 const FPS_WINDOW_MS = 1000;
@@ -38,6 +40,8 @@ export interface LabDetection {
   inferMs: number;
   /** Clock time when the frame was analysed (performance.now()). */
   nowMs: number;
+  /** The player's face in this frame, if one is in view. Without it the plain hand rule applies. */
+  face?: FaceBox | null;
 }
 
 export type WaveStatus = "idle" | "running" | "done";
@@ -59,7 +63,11 @@ export interface LabSnapshot {
   rawJitterPx: number | null;
   /** Same for the smoothed ink point (the drawing's smoother). */
   inkJitterPx: number | null;
-  wave: { status: WaveStatus; progress: number; elapsedMs: number | null };
+  wave: { status: WaveStatus; progress: number; elapsedMs: number | null; reversals: number };
+  /** The player's face box, or null when none is in view. */
+  face: FaceBox | null;
+  /** Why each hand was used or rejected, in the order MediaPipe reported them. */
+  handRoles: HandRole[];
 }
 
 interface Timed<T> {
@@ -77,6 +85,8 @@ export class LabAnalyzer {
   private hands: Landmark[][] = [];
   private primaryIdx: number | null = null;
   private primarySizeNow: number | null = null;
+  private face: FaceBox | null = null;
+  private roles: HandRole[] = [];
   private pose: HandPose = "none";
   private rawTips: Timed<{ x: number; y: number }>[] = [];
   private inkTips: Timed<{ x: number; y: number }>[] = [];
@@ -90,14 +100,16 @@ export class LabAnalyzer {
     eraser: INK_ERASER,
   });
 
-  analyse({ landmarks, inferMs, nowMs }: LabDetection): void {
+  analyse({ landmarks, inferMs, nowMs, face = null }: LabDetection): void {
     this.inferSamples.push({ t: nowMs, v: inferMs });
     this.detectTimes.push(nowMs);
     this.hands = landmarks;
+    this.face = face;
 
-    const pick = pickPrimaryHand(landmarks, this.primary, nowMs);
+    const pick = pickPrimaryHand(landmarks, this.primary, nowMs, face);
     this.primary = pick.state;
     this.primaryIdx = pick.index;
+    this.roles = classifyHandRoles(landmarks, pick.index, face);
     const lm = pick.index === null ? undefined : landmarks[pick.index];
 
     if (!lm) {
@@ -120,13 +132,19 @@ export class LabAnalyzer {
     this.rawTips.push({ t: nowMs, v: raw });
     this.inkTips.push({ t: nowMs, v: this.inkSmoother.smooth(raw, nowMs) });
     this.ink.feed(lm, nowMs);
-    this.feedWave(lm[0] ?? null, nowMs);
+    // The wave rule scales its swing with the hand's own size, as the game does.
+    this.feedWave(lm[0] ?? null, nowMs, this.primarySizeNow, face);
   }
 
   /** Starts (or restarts) the wave test on the primary wrist. */
   startWaveTest(): void {
     this.sampler.reset();
     this.waveStatus = "running";
+  }
+
+  /** The player's face in the last analysed frame, or null. For the overlay. */
+  get currentFace(): FaceBox | null {
+    return this.face;
   }
 
   /** Forgets all hands, filters and the wave test (camera stopped). */
@@ -139,6 +157,8 @@ export class LabAnalyzer {
     this.hands = [];
     this.primaryIdx = null;
     this.primarySizeNow = null;
+    this.face = null;
+    this.roles = [];
     this.pose = "none";
     this.rawTips = [];
     this.inkTips = [];
@@ -177,13 +197,25 @@ export class LabAnalyzer {
       still,
       rawJitterPx: still ? jitterStdDevPx(raw, JITTER_CANVAS_PX) : null,
       inkJitterPx: still ? jitterStdDevPx(ink, JITTER_CANVAS_PX) : null,
-      wave: { status: this.waveStatus, progress: this.sampler.progress, elapsedMs: this.sampler.elapsedMs },
+      wave: {
+        status: this.waveStatus,
+        progress: this.sampler.progress,
+        elapsedMs: this.sampler.elapsedMs,
+        reversals: this.sampler.reversals,
+      },
+      face: this.face,
+      handRoles: [...this.roles],
     };
   }
 
-  private feedWave(wrist: { x: number; y: number } | null, nowMs: number): void {
+  private feedWave(
+    wrist: { x: number; y: number } | null,
+    nowMs: number,
+    handSize?: number,
+    face: FaceBox | null = null,
+  ): void {
     if (this.waveStatus !== "running") return;
-    this.sampler.feed(wrist, nowMs);
+    this.sampler.feed(wrist, nowMs, { handSize, face });
     if (this.sampler.detected) this.waveStatus = "done";
   }
 }

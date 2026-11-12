@@ -175,6 +175,14 @@
   background: #94a3b8;
 }
 
+.nui-lab__swatch--face {
+  background: #2563eb;
+}
+
+.nui-lab__swatch--region {
+  background: #7c3aed;
+}
+
 .nui-lab__ink {
   display: block;
   width: 100%;

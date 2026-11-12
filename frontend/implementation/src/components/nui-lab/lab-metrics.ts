@@ -2,15 +2,23 @@
  * Pure math for the NUI test page (/nui-lab). No DOM and no MediaPipe, so it is unit-tested directly.
  * The owner reads these numbers on his own laptop before the exhibition; they are diagnostics, not a score.
  */
-import { WAVE_MAX_MISSING_FRAMES, detectWave, waveProgress, type WaveSample } from "@/src/camera/wave-tracker";
+import type { FaceBox } from "@/src/camera/face-anchor";
+import {
+  FACE_STILL_SHIFT,
+  WAVE_DEFAULT_HAND_SIZE,
+  WAVE_MAX_MISSING_FRAMES,
+  WAVE_WINDOW_MS,
+  countSwings,
+  detectWave,
+  waveLeg,
+  waveProgress,
+  type WaveSample,
+} from "@/src/camera/wave-tracker";
 import type { HandPose } from "@/src/input/hand-gesture";
 import type { DelegateReason, SwitchState } from "@/src/camera/hand-landmarker";
 
 /** Whole-hand range (x and y, normalised) under which a hand counts as still. Above a tremor, below a move. */
 export const LAB_STILL_SPAN = 0.03;
-
-/** Same window as the wave tracker (wave-tracker.ts WINDOW_MS, not exported). */
-export const LAB_WAVE_WINDOW_MS = 1300;
 
 /** The wrist must move this far (normalised) from where the test started before the clock starts. */
 export const LAB_MOVE_EPS = 0.02;
@@ -62,22 +70,37 @@ export function isStill(points: Point[], span: number): boolean {
   return maxX - minX <= span && maxY - minY <= span;
 }
 
+/** Per-frame context the wave rule needs beyond the wrist: the hand size and the player's face (if any). */
+export interface WaveFeedOptions {
+  handSize?: number;
+  face?: FaceBox | null;
+}
+
 /**
- * The wave test for the page: the same rule as the game (detectWave / waveProgress) fed with the primary wrist only.
- * It also times the gap from the first real movement to the detection, which is what the owner wants to see.
+ * The wave test for the page: the same rule as the game (wave-tracker.ts: window, swing size from the hand size,
+ * gap tolerance, a head turn restarts the sweep) fed with the primary wrist only. It also times the gap from the
+ * first real movement to the detection, which is what the owner wants to see.
  */
 export class WaveLabSampler {
   private samples: WaveSample[] = [];
   private missing = 0;
   private refX: number | null = null;
   private progressValue = 0;
+  private reversalsValue = 0;
   private detectedValue = false;
   private movedAt: number | null = null;
   private detectedAt: number | null = null;
+  /** Face centre x when the current sweep began (null: no face seen). */
+  private sweepFaceCx: number | null = null;
 
   /** 0..1, same scale as the cincin lambaian. */
   get progress(): number {
     return this.progressValue;
+  }
+
+  /** Swings (direction reversals) counted so far; the game detects at WAVE_MIN_REVERSALS. */
+  get reversals(): number {
+    return this.reversalsValue;
   }
 
   get detected(): boolean {
@@ -95,28 +118,42 @@ export class WaveLabSampler {
   }
 
   /** `wrist` null = no player hand in this frame. */
-  feed(wrist: Point | null, nowMs: number): void {
+  feed(wrist: Point | null, nowMs: number, options: WaveFeedOptions = {}): void {
     if (this.detectedValue) return;
+    const handSize = options.handSize ?? WAVE_DEFAULT_HAND_SIZE;
+    const face = options.face ?? null;
     if (!wrist) {
       // A blurred or dropped frame keeps the sweep; a longer gap restarts it (as in wave-tracker).
       this.missing++;
-      if (this.missing > WAVE_MAX_MISSING_FRAMES) {
-        this.samples = [];
-        this.progressValue = 0;
-      }
+      if (this.missing > WAVE_MAX_MISSING_FRAMES) this.restart(null);
       return;
     }
     this.missing = 0;
+    if (face) {
+      const cx = face.x + face.w / 2;
+      if (this.sweepFaceCx === null) this.sweepFaceCx = cx;
+      else if (Math.abs(cx - this.sweepFaceCx) > FACE_STILL_SHIFT * face.w) this.restart(cx);
+    }
     if (this.refX === null) this.refX = wrist.x;
     if (this.movedAt === null && Math.abs(wrist.x - this.refX) >= LAB_MOVE_EPS) this.movedAt = nowMs;
     this.samples.push({ x: wrist.x, time: nowMs });
-    while (this.samples.length > 0 && nowMs - this.samples[0]!.time > LAB_WAVE_WINDOW_MS) this.samples.shift();
-    this.progressValue = waveProgress(this.samples);
-    if (detectWave(this.samples)) {
+    while (this.samples.length > 0 && nowMs - this.samples[0]!.time > WAVE_WINDOW_MS) this.samples.shift();
+    const xs = this.samples.map((s) => s.x);
+    this.progressValue = waveProgress(this.samples, handSize);
+    this.reversalsValue = countSwings(xs, waveLeg(handSize));
+    if (detectWave(this.samples, handSize)) {
       this.detectedValue = true;
       this.detectedAt = nowMs;
       this.progressValue = 1;
     }
+  }
+
+  /** The sweep starts again; `faceCx` becomes the new face reference (null: none). */
+  private restart(faceCx: number | null): void {
+    this.samples = [];
+    this.progressValue = 0;
+    this.reversalsValue = 0;
+    this.sweepFaceCx = faceCx;
   }
 
   reset(): void {
@@ -124,9 +161,11 @@ export class WaveLabSampler {
     this.missing = 0;
     this.refX = null;
     this.progressValue = 0;
+    this.reversalsValue = 0;
     this.detectedValue = false;
     this.movedAt = null;
     this.detectedAt = null;
+    this.sweepFaceCx = null;
   }
 }
 

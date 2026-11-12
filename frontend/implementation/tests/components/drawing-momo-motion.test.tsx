@@ -62,10 +62,20 @@ const defaultProps = {
 };
 
 /**
- * Momo types each line out (dots, then one letter every 30 ms, at most 2.5 s per line), so a line is on screen
- * after more than findBy's default 1 s. The wait is raised for Momo's copy only; the copy itself is unchanged.
+ * Momo types each line out on her own timers (MomoChat: dots, then one letter every 30 ms, at most 2.5 s per line).
+ * Real waits took up to ~2 s per line and hit the 5 s test timeout when the suite runs in parallel. The test
+ * therefore runs those timers on a fake clock (setTimeout and Date, see beforeEach) and steps it until the line shows.
  */
-const findLine = (text: string) => screen.findByText(text, undefined, { timeout: 6000 });
+async function findLine(text: string): Promise<HTMLElement> {
+  for (let step = 0; step < 400; step++) {
+    const found = screen.queryByText(text);
+    if (found) return found;
+    await act(async () => {
+      vi.advanceTimersByTime(25);
+    });
+  }
+  throw new Error(`line not shown: ${text}`);
+}
 
 /** Momo's place in the drawing screen: one fixed corner (top-left) in every phase (REVISI §15, BIGPROMPT §6.6.1). */
 const CORNER = "translate(28px, 24px)";
@@ -78,10 +88,13 @@ describe("DrawingScreen Momo stays in the top-left corner (Owner: jangan geser k
   beforeEach(() => {
     vi.stubGlobal("ResizeObserver", RealResizeObserver);
     RealResizeObserver._instances = [];
+    // Fake clock for Momo's typing (see findLine). Only the timers Momo uses are faked.
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
   });
 
   afterEach(() => {
     cleanup();
+    vi.useRealTimers();
     vi.unstubAllGlobals();
     vi.restoreAllMocks();
   });

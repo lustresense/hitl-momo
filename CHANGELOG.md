@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.15.1-alpha | 2026-11-12 | Tes | `(0.15.1-alpha)` |
 | 0.15.0-alpha | 2026-11-12 | Fitur | `(0.15.0-alpha)` |
 | 0.14.3-alpha | 2026-11-12 | Perbaikan | `(0.14.3-alpha)` |
 | 0.14.2-alpha | 2026-11-12 | Perbaikan | `(0.14.2-alpha)` |
@@ -99,6 +100,20 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.15.1-alpha — 2026-11-12 — Tes
+
+**Sumber:** Stabilitas gerbang tes (M-031)
+
+**Perubahan:**
+- thumb-primary-hand memakai jam frame 33 ms dan gerbang deteksi di-reset tiap tes (sebelumnya gagal ±1 dari 6 run).
+- drawing-momo-motion dan tutorial-pinch memakai fake timer dan jam GSAP terkendali; waktu jalan turun dari 9,7 s dan 17 s ke ±1,5 s.
+
+**Commit:** commit berjudul `(0.15.1-alpha)`
+
+**Bukti:** lead: 3 file 10/10 run berurutan hijau dan 3/3 saat vitest tests/components jalan paralel; tsc bersih
 
 ---
 

@@ -65,6 +65,10 @@ export class DrawingSurface {
   /** The ink gate (see setInkEnabled). Open until a cover or a sticker asks otherwise. */
   private inkOn = true;
   private detachPointer: (() => void) | null = null;
+  /** The hand is pinching now (its cursor says "drawing"). The hand is the primary ink source, see guardPointer. */
+  private handPinching = false;
+  /** The mouse has an open stroke that the surface started (not a pinch). A pinch closes it. */
+  private pointerHeld = false;
   private handDriver: HandDrawingDriver | null = null;
   private cursor: HandCursor | null = null;
   private readonly smoother = new PointSmoother();
@@ -81,6 +85,20 @@ export class DrawingSurface {
       this.setEraserRadius(px);
     },
     isFixed: () => this.options.fixedEraser === true,
+  };
+
+  /**
+   * Camera mode keeps the mouse working (tutorial card 3, level canvas): the mouse and the hand share one store.
+   * The hand stays primary: while it pinches, mouse events never reach the pointer driver, so they cannot add a
+   * point to the hand's stroke or end it on release. The pointer driver stays attached in hand mode for this.
+   */
+  private readonly guardPointer = (e: Event) => {
+    if (this.handPinching) {
+      e.stopImmediatePropagation();
+      return;
+    }
+    if (e.type === "pointerdown") this.pointerHeld = true;
+    else if (e.type === "pointerup" || e.type === "pointercancel") this.pointerHeld = false;
   };
 
   /** Mouse wheel over the canvas sizes the eraser while the Hapus tool is on; otherwise the page scrolls. */
@@ -106,6 +124,8 @@ export class DrawingSurface {
     private options: DrawingSurfaceOptions = {},
   ) {
     this.resizeForDpr();
+    // Registered before the pointer driver, so it runs first on the canvas and can hold the mouse back.
+    for (const type of GUARDED_POINTER_EVENTS) this.canvas.addEventListener(type, this.guardPointer);
     this.attachPointer();
     // Non-passive so the wheel can be taken over (sizing the eraser) without scrolling the page.
     this.canvas.addEventListener("wheel", this.onWheel, { passive: false });
@@ -128,8 +148,6 @@ export class DrawingSurface {
     if (!this.handDriver) {
       if (!this.video) return { kind: "error", reason: "camera-unavailable" };
       try {
-        this.detachPointer?.();
-        this.detachPointer = null; // must be nulled or attachPointer() later no-ops and pointer drawing stays dead
         this.handDriver = new HandDrawingDriver({
           canvas: this.canvas,
           video: this.video,
@@ -150,6 +168,7 @@ export class DrawingSurface {
           // only record the cursor here so a frame costs ONE canvas redraw, not two.
           onCursor: (c) => {
             this.cursor = c;
+            this.setHandPinching(c?.state === "drawing");
           },
           onPose: (pose, nowMs) => this.options.onPose?.(pose, nowMs),
           eraser: this.eraser,
@@ -172,6 +191,7 @@ export class DrawingSurface {
     if (status.kind === "tracking-lost") {
       this.cursor = null;
       this.smoother.reset();
+      this.setHandPinching(false);
     }
   }
 
@@ -185,6 +205,14 @@ export class DrawingSurface {
         this.reportInkChange();
       },
       (c) => {
+        // In hand mode the hand owns the cursor: the mouse shows its dot only while it draws, and takes it away on lift.
+        if (this.handDriver && c?.state !== "drawing") {
+          if (this.cursor?.state === "drawing" && !this.handPinching) {
+            this.cursor = null;
+            this.render();
+          }
+          return;
+        }
         this.cursor = c;
         this.render();
       },
@@ -197,6 +225,7 @@ export class DrawingSurface {
     this.handDriver = null;
     try { await d?.stop(); } catch { /* best-effort */ }
     this.cursor = null;
+    this.setHandPinching(false);
     this.attachPointer();
     this.render();
     this.announcePointerFallback();
@@ -222,6 +251,19 @@ export class DrawingSurface {
     }
   }
 
+  /**
+   * The hand's pinch state. A pinch that starts while the mouse has a stroke open ends that stroke first, so the
+   * hand's ink never joins the mouse line.
+   */
+  private setHandPinching(on: boolean): void {
+    if (on === this.handPinching) return;
+    this.handPinching = on;
+    if (on && this.pointerHeld) {
+      this.pointerHeld = false;
+      if (this.store.hasActiveStroke()) this.store.endStroke();
+    }
+  }
+
   private async stopHand(): Promise<void> {
     if (this.handDriver) {
       const d = this.handDriver;
@@ -230,6 +272,7 @@ export class DrawingSurface {
       this.publishStatus({ kind: "idle" });
     }
     this.cursor = null;
+    this.setHandPinching(false);
     this.attachPointer();
   }
 
@@ -262,6 +305,7 @@ export class DrawingSurface {
   /** Cursor, ink flag and redraw for one hand frame (same contract as the live driver's reports). */
   private applyFrame(frame: HandFrame): void {
     this.cursor = frame.cursor;
+    this.setHandPinching(frame.cursor?.state === "drawing");
     if (frame.changed) {
       this.render();
       this.reportInkChange();
@@ -374,6 +418,7 @@ export class DrawingSurface {
     this.detachPointer?.();
     this.detachPointer = null;
     this.canvas.removeEventListener("wheel", this.onWheel);
+    for (const type of GUARDED_POINTER_EVENTS) this.canvas.removeEventListener(type, this.guardPointer);
     if (typeof window !== "undefined") window.removeEventListener("keydown", this.onKey);
   }
 
@@ -462,6 +507,9 @@ export class DrawingSurface {
     ctx.restore();
   }
 }
+
+/** The pointer events the hand guard may hold back (the pointer driver listens to the same four). */
+const GUARDED_POINTER_EVENTS = ["pointerdown", "pointermove", "pointerup", "pointercancel"] as const;
 
 /** Keys typed into a field belong to the field, not to the eraser. */
 function isTypingTarget(target: EventTarget | null): boolean {

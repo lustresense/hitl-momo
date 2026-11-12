@@ -1,0 +1,8 @@
+/*
+ * NUI-FIX: the cover's wave ring takes a silent press (wakes Momo after a 1 s hold). No hint is drawn; the ring is
+ * the same 84 px circle, so the target is well above 44 px. touch-action stops a touch hold from scrolling the page.
+ */
+.camera-prototype-root.mode-cover .cover-wave-ring {
+  pointer-events: auto;
+  touch-action: none;
+}

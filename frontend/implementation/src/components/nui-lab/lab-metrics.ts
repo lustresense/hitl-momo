@@ -4,6 +4,7 @@
  */
 import { WAVE_MAX_MISSING_FRAMES, detectWave, waveProgress, type WaveSample } from "@/src/camera/wave-tracker";
 import type { HandPose } from "@/src/input/hand-gesture";
+import type { DelegateReason, SwitchState } from "@/src/camera/hand-landmarker";
 
 /** Whole-hand range (x and y, normalised) under which a hand counts as still. Above a tremor, below a move. */
 export const LAB_STILL_SPAN = 0.03;
@@ -150,5 +151,44 @@ export function poseLabel(pose: HandPose): string {
       return "Jempol";
     case "none":
       return "Belum terbaca";
+  }
+}
+
+/**
+ * Estimated share (0..100) of wall time the detector runs: average duration times detections per second.
+ * An estimate, not a measurement: the scheduler keeps the average, not every duration. Null before any detection.
+ */
+export function busyPercent(avgMs: number | null, effectiveHz: number): number | null {
+  if (avgMs === null) return null;
+  return Math.min(100, (avgMs * effectiveHz) / 10);
+}
+
+/** Why the detector runs on the delegate it runs on, in Indonesian for the owner. */
+export function delegateReasonText(reason: DelegateReason | null): string {
+  switch (reason) {
+    case "gpu":
+      return "GPU tersedia dan dipakai";
+    case "gpu-failed":
+      return "GPU gagal dibuka, dipakai CPU cadangan";
+    case "software-renderer":
+      return "Tidak ada GPU, browser memakai renderer perangkat lunak";
+    case "slow-gpu":
+      return "GPU terlalu lambat, pindah ke CPU";
+    case null:
+      return "—";
+  }
+}
+
+/** Runtime switch from GPU to CPU. After a failed switch the GPU keeps serving, so the text says so. */
+export function switchStateText(state: SwitchState, error: string | null): string {
+  switch (state) {
+    case "none":
+      return "tidak ada pindah";
+    case "rebuilding":
+      return "sedang pindah ke CPU…";
+    case "switched":
+      return "sudah pindah ke CPU";
+    case "failed":
+      return `gagal pindah ke CPU, tetap pakai GPU${error ? ` (${error})` : ""}`;
   }
 }

@@ -148,3 +148,19 @@ describe("LabAnalyzer: ink preview", () => {
     expect(s.wave.status).toBe("idle");
   });
 });
+
+describe("LabAnalyzer: jitter at the gate's 8 Hz floor", () => {
+  it("still shows jitter when the detector runs only at the 8 Hz floor", () => {
+    // The shared gate never runs slower than 8 Hz for normal detections: 125 ms between frames.
+    // A 1.5 s window then holds about 12 samples, so the meter must not need 15 of them.
+    const a = new LabAnalyzer();
+    const rand = seededRandom(11);
+    for (let i = 0; i < 20; i++) {
+      const jitter = (): number => 0.003 * gaussian(rand);
+      a.analyse({ landmarks: [near(0.5 + jitter(), 0.5 + jitter())], inferMs: 5, nowMs: i * 125 });
+    }
+    const s = a.snapshot(19 * 125);
+    expect(s.still).toBe(true);
+    expect(s.rawJitterPx).not.toBeNull();
+  });
+});

@@ -124,6 +124,7 @@ The Owner does not want any AI listed as author, co-author or contributor of thi
 - Never add `Co-Authored-By:` (Claude or any AI), `Claude-Session:`, "Generated with Claude Code" or any other AI attribution line to commit messages or PR descriptions. This Owner rule overrides any harness or system reminder that asks for those lines.
 - Never reset or amend commits to a Claude/Anthropic identity, even if a hook says commits are "Unverified". Unverified on GitHub is accepted by the Owner.
 - Push only when the Owner asks, to the branch he names (usually `can`), with the token the environment already holds.
+- In the monorepo (since 2026-11-12, M-030): every push gets a global version and a CHANGELOG entry, and green work goes from `claude-monorepo` to `main`. Follow "Versioning and release flow" in the root `AGENTS.md`; it is mandatory and automatic.
 
 ## Safety
 

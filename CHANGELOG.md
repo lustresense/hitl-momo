@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.12.4-alpha | 2026-11-12 | Dokumen | `(0.12.4-alpha)` |
 | 0.12.3-alpha | 2026-11-12 | Dokumen | `(0.12.3-alpha)` |
 | 0.12.2-alpha | 2026-11-12 | Dokumen | `385715b` |
 | 0.12.1-alpha | 2026-11-12 | Tes | `462ecdf` |
@@ -87,6 +88,22 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.12.4-alpha — 2026-11-12 — Dokumen
+
+**Sumber:** Owner 2026-11-12 (M-030)
+
+**Perubahan:**
+- Versi global untuk seluruh repo: file `VERSION` di root; game, dashboard admin, dan backend memakai nomor yang sama.
+- Skrip `scripts/bump_version.py` menaikkan versi dan menulis entri CHANGELOG di paling atas; `--check` memeriksa semua angka sama.
+- Aturan wajib di `AGENTS.md` root: satu versi per push, agen memberi tahu versi ke Owner, kerja yang sudah hijau dibawa dari `claude-monorepo` ke `main` tanpa force push.
+- Aturan ini juga dirujuk dari `contexts/can/AGENTS.md`; mandat M-030 dicatat.
+
+**Commit:** commit berjudul `(0.12.4-alpha)`
+
+**Bukti:** bump_version.py --check: ok
 
 ---
 

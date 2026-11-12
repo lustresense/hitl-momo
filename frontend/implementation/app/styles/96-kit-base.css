@@ -113,7 +113,16 @@
   color: #5c4710; background: repeating-linear-gradient(135deg, #f6e3a1 0 10px, #f0d487 10px 20px);
   border: 2px solid var(--nb-ink); border-radius: 4px; box-shadow: 2px 2px 0 var(--nb-ink); pointer-events: none; white-space: nowrap;
 }
-@media (max-width: 640px) { .demo-tape { font-size: 10px; padding: 3px 10px; top: 76px; left: 8px; transform: rotate(-1deg); } }
+/* Phones: Momo's kite and speech bubble fill the top-left (top: 76px sat on the kite), so the tape goes bottom-right.
+   Gameplay and the recap keep that corner clear. Specific selectors below set top/left to avoid a stretched tape. */
+@media (max-width: 640px) {
+  .demo-tape { font-size: 10px; padding: 3px 10px; top: auto; bottom: 10px; left: auto; right: 8px; transform: rotate(-1deg); }
+  /* Drawing canvas: the bottom-right holds the thumb button and the mouse/camera toggle, so the tape goes to the top edge.
+     The kite tip starts about 22 px down; the tape is about 20 px tall. */
+  #app:has(#screen-drawing) .demo-tape { top: 0; bottom: auto; left: 8px; right: auto; padding: 1px 10px; }
+  /* Tutorial cards (98-kit-flow.css) set top/left; clear the bottom/right from above so the tape is not stretched. */
+  #app:has(.tutorial-prototype-root) .demo-tape { bottom: auto; right: auto; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .momo-chat__bubble, .momo-chat__extras { animation: none; }

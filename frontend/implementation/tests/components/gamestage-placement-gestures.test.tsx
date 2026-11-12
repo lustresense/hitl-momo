@@ -5,6 +5,10 @@
  *
  * Time: fake timers (setTimeout and Date). Each stepFrame() is one camera frame, 16 ms on the ring's clock, and
  * sleep() advances the fake clock, so the 150 ms grab drop is exact.
+ *
+ * The shared inference gate (src/camera/inference-scheduler.ts) budgets on performance.now. On a busy machine a slow
+ * detection would widen its gap and skip the back-to-back frames below, so performance.now runs on its own frame
+ * clock of 33 ms per camera frame (as in gamestage-hand-control.test.tsx), and the gate is reset for each test.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
@@ -12,6 +16,7 @@ import { GameStage } from "@/src/components/game/GameStage";
 import { LEVELS } from "@/src/domain/levels";
 import { resetSharedStreamForTest, setSharedStream } from "@/src/camera/shared-stream";
 import { resetHandCursorForTest } from "@/src/camera/hand-cursor-store";
+import { resetInferenceSchedulerForTest } from "@/src/camera/inference-scheduler";
 import type { Landmark } from "@/src/input/types";
 import { poseHand, rollHand, type FixturePose } from "../input/pose-fixtures";
 
@@ -54,11 +59,15 @@ let frameClock = 0;
 let ringClock = 0;
 let rafQueue: FrameRequestCallback[] = [];
 let rafSpy: { mockRestore: () => void } | null = null;
+let perfSpy: { mockRestore: () => void } | null = null;
+/** performance.now for the inference gate and the drivers: one camera frame is 33 ms here. */
+let gateNowMs = 1000;
 
 /** One camera frame: a new video time makes the driver run detection once, and every rAF callback runs on the 16 ms clock. */
 function stepFrame() {
   frameClock += 1;
   video.currentTime = frameClock;
+  gateNowMs += 33;
   ringClock += 16;
   act(() => {
     const queued = rafQueue.splice(0);
@@ -142,6 +151,9 @@ async function startInCamera({ phase, onRedraw = () => {} }: StageOptions) {
 
 beforeEach(() => {
   vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
+  gateNowMs = 1000;
+  perfSpy = vi.spyOn(performance, "now").mockImplementation(() => gateNowMs);
+  resetInferenceSchedulerForTest();
   mp.hand = undefined;
   mp.created = 0;
   for (const fn of Object.values(ctl)) fn.mockClear();
@@ -166,6 +178,9 @@ afterEach(() => {
   vi.useRealTimers();
   rafSpy?.mockRestore();
   rafSpy = null;
+  perfSpy?.mockRestore();
+  perfSpy = null;
+  resetInferenceSchedulerForTest();
   resetSharedStreamForTest();
   resetHandCursorForTest();
   document.querySelectorAll(".global-camera-host").forEach((el) => el.remove());

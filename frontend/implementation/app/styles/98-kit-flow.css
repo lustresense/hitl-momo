@@ -86,6 +86,8 @@
 /* The demo tape would sit on the spiral binding here: park it bottom-right on the level list. */
 #app:has(.bm-page) .demo-tape { top: auto; bottom: 16px; left: auto; right: 18px; transform: rotate(-1deg); }
 @media (max-width: 640px) { #app:has(.bm-page) .demo-tape { top: auto; bottom: 10px; left: auto; right: 8px; } }
+/* Tutorial cards start about 33 px from the top on phones; the tape sits above them, not over the card text. */
+@media (max-width: 640px) { #app:has(.tutorial-prototype-root) .demo-tape { top: 6px; left: 8px; } }
 .route-notice { position: fixed; z-index: 1300; left: 20px; bottom: 120px; max-width: min(420px, calc(100vw - 40px)); }
 .drawing-flow-host[data-intro="true"] { visibility: hidden; }
 

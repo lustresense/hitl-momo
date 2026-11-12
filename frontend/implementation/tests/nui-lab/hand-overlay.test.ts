@@ -1,17 +1,29 @@
 import { describe, expect, it, vi } from "vitest";
-import { OVERLAY_COLORS, drawHands, type OverlayContext } from "@/src/components/nui-lab/hand-overlay";
+import type { FaceBox } from "@/src/camera/face-anchor";
+import {
+  OVERLAY_COLORS,
+  drawFaceArea,
+  drawHands,
+  type OverlayContext,
+} from "@/src/components/nui-lab/hand-overlay";
 import { handAt } from "../camera/hand-points";
 
 interface Recorded {
   cleared: boolean;
   dots: { x: number; y: number; color: string }[];
   texts: string[];
+  /** strokeRect calls as [x, y, w, h] in canvas px, with the colour in force. */
+  rects: { box: [number, number, number, number]; color: string }[];
 }
+
+/** Player's face in camera space: centre x 0.5, top 0.2, 0.2 wide, 0.25 high. */
+const face: FaceBox = { x: 0.4, y: 0.2, w: 0.2, h: 0.25 };
 
 /** Records what the overlay paints; the canvas itself is not needed to check colours and positions. */
 function recordingContext(): { ctx: OverlayContext; rec: Recorded } {
-  const rec: Recorded = { cleared: false, dots: [], texts: [] };
+  const rec: Recorded = { cleared: false, dots: [], texts: [], rects: [] };
   let fillStyle = "";
+  let strokeStyle = "";
   const ctx = {
     get fillStyle() {
       return fillStyle;
@@ -19,7 +31,12 @@ function recordingContext(): { ctx: OverlayContext; rec: Recorded } {
     set fillStyle(v: string) {
       fillStyle = v;
     },
-    strokeStyle: "",
+    get strokeStyle() {
+      return strokeStyle;
+    },
+    set strokeStyle(v: string) {
+      strokeStyle = v;
+    },
     lineWidth: 1,
     font: "",
     textBaseline: "alphabetic",
@@ -35,6 +52,9 @@ function recordingContext(): { ctx: OverlayContext; rec: Recorded } {
       rec.dots.push({ x, y, color: fillStyle });
     }),
     fillRect: vi.fn(),
+    strokeRect: vi.fn((x: number, y: number, w: number, h: number) => {
+      rec.rects.push({ box: [x, y, w, h], color: strokeStyle });
+    }),
     fillText: vi.fn((text: string) => {
       rec.texts.push(text);
     }),
@@ -82,3 +102,44 @@ describe("drawHands", () => {
     expect(OVERLAY_COLORS.labelBackground).toBe("#0f172a");
   });
 });
+
+describe("drawHands: face labels", () => {
+  it("labels a face misread and a hand beside the player, and leaves the player's hand unlabelled", () => {
+    const { ctx, rec } = recordingContext();
+    const faceMisread = handAt(0.5, 0.33, 0.2);
+    const beside = handAt(0.05, 0.1, 0.3);
+    const player = handAt(0.5, 0.05, 0.3);
+    drawHands(ctx, [faceMisread, beside, player], 2, 400, 300, face);
+    expect(rec.texts).toEqual(["wajah, bukan tangan", "di luar area pemain"]);
+  });
+
+  it("without a face, does not label a hand beside the player", () => {
+    const { ctx, rec } = recordingContext();
+    drawHands(ctx, [handAt(0.05, 0.1, 0.3), handAt(0.5, 0.05, 0.3)], 1, 400, 300, null);
+    expect(rec.texts).toEqual([]);
+  });
+});
+
+describe("drawFaceArea", () => {
+  it("outlines the face and the player region in the mirrored preview, without clearing the hands", () => {
+    const { ctx, rec } = recordingContext();
+    drawFaceArea(ctx, face, 400, 300);
+    expect(rec.cleared).toBe(false);
+    expect(rec.rects).toHaveLength(2);
+    // Face: x 0.4..0.6 mirrored to 0.4..0.6 (symmetric), so left = 160 px, width = 80 px.
+    const [faceBox, region] = rec.rects.map((r) => r.box);
+    expect(faceBox![0]).toBeCloseTo((1 - 0.6) * 400, 6);
+    expect(faceBox![2]).toBeCloseTo(0.2 * 400, 6);
+    // Region: x from 0.18 to 0.82 (mirrored 0.18..0.82), top 0.2 - 0.25 = -0.05 of the frame height.
+    expect(region![0]).toBeCloseTo((1 - 0.82) * 400, 6);
+    expect(region![2]).toBeCloseTo(0.64 * 400, 6);
+    expect(region![1]).toBeCloseTo(-0.05 * 300, 6);
+  });
+
+  it("uses a colour that is not the primary-hand orange", () => {
+    const { ctx, rec } = recordingContext();
+    drawFaceArea(ctx, face, 400, 300);
+    for (const r of rec.rects) expect(r.color).not.toBe(OVERLAY_COLORS.primary);
+  });
+});
+

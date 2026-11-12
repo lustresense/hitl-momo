@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import type { FaceBox } from "@/src/camera/face-anchor";
 import { LabAnalyzer } from "@/src/components/nui-lab/lab-analyzer";
 import { handAt } from "../camera/hand-points";
 import { gaussian, seededRandom } from "../input/ink-synthetic";
@@ -164,3 +165,49 @@ describe("LabAnalyzer: jitter at the gate's 8 Hz floor", () => {
     expect(s.rawJitterPx).not.toBeNull();
   });
 });
+
+/** Player's face in camera space: centre x 0.5, top 0.2, 0.2 wide, 0.25 high. */
+const face: FaceBox = { x: 0.4, y: 0.2, w: 0.2, h: 0.25 };
+
+describe("LabAnalyzer: the face decides whose hand counts", () => {
+  it("does not lock a hand beside the player, and labels it as outside the player area", () => {
+    const a = new LabAnalyzer();
+    const beside = handAt(0.05, 0.1, 0.3);
+    const player = handAt(0.5, 0.05, 0.3);
+    a.analyse({ landmarks: [beside, player], inferMs: 5, nowMs: 0, face });
+    const s = a.snapshot(0);
+    expect(s.primaryIndex).toBe(1);
+    expect(s.handRoles).toEqual(["outside", "primary"]);
+    expect(s.face).toEqual(face);
+  });
+
+  it("never locks a face misread as a hand, even when nothing else is in view", () => {
+    const a = new LabAnalyzer();
+    a.analyse({ landmarks: [handAt(0.5, 0.33, 0.25)], inferMs: 5, nowMs: 0, face });
+    const s = a.snapshot(0);
+    expect(s.primaryIndex).toBeNull();
+    expect(s.handRoles).toEqual(["face"]);
+  });
+
+  it("has no face in the snapshot when none was passed", () => {
+    const a = new LabAnalyzer();
+    a.analyse({ landmarks: [near(0.5)], inferMs: 5, nowMs: 0 });
+    expect(a.snapshot(0).face).toBeNull();
+  });
+});
+
+describe("LabAnalyzer: wave test with the new rule", () => {
+  it("counts a small hand's small sweep with that hand's own size", () => {
+    const a = new LabAnalyzer();
+    a.startWaveTest();
+    for (let i = 0; i < 150; i++) {
+      const t = i * FRAME_MS;
+      // Hand size 0.1 (just above MIN_HAND_SIZE) and a 0.03 swing: too small for the default hand size.
+      a.analyse({ landmarks: [handAt(0.5 + 0.03 * Math.sin((2 * Math.PI * t) / 800), 0.65, 0.1)], inferMs: 5, nowMs: t });
+    }
+    const s = a.snapshot(149 * FRAME_MS);
+    expect(s.wave.status).toBe("done");
+    expect(s.wave.reversals).toBeGreaterThanOrEqual(2);
+  });
+});
+

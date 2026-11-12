@@ -156,3 +156,4 @@ One **global** version for the whole repository (game, backend, admin). Source o
 5. People working directly on `main` (Dias) follow the same rule: run `bump_version.py` for each push and keep `CHANGELOG.md` newest first.
 
 6. Work split: the lead plans and reviews; workers are Haiku with effort high; the lead commits, versions and pushes a worker's result only after checking it (tests, typecheck, lint, and browser evidence where relevant).
+7. Do not wait for the Owner to remind you (M-031): whenever work remains and workers are idle, split it into as many parallel workers as the file ownership allows. Give every worker an explicit list of files it owns, keep the lists disjoint, serialize builds and browser runs with a lock, and commit each worker's result separately with its own version.

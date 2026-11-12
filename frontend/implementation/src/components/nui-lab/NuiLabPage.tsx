@@ -8,14 +8,17 @@
 import type { HandLandmarker } from "@mediapipe/tasks-vision";
 import { useEffect, useRef, useState } from "react";
 import { frameForDetection, getFrameSourceStats, setLowLightEnhancement, type LowLightMode } from "@/src/camera/frame-source";
+import { FaceAnchor } from "@/src/camera/face-anchor";
 import { createHandLandmarker, delegateLabel, getDelegateInfo } from "@/src/camera/hand-landmarker";
 import { getInferenceStats, pollDetection, type InferenceStats } from "@/src/camera/inference-scheduler";
 import { classifyCameraError, messageFor } from "@/src/camera/messages";
+import { WAVE_MIN_REVERSALS } from "@/src/camera/wave-tracker";
 import type { Landmark } from "@/src/input/types";
-import { drawHands } from "./hand-overlay";
+import { drawFaceArea, drawHands } from "./hand-overlay";
 import { startLabCamera } from "./lab-camera";
 import { LabAnalyzer, type LabSnapshot } from "./lab-analyzer";
 import { busyPercent, delegateReasonText, poseLabel, switchStateText } from "./lab-metrics";
+import { countHandRoles } from "./lab-roles";
 import "./NuiLabPage.css";
 
 const WASM_ROOT = "/mediapipe/wasm";
@@ -71,6 +74,8 @@ const EMPTY_READOUT: Readout = {
 interface Session {
   stream: MediaStream;
   landmarker: HandLandmarker | null;
+  /** The player's face, found at a low rate; it narrows which hand counts (same as the game). */
+  face: FaceAnchor;
   analyzer: LabAnalyzer;
   rafId: number | null;
   timerId: ReturnType<typeof setInterval> | null;
@@ -168,6 +173,7 @@ export function NuiLabPage() {
     const s: Session = {
       stream,
       landmarker: null,
+      face: new FaceAnchor(),
       analyzer: new LabAnalyzer(),
       rafId: null,
       timerId: null,
@@ -220,6 +226,9 @@ export function NuiLabPage() {
       cur.lastVideoTime = v.currentTime;
       const t0 = performance.now();
       cur.frameTimes.push(t0);
+      // The face has its own, slower rate (face-anchor.ts); it is read before the hands are analysed.
+      cur.face.update(v, t0);
+      const face = cur.face.current(t0);
       // Through the app-wide gate, so the lab shows the rate and load the game would really get. A frame the
       // gate skips is not analysed; the next camera frame is asked for afresh (latest frame wins).
       const landmarker = cur.landmarker;
@@ -244,7 +253,7 @@ export function NuiLabPage() {
         return;
       }
       if (landmarks === null) return;
-      cur.analyzer.analyse({ landmarks, inferMs, nowMs: t0 });
+      cur.analyzer.analyse({ landmarks, inferMs, nowMs: t0, face });
       paintOverlay(v, cur);
       paintInk(cur);
     };
@@ -258,7 +267,10 @@ export function NuiLabPage() {
       }
       if (stageRef.current) stageRef.current.style.aspectRatio = `${v.videoWidth} / ${v.videoHeight}`;
       const ctx = canvas.getContext("2d");
-      if (ctx) drawHands(ctx, cur.analyzer.lastHands, cur.analyzer.primaryHandIndex, canvas.width, canvas.height);
+      if (ctx) {
+        drawHands(ctx, cur.analyzer.lastHands, cur.analyzer.primaryHandIndex, canvas.width, canvas.height, cur.analyzer.currentFace);
+        drawFaceArea(ctx, cur.analyzer.currentFace, canvas.width, canvas.height);
+      }
     };
     const paintInk = (cur: Session) => {
       const ctx = inkRef.current?.getContext("2d");
@@ -315,6 +327,7 @@ export function NuiLabPage() {
 
   const snap = readout.snapshot;
   const sched = readout.sched;
+  const rejected = snap ? countHandRoles(snap.handRoles) : null;
   const running = phase === "on";
   const wave = snap?.wave;
 
@@ -360,7 +373,9 @@ export function NuiLabPage() {
           <p className="nui-lab__legend">
             <span className="nui-lab__swatch nui-lab__swatch--primary" aria-hidden="true" /> Oranye = tangan utama (diikuti
             game) ·
-            <span className="nui-lab__swatch nui-lab__swatch--other" aria-hidden="true" /> Abu-abu = tangan lain
+            <span className="nui-lab__swatch nui-lab__swatch--other" aria-hidden="true" /> Abu-abu = tangan lain ·
+            <span className="nui-lab__swatch nui-lab__swatch--face" aria-hidden="true" /> Biru = wajah pemain ·
+            <span className="nui-lab__swatch nui-lab__swatch--region" aria-hidden="true" /> Ungu = area tangan pemain
           </p>
 
           <h3>Coret uji</h3>
@@ -397,6 +412,11 @@ export function NuiLabPage() {
                   : "tidak ada"
               }
             />
+            <Stat label="Wajah pemain" value={snap ? (snap.face ? `ada, ${Math.round(snap.face.w * 100)}% lebar frame` : "belum terlihat") : "—"} />
+            <Stat
+              label="Tangan ditolak"
+              value={rejected ? `jauh ${rejected.far} · wajah ${rejected.face} · di luar area ${rejected.outside}` : "—"}
+            />
             <Stat label="Pose sekarang" value={snap ? poseLabel(snap.pose) : "—"} />
           </dl>
 
@@ -411,6 +431,9 @@ export function NuiLabPage() {
           <button type="button" className="nui-lab__button" onClick={() => session.current?.analyzer.startWaveTest()} disabled={!running}>
             Mulai uji lambaian
           </button>
+          <dl className="nui-lab__numbers">
+            <Stat label="Pembalikan lambaian" value={wave ? `${wave.reversals} dari ${WAVE_MIN_REVERSALS}` : "—"} />
+          </dl>
           <p className="nui-lab__status" aria-live="polite">
             {(!wave || wave.status === "idle") && "Belum diuji. Tekan tombol, lalu lambaikan tangan kiri dan kanan."}
             {wave?.status === "running" && `Sedang diuji… progres ${Math.round(wave.progress * 100)}%`}

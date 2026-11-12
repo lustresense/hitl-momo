@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { DelegateInfo } from "@/src/camera/hand-landmarker";
 import { getInferenceStats, resetInferenceSchedulerForTest } from "@/src/camera/inference-scheduler";
+import { resetFaceDetectorForTest } from "@/src/camera/face-anchor";
 
 const mocks = vi.hoisted(() => {
   const defaultDelegate: DelegateInfo = {
@@ -14,8 +15,14 @@ const mocks = vi.hoisted(() => {
     switchError: null,
   };
   const landmarker = { detectForVideo: vi.fn(() => ({ landmarks: [] })), close: vi.fn() };
+  type FaceBoxPx = { originX: number; originY: number; width: number; height: number };
+  const faceDetector = {
+    detectForVideo: vi.fn((): { detections: { boundingBox?: FaceBoxPx }[] } => ({ detections: [] })),
+    close: vi.fn(),
+  };
   return {
     landmarker,
+    faceDetector,
     createHandLandmarker: vi.fn(async () => ({ landmarker, delegate: "GPU", fellBack: false })),
     defaultDelegate,
     delegateInfo: { ...defaultDelegate },
@@ -27,6 +34,13 @@ vi.mock("@/src/camera/hand-landmarker", async (importOriginal) => ({
   ...(await importOriginal<typeof import("@/src/camera/hand-landmarker")>()),
   createHandLandmarker: mocks.createHandLandmarker,
   getDelegateInfo: () => ({ ...mocks.delegateInfo }),
+}));
+
+// The face model is the second MediaPipe model; the page reaches it through FaceAnchor, which loads it once.
+vi.mock("@mediapipe/tasks-vision", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@mediapipe/tasks-vision")>()),
+  FilesetResolver: { forVisionTasks: vi.fn(async () => ({})) },
+  FaceDetector: { createFromOptions: vi.fn(async () => mocks.faceDetector) },
 }));
 
 // The video element is a plain object in jsdom: no canvas work for the detector input.
@@ -96,6 +110,9 @@ beforeEach(() => {
   mocks.landmarker.detectForVideo.mockReset();
   mocks.landmarker.detectForVideo.mockImplementation(() => ({ landmarks: [] }));
   mocks.delegateInfo = { ...mocks.defaultDelegate };
+  mocks.faceDetector.detectForVideo.mockReset();
+  mocks.faceDetector.detectForVideo.mockImplementation(() => ({ detections: [] }));
+  resetFaceDetectorForTest();
   resetInferenceSchedulerForTest();
 });
 
@@ -240,3 +257,57 @@ describe("NuiLabPage detection runs through the shared gate", () => {
     expect(stat("Sibuk (perkiraan)")).toMatch(/^\d+%$/);
   });
 });
+
+describe("NuiLabPage face and wave rule", () => {
+  /** Video of 640 x 480 px, so the face box (in px) maps to 0..1 of the frame as in the game. */
+  function sizedVideo(video: HTMLVideoElement) {
+    Object.defineProperty(video, "videoWidth", { configurable: true, get: () => 640 });
+    Object.defineProperty(video, "videoHeight", { configurable: true, get: () => 480 });
+  }
+
+  it("shows the player's face and the numbers that decide the hand, once a face is in view", async () => {
+    // Face box 128 x 120 px at (256, 96): 0.2 of the frame wide, centred on x = 0.5.
+    mocks.faceDetector.detectForVideo.mockImplementation(() => ({
+      detections: [{ boundingBox: { originX: 256, originY: 96, width: 128, height: 120 } }],
+    }));
+    const { stream } = fakeStream();
+    setMediaDevices({ getUserMedia: vi.fn(async () => stream) });
+    const { container } = render(<NuiLabPage />);
+    const video = container.querySelector("video") as HTMLVideoElement;
+    const clock = fakeVideo(video);
+    sizedVideo(video);
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Nyalakan kamera" }));
+    });
+
+    await waitFor(
+      () => {
+        clock.nextFrame();
+        expect(stat("Wajah pemain")).toBe("ada, 20% lebar frame");
+      },
+      { timeout: 4000, interval: 25 },
+    );
+    expect(stat("Tangan ditolak")).toBe("jauh 0 · wajah 0 · di luar area 0");
+    expect(stat("Pembalikan lambaian")).toBe("0 dari 2");
+  });
+
+  it("says the face is not seen when the face model finds none", async () => {
+    const { stream } = fakeStream();
+    setMediaDevices({ getUserMedia: vi.fn(async () => stream) });
+    const { container } = render(<NuiLabPage />);
+    const video = container.querySelector("video") as HTMLVideoElement;
+    const clock = fakeVideo(video);
+    sizedVideo(video);
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Nyalakan kamera" }));
+    });
+    await waitFor(
+      () => {
+        clock.nextFrame();
+        expect(stat("Wajah pemain")).toBe("belum terlihat");
+      },
+      { timeout: 4000, interval: 25 },
+    );
+  });
+});
+

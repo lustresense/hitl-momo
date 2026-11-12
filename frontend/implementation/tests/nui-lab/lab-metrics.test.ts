@@ -116,5 +116,43 @@ describe("WaveLabSampler", () => {
     expect(sampler.detected).toBe(false);
     expect(sampler.movedAtMs).toBeNull();
     expect(sampler.progress).toBe(0);
+    expect(sampler.reversals).toBe(0);
+  });
+
+  it("counts the reversals of the sweep and reports two when it is detected", () => {
+    const sampler = new WaveLabSampler();
+    feedSweep(sampler, 0, 20);
+    expect(sampler.reversals).toBeLessThan(2);
+    feedSweep(sampler, 1000, 90);
+    expect(sampler.detected).toBe(true);
+    expect(sampler.reversals).toBeGreaterThanOrEqual(2);
+  });
+
+  it("scales the minimum swing with the hand size, so a small hand's small wave counts", () => {
+    // Amplitude 0.03 (peak to peak 0.06): enough for a hand of size 0.1, too little for the default 0.3.
+    const small = new WaveLabSampler();
+    const large = new WaveLabSampler();
+    for (let i = 0; i < 90; i++) {
+      const wrist = { x: 0.5 + 0.03 * Math.sin((2 * Math.PI * i * 33) / 800), y: 0.5 };
+      small.feed(wrist, i * 33, { handSize: 0.1 });
+      large.feed(wrist, i * 33);
+    }
+    expect(small.detected).toBe(true);
+    expect(large.detected).toBe(false);
+  });
+
+  it("restarts the sweep when the player's face moves sideways (a head turn, not a wave)", () => {
+    const sampler = new WaveLabSampler();
+    const face = { x: 0.4, y: 0.2, w: 0.2, h: 0.25 };
+    const turned = { ...face, x: face.x + 0.6 * face.w + 0.02 };
+    const wristAt = (i: number) => ({ x: 0.5 + 0.3 * Math.sin((2 * Math.PI * i * 33) / 800), y: 0.5 });
+    // One swing in with the face still: some progress, not yet a wave.
+    for (let i = 0; i < 20; i++) sampler.feed(wristAt(i), i * 33, { face });
+    expect(sampler.progress).toBeGreaterThan(0);
+    expect(sampler.detected).toBe(false);
+    // The wrist keeps moving, but the face jumps sideways: the sweep starts again from nothing.
+    sampler.feed(wristAt(20), 20 * 33, { face: turned });
+    expect(sampler.progress).toBe(0);
+    expect(sampler.reversals).toBe(0);
   });
 });

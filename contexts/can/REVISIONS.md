@@ -56,6 +56,17 @@ Aturan isi:
 | R10-24 | Kuis/survei setelah penutup, bisa dinyalakan/dimatikan admin. | SEBAGIAN | Flag di game ada; toggle di dashboard admin/backend baru usulan kontrak ke Dias · Versi: 0.6.2-alpha |
 | R10-25 | Lead merencanakan, worker Haiku, Caveman hanya untuk jawaban ke Owner, Superpowers dipakai. | SELESAI | Cara kerja |
 
+## R-2026-11-12 — revisi Owner dari perangkat asli (screenshot `docs/audit-2026-11-10/owner-2026-11-12-cover.webp`)
+
+| ID | Revisi (maksud Owner) | Status | Bukti / catatan |
+|---|---|---|---|
+| R12-01 | Cover jangan polos: tetap ada tulisan judul (bukan hanya pita "Sketchbook Universe Present" dan kartu kamera). | JALAN | Worker W-COVER3 |
+| R12-02 | Momo tidur di cover tidak beranimasi sama sekali di perangkat Owner (hanya diam, satu "z"). Harus benar-benar animasi tidur. | JALAN | Worker W-SLEEP. Dugaan: jalur reduced-motion/perangkat; harus tetap hidup (D-20261110-03) |
+| R12-03 | Perpindahan Momo antar layar tidak mulus; latar berganti sendiri sebelum transisi selesai (bug). | JALAN | Worker W-COVER3 |
+| R12-04 | Transisi "buku naik ke atas" jelek dan tidak sesuai; harus buka buku semi-3D dari bawah ke atas (M-019) yang halus. | JALAN | Worker W-BOOK |
+| R12-05 | Lambaian terlalu lama: deteksi otomatis begitu melambai, tapi akurat. Boleh tambah ONNX sedikit atau OpenCV untuk membatasi tangan siapa yang dipakai: jangan deteksi muka, jangan terganggu objek/orang lain. | JALAN | Worker W-WAVE2. Rencana lead: penanda wajah pemain dengan MediaPipe Face Detector (paket yang sama, model ±0,2 MB) untuk memilih tangan milik pemain; OpenCV.js (±8 MB) dan ONNX tidak dipakai kecuali ini tidak cukup |
+| R12-06 | Cara kerja: worker Haiku effort high, lead push bila hasil sesuai; Dias mengikuti alur yang sama; aturan versi dan rilis disalin juga ke `contexts/can/` supaya tetap aman bila Dias mengubah aturan global. | SELESAI | `contexts/can/AGENTS.md` |
+
 ## R-2026-11-11 — revisi hari ini
 
 | ID | Revisi (maksud Owner) | Status | Bukti / catatan |

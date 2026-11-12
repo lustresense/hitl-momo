@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.12.6-alpha | 2026-11-12 | Dokumen | `(0.12.6-alpha)` |
 | 0.12.5-alpha | 2026-11-12 | Dokumen | `(0.12.5-alpha)` |
 | 0.12.4-alpha | 2026-11-12 | Dokumen | `(0.12.4-alpha)` |
 | 0.12.3-alpha | 2026-11-12 | Dokumen | `(0.12.3-alpha)` |
@@ -89,6 +90,21 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.12.6-alpha — 2026-11-12 — Dokumen
+
+**Sumber:** Owner 2026-11-12 (screenshot perangkat asli), REVISIONS R12-01..06
+
+**Perubahan:**
+- REVISIONS: revisi R12-01..R12-06 (judul cover, animasi tidur Momo, transisi Momo dan latar, buka buku, lambaian cepat dan akurat, cara kerja).
+- Salinan aturan versi dan rilis di `contexts/can/AGENTS.md` supaya tetap berlaku bila aturan global diubah.
+- Screenshot Owner disimpan: `contexts/can/docs/audit-2026-11-10/owner-2026-11-12-cover.webp`.
+
+**Commit:** commit berjudul `(0.12.6-alpha)`
+
+**Bukti:** Dokumen saja
 
 ---
 

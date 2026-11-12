@@ -1,14 +1,15 @@
 /**
  * PRD 0.0.16 R4 — one shared hand tracker for thumbs-up and pinch confirmation.
  *
- * Reads the app's single webcam via `shared-stream` (never a second getUserMedia) into an
- * off-screen <video>, runs ONE HandLandmarker, and publishes { handVisible, thumbUp, pinch, cursor }.
+ * Reads the app's single webcam via `shared-stream` (never a second getUserMedia): the camera preview when it plays
+ * that stream, else its own off-screen feed. Runs ONE HandLandmarker and publishes { handVisible, thumbUp, pinch, cursor }.
  * It runs only while at least one consumer holds it (a ThumbConfirm or PinchRing is on screen); the last
  * release stops the loop and closes the landmarker.
  */
-import type { HandLandmarker } from "@mediapipe/tasks-vision";
+import type { HandLandmarker, HandLandmarkerResult } from "@mediapipe/tasks-vision";
 import { takeHandLandmarker } from "./landmarker-warmup";
 import { frameForDetection } from "./frame-source";
+import { pollDetection } from "./inference-scheduler";
 import { pickPrimaryHand, type PrimaryHandState } from "./primary-hand";
 import { subscribeSharedStream } from "./shared-stream";
 import { StableVote, classifyHandPose, countExtendedFingers, indexTipNormalized, isThumbUp, type HandPose } from "../input/hand-gesture";
@@ -45,7 +46,14 @@ const listeners = new Set<HandGestureListener>();
 let holders = 0;
 let generation = 0;
 let landmarker: HandLandmarker | null = null;
+/** The stream this tracker reads (set by bind, cleared by unbind). */
+let boundStream: MediaStream | null = null;
+/** Own off-screen feed of the stream; used only when the camera preview does not already play it (see frameVideo). */
 let video: HTMLVideoElement | null = null;
+/** The camera preview GlobalCamera shows. Reading it shares each frame with the wave tracker and the page drivers. */
+const PREVIEW_SELECTOR = ".global-camera-host .camera-video";
+/** Identity of this reader in the shared inference gate. */
+const READER = {};
 let rafId: number | null = null;
 let unsubStream: (() => void) | null = null;
 let lastVideoTime = -1;
@@ -188,19 +196,57 @@ function stopTracking(): void {
   unbind();
 }
 
+/** Plays without letting a blocked or unsupported play() throw; the readyState check in the loop still guards. */
+function safePlay(v: HTMLVideoElement): void {
+  try {
+    const playing = v.play() as Promise<void> | undefined;
+    void playing?.catch?.(() => undefined);
+  } catch {
+    /* jsdom and blocked autoplay */
+  }
+}
+
+function detachOwnFeed(): void {
+  // Called every frame while the preview is in use: a feed that is already detached costs nothing.
+  if (!video || video.srcObject === null) return;
+  try {
+    video.pause();
+  } catch {
+    /* jsdom */
+  }
+  video.srcObject = null;
+}
+
+/**
+ * The element frames are read from. The camera preview when it already plays this stream, so the camera is decoded
+ * once and every reader shares one frame identity. Otherwise the tracker's own feed (a second decode, rare).
+ */
+function frameVideo(): HTMLVideoElement | null {
+  const stream = boundStream;
+  if (!stream || typeof document === "undefined") return null;
+  const preview = document.querySelector<HTMLVideoElement>(PREVIEW_SELECTOR);
+  if (preview && preview.srcObject === stream) {
+    detachOwnFeed();
+    return preview;
+  }
+  if (!video) {
+    video = document.createElement("video");
+    video.muted = true;
+    video.playsInline = true;
+  }
+  if (video.srcObject !== stream) {
+    video.srcObject = stream;
+    safePlay(video);
+  }
+  return video;
+}
+
 async function bind(stream: MediaStream): Promise<void> {
   unbind();
   const gen = ++generation;
-  const v = document.createElement("video");
-  v.muted = true;
-  v.playsInline = true;
-  v.srcObject = stream;
-  video = v;
-  try {
-    await v.play();
-  } catch {
-    /* fake/blocked autoplay: readyState check in loop still guards */
-  }
+  boundStream = stream;
+  // Starts the feed now, so it runs while the model loads.
+  frameVideo();
   try {
     const created = await takeHandLandmarker({ wasmRoot, modelUrl });
     if (gen !== generation) {
@@ -227,27 +273,25 @@ function unbind(): void {
   const lm = landmarker;
   landmarker = null;
   try { lm?.close(); } catch { /* best-effort */ }
-  if (video) {
-    try { video.pause(); } catch { /* jsdom */ }
-    video.srcObject = null;
-  }
-  video = null;
+  detachOwnFeed();
+  boundStream = null;
   primary = null;
   publish(IDLE);
 }
 
 function loop(): void {
-  const v = video;
+  const v = frameVideo();
   const lm = landmarker;
   if (!v || !lm) return;
   rafId = requestAnimationFrame(loop);
   if (typeof document !== "undefined" && document.hidden) return;
   if (v.readyState < 2 || v.currentTime === lastVideoTime) return;
   lastVideoTime = v.currentTime;
-  let result;
+  let result: HandLandmarkerResult | null;
   const now = performance.now();
   try {
-    result = lm.detectForVideo(frameForDetection(v), now);
+    // Shared gate: null when the budget skips this frame or another reader already read it.
+    result = pollDetection(READER, v, (ts) => lm.detectForVideo(frameForDetection(v), ts));
     failures = 0;
   } catch {
     failures++;
@@ -257,6 +301,7 @@ function loop(): void {
     }
     return;
   }
+  if (!result) return;
   // The player's hand, not whichever hand MediaPipe lists first; a lost lock reads as no hand.
   const pick = pickPrimaryHand(result.landmarks, primary, now);
   primary = pick.state;

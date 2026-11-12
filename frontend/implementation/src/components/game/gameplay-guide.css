@@ -97,8 +97,15 @@
   text-align: center;
 }
 
-/* Narrow phones: one card per row, picture beside the words. */
+/* Narrow phones: the panel sits below Momo (fixed top-left, about 290 px tall at 390 px) and above the control
+   bar (lifted 124 px for the camera PIP, about 180 px tall). Scrolls if the phone is shorter. */
 @media (max-width: 480px) {
+  .control-guide {
+    top: 300px;
+    bottom: 314px;
+    overflow-y: auto;
+  }
+
   .control-guide__cards {
     grid-template-columns: minmax(0, 1fr);
   }

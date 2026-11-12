@@ -20,6 +20,9 @@
 .momo-guide--cover.is-leaving { opacity: 0; transition: opacity 0.3s ease; }
 /* The level list has the demo tape in the bottom-right corner: Momo stands above it. */
 #app:has(.bm-page) .momo-guide { bottom: 62px; }
+/* The ending (Pusat Halaman) has its own Momo. The level list's guide stays mounted underneath and would sit
+   over the recap cards, so it is hidden while the ending is open (desktop and phone alike). */
+#app:has(.center-page) .momo-guide { visibility: hidden; }
 
 .momo-guide__zzz { position: absolute; right: calc(var(--mg-h, 150px) * 0.42); bottom: calc(var(--mg-h, 150px) * 0.74); width: 60px; height: 70px; pointer-events: none; }
 .momo-guide__zzz i {

@@ -270,6 +270,8 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
     stopWaveTracking();
     cameraFromRef.current = readRect(cameraCardRef.current);
     momoFromRef.current = readRect(momoRef.current);
+    // The "typed" flag may be left over from the sleepy nudge line; the ring must wait for the wake lines.
+    setCoverLinesTyped(false);
     setAwake(true);
   };
   const wakeRef = useRef(wakeMomo);

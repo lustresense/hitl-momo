@@ -51,7 +51,7 @@ Aturan isi:
 | R10-19 | "Gambar lagi" untuk recovery, gestur tidak bentrok. | SELESAI | recovery-paths 16/16 |
 | R10-20 | NUI penuh; fallback mouse/keyboard ada tapi tidak dipamerkan di awal; siswa tanpa kamera tidak terjebak. | SELESAI | Fix refresh tanpa kamera `f16b99a` |
 | R10-21 | NUI MediaPipe + One Euro + CLAHE + ONNX (opsional) dinilai sesuai PANDUAN. | JALAN | Lihat R11-03..R11-07 |
-| R10-22 | Level 3 lebih menantang, Momo bisa "halu" secara naratif, hasil model tidak direkayasa. | JALAN | Audit ulang terhadap kode terbaru: worker W-L3 |
+| R10-22 | Level 3 lebih menantang, Momo bisa "halu" secara naratif, hasil model tidak direkayasa. | MENUNGGU OWNER | Audit `docs/audit-2026-11-10/L3-AUDIT.md`. Sesuai: kabut 0/0,4/0,9 dan menutup wajah Momo di L3; confidence model tidak diubah; mock berlabel demo. Kurang: (1) L3 hanya butuh 1 benda (`cyclesRequired` 1) sedangkan L2 butuh 2, jadi L3 tidak lebih menantang; (2) model asli belum bisa main (label map Dias, R10-17); (3) bukti L3 hanya mode demo; (4) D-20261027-01 (Kabut Penghapus) masih "Belum dikunci" |
 | R10-23 | Penutup: Thinman masuk portal dan hidup, Momo menjelaskan AI, rekap netral tanpa skor. | SELESAI | D-20261110-10 |
 | R10-24 | Kuis/survei setelah penutup, bisa dinyalakan/dimatikan admin. | SEBAGIAN | Flag di game ada; toggle di dashboard admin/backend baru usulan kontrak ke Dias |
 | R10-25 | Lead merencanakan, worker Haiku, Caveman hanya untuk jawaban ke Owner, Superpowers dipakai. | SELESAI | Cara kerja |

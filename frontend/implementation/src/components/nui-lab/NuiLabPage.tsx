@@ -8,7 +8,7 @@
 import type { HandLandmarker } from "@mediapipe/tasks-vision";
 import { useEffect, useRef, useState } from "react";
 import { frameForDetection, getFrameSourceStats, setLowLightEnhancement, type LowLightMode } from "@/src/camera/frame-source";
-import { FaceAnchor } from "@/src/camera/face-anchor";
+import { FaceAnchor, type FaceModelStatus } from "@/src/camera/face-anchor";
 import { createHandLandmarker, delegateLabel, getDelegateInfo } from "@/src/camera/hand-landmarker";
 import { getInferenceStats, pollDetection, type InferenceStats } from "@/src/camera/inference-scheduler";
 import { classifyCameraError, messageFor } from "@/src/camera/messages";
@@ -17,7 +17,7 @@ import type { Landmark } from "@/src/input/types";
 import { drawFaceArea, drawHands } from "./hand-overlay";
 import { startLabCamera } from "./lab-camera";
 import { LabAnalyzer, type LabSnapshot } from "./lab-analyzer";
-import { busyPercent, delegateReasonText, poseLabel, switchStateText } from "./lab-metrics";
+import { delegateReasonText, faceAbsentText, modelReadoutText, poseLabel, switchStateText } from "./lab-metrics";
 import { countHandRoles } from "./lab-roles";
 import "./NuiLabPage.css";
 
@@ -49,8 +49,10 @@ interface Readout {
   luma: number | null;
   claheMs: number | null;
   enhancing: boolean;
-  /** Detector stats from the shared gate: effective rate, average time, skipped frames. */
+  /** Detector stats from the shared gate: per model and total, busy share, skipped frames. */
   sched: InferenceStats | null;
+  /** The face model: still loading, in use, or given up. Tells "no face" from "no face model". */
+  faceModel: FaceModelStatus;
   /** Engine as the game labels it: "GPU", "CPU (tanpa GPU)", ... */
   engine: string;
   reason: string;
@@ -65,6 +67,7 @@ const EMPTY_READOUT: Readout = {
   claheMs: null,
   enhancing: false,
   sched: null,
+  faceModel: "loading",
   engine: "—",
   reason: "—",
   switchText: "—",
@@ -269,7 +272,7 @@ export function NuiLabPage() {
       const ctx = canvas.getContext("2d");
       if (ctx) {
         drawHands(ctx, cur.analyzer.lastHands, cur.analyzer.primaryHandIndex, canvas.width, canvas.height, cur.analyzer.currentFace);
-        drawFaceArea(ctx, cur.analyzer.currentFace, canvas.width, canvas.height);
+        drawFaceArea(ctx, cur.analyzer.currentFace, canvas.width, canvas.height, cur.face.others(performance.now()));
       }
     };
     const paintInk = (cur: Session) => {
@@ -303,6 +306,7 @@ export function NuiLabPage() {
         claheMs: stats.lastClaheMs,
         enhancing: stats.enhancing,
         sched: getInferenceStats(),
+        faceModel: s.face.status(),
         // getDelegateInfo is process-wide: without a landmarker of this session it may describe an older one.
         engine:
           s.landmarker && delegate.delegate
@@ -373,7 +377,7 @@ export function NuiLabPage() {
           <p className="nui-lab__legend">
             <span className="nui-lab__swatch nui-lab__swatch--primary" aria-hidden="true" /> Oranye = tangan utama (diikuti
             game) ·
-            <span className="nui-lab__swatch nui-lab__swatch--other" aria-hidden="true" /> Abu-abu = tangan lain ·
+            <span className="nui-lab__swatch nui-lab__swatch--other" aria-hidden="true" /> Abu-abu = tangan dan wajah lain ·
             <span className="nui-lab__swatch nui-lab__swatch--face" aria-hidden="true" /> Biru = wajah pemain ·
             <span className="nui-lab__swatch nui-lab__swatch--region" aria-hidden="true" /> Ungu = area tangan pemain
           </p>
@@ -399,7 +403,9 @@ export function NuiLabPage() {
             <Stat label="Waktu deteksi rata-rata" value={fmtMs(sched?.avgMs ?? null)} />
             <Stat label="Waktu deteksi p50" value={fmtMs(snap?.inferP50 ?? null)} />
             <Stat label="Waktu deteksi p95" value={fmtMs(snap?.inferP95 ?? null)} />
-            <Stat label="Sibuk (perkiraan)" value={fmtPct(busyPercent(sched?.avgMs ?? null, sched?.effectiveHz ?? 0))} />
+            <Stat label="Tangan (deteksi)" value={sched ? modelReadoutText(sched.models.hand) : "—"} />
+            <Stat label="Wajah (deteksi)" value={sched ? modelReadoutText(sched.models.face) : "—"} />
+            <Stat label="Sibuk (diukur)" value={fmtPct(sched ? sched.busyShare * 100 : null)} />
             <Stat label="Mesin (GPU/CPU)" value={readout.engine} />
             <Stat label="Alasan mesin" value={readout.reason} />
             <Stat label="Status pindah mesin" value={readout.switchText} />
@@ -412,7 +418,10 @@ export function NuiLabPage() {
                   : "tidak ada"
               }
             />
-            <Stat label="Wajah pemain" value={snap ? (snap.face ? `ada, ${Math.round(snap.face.w * 100)}% lebar frame` : "belum terlihat") : "—"} />
+            <Stat
+              label="Wajah pemain"
+              value={snap ? (snap.face ? `ada, ${Math.round(snap.face.w * 100)}% lebar frame` : faceAbsentText(readout.faceModel)) : "—"}
+            />
             <Stat
               label="Tangan ditolak"
               value={rejected ? `jauh ${rejected.far} · wajah ${rejected.face} · di luar area ${rejected.outside}` : "—"}

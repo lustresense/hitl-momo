@@ -1,23 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { busyPercent, delegateReasonText, switchStateText } from "@/src/components/nui-lab/lab-metrics";
-
-describe("busyPercent (estimated share of the main thread spent in detection)", () => {
-  it("is null before the first detection", () => {
-    expect(busyPercent(null, 0)).toBeNull();
-  });
-
-  it("is average duration times rate: 20 ms at 10 Hz is 20 %", () => {
-    expect(busyPercent(20, 10)).toBeCloseTo(20, 6);
-  });
-
-  it("is 0 when no detection started in the last second", () => {
-    expect(busyPercent(20, 0)).toBe(0);
-  });
-
-  it("never goes above 100 %", () => {
-    expect(busyPercent(200, 17)).toBe(100);
-  });
-});
+import { delegateReasonText, switchStateText } from "@/src/components/nui-lab/lab-metrics";
 
 describe("delegateReasonText", () => {
   it("explains each delegate reason in plain Indonesian", () => {

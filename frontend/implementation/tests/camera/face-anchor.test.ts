@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import { describe, expect, it, vi } from "vitest";
-import { FaceAnchor, faceBoxFromDetections, type FaceDetectorLike } from "@/src/camera/face-anchor";
+import { FaceAnchor, faceBoxFromDetections, faceBoxesFromDetections, type FaceDetectorLike } from "@/src/camera/face-anchor";
 import { FACE_LOST_MS } from "@/src/camera/hand-config";
 import {
   HAND_LANE,
@@ -45,6 +45,19 @@ describe("faceBoxFromDetections (pure)", () => {
 
   it("ignores a box with no size", () => {
     expect(faceBoxFromDetections([box(10, 10, 0, 0)], 640, 480)).toBeNull();
+  });
+});
+
+describe("faceBoxesFromDetections (pure)", () => {
+  it("returns every usable face box, in the order the detector gave them", () => {
+    const boxes = faceBoxesFromDetections([box(0, 100, 100, 100), {}, box(10, 10, 0, 0), box(300, 100, 100, 100)], 640, 480);
+    expect(boxes).toHaveLength(2);
+    expect(boxes[0]!.x).toBeCloseTo(0);
+    expect(boxes[1]!.x).toBeCloseTo(300 / 640);
+  });
+
+  it("is empty when the detector found nothing", () => {
+    expect(faceBoxesFromDetections([], 640, 480)).toEqual([]);
   });
 });
 
@@ -168,5 +181,80 @@ describe("FaceAnchor", () => {
       spy.mockRestore();
       resetInferenceSchedulerForTest();
     }
+  });
+  it("reports its model status: loading until the model is in, ready after, unavailable when it cannot load", async () => {
+    let finish!: (d: FaceDetectorLike) => void;
+    const detector: FaceDetectorLike = { detectForVideo: vi.fn(() => ({ detections: [] })), close: vi.fn() };
+    const anchor = new FaceAnchor({ load: () => new Promise((r) => (finish = r)), now: () => 0, gate: new InferenceScheduler({ now: () => 0 }) });
+    expect(anchor.status()).toBe("loading");
+    anchor.update(video(), 0);
+    expect(anchor.status()).toBe("loading");
+    finish(detector);
+    await flush();
+    expect(anchor.status()).toBe("ready");
+
+    const broken = new FaceAnchor({ load: () => Promise.reject(new Error("404")), now: () => 0, gate: new InferenceScheduler({ now: () => 0 }) });
+    broken.update(video(), 0);
+    await flush();
+    expect(broken.status()).toBe("unavailable");
+  });
+
+  it("reports unavailable after repeated detector failures, not loading or ready", async () => {
+    let t = 0;
+    const detectForVideo = vi.fn(() => {
+      throw new Error("boom");
+    });
+    const anchor = new FaceAnchor({ load: async () => ({ detectForVideo, close: vi.fn() }), now: () => t, gate: new InferenceScheduler({ now: () => t }) });
+    const v = video();
+    anchor.update(v, t);
+    await flush();
+    for (let i = 1; i <= 3; i++) {
+      t = i * 1000;
+      v.currentTime = i;
+      anchor.update(v, t);
+    }
+    expect(anchor.status()).toBe("unavailable");
+  });
+
+  it("keeps the other faces of the last detection; the player's face is the one it picks", async () => {
+    let t = 0;
+    const detector: FaceDetectorLike = {
+      detectForVideo: vi.fn(() => ({ detections: [box(288, 96, 64, 96), box(20, 40, 60, 60)] })),
+      close: vi.fn(),
+    };
+    const anchor = new FaceAnchor({ load: async () => detector, now: () => t, gate: new InferenceScheduler({ now: () => t }) });
+    const v = video();
+    anchor.update(v, t);
+    await flush();
+    t = 300;
+    v.currentTime = 1;
+    anchor.update(v, t);
+
+    expect(anchor.current(t)!.x).toBeCloseTo(288 / 640);
+    const others = anchor.others(t);
+    expect(others).toHaveLength(1);
+    expect(others[0]!.x).toBeCloseTo(20 / 640);
+  });
+
+  it("has no other faces before a detection, with a single face, or once the detection is stale", async () => {
+    let t = 0;
+    let faces = [box(288, 96, 64, 96)];
+    const detector: FaceDetectorLike = { detectForVideo: vi.fn(() => ({ detections: faces })), close: vi.fn() };
+    const anchor = new FaceAnchor({ load: async () => detector, now: () => t, gate: new InferenceScheduler({ now: () => t }) });
+    const v = video();
+    expect(anchor.others(0)).toEqual([]);
+    anchor.update(v, t);
+    await flush();
+    t = 300;
+    v.currentTime = 1;
+    anchor.update(v, t);
+    expect(anchor.others(t)).toEqual([]);
+
+    faces = [box(288, 96, 64, 96), box(20, 40, 60, 60)];
+    t = 600;
+    v.currentTime = 2;
+    anchor.update(v, t);
+    expect(anchor.others(t)).toHaveLength(1);
+    expect(anchor.others(600 + FACE_LOST_MS + 1)).toEqual([]);
   });
 });

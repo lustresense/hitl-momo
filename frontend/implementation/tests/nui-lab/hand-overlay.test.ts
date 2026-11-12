@@ -143,3 +143,25 @@ describe("drawFaceArea", () => {
   });
 });
 
+describe("drawFaceArea: other faces", () => {
+  it("outlines every other face in grey, mirrored like the player's face, after the player's two boxes", () => {
+    const { ctx, rec } = recordingContext();
+    const other: FaceBox = { x: 0.1, y: 0.3, w: 0.1, h: 0.1 };
+    drawFaceArea(ctx, face, 400, 300, [other]);
+    expect(rec.rects).toHaveLength(3);
+    const [box, color] = [rec.rects[2]!.box, rec.rects[2]!.color];
+    // x 0.1..0.2 mirrored to 0.8..0.9 of the width; y 0.3 and h 0.1 of the height.
+    expect(box[0]).toBeCloseTo(0.8 * 400, 6);
+    expect(box[1]).toBeCloseTo(0.3 * 300, 6);
+    expect(box[2]).toBeCloseTo(0.1 * 400, 6);
+    expect(box[3]).toBeCloseTo(0.1 * 300, 6);
+    expect(color).toBe(OVERLAY_COLORS.other);
+  });
+
+  it("still outlines other faces when the player's face is not identified", () => {
+    const { ctx, rec } = recordingContext();
+    drawFaceArea(ctx, null, 400, 300, [{ x: 0.1, y: 0.3, w: 0.1, h: 0.1 }]);
+    expect(rec.rects).toHaveLength(1);
+    expect(rec.rects[0]!.color).toBe(OVERLAY_COLORS.other);
+  });
+});

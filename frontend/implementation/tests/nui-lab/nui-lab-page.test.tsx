@@ -4,6 +4,7 @@ import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-libra
 import type { DelegateInfo } from "@/src/camera/hand-landmarker";
 import { getInferenceStats, resetInferenceSchedulerForTest } from "@/src/camera/inference-scheduler";
 import { resetFaceDetectorForTest } from "@/src/camera/face-anchor";
+import { FaceDetector } from "@mediapipe/tasks-vision";
 
 const mocks = vi.hoisted(() => {
   const defaultDelegate: DelegateInfo = {
@@ -240,7 +241,7 @@ describe("NuiLabPage detection runs through the shared gate", () => {
     );
   });
 
-  it("shows the effective detection rate and the average inference time from the gate", async () => {
+  it("shows the measured busy share of the main thread from the gate", async () => {
     mocks.landmarker.detectForVideo.mockImplementation(() => {
       busyWait(200);
       return { landmarks: [] };
@@ -254,7 +255,52 @@ describe("NuiLabPage detection runs through the shared gate", () => {
     });
     await waitFor(() => expect(stat("Waktu deteksi rata-rata")).toMatch(/^\d+ ms$/), { timeout: 2000 });
     expect(stat("Deteksi efektif")).toMatch(/^\d+ \/detik$/);
-    expect(stat("Sibuk (perkiraan)")).toMatch(/^\d+%$/);
+    expect(stat("Sibuk (diukur)")).toMatch(/^\d+%$/);
+  });
+
+  it("shows the hand and the face detector separately, each with its own rate and average time", async () => {
+    mocks.faceDetector.detectForVideo.mockImplementation(() => ({
+      detections: [{ boundingBox: { originX: 256, originY: 96, width: 128, height: 120 } }],
+    }));
+    const { stream } = fakeStream();
+    setMediaDevices({ getUserMedia: vi.fn(async () => stream) });
+    const { container } = render(<NuiLabPage />);
+    const video = container.querySelector("video") as HTMLVideoElement;
+    const clock = fakeVideo(video);
+    Object.defineProperty(video, "videoWidth", { configurable: true, get: () => 640 });
+    Object.defineProperty(video, "videoHeight", { configurable: true, get: () => 480 });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Nyalakan kamera" }));
+    });
+    await waitFor(
+      () => {
+        clock.nextFrame();
+        expect(stat("Wajah (deteksi)")).toMatch(/^\d+ \/detik · rata-rata \d+ ms$/);
+      },
+      { timeout: 4000, interval: 25 },
+    );
+    expect(stat("Tangan (deteksi)")).toMatch(/^\d+ \/detik · rata-rata \d+ ms$/);
+  });
+
+  it("says the face model failed to load, so a missing face is not blamed on the student", async () => {
+    vi.mocked(FaceDetector.createFromOptions).mockRejectedValueOnce(new Error("404"));
+    const { stream } = fakeStream();
+    setMediaDevices({ getUserMedia: vi.fn(async () => stream) });
+    const { container } = render(<NuiLabPage />);
+    const video = container.querySelector("video") as HTMLVideoElement;
+    const clock = fakeVideo(video);
+    Object.defineProperty(video, "videoWidth", { configurable: true, get: () => 640 });
+    Object.defineProperty(video, "videoHeight", { configurable: true, get: () => 480 });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Nyalakan kamera" }));
+    });
+    await waitFor(
+      () => {
+        clock.nextFrame();
+        expect(stat("Wajah pemain")).toBe("Model wajah gagal dimuat");
+      },
+      { timeout: 4000, interval: 25 },
+    );
   });
 });
 
@@ -304,7 +350,7 @@ describe("NuiLabPage face and wave rule", () => {
     await waitFor(
       () => {
         clock.nextFrame();
-        expect(stat("Wajah pemain")).toBe("belum terlihat");
+        expect(stat("Wajah pemain")).toBe("Wajah tidak terlihat");
       },
       { timeout: 4000, interval: 25 },
     );

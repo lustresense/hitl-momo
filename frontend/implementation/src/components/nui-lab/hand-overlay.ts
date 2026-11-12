@@ -95,21 +95,35 @@ export function drawHands(
 }
 
 /**
- * Outlines the player's face and the region its hand may be in, over the preview. Does not clear: call it after
- * drawHands. Both boxes are mirrored like the hands so they line up with the preview.
+ * Outlines the player's face and the region its hand may be in (blue and purple), and every other face in grey, over
+ * the preview. Does not clear: call it after drawHands. Boxes are mirrored like the hands so they line up.
  */
-export function drawFaceArea(ctx: OverlayContext, face: FaceBox | null, width: number, height: number): void {
-  if (!face) return;
+export function drawFaceArea(
+  ctx: OverlayContext,
+  face: FaceBox | null,
+  width: number,
+  height: number,
+  others: FaceBox[] = [],
+): void {
   const mirror = (x0: number, x1: number) => ({ left: (1 - x1) * width, w: (x1 - x0) * width });
-  const f = mirror(face.x, face.x + face.w);
-  const r = playerRegion(face);
-  const reg = mirror(r.x0, r.x1);
-  ctx.lineWidth = 2;
-  ctx.strokeStyle = FACE_COLORS.face;
-  ctx.strokeRect(f.left, face.y * height, f.w, face.h * height);
+  if (face) {
+    const f = mirror(face.x, face.x + face.w);
+    const r = playerRegion(face);
+    const reg = mirror(r.x0, r.x1);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = FACE_COLORS.face;
+    ctx.strokeRect(f.left, face.y * height, f.w, face.h * height);
+    ctx.lineWidth = 1;
+    ctx.strokeStyle = FACE_COLORS.region;
+    ctx.strokeRect(reg.left, r.y0 * height, reg.w, (r.y1 - r.y0) * height);
+  }
+  // Other people in view: grey, so the owner sees the detector found them and that the game does not follow them.
   ctx.lineWidth = 1;
-  ctx.strokeStyle = FACE_COLORS.region;
-  ctx.strokeRect(reg.left, r.y0 * height, reg.w, (r.y1 - r.y0) * height);
+  ctx.strokeStyle = OVERLAY_COLORS.other;
+  for (const o of others) {
+    const m = mirror(o.x, o.x + o.w);
+    ctx.strokeRect(m.left, o.y * height, m.w, o.h * height);
+  }
 }
 
 function drawLabel(ctx: OverlayContext, text: string, at: { x: number; y: number }): void {

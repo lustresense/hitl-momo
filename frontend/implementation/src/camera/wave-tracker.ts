@@ -9,11 +9,12 @@
  * - no inference while document.hidden, none when video.currentTime is unchanged;
  * - after the wave is reported the loop and landmarker are released at once.
  */
-import type { HandLandmarker } from "@mediapipe/tasks-vision";
+import type { HandLandmarker, HandLandmarkerResult } from "@mediapipe/tasks-vision";
 import { delegateLabel } from "./hand-landmarker";
 import { takeHandLandmarker } from "./landmarker-warmup";
 import { classifyCameraError, messageFor, type CameraFailureReason } from "./messages";
 import { frameForDetection } from "./frame-source";
+import { pollDetection } from "./inference-scheduler";
 import { pickPrimaryHand, type PrimaryHandState } from "./primary-hand";
 
 export interface WaveSample {
@@ -102,7 +103,8 @@ export interface WaveTrackerOptions {
 }
 
 const MAX_CONSECUTIVE_DETECT_FAILURES = 3;
-const WINDOW_MS = 1300;
+/** Samples older than this are dropped. With real timestamps, a slower detection rate only means fewer samples. */
+export const WAVE_WINDOW_MS = 1300;
 
 export class WaveTracker {
   private landmarker: HandLandmarker | null = null;
@@ -213,9 +215,10 @@ export class WaveTracker {
     if (typeof document !== "undefined" && document.hidden) return;
     if (video.readyState < 2 || video.currentTime === this.lastVideoTime) return;
     this.lastVideoTime = video.currentTime;
-    let result;
+    let result: HandLandmarkerResult | null;
     try {
-      result = landmarker.detectForVideo(frameForDetection(video), performance.now());
+      // The shared gate may skip this camera frame (budget) or hand back another reader's result for it.
+      result = pollDetection(this, video, (ts) => landmarker.detectForVideo(frameForDetection(video), ts));
       this.failures = 0;
     } catch {
       this.failures++;
@@ -225,6 +228,7 @@ export class WaveTracker {
       }
       return;
     }
+    if (!result) return;
     const now = performance.now();
     const pick = pickPrimaryHand(result.landmarks, this.primary, now);
     this.primary = pick.state;
@@ -240,7 +244,7 @@ export class WaveTracker {
     }
     this.missingFrames = 0;
     this.samples.push({ x: wrist.x, time: now });
-    while (this.samples.length && now - this.samples[0]!.time > WINDOW_MS) this.samples.shift();
+    while (this.samples.length && now - this.samples[0]!.time > WAVE_WINDOW_MS) this.samples.shift();
     this.setProgress(waveProgress(this.samples));
     if (detectWave(this.samples)) {
       this.reported = true;

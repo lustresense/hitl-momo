@@ -9,6 +9,7 @@ import { publishHand, retireHand, startHandHeartbeat } from "../camera/hand-curs
 import { delegateLabel } from "../camera/hand-landmarker";
 import { takeHandLandmarker } from "../camera/landmarker-warmup";
 import { frameForDetection } from "../camera/frame-source";
+import { pollDetection } from "../camera/inference-scheduler";
 import { isLargeEnough } from "../camera/primary-hand";
 import { classifyCameraError, messageFor, type CameraFailureReason } from "../camera/messages";
 
@@ -202,15 +203,18 @@ export class HandDrawingDriver {
       return;
     }
     this.lastVideoTime = video.currentTime;
-    let result: HandLandmarkerResult;
+    let result: HandLandmarkerResult | null;
+    const landmarker = this.landmarker;
     try {
-      result = this.landmarker.detectForVideo(frameForDetection(video), now);
+      // Shared gate: null when the detection budget skips this camera frame. A skip is not a lost hand.
+      result = pollDetection(this, video, (ts) => landmarker.detectForVideo(frameForDetection(video), ts));
     } catch {
       // A throwing tracker will keep throwing: end the stroke, stop, and let the caller fall back.
       this.apply(this.pipeline.reset(now));
       void this.stop().then(() => this.fail("tracker-error"));
       return;
     }
+    if (!result) return;
     this.process(result.landmarks, now);
   };
 

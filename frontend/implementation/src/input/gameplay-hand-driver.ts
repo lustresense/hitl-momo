@@ -38,6 +38,7 @@ import { handRollAngle } from "./hand-rotation";
 import { publishHandRoll } from "./hand-roll-store";
 import { frameForDetection } from "../camera/frame-source";
 import { pickPrimaryHand, type PrimaryHandState } from "../camera/primary-hand";
+import { pollDetection } from "../camera/inference-scheduler";
 
 /**
  * One gameplay frame: the steering/pinch reading plus the stable hand pose (voted over recent frames, "none"
@@ -304,9 +305,12 @@ export class GameplayHandDriver {
     this.lastVideoTime = video.currentTime;
     this.lastProcessTime = now;
 
-    let result: HandLandmarkerResult;
+    let result: HandLandmarkerResult | null;
+    const landmarker = this.landmarker;
     try {
-      result = this.landmarker.detectForVideo(frameForDetection(video), now);
+      // Shared gate: null when the detection budget skips this camera frame. The stall timer below still counts it as
+      // a fresh frame (lastProcessTime is set above), so a skip never reads as a lost hand.
+      result = pollDetection(this, video, (ts) => landmarker.detectForVideo(frameForDetection(video), ts));
     } catch {
       this.running = false;
       cancelAnimationFrame(this.rafId);
@@ -322,6 +326,7 @@ export class GameplayHandDriver {
       return;
     }
 
+    if (!result) return;
     // The player's hand, not whichever hand MediaPipe lists first; a lost lock reads as no hand.
     const pick = pickPrimaryHand(result.landmarks, this.primary, now);
     this.primary = pick.state;

@@ -44,6 +44,15 @@ function pose(cursorX: number, gap = 1): Landmark[] {
 let raf: FrameRequestCallback[] = [];
 const cancelled: number[] = [];
 const stepRaf = () => { const q = raf.splice(0); q.forEach((cb) => cb(0)); };
+/**
+ * Real camera frames arrive 33 ms apart. These tests step frames back to back, so they run on this clock: a
+ * detection then costs no time, and the detection budget does not pace frames that were never meant to be real-time.
+ */
+function frameClock(start = 1000) {
+  let t = start;
+  vi.spyOn(performance, "now").mockImplementation(() => t);
+  return { tick: (ms = 33) => { t += ms; } };
+}
 const flush = () => new Promise((r) => setTimeout(r, 0));
 const setHidden = (h: boolean) => Object.defineProperty(document, "hidden", { configurable: true, get: () => h });
 
@@ -150,19 +159,20 @@ describe("GameplayHandDriver", () => {
     const lm = lmk(() => ({ landmarks: [pose(0.9)] }));
     create.mockResolvedValue(lm as never);
     const { driver, v, frames } = setup();
+    const clock = frameClock();
     await driver.start();
-    for (let i = 1; i <= 6; i++) { v.currentTime = i; stepRaf(); }
+    for (let i = 1; i <= 6; i++) { clock.tick(); v.currentTime = i; stepRaf(); }
     expect(frames[frames.length - 1]!.input.right).toBe(true);
     const calls = lm.detectForVideo.mock.calls.length;
     setHidden(true);
     document.dispatchEvent(new Event("visibilitychange"));
     expect(frames[frames.length - 1]!.input).toEqual(neutral);
     const n = frames.length;
-    v.currentTime = 50; stepRaf(); stepRaf();
+    clock.tick(); v.currentTime = 50; stepRaf(); stepRaf();
     expect(lm.detectForVideo.mock.calls.length).toBe(calls);
     expect(frames.length).toBe(n); // neutral reported once, not every rAF
     setHidden(false);
-    v.currentTime = 51; stepRaf();
+    clock.tick(); v.currentTime = 51; stepRaf();
     expect(lm.detectForVideo.mock.calls.length).toBe(calls + 1);
     await driver.stop();
   });
@@ -180,12 +190,13 @@ describe("GameplayHandDriver", () => {
     let theta = 0;
     create.mockResolvedValue(lmk(() => ({ landmarks: [pointingHand(theta)] })) as never);
     const { driver, v, frames } = setup();
+    const clock = frameClock();
     await driver.start();
-    for (let i = 1; i <= 6; i++) { v.currentTime = i; stepRaf(); }
+    for (let i = 1; i <= 6; i++) { clock.tick(); v.currentTime = i; stepRaf(); }
     expect(frames[frames.length - 1]!.input.right).toBe(true);
-    theta = 33; v.currentTime = 20; stepRaf();
+    theta = 33; clock.tick(); v.currentTime = 20; stepRaf();
     expect(frames[frames.length - 1]!.input.right).toBe(true);
-    theta = 40; v.currentTime = 21; stepRaf();
+    theta = 40; clock.tick(); v.currentTime = 21; stepRaf();
     expect(frames[frames.length - 1]!.input.right).toBe(false);
     await driver.stop();
   });
@@ -195,13 +206,14 @@ describe("GameplayHandDriver", () => {
   it("enableJump maps a held pinch to jump; default does not", async () => {
     create.mockResolvedValue(lmk(() => ({ landmarks: [pointingHand(0, { pinchGap: 0.2 })] })) as never);
     const a = setup({ enableJump: true });
+    const clock = frameClock();
     await a.driver.start();
-    for (let i = 1; i <= 8; i++) { a.v.currentTime = i; stepRaf(); }
+    for (let i = 1; i <= 8; i++) { clock.tick(); a.v.currentTime = i; stepRaf(); }
     expect(a.frames[a.frames.length - 1]!.input).toEqual({ left: false, right: true, jump: true });
     await a.driver.stop();
     const b = setup();
     await b.driver.start();
-    for (let i = 1; i <= 8; i++) { b.v.currentTime = i; stepRaf(); }
+    for (let i = 1; i <= 8; i++) { clock.tick(); b.v.currentTime = i; stepRaf(); }
     expect(b.frames[b.frames.length - 1]!.input).toEqual({ left: false, right: true, jump: false });
     await b.driver.stop();
   });
@@ -322,8 +334,9 @@ describe("HandDrawingDriver", () => {
     const fist = makeHand({ ratios: [0.5, 0.5, 0.5, 0.5] });
     create.mockResolvedValue(lmk(() => ({ landmarks: [fist] })) as never);
     const { driver, v, store } = setup();
+    const clock = frameClock();
     await driver.start();
-    for (let i = 1; i <= 4; i++) { v.currentTime = i; stepRaf(); }
+    for (let i = 1; i <= 4; i++) { clock.tick(); v.currentTime = i; stepRaf(); }
     expect(store.isErasing()).toBe(true);
     await driver.stop();
     expect(store.isErasing()).toBe(false);

@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.12.8-alpha | 2026-11-12 | Perbaikan | `(0.12.8-alpha)` |
 | 0.12.7-alpha | 2026-11-12 | Perbaikan | `(0.12.7-alpha)` |
 | 0.12.6-alpha | 2026-11-12 | Dokumen | `(0.12.6-alpha)` |
 | 0.12.5-alpha | 2026-11-12 | Dokumen | `(0.12.5-alpha)` |
@@ -91,6 +92,21 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.12.8-alpha — 2026-11-12 — Perbaikan
+
+**Sumber:** Owner 2026-11-12 (screenshot perangkat asli), REVISIONS R12-02
+
+**Perubahan:**
+- Momo tidur tetap hidup saat animasi sistem dikurangi: napas, melayang, angguk 60 % (sebelumnya 35 %, tampak beku).
+- Tiga huruf Zzz tidak lagi menumpuk menjadi satu "z"; masing-masing naik pelan.
+- REVISIONS: status R12-02 dan R12-04.
+
+**Commit:** commit berjudul `(0.12.8-alpha)`
+
+**Bukti:** vitest momo-sleep-alive 7/7, momo-sleep-wake 17/17, reduced-motion 4/4; tsc bersih; belum dilihat di perangkat Owner
 
 ---
 

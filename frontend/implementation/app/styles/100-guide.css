@@ -54,9 +54,16 @@
   /* Once Momo is awake on the cover she carries the explanation and the next step. */
   .mode-cover.has-momo-awake .subtext, .mode-cover.has-momo-awake .cover-skip-block { display: none; }
 }
-/* Reduced motion: still three letters, but only a soft fade (no float), so the sleep does not look frozen. */
+/* Reduced motion (R12-02): the three letters still rise one after another, only shorter. Each letter has its own
+   spot, so they never stack into one "z" (the Owner saw a single z when all three shared the same position). */
 @keyframes momo-zzz-soft {
-  0%, 100% { opacity: 0.35; }
-  50% { opacity: 1; }
+  0% { opacity: 0; transform: translate(0, 4px); }
+  25%, 75% { opacity: 1; }
+  100% { opacity: 0; transform: translate(-6px, -18px); }
 }
-@media (prefers-reduced-motion: reduce) { .momo-guide__zzz i { animation: momo-zzz-soft 4.8s ease-in-out infinite; } }
+@media (prefers-reduced-motion: reduce) {
+  .momo-guide__zzz i { animation: momo-zzz-soft 4.8s ease-in-out infinite; }
+  .momo-guide__zzz i:nth-child(1) { left: 0; bottom: 0; animation-delay: 0s; }
+  .momo-guide__zzz i:nth-child(2) { left: 14px; bottom: 22px; animation-delay: 1.6s; }
+  .momo-guide__zzz i:nth-child(3) { left: 28px; bottom: 44px; animation-delay: 3.2s; }
+}

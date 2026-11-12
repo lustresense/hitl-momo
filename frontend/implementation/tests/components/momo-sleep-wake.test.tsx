@@ -108,12 +108,12 @@ describe("Momo asleep breathes (the Owner: the sleep must be a real animation)",
     expect(top[1]).toBeLessThan(1);
   });
 
-  it("the breath keeps going in reduced motion, at 35 % (a swell of about half a percent)", () => {
+  it("the breath keeps going in reduced motion, at 60 % (a swell of about 0.9 %, enough to see)", () => {
     const e = makeMomo(true);
     e.sleep();
     const values = sampleScaleY(e, 4400);
-    expect(Math.max(...values)).toBeGreaterThan(1.004);
-    expect(Math.max(...values)).toBeLessThan(1.006);
+    expect(Math.max(...values)).toBeGreaterThan(1.008);
+    expect(Math.max(...values)).toBeLessThan(1.01);
     expect(Math.min(...values)).toBeLessThan(1.001);
   });
 
@@ -172,13 +172,13 @@ describe("Momo asleep floats: she rises and sinks 7 px and leans 2 degrees, one 
     expect(tilt[40]).toBeCloseTo(0, 2);
   });
 
-  it("reduced motion: the float keeps going at 35 % (about 1.2 px and 0.7 degrees)", () => {
+  it("reduced motion: the float keeps going at 60 % (about 2.1 px and 1.2 degrees)", () => {
     const e = makeMomo(true);
     e.sleep();
     const { bob, tilt } = sampleFloat(e);
-    expect(Math.max(...bob)).toBeCloseTo(3.5 * 0.35, 2);
-    expect(Math.min(...bob)).toBeCloseTo(-3.5 * 0.35, 2);
-    expect(Math.max(...tilt)).toBeCloseTo(2 * 0.35, 2);
+    expect(Math.max(...bob)).toBeCloseTo(3.5 * 0.6, 2);
+    expect(Math.min(...bob)).toBeCloseTo(-3.5 * 0.6, 2);
+    expect(Math.max(...tilt)).toBeCloseTo(2 * 0.6, 2);
   });
 
   it("a new expression stops the float at once: she is back at rest", () => {
@@ -280,18 +280,20 @@ describe("MomoAvatar wakes her with the wake sequence", () => {
 
 describe("Zzz over the sleeping Momo with reduced motion", () => {
   const css = fs.readFileSync(path.join(process.cwd(), "app/styles/100-guide.css"), "utf8");
-  const reducedLine = css.split("\n").find((l) => l.includes("prefers-reduced-motion") && l.includes("momo-guide__zzz")) ?? "";
+  // The reduced-motion rules are a block from the media query to the end of the file (R12-02).
+  const mediaAt = css.search(/@media \(prefers-reduced-motion: reduce\)\s*\{\s*\.momo-guide__zzz/);
+  const reducedLine = mediaAt >= 0 ? css.slice(mediaAt) : "";
 
   it("keeps all three letters on screen (not one frozen letter)", () => {
     expect(reducedLine).not.toBe("");
     expect(reducedLine).not.toMatch(/display:\s*none/);
   });
 
-  it("the three letters fade softly over 4.8 s, without moving", () => {
+  it("the three letters rise and fade over 4.8 s in reduced motion (a short rise, not a frozen letter)", () => {
     expect(reducedLine).toMatch(/animation:\s*momo-zzz-soft\s+4\.8s/);
     const frames = css.match(/@keyframes momo-zzz-soft\s*\{[\s\S]*?\n\}/)?.[0] ?? "";
     expect(frames).not.toBe("");
-    expect(frames).not.toMatch(/transform/);
+    expect(frames).toMatch(/transform:\s*translate\([^)]*-\d/);
     expect(frames).toMatch(/opacity/);
   });
 });

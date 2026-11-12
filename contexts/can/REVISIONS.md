@@ -61,9 +61,9 @@ Aturan isi:
 | ID | Revisi (maksud Owner) | Status | Bukti / catatan |
 |---|---|---|---|
 | R12-01 | Cover jangan polos: tetap ada tulisan judul (bukan hanya pita "Sketchbook Universe Present" dan kartu kamera). | JALAN | Worker W-COVER3 |
-| R12-02 | Momo tidur di cover tidak beranimasi sama sekali di perangkat Owner (hanya diam, satu "z"). Harus benar-benar animasi tidur. | JALAN | Worker W-SLEEP. Dugaan: jalur reduced-motion/perangkat; harus tetap hidup (D-20261110-03) |
+| R12-02 | Momo tidur di cover tidak beranimasi sama sekali di perangkat Owner (hanya diam, satu "z"). Harus benar-benar animasi tidur. | SELESAI-BELUM-DICEK-BROWSER | Akar masalah (screenshot Owner cocok dengan jalur "animasi dikurangi" Windows/browser): tiga huruf Zzz menumpuk jadi satu "z", dan gerak tidur dikecilkan ke 35 % sehingga tampak beku. Sekarang tidur tetap 60 %: napas, melayang, angguk, dan tiga Zzz naik. · Versi: 0.12.8-alpha |
 | R12-03 | Perpindahan Momo antar layar tidak mulus; latar berganti sendiri sebelum transisi selesai (bug). | JALAN | Worker W-COVER3 |
-| R12-04 | Transisi "buku naik ke atas" jelek dan tidak sesuai; harus buka buku semi-3D dari bawah ke atas (M-019) yang halus. | JALAN | Worker W-BOOK |
+| R12-04 | Transisi "buku naik ke atas" jelek dan tidak sesuai; harus buka buku semi-3D dari bawah ke atas (M-019) yang halus. | SELESAI-BELUM-DICEK-BROWSER | `046484a`: engsel atas, rotateX dengan perspektif, bayangan menyapu, tebal kertas, 0,9 s; reduced motion durasi sama. · Versi: 0.12.7-alpha |
 | R12-05 | Lambaian terlalu lama: deteksi otomatis begitu melambai, tapi akurat. Boleh tambah ONNX sedikit atau OpenCV untuk membatasi tangan siapa yang dipakai: jangan deteksi muka, jangan terganggu objek/orang lain. | JALAN | Worker W-WAVE2. Rencana lead: penanda wajah pemain dengan MediaPipe Face Detector (paket yang sama, model ±0,2 MB) untuk memilih tangan milik pemain; OpenCV.js (±8 MB) dan ONNX tidak dipakai kecuali ini tidak cukup |
 | R12-06 | Cara kerja: worker Haiku effort high, lead push bila hasil sesuai; Dias mengikuti alur yang sama; aturan versi dan rilis disalin juga ke `contexts/can/` supaya tetap aman bila Dias mengubah aturan global. | SELESAI | `contexts/can/AGENTS.md` |
 

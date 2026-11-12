@@ -1,7 +1,7 @@
 {
   "name": "sketchbook-universe-author-side",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.5.0-alpha.2",
   "private_note": "CAN(USER)-owned application side. Frontend-only Next.js static export; partner classifier/backend remain behind client adapters.",
   "scripts": {
     "dev": "next dev",

@@ -14,6 +14,7 @@ import { WaveTracker, type WaveTrackerOptions } from "../../camera/wave-tracker"
 import { subscribeHandLandmarkerStatus, warmHandLandmarker } from "../../camera/landmarker-warmup";
 import { DRAWING_MODE_EVENT, HAND_STATUS_EVENT, classifyCameraError, messageFor } from "../../camera/messages";
 import type { HandInputStatus } from "../../input/types";
+import "./cover-wave-hold.css";
 
 export interface GlobalCameraProps {
   /** "cover" = centred camera card with Momo asleep on the right, "floating" = bottom-left mini PIP. */
@@ -66,9 +67,14 @@ const DIALOG_START_MS = 300;
  * 0.45 types and reads them ~2.2x faster and puts the thumb ring at ~7.8 s; every line is still shown in full.
  */
 const COVER_DIALOG_PACE = 0.45;
-/** Camera on, nobody waved: Momo mumbles at 8 s, a small button appears at 20 s. */
+/** Camera on, nobody waved: Momo mumbles at 8 s, the nudge level 2 follows at 20 s. */
 const NUDGE_MUMBLE_MS = 8000;
 const NUDGE_BUTTON_MS = 20000;
+/**
+ * NUI-FIX: a silent 1 s press on the wave ring wakes Momo in camera mode, the way the thumb ring takes a press. It
+ * is the only wake besides the wave, so a student whose hand is not seen is never stuck.
+ */
+const WAVE_RING_HOLD_MS = 1000;
 /** Momo fades 0.3 s after the book's midpoint, over 0.3 s. */
 const MOMO_FADE_AFTER_MS = 300;
 const MOMO_FADE_MS = 300;
@@ -268,6 +274,22 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
   };
   const wakeRef = useRef(wakeMomo);
   wakeRef.current = wakeMomo;
+  /** Pending silent hold on the wave ring (see WAVE_RING_HOLD_MS). */
+  const ringHoldRef = useRef<number | null>(null);
+
+  function startRingHold() {
+    if (ringHoldRef.current !== null || wokenRef.current) return;
+    ringHoldRef.current = window.setTimeout(() => {
+      ringHoldRef.current = null;
+      wakeRef.current();
+    }, WAVE_RING_HOLD_MS);
+  }
+
+  function stopRingHold() {
+    if (ringHoldRef.current === null) return;
+    window.clearTimeout(ringHoldRef.current);
+    ringHoldRef.current = null;
+  }
 
   /** The one wake-up schedule: startle, the card and Momo fly, Momo waves on landing. Cancelled on unmount. */
   useEffect(() => {
@@ -453,6 +475,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
       window.removeEventListener("pagehide", onPageHide);
       window.removeEventListener(HAND_STATUS_EVENT, onHandStatus);
       window.removeEventListener(DRAWING_MODE_EVENT, onMode);
+      stopRingHold();
       cameraTweenRef.current?.kill();
       momoTweenRef.current?.kill();
       stopStream();
@@ -660,7 +683,8 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
       : null;
   const showCoverMomo = mode === "cover" || momoPhase !== "gone";
   const showWaveRing = mode === "cover" && hasStream && !awake && inputMode === "camera";
-  const showWakeButton = mode === "cover" && !awake && !coverDone && (inputMode === "fallback" || nudge >= 2);
+  // Camera mode never shows the text button: the wave ring (below) takes the silent hold instead.
+  const showWakeButton = mode === "cover" && !awake && !coverDone && inputMode === "fallback";
 
   return (
     <div
@@ -714,7 +738,35 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
             </div>
             <div className="rec-dot">REC</div>
             {showWaveRing && (
-              <div className="cover-wave-ring" data-testid="cover-wave-hint" data-progress={Math.round(waveProgress * 100)} aria-hidden="true">
+              <div
+                className="cover-wave-ring"
+                data-testid="cover-wave-hint"
+                data-progress={Math.round(waveProgress * 100)}
+                role="progressbar"
+                aria-label="Lambaian tangan"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(waveProgress * 100)}
+                tabIndex={0}
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  startRingHold();
+                }}
+                onPointerUp={stopRingHold}
+                onPointerLeave={stopRingHold}
+                onPointerCancel={stopRingHold}
+                onBlur={stopRingHold}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    startRingHold();
+                  }
+                }}
+                onKeyUp={(e) => {
+                  if (e.key === "Enter" || e.key === " ") stopRingHold();
+                }}
+                onContextMenu={(e) => e.preventDefault()}
+              >
                 <svg className="cover-wave-ring__svg" viewBox="0 0 72 72">
                   <circle className="cover-wave-ring__track" cx="36" cy="36" r="30" />
                   {/* The offset is a style, so the CSS transition smooths each progress step. */}

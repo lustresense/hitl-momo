@@ -118,7 +118,7 @@ afterEach(() => {
 });
 
 describe("GlobalCamera cover choreography (R3)", () => {
-  it("camera on, no wave: Momo mumbles at 8 s, the small wake button appears at 20 s", async () => {
+  it("camera on, no wave: Momo mumbles at 8 s, and no button appears at 20 s (camera mode has no text button)", async () => {
     render(<GlobalCamera mode="cover" modelUrl="/m" />);
     await cameraOn();
     act(() => { vi.advanceTimersByTime(7900); });
@@ -127,7 +127,37 @@ describe("GlobalCamera cover choreography (R3)", () => {
     expect(momo.props?.step?.lines).toEqual(["Zzz... coba sapa aku, dong."]);
     expect(screen.queryByTestId("cover-wake")).toBeNull();
     act(() => { vi.advanceTimersByTime(12000); });
-    expect(screen.getByTestId("cover-wake")).toBeTruthy();
+    expect(screen.queryByTestId("cover-wake")).toBeNull();
+    expect(momo.props?.sleeping).toBe(true);
+  });
+
+  it("camera mode: a silent 1 s press on the wave ring wakes Momo; a short press does not", async () => {
+    render(<GlobalCamera mode="cover" modelUrl="/m" />);
+    await cameraOn();
+    const ring = screen.getByTestId("cover-wave-hint");
+    fireEvent.pointerDown(ring);
+    act(() => { vi.advanceTimersByTime(900); });
+    fireEvent.pointerUp(ring);
+    act(() => { vi.advanceTimersByTime(500); });
+    expect(momo.props?.sleeping).toBe(true);
+    fireEvent.pointerDown(ring);
+    act(() => { vi.advanceTimersByTime(1000); });
+    expect(momo.props?.sleeping).toBe(false);
+    expect(screen.queryByTestId("cover-wake")).toBeNull();
+  });
+
+  it("camera mode: leaving the ring cancels the hold, and Enter on the focused ring holds like a press", async () => {
+    render(<GlobalCamera mode="cover" modelUrl="/m" />);
+    await cameraOn();
+    const ring = screen.getByTestId("cover-wave-hint");
+    fireEvent.pointerDown(ring);
+    act(() => { vi.advanceTimersByTime(600); });
+    fireEvent.pointerLeave(ring);
+    act(() => { vi.advanceTimersByTime(1000); });
+    expect(momo.props?.sleeping).toBe(true);
+    fireEvent.keyDown(ring, { key: "Enter" });
+    act(() => { vi.advanceTimersByTime(1000); });
+    expect(momo.props?.sleeping).toBe(false);
   });
 
   it("the wave ring is filled by the tracker's progress, and shows the value it was given", async () => {

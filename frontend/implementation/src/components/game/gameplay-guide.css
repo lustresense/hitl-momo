@@ -144,12 +144,6 @@
   transform: translateY(-2px);
 }
 
-/* Camera mode: the hand moves Thinman, so a direction button only shows it and takes no press. */
-#screen-gameplay .stage-floating-controls .gameplay-controls__row .game-input-button.is-indicator {
-  pointer-events: none;
-  cursor: default;
-}
-
 /* Extra class so this beats the "...stage-floating-controls button" minimum (44px) in game-stage.module.css. */
 #screen-gameplay .stage-floating-controls .gameplay-controls__help.nb-btn {
   min-width: 48px;

@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   BUDGET_SHARE,
   InferenceScheduler,
+  MAX_BUSY_SHARE,
   MAX_INTERVAL_MS,
   getInferenceStats,
   pollDetection,
@@ -131,12 +132,57 @@ describe("InferenceScheduler: adaptive budget", () => {
     expect(stats.effectiveHz).toBeLessThanOrEqual(8);
   });
 
-  it("does not add a wait beyond the floor when one detection is slower than the floor", () => {
+  it("the 8 Hz floor never pushes busy time above 50%: a 300 ms detection waits 600 ms before the next start", () => {
     const { clock, now } = makeClock();
     const s = new InferenceScheduler({ now });
+    const start = clock.t;
     const detect = simulate(s, clock, { costMs: 300, durationMs: 3000 });
-    // 300 ms per detection is the real limit: about 3 a second, with no artificial extra gap.
-    expect(detect.mock.calls.length).toBeGreaterThanOrEqual(8);
+    const busy = detect.mock.calls.length * 300;
+    expect(s.minIntervalMs()).toBe(600);
+    expect(busy / (clock.t - start)).toBeLessThanOrEqual(MAX_BUSY_SHARE + 0.01);
+  });
+
+  it("a 1000 ms detection keeps busy at or below 50% of wall time, and the timers in between still run", () => {
+    const { clock, now } = makeClock();
+    const s = new InferenceScheduler({ now });
+    const start = clock.t;
+    // A 100 ms UI timer, checked on every loop step, stands in for the rest of the main thread.
+    let nextTimerAt = clock.t + 100;
+    let timerFires = 0;
+    const video = fakeVideo();
+    const detect = vi.fn(() => {
+      clock.t += 1000;
+      return { landmarks: [] as number[][] };
+    });
+    const end = clock.t + 10000;
+    while (clock.t < end) {
+      clock.t += 16;
+      while (clock.t >= nextTimerAt) {
+        timerFires++;
+        nextTimerAt += 100;
+      }
+      video.currentTime = clock.t / 1000;
+      s.poll({}, video, detect);
+    }
+    const elapsed = clock.t - start;
+    const busy = detect.mock.calls.length * 1000;
+
+    expect(busy / elapsed).toBeLessThanOrEqual(MAX_BUSY_SHARE + 0.02);
+    expect(busy / elapsed).toBeGreaterThan(0.4);
+    expect(timerFires).toBeGreaterThanOrEqual(30);
+  });
+
+  it("a single slow detection widens the gap at once, before the moving average catches up", () => {
+    const { clock, now } = makeClock();
+    const s = new InferenceScheduler({ now });
+    simulate(s, clock, { costMs: 5, durationMs: 500 });
+    clock.t += 1000; // the budget gap of the fast stretch has passed
+    const video = fakeVideo(100);
+    s.poll({}, video, () => {
+      clock.t += 400;
+      return null;
+    });
+    expect(s.minIntervalMs()).toBeGreaterThanOrEqual(800);
   });
 
   it("adapts when the cost changes: a slow stretch lowers the rate to the floor", () => {

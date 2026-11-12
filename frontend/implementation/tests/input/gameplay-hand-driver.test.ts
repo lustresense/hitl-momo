@@ -168,7 +168,10 @@ describe("GameplayHandDriver lifecycle regression", () => {
       tracked: false,
       cursor: null,
       pinched: false,
+      angle: null,
       input: { left: false, right: false, jump: false },
+      pose: "none",
+      roll: null,
     });
     // Resources must be cleaned up (landmarker closed)
     expect(mockLandmarker.close).toHaveBeenCalled();
@@ -215,7 +218,10 @@ describe("GameplayHandDriver lifecycle regression", () => {
       tracked: false,
       cursor: null,
       pinched: false,
+      angle: null,
       input: { left: false, right: false, jump: false },
+      pose: "none",
+      roll: null,
     });
   });
 });

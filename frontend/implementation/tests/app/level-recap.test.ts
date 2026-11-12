@@ -19,3 +19,27 @@ describe("R9 level recap for the closing", () => {
     expect(r!.strokes).toHaveLength(1);
   });
 });
+
+describe("recap keeps only recorded numbers", () => {
+  it("copies the first guess confidence from the prediction", () => {
+    const r = recapFromFlow(LEVELS[0]!, {
+      drawingInput: null,
+      prediction,
+      decision: { type: "accept", finalLabel: "papan", sourceRank: 1 } as never,
+      behavior: "solid",
+    });
+    expect(r?.firstGuessConfidence).toBe(0.5);
+    expect(r).not.toHaveProperty("redrawCount");
+  });
+
+  it("copies the redraw count when the flow has one", () => {
+    const r = recapFromFlow(LEVELS[0]!, {
+      drawingInput: null,
+      prediction,
+      decision: { type: "accept", finalLabel: "papan", sourceRank: 1 } as never,
+      behavior: "solid",
+      redrawCount: 2,
+    });
+    expect(r?.redrawCount).toBe(2);
+  });
+});

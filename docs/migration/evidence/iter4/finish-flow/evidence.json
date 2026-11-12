@@ -1,0 +1,108 @@
+{
+  "run": "2026-11-09T17-20-02-884Z",
+  "result": "PASS",
+  "failure": null,
+  "git": {
+    "head": "9ba76d21dfaf9f0f57e6a331100bb3980d65b1c8",
+    "branch": "claude-monorepo",
+    "dirty": true
+  },
+  "checks": [
+    {
+      "name": "before any ink there is no finish thumb",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "name": "with ink the finish thumb appears (btn-finish-drawing)",
+      "ok": true
+    },
+    {
+      "name": "this run is fallback (mouse) mode, as the sandbox has no camera",
+      "ok": true,
+      "detail": "fallback"
+    },
+    {
+      "name": "nothing covers the finish thumb at its centre",
+      "ok": true,
+      "detail": {}
+    },
+    {
+      "name": "still for 5 s: Momo does NOT guess (no 'Tebakan Momo')",
+      "ok": true
+    },
+    {
+      "name": "still for 5 s: no Top-3 candidate buttons",
+      "ok": true
+    },
+    {
+      "name": "a 700 ms press on the finish thumb does NOT trigger a guess",
+      "ok": true
+    },
+    {
+      "name": "after holding the finish thumb Momo's guess appears ('Tebakan Momo')",
+      "ok": true
+    },
+    {
+      "name": "Top-3 shows three candidate buttons",
+      "ok": true,
+      "detail": 3
+    },
+    {
+      "name": "the hold took at least 2 s (not a tap)",
+      "ok": true,
+      "detail": 2895
+    },
+    {
+      "name": "Terima offers the object to the world ('Masukkan ke dunia')",
+      "ok": true
+    },
+    {
+      "name": "no console/page errors",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "steps": [
+    {
+      "t": "2026-11-09T17:20:03.170Z",
+      "m": "run-start {\"head\":\"9ba76d21dfaf9f0f57e6a331100bb3980d65b1c8\",\"branch\":\"claude-monorepo\",\"dirty\":true}"
+    },
+    {
+      "t": "2026-11-09T17:20:03.506Z",
+      "m": "cover: camera switch turned on"
+    },
+    {
+      "t": "2026-11-09T17:20:04.382Z",
+      "m": "cover: Momo woken (button)"
+    },
+    {
+      "t": "2026-11-09T17:20:24.980Z",
+      "m": "cover: book opened to the ruler"
+    },
+    {
+      "t": "2026-11-09T17:20:28.806Z",
+      "m": "ruler: number 20 confirmed with thumb"
+    },
+    {
+      "t": "2026-11-09T17:20:28.858Z",
+      "m": "onboarding: tutorial skipped via visible button"
+    },
+    {
+      "t": "2026-11-09T17:20:32.707Z",
+      "m": "L1: story intro visible"
+    },
+    {
+      "t": "2026-11-09T17:20:33.545Z",
+      "m": "L1: story intro skipped"
+    },
+    {
+      "t": "2026-11-09T17:20:43.870Z",
+      "m": "finish thumb held: {\"mode\":\"fallback\",\"holdMs\":2000,\"attempt\":1} in 2895 ms"
+    },
+    {
+      "t": "2026-11-09T17:20:44.909Z",
+      "m": "picked: Terima tangga, peringkat 1, keyakinan 86 persen"
+    }
+  ]
+}

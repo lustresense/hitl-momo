@@ -4,7 +4,7 @@ import { DrawingScreen } from "@/src/components/drawing/DrawingScreen";
 import { LEVELS } from "@/src/domain/levels";
 import { getMissionConfigForLevel } from "@/src/domain/mission-config";
 
-vi.mock("@/src/input", () => ({ DrawingSurface: class { resizeForDpr() {} dispose() {} setMode() { return Promise.resolve(); } clear() {} undo() {} redo() {} } }));
+vi.mock("@/src/input", () => ({ DrawingSurface: class { store = { endStroke() {}, eraseAt: () => false, hasActiveStroke: () => false, lastActivePoint: () => null }; resizeForDpr() {} dispose() {} setMode() { return Promise.resolve(); } clear() {} undo() {} redo() {} } }));
 afterEach(cleanup);
 
 describe("mission briefing and drawing integration", () => {

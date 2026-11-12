@@ -1,17 +1,35 @@
 /**
- * Keeps the shell's screen state and the browser URL in step: `navigateTo` for in-app navigation
- * and a popstate/initial-load sync that resolves the current path (guarding locked levels).
+ * Keeps the shell's screen state and the browser URL in step: `navigateTo` for in-app navigation, a popstate and
+ * initial-load sync that resolves the current path (guarding locked levels), and the level URL that follows the
+ * running level: /levelN on the ground, /canvasN in the sky (pushState, so the page never reloads).
  */
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { LEVELS } from "@/src/domain/levels";
 import { isLevelUnlocked } from "../level-progress";
-import { resolveAppRoute } from "../route-guard";
+import { expectedLevelPath, levelPath, resolveAppRoute } from "../route-guard";
+import type { AppPhase } from "../state-machine";
 import type { LevelSession } from "./useLevelSession";
 import type { RouteState } from "./useRouteState";
 
-export function useRouteSync(route: RouteState, session: LevelSession) {
+/** What the level URL follows: the running level's stage, its phase, and whether its story intro is still on. */
+export interface LevelUrlView {
+  stage: number | null;
+  phase: AppPhase | null;
+  introPending: boolean;
+}
+
+/** The level URL for the current state, or null when no level is running. */
+function expectedPathFor(view: LevelUrlView): string | null {
+  if (view.stage === null || view.phase === null || view.phase === "level-entry") return null;
+  return expectedLevelPath(view.stage, view.phase, view.introPending);
+}
+
+export function useRouteSync(route: RouteState, session: LevelSession, view: LevelUrlView) {
   const { setOnboarding, setRouteNotice, routeGuardActive, redirectToLockedNotice } = route;
   const { controller, creationsRef, enterLevel } = session;
+  // Browser Back is handled by a listener that reads the latest view, so it corrects the URL against current state.
+  const viewRef = useRef(view);
+  viewRef.current = view;
 
   const navigateTo = useCallback(
     (path: string) => {
@@ -27,34 +45,44 @@ export function useRouteSync(route: RouteState, session: LevelSession) {
         setOnboarding("tutorial");
       } else if (path.includes("/levels")) {
         setOnboarding("levels");
-      } else if (path.includes("/canvas")) {
-        setOnboarding("levels");
-        if (LEVELS[0]) enterLevel(LEVELS[0]);
       } else {
         setOnboarding("camera");
       }
     },
-    [enterLevel, setOnboarding, setRouteNotice],
+    [setOnboarding, setRouteNotice],
   );
+
+  // Each change of the running level's URL is one history entry: the rise to the sky and the fall back to the ground.
+  const expectedPath = expectedPathFor(view);
+  useEffect(() => {
+    if (expectedPath && typeof window !== "undefined" && window.location.pathname !== expectedPath) {
+      window.history.pushState(null, "", expectedPath);
+    }
+  }, [expectedPath]);
 
   useEffect(() => {
     function syncRoute() {
       if (typeof window === "undefined") return;
       const resolved = resolveAppRoute(window.location.pathname, isLevelUnlocked);
-      if (resolved.kind === "level") {
+      if (resolved.kind === "level" || resolved.kind === "canvas") {
         setRouteNotice(null);
         setOnboarding("levels");
         const currentSnapshot = controller?.getSnapshot();
         if (currentSnapshot?.levelId !== resolved.level.levelId || currentSnapshot.phase === "level-entry") {
-          enterLevel(resolved.level);
+          // A direct load of /canvasN is past the story: open the sky without replaying the intro.
+          enterLevel(resolved.level, { skipIntro: resolved.kind === "canvas" });
         }
+        // Back/forward landed on the other half of this level (/levelN while in the sky, or the reverse): keep the
+        // state and put the URL back where the state is, without a new history entry.
+        const expected = expectedPathFor(viewRef.current);
+        if (expected && window.location.pathname !== expected) window.history.replaceState(null, "", expected);
       } else if (resolved.kind === "levels") {
         // A running prediction cannot be abandoned (FlowController invariant). Browser Back used to throw an
         // uncaught InvalidTransitionError here and leave the URL on /levels with the UI stuck in "predicting".
         const running = controller?.getSnapshot();
         if (running?.phase === "predicting") {
           const active = LEVELS.find((l) => l.levelId === running.levelId);
-          if (active) window.history.pushState(null, "", `/level${active.stage}`);
+          if (active) window.history.pushState(null, "", levelPath(active.stage));
           return;
         }
         if (resolved.notice) {
@@ -74,10 +102,6 @@ export function useRouteSync(route: RouteState, session: LevelSession) {
         setOnboarding("number");
       } else if (resolved.kind === "tutorial") {
         setOnboarding("tutorial");
-      } else if (resolved.kind === "canvas") {
-        setRouteNotice(null);
-        setOnboarding("levels");
-        if (!controller?.getSnapshot().levelId && LEVELS[0]) enterLevel(LEVELS[0]);
       } else {
         setOnboarding("camera");
         if (window.location.pathname === "/" || window.location.pathname === "") {

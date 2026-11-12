@@ -4,7 +4,17 @@ Base ancestry: `54ebec1830760fe0b692d7a40b25ceb041bfdef9` (descendant of `840973
 
 Diperbarui: 2026-11-05. Satu halaman: keadaan paling baru. Keputusan: `DECISIONS.md` (D-20261105-01..24; riwayat GPT di Lampiran). Aturan kerja/TOV: `SOUL.md`. Instruksi Owner satu per satu: `project/OWNER_MANDATES.md`. Perubahan teknis per versi: `implementation/CHANGELOG.md` (0.0.13). Laporan progres yang bisa dibaca Owner dan Ujang: `implementation/docs/execution/PROGRESS_REPORT_2026-11-05.md`.
 
-## Posisi
+## 2026-11-11 — keadaan terbaru (monorepo `claude-monorepo`)
+- **Daftar tugas revisi Owner dan statusnya: `REVISIONS.md`.** Mulai dari sana kalau melanjutkan pekerjaan di sesi/agent lain.
+- Keputusan D-20261110-01..10 disahkan Owner 2026-11-11; D-20261111-01 (data dikirim saat cincin keputusan Top-3).
+- Lokasi game sekarang: `frontend/implementation/` di monorepo (branch `claude-monorepo`). Branch `can` tidak diubah.
+- Instruksi Owner 10 Nov (big prompt + REVISI-NUI) dikerjakan oleh tim AI. Audit, storyboard, rencana, rekonsiliasi dan draft keputusan: `contexts/can/docs/audit-2026-11-10/`. `DECISIONS.md` belum diubah; draft `D-20261110-01..10` menunggu `SETUJUI`.
+- Hanya tiga level (Level 4 dari 2026-11-09 dihapus).
+- Bukti: lihat `RESULTS-2026-11-11.md` di folder audit (unit test, E2E browser mode mouse, screenshot). Kamera fisik BELUM diuji.
+- Pemblokir dari partner: model Dias mengenali 20 kelas umum yang tidak cocok dengan benda level; dengan model asli semua keputusan menjadi "tidak dikenali" di gameplay (`contracts/LABEL_MAP_PROPOSAL.md`).
+- Menunggu Owner: `SETUJUI` draft keputusan; nama Thinman/Tinman; keputusan label model bersama Dias; uji dengan kamera.
+
+## Posisi (2026-11-05, arsip)
 - Branch kerja: `can` (sudah memuat semua kerja sesi sebelumnya; revisi 0.0.14 ditambahkan di atasnya).
 - Prototype playable end-to-end dengan prediksi **MOCK**: Onboarding -> L1 -> L2 -> L3 menang dengan mouse/keyboard asli; gagal/retry/Redraw/geser terbukti.
 - Commit terakhir yang diuji penuh: `383c3bc` (548/548 unit test, tsc, lint, build, E2E journey + recovery 16/16 + hand-control 6/6 + MediaPipe init dengan kamera palsu). Bukti: `implementation/docs/execution/evidence/final-383c3bc/`. Sesudahnya hanya dokumen dan struktur folder yang berubah.

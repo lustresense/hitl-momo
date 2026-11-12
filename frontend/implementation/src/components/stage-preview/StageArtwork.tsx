@@ -141,7 +141,7 @@ function SceneLayers({ scene, prefix, gameplay }: { scene: SceneIndex; prefix: s
           <rect x="334" y="130" width="94" height="10" fill="#7c5a33" />
           <path d="M330 130L378 62l54 68z" fill="#c9bfa5" />
           <path d="M378 62l54 68h-30z" fill="#aaa086" stroke="none" />
-          <rect x="82" y="262" width="58" height="9" fill="#a9733f" />
+          <rect x="82" y="262" width="68" height="9" fill="#a9733f" />
           <rect x="258" y="190" width="52" height="9" fill="#a9733f" />
           <rect x="300" y="86" width="56" height="9" fill="#a9733f" />
           <path d="M406 148l10 4l-4 40l-14-4z" fill="#f3ead2" strokeWidth="1.5" />

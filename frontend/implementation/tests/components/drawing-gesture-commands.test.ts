@@ -28,3 +28,44 @@ describe("R12 gesture commands", () => {
     expect(c.isErasing()).toBe(false);
   });
 });
+
+describe("redo by open palm (Owner: telapak terbuka)", () => {
+  it("an open palm held fires one redo, the same as the split palm", () => {
+    expect(run([["open-palm", 1500]])).toEqual(["redo"]);
+  });
+  it("an open palm shown for less than the hold does not redo", () => {
+    expect(run([["open-palm", GESTURE_HOLD_MS.redo - 100], ["none", 100]])).toEqual([]);
+  });
+  it("switching from the open palm to the split palm starts a new hold, so the redo fires once", () => {
+    expect(run([["open-palm", 200], ["split-palm", 200]])).toEqual([]);
+    expect(run([["open-palm", 1500], ["split-palm", 1500]])).toEqual(["redo", "redo"]);
+  });
+});
+
+describe("R12 hold and pause on a fake clock", () => {
+  it("fires on the 300 ms mark, not before", () => {
+    const c = createGestureCommander();
+    expect(c.feed("two-fingers", 0)).toBeNull();
+    expect(c.feed("two-fingers", 299)).toBeNull();
+    expect(c.feed("two-fingers", 300)).toBe("undo");
+  });
+
+  it("after firing, the same pose held on fires nothing until it changes", () => {
+    const c = createGestureCommander();
+    c.feed("two-fingers", 0);
+    expect(c.feed("two-fingers", 300)).toBe("undo");
+    expect(c.feed("two-fingers", 1500)).toBeNull();
+    c.feed("none", 1600);
+    c.feed("two-fingers", 1700);
+    expect(c.feed("two-fingers", 2000)).toBe("undo");
+  });
+
+  it("a split palm shown right after an undo needs its own full 300 ms hold", () => {
+    const c = createGestureCommander();
+    c.feed("two-fingers", 0);
+    expect(c.feed("two-fingers", 300)).toBe("undo");
+    expect(c.feed("split-palm", 310)).toBeNull();
+    expect(c.feed("split-palm", 609)).toBeNull();
+    expect(c.feed("split-palm", 610)).toBe("redo");
+  });
+});

@@ -12,8 +12,17 @@
 .momo-guide--cover .momo-chat { flex-direction: column-reverse; align-items: flex-end; gap: 4px; }
 .momo-guide--cover .momo-chat__col { padding-bottom: 0; align-items: flex-end; }
 .momo-guide--cover .momo-chat__thread { max-width: min(300px, calc(100vw - 48px)); align-items: flex-end; }
+/* Centre stage (R3): Momo flies to the middle of the cover; her words sit beside her, never over the camera. */
+.momo-guide--cover.is-centered { inset: 0; margin: auto; width: fit-content; height: fit-content; }
+.momo-guide--cover.is-centered .momo-chat { flex-direction: row; align-items: center; gap: 14px; }
+.momo-guide--cover.is-centered .momo-chat__thread { max-width: min(300px, calc(100vw - 420px)); }
+/* Momo's last word fades out after the book has opened (R3). */
+.momo-guide--cover.is-leaving { opacity: 0; transition: opacity 0.3s ease; }
 /* The level list has the demo tape in the bottom-right corner: Momo stands above it. */
 #app:has(.bm-page) .momo-guide { bottom: 62px; }
+/* The ending (Pusat Halaman) has its own Momo. The level list's guide stays mounted underneath and would sit
+   over the recap cards, so it is hidden while the ending is open (desktop and phone alike). */
+#app:has(.center-page) .momo-guide { visibility: hidden; }
 
 .momo-guide__zzz { position: absolute; right: calc(var(--mg-h, 150px) * 0.42); bottom: calc(var(--mg-h, 150px) * 0.74); width: 60px; height: 70px; pointer-events: none; }
 .momo-guide__zzz i {
@@ -39,8 +48,15 @@
   .momo-guide .momo-chat__bubble { font-size: 13px; padding: 8px 11px; }
   .momo-guide--cover { right: 8px; }
   .momo-guide--cover .momo-chat__thread { max-width: calc(100vw - 32px); }
+  .momo-guide--cover.is-centered .momo-chat { flex-direction: column-reverse; align-items: center; }
+  .momo-guide--cover.is-centered .momo-chat__thread { max-width: calc(100vw - 32px); }
   #app:has(.bm-page) .momo-guide { bottom: 44px; }
   /* Once Momo is awake on the cover she carries the explanation and the next step. */
   .mode-cover.has-momo-awake .subtext, .mode-cover.has-momo-awake .cover-skip-block { display: none; }
 }
-@media (prefers-reduced-motion: reduce) { .momo-guide__zzz i { animation: none; opacity: 1; } .momo-guide__zzz i:nth-child(n+2) { display: none; } }
+/* Reduced motion: still three letters, but only a soft fade (no float), so the sleep does not look frozen. */
+@keyframes momo-zzz-soft {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) { .momo-guide__zzz i { animation: momo-zzz-soft 4.8s ease-in-out infinite; } }

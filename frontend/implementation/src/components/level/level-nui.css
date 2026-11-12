@@ -1,0 +1,46 @@
+/* Level NUI: the finger ring under a level ribbon, the picture cards and the skip of the level intro.
+   Colours are the NUI ring tokens of app/styles/96-kit-base.css and 102-gesture.css (the same as DwellButton). */
+
+/* Finger ring: sits under its ribbon (a sibling, not inside the ribbon button). The GestureRing itself owns its
+   56 px dial, grey lock and fill (GestureRing.css). Only its place in the column is set here. */
+.bm-pick {
+  display: flex;
+  justify-content: center;
+  margin-top: 14px;
+  width: 100%;
+}
+
+/* Picture cards: dwell buttons laid out as the card, the icon over the name, 56 px tall at least. */
+.level-intro .intro-cards .intro-card.dwell-btn {
+  flex: 0 0 auto;
+  width: auto;
+  min-width: 84px;
+  min-height: 56px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 10px;
+  text-align: center;
+  font-size: 13px;
+}
+/* The picked card: the kit's leaf tint with ink text. The pressed face of DwellButton would give paper text here. */
+.level-intro .intro-card.dwell-btn.is-picked {
+  background: var(--nb-leaf-soft, #eff3db);
+  color: var(--nb-ink, #111111);
+  transform: translateY(-2px);
+}
+
+/* Skip: a 60 px square in the corner. The kit's 44 px and 0.7 opacity were mouse-sized and too faint to read. */
+.level-intro .intro-skip.dwell-btn {
+  position: absolute;
+  z-index: 6;
+  top: 16px;
+  right: 18px;
+  width: 60px;
+  height: 60px;
+  min-width: 60px;
+  min-height: 60px;
+  padding: 0;
+  opacity: 1;
+}

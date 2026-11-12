@@ -1,0 +1,4 @@
+/* FailOverlay: the three finger rings under Momo's kind words. Replaces the dwell rules in ui/nui-actions.css
+   for this screen. Two classes so the rings keep their own width against the ring's base. */
+.world-fail__actions.nui-fail-actions { gap: 12px; }
+.gesture-ring.nui-fail-action { width: auto; }

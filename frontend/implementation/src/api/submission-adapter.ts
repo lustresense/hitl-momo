@@ -52,6 +52,10 @@ export class SubmissionAdapter {
     const ctx = this.classContext ? this.classContext() : null;
     if (!ctx) return "";
 
+    // Research data: only real model output. Demo (mock) and unlabelled predictions are never sent.
+    // The contract has no provenance field yet (contracts/LABEL_MAP_PROPOSAL.md, section 3).
+    if (snapshot.prediction?.provenance?.source !== "model") return "";
+
     const c = snapshot.prediction?.candidates;
     if (!c || c.length < 3) return "";
 

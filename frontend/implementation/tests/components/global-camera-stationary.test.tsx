@@ -25,6 +25,7 @@ vi.mock("@/camera/shared-stream", () => ({ setSharedStream: vi.fn() }));
 
 afterEach(cleanup);
 
+// R3: the only cover -> PIP flight is the wave-triggered card morph (see global-camera-wave-flow.test.tsx); a plain switch never flies.
 describe("GlobalCamera stationary (no FLIP when entering or staying in floating mode)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -61,7 +62,7 @@ describe("GlobalCamera stationary (no FLIP when entering or staying in floating 
     });
   });
 
-  it("does NOT call fromTo when entering floating from cover, and kills tweens + clears props", () => {
+  it("does NOT call fromTo when entering floating from cover without a wave, and kills tweens + clears props", () => {
     const { rerender } = render(
       <GlobalCamera mode="cover" modelUrl="/mock-model.task" onSkip={vi.fn()} onWave={vi.fn()} />
     );

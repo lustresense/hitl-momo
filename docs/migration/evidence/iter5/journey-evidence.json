@@ -1,0 +1,706 @@
+{
+  "run": "2026-11-11T22-15-39-386Z",
+  "result": "PASS",
+  "failure": null,
+  "git": {
+    "head": "43e4cc3cd885af81cba2e93824fe81f8feab5ccb",
+    "branch": "claude-monorepo",
+    "dirty": true
+  },
+  "levels": [
+    1,
+    2,
+    3
+  ],
+  "prediction": "MOCK",
+  "input": "trusted Playwright mouse+keyboard; read-only telemetry",
+  "gameplayAttempts": [
+    {
+      "stage": 1,
+      "attempt": 1,
+      "outcome": "success",
+      "overlay": "Selamat, berhasil!",
+      "reason": null,
+      "ms": 21703
+    },
+    {
+      "stage": 2,
+      "attempt": 1,
+      "outcome": "success",
+      "overlay": "Selamat, berhasil!",
+      "reason": null,
+      "ms": 22542
+    },
+    {
+      "stage": 3,
+      "attempt": 1,
+      "outcome": "fail",
+      "overlay": "Belum berhasil",
+      "reason": "Jatuh ke lantai duri!",
+      "ms": 2186
+    },
+    {
+      "stage": 3,
+      "attempt": 2,
+      "outcome": "success",
+      "overlay": "Selamat, berhasil!",
+      "reason": null,
+      "ms": 21174
+    }
+  ],
+  "productionBypassHookCheck": [
+    {
+      "stage": 1,
+      "cycle": 1,
+      "skbGlobals": []
+    },
+    {
+      "stage": 1,
+      "cycle": 2,
+      "skbGlobals": []
+    },
+    {
+      "stage": 2,
+      "cycle": 1,
+      "skbGlobals": []
+    },
+    {
+      "stage": 2,
+      "cycle": 2,
+      "skbGlobals": []
+    },
+    {
+      "stage": 3,
+      "cycle": 1,
+      "skbGlobals": []
+    },
+    {
+      "stage": 3,
+      "cycle": 2,
+      "skbGlobals": []
+    }
+  ],
+  "consoleAndPageErrors": [],
+  "steps": [
+    {
+      "t": "2026-11-11T22:15:39.686Z",
+      "msg": "run-start",
+      "detail": {
+        "run": "2026-11-11T22-15-39-386Z",
+        "git": {
+          "head": "9b80137f19dc59bc1b476bf2e1d954c5d155c38a",
+          "branch": "claude-monorepo",
+          "dirty": true
+        },
+        "node": "v22.23.4",
+        "prediction": "MOCK (fixture provider)",
+        "input": "trusted mouse+keyboard only"
+      }
+    },
+    {
+      "t": "2026-11-11T22:15:40.260Z",
+      "msg": "cover: camera switch turned on"
+    },
+    {
+      "t": "2026-11-11T22:15:41.133Z",
+      "msg": "cover: Momo woken (button)"
+    },
+    {
+      "t": "2026-11-11T22:16:03.551Z",
+      "msg": "cover: thumb held, the book opens"
+    },
+    {
+      "t": "2026-11-11T22:16:03.857Z",
+      "msg": "cover: book opened to the ruler"
+    },
+    {
+      "t": "2026-11-11T22:16:08.570Z",
+      "msg": "ruler: unlocked (Momo has moved to the corner)"
+    },
+    {
+      "t": "2026-11-11T22:16:15.636Z",
+      "msg": "ruler: number 3 confirmed with thumb"
+    },
+    {
+      "t": "2026-11-11T22:16:24.072Z",
+      "msg": "tutorial: walk try 1 not at the flag yet"
+    },
+    {
+      "t": "2026-11-11T22:16:24.515Z",
+      "msg": "tutorial: Thinman walked to the flag"
+    },
+    {
+      "t": "2026-11-11T22:16:36.630Z",
+      "msg": "tutorial: card 1 thumb (1 s) confirmed"
+    },
+    {
+      "t": "2026-11-11T22:16:57.098Z",
+      "msg": "tutorial: card 2 thumb (1 s) confirmed"
+    },
+    {
+      "t": "2026-11-11T22:17:04.614Z",
+      "msg": "tutorial: card 3 tools draw, erase, undo, redo tried"
+    },
+    {
+      "t": "2026-11-11T22:17:18.597Z",
+      "msg": "tutorial: card 3 thumb (2 s) confirmed, Mulai Level 1"
+    },
+    {
+      "t": "2026-11-11T22:17:21.399Z",
+      "msg": "=== LEVEL 1 ==="
+    },
+    {
+      "t": "2026-11-11T22:17:25.297Z",
+      "msg": "L1: story intro visible"
+    },
+    {
+      "t": "2026-11-11T22:17:58.328Z",
+      "msg": "L1: intro thumb (1 s) held, Momo rises through the clouds"
+    },
+    {
+      "t": "2026-11-11T22:18:17.003Z",
+      "msg": "L1: canvas focus phase"
+    },
+    {
+      "t": "2026-11-11T22:18:19.768Z",
+      "msg": "L1: \"Mulai Menggambar\" held, canvas open"
+    },
+    {
+      "t": "2026-11-11T22:18:19.771Z",
+      "msg": "L1: canvas route",
+      "detail": "/canvas1"
+    },
+    {
+      "t": "2026-11-11T22:18:25.890Z",
+      "msg": "L1c1: Top-3 (MOCK provider): [\"batu\",\"tangga\",\"balok\"]"
+    },
+    {
+      "t": "2026-11-11T22:18:28.032Z",
+      "msg": "L1c1: decision: {\"type\":\"Correct\",\"rank\":3,\"label\":\"balok\"}"
+    },
+    {
+      "t": "2026-11-11T22:18:38.988Z",
+      "msg": "L1c1: placement via mouse drag",
+      "detail": {
+        "wantedTopLeft": [
+          262,
+          262
+        ],
+        "got": [
+          262,
+          262
+        ]
+      }
+    },
+    {
+      "t": "2026-11-11T22:18:47.506Z",
+      "msg": "L1c1 test-run step 1",
+      "detail": {
+        "launchWanted": 176,
+        "launchActual": 173.6,
+        "landed": {
+          "x": 256.8,
+          "y": 222,
+          "grounded": true
+        },
+        "outcome": null
+      }
+    },
+    {
+      "t": "2026-11-11T22:18:47.585Z",
+      "msg": "L1c1: test-run result",
+      "detail": {
+        "x": 256.8,
+        "y": 222,
+        "outcome": null
+      }
+    },
+    {
+      "t": "2026-11-11T22:18:48.588Z",
+      "msg": "L1: 'Ciptakan objek lagi' (cycle 2)"
+    },
+    {
+      "t": "2026-11-11T22:18:51.505Z",
+      "msg": "L1c2: Top-3 (MOCK provider): [\"balok\",\"papan\",\"batu\"]"
+    },
+    {
+      "t": "2026-11-11T22:18:53.561Z",
+      "msg": "L1c2: decision: {\"type\":\"Correct\",\"rank\":2,\"label\":\"papan\"}"
+    },
+    {
+      "t": "2026-11-11T22:19:04.216Z",
+      "msg": "L1c2: placement via mouse drag",
+      "detail": {
+        "wantedTopLeft": [
+          410,
+          258
+        ],
+        "got": [
+          410,
+          258
+        ]
+      }
+    },
+    {
+      "t": "2026-11-11T22:19:12.836Z",
+      "msg": "L1 attempt 1 step 1",
+      "detail": {
+        "launchWanted": 176,
+        "launchActual": 181.4,
+        "landed": {
+          "x": 267.2,
+          "y": 222,
+          "grounded": true
+        },
+        "outcome": null
+      }
+    },
+    {
+      "t": "2026-11-11T22:19:18.784Z",
+      "msg": "L1 attempt 1 step 2",
+      "detail": {
+        "launchWanted": 325,
+        "launchActual": 319.2,
+        "landed": {
+          "x": 405,
+          "y": 218,
+          "grounded": true
+        },
+        "outcome": null
+      }
+    },
+    {
+      "t": "2026-11-11T22:19:25.297Z",
+      "msg": "L1 attempt 1 step 3",
+      "detail": {
+        "launchWanted": 488,
+        "launchActual": 483,
+        "landed": {
+          "x": 579.2,
+          "y": 233.2,
+          "grounded": true
+        },
+        "outcome": null
+      }
+    },
+    {
+      "t": "2026-11-11T22:19:27.808Z",
+      "msg": "L1: attempt 1 -> success",
+      "detail": {
+        "overlay": "Selamat, berhasil!",
+        "reason": null
+      }
+    },
+    {
+      "t": "2026-11-11T22:19:46.262Z",
+      "msg": "L1: Momo success chat",
+      "detail": "AI hanya menebak. Kamu yang memutuskan. Lanjut"
+    },
+    {
+      "t": "2026-11-11T22:19:51.547Z",
+      "msg": "L1: level list states after win",
+      "detail": [
+        "done",
+        "open",
+        "locked"
+      ]
+    },
+    {
+      "t": "2026-11-11T22:19:51.547Z",
+      "msg": "=== LEVEL 2 ==="
+    },
+    {
+      "t": "2026-11-11T22:19:55.372Z",
+      "msg": "L2: story intro visible"
+    },
+    {
+      "t": "2026-11-11T22:20:29.319Z",
+      "msg": "L2: intro thumb (1 s) held, Momo rises through the clouds"
+    },
+    {
+      "t": "2026-11-11T22:20:47.988Z",
+      "msg": "L2: canvas focus phase"
+    },
+    {
+      "t": "2026-11-11T22:20:50.674Z",
+      "msg": "L2: \"Mulai Menggambar\" held, canvas open"
+    },
+    {
+      "t": "2026-11-11T22:20:50.677Z",
+      "msg": "L2: canvas route",
+      "detail": "/canvas2"
+    },
+    {
+      "t": "2026-11-11T22:20:56.793Z",
+      "msg": "L2c1: Top-3 (MOCK provider): [\"duri\",\"tangga\",\"balok\"]"
+    },
+    {
+      "t": "2026-11-11T22:20:58.872Z",
+      "msg": "L2c1: decision: {\"type\":\"Correct\",\"rank\":3,\"label\":\"balok\"}"
+    },
+    {
+      "t": "2026-11-11T22:21:10.024Z",
+      "msg": "L2c1: placement via mouse drag",
+      "detail": {
+        "wantedTopLeft": [
+          100,
+          220
+        ],
+        "got": [
+          100,
+          220
+        ]
+      }
+    },
+    {
+      "t": "2026-11-11T22:21:13.903Z",
+      "msg": "L2c1 test-run step 1",
+      "detail": {
+        "launchWanted": 70,
+        "launchActual": 70.8,
+        "landed": {
+          "x": 109.8,
+          "y": 180,
+          "grounded": true
+        },
+        "outcome": null
+      }
+    },
+    {
+      "t": "2026-11-11T22:21:20.046Z",
+      "msg": "L2c1 test-run step 2",
+      "detail": {
+        "launchWanted": 206,
+        "launchActual": 203.4,
+        "landed": {
+          "x": 282,
+          "y": 109.1,
+          "grounded": true
+        },
+        "outcome": null
+      }
+    },
+    {
+      "t": "2026-11-11T22:21:20.128Z",
+      "msg": "L2c1: test-run result",
+      "detail": {
+        "x": 282,
+        "y": 109.1,
+        "outcome": null
+      }
+    },
+    {
+      "t": "2026-11-11T22:21:21.269Z",
+      "msg": "L2: 'Ciptakan objek lagi' (cycle 2)"
+    },
+    {
+      "t": "2026-11-11T22:21:24.193Z",
+      "msg": "L2c2: Top-3 (MOCK provider): [\"balok\",\"papan\",\"duri\"]"
+    },
+    {
+      "t": "2026-11-11T22:21:37.802Z",
+      "msg": "L2c2: decision: {\"type\":\"Correct\",\"rank\":2,\"label\":\"papan\"}"
+    },
+    {
+      "t": "2026-11-11T22:21:48.929Z",
+      "msg": "L2c2: placement via mouse drag",
+      "detail": {
+        "wantedTopLeft": [
+          400,
+          172
+        ],
+        "got": [
+          400,
+          172
+        ]
+      }
+    },
+    {
+      "t": "2026-11-11T22:21:53.017Z",
+      "msg": "L2 attempt 1 step 1",
+      "detail": {
+        "launchWanted": 70,
+        "launchActual": 70.8,
+        "landed": {
+          "x": 112.4,
+          "y": 180,
+          "grounded": true
+        },
+        "outcome": null
+      }
+    },
+    {
+      "t": "2026-11-11T22:21:59.310Z",
+      "msg": "L2 attempt 1 step 2",
+      "detail": {
+        "launchWanted": 206,
+        "launchActual": 200.8,
+        "landed": {
+          "x": 279.4,
+          "y": 109.1,
+          "grounded": true
+        },
+        "outcome": null
+      }
+    },
+    {
+      "t": "2026-11-11T22:22:05.398Z",
+      "msg": "L2 attempt 1 step 3",
+      "detail": {
+        "launchWanted": 302,
+        "launchActual": 302.8,
+        "landed": {
+          "x": 435.4,
+          "y": 132,
+          "grounded": true
+        },
+        "outcome": null
+      }
+    },
+    {
+      "t": "2026-11-11T22:22:10.888Z",
+      "msg": "L2 attempt 1 step 4",
+      "detail": {
+        "launchWanted": 424,
+        "launchActual": 422.4,
+        "landed": {
+          "x": 526.4,
+          "y": 60.1,
+          "grounded": true
+        },
+        "outcome": null
+      }
+    },
+    {
+      "t": "2026-11-11T22:22:12.532Z",
+      "msg": "L2 attempt 1 step 5",
+      "detail": {
+        "launchWanted": 510,
+        "launchActual": 516,
+        "landed": {
+          "x": 586.2,
+          "y": -10.5,
+          "grounded": false
+        },
+        "outcome": "success"
+      }
+    },
+    {
+      "t": "2026-11-11T22:22:13.782Z",
+      "msg": "L2: attempt 1 -> success",
+      "detail": {
+        "overlay": "Selamat, berhasil!",
+        "reason": null
+      }
+    },
+    {
+      "t": "2026-11-11T22:22:31.045Z",
+      "msg": "L2: Momo success chat",
+      "detail": "Bandingkan ketiga tebakan. Persen tinggi belum tentu benar. Lanjut"
+    },
+    {
+      "t": "2026-11-11T22:22:36.012Z",
+      "msg": "L2: level list states after win",
+      "detail": [
+        "done",
+        "done",
+        "open"
+      ]
+    },
+    {
+      "t": "2026-11-11T22:22:36.012Z",
+      "msg": "=== LEVEL 3 ==="
+    },
+    {
+      "t": "2026-11-11T22:22:39.855Z",
+      "msg": "L3: story intro visible"
+    },
+    {
+      "t": "2026-11-11T22:23:16.315Z",
+      "msg": "L3: intro thumb (1 s) held, Momo rises through the clouds"
+    },
+    {
+      "t": "2026-11-11T22:23:34.999Z",
+      "msg": "L3: canvas focus phase"
+    },
+    {
+      "t": "2026-11-11T22:23:37.681Z",
+      "msg": "L3: \"Mulai Menggambar\" held, canvas open"
+    },
+    {
+      "t": "2026-11-11T22:23:37.685Z",
+      "msg": "L3: canvas route",
+      "detail": "/canvas3"
+    },
+    {
+      "t": "2026-11-11T22:23:43.786Z",
+      "msg": "L3c1: Top-3 (MOCK provider): [\"ember\",\"tangga\",\"papan\"]"
+    },
+    {
+      "t": "2026-11-11T22:23:45.866Z",
+      "msg": "L3c1: decision: {\"type\":\"Correct\",\"rank\":3,\"label\":\"papan\"}"
+    },
+    {
+      "t": "2026-11-11T22:23:57.479Z",
+      "msg": "L3c1: placement via mouse drag",
+      "detail": {
+        "wantedTopLeft": [
+          240,
+          330
+        ],
+        "got": [
+          240,
+          330
+        ]
+      }
+    },
+    {
+      "t": "2026-11-11T22:24:06.398Z",
+      "msg": "L3c1 test-run step 1",
+      "detail": {
+        "launchWanted": 134,
+        "launchActual": 134,
+        "landed": {
+          "x": 235.4,
+          "y": 290,
+          "grounded": true
+        },
+        "outcome": null
+      }
+    },
+    {
+      "t": "2026-11-11T22:24:06.467Z",
+      "msg": "L3c1: test-run result",
+      "detail": {
+        "x": 235.4,
+        "y": 290,
+        "outcome": null
+      }
+    },
+    {
+      "t": "2026-11-11T22:24:07.654Z",
+      "msg": "L3: 'Ciptakan objek lagi' (cycle 2)"
+    },
+    {
+      "t": "2026-11-11T22:24:10.574Z",
+      "msg": "L3c2: Top-3 (MOCK provider): [\"papan\",\"tali\",\"ember\"]"
+    },
+    {
+      "t": "2026-11-11T22:24:24.709Z",
+      "msg": "L3c2: decision: {\"type\":\"Accept\",\"rank\":1,\"label\":\"papan\"}"
+    },
+    {
+      "t": "2026-11-11T22:24:36.244Z",
+      "msg": "L3c2: placement via mouse drag",
+      "detail": {
+        "wantedTopLeft": [
+          390,
+          280
+        ],
+        "got": [
+          390,
+          280
+        ]
+      }
+    },
+    {
+      "t": "2026-11-11T22:24:40.852Z",
+      "msg": "L3 attempt 1 step 1",
+      "detail": {
+        "launchWanted": 134,
+        "launchActual": 128.8,
+        "landed": {
+          "x": 216,
+          "y": 380.5,
+          "grounded": false
+        },
+        "outcome": "fail"
+      }
+    },
+    {
+      "t": "2026-11-11T22:24:40.859Z",
+      "msg": "L3: attempt 1 -> fail",
+      "detail": {
+        "overlay": "Belum berhasil",
+        "reason": "Jatuh ke lantai duri!"
+      }
+    },
+    {
+      "t": "2026-11-11T22:24:52.030Z",
+      "msg": "L3 attempt 2 step 1",
+      "detail": {
+        "launchWanted": 134,
+        "launchActual": 131.4,
+        "landed": {
+          "x": 232.8,
+          "y": 290,
+          "grounded": true
+        },
+        "outcome": null
+      }
+    },
+    {
+      "t": "2026-11-11T22:24:57.999Z",
+      "msg": "L3 attempt 2 step 2",
+      "detail": {
+        "launchWanted": 332,
+        "launchActual": 326.4,
+        "landed": {
+          "x": 375.8,
+          "y": 240,
+          "grounded": true
+        },
+        "outcome": null
+      }
+    },
+    {
+      "t": "2026-11-11T22:25:05.011Z",
+      "msg": "L3 attempt 2 step 3",
+      "detail": {
+        "launchWanted": 513,
+        "launchActual": 516.2,
+        "landed": {
+          "x": 589,
+          "y": 180.9,
+          "grounded": true
+        },
+        "outcome": null
+      }
+    },
+    {
+      "t": "2026-11-11T22:25:07.092Z",
+      "msg": "L3: attempt 2 -> success",
+      "detail": {
+        "overlay": "Selamat, berhasil!",
+        "reason": null
+      }
+    },
+    {
+      "t": "2026-11-11T22:25:26.157Z",
+      "msg": "L3: Momo success chat",
+      "detail": "Persen tinggi tidak menjamin benar. Periksa gambar dan akibatnya. Lanjut"
+    },
+    {
+      "t": "2026-11-11T22:25:30.655Z",
+      "msg": "ending: Pusat Halaman opened (portal)"
+    },
+    {
+      "t": "2026-11-11T22:25:53.366Z",
+      "msg": "ending: AI talk understood (1 s)"
+    },
+    {
+      "t": "2026-11-11T22:25:59.401Z",
+      "msg": "ending: recap read (1 s)"
+    },
+    {
+      "t": "2026-11-11T22:26:06.887Z",
+      "msg": "ending: back to cover"
+    },
+    {
+      "t": "2026-11-11T22:26:06.951Z",
+      "msg": "final screen text (truncated)",
+      "detail": "Mode demo: tebakan masih simulasi\nJarimu Adalah Kuas Ajaibnya!\nREC\nNyalakan Kamera\nKamera tidak ditemukan. Pakai mouse atau keyboard."
+    }
+  ],
+  "video": null
+}

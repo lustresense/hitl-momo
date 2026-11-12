@@ -23,10 +23,11 @@ describe("Momo page guide script", () => {
 
   // PRD 0.0.16 R1/R17: greet, origin, then the invite; the book flip (not a line) leads to the ruler.
   it("greets on the cover, tells her origin and invites the student in", () => {
-    expect(COVER_WAKE.lines[0]).toMatch(/^Halo! Aku Momo/);
-    expect(COVER_WAKE.lines.join(" ")).toMatch(/nggak bisa menggambar/);
-    expect(COVER_WAKE.lines.join(" ")).toMatch(/Thinman/);
-    expect(COVER_WAKE.lines.at(-1)).toBe("Ayo ikut aku masuk ke dunia Sketchbook!");
+    // R3 copy (Owner): who she is, the character she just found (bold name), then the invite.
+    expect(COVER_WAKE.lines[0]).toBe("Aku Momo, gambar satu-satunya yang hidup di dunia Sketchbook Universe.");
+    expect(COVER_WAKE.lines[1]).toBe("Aku barusan menemukan **Thinman**.");
+    expect(COVER_WAKE.lines[2]).toBe("Kayaknya dia butuh bantuanmu supaya bisa hidup juga sepertiku.");
+    expect(COVER_WAKE.lines.at(-1)).toBe("Yuk, antar dia ke tempat yang tepat.");
   });
 
   it("uses the character name in the walk step and points at the newest chapter on the level list", () => {

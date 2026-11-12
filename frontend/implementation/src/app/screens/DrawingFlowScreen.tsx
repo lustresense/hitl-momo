@@ -5,9 +5,8 @@ import type { MutableRefObject } from "react";
 import type { LevelDefinition } from "@/src/domain/levels";
 import { getMissionConfigForLevel } from "@/src/domain/mission-config";
 import type { DrawingSurface } from "@/src/input";
-import type { PredictionResult } from "@/src/domain/types";
 import { env } from "@/src/config/env";
-import { DrawingScreen } from "@/src/components/drawing/DrawingScreen";
+import { DrawingScreen, type DrawingStamp } from "@/src/components/drawing/DrawingScreen";
 import type { FlowController, FlowStateSnapshot } from "../state-machine";
 
 export interface DrawingFlowScreenProps {
@@ -19,13 +18,13 @@ export interface DrawingFlowScreenProps {
   surfaceRef: MutableRefObject<DrawingSurface | null>;
   /** Bumped on every redraw so the drawing screen remounts with a clean canvas. */
   drawingRevision: number;
+  /** The decided drawing waiting on the canvas as a sticker (S1). */
+  stamp?: DrawingStamp | null;
   missionOpen: boolean;
   onOpenMission: () => void;
   onCloseMission: () => void;
   onSubmit: () => void;
   onExit: () => void;
-  /** R11 streaming: provisional guess for the current strokes (e.g. `(s) => provider.predict(s.toDrawingInput())`). */
-  provisionalGuess?: ((surface: DrawingSurface) => Promise<PredictionResult | null>) | null;
 }
 
 /** Decision calls are guarded by the flow phase / picker validation, so a refusal is not an error to surface. */
@@ -45,12 +44,12 @@ export function DrawingFlowScreen({
   providerMode,
   surfaceRef,
   drawingRevision,
+  stamp = null,
   missionOpen,
   onOpenMission,
   onCloseMission,
   onSubmit,
   onExit,
-  provisionalGuess = null,
 }: DrawingFlowScreenProps) {
   return (
     <DrawingScreen
@@ -64,6 +63,7 @@ export function DrawingFlowScreen({
       feedback={controller?.feedback ?? null}
       surfaceOut={surfaceRef}
       active={phase === "drawing"}
+      stamp={stamp}
       phase={phase}
       prediction={controller?.prediction ?? null}
       errorDetail={controller?.errorDetail ?? null}
@@ -81,7 +81,6 @@ export function DrawingFlowScreen({
       onRetry={() => void controller?.retryPrediction()}
       onSubmit={onSubmit}
       onExit={onExit}
-      provisionalGuess={provisionalGuess}
     />
   );
 }

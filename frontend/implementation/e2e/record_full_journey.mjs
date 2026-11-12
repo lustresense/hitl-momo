@@ -1,3 +1,4 @@
+// STALE: butuh pembaruan harness baru
 /**
  * Full Sequential 3-Level Student Journey E2E with Video Recording
  */
@@ -258,10 +259,10 @@ try {
   console.log("[PASS] Level 2 Cycle 1 Outcome:", l2t1);
 
   // Cycle 1 completed -> return to canvas for Cycle 2
-  const redrawBtn = page.locator("[data-testid=btn-redraw-gameplay], button:has-text('Gambar ulang')").first();
+  const redrawBtn = page.locator("[data-testid=btn-redraw-gameplay], button:has-text('Gambar lagi')").first();
   await redrawBtn.waitFor({ state: "visible", timeout: 10000 });
   await redrawBtn.click();
-  console.log("[PASS] Clicked 'Gambar ulang', returning to canvas for Cycle 2");
+  console.log("[PASS] Clicked 'Gambar lagi', returning to canvas for Cycle 2");
 
   // Cycle 2: draw & place second stepping stone at (480, 220)
   console.log("=== STEP 3: LEVEL 2 (CYCLE 2) ===");

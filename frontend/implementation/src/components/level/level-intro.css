@@ -1,0 +1,22 @@
+/* Level intro: the dark stage behind Momo's story. LevelIntro moves the lit spot with --spot-x, --spot-y and --spot-r (px);
+   radius 0 leaves the whole stage at 55% black. Momo (z 5) and the skip (z 6) sit above this layer (z 2). */
+.level-intro .intro-dim {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    circle var(--spot-r, 0px) at var(--spot-x, 50%) var(--spot-y, 50%),
+    rgba(0, 0, 0, 0) 0%,
+    rgba(0, 0, 0, 0) 62%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  transition: opacity 0.6s ease;
+}
+
+/* On during the story and the nudge lines; off again once Momo is flying up to the sky. */
+.level-intro[data-phase="story"] .intro-dim,
+.level-intro[data-phase="nudge"] .intro-dim {
+  opacity: 1;
+}

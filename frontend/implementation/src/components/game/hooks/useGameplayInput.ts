@@ -7,13 +7,14 @@ import { useEffect, useRef, useState, type MutableRefObject } from "react";
 import { env } from "@/src/config/env";
 import { InputArbiter } from "@/src/input/arbiter";
 import type { GameController } from "@/src/game/game-controller";
+import { handDirections } from "../game-directions";
 import {
   NEUTRAL_INPUT,
   neutralInput,
   type DirectionKey,
   type InputMode,
-  type StagePhase,
   type StageOutcome,
+  type StagePhase,
 } from "../game-stage-types";
 
 const DIRECTIONS: readonly DirectionKey[] = ["left", "right", "jump"];
@@ -23,16 +24,17 @@ const ARBITER_TICK_MS = 100;
 interface UseGameplayInputOptions {
   controllerRef: MutableRefObject<GameController | null>;
   phase: StagePhase;
-  integrated: boolean | undefined;
+  /** Decided by GameStage: "camera" lets the hand steer, "fallback" leaves it to keyboard and buttons. */
+  mode: InputMode;
 }
 
 export interface GameplayInput {
-  mode: InputMode;
-  setMode: (mode: InputMode) => void;
   /** Directions currently held (keyboard or on-screen buttons); drives the "is-pressed" look. */
   heldDirs: DirectionKey[];
+  /** Directions the hand alone is giving right now; drives the on-screen "hand is pointing here" highlight. */
+  handDirs: DirectionKey[];
   arbiter: InputArbiter;
-  /** Push the merged keyboard/button/hand state to the game. Re-created each render on purpose (reads `mode`). */
+  /** Push the merged keyboard/button/hand state to the game. */
   sendCombinedInput: () => void;
   /** Release every manually held key/pointer (keeps hand input). */
   releaseManualInput: () => void;
@@ -42,18 +44,19 @@ export interface GameplayInput {
   setKey: (dir: DirectionKey | undefined, down: boolean) => void;
 }
 
-export function useGameplayInput({
-  controllerRef,
-  phase,
-  integrated,
-}: UseGameplayInputOptions): GameplayInput {
-  const [mode, setMode] = useState<InputMode>(integrated ? "fallback" : "camera");
+export function useGameplayInput({ controllerRef, phase, mode }: UseGameplayInputOptions): GameplayInput {
   const [heldDirs, setHeldDirs] = useState<DirectionKey[]>([]);
+  const [handDirs, setHandDirs] = useState<DirectionKey[]>([]);
+  // Last published hand set, so per-frame updates only re-render when the set actually changes.
+  const handDirsKey = useRef("");
   const keys = useRef(neutralInput());
   const heldPointers = useRef(new Map<number, DirectionKey>());
   const arbiterRef = useRef<InputArbiter | null>(null);
   if (!arbiterRef.current) arbiterRef.current = new InputArbiter("gameplay");
   const arbiter = arbiterRef.current;
+  // sendCombinedInput can run from a closure made before the last mode change, so it reads the mode here.
+  const modeRef = useRef(mode);
+  modeRef.current = mode;
 
   function syncActiveDirs() {
     const active = [...heldPointers.current.values()];
@@ -69,8 +72,14 @@ export function useGameplayInput({
       arbiter.dispatch({ type: "key", dir, down: Boolean(keys.current[dir]) });
       arbiter.dispatch({ type: "button", dir, down: held.includes(dir) });
     }
-    arbiter.dispatch({ type: "set-hand-enabled", enabled: mode === "camera" });
+    arbiter.dispatch({ type: "set-hand-enabled", enabled: modeRef.current === "camera" });
     const combined = arbiter.output();
+    const nextHand = handDirections(arbiter.getState());
+    const nextKey = nextHand.join(",");
+    if (nextKey !== handDirsKey.current) {
+      handDirsKey.current = nextKey;
+      setHandDirs(nextHand);
+    }
     const override =
       (env.testHooksEnabled && typeof window !== "undefined" ? window.__skbOverrideInput : null) ??
       NEUTRAL_INPUT;
@@ -120,6 +129,7 @@ export function useGameplayInput({
   }, [phase]);
 
   useEffect(() => {
+    sendCombinedInput();
     if (mode !== "camera") return;
     const id = window.setInterval(() => {
       arbiter.tick();
@@ -130,9 +140,8 @@ export function useGameplayInput({
   }, [mode]);
 
   return {
-    mode,
-    setMode,
     heldDirs,
+    handDirs,
     arbiter,
     sendCombinedInput,
     releaseManualInput,

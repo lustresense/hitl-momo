@@ -4,6 +4,7 @@
 import type { GameObj, PosComp } from "kaplay";
 import type { DrawingInput, LevelContext, ObjectBehavior } from "../../domain/types";
 import type { WorldCreation } from "../creation-store";
+import type { TurnDirection } from "./creations";
 
 export type GameOutcome = "success" | "fail";
 export type GamePhase = "falling" | "placing" | "gameplay";
@@ -20,6 +21,8 @@ export interface KaplayGameHandle {
   setPlacement(x: number, y: number): boolean;
   retry(): void;
   reposition(): void;
+  /** Turn the object being placed or the last placed object a quarter turn (1 clockwise, -1 counter-clockwise); false when not legal. */
+  rotate?(dir?: TurnDirection): boolean;
 }
 
 export interface KaplayGameOptions {

@@ -1,0 +1,15 @@
+/* Tutorial card back: one gesture line above the advance control; the ring sits beside its label, so the
+   card keeps its height at phone size. Colours are the kit tokens, checked by tests/components/nui-contrast.test.ts. */
+.tut-back .tut-gesture {
+  display: flex; align-items: center; gap: 10px; margin: 14px 0 0; padding: 9px 12px;
+  font-size: 15px; font-weight: 800; line-height: 1.35; color: var(--nb-ink);
+  background: var(--nb-paper); border: 2.5px solid var(--nb-ink); border-radius: 14px;
+}
+.tut-back .tut-gesture > svg { flex: none; }
+/* Every advance is the thumb: the ring sits centred above its label on the card back (TutorialThumb.css). */
+.tut-back .brochure-cta--thumb { justify-content: center; min-height: 0; background: none; border: 0; box-shadow: none; }
+.tut-back .brochure-cta--thumb .thumb-confirm__label { font-size: 16px; }
+/* Keyboard focus on the skip button and the practice tools: the kit's sky outline is about 1.7:1 on paper,
+   so the tutorial uses ink (3:1). Scoped here so the kit stylesheets stay as they are. */
+.tutorial-prototype-root .tut-skip:focus-visible,
+.tutorial-prototype-root .nb-tool:focus-visible { outline: 3px solid var(--nb-ring-focus); outline-offset: 3px; }

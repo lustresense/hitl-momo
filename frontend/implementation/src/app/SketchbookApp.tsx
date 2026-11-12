@@ -1,6 +1,6 @@
 "use client";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getLevel, type LevelDefinition } from "@/src/domain/levels";
+import { FINAL_LEVEL_STAGE, getLevel, type LevelDefinition } from "@/src/domain/levels";
 import type { DrawingSurface } from "@/src/input";
 import { useFlowSnapshot } from "@/src/hooks/use-flow";
 import { env } from "@/src/config/env";
@@ -24,6 +24,16 @@ import { AppShell } from "./screens/AppShell";
 import { DrawingFlowScreen } from "./screens/DrawingFlowScreen";
 import { GameplayScreen } from "./screens/GameplayScreen";
 import { LevelEntryScreen } from "./screens/LevelEntryScreen";
+
+/** A class join waits this long before the ruler hands over to the card; the join keeps running after that. */
+const JOIN_WAIT_MS = 8000;
+/** Join state of this session as the ruler reports it. "joined" is derived from the stored class session. */
+type JoinAttempt = "none" | "joining" | "failed";
+
+function waitForJoin(join: Promise<unknown>): Promise<"joined" | "failed"> {
+  const timeout = new Promise<"failed">((resolve) => window.setTimeout(() => resolve("failed"), JOIN_WAIT_MS));
+  return Promise.race([join.then(() => "joined" as const, () => "failed" as const), timeout]);
+}
 
 /**
  * TASK 01/03 & UI OVERHAUL — Application shell (client-only).
@@ -54,11 +64,45 @@ export function SketchbookApp() {
   const surfaceRef = useRef<DrawingSurface | null>(null);
   const snapshot = useFlowSnapshot(controller);
   const [drawingRevision, setDrawingRevision] = useState(0);
-  const { navigateTo } = useRouteSync(route, session);
+  // S1 (REVISI §18A): after the decision the object waits on the sky canvas as a sticker. The flow is already in
+  // "falling"; until the student throws it ("Lempar") the screen keeps the canvas phase, so the canvas and /canvasN stay.
+  const [thrownAttempt, setThrownAttempt] = useState<string | null>(null);
+  const stickerStage =
+    snapshot?.phase === "falling" && snapshot.behavior !== null && snapshot.attemptId !== null && snapshot.attemptId !== thrownAttempt;
+  const screenPhase = stickerStage ? "evaluating" : snapshot?.phase ?? "level-entry";
 
   const level = useMemo(
     () => (snapshot?.levelId ? getLevel(snapshot.levelId) ?? null : null),
     [snapshot?.levelId],
+  );
+  // The level URL follows the running level: /levelN on the ground, /canvasN once the intro has lifted into the sky.
+  const introPending = Boolean(session.introLevel && snapshot?.levelId === session.introLevel.levelId);
+  const { navigateTo } = useRouteSync(route, session, {
+    stage: level?.stage ?? null,
+    phase: screenPhase,
+    introPending,
+  });
+
+  const [joinAttempt, setJoinAttempt] = useState<JoinAttempt>("none");
+  const classStatus: JoinAttempt | "joined" = classroom.session ? "joined" : classroom.joinToken ? joinAttempt : "none";
+  /** Confirms the student number. A failed join is reported to the ruler (classStatus), never swallowed. */
+  const confirmStudentNumber = useCallback(
+    async (studentNumber: number) => {
+      try {
+        window.localStorage.setItem("sketchbook.studentNumber", String(studentNumber));
+      } catch {
+        /* Continue if storage is unavailable. */
+      }
+      if (!classroom.joinToken) {
+        navigateTo("/onboarding/card");
+        return;
+      }
+      setJoinAttempt("joining");
+      const outcome = await waitForJoin(classroom.joinClass(studentNumber, `Siswa ${studentNumber}`));
+      setJoinAttempt(outcome === "joined" ? "none" : "failed");
+      navigateTo("/onboarding/card");
+    },
+    [classroom, navigateTo],
   );
 
   const { enterLevel, willPlayIntro, provider, recordRecap } = session;
@@ -73,7 +117,6 @@ export function SketchbookApp() {
   /** R9: Level 3 won -> the closing replaces the usual return to the level list. */
   const wonFinalRef = useRef(false);
   const [endingOpen, setEndingOpen] = useState(false);
-  const [finished, setFinished] = useState(false);
   const leaveLevel = useCallback(() => {
     session.exitToLevels();
     if (wonFinalRef.current) {
@@ -98,18 +141,13 @@ export function SketchbookApp() {
     pendingCloseRef.current = null;
     next?.();
   }, []);
-  const chooseEnding = useCallback((choice: EndingChoice) => {
-    setEndingOpen(false);
-    if (choice === "finish") setFinished(true);
-  }, []);
-  const levelIdForGuess = snapshot?.levelId;
-  /** R11: Momo's provisional guess while drawing uses the level's own provider; failures just mean no guess. */
-  const provisionalGuess = useMemo(
-    () =>
-      provider
-        ? (surface: DrawingSurface) => provider.predict(surface.toDrawingInput(), { levelId: levelIdForGuess ?? undefined }).catch(() => null)
-        : null,
-    [provider, levelIdForGuess],
+  /** "Kembali ke sampul": the closing is over, the student is back on the cover (level state already cleared). */
+  const chooseEnding = useCallback(
+    (choice: EndingChoice) => {
+      setEndingOpen(false);
+      if (choice === "finish") navigateTo("/onboarding/cam");
+    },
+    [navigateTo],
   );
   const selectLevel = useCallback(
     (selected: LevelDefinition) => {
@@ -127,12 +165,36 @@ export function SketchbookApp() {
     await controller.submitDrawing(surfaceRef.current.toDrawingInput());
   }
 
+  // The demo tape follows the provenance of the prediction on screen; before any prediction, the session's mode.
+  const bannerMode = controller?.prediction?.provenance?.mode ?? session.providerMode;
+
   const isCameraCover = onboarding === "camera";
   const isNumberSelection = onboarding === "number";
   const isOnboarding = onboarding === "tutorial" || isNumberSelection;
   const isDrawing = onboarding === "levels" && snapshot?.phase === "drawing";
 
-  const phase = snapshot?.phase ?? "level-entry";
+  const phase = screenPhase;
+  /** Lempar: the sticker leaves the canvas and the flow continues into the world (GameplayScreen falling). */
+  const throwSticker = useCallback(() => setThrownAttempt(snapshot?.attemptId ?? null), [snapshot?.attemptId]);
+  /** Gambar lagi: the decided attempt is put back to drawing and the canvas is cleared (new drawing revision). */
+  const redrawSticker = useCallback(() => {
+    try {
+      controller?.requestRedraw("evaluation");
+    } catch {
+      /* Refused by the FlowController phase guard: the sticker stays as it is. */
+    }
+    setDrawingRevision((n) => n + 1);
+  }, [controller]);
+  const stamp =
+    stickerStage && controller && snapshot?.behavior && snapshot.decision
+      ? {
+          label: snapshot.decision.finalLabel,
+          behavior: snapshot.behavior,
+          drawingInput: controller.drawingInput,
+          onThrow: throwSticker,
+          onRedraw: redrawSticker,
+        }
+      : null;
   const isDrawingFlow =
     onboarding === "levels" &&
     (phase === "drawing" || phase === "predicting" || phase === "prediction-error" || phase === "evaluating");
@@ -142,25 +204,11 @@ export function SketchbookApp() {
     onboarding === "levels" && (phase === "falling" || phase === "placing" || phase === "gameplay");
 
   return (
-    <AppShell mode={session.providerMode} onboarding={isCameraCover || isOnboarding || isLevelEntry}>
+    <AppShell mode={bannerMode} onboarding={isCameraCover || isOnboarding || isLevelEntry}>
       {!isCameraCover && (
         <>
           {onboarding === "number" && (
-            <StudentRulerSelector
-              onConfirm={(selectedNumber) => {
-                try {
-                  window.localStorage.setItem("sketchbook.studentNumber", String(selectedNumber));
-                } catch {
-                  /* Continue if storage is unavailable. */
-                }
-                if (classroom.joinToken) {
-                  void classroom.joinClass(selectedNumber, `Siswa ${selectedNumber}`).catch(() => {
-                    /* Non-blocking if join endpoint offline */
-                  });
-                }
-                navigateTo("/onboarding/card");
-              }}
-            />
+            <StudentRulerSelector classStatus={classStatus} onConfirm={(selectedNumber) => void confirmStudentNumber(selectedNumber)} />
           )}
 
           {onboarding === "tutorial" && (
@@ -172,7 +220,7 @@ export function SketchbookApp() {
           )}
 
           {isLevelEntry && (
-            <LevelEntryScreen entryHold={entryHold} onSelectLevel={selectLevel} isLevelUnlocked={isLevelUnlocked} finished={finished} />
+            <LevelEntryScreen entryHold={entryHold} onSelectLevel={selectLevel} isLevelUnlocked={isLevelUnlocked} />
           )}
 
           {/* Hosts the drawing canvas and the floating Top-3 HITL popup. */}
@@ -186,12 +234,12 @@ export function SketchbookApp() {
               providerMode={session.providerMode}
               surfaceRef={surfaceRef}
               drawingRevision={drawingRevision}
+              stamp={stamp}
               missionOpen={session.missionOpen}
               onOpenMission={() => session.setMissionOpen(true)}
               onCloseMission={() => session.setMissionOpen(false)}
               onSubmit={() => void handleSubmitDrawing()}
               onExit={backToLevels}
-              provisionalGuess={provisionalGuess}
             />
             </div>
           )}
@@ -218,7 +266,7 @@ export function SketchbookApp() {
               onBumpDrawingRevision={() => setDrawingRevision((n) => n + 1)}
               onBackToLevels={backToLevels}
               onWon={() => {
-                if (level.stage === 3) wonFinalRef.current = true;
+                if (level.stage === FINAL_LEVEL_STAGE) wonFinalRef.current = true;
               }}
             />
           )}

@@ -1,0 +1,125 @@
+/* DecisionPanel: the candidates and the decisions as one stack of big NUI targets, 12 px apart. Each one is a
+   finger pose ring, so one pose only ever fills its own ring. Scoped to .nui-decision so the older Top-3 styles stay as they are
+   for the display-only list. */
+.nui-decision {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  width: 100%;
+}
+
+/* Candidates: the Top-3 list in decision mode, one GestureRing per candidate. Selectors are deliberately longer than
+   the older Top-3 popup rules in app/styles/85 and 97, which target the same classes inside .prediction-hitl-popup. */
+.nui-decision .top3 {
+  flex: none;
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.nui-decision .top3-slot { margin: 0; padding: 0; list-style: none; }
+.nui-decision .top3-item.gesture-ring {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px 8px 8px;
+  min-height: 64px;
+  border-radius: 16px;
+  box-shadow: 3px 3px 0 var(--nb-ink, #111111);
+  transform: none;
+}
+.nui-decision .top3-item.gesture-ring:hover { transform: translateY(-1px); }
+.nui-decision .top3-item-rank1.gesture-ring { background: var(--nb-leaf-soft, #eff3db); }
+.nui-decision .top3-item.gesture-ring .top3-item__rank {
+  font-weight: 900;
+  font-size: 18px;
+  line-height: 1;
+}
+.nui-decision .top3-item.gesture-ring .top3-item__body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "verb pct"
+    "label label"
+    "bar bar";
+  align-items: center;
+  column-gap: 8px;
+  row-gap: 4px;
+  width: 100%;
+  min-width: 0;
+}
+.nui-decision .top3-item.gesture-ring .top3-item__verb {
+  grid-area: verb;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--nb-ink, #111111);
+}
+.nui-decision .top3-item.gesture-ring .top3-item__body .label {
+  grid-area: label;
+  font-size: 18px;
+  font-weight: 900;
+  overflow-wrap: anywhere;
+  color: var(--nb-ink, #111111);
+}
+.nui-decision .top3-item.gesture-ring .top3-item__body .conf-num {
+  grid-area: pct;
+  font-size: 15px;
+  font-weight: 800;
+  min-width: 0;
+  font-variant-numeric: tabular-nums;
+  color: var(--nb-ink, #111111);
+}
+.nui-decision .top3-item.gesture-ring .top3-item__body .conf-bar {
+  grid-area: bar;
+  display: block;
+  height: 10px;
+  border: 2px solid var(--nb-ink, #111111);
+  border-radius: 999px;
+  background: #ffffff;
+  overflow: hidden;
+}
+.nui-decision .top3-item.gesture-ring .top3-item__body .conf-fill {
+  display: block;
+  height: 100%;
+  background: var(--nb-ring-fill, #4a8c1f);
+}
+/* The star sits in the verb row of the rank-1 candidate, so it never covers the percentage. */
+.nui-decision .top3-item.gesture-ring .top3-item__body .rank1-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  padding: 0;
+  border: 2px solid var(--nb-ink, #111111);
+  border-radius: 50%;
+  background: var(--nb-orange, #ef7a37);
+  color: var(--nb-ink, #111111);
+}
+
+/* Override list: a bordered panel of big buttons in two columns. */
+.nui-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 10px;
+  border: var(--nb-border, 2.5px) solid var(--nb-ink, #111111);
+  border-radius: 14px;
+  background: var(--nb-leaf-soft, #eff3db);
+}
+.nui-choices__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.nui-choices__empty { margin: 0; font-size: 14px; font-weight: 700; color: var(--nb-ink, #111111); }
+.nui-choice { min-height: 56px; }
+.nui-decision__confirm { min-height: 56px; }
+
+/* Gambar lagi is the recovery, not a fourth decision: it sits last, a little apart, and smaller than the decision
+   targets. It stays a ring, at the 44 px touch minimum. Two classes so it beats the ring's own 64 px minimum. */
+.nui-decision .nui-decision__redraw { min-height: 48px; margin-top: 4px; font-size: 15px; }

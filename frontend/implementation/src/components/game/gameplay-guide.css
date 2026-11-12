@@ -1,0 +1,214 @@
+/*
+ * Play-phase guide and gameplay direction buttons (world stage only).
+ * Colours are the locked nb tokens. Selectors are deliberately more specific than the older
+ * "#screen-gameplay .game-input-button" rules in app/styles, so this file does not touch them.
+ */
+
+/* Guide panel: a card above the stage, below the header, never over the controls. */
+.control-guide {
+  position: absolute;
+  left: 50%;
+  top: 96px;
+  transform: translateX(-50%);
+  z-index: 180;
+  box-sizing: border-box;
+  width: min(560px, calc(100% - 32px));
+  padding: 12px 14px 10px;
+  background: var(--nb-paper, #fffaf0);
+  color: var(--nb-ink, #111111);
+  border: var(--nb-border, 2.5px) solid var(--nb-ink, #111111);
+  border-radius: var(--nb-radius, 16px);
+  box-shadow: var(--nb-shadow, 4px 4px 0 #111111);
+}
+
+.control-guide__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.control-guide__title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.control-guide__close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  background: var(--nb-paper, #fffaf0);
+  color: var(--nb-ink, #111111);
+  border: 2px solid var(--nb-ink, #111111);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.control-guide__cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.control-guide__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 8px;
+  text-align: center;
+  background: var(--nb-leaf-soft, #eff3db);
+  border: 2px solid var(--nb-ink, #111111);
+  border-radius: 14px;
+}
+
+.control-guide__art {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60px;
+  color: var(--nb-ink, #111111);
+}
+
+.control-guide__label {
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.control-guide__sentence {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.control-guide__note {
+  margin: 10px 0 0;
+  font-size: 14px;
+  font-weight: 800;
+  text-align: center;
+}
+
+/* Narrow phones: the panel sits below Momo (fixed top-left, about 290 px tall at 390 px) and above the control
+   bar (lifted 124 px for the camera PIP, about 180 px tall). Scrolls if the phone is shorter. */
+@media (max-width: 480px) {
+  .control-guide {
+    top: 300px;
+    bottom: 314px;
+    overflow-y: auto;
+  }
+
+  .control-guide__cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .control-guide__card {
+    flex-direction: row;
+    text-align: left;
+  }
+
+  .control-guide__art {
+    flex: none;
+    width: 56px;
+    height: 56px;
+  }
+}
+
+/*
+ * On-screen direction buttons: touch target of 56px or more. The hand highlight is a dark-green
+ * fill with paper text (about 6.6:1 contrast) plus a double ring, so it reads at a glance.
+ * A manual press (is-pressed / :active) keeps its own look and wins.
+ */
+#screen-gameplay .stage-floating-controls .gameplay-controls__row .game-input-button {
+  min-width: 64px;
+  min-height: 60px;
+}
+
+#screen-gameplay .stage-floating-controls .gameplay-controls__row .game-input-button .game-input-button__label {
+  font-size: 14px;
+}
+
+#screen-gameplay .stage-floating-controls .gameplay-controls__row .game-input-button.is-hand-active:not(.is-pressed):not(:active) {
+  background: #356614 !important;
+  color: #fffaf0 !important;
+  border-color: var(--nb-ink, #111111) !important;
+  box-shadow: 0 0 0 3px #fffaf0, 0 0 0 6px var(--nb-ink, #111111) !important;
+  transform: translateY(-2px);
+}
+
+/* Extra class so this beats the "...stage-floating-controls button" minimum (44px) in game-stage.module.css. */
+#screen-gameplay .stage-floating-controls .gameplay-controls__help.nb-btn {
+  min-width: 48px;
+  min-height: 48px;
+  padding: 0;
+  justify-content: center;
+}
+
+/*
+ * Camera bar: icon-only direction lights, a speedometer for the finger direction, and the two
+ * gesture affordances. Contrast: the active band is dark green on paper (about 6.6:1), the words
+ * and needle are ink on paper.
+ */
+#screen-gameplay .stage-floating-controls .gameplay-controls__row .game-input-button.is-icon-only {
+  min-width: 56px;
+}
+
+.steer-dial {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 120px;
+  color: var(--nb-ink, #111111);
+}
+
+.steer-dial__svg {
+  display: block;
+  overflow: visible;
+}
+
+.steer-dial__track {
+  fill: none;
+  stroke: rgba(17, 17, 17, 0.2);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+.steer-dial__band {
+  fill: none;
+  stroke: rgba(17, 17, 17, 0.4);
+  stroke-width: 6;
+}
+
+.steer-dial__band.is-active {
+  stroke: #356614;
+}
+
+.steer-dial__needle {
+  stroke: var(--nb-ink, #111111);
+  stroke-width: 3;
+  stroke-linecap: round;
+}
+
+.steer-dial__hub {
+  fill: var(--nb-ink, #111111);
+}
+
+.steer-dial__text {
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+#screen-gameplay .stage-floating-controls .gameplay-controls__action .nb-icon {
+  flex: none;
+}

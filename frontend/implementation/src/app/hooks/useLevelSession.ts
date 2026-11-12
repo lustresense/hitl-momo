@@ -17,10 +17,17 @@ import type { PredictionProvider } from "@/src/prediction/prediction-provider";
 import type { RouteState } from "./useRouteState";
 import type { LevelRecap } from "@/src/components/ending/ending-types";
 
-/** R9 recap of a level from the flow's first decided object; null when the flow has no decision yet. */
-export function recapFromFlow(level: LevelDefinition, flow: Pick<FlowController, "drawingInput" | "prediction" | "decision" | "behavior">): LevelRecap | null {
-  const { decision, prediction, behavior, drawingInput } = flow;
+/**
+ * R9 recap of a level from the flow's first decided object; null when the flow has no decision yet.
+ * Confidence and redraw count are copied only when the flow actually has them (never invented).
+ */
+export function recapFromFlow(
+  level: LevelDefinition,
+  flow: Pick<FlowController, "drawingInput" | "prediction" | "decision" | "behavior"> & { redrawCount?: number },
+): LevelRecap | null {
+  const { decision, prediction, behavior, drawingInput, redrawCount } = flow;
   if (!decision || !prediction) return null;
+  const firstConfidence = prediction.candidates[0].confidence;
   return {
     levelId: level.levelId,
     title: `Bab ${level.stage}`,
@@ -29,6 +36,8 @@ export function recapFromFlow(level: LevelDefinition, flow: Pick<FlowController,
     category: behavior === "solid" ? "padat" : behavior === "danger" ? "bahaya" : "netral",
     decision: decision.type,
     firstGuess: prediction.candidates[0].label,
+    ...(typeof firstConfidence === "number" ? { firstGuessConfidence: firstConfidence } : {}),
+    ...(typeof redrawCount === "number" ? { redrawCount } : {}),
   };
 }
 
@@ -44,6 +53,10 @@ export function useLevelSession(
   sessionOptions?: LevelSessionOptions,
 ) {
   const { setRouteNotice, redirectToLockedNotice } = route;
+  // The caller passes fresh closures on every render. Read them through a ref so enterLevel keeps one identity
+  // (route effects depend on it and would otherwise re-run, and re-enter levels, on each render).
+  const optionsRef = useRef(sessionOptions);
+  optionsRef.current = sessionOptions;
   const [controller, setController] = useState<FlowController | null>(null);
   /** Same provider the FlowController uses; R11 provisional guesses while drawing read it too. */
   const [provider, setProvider] = useState<PredictionProvider | null>(null);
@@ -80,24 +93,24 @@ export function useLevelSession(
     creationsRef.current.replace(items);
   }, []);
 
+  /**
+   * Starts a level's flow. The URL is not written here: the route sync shows /levelN or /canvasN from the state.
+   * `skipIntro` is for a direct load of /canvasN, where the student is already past the story.
+   */
   const enterLevel = useCallback(
-    (level: LevelDefinition) => {
+    (level: LevelDefinition, options?: { skipIntro?: boolean }) => {
       if (typeof window !== "undefined" && !isLevelUnlocked(level.stage)) {
         redirectToLockedNotice();
         return;
       }
       if (typeof window !== "undefined") {
         window.scrollTo(0, 0);
-        if (window.location.pathname !== `/level${level.stage}`) {
-          window.history.pushState(null, "", `/level${level.stage}`);
-        }
         setRouteNotice(null);
       }
-      const adapter = sessionOptions?.outbox
-        ? new SubmissionAdapter({ outbox: sessionOptions.outbox, classContext: sessionOptions.classContext })
-        : null;
+      const { outbox, tokenProvider, classContext } = optionsRef.current ?? {};
+      const adapter = outbox ? new SubmissionAdapter({ outbox, classContext }) : null;
 
-      const provider = createPredictionProvider(level, sessionOptions?.tokenProvider);
+      const provider = createPredictionProvider(level, tokenProvider);
       setProviderMode(env.predictionMode === "partner" && env.predictionEndpoint ? "partner" : "mock");
       // TEST HOOKS ONLY (NEXT_PUBLIC_TEST_HOOKS=1): expose mock controls for E2E.
       if (env.testHooksEnabled && provider instanceof MockPredictionProvider) {
@@ -123,14 +136,16 @@ export function useLevelSession(
       creationsRef.current.enterLevel(level.levelId);
       if (!missionSeenLevels.current.has(level.levelId)) {
         missionSeenLevels.current.add(level.levelId);
-        setIntroRevealed(false);
-        setIntroLevel(level);
+        if (!options?.skipIntro) {
+          setIntroRevealed(false);
+          setIntroLevel(level);
+        }
       }
       setProvider(provider);
       setController(flow);
       flow.enterLevel(level);
     },
-    [redirectToLockedNotice, setRouteNotice, sessionOptions?.outbox, sessionOptions?.tokenProvider, sessionOptions?.classContext],
+    [redirectToLockedNotice, setRouteNotice],
   );
 
   /** Leave the running level for the level list and forget this session's world creations. */

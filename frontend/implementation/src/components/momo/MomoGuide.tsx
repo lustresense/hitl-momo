@@ -4,7 +4,7 @@
  * the next thing to do. The wrapper never blocks the page; only the bubble extras (a gesture cue) take clicks.
  * Display only: Momo never takes input, decides, or creates objects (lore invariant).
  */
-import { useEffect, useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode, type Ref } from "react";
 import type { GuideStep } from "@/src/domain/guide-script";
 import { MomoChat } from "./MomoChat";
 
@@ -24,6 +24,16 @@ export interface MomoGuideProps {
   extrasFrom?: "first" | "last";
   testId?: string;
   onDone?: () => void;
+  /** Fires once per set of lines, after the last line and its reading pause (see MomoChat). */
+  onAllShown?: () => void;
+  /** Extra classes on the wrapper, for a screen that moves or fades her (cover choreography). */
+  className?: string;
+  /** The wrapper element, so a screen can animate Momo as one box (FLIP). */
+  rootRef?: Ref<HTMLDivElement>;
+  /** Keep the full height on phones too (the cover's centre stage). Default: phones cap her at 104 px. */
+  fullSize?: boolean;
+  /** Speech speed multiplier (see MomoChat). Default 1; only the cover sets less. */
+  pace?: number;
 }
 
 /** Phone width: Momo is smaller so the page stays usable. */
@@ -40,11 +50,12 @@ function useCompact(): boolean {
   return compact;
 }
 
-export function MomoGuide({ step, height = 150, sleeping = false, flapKey, waveKey, startDelay = 0, children, placement = "page", extrasFrom = "first", testId = "momo-guide", onDone }: MomoGuideProps) {
+export function MomoGuide({ step, height = 150, sleeping = false, flapKey, waveKey, startDelay = 0, children, placement = "page", extrasFrom = "first", testId = "momo-guide", onDone, onAllShown, className, rootRef, fullSize = false, pace = 1 }: MomoGuideProps) {
   const compact = useCompact();
-  const shown = compact ? Math.min(height, 104) : height;
+  const shown = compact && !fullSize ? Math.min(height, 104) : height;
+  const classes = [`momo-guide`, `momo-guide--${placement}`, sleeping ? "is-asleep" : "", className ?? ""].filter(Boolean).join(" ");
   return (
-    <div className={`momo-guide momo-guide--${placement}${sleeping ? " is-asleep" : ""}`} data-testid={testId} data-asleep={sleeping ? "true" : "false"} style={{ ["--mg-h" as string]: `${shown}px` }}>
+    <div ref={rootRef} className={classes} data-testid={testId} data-asleep={sleeping ? "true" : "false"} style={{ ["--mg-h" as string]: `${shown}px` }}>
       {sleeping && (
         <span className="momo-guide__zzz" aria-hidden="true">
           <i>z</i>
@@ -63,6 +74,8 @@ export function MomoGuide({ step, height = 150, sleeping = false, flapKey, waveK
         startDelay={startDelay}
         extrasFrom={extrasFrom}
         onDone={onDone}
+        onAllShown={onAllShown}
+        pace={pace}
         testId={`${testId}-chat`}
       >
         {children}

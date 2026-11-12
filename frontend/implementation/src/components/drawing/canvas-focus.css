@@ -1,0 +1,44 @@
+/* Focus phase on the drawing screen (REVISI §13): a dark backdrop over the sky, with Momo, her bubble and the
+   tool column that is being explained kept bright. Momo stays above the backdrop (companion z-index 101). */
+.drawing-focus-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.55);
+  pointer-events: auto;
+}
+
+/* Tool review: the right toolbar is lifted above the backdrop and outlined; it takes no clicks while Momo talks. */
+#screen-drawing[data-focus="tools"] .nb-toolbar {
+  z-index: 60;
+  pointer-events: none;
+  outline: 4px solid var(--nb-orange);
+  outline-offset: 4px;
+}
+
+.canvas-focus__chips {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 0;
+  padding: 0;
+}
+
+.canvas-focus__chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 6px 12px;
+  border: 2px solid var(--nb-ink);
+  border-radius: 12px;
+  background: var(--nb-paper);
+  color: var(--nb-ink);
+  font-weight: 800;
+  font-size: 15px;
+}
+
+.canvas-focus__thumb {
+  margin-top: 14px;
+}

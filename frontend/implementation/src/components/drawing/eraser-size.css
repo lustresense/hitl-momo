@@ -1,0 +1,14 @@
+/* Hapus size buttons under the Hapus tool. Touch target 44 px or more; ink on paper is about 19:1 (WCAG AA for text and UI). */
+.eraser-size {
+  display: flex; flex-direction: column; gap: 6px; align-items: stretch;
+}
+.eraser-size__btn {
+  min-width: 44px; min-height: 44px; padding: 0 8px;
+  font: inherit; font-size: 16px; font-weight: 800; line-height: 1; color: var(--nb-ink, #111111);
+  background: var(--nb-paper, #fffaf0); border: 2.5px solid var(--nb-ink, #111111); border-radius: 12px;
+  cursor: pointer;
+}
+.eraser-size__btn:hover { background: #fff; }
+.eraser-size__btn.is-active { background: var(--nb-ink, #111111); color: var(--nb-paper, #fffaf0); }
+.eraser-size__btn:focus-visible { outline: 3px solid var(--nb-ink, #111111); outline-offset: 3px; }
+.eraser-size__btn:disabled { opacity: .55; cursor: default; }

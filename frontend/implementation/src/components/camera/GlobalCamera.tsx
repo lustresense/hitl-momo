@@ -6,20 +6,23 @@ import { setSharedStream } from "../../camera/shared-stream";
 import { Icon } from "../ui/Icon";
 import { MomoGuide } from "../momo/MomoGuide";
 import { BookFlip } from "../ui/BookFlip";
+import { ThumbConfirm } from "../ui/ThumbConfirm";
 import { useInputMode } from "@/src/hooks/useHandGesture";
-import { COVER_NO_CAMERA_HINT, COVER_WAKE } from "@/src/domain/guide-script";
+import { COVER_NO_CAMERA_HINT, COVER_SLEEP_NUDGE, COVER_WAKE } from "@/src/domain/guide-script";
 import { reportCameraAvailable, reportCameraUnavailable, reportTrackerFailed } from "../../input/input-mode";
-import { WaveTracker } from "../../camera/wave-tracker";
+import { WaveTracker, type WaveTrackerOptions } from "../../camera/wave-tracker";
+import { subscribeHandLandmarkerStatus, warmHandLandmarker } from "../../camera/landmarker-warmup";
 import { DRAWING_MODE_EVENT, HAND_STATUS_EVENT, classifyCameraError, messageFor } from "../../camera/messages";
 import type { HandInputStatus } from "../../input/types";
+import "./cover-wave-hold.css";
 
 export interface GlobalCameraProps {
-  /** "cover" = full centered orange card, "floating" = bottom-left mini PIP. */
+  /** "cover" = centred camera card with Momo asleep on the right, "floating" = bottom-left mini PIP. */
   mode: "cover" | "floating";
   modelUrl: string;
   /**
-   * Called when the cover is done: the student waved, Momo woke up and said her lines, and the book starts opening
-   * (PRD 0.0.16 R1/R2). The page under the opening leaf should switch to the ruler now.
+   * Called when the cover is done: the student waved (or pressed the fallback button), Momo said her lines and the
+   * student confirmed with a thumb. Fires at the book's midpoint, when the page under the leaf may change.
    */
   onWave?: () => void;
   /** Same destination as onWave; kept for callers. The cover itself no longer renders a skip button (R1, R13). */
@@ -34,19 +37,53 @@ export interface GlobalCameraProps {
   waveStartDelayMs?: number;
 }
 
-
-
 /** Layout effect is a no-op (and warns) while server-rendering the shell. */
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 /** R1: the tracker starts right away; Momo is still asleep, so a model-load stall does not break her wake-up animation. */
 const WAKE_SETTLE_MS = 0;
 
-/** How long the invite line stays readable before the book opens. */
-const COVER_LAST_LINE_DWELL_MS = 1600;
+/**
+ * Cover choreography (R3). One schedule, started by the wake and cancelled on unmount. Story animation keeps its
+ * full duration, also with reduced motion (only repeating effects may be softened).
+ */
+/** Wake beat: the card and Momo start moving after the blink has begun (the blink itself is MOMO_WAKE_MS). */
+const FLY_AT_MS = 750;
+/** Startled mood (kaget) ends. */
+const STARTLED_MS = 900;
+/** Camera card: centre -> bottom-left PIP. */
+const CARD_MORPH_S = 0.8;
+/** Momo: from her corner to the centre of the cover. */
+const MOMO_FLY_S = 1.1;
+const MOMO_COVER_PX = 250;
+const MOMO_CENTER_PX = 320;
+/**
+ * Her words start right after the wave; the flight runs alongside them (NUI-2: the thumb ring must be holdable within
+ * 8 s of the wave). The beats overlap on purpose, the animations themselves keep their full duration.
+ */
+const DIALOG_START_MS = 300;
+/**
+ * Speech speed of Momo's wake dialog (MomoChat pace). At 1 the four lines end at ~16.9 s, too long for the budget.
+ * 0.45 types and reads them ~2.2x faster and puts the thumb ring at ~7.8 s; every line is still shown in full.
+ */
+const COVER_DIALOG_PACE = 0.45;
+/** Camera on, nobody waved: Momo mumbles at 8 s, the nudge level 2 follows at 20 s. */
+const NUDGE_MUMBLE_MS = 8000;
+const NUDGE_BUTTON_MS = 20000;
+/**
+ * NUI-FIX: a silent 1 s press on the wave ring wakes Momo in camera mode, the way the thumb ring takes a press. It
+ * is the only wake besides the wave, so a student whose hand is not seen is never stuck.
+ */
+const WAVE_RING_HOLD_MS = 1000;
+/** Momo fades 0.3 s after the book's midpoint, over 0.3 s. */
+const MOMO_FADE_AFTER_MS = 300;
+const MOMO_FADE_MS = 300;
+/** Momo's flight and the thumb ring: the student confirms with a 1 s thumb after the last line. */
+const COVER_THUMB_HOLD_MS = 1000;
 
-/** Center -> bottom-left mini PIP morph duration, in seconds. */
-const MORPH_DURATION = 0.6;
+/** Same numbers as the PIP in 60-global-camera.css (phones use the smaller box). */
+const PIP_DESKTOP = { inset: 24, width: 150, height: 120 };
+const PIP_PHONE = { inset: 12, width: 125, height: 100 };
 
 interface CardRect {
   top: number;
@@ -59,6 +96,16 @@ function readRect(el: HTMLElement | null): CardRect | null {
   if (!el) return null;
   const rect = el.getBoundingClientRect();
   return { top: rect.top, left: rect.left, width: rect.width, height: rect.height };
+}
+
+function isPhone(): boolean {
+  return typeof window !== "undefined" && !!window.matchMedia?.("(max-width: 640px)")?.matches;
+}
+
+/** Where the bottom-left PIP sits on this screen (the same box the floating CSS draws). */
+function pipRect(): CardRect {
+  const box = isPhone() ? PIP_PHONE : PIP_DESKTOP;
+  return { left: box.inset, top: window.innerHeight - box.inset - box.height, width: box.width, height: box.height };
 }
 
 /**
@@ -87,11 +134,56 @@ function morphCameraCard(card: HTMLElement, from: CardRect | null, to: CardRect 
       height: to.height,
       x: 0,
       y: 0,
-      duration: MORPH_DURATION,
+      duration: 0.6,
       ease: "power2.out",
       clearProps: "width,height,x,y",
     },
   );
+}
+
+/**
+ * NUI-2 anti motion blur: 720p at 24-60 fps in the same single request, so a fast wave is not smeared. Existing
+ * fields (the 5:4 preference, the chosen device) are kept.
+ */
+function cameraConstraints(selectedDevice: string): MediaTrackConstraints {
+  const quality = { width: { ideal: 1280 }, height: { ideal: 720 }, frameRate: { ideal: 60, min: 24 } };
+  return selectedDevice
+    ? { deviceId: { exact: selectedDevice }, ...quality }
+    : { facingMode: "user", aspectRatio: { ideal: 5 / 4 }, ...quality };
+}
+
+function isOverconstrained(error: unknown): boolean {
+  return (error as { name?: unknown } | null)?.name === "OverconstrainedError";
+}
+
+/**
+ * One getUserMedia request with the quality constraints. A camera that cannot meet them must still start, so an
+ * OverconstrainedError retries with the plain request. A chosen device stays chosen: only the quality is dropped.
+ */
+async function requestCameraStream(selectedDevice: string): Promise<MediaStream> {
+  const devices = navigator.mediaDevices;
+  try {
+    return await devices.getUserMedia({ video: cameraConstraints(selectedDevice), audio: false });
+  } catch (error) {
+    if (!isOverconstrained(error)) throw error;
+    return devices.getUserMedia({ video: selectedDevice ? { deviceId: { exact: selectedDevice } } : true, audio: false });
+  }
+}
+
+/** Same wasm folder the wave tracker uses, so the warm-up and the tracker share one model file. */
+const WASM_ROOT = "/mediapipe/wasm";
+
+/**
+ * Cover card -> PIP as ONE uniform scale plus a bottom crop (I1). The PIP is 5:4, the cover card is taller (the controls
+ * sit under the video), so the crop keeps the top 5:4 part and that part scales exactly onto the PIP box. The video is
+ * never stretched. A card already shorter than 5:4 cannot be cropped; it is only scaled.
+ * The origin is the card's top-left, so `x`/`y` move that corner onto the PIP's corner.
+ */
+export function pipMorph(from: CardRect, to: CardRect): { x: number; y: number; scale: number; cutBottom: number } {
+  const scale = to.width / from.width;
+  const visibleHeight = from.width * (to.height / to.width);
+  const cutBottom = Math.max(0, from.height - visibleHeight);
+  return { x: to.left - from.left, y: to.top - from.top, scale, cutBottom };
 }
 
 export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveStartDelayMs = WAKE_SETTLE_MS }: GlobalCameraProps) {
@@ -111,22 +203,34 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
   const modelUrlRef = useRef(modelUrl);
   modelUrlRef.current = modelUrl;
   const trackerRef = useRef<WaveTracker | null>(null);
+  /** Release function of the wave ring's progress subscription; null while not subscribed. */
+  const progressUnsubRef = useRef<(() => void) | null>(null);
+  /** The model warm-up starts once per mount, after the camera permission. */
+  const warmStartedRef = useRef(false);
   const handDelegateRef = useRef("");
   /** The one camera card node: ref'd so GSAP can morph it between layouts. */
   const cameraCardRef = useRef<HTMLDivElement>(null);
+  /** Momo's wrapper: flown from her corner to the centre (FLIP). */
+  const momoRef = useRef<HTMLDivElement>(null);
   /** Where the card was painted on the previous commit (morph start point). */
   const lastRectRef = useRef<CardRect | null>(null);
   const lastPlacementRef = useRef(`${mode}:${recessed ? "recessed" : "pip"}`);
+  /** Rects measured at the wake, before anything moves: the start points of both flights. */
+  const cameraFromRef = useRef<CardRect | null>(null);
+  const momoFromRef = useRef<CardRect | null>(null);
+  const cameraTweenRef = useRef<gsap.core.Tween | null>(null);
+  const momoTweenRef = useRef<gsap.core.Tween | null>(null);
+  /** Synchronous guard: the first wave wins, later waves are ignored. */
+  const wokenRef = useRef(false);
+  /** One confirmation = one book turn. */
+  const flipStartedRef = useRef(false);
+  const leftCoverRef = useRef(false);
 
   const [isOn, setIsOn] = useState(false);
   const [drawingInputMode, setDrawingInputMode] = useState<"pointer" | "hand">("pointer");
   const [hasStream, setHasStream] = useState(false);
-  const [headline, setHeadline] = useState("Jarimu Adalah Kuas Ajaibnya!");
-  const [subtext, setSubtext] = useState(
-    <>Di dunia buku gambar ini, kamu yang pegang kendali.<br />Cukup gerakin tangan di depan layar buat bantu Momo.<br />Tenang, kamera cuma baca jemarimu dan privasi wajah tetap aman.</>,
-  );
-  const [toggleLabel, setToggleLabel] = useState("Nyalakan Kamera");
   const [previewLabel, setPreviewLabel] = useState("Camera Preview");
+  const [toggleLabel, setToggleLabel] = useState("Nyalakan Kamera");
   const [devices, setDevices] = useState<MediaDeviceInfo[]>([]);
   const [deviceId, setDeviceId] = useState("");
   /** Short always-visible status line (failures, tracker backend). Empty = hidden. */
@@ -134,42 +238,173 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
   const [failed, setFailed] = useState(false);
   const [delegate, setDelegate] = useState("");
   const inputMode = useInputMode();
-  /** R1: Momo sleeps on the cover, also with the camera on. Only a wave (or the fallback button) wakes her. */
+  /** Momo sleeps on the cover until a wave (or the fallback button) wakes her. */
   const [awake, setAwake] = useState(false);
   const [wake, setWake] = useState({ key: 0, startled: false, wave: 0 });
-  /** BookFlip play key: bumps once when Momo has said her last line. */
+  /** Momo is (or has been) moved to the centre of the cover. */
+  const [flying, setFlying] = useState(false);
+  /** The camera card is in its bottom-left PIP box: the layout switches here (no jump, the box is the same). */
+  const [pipReached, setPipReached] = useState(false);
+  /** Wave ring: 0..1 while the student's wave is being recognised. */
+  const [waveProgress, setWaveProgress] = useState(0);
+  /** Camera on and no wave yet: 0 = nothing, 1 = Momo mumbles, 2 = the small wake button appears. */
+  const [nudge, setNudge] = useState(0);
+  /** The book has been started: the cover text and the thumb confirmation are gone. */
+  const [coverDone, setCoverDone] = useState(false);
+  /** Momo has typed her last line: the thumb ring appears now, not after the reading pause. */
+  const [coverLinesTyped, setCoverLinesTyped] = useState(false);
+  /** Momo on the cover: on, fading (0.3 s after the midpoint), gone. */
+  const [momoPhase, setMomoPhase] = useState<"on" | "fading" | "gone">("on");
+  /** BookFlip play key: bumps once per confirmation. */
   const [flipKey, setFlipKey] = useState(0);
-  const leftCoverRef = useRef(false);
+
+  /**
+   * The cover's card and Momo are the same cover mode until the card has landed in its PIP box. After that the
+   * layout is the floating one, even though `mode` still reads "cover" until the navigation at the book's midpoint.
+   */
+  const layoutMode: "cover" | "floating" = mode === "floating" || pipReached ? "floating" : "cover";
+
   const wakeMomo = () => {
-    if (modeRef.current !== "cover") return;
+    if (modeRef.current !== "cover" || wokenRef.current) return;
+    wokenRef.current = true;
+    stopWaveTracking();
+    cameraFromRef.current = readRect(cameraCardRef.current);
+    momoFromRef.current = readRect(momoRef.current);
     setAwake(true);
   };
   const wakeRef = useRef(wakeMomo);
   wakeRef.current = wakeMomo;
+  /** Pending silent hold on the wave ring (see WAVE_RING_HOLD_MS). */
+  const ringHoldRef = useRef<number | null>(null);
+
+  function startRingHold() {
+    if (ringHoldRef.current !== null || wokenRef.current) return;
+    ringHoldRef.current = window.setTimeout(() => {
+      ringHoldRef.current = null;
+      wakeRef.current();
+    }, WAVE_RING_HOLD_MS);
+  }
+
+  function stopRingHold() {
+    if (ringHoldRef.current === null) return;
+    window.clearTimeout(ringHoldRef.current);
+    ringHoldRef.current = null;
+  }
+
+  /** The one wake-up schedule: startle, the card and Momo fly, Momo waves on landing. Cancelled on unmount. */
   useEffect(() => {
     if (!awake) return;
-    // Wakes startled (a hop and a flap), then settles and waves hello with one wing.
     setWake((w) => ({ ...w, key: w.key + 1, startled: true }));
-    const t = setTimeout(() => setWake((w) => ({ ...w, startled: false, wave: w.wave + 1 })), 900);
-    return () => clearTimeout(t);
+    const timers: number[] = [];
+    timers.push(window.setTimeout(() => setWake((w) => ({ ...w, startled: false })), STARTLED_MS));
+    timers.push(window.setTimeout(startFlights, FLY_AT_MS));
+    timers.push(window.setTimeout(() => setWake((w) => ({ ...w, wave: w.wave + 1 })), FLY_AT_MS + MOMO_FLY_S * 1000));
+    return () => {
+      timers.forEach((t) => window.clearTimeout(t));
+      cameraTweenRef.current?.kill();
+      momoTweenRef.current?.kill();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [awake]);
-  const awakeRef = useRef(false);
-  awakeRef.current = awake;
-  /** Momo's last line has just appeared: let it be read, then open the book. Ignores the empty "asleep" chat. */
-  const onCoverLinesDone = () => {
-    if (!awakeRef.current) return;
-    setTimeout(() => {
-      if (!unmountedRef.current) finishCover();
-    }, COVER_LAST_LINE_DWELL_MS);
-  };
-  /** After Momo's last line: open the book and switch the page under it to the ruler (R2). */
-  const finishCover = () => {
-    if (leftCoverRef.current || modeRef.current !== "cover") return;
-    leftCoverRef.current = true;
-    trackerRef.current?.stop();
+
+  /** Momo's FLIP: the layout has just moved her to the centre; fly her from her old box, sized 250 -> 320 px. */
+  useIsoLayoutEffect(() => {
+    if (!flying) return;
+    const el = momoRef.current;
+    const from = momoFromRef.current;
+    const to = readRect(el);
+    if (!el || !from || !to || from.height < 2 || to.width < 2 || to.height < 2) return;
+    const dx = from.left + from.width / 2 - (to.left + to.width / 2);
+    const dy = from.top + from.height / 2 - (to.top + to.height / 2);
+    momoTweenRef.current = gsap.fromTo(
+      el,
+      { x: dx, y: dy, scale: from.height / to.height },
+      { x: 0, y: 0, scale: 1, duration: MOMO_FLY_S, ease: "power2.inOut", clearProps: "transform" },
+    );
+  }, [flying]);
+
+  /**
+   * Camera card: the same node flies to the PIP box and ends there, so the floating layout takes over seamlessly.
+   * Without a camera (V1) the card makes the same single morph, so Momo gets the centre of the cover; the PIP then
+   * shows the existing "no camera" status instead of a picture.
+   */
+  function startFlights() {
+    if (unmountedRef.current) return;
+    setFlying(true);
+    if (!streamRef.current) setStatusNote((note) => note || messageFor("camera-unavailable"));
+    const card = cameraCardRef.current;
+    const from = cameraFromRef.current;
+    if (!card || !from || from.width < 2 || from.height < 2) {
+      setPipReached(true);
+      return;
+    }
+    const morph = pipMorph(from, pipRect());
+    cameraTweenRef.current = gsap.fromTo(
+      card,
+      { x: 0, y: 0, scale: 1, clipPath: "inset(0px 0px 0px 0px round 20px)", transformOrigin: "0px 0px" },
+      {
+        x: morph.x,
+        y: morph.y,
+        scale: morph.scale,
+        clipPath: `inset(0px 0px ${morph.cutBottom}px 0px round 14px)`,
+        duration: CARD_MORPH_S,
+        ease: "power2.inOut",
+        onComplete: () => {
+          if (!unmountedRef.current) setPipReached(true);
+        },
+      },
+    );
+  }
+
+  /** Once the lines are done the thumb confirms, and only then does the book open. */
+  const onThumbConfirm = () => {
+    if (flipStartedRef.current) return;
+    flipStartedRef.current = true;
     setFlipKey((k) => k + 1);
+  };
+
+  /** Midpoint of the book: the page under the leaf switches now (ruler). Momo's last word fades just after. */
+  const handOff = () => {
+    if (leftCoverRef.current) return;
+    leftCoverRef.current = true;
+    stopWaveTracking();
+    setCoverDone(true);
     onWaveRef.current?.();
   };
+
+  useEffect(() => {
+    if (!coverDone) return;
+    const fade = window.setTimeout(() => setMomoPhase("fading"), MOMO_FADE_AFTER_MS);
+    const gone = window.setTimeout(() => setMomoPhase("gone"), MOMO_FADE_AFTER_MS + MOMO_FADE_MS);
+    return () => {
+      window.clearTimeout(fade);
+      window.clearTimeout(gone);
+    };
+  }, [coverDone]);
+
+  /** Help while the camera is on: Momo mumbles at 8 s, a small button appears at 20 s. */
+  useEffect(() => {
+    if (!hasStream || awake || mode !== "cover") {
+      setNudge(0);
+      return;
+    }
+    const mumble = window.setTimeout(() => setNudge((n) => Math.max(n, 1)), NUDGE_MUMBLE_MS);
+    const button = window.setTimeout(() => setNudge(2), NUDGE_BUTTON_MS);
+    return () => {
+      window.clearTimeout(mumble);
+      window.clearTimeout(button);
+    };
+  }, [hasStream, awake, mode]);
+
+  /** Only a failed warm-up is shown (one honest sentence); loading and GPU/CPU states stay hidden from the student. */
+  useEffect(() => {
+    if (mode !== "cover") return;
+    return subscribeHandLandmarkerStatus((status) => {
+      if (unmountedRef.current || status.kind !== "failed") return;
+      setStatusNote(status.message);
+    });
+  }, [mode]);
+
   // Test hooks (R1): simulate a wave on a fake camera. Never installed in production builds.
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_TEST_HOOKS !== "1" || mode !== "cover") return;
@@ -187,7 +422,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
 
   function getTracker(): WaveTracker {
     if (!trackerRef.current) {
-      trackerRef.current = new WaveTracker({
+      const options: WaveTrackerOptions = {
         getVideo: () => videoRef.current,
         modelUrl: () => modelUrlRef.current,
         onWave: () => {
@@ -206,7 +441,8 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
             reportTrackerFailed(true);
           }
         },
-      });
+      };
+      trackerRef.current = new WaveTracker(options);
     }
     return trackerRef.current;
   }
@@ -239,6 +475,9 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
       window.removeEventListener("pagehide", onPageHide);
       window.removeEventListener(HAND_STATUS_EVENT, onHandStatus);
       window.removeEventListener(DRAWING_MODE_EVENT, onMode);
+      stopRingHold();
+      cameraTweenRef.current?.kill();
+      momoTweenRef.current?.kill();
       stopStream();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -248,7 +487,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
   // as soon as we dock to the PIP so it cannot re-trigger navigation.
   useEffect(() => {
     if (mode === "cover") {
-      if (streamRef.current) void startWaveTracking();
+      if (streamRef.current && !wokenRef.current) void startWaveTracking();
       return;
     }
     stopWaveTracking();
@@ -263,11 +502,11 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
   useIsoLayoutEffect(() => {
     const card = cameraCardRef.current;
     if (!card) return;
-    const placement = `${mode}:${recessed ? "recessed" : "pip"}`;
-    if (mode === "floating") {
+    const placement = `${layoutMode}:${recessed ? "recessed" : "pip"}`;
+    if (layoutMode === "floating") {
       // The PIP is anchored from its first paint; no cached cover/phase FLIP.
       gsap.killTweensOf(card);
-      gsap.set(card, { clearProps: "transform,width,height,x,y" });
+      gsap.set(card, { clearProps: "transform,width,height,x,y,clipPath,transformOrigin" });
       lastPlacementRef.current = placement;
     } else if (placement !== lastPlacementRef.current) {
       const from = lastRectRef.current;
@@ -292,8 +531,12 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
     }
   }
 
+  /** Releases the progress subscription first (so the reset to 0 is not shown), then stops the detector. */
   function stopWaveTracking() {
+    progressUnsubRef.current?.();
+    progressUnsubRef.current = null;
     trackerRef.current?.stop();
+    if (!unmountedRef.current) setWaveProgress(0);
   }
 
   function stopStream() {
@@ -341,10 +584,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
     }
     let stream: MediaStream | null = null;
     try {
-      const videoConstraints: MediaTrackConstraints = selectedDevice
-        ? { deviceId: { exact: selectedDevice } }
-        : { facingMode: "user", aspectRatio: { ideal: 5 / 4 } };
-      stream = await navigator.mediaDevices.getUserMedia({ video: videoConstraints, audio: false });
+      stream = await requestCameraStream(selectedDevice);
       if (isStale()) {
         // Toggled off / switched / unmounted while the permission prompt was open: do not keep the lens live.
         stream.getTracks().forEach((track) => track.stop());
@@ -355,6 +595,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
       streamRef.current = stream;
       setSharedStream(stream);
       reportCameraAvailable();
+      if (modeRef.current === "cover") warmModelOnce();
       // Camera unplugged / permission revoked mid-session: tear down and say why.
       const live = stream;
       stream.getVideoTracks().forEach((track) =>
@@ -380,7 +621,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
       await populateCameraChoices(activeDeviceId);
       if (isStale()) return;
       setPreviewLabel("Menunggu lambaian tanganmu...");
-      if (mode === "cover") {
+      if (mode === "cover" && !wokenRef.current) {
         if (waveStartDelayMs > 0) {
           await new Promise((resolve) => setTimeout(resolve, waveStartDelayMs));
           if (isStale() || modeRef.current !== "cover") return;
@@ -397,18 +638,32 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
     }
   }
 
+  /**
+   * Cold start (I1): on the cover, the hand model starts loading as soon as the camera permission is granted, in the
+   * background and once per mount. It starts before the tracker asks for a model, so the tracker takes this same
+   * load instead of building a second one. It never touches the camera and never blocks the UI.
+   */
+  function warmModelOnce() {
+    if (warmStartedRef.current) return;
+    warmStartedRef.current = true;
+    void warmHandLandmarker({ wasmRoot: WASM_ROOT, modelUrl: modelUrlRef.current }).catch(() => undefined);
+  }
+
   async function startWaveTracking() {
-    await getTracker().start();
+    const tracker = getTracker();
+    // One subscription per tracking run: the ring fills with the tracker's real progress.
+    if (!progressUnsubRef.current) {
+      progressUnsubRef.current = tracker.subscribeProgress((progress) => {
+        if (!unmountedRef.current) setWaveProgress(Math.min(1, Math.max(0, progress)));
+      });
+    }
+    await tracker.start();
   }
 
   async function setCameraState(nextOn: boolean) {
     setIsOn(nextOn);
     if (nextOn) setFailed(false);
     if (nextOn) {
-      setHeadline("Lambaikan Tanganmu!");
-      setSubtext(
-        <>Angkat tanganmu setinggi dada dan lambaikan ke kamera buat bangunin Momo.<br />Pastikan tanganmu kelihatan jelas di kotak ya!</>,
-      );
       setToggleLabel("Kamera Aktif");
       await startCamera(deviceId);
       return;
@@ -416,17 +671,24 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
     stopStream();
     setFailed(false);
     setStatusNote("");
-    setHeadline("Jarimu Adalah Kuas Ajaibnya!");
-    setSubtext(
-      <>Di dunia buku gambar ini, kamu yang pegang kendali.<br />Cukup gerakin tangan di depan layar buat bantu Momo.<br />Tenang, kamera cuma baca jemarimu dan privasi wajah tetap aman.</>,
-    );
     setToggleLabel("Nyalakan Kamera");
     setPreviewLabel("Camera Preview");
   }
 
+  /** Momo's dialog on the cover: the wake lines, or the sleepy mumble after 8 s without a wave. */
+  const coverStep = awake
+    ? { ...COVER_WAKE, mood: wake.startled ? "Kaget" : COVER_WAKE.mood }
+    : nudge >= 1
+      ? COVER_SLEEP_NUDGE
+      : null;
+  const showCoverMomo = mode === "cover" || momoPhase !== "gone";
+  const showWaveRing = mode === "cover" && hasStream && !awake && inputMode === "camera";
+  // Camera mode never shows the text button: the wave ring (below) takes the silent hold instead.
+  const showWakeButton = mode === "cover" && !awake && !coverDone && inputMode === "fallback";
+
   return (
     <div
-      className={`global-camera-host camera-prototype-root mode-${mode}${recessed ? " is-recessed" : ""}${awake ? " has-momo-awake" : ""}`}
+      className={`global-camera-host camera-prototype-root mode-${layoutMode}${recessed ? " is-recessed" : ""}${awake ? " has-momo-awake" : ""}`}
       data-testid="global-camera-widget"
     >
       {/*
@@ -438,8 +700,8 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
         {mode === "cover" && (
           <>
             <div className="eyebrow">Sketchbook Universe Present</div>
-            <h1 className="headline">{headline}</h1>
-            <p className="subtext">{subtext}</p>
+            {/* Page title for screen readers only: the cover shows Momo and the camera, not a headline (R3). */}
+            <h1 className="visually-hidden">Jarimu Adalah Kuas Ajaibnya!</h1>
           </>
         )}
 
@@ -475,6 +737,57 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
               <span className="label">{previewLabel}</span>
             </div>
             <div className="rec-dot">REC</div>
+            {showWaveRing && (
+              <div
+                className="cover-wave-ring"
+                data-testid="cover-wave-hint"
+                data-progress={Math.round(waveProgress * 100)}
+                role="progressbar"
+                aria-label="Lambaian tangan"
+                aria-valuemin={0}
+                aria-valuemax={100}
+                aria-valuenow={Math.round(waveProgress * 100)}
+                tabIndex={0}
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  startRingHold();
+                }}
+                onPointerUp={stopRingHold}
+                onPointerLeave={stopRingHold}
+                onPointerCancel={stopRingHold}
+                onBlur={stopRingHold}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    startRingHold();
+                  }
+                }}
+                onKeyUp={(e) => {
+                  if (e.key === "Enter" || e.key === " ") stopRingHold();
+                }}
+                onContextMenu={(e) => e.preventDefault()}
+              >
+                <svg className="cover-wave-ring__svg" viewBox="0 0 72 72">
+                  <circle className="cover-wave-ring__track" cx="36" cy="36" r="30" />
+                  {/* The offset is a style, so the CSS transition smooths each progress step. */}
+                  <circle
+                    className="cover-wave-ring__fill"
+                    cx="36"
+                    cy="36"
+                    r="30"
+                    strokeDasharray={2 * Math.PI * 30}
+                    style={{ strokeDashoffset: 2 * Math.PI * 30 * (1 - waveProgress) }}
+                    transform="rotate(-90 36 36)"
+                  />
+                </svg>
+                <svg className="cover-wave-ring__hand" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M7 11V6.5a1.5 1.5 0 0 1 3 0V11" />
+                  <path d="M10 10V4.5a1.5 1.5 0 0 1 3 0V10" />
+                  <path d="M13 10V5.5a1.5 1.5 0 0 1 3 0V12" />
+                  <path d="M16 12V8.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-1a6 6 0 0 1-5-2.7L3.6 14.6a1.5 1.5 0 0 1 2.4-1.8L7 14" />
+                </svg>
+              </div>
+            )}
           </div>
 
           <div className="toggle-row">
@@ -528,42 +841,40 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
           </div>
         </div>
 
-        {mode === "cover" && (
+        {showCoverMomo && (
           <MomoGuide
             placement="cover"
-            height={250}
+            height={flying ? MOMO_CENTER_PX : MOMO_COVER_PX}
+            fullSize={flying}
+            className={[flying ? "is-centered" : "", momoPhase === "fading" ? "is-leaving" : ""].filter(Boolean).join(" ")}
+            rootRef={momoRef}
             sleeping={!awake}
-            step={awake ? { ...COVER_WAKE, mood: wake.startled ? "Kaget" : COVER_WAKE.mood } : null}
+            step={coverStep}
             flapKey={awake ? wake.key : 0}
             waveKey={awake ? wake.wave : 0}
-            startDelay={awake ? 1100 : 0}
-            onDone={onCoverLinesDone}
+            startDelay={awake ? DIALOG_START_MS : 0}
+            pace={COVER_DIALOG_PACE}
+            extrasFrom="first"
+            onDone={() => setCoverLinesTyped(true)}
             testId="cover-momo"
-          />
+          >
+            {awake && coverLinesTyped && !coverDone && (
+              <ThumbConfirm holdMs={COVER_THUMB_HOLD_MS} label="Aku mengerti" onConfirm={onThumbConfirm} testId="cover-thumb" />
+            )}
+          </MomoGuide>
         )}
 
-        {mode === "cover" && !awake && hasStream && inputMode === "camera" && (
-          <div className="cover-wave-hint" data-testid="cover-wave-hint" aria-hidden="true">
-            <svg className="cover-wave-hint__hand" viewBox="0 0 24 24" width="44" height="44" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M7 11V6.5a1.5 1.5 0 0 1 3 0V11" />
-              <path d="M10 10V4.5a1.5 1.5 0 0 1 3 0V10" />
-              <path d="M13 10V5.5a1.5 1.5 0 0 1 3 0V12" />
-              <path d="M16 12V8.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-1a6 6 0 0 1-5-2.7L3.6 14.6a1.5 1.5 0 0 1 2.4-1.8L7 14" />
-            </svg>
-          </div>
-        )}
-
-        {mode === "cover" && !awake && inputMode === "fallback" && (
+        {showWakeButton && (
           <div className="cover-skip-block cover-fallback" data-testid="cover-fallback">
-            <p className="cover-fallback__note">{COVER_NO_CAMERA_HINT}</p>
-            <button type="button" className="camera-skip nb-btn" data-testid="cover-wake" onClick={wakeMomo}>
+            {inputMode === "fallback" && <p className="cover-fallback__note">{COVER_NO_CAMERA_HINT}</p>}
+            <button type="button" className="camera-skip nb-btn" data-testid="cover-wake" onClick={() => wakeRef.current()}>
               Bangunkan Momo
               <Icon name="arrow-right" size={18} stroke={2.8} />
             </button>
           </div>
         )}
       </div>
-      <BookFlip playKey={flipKey} direction="open" label="Sketchbook Universe" testId="cover-book-flip" />
+      <BookFlip playKey={flipKey} direction="open" label="Sketchbook Universe" testId="cover-book-flip" onMidpoint={handOff} />
     </div>
   );
 }

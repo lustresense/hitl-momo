@@ -4,7 +4,9 @@
 .momo-chat[data-foggy="true"] .momo-chat__bubble { opacity: 0.84; }
 
 /* R9 Penutup: Pusat Halaman. Sketch style, kit palette; shimmering ink like a small river. */
-.center-page { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; align-content: center; gap: 16px; padding: 16px; background: var(--nb-paper, #fffaf0); overflow: hidden; animation: center-page-open .9s var(--nb-ease-pop, ease-out) both; }
+/* `safe center`: when the recap is taller than the phone screen it starts at the top and scrolls, instead of
+   being centred past the top edge where nothing can scroll back to. Fits on desktop, so 1280x720 is unchanged. */
+.center-page { position: fixed; inset: 0; z-index: 400; display: grid; place-items: center; align-content: center; align-content: safe center; gap: 16px; padding: 16px; background: var(--nb-paper, #fffaf0); overflow: hidden; animation: center-page-open .9s var(--nb-ease-pop, ease-out) both; }
 @keyframes center-page-open { from { clip-path: inset(0 50% 0 50%); } to { clip-path: inset(0 0 0 0); } }
 .center-page__title { margin: 0; font-family: var(--nb-display, inherit); font-size: clamp(22px, 4vw, 36px); position: relative; z-index: 1; }
 .center-page__ink { position: absolute; inset: auto 0 18% 0; height: 90px; pointer-events: none; }
@@ -12,13 +14,6 @@
 .center-page__ink span:nth-child(2) { top: 30px; opacity: .35; animation-duration: 4.1s; }
 .center-page__ink span:nth-child(3) { top: 60px; opacity: .25; animation-duration: 5.3s; }
 @keyframes center-ink { to { background-position: -200% 0; } }
-.center-page__meet { position: relative; width: min(720px, 100%); height: 240px; display: flex; align-items: flex-end; justify-content: flex-end; }
-.center-page__thinman { position: absolute; left: 0; bottom: 0; width: 90px; transition: left 3.4s linear; }
-.center-page__thinman .thinman-art svg { stroke-width: 1; }
-.center-page__thinman.is-alive { left: calc(100% - 330px); animation: center-ink-fill 1.6s ease-out both; }
-.center-page__thinman.is-touching { transform: rotate(-4deg); }
-@keyframes center-ink-fill { from { filter: none; } to { filter: drop-shadow(0 0 0 var(--nb-ink, #111)) drop-shadow(1px 1px 0 var(--nb-ink, #111)); } }
-.center-page__overview, .center-page__epilog, .center-page__choice { position: relative; z-index: 1; display: grid; justify-items: center; gap: 14px; width: min(860px, 100%); }
 .center-page__objects { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; width: 100%; }
 .center-page__obj { display: grid; gap: 4px; justify-items: center; padding: 10px; border: 2px solid var(--nb-ink, #111); border-radius: 14px; background: #fff; box-shadow: 3px 3px 0 var(--nb-ink, #111); font-size: 13px; }
 .center-page__obj--bahaya { background: var(--warn-bg, #fde8e0); }
@@ -28,4 +23,4 @@
 .center-page__walker { width: 60px; animation: center-walk 6s linear infinite alternate; justify-self: start; }
 @keyframes center-walk { from { transform: translateX(0); } to { transform: translateX(min(700px, 70vw)); } }
 .center-page__options { display: flex; gap: 12px; }
-@media (prefers-reduced-motion: reduce) { .center-page, .center-page__ink span, .center-page__walker { animation: none; } .center-page__thinman { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .center-page, .center-page__ink span, .center-page__walker { animation: none; } }

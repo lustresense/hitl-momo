@@ -56,6 +56,23 @@ Tiap perbaikan diawali test yang gagal (RED), lalu kode minimal (GREEN).
 
 **Bukti run ulang (bersih, setelah perbaikan):** typecheck game dan dashboard PASS; vitest 104 file / 681 test PASS; pytest 14/14; `verify_backend.py` 20/20 dengan bobot asli; E2E classroom 17/17 lewat Caddy 2.10.2 asli; build game (partner dan mock) dan dashboard PASS.
 
+## Iterasi 4: perbaikan game atas instruksi Owner (2026-11-09)
+
+Dikerjakan oleh tim worker Haiku (effort xhigh), diintegrasikan dan diverifikasi oleh lead. Rincian perubahan: `CHANGELOG.md`. Keputusan yang perlu disahkan Can: `UNRESOLVED.md` bagian E.
+
+| Pemeriksaan | Hasil |
+|---|---|
+| `tsc --noEmit`, `next lint` | 0 error, bersih |
+| `vitest run` | 156 file, 1178 test PASS |
+| E2E classroom lewat Caddy, backend model asli | 17/17 PASS |
+| E2E gameplay Level 1 sampai 4 dan layar tamat (mock) | PASS |
+| E2E recovery paths | 16/16 PASS |
+| E2E alur selesai-gambar (diam 5 detik = tanpa tebakan, tahan jempol = tebakan lalu Top-3) | 12/12 PASS |
+
+Bukti: `docs/migration/evidence/iter4/`. E2E menemukan satu bug produk nyata (cincin selesai-gambar tertutup kartu kamera) dan sudah diperbaiki.
+
+**Belum terbukti:** kamera fisik, MediaPipe, dua tangan nyata, kalibrasi ambang gestur, pemetaan kursor ke layar, tampilan di HP. Level 4 yang sempat ditambahkan di iterasi ini sudah dihapus lagi (Owner 2026-11-10).
+
 ## Perubahan kode di iterasi ini
 
 **Backend (Dias):**

@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.12.5-alpha | 2026-11-12 | Dokumen | `(0.12.5-alpha)` |
 | 0.12.4-alpha | 2026-11-12 | Dokumen | `(0.12.4-alpha)` |
 | 0.12.3-alpha | 2026-11-12 | Dokumen | `(0.12.3-alpha)` |
 | 0.12.2-alpha | 2026-11-12 | Dokumen | `385715b` |
@@ -88,6 +89,20 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.12.5-alpha — 2026-11-12 — Dokumen
+
+**Sumber:** Owner 2026-11-12 (M-030), alur rilis
+
+**Perubahan:**
+- `main` digabung ke `claude-monorepo` sebelum rilis: `Proposal/` dan `LICENSE.md` dari main lama kini juga ada di `claude-monorepo`.
+- Sesudah ini `main` diperbarui dengan fast-forward dari `claude-monorepo`.
+
+**Commit:** commit berjudul `(0.12.5-alpha)`
+
+**Bukti:** Tidak ada perubahan kode; gerbang terakhir: tsc, eslint, vitest 243/1894 lulus; e2e journey, recovery 16/16 lulus
 
 ---
 

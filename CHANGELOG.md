@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.15.0-alpha | 2026-11-12 | Fitur | `(0.15.0-alpha)` |
 | 0.14.3-alpha | 2026-11-12 | Perbaikan | `(0.14.3-alpha)` |
 | 0.14.2-alpha | 2026-11-12 | Perbaikan | `(0.14.2-alpha)` |
 | 0.14.1-alpha | 2026-11-12 | Tes | `(0.14.1-alpha)` |
@@ -98,6 +99,22 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.15.0-alpha — 2026-11-12 — Fitur
+
+**Sumber:** REVISIONS R11-18, R12-05
+
+**Perubahan:**
+- /nui-lab menggambar wajah orang lain dengan kotak abu-abu.
+- Pesan "Model wajah gagal dimuat" dibedakan dari "Wajah tidak terlihat".
+- Statistik deteksi per model (tangan, wajah) dan porsi sibuk terukur.
+- Uji lambaian di /nui-lab memakai aturan yang sama dengan game (`WaveSweep`), bukan salinan.
+
+**Commit:** commit berjudul `(0.15.0-alpha)`
+
+**Bukti:** vitest tests/camera + tests/nui-lab 330 lulus; tsc bersih; belum dibuka dengan kamera asli
 
 ---
 

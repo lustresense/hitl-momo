@@ -101,6 +101,75 @@ export function waveProgress(samples: WaveSample[], handSize = WAVE_DEFAULT_HAND
 /** Frames without a hand that a wave survives (a blurred frame or a dropped detection), before the sweep restarts. */
 export const WAVE_MAX_MISSING_FRAMES = 3;
 
+/** What one camera frame did to the sweep. */
+export interface WaveStep {
+  /** 0..1 share of the required turns made so far (the cincin lambaian). */
+  progress: number;
+  /** Swings counted in the current sweep. */
+  swings: number;
+  /** True when the wave rule fires on this frame. */
+  detected: boolean;
+}
+
+/** Per-frame context for the wave rule beyond the wrist. */
+export interface WaveFrame {
+  /** Hand size of the tracked hand; the default when omitted. */
+  handSize?: number;
+  /** The player's face in this frame, if one is in view. */
+  face?: FaceBox | null;
+}
+
+/**
+ * The wave rule for one hand, frame by frame. The game's WaveTracker and the NUI lab (/nui-lab) both feed it, so the
+ * lab shows the numbers the game really uses. A null wrist is a frame without the player's hand.
+ */
+export class WaveSweep {
+  private samples: WaveSample[] = [];
+  private missingFrames = 0;
+  /** Face centre x when the current sweep began; a head turn that moves it restarts the sweep. */
+  private faceCx: number | null = null;
+
+  feed(wrist: { x: number; y: number } | null, nowMs: number, frame: WaveFrame = {}): WaveStep {
+    const handSize = frame.handSize ?? WAVE_DEFAULT_HAND_SIZE;
+    if (!wrist) {
+      // A blurred or dropped frame keeps the sweep; only a longer gap restarts it.
+      this.missingFrames++;
+      if (this.missingFrames > WAVE_MAX_MISSING_FRAMES) this.restart(null);
+      return this.step(handSize);
+    }
+    this.missingFrames = 0;
+    const face = frame.face ?? null;
+    if (face) {
+      const cx = face.x + face.w / 2;
+      if (this.faceCx === null) this.faceCx = cx;
+      else if (Math.abs(cx - this.faceCx) > FACE_STILL_SHIFT * face.w) this.restart(cx);
+    }
+    this.samples.push({ x: wrist.x, time: nowMs });
+    while (this.samples.length && nowMs - this.samples[0]!.time > WAVE_WINDOW_MS) this.samples.shift();
+    return this.step(handSize);
+  }
+
+  reset(): void {
+    this.samples = [];
+    this.missingFrames = 0;
+    this.faceCx = null;
+  }
+
+  /** The sweep starts again; the face (if any) becomes the new reference. */
+  private restart(faceCx: number | null): void {
+    this.samples = [];
+    this.faceCx = faceCx;
+  }
+
+  private step(handSize: number): WaveStep {
+    return {
+      progress: waveProgress(this.samples, handSize),
+      swings: countSwings(this.samples.map((s) => s.x), waveLeg(handSize)),
+      detected: detectWave(this.samples, handSize),
+    };
+  }
+}
+
 export type WaveTrackerStatus =
   | { kind: "ready"; delegate: string }
   | { kind: "error"; reason: CameraFailureReason; message: string };
@@ -125,12 +194,9 @@ export class WaveTracker {
   private reported = false;
   private lastVideoTime = -1;
   private failures = 0;
-  private samples: WaveSample[] = [];
-  private missingFrames = 0;
   /** The player's hand, locked across frames so a second person's hand never feeds the sweep. */
   private primary: PrimaryHandState | null = null;
-  /** Face centre x when the current sweep began; a head turn that moves it restarts the sweep. */
-  private sweepFaceCx: number | null = null;
+  private readonly sweep = new WaveSweep();
   private progressValue = 0;
   private readonly progressListeners = new Set<(progress: number) => void>();
   private readonly face: FaceSource;
@@ -181,12 +247,10 @@ export class WaveTracker {
         return;
       }
       this.landmarker = created.landmarker;
-      this.samples = [];
-      this.missingFrames = 0;
+      this.sweep.reset();
       this.failures = 0;
       this.lastVideoTime = -1;
       this.primary = null;
-      this.sweepFaceCx = null;
       this.options.onStatus?.({ kind: "ready", delegate: delegateLabel(created) });
       this.loop();
     } catch (err) {
@@ -204,10 +268,8 @@ export class WaveTracker {
     this.starting = false;
     this.reported = false;
     this.release();
-    this.samples = [];
+    this.sweep.reset();
     this.primary = null;
-    this.missingFrames = 0;
-    this.sweepFaceCx = null;
     this.lastVideoTime = -1;
     this.failures = 0;
     this.setProgress(0);
@@ -223,13 +285,6 @@ export class WaveTracker {
     } catch {
       /* best-effort */
     }
-  }
-
-  /** Starts the sweep again: the samples go, and the face (if any) becomes the new reference. */
-  private restartSweep(faceCx: number | null): void {
-    this.samples = [];
-    this.sweepFaceCx = faceCx;
-    this.setProgress(0);
   }
 
   private loop = (): void => {
@@ -261,23 +316,9 @@ export class WaveTracker {
     const pick = pickPrimaryHand(result.landmarks, this.primary, now, face);
     this.primary = pick.state;
     const wrist = pick.index === null ? undefined : result.landmarks[pick.index]?.[0];
-    if (!wrist) {
-      // A blurred or dropped frame keeps the sweep; only a longer gap restarts it.
-      this.missingFrames++;
-      if (this.missingFrames > WAVE_MAX_MISSING_FRAMES) this.restartSweep(null);
-      return;
-    }
-    this.missingFrames = 0;
-    if (face) {
-      const cx = face.x + face.w / 2;
-      if (this.sweepFaceCx === null) this.sweepFaceCx = cx;
-      else if (Math.abs(cx - this.sweepFaceCx) > FACE_STILL_SHIFT * face.w) this.restartSweep(cx);
-    }
-    this.samples.push({ x: wrist.x, time: now });
-    while (this.samples.length && now - this.samples[0]!.time > WAVE_WINDOW_MS) this.samples.shift();
-    const handSize = pick.state?.size ?? WAVE_DEFAULT_HAND_SIZE;
-    this.setProgress(waveProgress(this.samples, handSize));
-    if (detectWave(this.samples, handSize)) {
+    const step = this.sweep.feed(wrist ?? null, now, { handSize: pick.state?.size, face });
+    this.setProgress(step.progress);
+    if (step.detected) {
       this.reported = true;
       this.setProgress(1);
       this.release();

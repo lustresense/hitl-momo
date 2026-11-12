@@ -27,6 +27,9 @@ export interface FaceSource {
   current(nowMs: number): FaceBox | null;
 }
 
+/** Whether the face model is in: still loading, ready, or given up (failed to load or failing on every try). */
+export type FaceModelStatus = "loading" | "ready" | "unavailable";
+
 /** The part of MediaPipe's FaceDetector that this module uses. */
 export interface FaceDetectorLike {
   detectForVideo(frame: DetectionFrame, timestampMs: number): { detections: Array<{ boundingBox?: BoxPixels }> };
@@ -45,17 +48,13 @@ const FACE_INTERVAL_MS = 1000 / FACE_DETECTIONS_PER_SECOND;
 const MAX_FACE_FAILURES = 3;
 const WASM_ROOT = "/mediapipe/wasm";
 
-/**
- * Picks the player's face from the detections: the largest, and between similar faces the one nearer the middle of
- * the frame (the student sits in front of the camera). Null when no detection has a usable box.
- */
-export function faceBoxFromDetections(
+/** Every usable face box of one detection, normalised, in the order the detector gave them. */
+export function faceBoxesFromDetections(
   detections: Array<{ boundingBox?: BoxPixels }>,
   videoWidth: number,
   videoHeight: number,
-): FaceBox | null {
-  let best: FaceBox | null = null;
-  let bestScore = -Infinity;
+): FaceBox[] {
+  const boxes: FaceBox[] = [];
   for (const d of detections) {
     const b = d.boundingBox;
     if (!b) continue;
@@ -65,16 +64,41 @@ export function faceBoxFromDetections(
       w: b.width / videoWidth,
       h: b.height / videoHeight,
     };
-    if (!(box.w > 0 && box.h > 0)) continue;
+    if (box.w > 0 && box.h > 0) boxes.push(box);
+  }
+  return boxes;
+}
+
+/**
+ * Index of the player's face among the boxes: the largest, and between similar faces the one nearer the middle of
+ * the frame (the student sits in front of the camera). -1 when there is no box.
+ */
+function playerIndex(boxes: FaceBox[]): number {
+  let best = -1;
+  let bestScore = -Infinity;
+  boxes.forEach((box, i) => {
     const centreX = box.x + box.w / 2;
     // Area first; the centre factor only breaks near-ties, it never makes a far-off large face lose to a tiny one.
     const score = box.w * box.h * (1 - Math.abs(centreX - 0.5));
     if (score > bestScore) {
       bestScore = score;
-      best = box;
+      best = i;
     }
-  }
+  });
   return best;
+}
+
+/**
+ * Picks the player's face from the detections (see playerIndex). Null when no detection has a usable box.
+ */
+export function faceBoxFromDetections(
+  detections: Array<{ boundingBox?: BoxPixels }>,
+  videoWidth: number,
+  videoHeight: number,
+): FaceBox | null {
+  const boxes = faceBoxesFromDetections(detections, videoWidth, videoHeight);
+  const i = playerIndex(boxes);
+  return i < 0 ? null : boxes[i]!;
 }
 
 let loaded: Promise<FaceDetectorLike> | null = null;
@@ -122,6 +146,10 @@ export class FaceAnchor implements FaceSource {
   private lastAttemptMs = Number.NEGATIVE_INFINITY;
   private face: FaceBox | null = null;
   private seenMs = Number.NEGATIVE_INFINITY;
+  /** Every face box of the last detection, and which of them is the player's (-1 for none). */
+  private boxes: FaceBox[] = [];
+  private boxesPlayer = -1;
+  private boxesMs = Number.NEGATIVE_INFINITY;
 
   constructor(options: FaceAnchorOptions = {}) {
     this.load = options.load ?? (() => loadFaceDetector());
@@ -149,15 +177,32 @@ export class FaceAnchor implements FaceSource {
       return;
     }
     if (!result) return;
-    const box = faceBoxFromDetections(result.detections, video.videoWidth, video.videoHeight);
-    if (box) {
-      this.face = box;
+    this.boxes = faceBoxesFromDetections(result.detections, video.videoWidth, video.videoHeight);
+    this.boxesPlayer = playerIndex(this.boxes);
+    this.boxesMs = nowMs;
+    if (this.boxesPlayer >= 0) {
+      this.face = this.boxes[this.boxesPlayer]!;
       this.seenMs = nowMs;
     }
   }
 
   current(nowMs: number): FaceBox | null {
     return this.face && nowMs - this.seenMs <= FACE_LOST_MS ? this.face : null;
+  }
+
+  /**
+   * The other faces in the last detection (not the player's), for the lab's grey boxes. Empty when that detection
+   * is older than FACE_LOST_MS, so a face that left the frame does not stay on screen.
+   */
+  others(nowMs: number): FaceBox[] {
+    if (nowMs - this.boxesMs > FACE_LOST_MS) return [];
+    return this.boxes.filter((_, i) => i !== this.boxesPlayer);
+  }
+
+  /** Whether the face model is still loading, in use, or given up for this page session. */
+  status(): FaceModelStatus {
+    if (this.unavailable) return "unavailable";
+    return this.detector ? "ready" : "loading";
   }
 
   private startLoad(): void {

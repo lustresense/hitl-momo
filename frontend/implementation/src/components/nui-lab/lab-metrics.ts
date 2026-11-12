@@ -2,18 +2,9 @@
  * Pure math for the NUI test page (/nui-lab). No DOM and no MediaPipe, so it is unit-tested directly.
  * The owner reads these numbers on his own laptop before the exhibition; they are diagnostics, not a score.
  */
-import type { FaceBox } from "@/src/camera/face-anchor";
-import {
-  FACE_STILL_SHIFT,
-  WAVE_DEFAULT_HAND_SIZE,
-  WAVE_MAX_MISSING_FRAMES,
-  WAVE_WINDOW_MS,
-  countSwings,
-  detectWave,
-  waveLeg,
-  waveProgress,
-  type WaveSample,
-} from "@/src/camera/wave-tracker";
+import type { FaceBox, FaceModelStatus } from "@/src/camera/face-anchor";
+import { WaveSweep, type WaveFrame } from "@/src/camera/wave-tracker";
+import type { ModelInferenceStats } from "@/src/camera/inference-scheduler";
 import type { HandPose } from "@/src/input/hand-gesture";
 import type { DelegateReason, SwitchState } from "@/src/camera/hand-landmarker";
 
@@ -77,21 +68,18 @@ export interface WaveFeedOptions {
 }
 
 /**
- * The wave test for the page: the same rule as the game (wave-tracker.ts: window, swing size from the hand size,
- * gap tolerance, a head turn restarts the sweep) fed with the primary wrist only. It also times the gap from the
- * first real movement to the detection, which is what the owner wants to see.
+ * The wave test for the page, on the game's own rule: WaveSweep from wave-tracker.ts is the same code the game
+ * runs, so the numbers here are the game's numbers. The sampler adds only what the owner wants to see: the first
+ * real movement and the time from it to the detection.
  */
 export class WaveLabSampler {
-  private samples: WaveSample[] = [];
-  private missing = 0;
-  private refX: number | null = null;
+  private readonly sweep = new WaveSweep();
   private progressValue = 0;
   private reversalsValue = 0;
   private detectedValue = false;
+  private refX: number | null = null;
   private movedAt: number | null = null;
   private detectedAt: number | null = null;
-  /** Face centre x when the current sweep began (null: no face seen). */
-  private sweepFaceCx: number | null = null;
 
   /** 0..1, same scale as the cincin lambaian. */
   get progress(): number {
@@ -120,52 +108,28 @@ export class WaveLabSampler {
   /** `wrist` null = no player hand in this frame. */
   feed(wrist: Point | null, nowMs: number, options: WaveFeedOptions = {}): void {
     if (this.detectedValue) return;
-    const handSize = options.handSize ?? WAVE_DEFAULT_HAND_SIZE;
-    const face = options.face ?? null;
-    if (!wrist) {
-      // A blurred or dropped frame keeps the sweep; a longer gap restarts it (as in wave-tracker).
-      this.missing++;
-      if (this.missing > WAVE_MAX_MISSING_FRAMES) this.restart(null);
-      return;
+    if (wrist) {
+      if (this.refX === null) this.refX = wrist.x;
+      if (this.movedAt === null && Math.abs(wrist.x - this.refX) >= LAB_MOVE_EPS) this.movedAt = nowMs;
     }
-    this.missing = 0;
-    if (face) {
-      const cx = face.x + face.w / 2;
-      if (this.sweepFaceCx === null) this.sweepFaceCx = cx;
-      else if (Math.abs(cx - this.sweepFaceCx) > FACE_STILL_SHIFT * face.w) this.restart(cx);
-    }
-    if (this.refX === null) this.refX = wrist.x;
-    if (this.movedAt === null && Math.abs(wrist.x - this.refX) >= LAB_MOVE_EPS) this.movedAt = nowMs;
-    this.samples.push({ x: wrist.x, time: nowMs });
-    while (this.samples.length > 0 && nowMs - this.samples[0]!.time > WAVE_WINDOW_MS) this.samples.shift();
-    const xs = this.samples.map((s) => s.x);
-    this.progressValue = waveProgress(this.samples, handSize);
-    this.reversalsValue = countSwings(xs, waveLeg(handSize));
-    if (detectWave(this.samples, handSize)) {
+    const frame: WaveFrame = { handSize: options.handSize, face: options.face ?? null };
+    const step = this.sweep.feed(wrist, nowMs, frame);
+    this.progressValue = step.progress;
+    this.reversalsValue = step.swings;
+    if (step.detected) {
       this.detectedValue = true;
       this.detectedAt = nowMs;
-      this.progressValue = 1;
     }
-  }
-
-  /** The sweep starts again; `faceCx` becomes the new face reference (null: none). */
-  private restart(faceCx: number | null): void {
-    this.samples = [];
-    this.progressValue = 0;
-    this.reversalsValue = 0;
-    this.sweepFaceCx = faceCx;
   }
 
   reset(): void {
-    this.samples = [];
-    this.missing = 0;
-    this.refX = null;
+    this.sweep.reset();
     this.progressValue = 0;
     this.reversalsValue = 0;
     this.detectedValue = false;
+    this.refX = null;
     this.movedAt = null;
     this.detectedAt = null;
-    this.sweepFaceCx = null;
   }
 }
 
@@ -193,13 +157,22 @@ export function poseLabel(pose: HandPose): string {
   }
 }
 
-/**
- * Estimated share (0..100) of wall time the detector runs: average duration times detections per second.
- * An estimate, not a measurement: the scheduler keeps the average, not every duration. Null before any detection.
- */
-export function busyPercent(avgMs: number | null, effectiveHz: number): number | null {
-  if (avgMs === null) return null;
-  return Math.min(100, (avgMs * effectiveHz) / 10);
+/** Text for the face model when no face is in view: the owner must see a failed model, not a missing face. */
+export function faceAbsentText(status: FaceModelStatus): string {
+  switch (status) {
+    case "loading":
+      return "Model wajah sedang dimuat";
+    case "unavailable":
+      return "Model wajah gagal dimuat";
+    case "ready":
+      return "Wajah tidak terlihat";
+  }
+}
+
+/** One detector's readout: its rate in the last second and its average time. */
+export function modelReadoutText(m: ModelInferenceStats): string {
+  if (m.detections === 0 || m.avgMs === null) return "belum ada deteksi";
+  return `${m.effectiveHz} /detik · rata-rata ${Math.round(m.avgMs)} ms`;
 }
 
 /** Why the detector runs on the delegate it runs on, in Indonesian for the owner. */

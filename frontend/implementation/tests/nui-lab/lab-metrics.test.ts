@@ -2,8 +2,10 @@ import { describe, expect, it } from "vitest";
 import {
   LAB_STILL_SPAN,
   WaveLabSampler,
+  faceAbsentText,
   isStill,
   jitterStdDevPx,
+  modelReadoutText,
   percentile,
 } from "@/src/components/nui-lab/lab-metrics";
 
@@ -154,5 +156,29 @@ describe("WaveLabSampler", () => {
     sampler.feed(wristAt(20), 20 * 33, { face: turned });
     expect(sampler.progress).toBe(0);
     expect(sampler.reversals).toBe(0);
+  });
+});
+
+describe("faceAbsentText", () => {
+  it("says the face model failed to load, so the owner does not blame the student", () => {
+    expect(faceAbsentText("unavailable")).toBe("Model wajah gagal dimuat");
+  });
+
+  it("says the face is not in view while the model works", () => {
+    expect(faceAbsentText("ready")).toBe("Wajah tidak terlihat");
+  });
+
+  it("says the model is still loading before its first load", () => {
+    expect(faceAbsentText("loading")).toBe("Model wajah sedang dimuat");
+  });
+});
+
+describe("modelReadoutText", () => {
+  it("shows the rate and the average time of one model", () => {
+    expect(modelReadoutText({ detections: 9, avgMs: 20.4, lastMs: 19, effectiveHz: 4 })).toBe("4 /detik · rata-rata 20 ms");
+  });
+
+  it("says there was no detection yet, before the first one", () => {
+    expect(modelReadoutText({ detections: 0, avgMs: null, lastMs: null, effectiveHz: 0 })).toBe("belum ada deteksi");
   });
 });

@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.13.0-alpha | 2026-11-12 | Fitur | `(0.13.0-alpha)` |
 | 0.12.9-alpha | 2026-11-12 | Perbaikan | `(0.12.9-alpha)` |
 | 0.12.8-alpha | 2026-11-12 | Perbaikan | `(0.12.8-alpha)` |
 | 0.12.7-alpha | 2026-11-12 | Perbaikan | `(0.12.7-alpha)` |
@@ -93,6 +94,22 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.13.0-alpha — 2026-11-12 — Fitur
+
+**Sumber:** Owner 2026-11-12, REVISIONS R12-05
+
+**Perubahan:**
+- Lambaian dikenali lebih cepat (±1,5 kali balik arah, paling lama ±1,0 s), termasuk ayunan kecil.
+- Wajah pemain ditandai dengan MediaPipe Face Detector (BlazeFace, 0,23 MB, paket yang sama, tanpa dependensi baru); hanya tangan di area wajah pemain yang dihitung.
+- Wajah tidak bisa terbaca sebagai tangan; kepala menoleh dan tangan orang lain tidak dihitung sebagai lambaian.
+- Model wajah ikut dimuat saat pemanasan setelah model tangan siap.
+
+**Commit:** commit berjudul `(0.13.0-alpha)`
+
+**Bukti:** vitest penuh 252 file / 1954 test lulus; tsc, eslint bersih; belum diuji dengan kamera asli
 
 ---
 

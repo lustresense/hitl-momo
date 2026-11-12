@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.12.9-alpha | 2026-11-12 | Perbaikan | `(0.12.9-alpha)` |
 | 0.12.8-alpha | 2026-11-12 | Perbaikan | `(0.12.8-alpha)` |
 | 0.12.7-alpha | 2026-11-12 | Perbaikan | `(0.12.7-alpha)` |
 | 0.12.6-alpha | 2026-11-12 | Dokumen | `(0.12.6-alpha)` |
@@ -92,6 +93,22 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.12.9-alpha — 2026-11-12 — Perbaikan
+
+**Sumber:** Owner 2026-11-12 (screenshot perangkat asli), REVISIONS R12-01, R12-03
+
+**Perubahan:**
+- Judul "Sketchbook Universe" tampil di cover, di bawah pita dan di atas kartu kamera.
+- Latar cover tetap sampai buku membalik; tidak lagi berganti saat kartu kamera mendarat di pojok.
+- Momo cover memudar mulai di tengah balikan buku dan layar berikutnya memudar masuk; tidak ada dua Momo bersamaan.
+- Level baru muncul di tengah balikan buku, bukan sebelumnya.
+
+**Commit:** commit berjudul `(0.12.9-alpha)`
+
+**Bukti:** vitest 6 file cover/handoff 33 lulus; tsc bersih di file ini; belum dilihat di browser
 
 ---
 

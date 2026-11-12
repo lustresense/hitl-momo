@@ -293,7 +293,7 @@ describe("GlobalCamera cover choreography (R3)", () => {
     expect(fromToCalls()).toHaveLength(0);
   });
 
-  it("the book opens on the thumb; Momo fades 0.3 s after the midpoint and is gone after the fade", async () => {
+  it("the book opens on the thumb; Momo fades out from the midpoint and is gone 0.3 s later (R12-03: no two Momos)", async () => {
     const onWave = vi.fn();
     const { rerender } = render(<GlobalCamera mode="cover" modelUrl="/m" onWave={onWave} />);
     act(() => { (window as Window & { __skbWave?: () => void }).__skbWave?.(); });
@@ -305,12 +305,11 @@ describe("GlobalCamera cover choreography (R3)", () => {
     act(() => { vi.advanceTimersByTime(1400); });
     expect(onWave).toHaveBeenCalledTimes(1);
     rerender(<GlobalCamera mode="floating" modelUrl="/m" onWave={onWave} />);
+    // The fade starts at the midpoint, not 0.3 s later: the next screen's Momo fades in only after this one is gone.
+    expect(momo.props?.className).toContain("is-leaving");
     act(() => { vi.advanceTimersByTime(299); });
     expect(screen.getByTestId("cover-momo")).toBeTruthy();
-    expect(momo.props?.className ?? "").not.toContain("is-leaving");
     act(() => { vi.advanceTimersByTime(1); });
-    expect(momo.props?.className).toContain("is-leaving");
-    act(() => { vi.advanceTimersByTime(300); });
     expect(screen.queryByTestId("cover-momo")).toBeNull();
     expect(onWave).toHaveBeenCalledTimes(1);
   });

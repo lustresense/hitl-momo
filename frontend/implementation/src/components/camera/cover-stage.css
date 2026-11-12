@@ -1,0 +1,37 @@
+/*
+ * R12-03a: the cover's green belongs to the cover stage, not to the PIP layout. The host switches to mode-floating as
+ * soon as the camera card lands in its corner (before the book turns), so the page must not key off mode-cover.
+ * The rule is more specific than the transparent #app.onboarding-app rule in 80-document-paper.css.
+ */
+#app.onboarding-app:has(.camera-prototype-root.is-cover-stage) {
+  background: #eff3db !important;
+}
+
+/*
+ * R12-01: the cover title. Ink on the cover green (high contrast), orange hard shadow, the kit's black shadow behind it.
+ * Wraps on phones; text-wrap balance keeps the two lines even.
+ */
+.camera-prototype-root.mode-cover .cover-wordmark {
+  width: 100%;
+  margin: 0 0 22px;
+  font-family: inherit;
+  font-size: clamp(34px, 7vw, 68px);
+  font-weight: 900;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  text-align: center;
+  text-wrap: balance;
+  color: var(--nb-ink, #111111);
+  text-shadow: 3px 3px 0 var(--nb-orange, #ef7a37), 6px 6px 0 var(--nb-ink, #111111);
+  transition: opacity 0.4s ease;
+}
+
+/* Momo is awake: the title fades like the pill does; the space stays, so the camera card does not jump. */
+.camera-prototype-root.mode-cover.has-momo-awake .cover-wordmark {
+  opacity: 0;
+}
+
+/* The PIP has no room for a title: it exists on the cover only. */
+.global-camera-host.mode-floating .cover-wordmark {
+  display: none !important;
+}

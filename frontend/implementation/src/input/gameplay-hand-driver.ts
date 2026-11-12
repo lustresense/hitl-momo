@@ -3,15 +3,14 @@
 /**
  * TASK 14 — MediaPipe gameplay input driver (real camera only).
  * 
- * PROVISIONAL GESTURE MAPPING (not product-final):
- * - Index fingertip (landmark 8) drives horizontal cursor position for left/right movement
- * - Thumb-index pinch toggles grab/drag (PLACE) in gameplay phase
- * - Mirror x (1-x) exactly once via indexTipNormalized from hand-gesture.ts
- * - Movement zones: left < 0.35, right > 0.65, center stop (0.35–0.65)
+ * GESTURE MAPPING (see gameplay-gesture.ts):
+ * - Index finger direction (knuckle 5 to tip 8, mirrored once) steers Thinman: walk left/right,
+ *   jump on the spot or jump and walk diagonally; pointing down stops
+ * - Thumb-index pinch: grab/drag while placing; it does not jump (enableJump is a legacy opt-in)
+ * - Palm roll (wrist to middle knuckle, degrees): published per frame for the object turn (hand-roll-store)
  * - Pinch threshold 0.42 reused from hand-gesture.ts for grab/drag PLACE
- * - Jump: false unless the caller opts in with enableJump (then a held pinch = jump; PROVISIONAL)
- * - Hysteresis/debounce live in GameplayGestureFilter (zones 0.35/0.65 enter, 0.40/0.60 leave;
- *   3 stable frames before input after (re)acquiring the hand; tracking loss = instant neutral)
+ * - Hysteresis/debounce live in GameplayGestureFilter (zone bands widened by a few degrees to
+ *   keep; 3 stable frames before input after (re)acquiring the hand; tracking loss = instant neutral)
  * 
  * ARCHITECTURE:
  * - Borrows shared camera stream only (getSharedStream) — never opens own camera
@@ -23,7 +22,7 @@
  * 
  * EXPORTS:
  * - GameplayHandDriver class
- * - GameplayFrame type {tracked, cursor, pinched, input}
+ * - GameplayFrame type {tracked, cursor, pinched, input, pose, roll}
  * - Status string: "initializing" | "tracking" | "tracking-lost" | "camera-unavailable" | "error"
  */
 
@@ -32,10 +31,21 @@ import type { Landmark } from "./types";
 import { getSharedStream, subscribeSharedStream } from "../camera/shared-stream";
 import { createHandLandmarker, delegateLabel } from "../camera/hand-landmarker";
 import { classifyCameraError, messageFor, type CameraFailureReason } from "../camera/messages";
+import { publishHand, retireHand, startHandHeartbeat } from "../camera/hand-cursor-store";
 import { GameplayGestureFilter, type GameplayGestureFrame } from "./gameplay-gesture";
+import { StableVote, classifyHandPose, indexTipNormalized, type HandPose } from "./hand-gesture";
+import { handRollAngle } from "./hand-rotation";
+import { publishHandRoll } from "./hand-roll-store";
+import { frameForDetection } from "../camera/frame-source";
+import { pickPrimaryHand, type PrimaryHandState } from "../camera/primary-hand";
+import { pollDetection } from "../camera/inference-scheduler";
 
-// Re-export frame type for consumers
-export type GameplayFrame = GameplayGestureFrame;
+/**
+ * One gameplay frame: the steering/pinch reading plus the stable hand pose (voted over recent frames, "none"
+ * without a hand) and the palm roll in degrees (null without a hand). Placement and exploration read `pose` through
+ * the gesture router; the finger count is not used.
+ */
+export type GameplayFrame = GameplayGestureFrame & { pose: HandPose; roll: number | null };
 
 export type GameplayStatus = "initializing" | "tracking" | "tracking-lost" | "camera-unavailable" | "error";
 
@@ -69,7 +79,7 @@ const DEFAULT_WASM_ROOT = "/mediapipe/wasm";
 const DEFAULT_MODEL_URL = "/models/hand_landmarker.task";
 
 function neutralFrame(): GameplayFrame {
-  return { tracked: false, cursor: null, pinched: false, input: { left: false, right: false, jump: false } };
+  return { tracked: false, cursor: null, pinched: false, angle: null, input: { left: false, right: false, jump: false }, pose: "none", roll: null };
 }
 
 export class GameplayHandDriver {
@@ -86,6 +96,13 @@ export class GameplayHandDriver {
   private neutralReported = false;
   private unsubscribeStream: (() => void) | null = null;
   private onVisibility: (() => void) | null = null;
+  /** Keeps this reader alive in the shared cursor store while the model loads (no frames yet). */
+  private stopHeartbeat: (() => void) | null = null;
+  /** Stable pose: one noisy frame cannot change it (see StableVote). */
+  private readonly poseVote = new StableVote<HandPose>("none");
+  private lastPinched = false;
+  /** The player's hand, locked across frames so a bystander's hand cannot steer Momo. */
+  private primary: PrimaryHandState | null = null;
 
   constructor(private readonly options: GameplayHandDriverOptions) {
     this.filter = new GameplayGestureFilter({ enableJump: options.enableJump });
@@ -117,6 +134,9 @@ export class GameplayHandDriver {
     this.lastStatus = null;
     this.neutralReported = false;
     this.filter.reset();
+    this.poseVote.reset();
+    this.lastPinched = false;
+    this.primary = null;
     this.generation++;
     const myGen = this.generation;
     const stale = () => this.initAborted || !this.running || this.generation !== myGen;
@@ -133,6 +153,8 @@ export class GameplayHandDriver {
       }
       this.stream = shared;
       this.watchStream(shared);
+      // Visible to the dwell buttons from now on, so they never start a second model while this one loads.
+      this.beginReader();
 
       // Bind video element to borrowed stream (re-assigning the same stream restarts playback)
       if (video.srcObject !== this.stream) video.srcObject = this.stream;
@@ -157,6 +179,7 @@ export class GameplayHandDriver {
       this.setStatus("tracking");
       this.options.onDiagnostic?.({ delegate: delegateLabel(created) });
       this.watchVisibility();
+      this.endHeartbeat();
       this.loop();
     } catch (err) {
       if (stale()) return; // superseded by stop()/restart: caller already moved on
@@ -172,16 +195,22 @@ export class GameplayHandDriver {
     this.generation++;
     cancelAnimationFrame(this.rafId);
     this.rafId = 0;
+    this.endHeartbeat();
+    retireHand("gameplay");
     this.unsubscribeStream?.();
     this.unsubscribeStream = null;
     if (this.onVisibility && typeof document !== "undefined") {
       document.removeEventListener("visibilitychange", this.onVisibility);
     }
     this.onVisibility = null;
+    this.primary = null;
 
     // Output neutral input immediately on stop
+    publishHandRoll(null);
     this.options.onFrame(neutralFrame());
     this.filter.reset();
+    this.poseVote.reset();
+    this.lastPinched = false;
 
     // Cleanup landmarker
     await this.cleanupLandmarker();
@@ -219,8 +248,29 @@ export class GameplayHandDriver {
     document.addEventListener("visibilitychange", this.onVisibility);
   }
 
+  private beginReader(): void {
+    this.endHeartbeat();
+    publishHand({ cursor: null, source: "gameplay" });
+    this.stopHeartbeat = startHandHeartbeat("gameplay");
+  }
+
+  private endHeartbeat(): void {
+    this.stopHeartbeat?.();
+    this.stopHeartbeat = null;
+  }
+
+  private resetPose(): HandPose {
+    this.poseVote.reset();
+    return "none";
+  }
+
   private reportNeutral(): void {
+    publishHand({ cursor: null, source: "gameplay" });
+    publishHandRoll(null);
     this.filter.reset();
+    this.poseVote.reset();
+    this.lastPinched = false;
+    this.primary = null;
     if (!this.neutralReported) {
       this.neutralReported = true;
       this.options.onFrame(neutralFrame());
@@ -255,13 +305,19 @@ export class GameplayHandDriver {
     this.lastVideoTime = video.currentTime;
     this.lastProcessTime = now;
 
-    let result: HandLandmarkerResult;
+    let result: HandLandmarkerResult | null;
+    const landmarker = this.landmarker;
     try {
-      result = this.landmarker.detectForVideo(video, now);
+      // Shared gate: null when the detection budget skips this camera frame. The stall timer below still counts it as
+      // a fresh frame (lastProcessTime is set above), so a skip never reads as a lost hand.
+      result = pollDetection(this, video, (ts) => landmarker.detectForVideo(frameForDetection(video), ts));
     } catch {
       this.running = false;
       cancelAnimationFrame(this.rafId);
       this.rafId = 0;
+      this.endHeartbeat();
+      retireHand("gameplay");
+      publishHandRoll(null);
       this.lastStatus = "error";
       this.options.onStatus("error");
       this.options.onDiagnostic?.({ reason: "tracker-error", message: messageFor("tracker-error") });
@@ -270,10 +326,23 @@ export class GameplayHandDriver {
       return;
     }
 
-    const landmarks: Landmark[] | undefined = result.landmarks[0];
+    if (!result) return;
+    // The player's hand, not whichever hand MediaPipe lists first; a lost lock reads as no hand.
+    const pick = pickPrimaryHand(result.landmarks, this.primary, now);
+    this.primary = pick.state;
+    const landmarks: Landmark[] | undefined = pick.index === null ? undefined : result.landmarks[pick.index];
     const frame = this.filter.update(landmarks, now);
+    // Pose is voted over frames (placement and exploration act on it); no hand = "none" and the vote restarts.
+    const pose = landmarks
+      ? this.poseVote.push(classifyHandPose(landmarks, { pinchHeld: this.lastPinched }))
+      : this.resetPose();
+    this.lastPinched = frame.tracked && frame.pinched;
+    // The raw fingertip (mirrored) for the dwell buttons; the gameplay filter keeps its own debounce.
+    publishHand({ cursor: landmarks ? indexTipNormalized(landmarks) : null, pinch: frame.pinched, pose, source: "gameplay" });
+    const roll = landmarks ? handRollAngle(landmarks) : null;
+    publishHandRoll(roll);
     this.neutralReported = false;
-    this.options.onFrame(frame);
+    this.options.onFrame({ ...frame, pose, roll });
     this.setStatus(frame.tracked ? "tracking" : "tracking-lost");
   };
 

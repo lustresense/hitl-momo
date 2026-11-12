@@ -143,6 +143,9 @@ const STAGE_3: LevelDefinition = makeLevel({
 
 export const LEVELS: LevelDefinition[] = [STAGE_1, STAGE_2, STAGE_3];
 
+/** The last level: winning it opens the closing (Pusat Halaman) instead of the level list. */
+export const FINAL_LEVEL_STAGE = Math.max(...LEVELS.map((level) => level.stage));
+
 export function getLevel(levelId: string): LevelDefinition | undefined {
   return LEVELS.find((l) => l.levelId === levelId);
 }

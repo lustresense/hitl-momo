@@ -109,8 +109,10 @@ export class MockPredictionProvider implements PredictionProvider {
         { label: labels[2]!, confidence: c },
       ],
     });
-    // Provenance is always "mock": downstream logs can never mistake DEV fixtures for model output.
-    return { ...result, provenance: makeProvenance("mock", elapsedMs(startedAt)) };
+    // Provenance is always "mock" (source "demo"): downstream logs can never mistake DEV fixtures for model output.
+    // The fixture labels are level words already, so each candidate's game label is its own label.
+    const candidates = result.candidates.map((c) => ({ ...c, gameLabel: c.label })) as typeof result.candidates;
+    return { ...result, candidates, provenance: makeProvenance("mock", elapsedMs(startedAt)) };
   }
 }
 

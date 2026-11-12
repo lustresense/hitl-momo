@@ -62,8 +62,8 @@ export const env = {
     return Number.isFinite(n) && n > 0 ? n : 8000;
   },
   /**
-   * PROPOSED. "allow" (default, = historical behaviour) | "reject" (labels outside
-   * the level vocabulary become PredictionError "out-of-vocabulary").
+   * "allow" (default) | "reject". With "reject", a partner label the label map does not know
+   * (not one of the model's 20 classes) becomes PredictionError "out-of-vocabulary".
    */
   get predictionOutOfVocabulary(): OutOfVocabularyPolicy {
     return (process.env.NEXT_PUBLIC_PREDICTION_OOV_POLICY ?? "").trim().toLowerCase() === "reject" ? "reject" : "allow";
@@ -124,6 +124,21 @@ function configErrorProvider(message: string): PredictionProvider {
 }
 
 /**
+ * The student session token may go only to the class backend's own /api/ paths.
+ * The prediction endpoint (default /predict, or any other origin) never receives it.
+ */
+export function sessionTokenAllowedFor(endpoint: string, apiBaseUrl: string): boolean {
+  if (!endpoint || !apiBaseUrl) return false;
+  try {
+    const target = new URL(endpoint);
+    const base = new URL(apiBaseUrl);
+    return target.origin === base.origin && target.pathname.startsWith("/api/");
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Provider factory: mock by default; partner adapter only when explicitly
  * configured. Any partner/unknown-config state yields a clearly-labeled config
  * error provider — never fabricated output (FR-02/NFR-05).
@@ -150,17 +165,18 @@ export function createPredictionProvider(
         headers.parseError ? "invalid JSON, ignored" : `refused (credential-like or reserved): ${headers.rejected.join(", ")}`,
       );
     }
+    const endpoint = env.predictionEndpoint;
     try {
       return new PartnerHttpPredictionProvider({
-        endpoint: env.predictionEndpoint,
+        endpoint,
         timeoutMs: env.predictionTimeoutMs,
-        vocabulary: providerVocabulary(level),
+        // The model speaks English class names; the label map judges them, not the level vocabulary.
         outOfVocabulary: env.predictionOutOfVocabulary,
         extraHeaders: headers.headers,
         sendContext: env.predictionSendContext,
         contextProvider: (): PredictionContext => ({ levelId: level.levelId, attemptId: attemptContext.current() }),
         onProvenance: (p) => attemptContext.noteProvenance(p),
-        tokenProvider,
+        tokenProvider: sessionTokenAllowedFor(endpoint, env.apiBaseUrl) ? tokenProvider : undefined,
       });
     } catch (err) {
       // e.g. endpoint is not http(s): must not crash the app, must not fall back to mock.

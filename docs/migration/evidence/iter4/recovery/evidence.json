@@ -1,0 +1,255 @@
+{
+  "run": "2026-11-09T17-15-10-293Z",
+  "result": "PASS",
+  "failure": null,
+  "git": {
+    "head": "9ba76d21dfaf9f0f57e6a331100bb3980d65b1c8",
+    "branch": "claude-monorepo",
+    "dirty": true
+  },
+  "checks": [
+    {
+      "name": "Top-3 panel: exactly three candidate decisions (btn-accept, btn-correct-2, btn-correct-3) + Bukan ini + a separate Redraw link; no 'Wujudkan Objek' step",
+      "ok": true
+    },
+    {
+      "name": "Top-3 panel is compact (<= 340 px wide)",
+      "ok": true,
+      "detail": 300
+    },
+    {
+      "name": "Decision immediately offers the object to the world ('Masukkan ke dunia')",
+      "ok": true
+    },
+    {
+      "name": "A: walking off the cliff gives FAIL (not success)",
+      "ok": true,
+      "detail": {
+        "outcome": "fail",
+        "y": 555.8218775510238
+      }
+    },
+    {
+      "name": "A: fail reason shown to student",
+      "ok": true,
+      "detail": "Jatuh ke jurang!"
+    },
+    {
+      "name": "A: fail overlay offers retry / reposition / redraw",
+      "ok": true
+    },
+    {
+      "name": "A: retry respawns at checkpoint, gameplay phase, no stale outcome",
+      "ok": true,
+      "detail": {
+        "phase": "gameplay",
+        "x": 56.57142857142857,
+        "y": 239.69387755102042,
+        "vy": 0,
+        "grounded": true,
+        "settled": false,
+        "outcome": null,
+        "failReason": null,
+        "objectX": 64.6938775510204,
+        "objectY": 100.20408163265306,
+        "objectW": 130.6122448979592,
+        "objectH": 19.591836734693878,
+        "committed": 1
+      }
+    },
+    {
+      "name": "A: after retry the level is WON with normal input",
+      "ok": true,
+      "detail": {
+        "outcome": "success"
+      }
+    },
+    {
+      "name": "B: HITL decision reached label 'tali' through Correct/Accept",
+      "ok": true,
+      "detail": {
+        "type": "Correct",
+        "rank": 2,
+        "label": "tali"
+      }
+    },
+    {
+      "name": "B: label 'tali' resolved to danger behaviour",
+      "ok": true,
+      "detail": [
+        {
+          "label": "tali",
+          "behavior": "danger"
+        },
+        {
+          "label": "papan",
+          "behavior": "solid"
+        }
+      ]
+    },
+    {
+      "name": "B: touching the danger object FAILS with a danger reason",
+      "ok": true,
+      "detail": {
+        "outcome": "fail",
+        "reasonB": "Menyentuh objek berbahaya (tali)!"
+      }
+    },
+    {
+      "name": "B: Redraw returns to the drawing phase",
+      "ok": true
+    },
+    {
+      "name": "B: second cycle (after Redraw) reached solid label 'papan'",
+      "ok": true,
+      "detail": {
+        "type": "Correct",
+        "rank": 3,
+        "label": "papan"
+      }
+    },
+    {
+      "name": "B: earlier danger object repositioned off the route via UI",
+      "ok": true,
+      "detail": [
+        {
+          "label": "tali",
+          "x": 65,
+          "y": 100
+        },
+        {
+          "label": "papan",
+          "x": 390,
+          "y": 280
+        },
+        {
+          "label": "papan",
+          "x": 240,
+          "y": 330
+        }
+      ]
+    },
+    {
+      "name": "B: after Redraw with a solid label the level can be WON",
+      "ok": true,
+      "detail": {
+        "outcome": "success",
+        "leftoverDangerObjects": 1
+      }
+    },
+    {
+      "name": "no console/page errors",
+      "ok": true,
+      "detail": []
+    }
+  ],
+  "steps": [
+    {
+      "t": "2026-11-09T17:15:10.585Z",
+      "m": "run-start",
+      "d": {
+        "git": {
+          "head": "9ba76d21dfaf9f0f57e6a331100bb3980d65b1c8",
+          "branch": "claude-monorepo",
+          "dirty": true
+        },
+        "prediction": "MOCK"
+      }
+    },
+    {
+      "t": "2026-11-09T17:15:10.873Z",
+      "m": "cover: camera switch turned on"
+    },
+    {
+      "t": "2026-11-09T17:15:11.740Z",
+      "m": "cover: Momo woken (button)"
+    },
+    {
+      "t": "2026-11-09T17:15:32.338Z",
+      "m": "cover: book opened to the ruler"
+    },
+    {
+      "t": "2026-11-09T17:16:06.173Z",
+      "m": "ruler: number 20 confirmed with thumb"
+    },
+    {
+      "t": "2026-11-09T17:16:06.242Z",
+      "m": "onboarding: tutorial skipped via visible button"
+    },
+    {
+      "t": "2026-11-09T17:16:10.076Z",
+      "m": "L1: story intro visible"
+    },
+    {
+      "t": "2026-11-09T17:16:10.417Z",
+      "m": "L1: story intro skipped"
+    },
+    {
+      "t": "2026-11-09T17:16:45.668Z",
+      "m": "Top-3 (MOCK provider): [\"batu\",\"tangga\",\"balok\"]"
+    },
+    {
+      "t": "2026-11-09T17:16:45.750Z",
+      "m": "decision: {\"type\":\"Correct\",\"rank\":3,\"label\":\"balok\"}"
+    },
+    {
+      "t": "2026-11-09T17:17:19.120Z",
+      "m": "Top-3 (MOCK provider): [\"batu\",\"tangga\",\"balok\"]"
+    },
+    {
+      "t": "2026-11-09T17:17:19.474Z",
+      "m": "decision: {\"type\":\"Override\",\"label\":\"papan\"}"
+    },
+    {
+      "t": "2026-11-09T17:18:45.752Z",
+      "m": "L3: story intro visible"
+    },
+    {
+      "t": "2026-11-09T17:18:46.098Z",
+      "m": "L3: story intro skipped"
+    },
+    {
+      "t": "2026-11-09T17:18:51.866Z",
+      "m": "Top-3 (MOCK provider): [\"papan\",\"tali\",\"ember\"]"
+    },
+    {
+      "t": "2026-11-09T17:18:51.953Z",
+      "m": "decision: {\"type\":\"Correct\",\"rank\":2,\"label\":\"tali\"}"
+    },
+    {
+      "t": "2026-11-09T17:19:07.516Z",
+      "m": "Top-3 (MOCK provider): [\"ember\",\"tangga\",\"papan\"]"
+    },
+    {
+      "t": "2026-11-09T17:19:07.658Z",
+      "m": "decision: {\"type\":\"Correct\",\"rank\":3,\"label\":\"papan\"}"
+    },
+    {
+      "t": "2026-11-09T17:19:26.064Z",
+      "m": "Top-3 (MOCK provider): [\"ember\",\"tangga\",\"papan\"]"
+    },
+    {
+      "t": "2026-11-09T17:19:26.202Z",
+      "m": "decision: {\"type\":\"Correct\",\"rank\":3,\"label\":\"papan\"}"
+    },
+    {
+      "t": "2026-11-09T17:19:33.726Z",
+      "m": "creations carried through Redraw",
+      "d": [
+        {
+          "label": "tali",
+          "behavior": "danger",
+          "x": 239.99996885961423,
+          "y": 329.99999532894213
+        },
+        {
+          "label": "papan",
+          "behavior": "solid",
+          "x": 389.99996885961417,
+          "y": 279.9999762554558
+        }
+      ]
+    }
+  ],
+  "video": null
+}

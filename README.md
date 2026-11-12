@@ -144,13 +144,29 @@ docker compose config -q   # valid (sudah diuji)
 docker compose up -d --build   # BELUM DIUJI: lingkungan pengujian tidak punya daemon Docker
 ```
 
+## Kontrol gestur di game
+
+Mode kamera memakai satu pembaca tangan (MediaPipe) per layar. Mode fallback memakai mouse, sentuh, dan keyboard.
+
+| Gestur | Fungsi |
+|---|---|
+| Cubit (jempol + telunjuk) | Coret di kanvas. Di tutorial: cincin cubit untuk maju |
+| Kepal | Hapus sebagian goresan. Tangan kedua mencubit untuk mengatur ukuran penghapus |
+| Dua jari | Mundur (undo) |
+| Telapak terbelah | Maju (redo) |
+| Jempol, tahan 2 detik | Selesai gambar. Baru setelah itu model menebak dan Top-3 muncul |
+| Telunjuk melayang di tombol ±1,2 detik | Memilih (Top-3, keputusan, layar gagal, sudut layar, Tebak, misi) |
+| Gameplay: telunjuk di sepertiga kiri atau kanan, cubit tahan | Thinman ke kiri, ke kanan, lompat |
+
+Semua ini baru terbukti dengan landmark sintetis dan test hook. Belum diuji dengan kamera fisik. Ambang gestur adalah tebakan awal dan perlu kalibrasi.
+
 ## Test
 
 | Perintah | Membuktikan |
 |---|---|
 | `python -m pytest tests/integration/test_classroom_contract.py -q` | Kontrak classroom: token sesi, idempotensi, outcome, CORS, pembersihan sesi kedaluwarsa, batas titik `/predict`. 14 test |
 | `python tests/integration/verify_backend.py "$PWD" /tmp/backend_verify.json` | 20 pemeriksaan runtime terhadap backend dengan **bobot model asli**. Menulis ulang `contracts/openapi.json` |
-| `cd frontend/implementation && npx vitest run` | 104 file, 681 test unit game, termasuk test kontrak dengan fixture bersama dan test pemulihan outbox |
+| `cd frontend/implementation && npx vitest run` | 151 file, 1144 test unit game, termasuk test kontrak dengan fixture bersama dan test pemulihan outbox |
 | `cd frontend/implementation && npm run typecheck` | Tipe game |
 | `cd frontend/admin && npm run typecheck` | Tipe dashboard |
 | `node e2e/classroom-e2e.mjs` (dari `frontend/implementation`) | E2E classroom 17 cek: join, prediksi model asli, submit yang di-retry, database, dashboard. Butuh game ter-build, backend, dashboard, dan env di komentar awal file |

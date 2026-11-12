@@ -18,6 +18,8 @@ export interface MomoCue {
 export interface MomoCueContext {
   stage: number;
   prediction: PredictionResult | null;
+  /** Set while the idle prompt is up: Momo asks whether the drawing is finished (never predicts). */
+  idleLine?: string | null;
 }
 
 export function resolveMomoCue(feedback: string | null, visualPhase: DrawingPhase, ctx?: MomoCueContext): MomoCue {
@@ -25,6 +27,7 @@ export function resolveMomoCue(feedback: string | null, visualPhase: DrawingPhas
   if (feedback === "empty-drawing") return { moment: "drawing-empty", message: undefined, fog: 0 };
   switch (visualPhase) {
     case "drawing":
+      if (ctx?.idleLine) return { moment: "drawing-cue", message: ctx.idleLine, mood: "Penasaran", fog: 0 };
       return { moment: "drawing-cue", message: "Gambar objekmu dulu, ya. Nanti aku coba tebak!", fog: 0 };
     case "predicting":
       return { moment: "predicting", message: "Hmm... ini gambar apa, ya?", mood: tone.guessMood, fog: tone.fog };

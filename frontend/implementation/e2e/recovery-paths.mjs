@@ -1,10 +1,10 @@
 // Recovery/negative paths with trusted input only (MOCK prediction):
 //  A) L1: fall into the chasm -> FAIL overlay -> "Coba dari checkpoint" -> respawn -> WIN
-//  B) L3: HITL Override to a DANGER label -> hazard contact FAIL -> "Gambar ulang" (Redraw) ->
+//  B) L3: HITL Override to a DANGER label -> hazard contact FAIL -> "Gambar lagi" (Redraw) ->
 //     second drawing/decision -> WIN. Also checks Redraw is not a 4th decision button on the Top-3 panel.
 import fs from "node:fs";
 import path from "node:path";
-import { ROOT, startStaticServer, launch, gitInfo, onboardToLevelsFast, enterLevel, drawScribble, submitAndDecide, placeByDrag, confirmPlacement, readGame, sleep, writeJson , holdThumb } from "./lib/harness.mjs";
+import { ROOT, startStaticServer, launch, gitInfo, onboardToLevelsFast, enterLevel, drawScribble, submitAndDecide, placeByDrag, confirmPlacement, readGame, sleep, writeJson, holdThumb, press } from "./lib/harness.mjs";
 
 const plans = JSON.parse(fs.readFileSync(path.join(ROOT, "e2e/lib/level-plans.json"), "utf8"));
 const RUN = new Date().toISOString().replace(/[:.]/g, "-");
@@ -46,7 +46,7 @@ const toCentre = c => [c.x + plans.objectSize.w / 2, c.y + plans.objectSize.h / 
 /** Second (and later) cycles of a level plan: draw again, decide, place. */
 async function placeSecond(stage, from = 1) {
   for (const cycle of plans[String(stage)].cycles.slice(from)) {
-    await page.locator("[data-testid=btn-draw-again]").click();
+    await press(page, "btn-draw-again");
     await drawScribble(page, "block");
     await submitAndDecide(page, { prefer: cycle.label, log: m => log(m) });
     await placeByDrag(page, ...toCentre(cycle)); await confirmPlacement(page);
@@ -66,13 +66,14 @@ try {
     prefer: plans["1"].cycles[0].label, log: m => log(m),
     inspect: async () => {
       const t = id => page.getByTestId(id).count();
-      check("Top-3 panel: exactly three decisions (Accept/Correct/Override) + a separate Redraw link; no 'Wujudkan Objek' step",
-        (await t("btn-accept")) === 1 && (await t("btn-correct")) === 1 && (await t("btn-override")) === 1 && (await t("btn-redraw")) === 1 && (await t("btn-wujudkan-objek")) === 0);
+      // 2026-11-09 Top-3: one button per candidate (btn-accept = rank 1, btn-correct-2/3), then "Bukan ini" and a separate Redraw.
+      check("Top-3 panel: exactly three candidate decisions (btn-accept, btn-correct-2, btn-correct-3) + Bukan ini + a separate Redraw link; no 'Wujudkan Objek' step",
+        (await t("btn-accept")) === 1 && (await t("btn-correct-2")) === 1 && (await t("btn-correct-3")) === 1 && (await t("btn-override")) === 1 && (await t("btn-redraw")) === 1 && (await t("btn-wujudkan-objek")) === 0);
       const box = await page.getByTestId("popup-evaluating").boundingBox();
       check("Top-3 panel is compact (<= 340 px wide)", box && box.width <= 340, box && Math.round(box.width));
     },
   });
-  check("Decision immediately offers the object to the world ('Masukkan ke dunia')", await page.getByTestId("enter-world-popup").isVisible());
+  check("Decision puts the object on the canvas as a sticker (sticker-stamp, 'Lempar')", await page.getByTestId("sticker-stamp").isVisible());
   await placeByDrag(page, ...toCentre(plans["1"].cycles[0])); await confirmPlacement(page);
   // The fall is the student's test run with only the first object (a partial try is allowed).
   // 0.0.16 world: the placed balok now blocks the walk at the cliff edge, so the student first moves it
@@ -94,7 +95,10 @@ try {
   await page.locator("[data-testid=btn-retry-cycle]").waitFor({ state: "visible", timeout: 6000 }).catch(() => {}); // Momo's first bubble comes first, then the actions
   check("A: fail overlay offers retry / reposition / redraw", await page.locator("[data-testid=btn-retry-cycle]").isVisible() && await page.locator("[data-testid=btn-reposition]").isVisible() && await page.locator("[data-testid=btn-redraw-gameplay]").isVisible());
   await shot("A-01-fail-overlay");
-  await page.locator("[data-testid=btn-retry-cycle]").click(); await sleep(500);
+  await press(page, "btn-retry-cycle");
+  // Retry is a hold/press that resolves after the overlay closes; wait for the stale outcome to clear.
+  await page.waitForFunction(() => { const d = document.querySelector("[data-testid=game-canvas]")?.dataset; return d && d.phase === "gameplay" && !d.outcome; }, null, { timeout: 8000 }).catch(() => {});
+  await sleep(300);
   const afterRetry = await readGame(page);
   check("A: retry respawns at checkpoint, gameplay phase, no stale outcome", afterRetry.phase === "gameplay" && !afterRetry.outcome && afterRetry.x < 80 && afterRetry.y < 300, afterRetry);
   // Put the balok back on its spot; minDrawings = 2, so the second object goes in before the winning run.
@@ -106,7 +110,8 @@ try {
 
   // ---------- B) L3 danger -> fail -> Redraw -> win ----------
   await page.locator("[data-testid=success-chat][data-finished=true]").waitFor({ timeout: 25000 });
-  await holdThumb(page, "btn-continue"); // the thumb cue opens the level list
+  // The thumb cue opens the level list; the hand-over may also happen automatically (see normal-journey stage 2).
+  await holdThumb(page, "btn-continue", { timeout: 8000 }).catch(() => {});
   await page.locator(".level-card").nth(2).waitFor({ state: "visible", timeout: 15000 });
   await enterLevel(page, 3, m => log(m));
   await drawScribble(page, "spike");
@@ -122,7 +127,7 @@ try {
   const reasonB = await page.locator("[data-testid=fail-reason]").textContent({ timeout: 3000 }).catch(() => null);
   check("B: touching the danger object FAILS with a danger reason", rb.outcome === "fail" && /berbahaya|bahaya/i.test(reasonB ?? ""), { outcome: rb.outcome, reasonB });
   await shot("B-02-danger-fail");
-  await page.locator("[data-testid=btn-redraw-gameplay]").click();
+  await press(page, "btn-redraw-gameplay");
   await page.locator("[data-testid=draw-canvas]").waitFor({ state: "visible", timeout: 10000 });
   check("B: Redraw returns to the drawing phase", true);
   await drawScribble(page, "block");

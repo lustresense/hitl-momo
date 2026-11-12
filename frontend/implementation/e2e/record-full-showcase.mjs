@@ -1,3 +1,4 @@
+// STALE: butuh pembaruan harness baru
 // PRD 0.0.16 T14 — full showcase recording, NO skips, one MP4.
 // Cover wave, ruler, tutorial, level select (ribbon thumb), the whole story intro incl. Momo flying up
 // with the camera to the sky canvas, slow visible drawing, Momo's guess chat, HITL decision, world

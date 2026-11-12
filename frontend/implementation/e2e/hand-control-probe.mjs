@@ -1,3 +1,4 @@
+// STALE: butuh pembaruan harness baru
 // Gameplay hand-control opt-in + input-conflict probe (Chromium FAKE camera: no real hand is ever tracked).
 //  REAL here: shared camera stream -> opt-in toggle appears -> GameplayHandDriver starts (wasm+model, delegate shown)
 //  -> arbiter: with no tracked hand, keyboard still drives the character; releasing keys stops it; toggling back works.

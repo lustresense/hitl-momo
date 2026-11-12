@@ -13,6 +13,8 @@ vi.mock("@/src/input", () => ({
     dispose() {}
     setMode(m: string) { switched.push(m); return Promise.resolve(); }
     setErasing() {}
+    // useDrawingSurface wraps the store's stroke/erase methods, so the fake needs a store too.
+    store = { endStroke() {}, eraseAt: () => false, hasActiveStroke: () => false, lastActivePoint: () => null };
     clear() {}
     undo() {}
     redo() {}
@@ -21,7 +23,7 @@ vi.mock("@/src/input", () => ({
 
 import { DrawingScreen } from "@/src/components/drawing/DrawingScreen";
 
-const props = { level: LEVELS[0]!, feedback: null, surfaceOut: { current: null }, onSubmit: vi.fn(), onExit: vi.fn(), active: true, autoAsk: false };
+const props = { level: LEVELS[0]!, feedback: null, surfaceOut: { current: null }, onSubmit: vi.fn(), onExit: vi.fn(), active: true };
 
 describe("R13 drawing starts in hand mode in camera mode", () => {
   beforeEach(() => { resetInputModeForTest(); created.length = 0; switched.length = 0; });

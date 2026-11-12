@@ -1,9 +1,9 @@
 "use client";
 import { useEffect } from "react";
 import type { Top3PredictionPopupProps } from "./top3-popup-types";
-import { Top3Panel } from "./Top3Panel";
 import { DecisionPanel } from "../decision/DecisionPanel";
 import { Icon } from "../ui/Icon";
+import { PredictionErrorActions } from "./PredictionErrorActions";
 
 /**
  * Top-3 HITL Prediction Floating Popup.
@@ -37,38 +37,14 @@ export function Top3PredictionPopup({
 
   if (phase === "prediction-error") {
     return (
-      <div
-        className="prediction-hitl-popup is-error"
-        role="alert"
-        aria-label="Kendala prediksi AI"
-        data-testid="popup-error"
-      >
+      <div className="prediction-hitl-popup is-error" role="alert" aria-label="Kendala prediksi AI" data-testid="popup-error">
         <div className="popup-badge error-badge">
           <Icon name="close" size={14} stroke={3.2} />
           Kendala
         </div>
         <h3 className="popup-title">Momo belum bisa menebak</h3>
         <p className="popup-desc">{errorDetail || "Terjadi kesalahan pada layanan prediksi."}</p>
-        <div className="popup-actions-error">
-          <button
-            type="button"
-            className="nb-btn nb-btn--primary"
-            onClick={onRetry}
-            data-testid="btn-retry-prediction"
-          >
-            <Icon name="again" size={19} />
-            Coba lagi
-          </button>
-          <button
-            type="button"
-            className="nb-btn"
-            onClick={onRedraw}
-            data-testid="btn-redraw-error"
-          >
-            <Icon name="pencil" size={19} />
-            Revisi gambar
-          </button>
-        </div>
+        <PredictionErrorActions className="popup-actions-error" onRetry={onRetry} onRedraw={onRedraw} />
       </div>
     );
   }
@@ -93,10 +69,6 @@ export function Top3PredictionPopup({
         </span>
       </div>
 
-      <div className="popup-candidates">
-        <Top3Panel result={prediction} />
-      </div>
-
       <div className="popup-decision">
         <DecisionPanel
           prediction={prediction}
@@ -110,4 +82,3 @@ export function Top3PredictionPopup({
     </div>
   );
 }
-

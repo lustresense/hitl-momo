@@ -1,16 +1,14 @@
 /**
- * Optional hand control of the world stage: availability of the shared camera stream, the
- * GameplayHandDriver lifecycle (steering in gameplay, pinch-drag in placement) and the status text
- * shown to the student.
+ * Hand control of the world stage: runs the GameplayHandDriver while GameStage says the stage is
+ * in camera mode (no toggle), and shows the status text the student sees.
  */
 import { useEffect, useState, type MutableRefObject } from "react";
-import { getSharedStream } from "@/src/camera/shared-stream";
 import type { GameplayHandDriver, GameplayStatus } from "@/src/input/gameplay-hand-driver";
 import type { GameplayInput } from "./useGameplayInput";
-import type { GameStageProps, StageOutcome, StagePhase } from "../game-stage-types";
+import type { GameStageProps, InputMode, StageOutcome, StagePhase } from "../game-stage-types";
+import { publishSteerAngle } from "../steer-reading";
 
 const PREPARING_CAMERA = "Menyiapkan kamera";
-const HAND_STATUS_POLL_MS = 1000;
 
 const STATUS_TEXT: Record<GameplayStatus, string> = {
   tracking: "Tangan terbaca",
@@ -20,54 +18,57 @@ const STATUS_TEXT: Record<GameplayStatus, string> = {
   error: "Kamera gagal, pakai keyboard",
 };
 
+/** Statuses that ask the student to fix something: the hand is gone or the camera or reader failed. */
+const ATTENTION_STATUS: ReadonlySet<GameplayStatus> = new Set<GameplayStatus>(["tracking-lost", "camera-unavailable", "error"]);
+
 interface UseHandControlOptions {
   ready: boolean;
   phase: StagePhase;
   outcome: StageOutcome | null;
-  integrated: boolean | undefined;
+  /** Decided by GameStage. The hand reader runs only in "camera". */
+  mode: InputMode;
   input: GameplayInput;
   /** Always points at the newest props (the driver callbacks outlive renders). */
   latest: MutableRefObject<GameStageProps>;
   movePlacementToHandCursor: (cursor: { x: number; y: number }) => void;
+  /** The hand reader could not start or crashed: GameStage switches the stage to fallback (R13). */
+  onHandFailed: () => void;
 }
 
 export function useHandControl({
   ready,
   phase,
   outcome,
-  integrated,
+  mode,
   input,
   latest,
   movePlacementToHandCursor,
+  onHandFailed,
 }: UseHandControlOptions) {
-  const [status, setStatus] = useState("NUI NOT VERIFIED");
-  const [handAvailable, setHandAvailable] = useState(false);
-  const { mode, setMode, arbiter, sendCombinedInput, releaseManualInput } = input;
-
-  // Hand control is opt-in and only offered while the shared camera stream is live (no second permission prompt).
-  useEffect(() => {
-    if (!integrated) return;
-    const check = () =>
-      setHandAvailable(
-        Boolean(getSharedStream()?.getVideoTracks().some((track) => track.readyState === "live")),
-      );
-    check();
-    const id = window.setInterval(check, HAND_STATUS_POLL_MS);
-    return () => window.clearInterval(id);
-  }, [integrated]);
+  // The student never sees a developer label: the first status is the honest "preparing" one.
+  const [status, setStatus] = useState(PREPARING_CAMERA);
+  // Set from the driver's status and diagnostics, not read back from the text: the chip must not depend on wording.
+  const [needsAttention, setNeedsAttention] = useState(false);
+  const { arbiter, sendCombinedInput } = input;
+  // Placing and gameplay share one reader. The phase change alone must not reload MediaPipe.
+  const readerWanted = ready && mode === "camera" && !outcome && (phase === "placing" || phase === "gameplay");
 
   useEffect(() => {
     sendCombinedInput();
-    if (!ready || mode !== "camera" || outcome || (phase !== "placing" && phase !== "gameplay")) return;
+    if (!readerWanted) return;
     let cancelled = false;
     let driver: GameplayHandDriver | null = null;
+    // A fresh start opts in again after an earlier camera revoke (arbiter R5).
+    arbiter.dispatch({ type: "camera", status: "ok" });
 
     async function startDriver() {
       const { GameplayHandDriver: DriverClass } = await import("@/src/input/gameplay-hand-driver");
       if (cancelled) return;
       const video = document.querySelector<HTMLVideoElement>(".global-camera-host .camera-video");
       if (!video) {
-        setStatus("Kamera belum tersedia · NUI NOT VERIFIED");
+        setStatus("Kamera belum tersedia");
+        setNeedsAttention(true);
+        onHandFailed();
         return;
       }
       driver = new DriverClass({
@@ -75,19 +76,26 @@ export function useHandControl({
         onStatus: (next) => {
           if (cancelled) return;
           setStatus(STATUS_TEXT[next]);
-          if (next === "camera-unavailable") {
-            arbiter.dispatch({ type: "camera", status: "revoked" });
-            setMode("fallback");
+          setNeedsAttention(ATTENTION_STATUS.has(next));
+          if (next === "camera-unavailable") arbiter.dispatch({ type: "camera", status: "revoked" });
+          if (next === "camera-unavailable" || next === "error") {
+            onHandFailed();
             sendCombinedInput();
           }
         },
         onDiagnostic: (info) => {
           if (cancelled) return;
-          if (info.message) setStatus(info.message);
-          else if (info.delegate) setStatus("Tangan (" + info.delegate + ")");
+          if (info.message) {
+            setStatus(info.message);
+            setNeedsAttention(true);
+          } else if (info.delegate) {
+            setStatus("Tangan (" + info.delegate + ")");
+          }
         },
         onFrame: (frame) => {
           if (cancelled) return;
+          // The dial reads the finger angle; no direction (no hand, flat finger) shows as "not read".
+          publishSteerAngle(frame.tracked ? frame.angle : null);
           arbiter.dispatch({
             type: "hand-frame",
             frame: {
@@ -116,26 +124,11 @@ export function useHandControl({
     return () => {
       cancelled = true;
       void driver?.stop();
+      publishSteerAngle(null);
       sendCombinedInput();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ready, mode, phase, outcome]);
+  }, [readerWanted]);
 
-  /** Integrated stage: the "Kontrol tangan" / "Pakai keyboard" toggle. */
-  function toggleHandControl() {
-    releaseManualInput();
-    setMode(mode === "camera" ? "fallback" : "camera");
-    setStatus(PREPARING_CAMERA);
-    arbiter.dispatch({ type: "set-hand-enabled", enabled: mode !== "camera" });
-    sendCombinedInput();
-  }
-
-  /** Stand-alone (legacy) stage: the "Nyalakan Kamera NUI" / FALLBACK toggle. */
-  function toggleCameraNui() {
-    releaseManualInput();
-    sendCombinedInput();
-    setMode(mode === "camera" ? "fallback" : "camera");
-  }
-
-  return { status, handAvailable, toggleHandControl, toggleCameraNui };
+  return { status, needsAttention };
 }

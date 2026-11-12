@@ -1,0 +1,13 @@
+TSC=0
+✔ No ESLint warnings or errors
+ Test Files  156 passed (156)
+      Tests  1178 passed (1178)
+BUILD=0
+JOURNEY=0
+RESULT PASS  attempts=[{"stage":1,"attempt":1,"outcome":"success","overlay":"Selamat, berhasil!","reason":null,"ms":21948},{"stage":2,"attempt":1,"outcome":"suc
+RECOVERY=0
+RESULT PASS checks=16/16 out=/tmp/claude-0/-home-user-hitl-momo/70f1ddc5-ed67-5bfc-8173-b01b43d2907b/scratchpad/run6/recovery
+FINISH=0
+PASS  no console/page errors []
+RESULT PASS checks=12/12 out=/tmp/claude-0/-home-user-hitl-momo/70f1ddc5-ed67-5bfc-8173-b01b43d2907b/scratchpad/run6/finish
+ALLDONE

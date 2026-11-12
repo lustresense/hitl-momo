@@ -178,11 +178,8 @@ body:has(#screen-drawing),
   }
 }
 
-@media (max-width: 600px) {
-  .drawing-momo-companion {
-    display: none !important;
-  }
-}
+/* No phone rule hides the companion. It carries the focus phase's "Mulai Menggambar" button (the only way past the
+   backdrop that covers the canvas), Momo's guess and the Top-3 decision. Hiding it at 390 px left the drawing blocked. */
 
 #screen-drawing[data-drawing-active="false"] .draw-canvas {
   pointer-events: none !important;

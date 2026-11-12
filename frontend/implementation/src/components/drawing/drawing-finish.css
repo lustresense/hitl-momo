@@ -1,0 +1,48 @@
+/* "Selesai gambar" thumb ring (Owner 2026-11-09). Bottom-RIGHT on desktop: the global camera card is fixed in the
+   bottom-left corner (24 px, z-index 900) and would hide a ring placed there; the tool column on the right ends above
+   it, and the Tebak row sits centre-bottom. */
+.drawing-finish {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+  z-index: 20;
+  max-width: 160px;
+  text-align: center;
+}
+
+/* Phones: the controls become a column at the bottom right, so the ring sits just above that column. */
+@media (max-width: 600px) {
+  .drawing-finish {
+    right: 12px;
+    bottom: 150px;
+    max-width: 128px;
+  }
+}
+
+/* Idle indicator (REVISI §14): faded while the student draws or erases; after IDLE_PROMPT_MS of rest it lights up
+   and wiggles once for 3 s as a reminder (never a confirmation). Reduced motion keeps it lit without the wiggle. */
+#screen-drawing[data-idle-prompt="off"] .drawing-finish {
+  opacity: 0.3;
+  transition: opacity 0.3s ease;
+}
+
+#screen-drawing[data-idle-prompt="on"] .drawing-finish {
+  opacity: 1;
+  animation: drawing-finish-tuwing 3s ease-in-out 1;
+}
+
+@keyframes drawing-finish-tuwing {
+  0%, 100% { transform: rotate(0) scale(1); }
+  12% { transform: rotate(-9deg) scale(1.08); }
+  26% { transform: rotate(8deg) scale(1.08); }
+  40% { transform: rotate(-6deg) scale(1.04); }
+  54% { transform: rotate(5deg); }
+  68% { transform: rotate(-3deg); }
+  84% { transform: rotate(2deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #screen-drawing[data-idle-prompt="on"] .drawing-finish {
+    animation: none;
+  }
+}

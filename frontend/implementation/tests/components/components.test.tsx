@@ -1,5 +1,14 @@
-import { describe, expect, it, vi, afterEach } from "vitest";
-import { render, screen, fireEvent, cleanup } from "@testing-library/react";
+import { describe, expect, it, vi, afterEach, beforeEach } from "vitest";
+import { act, render, screen, fireEvent, cleanup } from "@testing-library/react";
+import type { HandPose } from "@/src/input/hand-gesture";
+import { forceInputMode, resetInputModeForTest } from "@/src/input/input-mode";
+import { resetHandGesture, setHandGesture } from "./gesture-stub";
+
+/** The decision rings read the hand pose from the same tracker stub as the rest of this file. */
+const FINGERS: Partial<Record<HandPose, number>> = { "one-finger": 1, "two-fingers": 2, "three-fingers": 3, "open-palm": 5 };
+function setPose(pose: HandPose) {
+  setHandGesture({ pose, fingerCount: FINGERS[pose] ?? 0, handVisible: pose !== "none", thumbUp: pose === "thumb-up", pinch: pose === "pinch" } as never);
+}
 import { Top3Panel } from "@/src/components/prediction/Top3Panel";
 import { DecisionPanel } from "@/src/components/decision/DecisionPanel";
 import { PredictingScreen } from "@/src/components/prediction/PredictingScreen";
@@ -10,6 +19,13 @@ import { DrawingScreen } from "@/src/components/drawing/DrawingScreen";
 import { LEVELS } from "@/src/domain/levels";
 import type { PredictionResult, LevelContext } from "@/src/domain/types";
 
+// Hand tracker stubbed: the decision buttons read the fingertip, and no camera exists in tests.
+vi.mock("@/src/hooks/useHandGesture", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/src/hooks/useHandGesture")>();
+  const stub = await import("./gesture-stub");
+  return { ...actual, useHandGesture: stub.useHandGestureStub };
+});
+
 let mockHasInk = false;
 vi.mock("@/src/input", async (importOriginal) => {
   const actual = await importOriginal<typeof import("@/src/input")>();
@@ -17,6 +33,8 @@ vi.mock("@/src/input", async (importOriginal) => {
     constructor(_canvas: HTMLCanvasElement, _video: HTMLVideoElement, options: { onInkChange?: (value: boolean) => void }) {
       if (mockHasInk) options.onInkChange?.(true);
     }
+    // useDrawingSurface wraps the store's stroke/erase methods, so the stub needs a store too.
+    store = { endStroke() {}, eraseAt: () => false, hasActiveStroke: () => false, lastActivePoint: () => null };
     resizeForDpr() {}
     dispose() {}
     undo() { return true; }
@@ -27,8 +45,12 @@ vi.mock("@/src/input", async (importOriginal) => {
 afterEach(cleanup);
 
 describe("DrawingScreen explicit prediction", () => {
- it("shows disabled prediction submit before ink and no placeholder catalog",()=>{mockHasInk=false;render(<DrawingScreen level={LEVELS[0]!} initialMode="pointer" feedback={null} surfaceOut={{current:null}} onSubmit={vi.fn()} onExit={vi.fn()}/>);expect(screen.queryByText(/Katalog DEMO/)).toBeNull();expect(screen.getByTestId("btn-submit-drawing").hasAttribute("disabled")).toBe(true);expect(screen.queryByLabelText("Tebakan AI")).toBeNull();});
- it("submit requests prediction without selecting catalog intent",()=>{mockHasInk=true;const submit=vi.fn();render(<DrawingScreen level={LEVELS[0]!} initialMode="pointer" feedback={null} surfaceOut={{current:null}} onSubmit={submit} onExit={vi.fn()}/>);expect(submit).not.toHaveBeenCalled();fireEvent.click(screen.getByTestId("btn-submit-drawing"));expect(submit).toHaveBeenCalledWith(null);mockHasInk=false;});
+ // Camera mode (the default) keeps Tebak behind "Bantuan"; a student opens it first, so the test does the same.
+ const openBantuanIfHidden = () => {
+   if (!screen.queryByTestId("btn-submit-drawing")) fireEvent.click(screen.getByTestId("btn-drawing-help"));
+ };
+ it("shows disabled prediction submit before ink and no placeholder catalog",()=>{mockHasInk=false;render(<DrawingScreen level={LEVELS[0]!} initialMode="pointer" feedback={null} surfaceOut={{current:null}} onSubmit={vi.fn()} onExit={vi.fn()}/>);expect(screen.queryByText(/Katalog DEMO/)).toBeNull();openBantuanIfHidden();expect(screen.getByTestId("btn-submit-drawing").hasAttribute("disabled")).toBe(true);expect(screen.queryByLabelText("Tebakan AI")).toBeNull();});
+ it("submit requests prediction without selecting catalog intent",()=>{mockHasInk=true;const submit=vi.fn();render(<DrawingScreen level={LEVELS[0]!} initialMode="pointer" feedback={null} surfaceOut={{current:null}} onSubmit={submit} onExit={vi.fn()} showCanvasFocus={false}/>);expect(submit).not.toHaveBeenCalled();openBantuanIfHidden();fireEvent.click(screen.getByTestId("btn-submit-drawing"));expect(submit).toHaveBeenCalledWith(null);mockHasInk=false;});
 });
 
 describe("StudentRulerSelector", () => {
@@ -45,10 +67,13 @@ describe("StudentRulerSelector", () => {
     render(<StudentRulerSelector onConfirm={onConfirm} />);
 
     expect(screen.getByRole("heading", { name: "GESER PENGGARIS SESUAI NOMOR ABSENMU" })).toBeTruthy();
+    // Momo's focus phase locks the ruler (BIGPROMPT 6.2): a key press does nothing yet.
+    // Moving, saving and the thumbs-up are covered in tests/components/ruler-confirm.test.tsx.
     const slider = screen.getByRole("slider", { name: "Nomor absen" });
     fireEvent.keyDown(slider, { key: "ArrowRight" });
-    expect(slider.getAttribute("aria-valuenow")).toBe("21");
-    expect(window.localStorage.getItem("sketchbook.studentNumber")).toBe("21");
+    // A new student starts at number 1 (BIGPROMPT 6.2 default), not 20.
+    expect(slider.getAttribute("aria-valuenow")).toBe("1");
+    expect(window.localStorage.getItem("sketchbook.studentNumber")).toBeNull();
 
     // PRD 0.0.16 R3: no "Lanjut ke Tutorial" button; confirmation is Momo's thumbs-up (tests/components/ruler-confirm.test.tsx).
     expect(screen.queryByRole("button", { name: /Lanjut ke Tutorial/ })).toBeNull();
@@ -99,33 +124,58 @@ describe("Top3Panel (TASK 08)", () => {
 });
 
 describe("DecisionPanel (TASK 09)", () => {
-  it("Correct never auto-selects: nothing commits until a rank (2 or 3) is tapped, then it commits at once", () => {
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "requestAnimationFrame", "cancelAnimationFrame", "performance", "Date"] });
+    resetInputModeForTest();
+    resetHandGesture();
+    forceInputMode("camera");
+  });
+  afterEach(() => vi.useRealTimers());
+
+  const advance = (ms: number) => {
+    for (let t = 0; t < ms; t += 16) act(() => {
+      vi.advanceTimersByTime(16);
+    });
+  };
+  /** The ring arms on the empty hand first, then the pose is held for `ms` and released. */
+  const hold = (pose: HandPose, ms = 1600) => {
+    advance(64);
+    act(() => setPose(pose));
+    advance(ms);
+    act(() => setPose("none"));
+    advance(64);
+  };
+
+  it("Correct: a three-finger hold on candidate 3 commits once with rank 3; no other decision fires", () => {
     const onCorrect = vi.fn();
-    render(<DecisionPanel prediction={RESULT} level={LEVEL} onAccept={() => {}} onCorrect={onCorrect} onOverride={() => {}} onRedraw={() => {}} />);
+    const onAccept = vi.fn();
+    render(<DecisionPanel prediction={RESULT} level={LEVEL} onAccept={onAccept} onCorrect={onCorrect} onOverride={() => {}} onRedraw={() => {}} />);
     expect(onCorrect).not.toHaveBeenCalled();
-    fireEvent.click(screen.getByRole("button", { name: /Correct: pilih peringkat lain/i }));
-    expect(onCorrect).not.toHaveBeenCalled(); // opening the picker is not a decision
-    fireEvent.click(screen.getByRole("button", { name: /tali/i }));
+    hold("three-fingers");
     expect(onCorrect).toHaveBeenCalledTimes(1);
     expect(onCorrect).toHaveBeenCalledWith(3);
+    expect(onAccept).not.toHaveBeenCalled();
   });
 
-  it("Override picker excludes Top-3 labels and rejects empty selection", () => {
+  it("Override list offers only labels outside the Top-3 and needs Pakai to commit", () => {
     const onOverride = vi.fn();
     render(<DecisionPanel prediction={RESULT} level={LEVEL} onAccept={() => {}} onCorrect={() => {}} onOverride={onOverride} onRedraw={() => {}} />);
-    fireEvent.click(screen.getByRole("button", { name: /Override: tolak semua tebakan/i }));
-    const select = document.getElementById("override-select") as HTMLSelectElement;
-    const options = [...select.options].map((o) => o.value).filter(Boolean);
-    expect(options.sort()).toEqual(["ember", "tangga"]);
-    fireEvent.click(screen.getByTestId("override-confirm"));
+    hold("open-palm");
+    expect(screen.queryByTestId("override-option-papan")).toBeNull();
+    expect(screen.getByTestId("override-option-tangga")).toBeTruthy();
+    expect(screen.getByTestId("override-option-ember")).toBeTruthy();
+    expect(screen.queryByTestId("override-confirm")).toBeNull(); // nothing chosen yet
+    hold("two-fingers"); // ember is the second label offered: two fingers
     expect(onOverride).not.toHaveBeenCalled();
-    expect(screen.getByRole("alert").textContent).toMatch(/pilih label dulu/i);
+    hold("thumb-up", 2100);
+    expect(onOverride).toHaveBeenCalledTimes(1);
+    expect(onOverride).toHaveBeenCalledWith("ember");
   });
 
   it("Redraw is a separate recovery action outside the three decisions", () => {
     const onRedraw = vi.fn();
     render(<DecisionPanel prediction={RESULT} level={LEVEL} onAccept={() => {}} onCorrect={() => {}} onOverride={() => {}} onRedraw={onRedraw} />);
-    fireEvent.click(screen.getByTestId("btn-redraw"));
+    hold("pinch");
     expect(onRedraw).toHaveBeenCalledTimes(1);
   });
 });
@@ -137,14 +187,14 @@ describe("PredictingScreen (TASK 13 states)", () => {
     expect(screen.queryByTestId("btn-retry-prediction")).toBeNull();
   });
 
-  it("error state exposes retry + redraw recovery routes", () => {
+  it("error state exposes retry + redraw recovery routes as hand rings (the hold is tested in predicting-recovery)", () => {
     const onRetry = vi.fn();
     const onRedraw = vi.fn();
     render(<PredictingScreen error detail="provider-unavailable" onRetry={onRetry} onRedraw={onRedraw} />);
-    fireEvent.click(screen.getByTestId("btn-retry-prediction"));
-    fireEvent.click(screen.getByTestId("btn-redraw-from-error"));
-    expect(onRetry).toHaveBeenCalledTimes(1);
-    expect(onRedraw).toHaveBeenCalledTimes(1);
+    expect(screen.getByTestId("btn-retry-prediction").getAttribute("aria-label")).toBe("Coba Lagi");
+    expect(screen.getByTestId("btn-redraw-from-error").getAttribute("aria-label")).toBe("Gambar lagi");
+    expect(onRetry).not.toHaveBeenCalled();
+    expect(onRedraw).not.toHaveBeenCalled();
     expect(screen.getByRole("alert").textContent).toContain("provider-unavailable");
   });
 });

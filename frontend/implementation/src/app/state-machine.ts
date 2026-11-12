@@ -4,6 +4,7 @@ import type {
   HumanDecision,
   LevelContext,
   ObjectBehavior,
+  PredictionCandidate,
   PredictionResult,
 } from "../domain/types";
 import { DecisionError, acceptDecision, correctDecision, overrideDecision } from "../domain/decision-resolver";
@@ -239,27 +240,37 @@ export class FlowController {
   /** FR-04 / AC-03. */
   decideAccept(): void {
     this.require("evaluating", "decideAccept");
-    this.applyDecision(acceptDecision(this.prediction!), 1);
+    this.applyDecision(acceptDecision(this.prediction!), 1, this.gameLabelAt(0));
   }
 
   /** FR-05 / AC-04 / AC-05. Never auto-selects rank 2 — caller passes rank. */
   decideCorrect(rank: 2 | 3): void {
     this.require("evaluating", "decideCorrect");
-    this.applyDecision(correctDecision(this.prediction!, rank), rank);
+    this.applyDecision(correctDecision(this.prediction!, rank), rank, this.gameLabelAt(rank - 1));
   }
 
   /** FR-06 / AC-06. Throws DecisionError for invalid labels; state unchanged. */
   decideOverride(label: string): void {
     this.require("evaluating", "decideOverride");
-    this.applyDecision(overrideDecision(label, this.prediction!), undefined);
+    // Override picks a label from the level's own list, so that label is already a level label.
+    const decision = overrideDecision(label, this.prediction!);
+    this.applyDecision(decision, undefined, decision.finalLabel);
+  }
+
+  /** Level label (gameLabel) of a Top-3 candidate; null when the label map has no match for it. */
+  private gameLabelAt(index: number): string | null {
+    const candidate = this.prediction?.candidates[index];
+    return candidate?.gameLabel ?? null;
   }
 
   /**
    * Applying a decision transitions directly to "falling" (materialization animation from sky).
+   * Behavior comes from the level label, never from the display label (`finalLabel` is Indonesian text).
    */
-  private applyDecision(decision: HumanDecision, sourceRank: 1 | 2 | 3 | undefined): void {
+  private applyDecision(decision: HumanDecision, sourceRank: 1 | 2 | 3 | undefined, gameLabel: string | null): void {
     const level = this.level!;
-    const resolved = resolveBehavior(decision.finalLabel, level);
+    // An empty key has no mapping in behaviorMap, so a null gameLabel resolves to the unresolved fallback.
+    const resolved = resolveBehavior(gameLabel ?? "", level);
     this.decision = decision;
     this.behavior = resolved.behavior;
     this.phase = "falling";

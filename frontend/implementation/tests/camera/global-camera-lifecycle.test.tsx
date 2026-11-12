@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
 import { GlobalCamera } from "@/src/components/camera/GlobalCamera";
+import { handAt } from "./hand-points";
 import { getSharedStream, resetSharedStreamForTest } from "@/src/camera/shared-stream";
 
 vi.mock("gsap", () => {
@@ -202,7 +203,7 @@ describe("GlobalCamera: wave loop robustness + cleanup", () => {
       detectForVideo: vi.fn(() => {
         n++;
         if (n === 2) throw new Error("transient");
-        return { landmarks: [[{ x: xs[n % xs.length], y: 0.5 }]] };
+        return { landmarks: [handAt(xs[n % xs.length]!)] };
       }),
       close: vi.fn(),
     };

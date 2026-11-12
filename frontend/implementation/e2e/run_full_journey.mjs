@@ -1,3 +1,4 @@
+// STALE: butuh pembaruan harness baru
 import path from "node:path";
 /**
  * TASK 14 — Full author-side browser E2E (Edge headless via playwright-core).
@@ -304,7 +305,7 @@ try {
   // Redraw from evaluation (AC-08): draw, submit, then redraw before deciding.
   await drawPointer();
   await submitAndAwaitTop3();
-  await page.getByRole("button", { name: /gambar ulang \(revisi\)/i }).click();
+  await page.getByRole("button", { name: /^gambar lagi$/i }).click();
   await page.waitForTimeout(500);
   check("10 redraw from evaluation returns to canvas", await page.locator("[data-testid=draw-canvas]").isVisible());
 

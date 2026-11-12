@@ -1,10 +1,13 @@
 /**
- * R12: drawing commands from hand poses (pinch = Coret, kepal = Hapus, dua jari = Mundur, telapak terbelah = Maju).
+ * R12: drawing commands from hand poses (pinch = Coret, kepal = Hapus, dua jari = Mundur, telapak = Maju).
+ * The palm is open or split (both redo, see drawingCommandFor).
  * Edge-triggered with a short hold so a pose fires once: the pose must be held HOLD ms, then a different pose must
  * be seen before it can fire again. "draw" is handled by the pinch pipeline itself and never fires here.
  * Kepal is the Hapus tool: it is a held state (erasing while the fist is shown), not a one-shot command.
+ * Poses come from the gesture router (MODE_CANVAS_DRAWING); the tutorial card 3 reads the same undo, redo and erase.
  */
-import { drawingCommandFor, type HandPose } from "@/src/input/hand-gesture";
+import { MODE_CANVAS_DRAWING, actionFor } from "@/src/input/gesture-mode";
+import type { HandPose } from "@/src/input/hand-gesture";
 
 export type GestureAction = "undo" | "redo";
 
@@ -31,8 +34,8 @@ export function createGestureCommander(): GestureCommander {
         return null;
       }
       if (fired) return null;
-      const cmd = drawingCommandFor(pose);
-      if (cmd === null || cmd === "draw" || cmd === "erase") return null;
+      const cmd = actionFor(MODE_CANVAS_DRAWING, pose);
+      if (cmd !== "undo" && cmd !== "redo") return null;
       if (now - since >= GESTURE_HOLD_MS[cmd]) {
         fired = true;
         return cmd;

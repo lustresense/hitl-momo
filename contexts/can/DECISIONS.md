@@ -79,8 +79,9 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 | Evaluasi | Gunakan log untuk menggambarkan pola keputusan yang teramati. Jangan mengklaim perubahan psikologis/kognitif atau hasil pre/post tanpa rancangan dan bukti evaluasi yang sah. | Aktif |
 | Metodologi | Fishbone: Concept, Design, Material Collecting, Assembly, User Testing, Distribution. | Aktif |
 | Sistem visual | Warna oranye/hijau, dots di belakang, outline dan bayangan yang ada sekarang **dikunci Owner**. "Anti-slop" = perbaikan detail, bukan ganti palet/tipografi (D-20261105-01). | Aktif |
-| Alur keputusan HITL di UI | Terima/Pilih lain/Bukan semua langsung berlaku (tanpa tombol "Wujudkan Objek"); lalu tawaran "Masukkan ke dunia" (D-20261105-02). | Aktif |
+| Alur keputusan HITL di UI | Terima/Pilih lain/Bukan semua langsung berlaku (tanpa tombol "Wujudkan Objek"); lalu tawaran "Masukkan ke dunia" (D-20261105-02). Sejak 2026-11-11: gambar menjadi stiker lalu "Lempar" (D-20261110-08); submission dikirim saat cincin keputusan penuh (D-20261111-01). | Aktif |
 | Ringkasan level | Pop-up di dalam dunia game dengan Momo yang merayakan, bukan layar penuh (D-20261105-04). | Aktif |
+| Jumlah level | Hanya Level 1–3; Level 4 dihapus (D-20261110-01). | Aktif |
 | Label asal prediksi | Kalimat biasa dan jujur: "Mode demo: tebakan masih simulasi" / "Demo: tebakan simulasi" (D-20261105-07). | Aktif |
 
 ## Yang Sengaja Tidak Difinalkan
@@ -122,6 +123,70 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 | 2026-10-05 — Penegasan visual cover onboarding | Onboarding camera ditegaskan sebagai cover Sketchbook Universe sehingga dominasi hijau pada keseluruhan layar adalah treatment khusus cover, bukan aturan background global untuk page lain. | Aktif |
 
 ## Entri Perubahan Terbaru
+
+### D-20261111-01 — Aktif (instruksi eksplisit Owner 2026-11-11) — Data dikirim saat keputusan Top-3
+- Keputusan: submission ke backend dikirim saat siswa memilih di Top-3 (gestur 1/2/3, atau 4 = override) dan cincin konfirmasi penuh. Cincin itu sudah cukup sebagai konfirmasi; tidak ada konfirmasi tambahan dan tidak menunggu "Lempar". Gestur 5 (gambar lagi) tidak mengirim.
+- Teknis: tidak ada perubahan; kode sudah begini (`src/app/state-machine.ts` `applyDecision` → `SubmissionAdapter.handleDecisionApplied`).
+- Juga dikonfirmasi Owner 2026-11-11: nama tokoh tetap **Thinman** (dengan H), bukan "Tinman" dari brief. Label map model Dias ditunda, Dias yang menyesuaikan.
+
+### D-20261110-01 — Aktif (disetujui Owner 2026-11-11: "semua") — Hanya tiga level
+- Teknis: `CHANGELOG.md` (root monorepo), bagian "Can — Student Game: restorasi dan NUI"; cabang `claude-monorepo`.
+- Bukti: big prompt dan REVISI-NUI-PA Owner 2026-11-10; persetujuan Owner 2026-11-11.
+- Keputusan: produk hanya Level 1–3. Level 4 "Pembuktian" yang ditambahkan AI pada 2026-11-09 dihapus. Kuis/survei bukan level.
+- Mengubah: tidak ada entri lama (Level 4 tidak pernah dikunci).
+
+### D-20261110-02 — Aktif (disetujui Owner 2026-11-11: "semua") — Selesai gambar dengan jempol, bukan auto-ask
+- Teknis: `CHANGELOG.md` (root monorepo), bagian "Can — Student Game: restorasi dan NUI"; cabang `claude-monorepo`.
+- Bukti: big prompt dan REVISI-NUI-PA Owner 2026-11-10; persetujuan Owner 2026-11-11.
+- Keputusan: Momo diam selama menggambar. Tebakan dan Top-3 hanya setelah siswa menahan jempol "selesai". Setelah 10 detik diam, Momo bertanya dan indikator jempol menyala; tidak menebak otomatis.
+- Mengubah: PRD 0.0.16 R11 (tebakan sambil menggambar, auto-ask setelah tangan diam) di D-20261105-24.
+
+### D-20261110-03 — Aktif (disetujui Owner 2026-11-11: "semua") — Animasi cerita tidak dipersingkat
+- Teknis: `CHANGELOG.md` (root monorepo), bagian "Can — Student Game: restorasi dan NUI"; cabang `claude-monorepo`.
+- Bukti: big prompt dan REVISI-NUI-PA Owner 2026-11-10; persetujuan Owner 2026-11-11.
+- Keputusan: durasi animasi kartu, buka buku, Momo, kamera kembali ke nilai `9f9d35d`; tutup kartu 1,0 s, jeda 1,1 s. `prefers-reduced-motion` mengurangi amplitudo, tidak memotong durasi cerita.
+- Mengubah: praktik di kode (`timeScale(6)`, fade 0,2 s) dan nilai `8520cda`.
+
+### D-20261110-04 — Aktif (disetujui Owner 2026-11-11: "semua") — Cover: lambaian, kamera turun ke kiri bawah
+- Teknis: `CHANGELOG.md` (root monorepo), bagian "Can — Student Game: restorasi dan NUI"; cabang `claude-monorepo`.
+- Bukti: big prompt dan REVISI-NUI-PA Owner 2026-11-10; persetujuan Owner 2026-11-11.
+- Keputusan: kamera besar di tengah cover; lambaian (dengan cincin progres) membangunkan Momo; kartu kamera mengecil ke PIP KIRI BAWAH; Momo terbang ke tengah; teks "Lambaikan tanganmu" dihapus; cerita "Aku Momo, gambar satu-satunya yang hidup ..."; jempol "Aku mengerti" membuka buku.
+- Mengubah: D-20261105-19 (kamera menyala membangunkan Momo), copy cover lama, bypass morph `be7c8b2` (sekarang satu morph cover→PIP diizinkan).
+
+### D-20261110-05 — Aktif (disetujui Owner 2026-11-11: "semua") — Penggaris
+- Teknis: `CHANGELOG.md` (root monorepo), bagian "Can — Student Game: restorasi dan NUI"; cabang `claude-monorepo`.
+- Bukti: big prompt dan REVISI-NUI-PA Owner 2026-11-10; persetujuan Owner 2026-11-11.
+- Keputusan: hanya angka + penggaris; mulai nomor 1; fokus Momo di tengah dengan latar gelap lalu Momo ke kanan; pertanyaan hanya setelah digeser; pegangan 48×70; cubit+geser; jempol 2 s.
+
+### D-20261110-06 — Aktif (disetujui Owner 2026-11-11: "semua") — Tiga kartu
+- Teknis: `CHANGELOG.md` (root monorepo), bagian "Can — Student Game: restorasi dan NUI"; cabang `claude-monorepo`.
+- Bukti: big prompt dan REVISI-NUI-PA Owner 2026-11-10; persetujuan Owner 2026-11-11.
+- Keputusan: kartu 1 seret Thinman dengan cubit sampai bendera (bukan auto-jalan); jeda baca 10 detik dengan cincin jempol terkunci yang menunjukkan progres; kartu 3 semua alat dicoba dengan tangan; penghapus ukuran tetap di tutorial.
+- Mengubah: D-20261105-23 (cincin), praktik 2026-11-09 (PinchRing sebagai tombol lanjut).
+
+### D-20261110-07 — Aktif (disetujui Owner 2026-11-11: "semua") — Gestur menurut mode (tanpa kursor)
+- Teknis: `CHANGELOG.md` (root monorepo), bagian "Can — Student Game: restorasi dan NUI"; cabang `claude-monorepo`.
+- Bukti: big prompt dan REVISI-NUI-PA Owner 2026-11-10; persetujuan Owner 2026-11-11.
+- Keputusan: router mode tunggal (`src/input/gesture-mode.ts`). Pilih bab 1/2/3 jari; Top-3 1/2/3 jari, telapak = Bukan ini, cubit = Gambar lagi; layar gagal 1/2/3 jari; kanvas hanya cubit menggores; redo = telapak terbuka atau terbelah; semua aksi dengan cincin progres.
+- Mengubah: pilih-dengan-melayang (dwell kursor) 2026-11-09 untuk layar-layar ini.
+
+### D-20261110-08 — Aktif (disetujui Owner 2026-11-11: "semua") — Stiker dan "Lempar"
+- Teknis: `CHANGELOG.md` (root monorepo), bagian "Can — Student Game: restorasi dan NUI"; cabang `claude-monorepo`.
+- Bukti: big prompt dan REVISI-NUI-PA Owner 2026-11-10; persetujuan Owner 2026-11-11.
+- Keputusan: setelah keputusan HITL, gambar siswa menjadi stiker di kanvas; "Lempar" (jempol) menjatuhkannya ke dunia; "Gambar lagi" (telapak). Penempatan: "Taruh di sini" (jempol), "Geser objek" (cubit), "Putar" 90° (telapak).
+- Mengubah: D-20261105-02 (tawaran "Masukkan ke dunia").
+
+### D-20261110-09 — Aktif (disetujui Owner 2026-11-11: "semua") — Kontrol Thinman dengan sudut telunjuk
+- Teknis: `CHANGELOG.md` (root monorepo), bagian "Can — Student Game: restorasi dan NUI"; cabang `claude-monorepo`.
+- Bukti: big prompt dan REVISI-NUI-PA Owner 2026-11-10; persetujuan Owner 2026-11-11.
+- Keputusan: ~90° lompat; 45–75° lompat+kanan; 105–135° lompat+kiri; horizontal jalan. Bar bawah mode kamera tanpa label keyboard.
+- Status ambang: asumsi awal, belum dikalibrasi dengan kamera.
+
+### D-20261110-10 — Aktif (disetujui Owner 2026-11-11: "semua") — Penutup portal, rekap netral, tempat kuis
+- Teknis: `CHANGELOG.md` (root monorepo), bagian "Can — Student Game: restorasi dan NUI"; cabang `claude-monorepo`.
+- Bukti: big prompt dan REVISI-NUI-PA Owner 2026-11-10; persetujuan Owner 2026-11-11.
+- Keputusan: Thinman masuk portal dan hidup; Momo memberi pesan singkat tentang AI; rekap benda, tebakan, keputusan, jumlah, tanpa skor; kuis hanya bila flag admin menyala (kontrak usulan ke Dias).
+- Mengubah: D-20261105-15 (penutup masih RISET) — butuh `SETUJUI D-20261105-15` atau entri ini.
 
 ### D-20261105-24 — Aktif (cerita dan teknis, dikerjakan di 0.0.16) (instruksi eksplisit Owner, M-020) — IP story disesuaikan dan PRD 0.0.16 diperluas
 - Teknis: `implementation/CHANGELOG.md` 0.0.16.

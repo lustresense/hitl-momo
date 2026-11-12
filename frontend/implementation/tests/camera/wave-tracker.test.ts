@@ -2,6 +2,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
 import { WaveTracker, detectWave, type WaveTrackerStatus } from "@/src/camera/wave-tracker";
+import { handAt } from "./hand-points";
 
 vi.mock("@mediapipe/tasks-vision", () => ({
   FilesetResolver: { forVisionTasks: vi.fn() },
@@ -153,7 +154,7 @@ describe("WaveTracker lifecycle", () => {
   it("reports a wave once and releases loop + landmarker immediately", async () => {
     const xs = [0.5, 0.35, 0.65, 0.35, 0.65, 0.4, 0.62, 0.5];
     let i = 0;
-    const lm = fakeLandmarker(() => ({ landmarks: [[{ x: xs[i++ % xs.length], y: 0.5 }]] }));
+    const lm = fakeLandmarker(() => ({ landmarks: [handAt(xs[i++ % xs.length]!)] }));
     const { tracker, onWave, v } = make(lm);
     await tracker.start();
     for (let k = 1; k <= 12; k++) {

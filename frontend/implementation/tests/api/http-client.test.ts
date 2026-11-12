@@ -32,7 +32,7 @@ describe("HttpClient", () => {
     expect(res.direct).toBe(true);
   });
 
-  it("attaches Authorization header from tokenProvider", async () => {
+  it("attaches Authorization header from tokenProvider on the class backend /api/ paths", async () => {
     let authHeader = "";
     const fetchImpl: typeof fetch = async (_, init) => {
       authHeader = (init?.headers as Record<string, string>)?.["authorization"] || "";
@@ -45,8 +45,26 @@ describe("HttpClient", () => {
       tokenProvider: () => "secret-token-123",
     });
 
-    await client.get("/authed");
+    await client.get("/api/authed");
     expect(authHeader).toBe("Bearer secret-token-123");
+  });
+
+  it("never attaches the token to a non-/api path or to an absolute URL (other origin)", async () => {
+    const seen: Array<string | null> = [];
+    const fetchImpl: typeof fetch = async (_, init) => {
+      seen.push((init?.headers as Record<string, string>)?.["authorization"] ?? null);
+      return new Response(JSON.stringify({ ok: true }), { status: 200 });
+    };
+
+    const client = new HttpClient({
+      baseUrl: "https://api.example.com",
+      fetchImpl,
+      tokenProvider: () => "secret-token-123",
+    });
+
+    await client.get("/predict");
+    await client.get("https://partner.example/api/predict");
+    expect(seen).toEqual([null, null]);
   });
 
   it("throws ApiError with standard envelope error details on 400/404/500", async () => {

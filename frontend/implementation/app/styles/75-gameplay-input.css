@@ -6,6 +6,15 @@
 #screen-gameplay .game-input-button:active, #screen-gameplay .game-input-button.is-pressed { transform: translateY(2px) scale(0.96); box-shadow: 1px 1px 0 #111111 !important; background-color: #23211d !important; color: #fffaf0 !important; }
 #screen-gameplay .game-input-button.btn-primary:active, #screen-gameplay .game-input-button.btn-primary.is-pressed { background-color: #356614 !important; color: #fffaf0 !important; }
 #screen-gameplay .game-control-keys { margin: 0; font-size: 11px; text-align: center; }
+/* Portrait phones: the camera PIP is fixed bottom-left (125x100 at <=640 px with 12 px inset; 150x120 at 641-760 px
+   with 24 px inset). Lift the control bar above it so the PIP never covers "Geser objek" or "Putar kanan". */
+@media (max-width: 640px) and (orientation: portrait) {
+  #screen-gameplay .stage-floating-controls { margin-bottom: 124px; }
+}
+@media (min-width: 641px) and (max-width: 760px) and (orientation: portrait) {
+  #screen-gameplay .stage-floating-controls { margin-bottom: 152px; }
+}
+
 @media (max-width: 600px) {
  #screen-gameplay .stage-floating-header { left: 10px; right: 10px; top: 10px; flex-wrap: wrap; gap: 8px; }
  #screen-gameplay .stage-floating-header > div { flex-wrap: wrap; gap: 6px !important; }

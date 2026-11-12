@@ -22,13 +22,16 @@ export type MomoMoment =
   | "cycle-fail"
   | "level-complete";
 
-/** Placeholder guidance lines keyed by app state. */
-const LINES: Record<MomoMoment, string> = {
-  "level-entry": "Halo, aku Momo. Aku bisa membaca pola gambarmu, tapi tidak bisa menggambar. Kamu Illustrator-nya.",
+/**
+ * Placeholder guidance lines keyed by app state. A moment can have several lines: each one is its own short bubble,
+ * in order (brief e: no line longer than about 90 characters).
+ */
+const LINES: Record<MomoMoment, string | string[]> = {
+  "level-entry": ["Halo, aku Momo. Aku bisa membaca pola gambarmu.", "Tapi tidak bisa menggambar. Kamu Illustrator-nya."],
   "drawing-cue": "Gambar objekmu di kanvas. Aku akan menebak apa yang kamu buat.",
   "drawing-empty": "Kanvasnya masih kosong. Gambar sesuatu dulu ya.",
   predicting: "Sedang kubaca goresanmu...",
-  "provider-error": "Aku belum bisa membaca polanya. Coba lagi atau gambar ulang.",
+  "provider-error": "Aku belum bisa membaca polanya. Coba lagi atau gambar lagi.",
   "top3-compare": "Ini tiga tebakanku. Persen bukan jaminan benar, bandingkan dulu.",
   "decision-accepted": "Kamu setuju dengan tebakan peringkat 1. Keputusan bagus kalau kamu sudah yakin.",
   "decision-corrected": "Kamu memilih tebakan lain dari Top-3. Bagus, kamu membandingkan dulu.",
@@ -37,12 +40,14 @@ const LINES: Record<MomoMoment, string> = {
   "danger-consequence": "Objek itu berbahaya di halaman ini... hati-hati!",
   "fallback-consequence": "Hmm, aku belum tahu perilaku objek ini. Kuberikan versi netral dulu.",
   "cycle-success": "Berhasil! Mau lanjut?",
-  "cycle-fail": "Tidak apa-apa gagal. Coba putuskan lagi, atau gambar ulang objekmu.",
+  "cycle-fail": "Tidak apa-apa gagal. Coba putuskan lagi, atau gambar lagi objekmu.",
   "level-complete": "Bab ini selesai! Keputusanmu tadi yang menentukan jalannya cerita.",
 };
 
-export function momoLine(moment: MomoMoment): string {
-  return LINES[moment];
+/** The bubbles for a moment, in order. Each entry is one line for MomoChat. */
+export function momoLine(moment: MomoMoment): string[] {
+  const entry = LINES[moment];
+  return Array.isArray(entry) ? [...entry] : [entry];
 }
 
 /** Visual mood of Momo per moment. Expression is decoration only: it never signals a "right" decision. */

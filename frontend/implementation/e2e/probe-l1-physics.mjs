@@ -1,3 +1,4 @@
+// STALE: butuh pembaruan harness baru
 // Diagnostic probe (not acceptance): measure render FPS and L1 trajectories with real keyboard input.
 // Output: JSON with per-frame trajectories so physics vs timing vs geometry can be separated.
 import path from "node:path";

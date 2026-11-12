@@ -1,123 +1,187 @@
 "use client";
 /**
- * R9 Penutup: Pusat Halaman. After Level 3 the book opens its last page. Thinman's thin line fills with ink and he
- * walks by himself to Momo; she startles, then is glad and flaps (they become friends). Then the overview of the
- * student's three objects, Momo's short epilog, and a 2 s thumb for Main lagi or Selesai.
- * DOM + CSS animation (no KAPLAY). Display only: nothing here changes a decision or a number.
+ * Penutup (Pusat Halaman). After the last level, Thinman walks into a portal and comes out alive. Momo reacts, gives
+ * a short overview of AI, and shows a neutral recap of what was recorded. Then, only when the quiz flag is ON, a
+ * quiz placeholder. The last control is Kembali ke sampul. Display only: nothing here changes a decision or a number.
+ * Every stage waits for Momo's lines to finish; a thumb appears only after the last line. No stage moves on by itself,
+ * except the timed portal. All timers are cleared on unmount.
  */
 import { useEffect, useState } from "react";
 import { MomoChat } from "../momo/MomoChat";
+import { DwellButton } from "../ui/DwellButton";
 import { ThinmanArt } from "../ui/ThinmanArt";
 import { ThumbConfirm } from "../ui/ThumbConfirm";
-import { DECISION_TEXT, ENDING_TIMING, EPILOG_LINES, strokesToPath, type EndingChoice, type EndingStage, type LevelRecap } from "./ending-types";
+import { isQuizEnabled } from "@/src/config/quiz-flag";
+import { AI_TALK_LINES, FINISH_LINES, PORTAL_REACTION, QUIZ_LEAD_LINES, QUIZ_PLACEHOLDER, RECAP_LINES } from "@/src/domain/ending-script";
+import "./ending-flow.css";
+import "./ending-nui.css";
+import { DECISION_TEXT, ENDING_TIMING, strokesToPath, type EndingChoice, type EndingStage, type LevelRecap } from "./ending-types";
+import { behaviorText, countText, guessText, NOT_RECORDED, recapTotals, redrawText } from "./recap-summary";
 
 export interface CenterOfPageProps {
   recaps: LevelRecap[];
+  /** "finish" = Kembali ke sampul. "again" is kept for older callers; this screen no longer offers it. */
   onChoose: (choice: EndingChoice) => void;
   /** Start at a later stage (tests, video capture). */
   initialStage?: EndingStage;
+  /** Quiz toggle from the server, when it gives one. Otherwise the env flag decides (see config/quiz-flag.ts). */
+  quizEnabled?: boolean;
 }
 
-export function CenterOfPage({ recaps, onChoose, initialStage = "page" }: CenterOfPageProps) {
-  const [stage, setStage] = useState<EndingStage>(initialStage);
-  const [epilogDone, setEpilogDone] = useState(false);
-  const [choice, setChoice] = useState<EndingChoice>("finish");
-  const [touched, setTouched] = useState(false);
+/** Portal phases, in order. The timings live in ENDING_TIMING; the CSS keys off the same phase names. */
+type PortalPhase = "enter" | "inside" | "alive";
 
+// Module-level arrays: MomoChat keys its run on the text, but a stable reference avoids work on every render.
+const TALK_LINES = [...AI_TALK_LINES];
+const RECAP_TEXT = [...RECAP_LINES];
+const QUIZ_TEXT = [...QUIZ_LEAD_LINES];
+const FINISH_TEXT = [...FINISH_LINES];
+const SILENT: string[] = [];
+const REACTION = [PORTAL_REACTION];
+
+/** True when the student asked the system for less motion. Starts false so server and first client render match. */
+function usePrefersReducedMotion(): boolean {
+  const [reduce, setReduce] = useState(false);
   useEffect(() => {
-    if (stage === "page") {
-      const t = setTimeout(() => setStage("alive"), ENDING_TIMING.page);
-      return () => clearTimeout(t);
-    }
-    if (stage === "alive") {
-      const touch = setTimeout(() => setTouched(true), ENDING_TIMING.alive * 0.7);
-      const t = setTimeout(() => setStage("overview"), ENDING_TIMING.alive);
-      return () => { clearTimeout(t); clearTimeout(touch); };
-    }
-    return undefined;
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const sync = () => setReduce(mq.matches);
+    sync();
+    mq.addEventListener?.("change", sync);
+    return () => mq.removeEventListener?.("change", sync);
+  }, []);
+  return reduce;
+}
+
+export function CenterOfPage({ recaps, onChoose, initialStage = "portal", quizEnabled }: CenterOfPageProps) {
+  const [stage, setStage] = useState<EndingStage>(initialStage);
+  const [phase, setPhase] = useState<PortalPhase>("enter");
+  const reduce = usePrefersReducedMotion();
+  const quizOn = isQuizEnabled(quizEnabled);
+
+  // The portal runs by itself for its full length, also on reduced motion. Only its repeated glints are softened.
+  useEffect(() => {
+    if (stage !== "portal") return undefined;
+    const timers = [
+      setTimeout(() => setPhase("inside"), ENDING_TIMING.inside),
+      setTimeout(() => setPhase("alive"), ENDING_TIMING.out),
+      setTimeout(() => setStage("talk"), ENDING_TIMING.portal),
+    ];
+    return () => timers.forEach((t) => clearTimeout(t));
   }, [stage]);
 
-  const momoMood = stage === "alive" ? (touched ? "Senang" : "Penasaran") : stage === "epilog" ? "Tenang" : "Senang";
-
   return (
-    <section className={`center-page center-page--${stage}`} data-testid="center-of-page" data-stage={stage} aria-label="Pusat Halaman">
-      <div className="center-page__ink" aria-hidden="true">
-        <span /><span /><span />
-      </div>
-      <h2 className="center-page__title">Pusat Halaman</h2>
+    <section
+      className={`center-page center-page--${stage} ending-page${reduce ? " is-reduce" : ""}`}
+      data-testid="center-of-page"
+      data-stage={stage}
+      aria-label="Pusat Halaman"
+    >
+      <h2 className="visually-hidden">Pusat Halaman</h2>
 
-      {(stage === "page" || stage === "alive") && (
-        <div className="center-page__meet">
-          <div className={`center-page__thinman${stage === "alive" ? " is-alive" : ""}${touched ? " is-touching" : ""}`} data-testid="ending-thinman">
-            <ThinmanArt pose={stage === "alive" && !touched ? "walkA" : "stand"} />
+      {stage === "portal" && (
+        <div className={`ending-portal ending-portal--${phase}`} data-testid="ending-portal" data-phase={phase}>
+          <div className="ending-portal__gate" aria-hidden="true">
+            <span className="ending-portal__glint" />
+            <span className="ending-portal__glint" />
+            <span className="ending-portal__glint" />
           </div>
-          <div className="center-page__momo">
+          <div className="ending-portal__thinman" data-testid="ending-thinman" aria-hidden="true">
+            <ThinmanArt pose={phase === "enter" ? "walkA" : "stand"} />
+          </div>
+          <div className="ending-portal__momo">
             <MomoChat
-              lines={stage === "alive" && touched ? "Eh! Kamu... hidup?" : "..."}
-              mood={momoMood}
-              avatarHeight={150}
-              flapKey={touched ? 1 : 0}
-              typing={false}
+              lines={phase === "alive" ? REACTION : SILENT}
+              mood={phase === "alive" ? "Senang" : "Penasaran"}
+              avatarHeight={160}
             />
           </div>
         </div>
       )}
 
-      {stage === "overview" && (
-        <div className="center-page__overview" data-testid="ending-overview">
-          <ol className="center-page__objects">
-            {recaps.map((r) => (
-              <li key={r.levelId} className={`center-page__obj center-page__obj--${r.category}`} data-level={r.levelId}>
-                <span className="center-page__chapter">{r.title}</span>
-                <svg className="center-page__drawing" viewBox="0 0 120 80" role="img" aria-label={`Gambarmu: ${r.finalLabel}`}>
-                  <path d={strokesToPath(r.strokes, 120, 80)} fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                </svg>
-                <span className="center-page__label">{r.finalLabel}</span>
-                <span className="center-page__meta">{r.category}</span>
-                <span className="center-page__meta" data-decision={r.decision}>Keputusanmu: {DECISION_TEXT[r.decision]}</span>
-                <span className="center-page__meta">Tebakan pertama Momo: {r.firstGuess}</span>
-              </li>
-            ))}
-          </ol>
-          <div className="center-page__walker" aria-hidden="true"><ThinmanArt pose="walkB" /></div>
-          <ThumbConfirm holdMs={1000} testId="ending-next" label="Lanjut" onConfirm={() => setStage("epilog")} />
-        </div>
-      )}
-
-      {stage === "epilog" && (
-        <div className="center-page__epilog" data-testid="ending-epilog">
-          <MomoChat lines={[...EPILOG_LINES]} mood="Tenang" avatarHeight={150} onDone={() => setEpilogDone(true)}>
-            {epilogDone ? <ThumbConfirm holdMs={1000} testId="ending-epilog-next" label="Lanjut" onConfirm={() => setStage("choice")} /> : null}
+      {stage === "talk" && (
+        <div className="ending-talk" data-testid="ending-talk">
+          <MomoChat lines={TALK_LINES} mood="Tenang" avatarHeight={190}>
+            <ThumbConfirm holdMs={1000} label="Aku mengerti" testId="ending-understood" onConfirm={() => setStage("recap")} />
           </MomoChat>
         </div>
       )}
 
-      {stage === "choice" && (
-        <div className="center-page__choice" data-testid="ending-choice">
-          <div className="center-page__options" role="radiogroup" aria-label="Pilih">
-            {(["again", "finish"] as const).map((c) => (
-              <button
-                key={c}
-                type="button"
-                role="radio"
-                aria-checked={choice === c}
-                className={`nb-btn${choice === c ? " nb-btn--primary is-selected" : ""}`}
-                data-testid={c === "again" ? "ending-play-again" : "ending-finish"}
-                onClick={() => setChoice(c)}
-              >
-                {c === "again" ? "Main lagi" : "Selesai"}
-              </button>
-            ))}
-          </div>
-          <ThumbConfirm
-            key={choice}
-            holdMs={2000}
-            testId="ending-confirm"
-            label={choice === "again" ? "Tahan jempol untuk main lagi" : "Tahan jempol untuk selesai"}
-            onConfirm={() => onChoose(choice)}
-          />
+      {stage === "recap" && <Recap recaps={recaps} onNext={() => setStage(quizOn ? "quiz" : "finish")} />}
+
+      {stage === "quiz" && (
+        <div className="ending-quiz" data-testid="quiz-entry">
+          <MomoChat lines={QUIZ_TEXT} mood="Tenang" avatarHeight={150}>
+            <ThumbConfirm holdMs={1000} label="Lanjut" testId="ending-quiz-next" onConfirm={() => setStage("finish")} />
+          </MomoChat>
+          <p className="ending-quiz__placeholder">{QUIZ_PLACEHOLDER}</p>
+        </div>
+      )}
+
+      {stage === "finish" && (
+        <div className="ending-finish" data-testid="ending-finish">
+          <MomoChat lines={FINISH_TEXT} mood="Senang" avatarHeight={170}>
+            {/* Shown only after Momo's last line. One control; a resting fingertip or a click fires it once. */}
+            <div className="center-page__options" role="group" aria-label="Akhir">
+              <DwellButton className="ending-option" testId="ending-back-to-cover" onActivate={() => onChoose("finish")}>
+                Kembali ke sampul
+              </DwellButton>
+            </div>
+          </MomoChat>
         </div>
       )}
     </section>
   );
 }
+
+/** Momo's recap line, the neutral counts, then one card per recorded level. Every value is recorded data or "tidak tercatat". */
+function Recap({ recaps, onNext }: { recaps: LevelRecap[]; onNext: () => void }) {
+  const totals = recapTotals(recaps);
+    return (
+    <section className="ending-recap" data-testid="ending-recap" aria-label="Rekap">
+      <MomoChat lines={RECAP_TEXT} mood="Tenang" avatarHeight={120}>
+        <ThumbConfirm holdMs={1000} label="Lanjut" testId="ending-recap-next" onConfirm={onNext} />
+      </MomoChat>
+
+      <ul className="ending-recap__counts" aria-label="Jumlah">
+        <li data-testid="recap-count-objects">{countText("Benda yang digambar", totals?.objects ?? null)}</li>
+        <li data-testid="recap-count-accept">{countText("Terima", totals ? totals.accept : null)}</li>
+        <li data-testid="recap-count-correct">{countText("Pilih lain", totals ? totals.correct : null)}</li>
+        <li data-testid="recap-count-override">{countText("Bukan semua", totals ? totals.override : null)}</li>
+        <li data-testid="recap-count-redraw">{redrawText(totals ? totals.redraws : null)}</li>
+        <li data-testid="recap-count-guess-changed">{countText("Tebakan pertama yang diubah", totals ? totals.guessChanged : null)}</li>
+      </ul>
+
+      {totals === null ? (
+        <p className="ending-recap__empty" data-testid="recap-empty">{NOT_RECORDED}</p>
+      ) : (
+        <ol className="ending-recap__cards">
+          {recaps.map((r) => (
+            <RecapCard key={r.levelId} recap={r} />
+          ))}
+        </ol>
+      )}
+    </section>
+  );
+}
+
+function RecapCard({ recap: r }: { recap: LevelRecap }) {
+  const path = r.strokes.length > 0 ? strokesToPath(r.strokes, 120, 80) : "";
+  return (
+    <li className={`ending-recap__card ending-recap__card--${r.category}`} data-testid={`recap-card-${r.levelId}`}>
+      <span className="ending-recap__chapter">{r.title}</span>
+      {path !== "" ? (
+        <svg className="ending-recap__drawing" viewBox="0 0 120 80" role="img" aria-label={`Gambarmu: ${r.finalLabel}`}>
+          <path d={path} fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      ) : (
+        <span className="ending-recap__none">{NOT_RECORDED}</span>
+      )}
+      <span className="ending-recap__line">{`Label akhir: ${r.finalLabel}`}</span>
+      <span className="ending-recap__line">{`Tebakan pertama Momo: ${guessText(r)}`}</span>
+      <span className="ending-recap__line">{`Keputusanmu: ${DECISION_TEXT[r.decision]}`}</span>
+      <span className="ending-recap__line">{`Perilaku: ${behaviorText(r.category)}`}</span>
+    </li>
+  );
+}
+

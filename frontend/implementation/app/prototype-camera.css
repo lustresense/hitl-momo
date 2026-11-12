@@ -263,8 +263,7 @@
     font-size:14px;
     font-weight:900;
     pointer-events:none;
-  }@media (max-width:640px){.camera-prototype-root{padding:24px 16px}.camera-prototype-root .eyebrow{margin-bottom:48px;font-size:12px}.camera-prototype-root .headline{font-size:clamp(38px,12vw,50px)}.camera-prototype-root .subtext{margin-bottom:42px;font-size:14px}}@media (prefers-reduced-motion:reduce){.camera-prototype-root *,.camera-prototype-root *::before,.camera-prototype-root *::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
-
+  }@media (max-width:640px){.camera-prototype-root{padding:24px 16px}.camera-prototype-root .eyebrow{margin-bottom:48px;font-size:12px}.camera-prototype-root .headline{font-size:clamp(38px,12vw,50px)}.camera-prototype-root .subtext{margin-bottom:42px;font-size:14px}}
 /* Short status / failure line under the camera card (also visible while the stream is live). */
 .camera-prototype-root .camera-status{
   position:relative;

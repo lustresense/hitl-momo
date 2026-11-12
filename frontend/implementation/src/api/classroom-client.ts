@@ -120,6 +120,10 @@ export class ClassroomClient {
     return session;
   }
 
+  /**
+   * @deprecated The backend has no /api/v1/model-info (contracts/API_INVENTORY.md, PROPOSED).
+   * Not called at runtime. Do not use until the endpoint exists in the backend.
+   */
   async getModelInfo(options?: RequestOptions): Promise<ModelInfo> {
     return this.http.get<ModelInfo>("/api/v1/model-info", options);
   }

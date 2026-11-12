@@ -1,12 +1,20 @@
-// Classroom E2E: class link -> join -> draw -> real /predict -> Accept -> POST /api/submissions
-// -> database -> teacher dashboard. The first submission response is dropped after the server
-// stored it, so the outbox must retry and the server must answer "duplicate".
+// Classroom E2E: class link -> join -> draw (finish thumb, 2 s) -> real /predict -> Top-3 (hold to pick)
+// -> Accept -> sticker "Lempar" (2 s hold) -> placement -> POST /api/submissions -> database -> teacher dashboard.
+// The submission is queued by the decision itself, so it does not wait for the sticker or the placement.
+// The first submission response is dropped after the server stored it, so the outbox must retry and the
+// server must answer "duplicate".
 //
-// Env: JOIN_TOKEN, DB_PATH, TEACHER_EMAIL, TEACHER_PASSWORD, API_BASE, ADMIN_BASE, PYTHON, E2E_OUT
+// Needs (not started here; the lead runs them):
+//   - a static export in out/ built for this run: partner prediction mode (the outbox only sends
+//     predictions with provenance "model"), NEXT_PUBLIC_TEST_HOOKS=0 for the mouse fallback
+//   - the backend (API_BASE) with the seeded class 1 and the teacher account, SQLite file at DB_PATH
+//   - the admin app (ADMIN_BASE), or GAME_BASE pointing at Caddy when the game is served behind it
+// Env: JOIN_TOKEN (default tok-e2e-1), DB_PATH (required), TEACHER_EMAIL, TEACHER_PASSWORD (required),
+//      API_BASE, ADMIN_BASE, GAME_BASE, PYTHON (default python3), E2E_OUT
 import fs from "node:fs";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
-import { ROOT, startStaticServer, launch, onboardToLevels, enterLevel, drawScribble, submitAndDecide, sleep, writeJson } from "./lib/harness.mjs";
+import { ROOT, startStaticServer, launch, onboardToLevels, enterLevel, drawScribble, submitAndDecide, placeByDrag, confirmPlacement, sleep, writeJson } from "./lib/harness.mjs";
 
 const JOIN = process.env.JOIN_TOKEN ?? "tok-e2e-1";
 const DB = process.env.DB_PATH;
@@ -16,7 +24,10 @@ const EMAIL = process.env.TEACHER_EMAIL ?? "guru@e2e.test";
 const PASS = process.env.TEACHER_PASSWORD;
 const PY = process.env.PYTHON ?? "python3";
 const OUT = process.env.E2E_OUT ?? path.join(ROOT, "e2e-out", "classroom");
+const missingEnv = [!DB && "DB_PATH", !PASS && "TEACHER_PASSWORD"].filter(Boolean);
+if (missingEnv.length) { console.error(`classroom-e2e: missing env ${missingEnv.join(", ")}`); process.exit(2); }
 fs.mkdirSync(OUT, { recursive: true });
+const plans = JSON.parse(fs.readFileSync(path.join(ROOT, "e2e/lib/level-plans.json"), "utf8"));
 
 const checks = [];
 const check = (name, ok, extra = "") => { checks.push({ name, ok: !!ok, extra: String(extra).slice(0, 300) }); console.log(`[${ok ? "PASS" : "FAIL"}] ${name}${extra ? " — " + String(extra).slice(0, 200) : ""}`); };
@@ -59,6 +70,21 @@ try {
   await drawScribble(page);
   const { labels, decision } = await submitAndDecide(page, { mode: "accept", log });
   log(`UI top-3 labels: ${JSON.stringify(labels)}`);
+
+  // The decision lands on the canvas as a sticker (S1). "Lempar" (2 s thumb) drops it into the world and starts
+  // placement; the POST below does not depend on this step, so its failure is reported on its own check.
+  const stickerShown = await page.locator("[data-testid=sticker-stamp]").waitFor({ state: "visible", timeout: 15000 }).then(() => true, () => false);
+  check("sticker: decision shown as a sticker on the canvas", stickerShown);
+  if (stickerShown) {
+    try {
+      const cycle = plans["1"].cycles[0];
+      await placeByDrag(page, cycle.x + plans.objectSize.w / 2, cycle.y + plans.objectSize.h / 2); // presses btn-throw-sticker
+      await confirmPlacement(page);
+      check("placement: Lempar (2 s) then placement reaches gameplay", true);
+    } catch (err) {
+      check("placement: Lempar (2 s) then placement reaches gameplay", false, String(err?.message ?? err).slice(0, 200));
+    }
+  }
 
   // Wait for the outbox to deliver the decision after the dropped response.
   const deadline = Date.now() + 90000;
@@ -117,7 +143,7 @@ print(json.dumps([dict(r) for r in rows]))`, DB, String(studentNumber)]).toStrin
   const bodyText = await admin.locator("body").innerText().catch(() => "");
   check("dashboard UI: class page shows the student's row", bodyText.includes(`Siswa ${studentNumber}`), "");
   await admin.screenshot({ path: path.join(OUT, "dashboard-class-page.png"), fullPage: true }).catch(() => {});
-  await page.screenshot({ path: path.join(OUT, "game-after-decision.png") }).catch(() => {});
+  await page.screenshot({ path: path.join(OUT, "game-after-placement.png") }).catch(() => {});
   check("game: no uncaught page errors", errors.filter(e => e.type === "pageerror").length === 0, errors.filter(e => e.type === "pageerror").map(e => e.text).join(" | "));
 } catch (err) {
   check("run completed without exception", false, String(err?.stack ?? err).slice(0, 400));

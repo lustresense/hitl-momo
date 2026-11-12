@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { classifyHandPose, drawingCommandFor, isFist, isSplitPalm, isThumbUp, isTwoFingers, type HandPose } from "@/src/input/hand-gesture";
+import { MODE_CANVAS_DRAWING, MODE_TUTORIAL, actionFor } from "@/src/input/gesture-mode";
 import type { Landmark } from "@/src/input/types";
 
 /** Upright hand: wrist (0.5,0.8), middle MCP (0.5,0.6), span 0.2. Fingers at x columns, PIP at y 0.5. */
@@ -41,13 +42,22 @@ describe("R12 drawing poses are mutually exclusive", () => {
       expect(isThumbUp(lm)).toBe(expected === "thumb-up");
     });
   }
-  it("mapping: pinch draw, fist erase, two fingers undo, split palm redo", () => {
+  it("mapping: pinch draw, fist erase, two fingers undo, open or split palm redo", () => {
     expect(drawingCommandFor("pinch")).toBe("draw");
     expect(drawingCommandFor("fist")).toBe("erase");
     expect(drawingCommandFor("two-fingers")).toBe("undo");
     expect(drawingCommandFor("split-palm")).toBe("redo");
-    expect(drawingCommandFor("open-palm")).toBeNull();
+    // Owner (BIGPROMPT 6.3): "Redo telapak terbuka". The open palm was unused before; now it redoes too.
+    expect(drawingCommandFor("open-palm")).toBe("redo");
     expect(drawingCommandFor("thumb-up")).toBeNull();
+  });
+
+  it("the drawing commands are the router's canvas and tutorial actions (one table, no copy)", () => {
+    for (const pose of ["fist", "two-fingers", "split-palm", "open-palm"] as const) {
+      expect(actionFor(MODE_TUTORIAL, pose)).toBe(actionFor(MODE_CANVAS_DRAWING, pose));
+      expect(drawingCommandFor(pose)).toBe(actionFor(MODE_CANVAS_DRAWING, pose));
+    }
+    expect(actionFor(MODE_CANVAS_DRAWING, "thumb-up")).toBeNull();
   });
   it("missing landmarks -> none", () => {
     expect(classifyHandPose(undefined)).toBe("none");
@@ -58,17 +68,22 @@ describe("R12 drawing poses are mutually exclusive", () => {
 import { gateFrameByPose } from "@/src/input/mediapipe-input";
 import { evaluateGesture } from "@/src/input/hand-gesture";
 describe("gateFrameByPose (R12 wiring)", () => {
-  it("reports the pose and blocks ink while a command pose is shown", () => {
+  // Updated: a thumb touching the index tip is now a pinch even when the other fingers are folded
+  // (see hand-pose-classify tests), so this hand keeps its ink. The old expectation read it as a fist.
+  it("a thumb touching the index tip keeps its ink; a real fist (thumb tucked) blocks ink", () => {
     const seen: string[] = [];
-    const fistLm = pose(["down", "down", "down", "down"], { thumb: "pinch" });
-    const raw = evaluateGesture(fistLm);
+    const touchLm = pose(["down", "down", "down", "down"], { thumb: "pinch" });
+    const raw = evaluateGesture(touchLm);
     expect(raw.state === "tracking" && raw.pinched).toBe(true);
-    const gated = gateFrameByPose(raw, fistLm, 5, (p) => seen.push(p)).frame;
+    const kept0 = gateFrameByPose(raw, touchLm, 5, (p) => seen.push(p)).frame;
+    expect(kept0.state === "tracking" && kept0.pinched).toBe(true);
+    const fistLm = pose(["down", "down", "down", "down"]);
+    const gated = gateFrameByPose(evaluateGesture(fistLm), fistLm, 6, (p) => seen.push(p)).frame;
     expect(gated.state === "tracking" && gated.pinched).toBe(false);
     const pinchLm = pose(["up", "down", "down", "down"], { thumb: "pinch" });
-    const kept = gateFrameByPose(evaluateGesture(pinchLm), pinchLm, 6, (p) => seen.push(p)).frame;
+    const kept = gateFrameByPose(evaluateGesture(pinchLm), pinchLm, 7, (p) => seen.push(p)).frame;
     expect(kept.state === "tracking" && kept.pinched).toBe(true);
-    gateFrameByPose(evaluateGesture(undefined), undefined, 7, (p) => seen.push(p));
-    expect(seen).toEqual(["fist", "pinch", "none"]);
+    gateFrameByPose(evaluateGesture(undefined), undefined, 8, (p) => seen.push(p));
+    expect(seen).toEqual(["pinch", "fist", "pinch", "none"]);
   });
 });

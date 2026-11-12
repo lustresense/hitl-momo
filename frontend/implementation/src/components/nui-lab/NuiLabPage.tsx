@@ -109,6 +109,8 @@ export function NuiLabPage() {
     setLowLightState(getFrameSourceStats().mode);
     return () => {
       mounted.current = false;
+      // generation is a plain counter, not a DOM ref: bumping the live value is the intent.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
       generation.current++;
       releaseSession(session.current);
       session.current = null;

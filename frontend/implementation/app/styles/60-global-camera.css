@@ -39,6 +39,9 @@
     bottom: 12px !important;
     left: 12px !important;
   }
+  /* Pusat Halaman (recap, portal, talk) is a full-screen scroller under this PIP (z 900 over the z 400 page). The PIP
+     covers the bottom-left 125x100 plus its 12 px inset, so the scroll area stops 124 px above the bottom edge. */
+  .center-page.ending-page { bottom: 124px; }
 }
 
 .global-camera-host.mode-floating::before,

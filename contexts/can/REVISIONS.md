@@ -51,7 +51,7 @@ Aturan isi:
 | R10-19 | "Gambar lagi" untuk recovery, gestur tidak bentrok. | SELESAI | recovery-paths 16/16 |
 | R10-20 | NUI penuh; fallback mouse/keyboard ada tapi tidak dipamerkan di awal; siswa tanpa kamera tidak terjebak. | SELESAI | Fix refresh tanpa kamera `f16b99a` |
 | R10-21 | NUI MediaPipe + One Euro + CLAHE + ONNX (opsional) dinilai sesuai PANDUAN. | JALAN | Lihat R11-03..R11-07 |
-| R10-22 | Level 3 lebih menantang, Momo bisa "halu" secara naratif, hasil model tidak direkayasa. | BELUM DICEK ULANG | Perlu audit ulang terhadap kode terbaru |
+| R10-22 | Level 3 lebih menantang, Momo bisa "halu" secara naratif, hasil model tidak direkayasa. | JALAN | Audit ulang terhadap kode terbaru: worker W-L3 |
 | R10-23 | Penutup: Thinman masuk portal dan hidup, Momo menjelaskan AI, rekap netral tanpa skor. | SELESAI | D-20261110-10 |
 | R10-24 | Kuis/survei setelah penutup, bisa dinyalakan/dimatikan admin. | SEBAGIAN | Flag di game ada; toggle di dashboard admin/backend baru usulan kontrak ke Dias |
 | R10-25 | Lead merencanakan, worker Haiku, Caveman hanya untuk jawaban ke Owner, Superpowers dipakai. | SELESAI | Cara kerja |
@@ -72,6 +72,11 @@ Aturan isi:
 | R11-11 | Bug tata letak dari visual-tour: bubble Momo menutupi kartu bab di rekap; kanvas tampak kosong di layar sempit 390 px; PIP kamera menutupi tombol gameplay di layar sempit; pita "Mode demo" menutupi instruksi kartu. | SELESAI-BELUM-DICEK-VISUAL | `c4d1988` (CSS saja). Sisa: PIP menutupi kartu rekap di 390 px; pita "Mode demo" menutupi Momo di layar gambar/gameplay 390 px |
 | R11-12 | NUI penuh di mode kamera: Owner melihat tombol mouse/touch di screenshot. Mode kamera harus memakai afordans gestur (cincin jempol, ikon gestur di bar gameplay, 1/2/3 jari) sesuai REVISI-NUI §16–20; tombol hanya untuk cadangan tanpa kamera. | SELESAI-BELUM-KAMERA | Mode kamera (kamera palsu Chromium, `e2e/visual-tour-camera.mjs`, `b27490c`) jalan dari cover sampai L1 menang tanpa tombol mouse/keyboard: cincin lambaian, cincin jempol, Top-3 ikon 1/2/3/5 jari, bar gameplay ikon gestur + speedometer + panel "Pakai tanganmu". Semua kontrol juga menerima tekan diam-diam (`5d3fb2d`, `ba5c895`). Sisa: skrip tour belum lanjut setelah L1 (layar gagal, portal, rekap belum difoto) |
 | R11-13 | Game melambat berat saat kamera nyala (uji kamera palsu: ketik intro 120–160 s vs ±27 s; coretan mouse hilang). Deteksi MediaPipe sinkron di thread utama. Target: satu deteksi per frame untuk seluruh app, lewati frame otomatis bila deteksi lambat (min ±8/s). | SELESAI-BELUM-KAMERA | Profil CPU: 7,9 s dari 8 s di MediaPipe `readPixels` pada GPU software. `6786b80` (satu deteksi per frame, budget adaptif) + `d278c5e` (GPU software → CPU, batas 50%). Browser: label "CPU (tanpa GPU)", intro tidak macet, baris pertama Momo 3,3 s |
+| R11-14 | Tour mode kamera sampai akhir: layar gagal, portal, rekap, layar akhir difoto di mode kamera dan dicocokkan dengan REVISI-NUI. | JALAN | Worker W-TOUR2 |
+| R11-15 | Cek waktu cover di mode kamera (tercatat 2,1 s, sebelumnya 7,8 s): keempat kalimat Momo harus tetap tampil utuh sebelum cincin bisa ditahan. | JALAN | Worker W-COVERCHK |
+| R11-16 | Tata letak HP sisa: pita "Mode demo" menutupi Momo di layar gambar/gameplay; kamera kecil menutupi kartu rekap. | JALAN | Worker W-LAYOUT2 |
+| R11-17 | Uji kelas penuh (backend + Caddy + dashboard) dengan kode terbaru. | JALAN | Worker W-CLASS |
+| R11-18 | `/nui-lab` menampilkan statistik deteksi (Hz, ms) dan delegate GPU/CPU yang baru. | JALAN | Worker W-LAB2 |
 | R11-10 | Berkas `REVISIONS.md` ini sebagai daftar tugas dan penjabaran revisi Owner. | SELESAI | |
 
 ## Belum diuji (wajib Owner/tim di perangkat asli)

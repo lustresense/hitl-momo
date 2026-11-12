@@ -7,16 +7,19 @@
  * - Latest frame wins: nothing is queued. A reader that asks gets the frame the camera shows now.
  * - Adaptive budget: a detection may take about BUDGET_SHARE of wall time. The next one starts no sooner than
  *   avg(duration) / BUDGET_SHARE after the last start, and never later than MAX_INTERVAL_MS (the 8 Hz floor).
- *   A detection slower than the floor cannot be made faster here; the floor only means no extra wait is added.
+ * - Hard cap: the 8 Hz floor gives way to the busy cap. A detection never takes more than MAX_BUSY_SHARE of wall
+ *   time, so a 1 s detection waits 2 s and the main thread (typing, timers, input) gets the rest.
  *
  * Detection is synchronous, so only one inference runs at a time by construction.
  */
 
 /** Share of wall time a detection may use. 20 ms of inference therefore starts at most every ~57 ms. */
 export const BUDGET_SHARE = 0.35;
-/** Floor of 8 detections a second: the gap never grows beyond this. */
+/** Floor of 8 detections a second: the budget gap never grows beyond this (a slow detection can still widen it). */
 export const MIN_DETECTIONS_PER_SECOND = 8;
 export const MAX_INTERVAL_MS = 1000 / MIN_DETECTIONS_PER_SECOND;
+/** Hard cap on busy time. Wins over the 8 Hz floor: UI and input must keep at least half the main thread. */
+export const MAX_BUSY_SHARE = 0.5;
 /** How many recent detections the moving average uses. */
 const DURATION_WINDOW = 8;
 /** Window for the effective rate reported in the stats. */
@@ -71,10 +74,16 @@ export class InferenceScheduler {
 
   constructor(private readonly options: InferenceSchedulerOptions) {}
 
-  /** Smallest gap between two detection starts now (ms). Grows with the measured cost, capped at the floor. */
+  /**
+   * Smallest gap between two detection starts now (ms). The budget gap is capped at the 8 Hz floor; the busy cap
+   * is not, so the larger of the two wins and busy time stays at or below MAX_BUSY_SHARE.
+   */
   minIntervalMs(): number {
     if (this.durations.length === 0) return 0;
-    return Math.min(MAX_INTERVAL_MS, mean(this.durations) / BUDGET_SHARE);
+    const budgetGap = Math.min(MAX_INTERVAL_MS, mean(this.durations) / BUDGET_SHARE);
+    // The last duration counts too, so one slow detection widens the gap at once.
+    const busyCapGap = Math.max(this.lastMs ?? 0, mean(this.durations)) / MAX_BUSY_SHARE;
+    return Math.max(budgetGap, busyCapGap);
   }
 
   /**

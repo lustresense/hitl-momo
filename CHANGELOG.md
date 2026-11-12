@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.14.1-alpha | 2026-11-12 | Tes | `(0.14.1-alpha)` |
 | 0.14.0-alpha | 2026-11-12 | Fitur | `(0.14.0-alpha)` |
 | 0.13.0-alpha | 2026-11-12 | Fitur | `(0.13.0-alpha)` |
 | 0.12.9-alpha | 2026-11-12 | Perbaikan | `(0.12.9-alpha)` |
@@ -95,6 +96,21 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.14.1-alpha — 2026-11-12 — Tes
+
+**Sumber:** Stabilitas gerbang tes (M-031)
+
+**Perubahan:**
+- Tes gestur penempatan memakai jam frame 33 ms dan gerbang deteksi di-reset tiap tes.
+- Tes publish pembaca tangan memakai fake timer dan Date, jadi batas 500 ms tidak kedaluwarsa karena mesin sibuk.
+- tutorial-pinch belum diubah (bergantung GSAP).
+
+**Commit:** commit berjudul `(0.14.1-alpha)`
+
+**Bukti:** placement 12/12, hand-readers 6/6; 5x berturut-turut tiap file sambil vitest tests/components jalan paralel: 15/15 hijau
 
 ---
 

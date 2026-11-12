@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
 import { getHandCursor, hasActiveReader, resetHandCursorForTest } from "@/src/camera/hand-cursor-store";
 import { resetSharedStreamForTest, setSharedStream } from "@/src/camera/shared-stream";
+import { resetInferenceSchedulerForTest } from "@/src/camera/inference-scheduler";
 import { publishHandForTest, resetThumbTrackerForTest } from "@/src/camera/thumb-tracker";
 import { GameplayHandDriver } from "@/src/input/gameplay-hand-driver";
 import { HandDrawingDriver } from "@/src/input/mediapipe-input";
@@ -19,12 +20,20 @@ const create = vi.mocked(HandLandmarker.createFromOptions);
 const OPEN_HAND: Landmark[] = makeHand({ ratios: [1.5, 1.5, 1.5, 1.5], indexTip: { x: 0.3, y: 0.4 } });
 const MIRRORED_TIP = { x: 0.7, y: 0.4 };
 
+/**
+ * Time is fake: Date and the heartbeat/expiry timers are controlled by the test, so the 500 ms reader TTL cannot
+ * expire on a slow machine. The inference gate budgets on performance.now, so that runs on a frame clock of 33 ms
+ * per stepRaf(). Promises are flushed through the fake clock (advanceTimersByTimeAsync), never a real setTimeout.
+ */
 let raf: FrameRequestCallback[] = [];
+let perfSpy: { mockRestore: () => void } | null = null;
+let gateNowMs = 1000;
 const stepRaf = () => {
+  gateNowMs += 33;
   const queue = raf.splice(0);
   queue.forEach((cb) => cb(0));
 };
-const flush = () => new Promise((r) => setTimeout(r, 0));
+const flush = () => vi.advanceTimersByTimeAsync(0);
 
 function liveStream() {
   const track = { readyState: "live", stop: vi.fn(), addEventListener: vi.fn(), removeEventListener: vi.fn() };
@@ -35,6 +44,11 @@ function video() {
 }
 
 beforeEach(() => {
+  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "setInterval", "clearInterval", "Date"] });
+  vi.setSystemTime(1_000_000);
+  gateNowMs = 1000;
+  perfSpy = vi.spyOn(performance, "now").mockImplementation(() => gateNowMs);
+  resetInferenceSchedulerForTest();
   vi.clearAllMocks();
   resetSharedStreamForTest();
   resetHandCursorForTest();
@@ -49,7 +63,11 @@ beforeEach(() => {
   vi.mocked(FilesetResolver.forVisionTasks).mockResolvedValue({} as never);
 });
 afterEach(() => {
+  vi.useRealTimers();
+  perfSpy?.mockRestore();
+  perfSpy = null;
   vi.restoreAllMocks();
+  resetInferenceSchedulerForTest();
   resetSharedStreamForTest();
   resetHandCursorForTest();
   resetThumbTrackerForTest();

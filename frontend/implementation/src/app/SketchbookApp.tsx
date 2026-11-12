@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { FINAL_LEVEL_STAGE, getLevel, type LevelDefinition } from "@/src/domain/levels";
 import type { DrawingSurface } from "@/src/input";
 import { useFlowSnapshot } from "@/src/hooks/use-flow";
@@ -24,6 +24,8 @@ import { AppShell } from "./screens/AppShell";
 import { DrawingFlowScreen } from "./screens/DrawingFlowScreen";
 import { GameplayScreen } from "./screens/GameplayScreen";
 import { LevelEntryScreen } from "./screens/LevelEntryScreen";
+import { useScreenHandoff } from "./hooks/useScreenHandoff";
+import "./screen-handoff.css";
 
 /** A class join waits this long before the ruler hands over to the card; the join keeps running after that. */
 const JOIN_WAIT_MS = 8000;
@@ -108,6 +110,9 @@ export function SketchbookApp() {
   const { enterLevel, willPlayIntro, provider, recordRecap } = session;
   const [book, setBook] = useState<{ key: number; direction: "open" | "close" }>({ key: 0, direction: "open" });
   const pendingCloseRef = useRef<(() => void) | null>(null);
+  /** R12-03: screen changes wait for the book's midpoint; the incoming screen then fades in after the cover Momo. */
+  const handoff = useScreenHandoff();
+  const { later: laterAtMidpoint, midpoint: atBookMidpoint, swap: swapScreen } = handoff;
 
   // R9: keep the first decided object of each level (strokes + decision) for the closing overview.
   useEffect(() => {
@@ -153,11 +158,11 @@ export function SketchbookApp() {
     (selected: LevelDefinition) => {
       // The level list stays under the falling intro page only when an intro plays.
       if (willPlayIntro(selected)) startEntryHold();
-      // PRD 0.0.16 R6: the book opens into the world; the page underneath swaps as the leaf lifts.
+      // PRD 0.0.16 R6 / R12-03: the book opens into the world; the world appears at the midpoint, not before.
+      laterAtMidpoint(() => enterLevel(selected));
       setBook((b) => ({ key: b.key + 1, direction: "open" }));
-      enterLevel(selected);
     },
-    [startEntryHold, enterLevel, willPlayIntro],
+    [startEntryHold, enterLevel, willPlayIntro, laterAtMidpoint],
   );
 
   async function handleSubmitDrawing() {
@@ -205,6 +210,10 @@ export function SketchbookApp() {
 
   return (
     <AppShell mode={bannerMode} onboarding={isCameraCover || isOnboarding || isLevelEntry}>
+      <div
+        className={handoff.entering ? "screen-handoff is-entering" : "screen-handoff"}
+        style={{ "--handoff-delay": `${handoff.delayMs}ms` } as CSSProperties}
+      >
       {!isCameraCover && (
         <>
           {onboarding === "number" && (
@@ -272,8 +281,15 @@ export function SketchbookApp() {
           )}
         </>
       )}
+      </div>
 
-      <BookFlip playKey={book.key} direction={book.direction} onDone={onBookDone} label={book.direction === "open" ? "Buku terbuka" : "Buku tertutup"} />
+      <BookFlip
+        playKey={book.key}
+        direction={book.direction}
+        onMidpoint={atBookMidpoint}
+        onDone={onBookDone}
+        label={book.direction === "open" ? "Buku terbuka" : "Buku tertutup"}
+      />
 
       {endingOpen && <CenterOfPage recaps={session.getRecaps()} onChoose={chooseEnding} />}
 
@@ -294,7 +310,7 @@ export function SketchbookApp() {
         mode={isCameraCover ? "cover" : "floating"}
         modelUrl={env.mediapipeModelUrl}
         recessed={isDrawing}
-        onWave={() => navigateTo("/onboarding/number")}
+        onWave={() => swapScreen(() => navigateTo("/onboarding/number"))}
         onSkip={() => navigateTo("/onboarding/number")}
       />
     </AppShell>

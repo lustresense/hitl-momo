@@ -15,6 +15,8 @@ import { subscribeHandLandmarkerStatus, warmHandLandmarker } from "../../camera/
 import { DRAWING_MODE_EVENT, HAND_STATUS_EVENT, classifyCameraError, messageFor } from "../../camera/messages";
 import type { HandInputStatus } from "../../input/types";
 import "./cover-wave-hold.css";
+import "./cover-stage.css";
+import { COVER_MOMO_FADE_MS } from "./cover-handoff";
 
 export interface GlobalCameraProps {
   /** "cover" = centred camera card with Momo asleep on the right, "floating" = bottom-left mini PIP. */
@@ -75,9 +77,6 @@ const NUDGE_BUTTON_MS = 20000;
  * is the only wake besides the wave, so a student whose hand is not seen is never stuck.
  */
 const WAVE_RING_HOLD_MS = 1000;
-/** Momo fades 0.3 s after the book's midpoint, over 0.3 s. */
-const MOMO_FADE_AFTER_MS = 300;
-const MOMO_FADE_MS = 300;
 /** Momo's flight and the thumb ring: the student confirms with a 1 s thumb after the last line. */
 const COVER_THUMB_HOLD_MS = 1000;
 
@@ -365,23 +364,23 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
     setFlipKey((k) => k + 1);
   };
 
-  /** Midpoint of the book: the page under the leaf switches now (ruler). Momo's last word fades just after. */
+  /**
+   * Midpoint of the book: the page under the leaf switches now (ruler). Momo's last word fades out from this moment, so
+   * the next screen's Momo can fade in once this one is gone (no two Momos at once, R12-03).
+   */
   const handOff = () => {
     if (leftCoverRef.current) return;
     leftCoverRef.current = true;
     stopWaveTracking();
     setCoverDone(true);
+    setMomoPhase("fading");
     onWaveRef.current?.();
   };
 
   useEffect(() => {
     if (!coverDone) return;
-    const fade = window.setTimeout(() => setMomoPhase("fading"), MOMO_FADE_AFTER_MS);
-    const gone = window.setTimeout(() => setMomoPhase("gone"), MOMO_FADE_AFTER_MS + MOMO_FADE_MS);
-    return () => {
-      window.clearTimeout(fade);
-      window.clearTimeout(gone);
-    };
+    const gone = window.setTimeout(() => setMomoPhase("gone"), COVER_MOMO_FADE_MS);
+    return () => window.clearTimeout(gone);
   }, [coverDone]);
 
   /** Help while the camera is on: Momo mumbles at 8 s, a small button appears at 20 s. */
@@ -690,7 +689,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
 
   return (
     <div
-      className={`global-camera-host camera-prototype-root mode-${layoutMode}${recessed ? " is-recessed" : ""}${awake ? " has-momo-awake" : ""}`}
+      className={`global-camera-host camera-prototype-root mode-${layoutMode}${recessed ? " is-recessed" : ""}${awake ? " has-momo-awake" : ""}${mode === "cover" ? " is-cover-stage" : ""}`}
       data-testid="global-camera-widget"
     >
       {/*
@@ -702,6 +701,8 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
         {mode === "cover" && (
           <>
             <div className="eyebrow">Sketchbook Universe Present</div>
+            {/* R12-01: the visible title of the cover. Stays while Momo sleeps; the PIP never shows it (CSS). */}
+            <p className="cover-wordmark" data-testid="cover-wordmark">Sketchbook Universe</p>
             {/* Page title for screen readers only: the cover shows Momo and the camera, not a headline (R3). */}
             <h1 className="visually-hidden">Jarimu Adalah Kuas Ajaibnya!</h1>
           </>

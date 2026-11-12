@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.15.3-alpha | 2026-11-12 | Perbaikan | `(0.15.3-alpha)` |
 | 0.15.2-alpha | 2026-11-12 | Dokumen | `(0.15.2-alpha)` |
 | 0.15.1-alpha | 2026-11-12 | Tes | `(0.15.1-alpha)` |
 | 0.15.0-alpha | 2026-11-12 | Fitur | `(0.15.0-alpha)` |
@@ -101,6 +102,22 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.15.3-alpha — 2026-11-12 — Perbaikan
+
+**Sumber:** REVISIONS R12-05, R12-08, R12-09 / Owner 2026-11-12
+
+**Perubahan:**
+- Deteksi gestur vertikal turun-naik (Y-axis) di wave-tracker.ts (1 siklus sapaan langsung membangunkan Momo, suite tests/camera/wave-vertical.test.ts).
+- Animasi waving hand ikon dinamis di cover screen (101-onboarding.css, rotasi -25 s/d +20 dengan transform-box: fill-box).
+- Toleransi motion blur & jarak jauh webcam laptop (hand-config.ts confidence 0.45, primary-hand.ts rasio ukuran 1.7).
+- Pemisahan tangan vs wajah via BlazeFace FaceDetector paralel (face-anchor.ts & primary-hand.ts anti false positive landmark muka).
+
+**Commit:** commit berjudul `(0.15.3-alpha)`
+
+**Bukti:** vitest 35/35 files (333/333 passed); tsc 0 error; next lint clean
 
 ---
 

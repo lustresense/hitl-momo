@@ -21,6 +21,7 @@ import { FaceAnchor, type FaceBox, type FaceSource } from "./face-anchor";
 
 export interface WaveSample {
   x: number;
+  y?: number;
   time: number;
 }
 
@@ -85,7 +86,19 @@ export function countSwings(values: number[], minSwing = WAVE_MIN_LEG): number {
 /** Pure wake-up wave rule (see the note above). `handSize` scales the minimum leg. */
 export function detectWave(samples: WaveSample[], handSize = WAVE_DEFAULT_HAND_SIZE): boolean {
   if (samples.length < WAVE_MIN_SAMPLES) return false;
-  return countSwings(samples.map((s) => s.x), waveLeg(handSize)) >= WAVE_MIN_REVERSALS;
+  const leg = waveLeg(handSize);
+  const xSwings = countSwings(samples.map((s) => s.x), leg);
+  if (xSwings >= WAVE_MIN_REVERSALS) return true;
+
+  const validY = samples.filter((s): s is WaveSample & { y: number } => typeof s.y === "number");
+  if (validY.length >= WAVE_MIN_SAMPLES) {
+    const ys = validY.map((s) => s.y);
+    const ySwings = countSwings(ys, leg);
+    const ySpan = Math.max(...ys) - Math.min(...ys);
+    if (ySwings >= 1 && ySpan >= leg) return true;
+  }
+
+  return false;
 }
 
 /**
@@ -94,8 +107,26 @@ export function detectWave(samples: WaveSample[], handSize = WAVE_DEFAULT_HAND_S
  */
 export function waveProgress(samples: WaveSample[], handSize = WAVE_DEFAULT_HAND_SIZE): number {
   if (samples.length === 0) return 0;
-  const swings = countSwings(samples.map((s) => s.x), waveLeg(handSize));
-  return Math.max(0, Math.min(1, swings / WAVE_MIN_REVERSALS));
+  if (detectWave(samples, handSize)) return 1;
+
+  const leg = waveLeg(handSize);
+  const xs = samples.map((s) => s.x);
+  const xSwings = countSwings(xs, leg);
+  const xSpan = Math.max(...xs) - Math.min(...xs);
+  const xStroke = Math.min(1, xSpan / leg);
+  const xProgress = Math.min(0.95, (xSwings / WAVE_MIN_REVERSALS) + (xStroke * 0.4) / WAVE_MIN_REVERSALS);
+
+  let yProgress = 0;
+  const validY = samples.filter((s): s is WaveSample & { y: number } => typeof s.y === "number");
+  if (validY.length >= 2) {
+    const ys = validY.map((s) => s.y);
+    const ySwings = countSwings(ys, leg);
+    const ySpan = Math.max(...ys) - Math.min(...ys);
+    const yStroke = Math.min(1, ySpan / leg);
+    yProgress = Math.min(0.95, (ySwings * 0.5) + (yStroke * 0.45));
+  }
+
+  return Math.max(0, Math.min(1, Math.max(xProgress, yProgress)));
 }
 
 /** Frames without a hand that a wave survives (a blurred frame or a dropped detection), before the sweep restarts. */
@@ -144,7 +175,7 @@ export class WaveSweep {
       if (this.faceCx === null) this.faceCx = cx;
       else if (Math.abs(cx - this.faceCx) > FACE_STILL_SHIFT * face.w) this.restart(cx);
     }
-    this.samples.push({ x: wrist.x, time: nowMs });
+    this.samples.push({ x: wrist.x, y: wrist.y, time: nowMs });
     while (this.samples.length && nowMs - this.samples[0]!.time > WAVE_WINDOW_MS) this.samples.shift();
     return this.step(handSize);
   }
@@ -162,9 +193,13 @@ export class WaveSweep {
   }
 
   private step(handSize: number): WaveStep {
+    const leg = waveLeg(handSize);
+    const xSwings = countSwings(this.samples.map((s) => s.x), leg);
+    const validY = this.samples.filter((s): s is WaveSample & { y: number } => typeof s.y === "number");
+    const ySwings = validY.length ? countSwings(validY.map((s) => s.y), leg) : 0;
     return {
       progress: waveProgress(this.samples, handSize),
-      swings: countSwings(this.samples.map((s) => s.x), waveLeg(handSize)),
+      swings: Math.max(xSwings, ySwings),
       detected: detectWave(this.samples, handSize),
     };
   }
@@ -295,6 +330,9 @@ export class WaveTracker {
     if (typeof document !== "undefined" && document.hidden) return;
     if (video.readyState < 2 || video.currentTime === this.lastVideoTime) return;
     this.lastVideoTime = video.currentTime;
+    const now = performance.now();
+    // The face has its own, slower clock (face-anchor.ts). It only narrows which hand is the player's.
+    this.face.update(video, now);
     let result: HandLandmarkerResult | null;
     try {
       // The shared gate may skip this camera frame (budget) or hand back another reader's result for it.
@@ -309,9 +347,6 @@ export class WaveTracker {
       return;
     }
     if (!result) return;
-    const now = performance.now();
-    // The face has its own, slower clock (face-anchor.ts). It only narrows which hand is the player's.
-    this.face.update(video, now);
     const face: FaceBox | null = this.face.current(now);
     const pick = pickPrimaryHand(result.landmarks, this.primary, now, face);
     this.primary = pick.state;

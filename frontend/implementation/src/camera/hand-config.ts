@@ -14,8 +14,8 @@ export const DEFAULT_NUM_HANDS = 2;
  * Higher = fewer false hands from the background, but a hand must be clearer to be seen.
  */
 export const HAND_DETECTION_CONFIDENCE = 0.6;
-export const HAND_PRESENCE_CONFIDENCE = 0.6;
-export const HAND_TRACKING_CONFIDENCE = 0.6;
+export const HAND_PRESENCE_CONFIDENCE = 0.45;
+export const HAND_TRACKING_CONFIDENCE = 0.45;
 
 /**
  * Face detector that bounds whose hand counts (wave and thumb rules). BlazeFace short range, Apache-2.0, shipped with

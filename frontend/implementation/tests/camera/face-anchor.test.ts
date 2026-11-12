@@ -2,6 +2,12 @@
 import { describe, expect, it, vi } from "vitest";
 import { FaceAnchor, faceBoxFromDetections, type FaceDetectorLike } from "@/src/camera/face-anchor";
 import { FACE_LOST_MS } from "@/src/camera/hand-config";
+import {
+  HAND_LANE,
+  InferenceScheduler,
+  getInferenceStats,
+  resetInferenceSchedulerForTest,
+} from "@/src/camera/inference-scheduler";
 
 const box = (originX: number, originY: number, width: number, height: number) => ({
   boundingBox: { originX, originY, width, height },
@@ -47,7 +53,7 @@ describe("FaceAnchor", () => {
     let t = 0;
     const detectForVideo = vi.fn(() => ({ detections: [box(288, 96, 64, 96)] }));
     const detector: FaceDetectorLike = { detectForVideo, close: vi.fn() };
-    const anchor = new FaceAnchor({ load: async () => detector, now: () => t });
+    const anchor = new FaceAnchor({ load: async () => detector, now: () => t, gate: new InferenceScheduler({ now: () => t }) });
     const v = video();
 
     anchor.update(v, t); // starts the model load
@@ -68,7 +74,7 @@ describe("FaceAnchor", () => {
       detectForVideo: vi.fn(() => ({ detections: found ? [box(288, 96, 64, 96)] : [] })),
       close: vi.fn(),
     };
-    const anchor = new FaceAnchor({ load: async () => detector, now: () => t });
+    const anchor = new FaceAnchor({ load: async () => detector, now: () => t, gate: new InferenceScheduler({ now: () => t }) });
     const v = video();
     anchor.update(v, t);
     await flush();
@@ -88,7 +94,7 @@ describe("FaceAnchor", () => {
 
   it("does nothing before the video has a frame", async () => {
     const detectForVideo = vi.fn(() => ({ detections: [box(288, 96, 64, 96)] }));
-    const anchor = new FaceAnchor({ load: async () => ({ detectForVideo, close: vi.fn() }), now: () => 0 });
+    const anchor = new FaceAnchor({ load: async () => ({ detectForVideo, close: vi.fn() }), now: () => 0, gate: new InferenceScheduler({ now: () => 0 }) });
     anchor.update(video({ readyState: 1 } as never), 0);
     await flush();
     anchor.update(video({ readyState: 1 } as never), 1000);
@@ -97,7 +103,7 @@ describe("FaceAnchor", () => {
   });
 
   it("never throws and reports no face when the model cannot load", async () => {
-    const anchor = new FaceAnchor({ load: () => Promise.reject(new Error("404")), now: () => 0 });
+    const anchor = new FaceAnchor({ load: () => Promise.reject(new Error("404")), now: () => 0, gate: new InferenceScheduler({ now: () => 0 }) });
     expect(() => anchor.update(video(), 0)).not.toThrow();
     await flush();
     expect(() => anchor.update(video(), 1000)).not.toThrow();
@@ -109,7 +115,7 @@ describe("FaceAnchor", () => {
     const detectForVideo = vi.fn(() => {
       throw new Error("boom");
     });
-    const anchor = new FaceAnchor({ load: async () => ({ detectForVideo, close: vi.fn() }), now: () => t });
+    const anchor = new FaceAnchor({ load: async () => ({ detectForVideo, close: vi.fn() }), now: () => t, gate: new InferenceScheduler({ now: () => t }) });
     const v = video();
     anchor.update(v, t);
     await flush();
@@ -120,5 +126,47 @@ describe("FaceAnchor", () => {
     }
     expect(detectForVideo.mock.calls.length).toBe(3);
     expect(anchor.current(t)).toBeNull();
+  });
+
+  it("shares the one budget with the hand: a frame the hand already read is not read again for the face", async () => {
+    let t = 0;
+    const detectForVideo = vi.fn(() => ({ detections: [box(288, 96, 64, 96)] }));
+    const gate = new InferenceScheduler({ now: () => t });
+    const anchor = new FaceAnchor({ load: async () => ({ detectForVideo, close: vi.fn() }), now: () => t, gate });
+    const v = video();
+    anchor.update(v, t); // starts the model load
+    await flush();
+
+    v.currentTime = 1;
+    gate.poll({}, v, () => ({ detections: [] }), HAND_LANE); // the hand reads frame 1 first
+    anchor.update(v, t);
+    expect(detectForVideo).not.toHaveBeenCalled();
+
+    t = 300;
+    v.currentTime = 2;
+    anchor.update(v, t);
+    expect(detectForVideo).toHaveBeenCalledTimes(1);
+    expect(anchor.current(t)).not.toBeNull();
+  });
+
+  it("counts face lookups in the shared stats when no gate is given (the app-wide budget)", async () => {
+    resetInferenceSchedulerForTest();
+    let t = 500;
+    const spy = vi.spyOn(performance, "now").mockImplementation(() => t);
+    try {
+      const detectForVideo = vi.fn(() => ({ detections: [box(288, 96, 64, 96)] }));
+      const anchor = new FaceAnchor({ load: async () => ({ detectForVideo, close: vi.fn() }), now: () => t });
+      const v = video({ currentTime: 1 } as never);
+      anchor.update(v, t);
+      await flush();
+      anchor.update(v, t);
+
+      expect(detectForVideo).toHaveBeenCalledTimes(1);
+      expect(getInferenceStats().models.face.detections).toBe(1);
+      expect(getInferenceStats().detections).toBe(1);
+    } finally {
+      spy.mockRestore();
+      resetInferenceSchedulerForTest();
+    }
   });
 });

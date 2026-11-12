@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.14.3-alpha | 2026-11-12 | Perbaikan | `(0.14.3-alpha)` |
 | 0.14.2-alpha | 2026-11-12 | Perbaikan | `(0.14.2-alpha)` |
 | 0.14.1-alpha | 2026-11-12 | Tes | `(0.14.1-alpha)` |
 | 0.14.0-alpha | 2026-11-12 | Fitur | `(0.14.0-alpha)` |
@@ -97,6 +98,21 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.14.3-alpha — 2026-11-12 — Perbaikan
+
+**Sumber:** REVISIONS R11-13, R12-05
+
+**Perubahan:**
+- Deteksi wajah dan tangan berbagi satu batas beban: satu frame paling banyak satu deteksi, total sibuk tetap ≤ 50 %.
+- Wajah paling banyak 4 kali per detik, mengalah ke tangan, tapi tetap dapat giliran paling lama tiap 500 ms.
+- Statistik per model (tangan, wajah) dan porsi sibuk untuk /nui-lab.
+
+**Commit:** commit berjudul `(0.14.3-alpha)`
+
+**Bukti:** scheduler 22/22, face-anchor 12/12; tsc bersih; flake thumb-primary-hand sudah ada sebelum perubahan ini (1 dari 6 di versi sebelumnya)
 
 ---
 

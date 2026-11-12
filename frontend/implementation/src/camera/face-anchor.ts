@@ -2,13 +2,13 @@
  * Finds the player's face so the wave rule only counts a hand near it (see primary-hand.ts).
  *
  * - Runs at FACE_DETECTIONS_PER_SECOND at most. A face does not move fast, and the hand model already uses the budget.
- * - Uses its OWN InferenceScheduler, not the shared pollDetection gate: that gate hands every reader the value of the
- *   first detection on a frame, so a face reader would get hand results (and the hand reader face results).
+ * - Asks the SHARED gate on the FACE_LANE: one busy budget with the hand (inference-scheduler.ts). The face yields to
+ *   the hand, and a frame the hand already read is not read again for the face.
  * - Never throws. No model, a failed load, or repeated errors mean "no face": callers then use the plain hand rule.
  */
 import { FaceDetector, FilesetResolver } from "@mediapipe/tasks-vision";
 import { frameForDetection, type DetectionFrame } from "./frame-source";
-import { InferenceScheduler } from "./inference-scheduler";
+import { FACE_LANE, sharedDetectionGate, type DetectionGate } from "./inference-scheduler";
 import { FACE_DETECTIONS_PER_SECOND, FACE_LOST_MS, FACE_MIN_CONFIDENCE, FACE_MODEL_PATH } from "./hand-config";
 
 /** Face box in normalised frame units (0..1, top-left origin), the same space as the hand landmarks. */
@@ -104,12 +104,17 @@ export interface FaceAnchorOptions {
   load?: () => Promise<FaceDetectorLike>;
   /** Clock in ms. Default: performance.now(). */
   now?: () => number;
+  /**
+   * Test seam: the gate the face asks. Default: the shared app-wide gate, so the face counts in the same budget
+   * as the hand. A test passes its own gate on its own clock.
+   */
+  gate?: DetectionGate;
 }
 
 export class FaceAnchor implements FaceSource {
   private readonly load: () => Promise<FaceDetectorLike>;
   private readonly now: () => number;
-  private readonly gate: InferenceScheduler;
+  private readonly gate: DetectionGate;
   private detector: FaceDetectorLike | null = null;
   private loading = false;
   private unavailable = false;
@@ -121,7 +126,7 @@ export class FaceAnchor implements FaceSource {
   constructor(options: FaceAnchorOptions = {}) {
     this.load = options.load ?? (() => loadFaceDetector());
     this.now = options.now ?? (() => performance.now());
-    this.gate = new InferenceScheduler({ now: this.now });
+    this.gate = options.gate ?? sharedDetectionGate;
   }
 
   update(video: HTMLVideoElement, nowMs: number): void {
@@ -136,7 +141,7 @@ export class FaceAnchor implements FaceSource {
     const detector = this.detector;
     let result: ReturnType<FaceDetectorLike["detectForVideo"]> | null;
     try {
-      result = this.gate.poll(this, video, (ts) => detector.detectForVideo(frameForDetection(video), ts));
+      result = this.gate.poll(this, video, (ts) => detector.detectForVideo(frameForDetection(video), ts), FACE_LANE);
       this.failures = 0;
     } catch {
       this.failures++;

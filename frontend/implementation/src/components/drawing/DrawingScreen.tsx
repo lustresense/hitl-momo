@@ -20,7 +20,7 @@ import { MomoGuessChat } from "../prediction/MomoGuessChat";
 import { DrawingActions } from "./DrawingActions";
 import { DrawingToolbar } from "./DrawingToolbar";
 import { useDrawingSurface } from "./hooks/useDrawingSurface";
-import { useInputMode } from "@/src/hooks/useHandGesture";
+import { useHandGesture, useInputMode } from "@/src/hooks/useHandGesture";
 import { drawModeFor } from "./draw-mode";
 import { useMomoCompanionLayout } from "./hooks/useMomoCompanionLayout";
 import { useCanvasFocus } from "./hooks/useCanvasFocus";
@@ -117,6 +117,8 @@ export function DrawingScreen({
   const cameraMode = appInputMode === "camera";
   const [startMode] = useState<InputModeId>(() => drawModeFor(appInputMode, initialMode));
   const { inputMode, hasInk, handPose, switchMode } = useDrawingSurface({ canvasRef, surfaceOut, initialMode: startMode, active });
+  const stickerGesture = useHandGesture(Boolean(stamp) && appInputMode === "camera");
+  const stampPose = stickerGesture.pose !== "none" ? stickerGesture.pose : (inputMode === "hand" ? handPose : "none");
   useEffect(() => {
     if (!active) return;
     const wanted = drawModeFor(appInputMode, initialMode);
@@ -322,7 +324,7 @@ export function DrawingScreen({
           behavior={stamp.behavior}
           drawingInput={stamp.drawingInput}
           // The drawing hand's stable pose; the fallback mode has no hand, so no pose reaches the rings.
-          pose={inputMode === "hand" ? handPose : "none"}
+          pose={stampPose}
           onThrow={stamp.onThrow}
           onRedraw={stamp.onRedraw}
         />

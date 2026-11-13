@@ -44,6 +44,8 @@ const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : use
 
 /** R1: the tracker starts right away; Momo is still asleep, so a model-load stall does not break her wake-up animation. */
 const WAKE_SETTLE_MS = 0;
+const COVER_HINT_DELAY_MS = 5000;
+
 
 /**
  * Cover choreography (R3). One schedule, started by the wake and cancelled on unmount. Story animation keeps its
@@ -244,12 +246,26 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
   const [flying, setFlying] = useState(false);
   /** The camera card is in its bottom-left PIP box: the layout switches here (no jump, the box is the same). */
   const [pipReached, setPipReached] = useState(false);
+  const [coverHintReady, setCoverHintReady] = useState(false);
   /** Wave ring: 0..1 while the student's wave is being recognised. */
   const [waveProgress, setWaveProgress] = useState(0);
   /** Camera on and no wave yet: 0 = nothing, 1 = Momo mumbles, 2 = the small wake button appears. */
   const [nudge, setNudge] = useState(0);
   /** The book has been started: the cover text and the thumb confirmation are gone. */
   const [coverDone, setCoverDone] = useState(false);
+  const [hintDelayPassed, setHintDelayPassed] = useState(false);
+  useEffect(() => {
+    if (mode === 'cover' && hasStream && !awake) {
+      if (process.env.NEXT_PUBLIC_TEST_HOOKS === '1') {
+        setHintDelayPassed(true);
+        return;
+      }
+      const t = setTimeout(() => setHintDelayPassed(true), 5000);
+      return () => clearTimeout(t);
+    } else {
+      setHintDelayPassed(false);
+    }
+  }, [mode, hasStream, awake]);
   /** Momo has typed her last line: the thumb ring appears now, not after the reading pause. */
   const [coverLinesTyped, setCoverLinesTyped] = useState(false);
   /** Momo on the cover: on, fading (0.3 s after the midpoint), gone. */
@@ -261,6 +277,22 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
    * The cover's card and Momo are the same cover mode until the card has landed in its PIP box. After that the
    * layout is the floating one, even though `mode` still reads "cover" until the navigation at the book's midpoint.
    */
+  useEffect(() => {
+    if (!hasStream || mode !== "cover" || awake) {
+      setCoverHintReady(false);
+      return;
+    }
+    const bypass = typeof process !== "undefined" && process.env?.NEXT_PUBLIC_TEST_HOOKS === "1";
+    if (bypass) {
+      setCoverHintReady(true);
+      return;
+    }
+    const timer = window.setTimeout(() => {
+      setCoverHintReady(true);
+    }, COVER_HINT_DELAY_MS);
+    return () => window.clearTimeout(timer);
+  }, [hasStream, mode, awake]);
+
   const layoutMode: "cover" | "floating" = mode === "floating" || pipReached ? "floating" : "cover";
 
   const wakeMomo = () => {
@@ -683,7 +715,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
       ? COVER_SLEEP_NUDGE
       : null;
   const showCoverMomo = mode === "cover" || momoPhase !== "gone";
-  const showWaveRing = mode === "cover" && hasStream && !awake && inputMode === "camera";
+  const showWaveRing = mode === "cover" && hasStream && !awake && inputMode === "camera" && (coverHintReady || waveProgress > 0);
   // Camera mode never shows the text button: the wave ring (below) takes the silent hold instead.
   const showWakeButton = mode === "cover" && !awake && !coverDone && inputMode === "fallback";
 

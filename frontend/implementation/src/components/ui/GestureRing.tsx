@@ -42,6 +42,7 @@ export interface GestureRingProps {
   /** aria-expanded for a control that opens a list. */
   expanded?: boolean;
   className?: string;
+  drainImmediate?: boolean;
   testId?: string;
 }
 
@@ -65,6 +66,7 @@ export function GestureRing({
   pressed,
   expanded,
   className,
+  drainImmediate = false,
   testId = "gesture-ring",
 }: GestureRingProps) {
   const mode = useInputMode();
@@ -101,7 +103,7 @@ export function GestureRing({
       const prev = progressRef.current;
       const next = filling
         ? Math.min(1, prev + dt / holdMsRef.current)
-        : Math.max(0, prev - (dt / holdMsRef.current) * GESTURE_RING_DRAIN_RATIO);
+        : (drainImmediate ? 0 : Math.max(0, prev - (dt / holdMsRef.current) * GESTURE_RING_DRAIN_RATIO));
       if (next >= 1) {
         // Full ring: fire once, then latch until the hold is released.
         armedRef.current = false;

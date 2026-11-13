@@ -76,6 +76,7 @@ export function Top3Panel({ result, onPick, disabled = false }: Top3PanelProps) 
               holdMs={TOP3_HOLD_MS}
               locked={disabled}
               icon={<FingerGlyph count={rank} size={28} />}
+              drainImmediate
               onConfirm={() => onPick(rank)}
             >
               <span className="top3-item__body">

@@ -54,9 +54,9 @@ function momoSVG(id: string): string {
   <g class="root">
    <g class="tA">${tail("a")}<circle cx="${b[0]}" cy="${b[1]}" r="${J.r}" fill="${INK}"/><g class="tB">${tail("b")}<circle cx="${c[0]}" cy="${c[1]}" r="${J.r}" fill="${INK}"/><g class="tC">${tail("c")}</g></g></g>
    <g class="bow"><path ${bk} d="${M.bow}"/></g>
+   <g class="fL"><path ${bk} d="${M.flapL}"/><path ${o} d="${M.o12}"/></g><g class="fR"><path ${bk} d="${M.flapR}"/><path ${o} d="${M.o11}"/></g>
    <path ${bk} d="${M.body}"/><path fill="#B2DB8E" d="${M.green}"/>
    <path ${o} d="${M.w9}"/><path ${o} d="${M.w10}"/><path ${o} d="${M.d3}"/><path ${o} d="${M.d4}"/>
-   <g class="fL"><path ${bk} d="${M.flapL}"/><path ${o} d="${M.o12}"/></g><g class="fR"><path ${bk} d="${M.flapR}"/><path ${o} d="${M.o11}"/></g>
    <path class="brL" ${line} d="M472 480Q522 446 572 480"/><path class="brR" ${line} d="M817 480Q867 446 917 480"/>
    <path class="mS" fill="#380C02" d="${M.mouth}"/><path class="mF" opacity="0" ${ml} d="M620 712H770"/><path class="mK" opacity="0" ${ml} d="M595 752Q695 660 795 752"/><path class="mW" opacity="0" ${ml} d="M600 724Q647.5 690 695 724T790 724"/>
    <ellipse class="mO" cx="695" cy="716" rx="40" ry="50" fill="#380C02"/>

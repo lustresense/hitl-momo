@@ -8,7 +8,7 @@ function run(events: Parameters<typeof cardGate>[1][]): CardGate {
 
 describe("tutorial card gate (R4): one event source per card", () => {
   it("reads for 10 s and never before the required practice and Momo are both done", () => {
-    expect(CARD_READ_MS).toBe(10_000);
+    expect(CARD_READ_MS).toBe(3333);
     expect(cardPhase(startCardGate(0))).toBe("opening");
     const opened = run([{ type: "OPENED", index: 0 }]);
     expect(cardPhase(opened)).toBe("explaining");

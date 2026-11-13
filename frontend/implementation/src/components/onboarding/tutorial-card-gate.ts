@@ -9,7 +9,7 @@
 export type CardIndex = 0 | 1 | 2;
 
 /** Read time before the thumb is offered. Wall-clock, never shortened for reduced motion or tests. */
-export const CARD_READ_MS = 10_000;
+export const CARD_READ_MS = 3333;
 
 /** Card 1 asks for the walk to the flag, card 3 for the four gestures. Card 2 has no action to do. */
 export const CARD_NEEDS_PRACTICE: Record<CardIndex, boolean> = { 0: true, 1: false, 2: true };

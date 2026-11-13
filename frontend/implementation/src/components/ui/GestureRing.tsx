@@ -215,15 +215,40 @@ export function GestureRing({
  * Used as the icon of the pose rings (1, 2, 3 fingers, 5 = open palm).
  */
 export function FingerGlyph({ count, size = 30 }: { count: 1 | 2 | 3 | 4 | 5; size?: number }) {
-  const spacing = count >= 5 ? 4.4 : 5.6;
-  const width = 3.2;
-  const total = (count - 1) * spacing + width;
-  const startX = (28 - total) / 2;
+  if (count === 1) {
+    return (
+      <svg className="finger-glyph finger-glyph--1" width={size} height={size} viewBox="0 0 28 28" aria-hidden="true" focusable="false">
+        <rect x="12" y="4" width="4" height="12" rx="2" fill="currentColor" />
+        <path d="M8 12h12v9a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4z" fill="currentColor" opacity="0.85" />
+      </svg>
+    );
+  }
+  if (count === 2) {
+    return (
+      <svg className="finger-glyph finger-glyph--2" width={size} height={size} viewBox="0 0 28 28" aria-hidden="true" focusable="false">
+        <rect x="9" y="4" width="3.5" height="12" rx="1.75" fill="currentColor" />
+        <rect x="15.5" y="4" width="3.5" height="12" rx="1.75" fill="currentColor" />
+        <path d="M7 12h14v9a4 4 0 0 1-4 4H11a4 4 0 0 1-4-4z" fill="currentColor" opacity="0.85" />
+      </svg>
+    );
+  }
+  if (count === 3) {
+    return (
+      <svg className="finger-glyph finger-glyph--3" width={size} height={size} viewBox="0 0 28 28" aria-hidden="true" focusable="false">
+        <rect x="7" y="4" width="3.2" height="12" rx="1.6" fill="currentColor" />
+        <rect x="12.4" y="3" width="3.2" height="13" rx="1.6" fill="currentColor" />
+        <rect x="17.8" y="4" width="3.2" height="12" rx="1.6" fill="currentColor" />
+        <path d="M6 12h16v9a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z" fill="currentColor" opacity="0.85" />
+      </svg>
+    );
+  }
   return (
-    <svg className="finger-glyph" width={size} height={size} viewBox="0 0 28 28" aria-hidden="true" focusable="false">
-      {Array.from({ length: count }, (_, i) => (
-        <rect key={i} x={startX + i * spacing} y={5} width={width} height={19} rx={width / 2} fill="currentColor" />
-      ))}
+    <svg className="finger-glyph finger-glyph--palm" width={size} height={size} viewBox="0 0 28 28" aria-hidden="true" focusable="false">
+      <path d="M6 11h16v10a4 4 0 0 1-4 4H10a4 4 0 0 1-4-4z" fill="currentColor" opacity="0.85" />
+      <rect x="5" y="6" width="3" height="8" rx="1.5" fill="currentColor" />
+      <rect x="9.5" y="3.5" width="3" height="10" rx="1.5" fill="currentColor" />
+      <rect x="14" y="3" width="3" height="10.5" rx="1.5" fill="currentColor" />
+      <rect x="18.5" y="4.5" width="3" height="9" rx="1.5" fill="currentColor" />
     </svg>
   );
 }

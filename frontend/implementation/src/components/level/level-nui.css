@@ -3,6 +3,10 @@
 
 /* Finger ring: sits under its ribbon (a sibling, not inside the ribbon button). The GestureRing itself owns its
    56 px dial, grey lock and fill (GestureRing.css). Only its place in the column is set here. */
+.bm-pick.bm-pick--top {
+  margin-top: 0;
+  margin-bottom: 12px;
+}
 .bm-pick {
   display: flex;
   justify-content: center;

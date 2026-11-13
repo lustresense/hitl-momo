@@ -58,9 +58,20 @@ export function StickerStamp({ label, behavior, drawingInput, pose, onThrow, onR
   const throwActive = action === "throw";
   const redrawActive = action === "redraw";
 
-  // A slight tilt, like a sticker put down by hand. gsap owns the transform from here on.
+  // REV-09: Animasi transisi pembentukan stiker (stempel jatuh, pop & tilt)
   useEffect(() => {
-    if (sheetRef.current) gsap.set(sheetRef.current, { rotation: -1.5 });
+    if (sheetRef.current) {
+      const reduce = prefersReducedMotion();
+      if (!reduce) {
+        gsap.fromTo(
+          sheetRef.current,
+          { scale: 1.28, y: -45, opacity: 0, rotation: -4 },
+          { scale: 1, y: 0, opacity: 1, rotation: -1.5, duration: 0.65, ease: "back.out(1.8)" }
+        );
+      } else {
+        gsap.set(sheetRef.current, { rotation: -1.5 });
+      }
+    }
   }, []);
 
   // The throw runs once: a single timer hands the sticker on, and unmounting cancels both the tween and the timer.

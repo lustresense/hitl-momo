@@ -6,3 +6,12 @@
   pointer-events: auto;
   touch-action: none;
 }
+
+
+@keyframes cover-wave-dissolve {
+  0%, 100% { opacity: 0.25; transform: translate(-50%, -50%) scale(0.94); }
+  50% { opacity: 1; transform: translate(-50%, -50%) scale(1.04); }
+}
+.cover-wave-ring[data-progress="0"] {
+  animation: cover-wave-dissolve 2.5s ease-in-out infinite;
+}

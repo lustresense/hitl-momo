@@ -19,6 +19,18 @@
   border-radius: 999px;
   box-shadow: 4px 4px 0 var(--nb-ink, #111);
 }
+
+.cover-wave-ring[data-progress="0"] {
+  animation: cover-wave-dissolve 4s ease-in-out infinite;
+}
+@keyframes cover-wave-dissolve {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+  20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  70% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  90% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+}
+
 .cover-wave-ring__svg { position: absolute; inset: 0; width: 100%; height: 100%; }
 .cover-wave-ring__track { fill: none; stroke: rgba(17, 17, 17, 0.18); stroke-width: 6; }
 .cover-wave-ring__fill { fill: none; stroke: var(--nb-green, #2f9e44); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 0.25s linear; }

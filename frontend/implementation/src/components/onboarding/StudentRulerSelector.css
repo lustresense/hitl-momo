@@ -194,6 +194,22 @@
   pointer-events: none;
 }
 
+.student-ruler-handle::after {
+  content: "";
+  position: absolute;
+  inset: -10px;
+  border: 3px dashed #fffaf0;
+  border-radius: 20px;
+  pointer-events: none;
+  animation: ruler-pinch-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes ruler-pinch-pulse {
+  0%, 100% { opacity: 0.2; transform: scale(0.95); }
+  50% { opacity: 1; transform: scale(1.1); box-shadow: 0 0 12px rgba(255, 250, 240, 0.8); }
+}
+
+
 .student-ruler-handle span {
   display: block;
   width: 26px;

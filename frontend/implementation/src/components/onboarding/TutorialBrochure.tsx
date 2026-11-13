@@ -408,7 +408,7 @@ export function TutorialBrochure({ onStart, characterDisplayName }: TutorialBroc
     [restPose, send],
   );
 
-  /** The open book folds shut in one step and joins the done pile. */
+  /** The open book folds shut: right panel folds first until book is closed, then flips & shrinks to pile. */
   const closeTimeline = useCallback(
     (i: CardIndex): gsap.core.Timeline => {
       const l = layoutRef.current!;
@@ -421,10 +421,13 @@ export function TutorialBrochure({ onStart, characterDisplayName }: TutorialBroc
         openedRef.current = -1;
         setOpen(-1);
       }, 0);
-      tl.to(play, { rotationY: -92, duration: C.duration, ease: C.ease }, 0)
-        .set(play, { opacity: 0 }, C.duration)
-        .to(flip, { rotationY: 0, duration: C.duration, ease: C.ease }, 0)
-        .to(card, { ...restPose(i, i + 1, l), duration: C.duration, ease: C.ease }, 0);
+      // Phase 1: fold play panel shut onto left guide panel and re-centre card
+      tl.to(play, { rotationY: -92, duration: C.foldDuration, ease: C.foldEase }, 0)
+        .to(card, { x: 0, duration: C.toCentreDuration, ease: "power2.inOut" }, 0)
+        .set(play, { opacity: 0 }, C.foldDuration)
+        // Phase 2: flip back to front face and shrink down into done pile
+        .to(flip, { rotationY: 0, duration: C.flipDuration, ease: C.easeTuck }, C.flipAt)
+        .to(card, { ...restPose(i, i + 1, l), duration: C.flipDuration, ease: C.easeTuck }, C.flipAt);
       return tl;
     },
     [restPose],

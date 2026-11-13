@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.15.4-alpha | 2026-11-13 | Perbaikan | `(0.15.4-alpha)` |
 | 0.15.3-alpha | 2026-11-12 | Perbaikan | `(0.15.3-alpha)` |
 | 0.15.2-alpha | 2026-11-12 | Dokumen | `(0.15.2-alpha)` |
 | 0.15.1-alpha | 2026-11-12 | Tes | `(0.15.1-alpha)` |
@@ -102,6 +103,19 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.15.4-alpha — 2026-11-13 — Perbaikan
+
+**Sumber:** 11 Tiket Revisi NUI Sketchbook Universe (REV-01 s/d REV-11)
+
+**Perubahan:**
+- 11 revisi NUI: wave delay/dissolve, momo wing seamless, ruler pinch halo, durasi kartu 3.3s, bifold choreo, kartu 3 gesture hand mode, ring bab di atas ribbon & hand glyph, tebakan momo drain immediate, animasi stiker stempel & lempar bawah terpusat, shared gesture stiker
+
+**Commit:** commit berjudul `(0.15.4-alpha)`
+
+**Bukti:** vitest camera, nui-lab, components passed 100%, tsc clean
 
 ---
 

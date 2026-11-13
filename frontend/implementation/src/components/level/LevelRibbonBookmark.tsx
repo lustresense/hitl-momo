@@ -321,6 +321,22 @@ function Bookmark({ level, state, isNext, dims, unlocking, paused, camera, pose,
   return (
     <div ref={slotRef} className={`bm-slot bm-${state}${isNext ? " is-next" : ""}${unlocking ? " is-unlocking" : ""}`} data-stage={level.stage}>
       <span className="bm-ring-clip" aria-hidden="true" />
+      {camera && fingers !== undefined && (
+        <div className="bm-pick bm-pick--top">
+          <GestureRing
+            active={pickActive}
+            holdMs={BAB_RING_HOLD_MS}
+            onConfirm={autoPull}
+            label={locked ? `Bab ${level.stage} terkunci` : `Pilih Bab ${level.stage}`}
+            icon={<FingerGlyph count={fingers} size={26} />}
+            locked={locked}
+            disabled={paused}
+            testId={`level-pick-${level.stage}`}
+          >
+            {locked ? (level.stage > 1 ? `Selesaikan Bab ${level.stage - 1} dulu` : "Belum bisa dipilih") : HOLD_TEXT[fingers]}
+          </GestureRing>
+        </div>
+      )}
       <button
         ref={btnRef}
         type="button"
@@ -370,22 +386,7 @@ function Bookmark({ level, state, isNext, dims, unlocking, paused, camera, pose,
         </span>
         </span>
       </button>
-      {camera && fingers !== undefined && (
-        <div className="bm-pick">
-          <GestureRing
-            active={pickActive}
-            holdMs={BAB_RING_HOLD_MS}
-            onConfirm={autoPull}
-            label={locked ? `Bab ${level.stage} terkunci` : `Pilih Bab ${level.stage}`}
-            icon={<FingerGlyph count={fingers} size={26} />}
-            locked={locked}
-            disabled={paused}
-            testId={`level-pick-${level.stage}`}
-          >
-            {locked ? (level.stage > 1 ? `Selesaikan Bab ${level.stage - 1} dulu` : "Belum bisa dipilih") : HOLD_TEXT[fingers]}
-          </GestureRing>
-        </div>
-      )}
+
       {isNext && (
         <ThumbConfirm
           holdMs={2000}

@@ -18,7 +18,19 @@ export const TUTORIAL_TIMING = {
     /** When the practice canvas is flat and can be sized to its final pixels. */
     canvasSizedAt: 1.7,
   },
-  close: { duration: 1.0, ease: "power2.out" },
+  close: {
+    duration: 1.0,
+    ease: "power2.out",
+    /** Panel kanan melipat ke panel kiri (bifold fold shut) */
+    foldDuration: 0.45,
+    foldEase: "power3.in",
+    /** Kartu kembali ke posisi tengah sebelum flip & shrink */
+    toCentreDuration: 0.35,
+    /** Flip kembali menghadap depan & shrink ke done pile */
+    flipDuration: 0.55,
+    flipAt: 0.45,
+    easeTuck: "power3.out",
+  },
   /** Pause between a card closing and the next one opening. */
   pause: 1.1,
   exit: { duration: 0.6, ease: "power2.in", stagger: 0.07, startRotation: 8 },

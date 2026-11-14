@@ -124,6 +124,10 @@ export function DreamLoader({
 
   const onReadyCalledRef = useRef(false);
   const morphStartedRef = useRef(false);
+  const morphTimelineRef = useRef<gsap.core.Timeline | null>(null);
+  const onReadyRef = useRef(onReady);
+  const statusTextRef = useRef(statusText);
+  onReadyRef.current = onReady;
 
   // Main Animation & Physics
   useEffect(() => {
@@ -316,11 +320,12 @@ export function DreamLoader({
           state.morphing = false;
           if (!onReadyCalledRef.current) {
             onReadyCalledRef.current = true;
-            onReady?.();
+            onReadyRef.current?.();
           }
         },
       });
 
+      morphTimelineRef.current = morphTl;
       const fullRadius = Math.hypot(geo.vw, geo.vh);
       const iris = { r: fullRadius };
 
@@ -447,16 +452,20 @@ export function DreamLoader({
       let target = 20;
       if (s.kind === "loading") {
         target = 45;
-        setStatusText("Memuat kecerdasan visual…");
+        statusTextRef.current = "Memuat kecerdasan visual…";
+        setStatusText(statusTextRef.current);
       } else if (s.kind === "warming") {
         target = 75;
-        setStatusText(`Menyiapkan pengenal tangan (${s.delegate})…`);
+        statusTextRef.current = `Menyiapkan pengenal tangan (${s.delegate})…`;
+        setStatusText(statusTextRef.current);
       } else if (s.kind === "ready") {
         target = 100;
-        setStatusText("Siap bermimpi!");
+        statusTextRef.current = "Siap bermimpi!";
+        setStatusText(statusTextRef.current);
       } else if (s.kind === "failed") {
         target = 100;
-        setStatusText("Melanjutkan ke sampul…");
+        statusTextRef.current = "Pengenal tangan gagal. Kontrol pointer tersedia.";
+        setStatusText(statusTextRef.current);
       }
 
       gsap.to(state, {
@@ -471,7 +480,7 @@ export function DreamLoader({
             barFillRef.current.classList.toggle("is-full", state.progress >= 99.5);
           }
           if (barTextRef.current) {
-            barTextRef.current.textContent = `${p}% · ${statusText}`;
+            barTextRef.current.textContent = `${p}% · ${statusTextRef.current}`;
           }
           updateTopClouds();
         },
@@ -488,7 +497,7 @@ export function DreamLoader({
       if (e.key === "Escape") {
         if (!onReadyCalledRef.current) {
           onReadyCalledRef.current = true;
-          onReady?.();
+          onReadyRef.current?.();
         }
       }
     };
@@ -500,14 +509,16 @@ export function DreamLoader({
       window.removeEventListener("resize", onResize);
       try { gsap.ticker.remove(tickerCallback); } catch {}
       try { mainTl?.kill(); } catch {}
+      try { morphTimelineRef.current?.kill(); } catch {}
+      morphTimelineRef.current = null;
       try { if (state) gsap.killTweensOf(state); } catch {}
     };
-  }, [modelUrl, wasmRoot, onReady, minDurationMs, statusText]);
+  }, [modelUrl, wasmRoot, minDurationMs]);
 
   const handleSkip = () => {
     if (!onReadyCalledRef.current) {
       onReadyCalledRef.current = true;
-      onReady?.();
+      onReadyRef.current?.();
     }
   };
 

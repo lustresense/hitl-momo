@@ -76,6 +76,18 @@ describe("waveProgress (0..1 for the ring)", () => {
   });
 });
 
+describe("wave ring sample gating", () => {
+  it("does not look almost complete after only three vertical samples", () => {
+    const samples: WaveSample[] = [
+      { x: 0.5, y: 0.3, time: 0 },
+      { x: 0.5, y: 0.6, time: 100 },
+      { x: 0.5, y: 0.3, time: 200 },
+    ];
+    expect(detectWave(samples)).toBe(false);
+    expect(waveProgress(samples)).toBeLessThan(0.5);
+  });
+});
+
 describe("WaveTracker tolerates short tracking gaps and reports progress", () => {
   function setup(frames: Array<number | null>) {
     let i = 0;

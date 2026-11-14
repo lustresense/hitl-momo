@@ -34,7 +34,8 @@ const MAX_DETECT_FAILURES = 3;
 const LOW_LIGHT_OPTIONS: { mode: LowLightMode; label: string }[] = [
   { mode: "auto", label: "Otomatis" },
   { mode: "off", label: "Mati" },
-  { mode: "on", label: "Selalu" },
+  { mode: "on", label: "CLAHE 320" },
+  { mode: "scaled", label: "RAW 320" },
 ];
 
 interface CameraInfo {
@@ -47,6 +48,8 @@ interface Readout {
   snapshot: LabSnapshot | null;
   deliveredFps: number;
   luma: number | null;
+  centerLuma: number | null;
+  backlightCandidate: boolean;
   claheMs: number | null;
   enhancing: boolean;
   /** Detector stats from the shared gate: per model and total, busy share, skipped frames. */
@@ -64,6 +67,8 @@ const EMPTY_READOUT: Readout = {
   snapshot: null,
   deliveredFps: 0,
   luma: null,
+  centerLuma: null,
+  backlightCandidate: false,
   claheMs: null,
   enhancing: false,
   sched: null,
@@ -303,6 +308,8 @@ export function NuiLabPage() {
         snapshot: s.analyzer.snapshot(now),
         deliveredFps: s.frameTimes.length,
         luma: stats.lastLuma,
+        centerLuma: stats.lastCenterLuma,
+        backlightCandidate: stats.backlightCandidate,
         claheMs: stats.lastClaheMs,
         enhancing: stats.enhancing,
         sched: getInferenceStats(),
@@ -465,9 +472,12 @@ export function NuiLabPage() {
           <h3>Cahaya rendah</h3>
           <dl className="nui-lab__numbers">
             <Stat label="Kecerahan (luma rata-rata)" value={readout.luma === null ? "—" : readout.luma.toFixed(2)} />
+            <Stat label="Luma area tengah" value={readout.centerLuma === null ? "—" : readout.centerLuma.toFixed(2)} />
+            <Stat label="Indikasi backlight" value={readout.backlightCandidate ? "ya (heuristik)" : "tidak"} />
             <Stat label="CLAHE terakhir" value={fmtMs(readout.claheMs)} />
             <Stat label="Peningkatan cahaya aktif?" value={readout.enhancing ? "ya" : "tidak"} />
           </dl>
+          <p>Bandingkan RAW 320 dan CLAHE 320 pada pencahayaan sama. Parameter belum dikalibrasi.</p>
           <div className="nui-lab__choices" role="group" aria-label="Peningkatan cahaya">
             {LOW_LIGHT_OPTIONS.map((o) => (
               <button

@@ -10,11 +10,11 @@
  * same aspect ratio, so overlay and cursor mapping do not change when the enhanced frame is used.
  */
 import { claheRgba } from "./clahe";
-import { meanLuma } from "./luma";
+import { meanLuma, centerLuma } from "./luma";
 
 export type DetectionFrame = HTMLVideoElement | HTMLCanvasElement | OffscreenCanvas;
 
-export type LowLightMode = "auto" | "off" | "on";
+export type LowLightMode = "auto" | "off" | "on" | "scaled";
 
 /** Mean image luma (0..1) below which a frame counts as dark. Starting value, not measured. */
 export const DARK_LUMA = 0.28;
@@ -22,11 +22,18 @@ export const DARK_LUMA = 0.28;
 export const LUMA_SAMPLE_INTERVAL_MS = 500;
 /** Width of the enhancement canvas. Small on purpose: CLAHE cost scales with pixels. */
 export const ENHANCE_WIDTH = 320;
+/** Uncalibrated prototype heuristics; measure on Owner webcam before claiming improvement. */
+export const BACKLIGHT_CENTER_MAX = 0.36;
+export const BACKLIGHT_LUMA_GAP = 0.18;
 
 export interface FrameSourceStats {
   mode: LowLightMode;
   /** Last measured mean luma (0..1), or null before the first sample. */
   lastLuma: number | null;
+  /** Mean brightness of the central subject region (0..1). */
+  lastCenterLuma: number | null;
+  /** Auto mode classified a potentially backlit, dark central foreground. */
+  backlightCandidate: boolean;
   /** Duration of the last CLAHE pass in ms, or null if none ran yet. */
   lastClaheMs: number | null;
   /** True when the last frame handed to a detector was the enhanced canvas. */
@@ -57,6 +64,8 @@ export function createFrameSource(deps: FrameSourceDeps): FrameSource {
   let darkNow = false;
   let lastSampleAt = Number.NEGATIVE_INFINITY;
   let lastLuma: number | null = null;
+  let lastCenterLuma: number | null = null;
+  let backlightCandidate = false;
   let lastClaheMs: number | null = null;
   let enhancing = false;
   let canvas: HTMLCanvasElement | null = null;
@@ -95,9 +104,22 @@ export function createFrameSource(deps: FrameSourceDeps): FrameSource {
         image = drawScaled(video);
         if (!image) return video;
         lastLuma = meanLuma(image.data, image.width, image.height, 2);
-        darkNow = lastLuma < DARK_LUMA;
+        lastCenterLuma = centerLuma(image.data, image.width, image.height, 2);
+        // Bright background can mask an underexposed hand in whole-frame statistics.
+        // This is not hand segmentation; the cutoffs require real-world calibration.
+        backlightCandidate =
+          lastCenterLuma < BACKLIGHT_CENTER_MAX && lastLuma - lastCenterLuma >= BACKLIGHT_LUMA_GAP;
+        darkNow = lastLuma < DARK_LUMA || backlightCandidate;
       }
 
+      // Diagnostic baseline for /nui-lab: same 320px input as CLAHE, without pixel enhancement.
+      if (mode === "scaled") {
+        image ??= drawScaled(video);
+        if (!image || !canvas || !surface) return video;
+        surface.putImageData(image, 0, 0);
+        enhancing = false;
+        return canvas;
+      }
       const useCanvas = mode === "on" || darkNow;
       if (!useCanvas) {
         enhancing = false;
@@ -128,9 +150,10 @@ export function createFrameSource(deps: FrameSourceDeps): FrameSource {
       // Re-sample at once, so a mode change does not wait out the interval.
       lastSampleAt = Number.NEGATIVE_INFINITY;
       darkNow = false;
+      backlightCandidate = false;
     },
     getFrameSourceStats(): FrameSourceStats {
-      return { mode, lastLuma, lastClaheMs, enhancing };
+      return { mode, lastLuma, lastCenterLuma, backlightCandidate, lastClaheMs, enhancing };
     },
   };
 }

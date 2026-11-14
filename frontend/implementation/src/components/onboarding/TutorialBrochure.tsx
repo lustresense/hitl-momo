@@ -14,6 +14,7 @@ import { Icon, type IconName } from "../ui/Icon";
 import { MomoGuide } from "../momo/MomoGuide";
 import { ThinmanArt } from "../ui/ThinmanArt";
 import { useHandGesture, useInputMode } from "@/src/hooks/useHandGesture";
+import { steerFromAngle, steerInput, type DirectionInput, type SteerZone } from "@/src/input/gameplay-gesture";
 import { renderCharacterASideSvg } from "@/src/game/character/character-a-svg";
 import { walkT } from "@/src/game/character/pose-math";
 import { tutorialCardCopy, tutorialHint, tutorialStep, TUTORIAL_PRACTICE_TOOLS, type TutorialMoment } from "@/src/domain/tutorial-script";
@@ -23,7 +24,7 @@ import { getPrefersReducedMotion, subscribePrefersReducedMotion } from "./tutori
 import { CARD_READ_MS, cardGate, cardPhase, startCardGate, type CardEvent, type CardGate, type CardIndex } from "./tutorial-card-gate";
 import { TUTORIAL_TIMING as T } from "./tutorial-timing";
 import { tutorialLayout, type TutorialLayout } from "./tutorial-layout";
-import { advanceWalkPhase, clampWalk, handWalkTarget, KEY_STEP, WALK_END } from "./tutorial-walk";
+import { advanceWalkPhase, clampWalk, tutorialWalkDelta, KEY_STEP, WALK_END } from "./tutorial-walk";
 import { TutorialThumb } from "./TutorialThumb";
 import "./TutorialBrochure.css";
 
@@ -58,7 +59,7 @@ function Flag({ waving }: { waving: boolean }) {
 /* ---------- Practice page 1: walk Thinman to the flag ---------- */
 interface WalkPlaygroundProps {
   onComplete(): void;
-  /** Camera mode and card 1 open: a pinch drives Thinman with the hand. */
+  /** Camera mode and card 1 open: index-finger angle drives Thinman, as in gameplay. */
   live: boolean;
   /** Card 1 open: the arrow keys step Thinman. */
   keys: boolean;
@@ -72,7 +73,10 @@ function WalkPlayground({ onComplete, live, keys }: WalkPlaygroundProps) {
   const posRef = useRef(14);
   const doneRef = useRef(false);
   const dragRef = useRef(false);
-  const anchorRef = useRef<{ pos: number; x: number } | null>(null);
+  const steerZoneRef = useRef<SteerZone | null>(null);
+  const controlRef = useRef<DirectionInput>({ left: false, right: false, jump: false });
+  const heldJumpRef = useRef(false);
+  const [jumpKey, setJumpKey] = useState(0);
   const completeRef = useRef(onComplete);
   completeRef.current = onComplete;
 
@@ -99,21 +103,43 @@ function WalkPlayground({ onComplete, live, keys }: WalkPlaygroundProps) {
     return ((event.clientX - rect.left) / rect.width) * 100;
   };
 
-  // Hand: index pointing drives Thinman (steer right/left/jump); pinch also supported as fallback.
+  // Card 1 uses exactly the gameplay's angle zones. Pinch is no longer a secret steering path.
   useEffect(() => {
-    const cursor = hand.cursor;
     const pointing = hand.pose === "one-finger" || hand.fingerCount === 1;
-    const active = hand.pinch || pointing;
-    if (!live || doneRef.current || !active || !cursor) {
-      anchorRef.current = null;
+    if (!live || doneRef.current || hand.pinch || !pointing || hand.angle == null) {
+      steerZoneRef.current = null;
+      controlRef.current = { left: false, right: false, jump: false };
       return;
     }
-    if (!anchorRef.current) {
-      anchorRef.current = { pos: posRef.current, x: cursor.x };
+    steerZoneRef.current = steerFromAngle(hand.angle, steerZoneRef.current);
+    controlRef.current = steerInput(steerZoneRef.current);
+  }, [live, hand.angle, hand.pinch, hand.pose, hand.fingerCount]);
+
+  // Continuous motion while held, including a jump on an upward/diagonal pointing edge.
+  useEffect(() => {
+    if (!live) {
+      heldJumpRef.current = false;
       return;
     }
-    place(handWalkTarget(anchorRef.current.pos, anchorRef.current.x, cursor.x));
-  }, [live, hand.pinch, hand.pose, hand.fingerCount, hand.cursor, place]);
+    let raf = 0;
+    let lastTime = 0;
+    const tick = (now: number) => {
+      const dt = lastTime > 0 ? Math.min(0.05, (now - lastTime) / 1000) : 0;
+      lastTime = now;
+      if (!doneRef.current) {
+        const input = controlRef.current;
+        const dx = tutorialWalkDelta(input, dt);
+        if (dx !== 0) place(posRef.current + dx);
+        if (input.jump && !heldJumpRef.current) {
+          heldJumpRef.current = true;
+          setJumpKey((n) => n + 1);
+        } else if (!input.jump) heldJumpRef.current = false;
+      }
+      raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [live, place]);
 
   // Keyboard fallback: the arrow keys step him (no key hint on screen).
   useEffect(() => {
@@ -125,6 +151,9 @@ function WalkPlayground({ onComplete, live, keys }: WalkPlaygroundProps) {
       } else if (event.key === "ArrowLeft") {
         event.preventDefault();
         place(posRef.current - KEY_STEP);
+      } else if (event.key === "ArrowUp") {
+        event.preventDefault();
+        setJumpKey((n) => n + 1);
       }
     };
     window.addEventListener("keydown", onKey);
@@ -161,7 +190,7 @@ function WalkPlayground({ onComplete, live, keys }: WalkPlaygroundProps) {
       <div className={`tut-handhint${moved ? " is-gone" : ""}`} aria-hidden="true">
         <Icon name="arrow-left" size={26} stroke={3} />
         <span className="tut-handhint__hand">
-          <Icon name="hand-draw" size={44} stroke={2} />
+          <Icon name="arrow-up" size={44} stroke={2} />
         </span>
         <Icon name="arrow-right" size={26} stroke={3} />
       </div>
@@ -171,11 +200,13 @@ function WalkPlayground({ onComplete, live, keys }: WalkPlaygroundProps) {
       </svg>
       <div className="tut-walk__trail" style={{ width: `${Math.max(0, pos - 14)}%` }} aria-hidden="true" />
       <div className="tut-walk__man" style={{ left: `${pos}%` }} data-testid="tutorial-walk-man" data-walk-phase={walk.phase.toFixed(3)}>
-        {moved ? (
-          <span className="thinman-art" style={{ display: "block", transform: walk.facing < 0 ? "scaleX(-1)" : undefined }} aria-hidden="true" dangerouslySetInnerHTML={{ __html: walkSvg }} />
-        ) : (
-          <ThinmanArt pose="stand" />
-        )}
+        <span key={jumpKey} className={jumpKey ? "tut-walk__body is-jumping" : "tut-walk__body"}>
+          {moved ? (
+            <span className="thinman-art" style={{ display: "block", transform: walk.facing < 0 ? "scaleX(-1)" : undefined }} aria-hidden="true" dangerouslySetInnerHTML={{ __html: walkSvg }} />
+          ) : (
+            <ThinmanArt pose="stand" />
+          )}
+        </span>
       </div>
       <div className="tut-walk__flag">
         <Flag waving={done} />
@@ -247,9 +278,9 @@ function SafetyPlayground() {
 /* ---------- Practice page 3: gesture practice on the real drawing surface ---------- */
 const TOOLS: Array<{ id: (typeof TUTORIAL_PRACTICE_TOOLS)[number]; icon: IconName; label: string; aria: string }> = [
   { id: "draw", icon: "hand-draw", label: "Coret", aria: "Coret, gestur cubit" },
-  { id: "erase", icon: "hand-erase", label: "Hapus", aria: "Hapus, gestur lima jari" },
-  { id: "undo", icon: "hand-undo", label: "Mundur", aria: "Mundur satu goresan, gestur satu jari" },
-  { id: "redo", icon: "hand-redo", label: "Maju", aria: "Maju satu goresan, gestur dua jari" },
+  { id: "erase", icon: "eraser", label: "Hapus", aria: "Hapus, gestur lima jari" },
+  { id: "undo", icon: "undo", label: "Mundur", aria: "Mundur satu goresan, gestur satu jari" },
+  { id: "redo", icon: "redo", label: "Maju", aria: "Maju satu goresan, gestur dua jari" },
 ];
 
 interface DrawPlaygroundProps {

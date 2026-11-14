@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   DARK_LUMA,
+  BACKLIGHT_CENTER_MAX,
   createFrameSource,
   frameForDetection,
   getFrameSourceStats,
@@ -122,6 +123,35 @@ describe("frameForDetection", () => {
 
     const boxy = h.source.frameForDetection(h.video(640, 480, DARK)) as unknown as FakeCanvas;
     expect([boxy.width, boxy.height]).toEqual([320, 240]);
+  });
+
+  it("diagnostic RAW 320 canvas matches enhanced 320 input resolution", () => {
+    const h = harness();
+    h.source.setLowLightEnhancement("scaled");
+    const frame = h.source.frameForDetection(h.video(1280, 720, DARK)) as unknown as FakeCanvas;
+    expect([frame.width, frame.height]).toEqual([320, 180]);
+    expect(frame.buffer[0]).toBe(DARK);
+    expect(h.source.getFrameSourceStats().enhancing).toBe(false);
+  });
+
+  it("auto identifies silhouetted central subject against a bright background", () => {
+    const h = harness();
+    const v = h.video(320, 180, 230);
+    const raw = v as unknown as FakeVideo;
+    for (let y = 36; y < 153; y++) {
+      for (let x = 80; x < 240; x++) {
+        const i = (y * raw.videoWidth + x) * 4;
+        raw.pixels[i] = 40;
+        raw.pixels[i + 1] = 40;
+        raw.pixels[i + 2] = 40;
+      }
+    }
+    const result = h.source.frameForDetection(v);
+    const stats = h.source.getFrameSourceStats();
+    expect(stats.lastLuma).toBeGreaterThan(DARK_LUMA);
+    expect(stats.lastCenterLuma).toBeLessThan(BACKLIGHT_CENTER_MAX);
+    expect(stats.backlightCandidate).toBe(true);
+    expect(result).not.toBe(v);
   });
 
   it("samples luma at most every 500 ms", () => {

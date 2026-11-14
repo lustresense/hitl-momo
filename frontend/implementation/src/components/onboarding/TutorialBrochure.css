@@ -1,3 +1,12 @@
+/* Gameplay-style upward/diagonal pointing lifts the inner rig without changing walk position. */
+.tut-walk__body { display: block; }
+.tut-walk__body.is-jumping { animation: tut-walk-jump 0.62s cubic-bezier(.25,.6,.32,1) both; }
+@keyframes tut-walk-jump {
+  0%, 100% { transform: translateY(0); }
+  42% { transform: translateY(-52px); }
+  72% { transform: translateY(-28px); }
+}
+
 /* Tutorial card back: one gesture line above the advance control; the ring sits beside its label, so the
    card keeps its height at phone size. Colours are the kit tokens, checked by tests/components/nui-contrast.test.ts. */
 .tut-back .tut-gesture {

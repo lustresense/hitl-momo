@@ -1,7 +1,7 @@
 /**
  * Thinman's walk on card 1 (R4). Pure math; the component owns the state.
  *
- * Camera: a pinch anchors the hand and Thinman follows the hand's movement, so the walk stops when the pinch is let go.
+ * Camera: index-finger angle steers continuously, like gameplay. Pointer drag remains fallback.
  * Mouse and touch: Thinman follows the pointer while it is pressed. Keyboard: arrow keys step him.
  */
 
@@ -13,6 +13,13 @@ export const WALK_START = 10;
 export const HAND_GAIN = 120;
 /** Percent per arrow-key press. */
 export const KEY_STEP = 3;
+/** Prototype tutorial camera speed, percentage of scene width per second; hardware calibration pending. */
+export const TUTORIAL_WALK_SPEED_PCT_PER_SECOND = 30;
+/** Integrate a held gameplay direction, not the hand's displacement. */
+export function tutorialWalkDelta(input: { left: boolean; right: boolean }, dtSeconds: number): number {
+  if (!Number.isFinite(dtSeconds) || dtSeconds <= 0) return 0;
+  return (Number(input.right) - Number(input.left)) * TUTORIAL_WALK_SPEED_PCT_PER_SECOND * Math.min(0.05, dtSeconds);
+}
 /** Percent of the scene Thinman covers in one full walk cycle (two steps). */
 export const TUTORIAL_STRIDE_PCT = 9;
 

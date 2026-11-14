@@ -8,6 +8,7 @@ import { MomoBubble } from "@/src/components/momo/MomoBubble";
 import { LevelIntro } from "@/src/components/level/LevelIntro";
 import { TutorialBrochure } from "@/src/components/onboarding/TutorialBrochure";
 import { StudentRulerSelector } from "@/src/components/onboarding/StudentRulerSelector";
+import { DreamLoader } from "@/src/components/onboarding/DreamLoader";
 import { GlobalCamera } from "@/src/components/camera/GlobalCamera";
 import { DEFAULT_CHARACTER_NAME, resolveCharacterDisplayName } from "@/src/config/character-tokens";
 import { isLevelUnlocked } from "./level-progress";
@@ -62,6 +63,7 @@ export function SketchbookApp() {
   });
   const { entryHold, startEntryHold } = useEntryHold();
   const { onboarding, routeNotice } = route;
+  const [dreamLoaded, setDreamLoaded] = useState(false);
   const { controller, creationsRef } = session;
   const surfaceRef = useRef<DrawingSurface | null>(null);
   const snapshot = useFlowSnapshot(controller);
@@ -218,6 +220,12 @@ export function SketchbookApp() {
 
   return (
     <AppShell mode={bannerMode} onboarding={isCameraCover || isOnboarding || isLevelEntry}>
+      {!dreamLoaded && (
+        <DreamLoader
+          modelUrl={env.mediapipeModelUrl}
+          onReady={() => setDreamLoaded(true)}
+        />
+      )}
       <div
         className={
           ["screen-handoff", handoff.entering ? "is-entering" : "", handoff.leaving ? "is-leaving" : ""]

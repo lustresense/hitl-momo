@@ -239,4 +239,34 @@ describe("StudentRulerSelector: Momo focus, pick and confirm (BIGPROMPT 6.2, sto
     advance(10_000);
     expect(onConfirm).not.toHaveBeenCalled();
   });
+  it("the handle renders pinch icon and ring feedback", () => {
+    mount();
+    const handle = screen.getByTestId("student-ruler-handle");
+    expect(screen.getByTestId("student-ruler-handle-icon")).not.toBeNull();
+    expect(screen.getByTestId("student-ruler-handle-ring")).not.toBeNull();
+    expect(handle.querySelector(".nb-icon--gesture")).not.toBeNull();
+  });
+
+  it("slider updates large number in real time while dragging", () => {
+    mount();
+    advance(DOCKED_MS);
+    expect(value()).toBe(1);
+
+    // Start dragging
+    fireEvent(slider(), new MouseEvent("pointerdown", { clientX: 200, bubbles: true }));
+    expect(screen.getByTestId("student-ruler-handle").classList.contains("is-dragging")).toBe(true);
+
+    // Drag left by 44px (SPACING is 44px, dragging left moves forward)
+    act(() => { fireEvent(slider(), new MouseEvent("pointermove", { clientX: 156, bubbles: true })); });
+    expect(value()).toBe(2);
+
+    // Drag left by another 44px
+    act(() => { fireEvent(slider(), new MouseEvent("pointermove", { clientX: 112, bubbles: true })); });
+    expect(value()).toBe(3);
+
+    // Release drag after settling velocity
+    advance(150);
+    act(() => { fireEvent(slider(), new MouseEvent("pointerup", { clientX: 112, bubbles: true })); });
+    expect(value()).toBe(3);
+  });
 });

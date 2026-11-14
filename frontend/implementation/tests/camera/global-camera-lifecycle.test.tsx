@@ -284,3 +284,16 @@ describe("GlobalCamera: hand-drawing status surfacing", () => {
     expect(screen.getByText("Tangan").getAttribute("aria-pressed")).toBe("false");
   });
 });
+
+describe("GlobalCamera: proactive Momo camera-off nudge (REV-B03-03)", () => {
+  it("shows proactive nudge when camera stream is off in floating mode and hides when stream is on", async () => {
+    const { stream, track } = fakeStream();
+    getUserMedia.mockResolvedValue(stream);
+    const { rerender } = render(<GlobalCamera mode="floating" modelUrl="/m" />);
+    expect(screen.getByTestId("camera-off-nudge").textContent).toContain("Aku belum bisa lihat kamu nih");
+
+    fireEvent.click(toggle());
+    await tick();
+    expect(screen.queryByTestId("camera-off-nudge")).toBeNull();
+  });
+});

@@ -275,3 +275,25 @@
   display: none !important;
 }
 
+
+/* Proactive Momo nudge when camera is off (REV-B03-03) */
+.camera-off-nudge {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  left: 0;
+  background: var(--paper, #fffaf0);
+  border: 2.5px solid var(--ink, #111);
+  border-radius: 16px;
+  padding: 8px 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  max-width: 260px;
+  pointer-events: auto;
+  z-index: 10;
+}
+.camera-off-nudge__text {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--ink, #111);
+  margin: 0;
+  line-height: 1.35;
+}

@@ -844,6 +844,12 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
             {statusNote}
           </div>
 
+          {layoutMode === "floating" && !hasStream && (
+            <div className="camera-off-nudge" data-testid="camera-off-nudge" role="status" aria-live="polite">
+              <p className="camera-off-nudge__text">Aku belum bisa lihat kamu nih. Coba nyalakan kameranya, ya.</p>
+            </div>
+          )}
+
           {recessed && (
             <div className="global-camera-mode-switch" role="group" aria-label="Mode input gambar">
               <button type="button" className="mode-btn" data-input-mode="pointer" aria-pressed={drawingInputMode === "pointer"} onClick={() => { setDrawingInputMode("pointer"); setStatusNote(""); window.dispatchEvent(new CustomEvent("drawing-input-mode", { detail: "pointer" })); }}>Pointer</button>

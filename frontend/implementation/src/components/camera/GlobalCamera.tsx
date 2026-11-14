@@ -70,7 +70,7 @@ const DIALOG_START_MS = 300;
  * Speech speed of Momo's wake dialog (MomoChat pace). At 1 the four lines end at ~16.9 s, too long for the budget.
  * 0.45 types and reads them ~2.2x faster and puts the thumb ring at ~7.8 s; every line is still shown in full.
  */
-const COVER_DIALOG_PACE = 0.45;
+const COVER_DIALOG_PACE = 0.85;
 /** Camera on, nobody waved: Momo mumbles at 8 s, the nudge level 2 follows at 20 s. */
 const NUDGE_MUMBLE_MS = 8000;
 const NUDGE_BUTTON_MS = 20000;

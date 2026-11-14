@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.15.5-alpha | 2026-11-14 | Perbaikan | `(0.15.5-alpha)` |
 | 0.15.4-alpha | 2026-11-13 | Perbaikan | `(0.15.4-alpha)` |
 | 0.15.3-alpha | 2026-11-12 | Perbaikan | `(0.15.3-alpha)` |
 | 0.15.2-alpha | 2026-11-12 | Dokumen | `(0.15.2-alpha)` |
@@ -103,6 +104,19 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.15.5-alpha — 2026-11-14 — Perbaikan
+
+**Sumber:** mandat m20261114-065537-bcbd
+
+**Perubahan:**
+- Implementasi 6 tiket revisi Batch 002: cover chat & bg, ruler real-time & pinch icon, card 1 telunjuk & loncat, card 2 icon info/thumb, drawing smoothing Pencil Tool, remap gestur coret/hapus/undo/redo
+
+**Commit:** commit berjudul `(0.15.5-alpha)`
+
+**Bukti:** 6/6 task dalang verified, vitest/tsc clean
 
 ---
 

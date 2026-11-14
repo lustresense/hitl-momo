@@ -1,3 +1,4 @@
+import { tutorialHint } from "@/src/domain/tutorial-script";
 import { describe, expect, it } from "vitest";
 import { CARD_READ_MS, cardGate, cardPhase, startCardGate, type CardGate } from "@/src/components/onboarding/tutorial-card-gate";
 
@@ -58,5 +59,11 @@ describe("tutorial card gate (R4): one event source per card", () => {
     const next = cardGate(done, { type: "START", index: 1 });
     expect(next).toEqual({ index: 1, opened: false, momoDone: false, practiceDone: true, readDone: false, closing: false });
     expect(cardPhase(next)).toBe("opening");
+  });
+  it("card 2 hint uses bulb icon while reading and thumb-up when eligible (REV-B02-004)", () => {
+    const reading = tutorialHint(1, true, false);
+    expect(reading.icon).toBe("bulb");
+    const eligible = tutorialHint(1, true, true);
+    expect(eligible.icon).toBe("thumb-up");
   });
 });

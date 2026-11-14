@@ -58,7 +58,7 @@ export function tutorialStep(moment: TutorialMoment, characterName: string, came
     case "walk":
       return {
         mood: "Semangat",
-        lines: [camera ? `Cubit dan geser ${characterName} ke kanan sampai menyentuh bendera.` : `Tarik ${characterName} ke kanan sampai menyentuh bendera.`],
+        lines: [camera ? `Arahkan telunjuk ke kanan untuk jalan, ke atas untuk lompat.` : `Tarik ${characterName} ke kanan sampai menyentuh bendera.`],
       };
     case "walk-done":
       return { mood: "Senang", lines: [`Mantap, ${characterName} sampai!`, "Baca dulu sebentar, ya."] };

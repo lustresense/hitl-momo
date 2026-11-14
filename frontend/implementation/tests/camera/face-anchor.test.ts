@@ -79,7 +79,7 @@ describe("FaceAnchor detector input coordinates", () => {
     videoEl.currentTime = 1;
     anchor.update(videoEl, now);
     expect(detectForVideo).toHaveBeenCalledTimes(1);
-    expect(detectForVideo.mock.calls[0]![0]).toBe(enhanced);
+    expect(detectForVideo).toHaveBeenCalledWith(enhanced, expect.any(Number));
     expect(anchor.current(now)).toEqual({ x: 0.4, y: 0.2, w: 0.2, h: 0.3 });
   });
 

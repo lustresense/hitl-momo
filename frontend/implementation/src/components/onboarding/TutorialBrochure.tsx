@@ -247,9 +247,9 @@ function SafetyPlayground() {
 /* ---------- Practice page 3: gesture practice on the real drawing surface ---------- */
 const TOOLS: Array<{ id: (typeof TUTORIAL_PRACTICE_TOOLS)[number]; icon: IconName; label: string; aria: string }> = [
   { id: "draw", icon: "hand-draw", label: "Coret", aria: "Coret, gestur cubit" },
-  { id: "erase", icon: "hand-erase", label: "Hapus", aria: "Hapus, gestur kepal" },
-  { id: "undo", icon: "hand-undo", label: "Mundur", aria: "Mundur satu goresan, gestur dua jari" },
-  { id: "redo", icon: "hand-redo", label: "Maju", aria: "Maju satu goresan, gestur telapak" },
+  { id: "erase", icon: "hand-erase", label: "Hapus", aria: "Hapus, gestur lima jari" },
+  { id: "undo", icon: "hand-undo", label: "Mundur", aria: "Mundur satu goresan, gestur satu jari" },
+  { id: "redo", icon: "hand-redo", label: "Maju", aria: "Maju satu goresan, gestur dua jari" },
 ];
 
 interface DrawPlaygroundProps {

@@ -43,7 +43,7 @@ export function createGestureCommander(): GestureCommander {
       return null;
     },
     isErasing() {
-      return current === "fist";
+      return current === "fist" || current === "open-palm";
     },
     reset() {
       current = "none";

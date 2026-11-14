@@ -184,19 +184,20 @@ export class HandStrokePipeline {
     const drawing = raw === "pinch";
     // With the Hapus tool on, any pose erases under the cursor except the commands: a thumbs-up
     // confirmation, undo or redo must never cut the drawing, and an open palm is no tool at all.
+    const isErasePose = this.stable === "fist" || this.stable === "open-palm";
     const command =
-      raw === "thumb-up" || raw === "two-fingers" || raw === "split-palm" || raw === "open-palm" || raw === "one-finger" || raw === "three-fingers";
-    const erasing = (this.stable === "fist" && !drawing) || (store.eraserMode && !command);
+      raw === "thumb-up" || raw === "two-fingers" || raw === "one-finger" || raw === "three-fingers" || raw === "split-palm";
+    const erasing = (isErasePose && !drawing) || (store.eraserMode && !command);
 
     const ink = this.toCanvas(this.inkSmoother.smooth(indexTipNormalized(lm), nowMs));
     this.lastInk = ink;
     let cursor: Point = ink;
     if (erasing) {
-      // A fist (or the Hapus tool) never leaves a line open. The fist erases at the knuckles, not the folded fingertip.
+      // A fist/palm (or the Hapus tool) never leaves a line open.
       if (store.hasActiveStroke()) store.endStroke();
       this.drawVotes = [];
       this.drawStreak = 0;
-      if (this.stable === "fist") {
+      if (isErasePose) {
         cursor = this.toCanvas(this.palmSmoother.smooth(palmCenterNormalized(lm), nowMs));
       }
       store.eraseAt(cursor, this.options.eraser.radiusCanvasPx());

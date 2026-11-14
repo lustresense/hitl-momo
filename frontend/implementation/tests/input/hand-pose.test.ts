@@ -42,18 +42,17 @@ describe("R12 drawing poses are mutually exclusive", () => {
       expect(isThumbUp(lm)).toBe(expected === "thumb-up");
     });
   }
-  it("mapping: pinch draw, fist erase, two fingers undo, open or split palm redo", () => {
+  it("mapping: pinch draw, fist/palm erase, one finger undo, two fingers redo (REV-B02-006)", () => {
     expect(drawingCommandFor("pinch")).toBe("draw");
     expect(drawingCommandFor("fist")).toBe("erase");
-    expect(drawingCommandFor("two-fingers")).toBe("undo");
-    expect(drawingCommandFor("split-palm")).toBe("redo");
-    // Owner (BIGPROMPT 6.3): "Redo telapak terbuka". The open palm was unused before; now it redoes too.
-    expect(drawingCommandFor("open-palm")).toBe("redo");
+    expect(drawingCommandFor("open-palm")).toBe("erase");
+    expect(drawingCommandFor("one-finger")).toBe("undo");
+    expect(drawingCommandFor("two-fingers")).toBe("redo");
     expect(drawingCommandFor("thumb-up")).toBeNull();
   });
 
   it("the drawing commands are the router's canvas and tutorial actions (one table, no copy)", () => {
-    for (const pose of ["fist", "two-fingers", "split-palm", "open-palm"] as const) {
+    for (const pose of ["fist", "open-palm", "one-finger", "two-fingers"] as const) {
       expect(actionFor(MODE_TUTORIAL, pose)).toBe(actionFor(MODE_CANVAS_DRAWING, pose));
       expect(drawingCommandFor(pose)).toBe(actionFor(MODE_CANVAS_DRAWING, pose));
     }

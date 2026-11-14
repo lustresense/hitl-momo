@@ -219,6 +219,15 @@ export function DreamLoader({
       }
     }
 
+    const state = stateRef.current;
+    state.phase = "intro";
+    state.introV = 0;
+    state.progress = 0;
+    state.blastV = 0;
+    state.morphing = false;
+    state.ph = 0;
+    state.windPos = 0;
+
     // Set initial layout
     if (sharedRef.current) {
       gsap.set(sharedRef.current, {
@@ -228,19 +237,21 @@ export function DreamLoader({
         height: geo.bar.h,
         borderRadius: "999px",
         backgroundColor: "#fffaf0",
-        opacity: 0,
-        y: 26,
+        opacity: 1,
+        y: 0,
       });
     }
 
-    const state = stateRef.current;
-    state.phase = "intro";
-    state.introV = 0;
-    state.progress = 0;
-    state.blastV = 0;
-    state.morphing = false;
-    state.ph = 0;
-    state.windPos = 0;
+    const onResize = () => {
+      geo = getGeo();
+      updateMomoPosition();
+      updateTopClouds();
+    };
+    window.addEventListener("resize", onResize);
+
+    updateFlight(0);
+    updateMomoPosition();
+    updateTopClouds();
 
     function updateFlight(dt: number) {
       const isFast = state.phase === "blast";
@@ -505,10 +516,11 @@ export function DreamLoader({
 
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
-      gsap.ticker.remove(tickerCallback);
-      mainTl.kill();
-      progressTween.kill();
-      gsap.killTweensOf(state);
+      window.removeEventListener("resize", onResize);
+      try { gsap.ticker.remove(tickerCallback); } catch {}
+      try { mainTl?.kill(); } catch {}
+      try { progressTween?.kill(); } catch {}
+      try { if (state) gsap.killTweensOf(state); } catch {}
     };
   }, [onReady, minDurationMs]);
 
@@ -520,7 +532,7 @@ export function DreamLoader({
   };
 
   return (
-    <main className="dream-stage" data-testid="dream-loader" aria-label="Loading Momo Dream">
+    <main ref={stageRef} className="dream-stage" data-testid="dream-loader" aria-label="Loading Momo Dream">
       <button
         type="button"
         className="dream-skip-btn"

@@ -17,6 +17,7 @@ body #app:has(#screen-drawing),
   background: transparent !important;
 }
 /* Cover retains its existing green treatment; do not share interior paper. */
+#app.onboarding-app:has(.camera-prototype-root.is-cover-stage),
 #app.onboarding-app:has(.camera-prototype-root.mode-cover) {
   background: #eff3db !important;
 }

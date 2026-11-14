@@ -1,7 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { advanceWalkPhase, clampWalk, handWalkTarget, HAND_GAIN, WALK_END, WALK_START } from "@/src/components/onboarding/tutorial-walk";
+import { advanceWalkPhase, clampWalk, handWalkTarget, tutorialWalkDelta, HAND_GAIN, WALK_END, WALK_START } from "@/src/components/onboarding/tutorial-walk";
 
 describe("card 1 walk math (R4)", () => {
+  it("continues moving while a pointing finger stays still, and stops on neutral", () => {
+    expect(tutorialWalkDelta({ left: false, right: true }, 0.02)).toBeGreaterThan(0);
+    expect(tutorialWalkDelta({ left: true, right: false }, 0.02)).toBeLessThan(0);
+    expect(tutorialWalkDelta({ left: false, right: false }, 0.02)).toBe(0);
+    expect(tutorialWalkDelta({ left: true, right: true }, 0.02)).toBe(0);
+  });
+
   it("the walk cycle follows the distance walked", () => {
     expect(advanceWalkPhase(0, 4.5)).toBeCloseTo(0.5);
     expect(advanceWalkPhase(0, -2.25)).toBeCloseTo(0.25);

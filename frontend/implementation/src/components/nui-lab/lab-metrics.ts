@@ -77,7 +77,7 @@ export class WaveLabSampler {
   private progressValue = 0;
   private reversalsValue = 0;
   private detectedValue = false;
-  private refX: number | null = null;
+  private refPoint: Point | null = null;
   private movedAt: number | null = null;
   private detectedAt: number | null = null;
 
@@ -109,8 +109,8 @@ export class WaveLabSampler {
   feed(wrist: Point | null, nowMs: number, options: WaveFeedOptions = {}): void {
     if (this.detectedValue) return;
     if (wrist) {
-      if (this.refX === null) this.refX = wrist.x;
-      if (this.movedAt === null && Math.abs(wrist.x - this.refX) >= LAB_MOVE_EPS) this.movedAt = nowMs;
+      if (this.refPoint === null) this.refPoint = { ...wrist };
+      if (this.movedAt === null && Math.hypot(wrist.x - this.refPoint.x, wrist.y - this.refPoint.y) >= LAB_MOVE_EPS) this.movedAt = nowMs;
     }
     const frame: WaveFrame = { handSize: options.handSize, face: options.face ?? null };
     const step = this.sweep.feed(wrist, nowMs, frame);
@@ -127,7 +127,7 @@ export class WaveLabSampler {
     this.progressValue = 0;
     this.reversalsValue = 0;
     this.detectedValue = false;
-    this.refX = null;
+    this.refPoint = null;
     this.movedAt = null;
     this.detectedAt = null;
   }

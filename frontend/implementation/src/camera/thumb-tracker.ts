@@ -11,6 +11,7 @@ import { takeHandLandmarker } from "./landmarker-warmup";
 import { frameForDetection } from "./frame-source";
 import { pollDetection } from "./inference-scheduler";
 import { pickPrimaryHand, type PrimaryHandState } from "./primary-hand";
+import { indexPointAngle } from "../input/gameplay-gesture";
 import { subscribeSharedStream } from "./shared-stream";
 import { StableVote, classifyHandPose, countExtendedFingers, indexTipNormalized, isThumbUp, type HandPose } from "../input/hand-gesture";
 import { reportTrackerFailed } from "../input/input-mode";
@@ -30,6 +31,8 @@ export interface HandGestureState {
   pose: HandPose;
   /** Stable extended-finger count 0..5 (voted over recent frames); 0 without a hand. */
   fingerCount: number;
+  /** Index finger direction from real knuckle/tip landmarks, matching gameplay steering. */
+  angle?: number | null;
 }
 
 export type HandGestureListener = (state: HandGestureState) => void;
@@ -89,10 +92,11 @@ function readHand(hand: Landmark[] | undefined, pinchHeld: boolean): Omit<HandGe
   if (!hand) {
     poseVote.reset();
     fingerVote.reset();
-    return { ...snap, pose: "none", fingerCount: 0 };
+    return { ...snap, pose: "none", fingerCount: 0, angle: null };
   }
   return {
     ...snap,
+    angle: indexPointAngle(hand),
     pose: poseVote.push(classifyHandPose(hand, { pinchHeld })),
     fingerCount: fingerVote.push(countExtendedFingers(hand)),
   };
@@ -125,7 +129,8 @@ function publish(next: HandGestureState): void {
     state.thumbUp === prev.thumbUp &&
     state.pinch === prev.pinch &&
     state.pose === prev.pose &&
-    state.fingerCount === prev.fingerCount;
+    state.fingerCount === prev.fingerCount &&
+    state.angle === prev.angle;
   if (discrete && sameCursor(state.cursor, prev.cursor)) return;
   for (const l of [...listeners]) l(state);
 }

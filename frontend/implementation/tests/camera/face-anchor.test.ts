@@ -61,6 +61,36 @@ describe("faceBoxesFromDetections (pure)", () => {
   });
 });
 
+describe("FaceAnchor detector frame-coordinate regression", () => {
+  it("normalizes a 320x180 enhanced canvas box, not the original 1280x720 video", async () => {
+    let t = 0;
+    const v = video({ videoWidth: 1280, videoHeight: 720 });
+    const enhanced = { width: 320, height: 180 } as HTMLCanvasElement;
+    const detector: FaceDetectorLike = { detectForVideo: vi.fn(() => ({ detections: [box(128, 36, 64, 54)] })), close: vi.fn() };
+    const anchor = new FaceAnchor({ load: async () => detector, now: () => t, gate: new InferenceScheduler({ now: () => t }), getFrame: () => enhanced });
+    anchor.update(v, t);
+    await flush();
+    t = 300;
+    v.currentTime = 1;
+    anchor.update(v, t);
+    expect(detector.detectForVideo).toHaveBeenCalledWith(enhanced, expect.any(Number));
+    expect(anchor.current(t)).toEqual({ x: 0.4, y: 0.2, w: 0.2, h: 0.3 });
+  });
+
+  it("normalizes native video boxes to the same frame coordinates", async () => {
+    let t = 0;
+    const v = video({ videoWidth: 1280, videoHeight: 720 });
+    const detector: FaceDetectorLike = { detectForVideo: vi.fn(() => ({ detections: [box(512, 144, 256, 216)] })), close: vi.fn() };
+    const anchor = new FaceAnchor({ load: async () => detector, now: () => t, gate: new InferenceScheduler({ now: () => t }), getFrame: (frame) => frame });
+    anchor.update(v, t);
+    await flush();
+    t = 300;
+    v.currentTime = 1;
+    anchor.update(v, t);
+    expect(anchor.current(t)).toEqual({ x: 0.4, y: 0.2, w: 0.2, h: 0.3 });
+  });
+});
+
 describe("FaceAnchor", () => {
   it("looks at the face about 4 times a second, not on every camera frame", async () => {
     let t = 0;

@@ -126,7 +126,9 @@ export function waveProgress(samples: WaveSample[], handSize = WAVE_DEFAULT_HAND
     yProgress = Math.min(0.95, (ySwings * 0.5) + (yStroke * 0.45));
   }
 
-  return Math.max(0, Math.min(1, Math.max(xProgress, yProgress)));
+  // A short partial sweep is not ready: prevent a near-green ring while six samples are still required.
+  const sampleCap = samples.length < WAVE_MIN_SAMPLES ? 0.75 * (samples.length / WAVE_MIN_SAMPLES) : 0.95;
+  return Math.max(0, Math.min(sampleCap, Math.max(xProgress, yProgress)));
 }
 
 /** Frames without a hand that a wave survives (a blurred frame or a dropped detection), before the sweep restarts. */

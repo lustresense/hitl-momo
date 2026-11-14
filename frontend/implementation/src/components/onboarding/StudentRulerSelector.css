@@ -130,6 +130,13 @@
   50% { transform: translate3d(30px, 0, 0); }
 }
 
+@keyframes ruler-handle-slide {
+  0%, 100% { transform: translate(-50%, -50%) translateX(-26px); }
+  50% { transform: translate(-50%, -50%) translateX(26px); }
+}
+.student-ruler.is-hinting .student-ruler-handle {
+  animation: ruler-handle-slide 1.9s ease-in-out infinite;
+}
 .student-ruler-needle {
   position: absolute;
   top: 0;
@@ -186,16 +193,17 @@
   .student-number-value.is-bump {
     animation: none;
   }
-  .student-ruler.is-hinting .student-ruler-track {
+  .student-ruler.is-hinting .student-ruler-track,
+  .student-ruler.is-hinting .student-ruler-handle {
     animation: none;
   }
 }
 
-/* Grab handle: papercraft tab on centre marker with pinch icon and interactive ring feedback (56 x 84 px). */
+/* The hint handle sits on the orange RULER BODY, not on the fixed white reading needle. */
 .student-ruler-handle {
   position: absolute;
   top: 50%;
-  left: 50%;
+  left: 25%;
   z-index: 2;
   width: 56px;
   height: 84px;

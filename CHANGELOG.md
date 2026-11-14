@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.16.1-alpha | 2026-11-15 | Perbaikan | `(0.16.1-alpha)` |
 | 0.16.0-alpha | 2026-11-15 | Fitur | `(0.16.0-alpha)` |
 | 0.15.8-alpha | 2026-11-15 | Perbaikan | `(0.15.8-alpha)` |
 | 0.15.7-alpha | 2026-11-15 | Perbaikan | `(0.15.7-alpha)` |
@@ -108,6 +109,24 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.16.1-alpha — 2026-11-15 — Perbaikan
+
+**Sumber:** ZIP Owner REV-0.15.5-alpha (REV-B03-001 s/d REV-B03-006) dan NUI low-light/backlight/wave audit 2026-11-15.
+
+**Perubahan:**
+- FaceAnchor pixel box kini dinormalisasi memakai dimensi input MediaPipe aktual; regression RAW/CLAHE.
+- NUI menguji backlight lewat luma pusat + frame, menyediakan RAW 320 sebanding dengan CLAHE 320, menampilkan indikasi backlight; parameter masih prototype.
+- Wave progress dibatasi sampai enam sampel, NUI Lab mencatat waktu gerak vertikal.
+- Card 1 memakai sudut telunjuk gameplay untuk berjalan/jump, bukan perpindahan tangan atau pinch; Card 3 router tidak lagi memakai fist di mode tutorial dan ikon netral tidak mengajarkan gestur lama.
+- Hint ruler pindah ke badan oranye; DreamLoader tidak restart saat status atau callback berubah, morph timeline dibereskan saat unmount.
+- Hasil audit dan daftar tiket yang masih perlu runtime QA di `frontend/implementation/docs/execution/REV-B03-NUI-0.16.1-alpha.md`.
+
+**Commit:** commit berjudul `(0.16.1-alpha)`
+
+**Bukti:** STATIC_ONLY. Typecheck, Vitest, build, browser, dan webcam fisik BELUM dijalankan di environment ChatGPT; wajib verifikasi sebelum klaim PASS.
 
 ---
 

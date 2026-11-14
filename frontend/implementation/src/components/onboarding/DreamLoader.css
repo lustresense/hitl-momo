@@ -17,7 +17,7 @@
     }
     button { font: inherit; cursor: pointer; }
     button:focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; }
-    .dream-stage { position: fixed; inset: 0; isolation: isolate; overflow: hidden; }
+    .dream-stage { position: fixed; inset: 0; isolation: isolate; overflow: hidden; z-index: 99999 !important; }
     #cover {
       position: absolute; inset: 0;
       background: radial-gradient(ellipse at 48% 44%, #f1f4df 0%, #dbe9c0 45%, #c6dfa0 100%);
@@ -158,7 +158,7 @@
       will-change: width;
     }
     .dream-bar-fill.is-full { border-right-color: transparent; border-radius: 999px; }
-    .bar-text {
+    .dream-bar-text {
       position: relative; z-index: 1; font-size: 13px; font-weight: 900;
       letter-spacing: -0.02em; color: var(--ink);
       text-shadow: 0 1px 0 rgba(255, 250, 240, 0.85);

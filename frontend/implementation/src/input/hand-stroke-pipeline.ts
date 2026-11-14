@@ -139,8 +139,13 @@ export class HandStrokePipeline {
 
   /** The fist hand; else a pinching hand (nearest the line being drawn when two pinch); else the first hand. */
   private pickPrimary(hands: Landmark[][], poses: HandPose[]): number {
-    const fist = poses.indexOf("fist");
-    if (fist >= 0) return fist;
+    if (this.options.eraser.isFixed?.() === true) {
+      const palm = poses.indexOf("open-palm");
+      if (palm >= 0) return palm;
+    } else {
+      const fist = poses.indexOf("fist");
+      if (fist >= 0) return fist;
+    }
     const pinching = poses.flatMap((p, i) => (p === "pinch" ? [i] : []));
     if (pinching.length <= 1) return pinching[0] ?? 0;
     if (!this.lastInk) return pinching[0]!;
@@ -184,7 +189,9 @@ export class HandStrokePipeline {
     const drawing = raw === "pinch";
     // With the Hapus tool on, any pose erases under the cursor except the commands: a thumbs-up
     // confirmation, undo or redo must never cut the drawing, and an open palm is no tool at all.
-    const isErasePose = this.stable === "fist" || this.stable === "open-palm";
+    const isErasePose = this.options.eraser.isFixed?.() === true
+      ? this.stable === "open-palm"
+      : (this.stable === "fist" || this.stable === "open-palm");
     const command =
       raw === "thumb-up" || raw === "two-fingers" || raw === "one-finger" || raw === "three-fingers" || raw === "split-palm";
     const erasing = (isErasePose && !drawing) || (store.eraserMode && !command);

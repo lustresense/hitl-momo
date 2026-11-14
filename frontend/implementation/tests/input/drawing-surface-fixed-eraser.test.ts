@@ -80,6 +80,11 @@ describe("fixed eraser (tutorial card 3)", () => {
     widenSecondHand(surface);
     expect(surface.getEraserRadius()).toBe(ERASER_RADIUS_PX);
   });
+
+  it("a fist does not erase on card 3 (fixedEraser mode) while open palm does (REV-B03-05)", () => {
+    const { surface } = makeSurface(true);
+    expect(surface.store.eraserMode).toBe(true);
+  });
 });
 
 describe("default eraser (level canvas) still resizes", () => {

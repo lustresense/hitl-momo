@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.15.6-alpha | 2026-11-14 | Perbaikan | `(0.15.6-alpha)` |
 | 0.15.5-alpha | 2026-11-14 | Perbaikan | `(0.15.5-alpha)` |
 | 0.15.4-alpha | 2026-11-13 | Perbaikan | `(0.15.4-alpha)` |
 | 0.15.3-alpha | 2026-11-12 | Perbaikan | `(0.15.3-alpha)` |
@@ -104,6 +105,19 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.15.6-alpha — 2026-11-14 — Perbaikan
+
+**Sumber:** mandat m20261114-132140-bcbd
+
+**Perubahan:**
+- Implementasi 6 tiket revisi Batch 003: cover buka buku ke dalam, petunjuk badan penggaris, momo proaktif kamera mati, card 1 telunjuk & lompat, card 3 gestur end-to-end, dream loader & warmup NUI
+
+**Commit:** commit berjudul `(0.15.6-alpha)`
+
+**Bukti:** 6/6 task dalang batch 003 verified
 
 ---
 

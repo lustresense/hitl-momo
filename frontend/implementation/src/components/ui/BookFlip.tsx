@@ -91,8 +91,8 @@ export function BookFlip({ playKey, direction = "open", duration = BOOK_FLIP_DUR
     // half the duration, so the midpoint callback lines up with the visual edge-on frame.
     tl.fromTo(
       leaf,
-      { rotateX: open ? 0 : -180 },
-      { rotateX: open ? -180 : 0, duration, ease: "power2.inOut" },
+      { rotateX: open ? 0 : 180 },
+      { rotateX: open ? 180 : 0, duration, ease: "power2.inOut" },
     );
     // The soft shadow follows the leaf over the page underneath. Reduced motion skips it (same duration, lighter effect).
     if (shade && !calm) {
@@ -112,7 +112,7 @@ export function BookFlip({ playKey, direction = "open", duration = BOOK_FLIP_DUR
   if (!active) return null;
   const open = direction === "open";
   // The start pose is in the markup too, so the first painted frame already matches the tween's start.
-  const startDeg = open ? 0 : -180;
+  const startDeg = open ? 0 : 180;
   const calm = prefersReducedMotion();
   return (
     <div

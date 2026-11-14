@@ -7,7 +7,7 @@
   pointer-events: none;
   /* Perspective anchored at the hinge, so the leaf reads as turning towards the viewer, not sliding. */
   perspective: 1600px;
-  perspective-origin: 50% 0%;
+  perspective-origin: 50% 100%;
 }
 
 /* Soft shadow band cast by the leaf onto the page underneath. Starts fully below the screen (see BookFlip.tsx). */
@@ -30,7 +30,7 @@
 .book-flip__leaf {
   position: absolute;
   inset: 0;
-  transform-origin: 50% 0%;
+  transform-origin: 50% 100%;
   transform-style: preserve-3d;
   will-change: transform;
 }
@@ -60,7 +60,7 @@
   position: absolute;
   left: 0;
   right: 0;
-  top: 100%;
+  top: 0%;
   height: 14px;
   transform-origin: 50% 0%;
   transform: rotateX(-90deg);

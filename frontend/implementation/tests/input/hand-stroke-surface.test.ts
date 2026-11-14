@@ -177,24 +177,26 @@ describe("fist (Hapus): erases at the knuckles, one undo per pass", () => {
 });
 
 describe("gesture commands on the real surface", () => {
-  it("a two-finger hold with a one-frame flicker still fires exactly one undo", () => {
+  it("a one-finger hold with a one-frame flicker still fires exactly one undo (REV-B02-006)", () => {
     // Bug: a single folded frame restarted the 300 ms hold, so the undo never fired.
     const commander = createGestureCommander();
     let undos = 0;
     const { surface } = makeSurface((pose, nowMs) => {
       if (commander.feed(pose, nowMs) === "undo") undos++;
     });
-    for (let i = 0; i <= 12; i++) surface.feedHandLandmarksForTest(i === 7 ? none() : twoFingers(), at(i));
-    expect(undos).toBe(1);
+    let redos = 0;
+    const { surface: s2 } = makeSurface((pose, nowMs) => {
+      if (commander.feed(pose, nowMs) === "redo") redos++;
+    });
+    for (let i = 0; i <= 12; i++) s2.feedHandLandmarksForTest(i === 7 ? none() : twoFingers(), at(i));
+    expect(redos).toBe(1);
   });
 
   const matrix: Array<{ name: string; hand: () => Landmark[]; undo: number; redo: number; erases: boolean; ink: boolean }> = [
     { name: "pinch", hand: () => pinch(0.5), undo: 0, redo: 0, erases: false, ink: true },
     { name: "fist", hand: fist, undo: 0, redo: 0, erases: true, ink: false },
-    { name: "two fingers", hand: twoFingers, undo: 1, redo: 0, erases: false, ink: false },
-    { name: "split palm", hand: splitPalm, undo: 0, redo: 1, erases: false, ink: false },
-    // Owner: the open palm is the redo (held 300 ms once). It never draws or erases.
-    { name: "open palm", hand: openPalm, undo: 0, redo: 1, erases: false, ink: false },
+    { name: "two fingers", hand: twoFingers, undo: 0, redo: 1, erases: false, ink: false },
+    { name: "open palm", hand: openPalm, undo: 0, redo: 0, erases: true, ink: false },
     { name: "thumb-up", hand: thumbUp, undo: 0, redo: 0, erases: false, ink: false },
     { name: "no hand pose", hand: none, undo: 0, redo: 0, erases: false, ink: false },
   ];

@@ -3,14 +3,11 @@ import { HandStrokePipeline } from "@/src/input/hand-stroke-pipeline";
 import { StrokeStore, type Landmark } from "@/src/input/types";
 import { fistHand, makeHand, pinchHand } from "./hand-fixtures";
 
-/**
- * Hapus tool on (eraserMode): a fist erases under the knuckles, an open palm does nothing (it neither erases nor
- * draws), and a pinch keeps its own meaning (drag erases while the tool is on). Canvas 1000x1000; the camera point
- * (0.8, 0.229) maps to canvas (200, 229), which is where the finished stroke runs.
- */
 const LINE_Y = 229;
 const openPalmAt = (camX: number, camY: number): Landmark[] =>
   makeHand({ ratios: [1.5, 1.5, 1.5, 1.5], indexTip: { x: camX, y: camY }, thumbTip: { x: 0.28, y: 0.7 } });
+const twoFingersAt = (camX: number, camY: number): Landmark[] =>
+  makeHand({ ratios: [1.5, 1.5, 0.5, 0.5], indexTip: { x: camX, y: camY }, thumbTip: { x: 0.28, y: 0.7 } });
 
 function setup() {
   const store = new StrokeStore();
@@ -29,18 +26,24 @@ function setup() {
   return { store, feed, eraseSpy };
 }
 
-describe("Hapus tool on: the palm is not an eraser", () => {
-  it("an open palm over a finished stroke erases nothing and leaves the stroke whole", () => {
+describe("Hapus tool on: 5 fingers (open palm) erases, command poses do not (REV-B02-006)", () => {
+  it("an open palm over a finished stroke erases (REV-B02-006)", () => {
     const { store, feed, eraseSpy } = setup();
     for (let i = 0; i < 12; i++) feed(openPalmAt(0.8, 0.229));
-    expect(eraseSpy).not.toHaveBeenCalled();
-    expect(store.getStrokes().completed.map((s) => s.length)).toEqual([41]);
+    expect(eraseSpy).toHaveBeenCalled();
     expect(store.hasActiveStroke()).toBe(false);
   });
 
-  it("an open palm moving across the stroke neither erases nor starts a new line", () => {
+  it("an open palm moving across the stroke erases (REV-B02-006)", () => {
     const { store, feed, eraseSpy } = setup();
     for (let i = 0; i < 12; i++) feed(openPalmAt(0.9 - i * 0.02, 0.229));
+    expect(eraseSpy).toHaveBeenCalled();
+    expect(store.hasActiveStroke()).toBe(false);
+  });
+
+  it("command pose (two fingers redo) over a finished stroke erases nothing", () => {
+    const { store, feed, eraseSpy } = setup();
+    for (let i = 0; i < 12; i++) feed(twoFingersAt(0.8, 0.229));
     expect(eraseSpy).not.toHaveBeenCalled();
     expect(store.getStrokes().completed.map((s) => s.length)).toEqual([41]);
     expect(store.hasActiveStroke()).toBe(false);
@@ -52,7 +55,7 @@ describe("Hapus tool on: the palm is not an eraser", () => {
     expect(eraseSpy).toHaveBeenCalled();
   });
 
-  it("control: a pinch drag under the tool still erases (the tool's own drag)", () => {
+  it("control: a pinch drag under the tool still erases (the tool own drag)", () => {
     const { feed, eraseSpy } = setup();
     for (let i = 0; i < 6; i++) feed(pinchHand(0.8 - i * 0.02, 0.229));
     expect(eraseSpy).toHaveBeenCalled();

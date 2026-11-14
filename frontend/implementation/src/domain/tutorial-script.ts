@@ -6,7 +6,7 @@ import type { GuideStep } from "./guide-script";
 
 export type TutorialMoment = "deal" | "walk" | "walk-done" | "safety" | "gesture" | "gesture-done";
 
-export type TutorialHintIcon = "hand-draw" | "arrow-right";
+export type TutorialHintIcon = "hand-draw" | "arrow-right" | "bulb" | "thumb-up";
 
 /** The four practice tools of card 3, in the order the card shows them. */
 export const TUTORIAL_PRACTICE_TOOLS = ["draw", "erase", "undo", "redo"] as const;
@@ -37,14 +37,16 @@ export function tutorialHint(index: 0 | 1 | 2, camera: boolean, practiceDone: bo
   if (index === 0) {
     if (!camera) return { icon: "arrow-right", text: "Tarik Thinman ke kanan sampai menyentuh bendera." };
     return practiceDone
-      ? { icon: "hand-draw", text: "Baca dulu, lalu angkat jempolmu." }
-      : { icon: "hand-draw", text: "Cubit dan geser Thinman ke kanan sampai menyentuh bendera." };
+      ? { icon: "thumb-up", text: "Baca dulu, lalu angkat jempolmu." }
+      : { icon: "arrow-right", text: "Arahkan telunjuk ke kanan untuk jalan, ke atas untuk lompat." };
   }
   if (index === 1) {
-    return camera ? { icon: "hand-draw", text: "Baca dulu, lalu angkat jempolmu." } : { icon: "hand-draw", text: "Baca dulu, lalu tahan tombolnya." };
+    return practiceDone
+      ? { icon: "thumb-up", text: camera ? "Angkat jempolmu untuk lanjut." : "Tahan tombol untuk lanjut." }
+      : { icon: "bulb", text: "Baca dulu penjelasannya." };
   }
   return camera
-    ? { icon: "hand-draw", text: "Cubit untuk coret, kepal untuk hapus, dua jari untuk mundur, telapak untuk maju." }
+    ? { icon: "hand-draw", text: "Cubit untuk coret, lima jari untuk hapus, satu jari untuk mundur, dua jari untuk maju." }
     : { icon: "hand-draw", text: "Coret pakai mouse, lalu coba tiap alat di kanan." };
 }
 

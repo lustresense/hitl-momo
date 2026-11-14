@@ -79,7 +79,7 @@ describe("card 1: Thinman follows the hand (R4, cubit + geser)", () => {
     const thumb = screen.getByTestId("tutorial-thumb-1");
     expect(thumb.getAttribute("data-locked")).toBe("true");
     expect(screen.queryByRole("button", { name: "Lanjut" })).toBeNull();
-    expect(document.querySelector(".tutorial-card-1 .tut-gesture")?.textContent).toBe("Cubit dan geser Thinman ke kanan sampai menyentuh bendera.");
+    expect(document.querySelector(".tutorial-card-1 .tut-gesture")?.textContent).toBe("Arahkan telunjuk ke kanan untuk jalan, ke atas untuk lompat.");
     await advance(1200);
     expect(screen.getByTestId("tutorial-walk").className).not.toMatch(/is-complete/);
   }, 15000);

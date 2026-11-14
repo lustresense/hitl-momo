@@ -99,10 +99,12 @@ function WalkPlayground({ onComplete, live, keys }: WalkPlaygroundProps) {
     return ((event.clientX - rect.left) / rect.width) * 100;
   };
 
-  // Hand: the pinch anchors the hand, Thinman follows its travel, and letting go stops him.
+  // Hand: index pointing drives Thinman (steer right/left/jump); pinch also supported as fallback.
   useEffect(() => {
     const cursor = hand.cursor;
-    if (!live || doneRef.current || !hand.pinch || !cursor) {
+    const pointing = hand.pose === "one-finger" || hand.fingerCount === 1;
+    const active = hand.pinch || pointing;
+    if (!live || doneRef.current || !active || !cursor) {
       anchorRef.current = null;
       return;
     }
@@ -111,7 +113,7 @@ function WalkPlayground({ onComplete, live, keys }: WalkPlaygroundProps) {
       return;
     }
     place(handWalkTarget(anchorRef.current.pos, anchorRef.current.x, cursor.x));
-  }, [live, hand.pinch, hand.cursor, place]);
+  }, [live, hand.pinch, hand.pose, hand.fingerCount, hand.cursor, place]);
 
   // Keyboard fallback: the arrow keys step him (no key hint on screen).
   useEffect(() => {
@@ -549,7 +551,7 @@ export function TutorialBrochure({ onStart, characterDisplayName }: TutorialBroc
       <main className="tut-stage" aria-label="Tutorial tiga kartu">
         {CARDS.map((i) => {
           const copy = tutorialCardCopy(i, characterName);
-          const hint = tutorialHint(i, camera, i === gate.index ? gate.practiceDone : true);
+          const hint = tutorialHint(i, camera, i === gate.index ? phase === "ackEligible" : true);
           const current = gate.index === i;
           const unlocked = current && open === i && phase === "ackEligible";
           return (

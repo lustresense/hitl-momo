@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.16.0-alpha | 2026-11-15 | Fitur | `(0.16.0-alpha)` |
 | 0.15.8-alpha | 2026-11-15 | Perbaikan | `(0.15.8-alpha)` |
 | 0.15.7-alpha | 2026-11-15 | Perbaikan | `(0.15.7-alpha)` |
 | 0.15.6-alpha | 2026-11-14 | Perbaikan | `(0.15.6-alpha)` |
@@ -107,6 +108,19 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.16.0-alpha — 2026-11-15 — Fitur
+
+**Sumber:** DreamLoader NUI warmup, morph fix, cover book inward, ruler body motion, camera off Momo, card1 pointing, card3 gestures end2end (REV-B03-001 s/d REV-B03-006)
+
+**Perubahan:**
+- DreamLoader refactored: ticker loop runs continuously, stateRef fixed (TDZ), real NUI warmup subscription, morph trigger on ready/failed, z-index 99999, initial layout centered, Momo position fixed; SketchbookApp finish navigates to "/"; useRouteSync removed history.replaceState
+
+**Commit:** commit berjudul `(0.16.0-alpha)`
+
+**Bukti:** vitest 30/30 pass (dream-loader, global-camera-cover, global-camera-wave-flow, landmarker-warmup), tsc clean
 
 ---
 

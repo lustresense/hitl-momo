@@ -104,9 +104,6 @@ export function useRouteSync(route: RouteState, session: LevelSession, view: Lev
         setOnboarding("tutorial");
       } else {
         setOnboarding("camera");
-        if (window.location.pathname === "/" || window.location.pathname === "") {
-          window.history.replaceState(null, "", "/onboarding/cam");
-        }
       }
     }
 

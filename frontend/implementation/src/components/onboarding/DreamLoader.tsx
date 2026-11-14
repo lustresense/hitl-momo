@@ -92,8 +92,7 @@ export function DreamLoader({
   onReady,
   minDurationMs = 1200,
 }: DreamLoaderProps) {
-  const [status, setStatus] = useState<HandLandmarkerStatus>(getHandLandmarkerStatus());
-  const [progress, setProgress] = useState(0);
+  const [progress, setProgress] = useState(15);
   const [statusText, setStatusText] = useState("Membuka alam imajinasi…");
 
   const stageRef = useRef<HTMLDivElement>(null);
@@ -116,7 +115,7 @@ export function DreamLoader({
   const stateRef = useRef({
     phase: "intro" as "intro" | "loading" | "blast" | "morph" | "done",
     introV: 0,
-    progress: 0,
+    progress: 15,
     blastV: 0,
     morphing: false,
     ph: 0,
@@ -124,29 +123,21 @@ export function DreamLoader({
   });
 
   const onReadyCalledRef = useRef(false);
-
-  // Background NUI warmup
-  useEffect(() => {
-    void warmHandLandmarker({ wasmRoot, modelUrl });
-    const unsub = subscribeHandLandmarkerStatus((s) => {
-      setStatus(s);
-      if (s.kind === "loading") {
-        setStatusText("Memuat kecerdasan visual…");
-      } else if (s.kind === "warming") {
-        setStatusText(`Menyiapkan pengenal tangan (${s.delegate})…`);
-      } else if (s.kind === "ready") {
-        setStatusText("Siap bermimpi!");
-      } else if (s.kind === "failed") {
-        setStatusText("Melanjutkan ke sampul…");
-      }
-    });
-    return unsub;
-  }, [modelUrl, wasmRoot]);
+  const morphStartedRef = useRef(false);
 
   // Main Animation & Physics
   useEffect(() => {
     const stage = stageRef.current;
     if (!stage) return;
+
+    const state = stateRef.current;
+    state.phase = "intro";
+    state.introV = 0;
+    state.progress = 15;
+    state.blastV = 0;
+    state.morphing = false;
+    state.ph = 0;
+    state.windPos = 0;
 
     function getGeo() {
       const vw = window.innerWidth || 1024;
@@ -163,7 +154,6 @@ export function DreamLoader({
       const barH = 48;
       const bottomClearance = vw <= 580 ? 74 : 42;
       const bar = { x: (vw - barW) / 2, y: vh - barH - bottomClearance, w: barW, h: barH };
-      // Target sleep position on bottom-right of cover
       const sleepHead = { x: vw * 0.82, y: vh * 0.72 };
       const targetW = Math.min(295, Math.max(220, vw > 580 ? vw * 0.23 : vw * 0.72));
       const targetH = 64;
@@ -218,40 +208,6 @@ export function DreamLoader({
         });
       }
     }
-
-    const state = stateRef.current;
-    state.phase = "intro";
-    state.introV = 0;
-    state.progress = 0;
-    state.blastV = 0;
-    state.morphing = false;
-    state.ph = 0;
-    state.windPos = 0;
-
-    // Set initial layout
-    if (sharedRef.current) {
-      gsap.set(sharedRef.current, {
-        left: geo.bar.x,
-        top: geo.bar.y,
-        width: geo.bar.w,
-        height: geo.bar.h,
-        borderRadius: "999px",
-        backgroundColor: "#fffaf0",
-        opacity: 1,
-        y: 0,
-      });
-    }
-
-    const onResize = () => {
-      geo = getGeo();
-      updateMomoPosition();
-      updateTopClouds();
-    };
-    window.addEventListener("resize", onResize);
-
-    updateFlight(0);
-    updateMomoPosition();
-    updateTopClouds();
 
     function updateFlight(dt: number) {
       const isFast = state.phase === "blast";
@@ -308,6 +264,8 @@ export function DreamLoader({
 
       if (momoRef.current) {
         momoRef.current.style.width = geo.momoCenter.w + "px";
+        momoRef.current.style.left = "0px";
+        momoRef.current.style.top = "0px";
         momoRef.current.style.transform = `translate3d(${geo.momoCenter.x}px, ${baseY}px, 0)`;
       }
     }
@@ -342,7 +300,8 @@ export function DreamLoader({
     }
 
     function startDreamMorph() {
-      if (state.morphing) return;
+      if (morphStartedRef.current) return;
+      morphStartedRef.current = true;
       state.phase = "morph";
       state.morphing = true;
       geo = getGeo();
@@ -396,8 +355,11 @@ export function DreamLoader({
         morphTl.to(
           sh,
           {
+            x: 0,
+            xPercent: 0,
             left: geo.bubble.x,
             top: geo.bubble.y,
+            bottom: "auto",
             width: geo.bubble.w,
             height: geo.bubble.h,
             backgroundColor: "#eff3db",
@@ -428,7 +390,21 @@ export function DreamLoader({
       }
     }
 
-    // Ticker loop
+    function triggerBlastAndMorph() {
+      if (state.phase === "blast" || state.phase === "morph" || state.phase === "done") return;
+      state.phase = "blast";
+      gsap.to(state, {
+        blastV: 1,
+        duration: 1.2,
+        ease: "power2.in",
+        onUpdate: updateTopClouds,
+        onComplete: () => {
+          startDreamMorph();
+        },
+      });
+    }
+
+    // Ticker loop runs continuously from frame 0
     const tickerCallback = (time: number, deltaTime: number) => {
       if (state.morphing || state.phase === "done") return;
       const dt = Math.min(deltaTime / 1000, 0.05);
@@ -438,69 +414,73 @@ export function DreamLoader({
     };
     gsap.ticker.add(tickerCallback);
 
+    updateFlight(0);
+    updateMomoPosition();
+    updateTopClouds();
+
+    const onResize = () => {
+      geo = getGeo();
+      updateMomoPosition();
+      updateTopClouds();
+    };
+    window.addEventListener("resize", onResize);
+
     // Initial Intro Animation
-    const mainTl = gsap.timeline();
-    if (sharedRef.current) {
-      mainTl.to(
-        sharedRef.current,
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1.2,
-          ease: "power3.out",
-        },
-        0
-      );
-    }
+    const mainTl = gsap.timeline({
+      onComplete: () => {
+        state.phase = "loading";
+      },
+    });
     mainTl.to(
       state,
       {
         introV: 1,
-        duration: 1.2,
+        duration: 1.0,
         ease: "power3.out",
-        onComplete: () => {
-          state.phase = "loading";
-        },
       },
       0
     );
 
-    // Timeline to advance progress smoothly
-    let targetProgress = 15;
-    const progressTween = gsap.to(state, {
-      progress: 100,
-      duration: 3.5,
-      ease: "power1.inOut",
-      paused: true,
-      onUpdate: () => {
-        const p = Math.round(state.progress);
-        setProgress(p);
-        if (barFillRef.current) {
-          barFillRef.current.style.width = state.progress.toFixed(1) + "%";
-          barFillRef.current.classList.toggle("is-full", state.progress >= 99.5);
-        }
-        if (barTextRef.current) {
-          barTextRef.current.textContent = p + "%";
-        }
-        updateTopClouds();
-      },
-      onComplete: () => {
-        state.phase = "blast";
-        gsap.to(state, {
-          blastV: 1,
-          duration: 1.2,
-          ease: "power2.in",
-          onUpdate: updateTopClouds,
-          onComplete: () => {
-            startDreamMorph();
-          },
-        });
-      },
-    });
+    // REAL NUI warmup subscription
+    void warmHandLandmarker({ wasmRoot, modelUrl });
+    const unsub = subscribeHandLandmarkerStatus((s) => {
+      let target = 20;
+      if (s.kind === "loading") {
+        target = 45;
+        setStatusText("Memuat kecerdasan visual…");
+      } else if (s.kind === "warming") {
+        target = 75;
+        setStatusText(`Menyiapkan pengenal tangan (${s.delegate})…`);
+      } else if (s.kind === "ready") {
+        target = 100;
+        setStatusText("Siap bermimpi!");
+      } else if (s.kind === "failed") {
+        target = 100;
+        setStatusText("Melanjutkan ke sampul…");
+      }
 
-    // Start progress tween after intro
-    mainTl.call(() => {
-      progressTween.play();
+      gsap.to(state, {
+        progress: target,
+        duration: target === 100 ? 0.8 : 1.2,
+        ease: "power2.out",
+        onUpdate: () => {
+          const p = Math.round(state.progress);
+          setProgress(p);
+          if (barFillRef.current) {
+            barFillRef.current.style.width = state.progress.toFixed(1) + "%";
+            barFillRef.current.classList.toggle("is-full", state.progress >= 99.5);
+          }
+          if (barTextRef.current) {
+            barTextRef.current.textContent = `${p}% · ${statusText}`;
+          }
+          updateTopClouds();
+        },
+        onComplete: () => {
+          if (target === 100 && (s.kind === "ready" || s.kind === "failed")) {
+            triggerBlastAndMorph();
+          }
+        },
+      });
     });
 
     // Skip handler
@@ -515,14 +495,14 @@ export function DreamLoader({
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
+      unsub();
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("resize", onResize);
       try { gsap.ticker.remove(tickerCallback); } catch {}
       try { mainTl?.kill(); } catch {}
-      try { progressTween?.kill(); } catch {}
       try { if (state) gsap.killTweensOf(state); } catch {}
     };
-  }, [onReady, minDurationMs]);
+  }, [modelUrl, wasmRoot, onReady, minDurationMs, statusText]);
 
   const handleSkip = () => {
     if (!onReadyCalledRef.current) {
@@ -559,7 +539,14 @@ export function DreamLoader({
           />
         </svg>
 
-        <svg ref={momoRef} className="dream-momo" viewBox="0 0 1389 2058" role="img" aria-label="Momo terbang di mimpi">
+        <svg
+          ref={momoRef}
+          className="dream-momo"
+          style={{ transform: "translate3d(calc(50vw - 88px), calc(40vh - 100px), 0)" }}
+          viewBox="0 0 1389 2058"
+          role="img"
+          aria-label="Momo terbang di mimpi"
+        >
           <g ref={momoGroupRef}>
             <g ref={tailGroupRef}>
               <path d={M.tail} fill="#2e0d06" />
@@ -596,7 +583,13 @@ export function DreamLoader({
         </svg>
       </section>
 
-      <div ref={sharedRef} className="dream-shared" role="status" aria-live="polite">
+      <div
+        ref={sharedRef}
+        className="dream-shared"
+        style={{ left: "50%", bottom: "42px", transform: "translateX(-50%)" }}
+        role="status"
+        aria-live="polite"
+      >
         <div
           ref={barUiRef}
           className="dream-bar-ui"

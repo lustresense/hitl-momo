@@ -161,7 +161,7 @@ export function SketchbookApp() {
   const chooseEnding = useCallback(
     (choice: EndingChoice) => {
       setEndingOpen(false);
-      if (choice === "finish") navigateTo("/onboarding/cam");
+      if (choice === "finish") navigateTo("/");
     },
     [navigateTo],
   );

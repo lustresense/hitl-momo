@@ -19,6 +19,7 @@ import {
   rulerAskStep,
 } from "@/src/domain/ruler-script";
 import { useHandGesture, useInputMode } from "@/src/hooks/useHandGesture";
+import { Icon } from "../ui/Icon";
 import { MomoGuide } from "../momo/MomoGuide";
 import { ThumbConfirm } from "../ui/ThumbConfirm";
 import "./StudentRulerSelector.css";
@@ -238,6 +239,12 @@ export function StudentRulerSelector({
       } else {
         // Mirrored cursor: a hand moving right lowers the number, the same as a mouse drag to the right.
         position.current = current.start - (cursor.x - current.x0) * HAND_SLOTS_PER_FRAME;
+        const liveSlot = snap(Math.round(position.current));
+        const liveNum = numberAt(liveSlot);
+        if (liveNum !== null && liveNum !== shownNumber.current) {
+          shownNumber.current = liveNum;
+          setValue(liveNum);
+        }
       }
       return;
     }
@@ -287,6 +294,12 @@ export function StudentRulerSelector({
     if (!state.active) return;
     if (Math.abs(event.clientX - state.x) > 4) state.moved = true;
     position.current = state.start - (event.clientX - state.x) / SPACING;
+    const liveSlot = snap(Math.round(position.current));
+    const liveNum = numberAt(liveSlot);
+    if (liveNum !== null && liveNum !== shownNumber.current) {
+      shownNumber.current = liveNum;
+      setValue(liveNum);
+    }
     const now = performance.now();
     const elapsed = Math.max(1, now - state.time);
     state.velocity = 0.7 * state.velocity + 0.3 * ((event.clientX - state.lastX) / elapsed);
@@ -383,10 +396,20 @@ export function StudentRulerSelector({
             ))}
             <div className="student-ruler-needle" aria-hidden="true" />
             {/* Papercraft grab handle on the centre marker: the sign that the ruler can be moved. */}
-            <div className="student-ruler-handle" data-testid="student-ruler-handle" aria-hidden="true">
-              <span />
-              <span />
-              <span />
+            <div
+              className={`student-ruler-handle${dragging ? " is-active is-dragging" : ""}`}
+              data-testid="student-ruler-handle"
+              aria-hidden="true"
+            >
+              <div className="student-ruler-handle-ring" data-testid="student-ruler-handle-ring" />
+              <div className="student-ruler-handle-icon" data-testid="student-ruler-handle-icon">
+                <Icon name="hand-draw" size={26} />
+              </div>
+              <div className="student-ruler-handle-grips">
+                <span />
+                <span />
+                <span />
+              </div>
             </div>
           </div>
         </div>

@@ -133,12 +133,15 @@ export interface FaceAnchorOptions {
    * as the hand. A test passes its own gate on its own clock.
    */
   gate?: DetectionGate;
+  /** Test seam: the exact frame submitted to the face model (video or enhanced canvas). */
+  getFrame?: (video: HTMLVideoElement) => DetectionFrame;
 }
 
 export class FaceAnchor implements FaceSource {
   private readonly load: () => Promise<FaceDetectorLike>;
   private readonly now: () => number;
   private readonly gate: DetectionGate;
+  private readonly getFrame: (video: HTMLVideoElement) => DetectionFrame;
   private detector: FaceDetectorLike | null = null;
   private loading = false;
   private unavailable = false;
@@ -155,6 +158,7 @@ export class FaceAnchor implements FaceSource {
     this.load = options.load ?? (() => loadFaceDetector());
     this.now = options.now ?? (() => performance.now());
     this.gate = options.gate ?? sharedDetectionGate;
+    this.getFrame = options.getFrame ?? frameForDetection;
   }
 
   update(video: HTMLVideoElement, nowMs: number): void {
@@ -167,17 +171,25 @@ export class FaceAnchor implements FaceSource {
     if (video.readyState < 2 || !video.videoWidth || !video.videoHeight) return;
     this.lastAttemptMs = nowMs;
     const detector = this.detector;
-    let result: ReturnType<FaceDetectorLike["detectForVideo"]> | null;
+    let result: { detections: Array<{ boundingBox?: BoxPixels }>; frameWidth: number; frameHeight: number } | null;
     try {
-      result = this.gate.poll(this, video, (ts) => detector.detectForVideo(frameForDetection(video), ts), FACE_LANE);
+      result = this.gate.poll(this, video, (ts) => {
+        const frame = this.getFrame(video);
+        const detection = detector.detectForVideo(frame, ts);
+        // FaceDetector boxes are pixel coordinates of its INPUT, not necessarily the webcam's native size.
+        // Keep the dimensions with the result so a shared gate's cached result cannot lose its coordinate space.
+        const frameWidth = "videoWidth" in frame ? frame.videoWidth : frame.width;
+        const frameHeight = "videoHeight" in frame ? frame.videoHeight : frame.height;
+        return { detections: detection.detections, frameWidth, frameHeight };
+      }, FACE_LANE);
       this.failures = 0;
     } catch {
       this.failures++;
       if (this.failures >= MAX_FACE_FAILURES) this.unavailable = true;
       return;
     }
-    if (!result) return;
-    this.boxes = faceBoxesFromDetections(result.detections, video.videoWidth, video.videoHeight);
+    if (!result || result.frameWidth <= 0 || result.frameHeight <= 0) return;
+    this.boxes = faceBoxesFromDetections(result.detections, result.frameWidth, result.frameHeight);
     this.boxesPlayer = playerIndex(this.boxes);
     this.boxesMs = nowMs;
     if (this.boxesPlayer >= 0) {

@@ -61,6 +61,47 @@ describe("faceBoxesFromDetections (pure)", () => {
   });
 });
 
+describe("FaceAnchor detector input coordinates", () => {
+  it("normalizes enhanced 320x180 face boxes independently of 1280x720 webcam size", async () => {
+    let now = 0;
+    const videoEl = video({ videoWidth: 1280, videoHeight: 720 });
+    const enhanced = { width: 320, height: 180 } as HTMLCanvasElement;
+    const detectForVideo = vi.fn(() => ({ detections: [box(128, 36, 64, 54)] }));
+    const anchor = new FaceAnchor({
+      load: async () => ({ detectForVideo, close: vi.fn() }),
+      now: () => now,
+      gate: new InferenceScheduler({ now: () => now }),
+      getFrame: () => enhanced,
+    });
+    anchor.update(videoEl, now);
+    await flush();
+    now = 300;
+    videoEl.currentTime = 1;
+    anchor.update(videoEl, now);
+    expect(detectForVideo).toHaveBeenCalledTimes(1);
+    expect(detectForVideo.mock.calls[0]![0]).toBe(enhanced);
+    expect(anchor.current(now)).toEqual({ x: 0.4, y: 0.2, w: 0.2, h: 0.3 });
+  });
+
+  it("keeps the original video coordinate space when no enhancement is used", async () => {
+    let now = 0;
+    const videoEl = video({ videoWidth: 1280, videoHeight: 720 });
+    const detectForVideo = vi.fn(() => ({ detections: [box(512, 144, 256, 216)] }));
+    const anchor = new FaceAnchor({
+      load: async () => ({ detectForVideo, close: vi.fn() }),
+      now: () => now,
+      gate: new InferenceScheduler({ now: () => now }),
+      getFrame: (v) => v,
+    });
+    anchor.update(videoEl, now);
+    await flush();
+    now = 300;
+    videoEl.currentTime = 1;
+    anchor.update(videoEl, now);
+    expect(anchor.current(now)).toEqual({ x: 0.4, y: 0.2, w: 0.2, h: 0.3 });
+  });
+});
+
 describe("FaceAnchor", () => {
   it("looks at the face about 4 times a second, not on every camera frame", async () => {
     let t = 0;

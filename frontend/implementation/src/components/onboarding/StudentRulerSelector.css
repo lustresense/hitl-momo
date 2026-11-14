@@ -115,6 +115,21 @@
   font: 800 14px/1 Inter, ui-sans-serif, system-ui, sans-serif;
 }
 
+/* The pinch hint slides this whole body left and right; the white centre marker (needle and handle) never moves. */
+.student-ruler-track {
+  position: absolute;
+  inset: 0;
+}
+
+.student-ruler.is-hinting .student-ruler-track {
+  animation: ruler-body-hint 1.9s ease-in-out infinite;
+}
+
+@keyframes ruler-body-hint {
+  0%, 100% { transform: translate3d(-30px, 0, 0); }
+  50% { transform: translate3d(30px, 0, 0); }
+}
+
 .student-ruler-needle {
   position: absolute;
   top: 0;
@@ -169,6 +184,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .student-number-value.is-bump {
+    animation: none;
+  }
+  .student-ruler.is-hinting .student-ruler-track {
     animation: none;
   }
 }

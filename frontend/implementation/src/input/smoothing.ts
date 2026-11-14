@@ -94,6 +94,65 @@ const DEFAULT_ONE_EURO: OneEuroParams = { minCutoff: 0.8, beta: 0.015, dCutoff: 
  */
 export const DRAWING_ONE_EURO: OneEuroParams = { minCutoff: 0.2, beta: 20, dCutoff: 0.2, deadZone: 0.0025 };
 
+/**
+ * Catmull-Rom spline through the last few points (Pencil Tool Illustrator feel). One Euro alone leaves
+ * angular joints between frames: the resampler emits the intermediate samples of the smooth curve through
+ * p1, p2, p3, p4 so consecutive ink points follow a tangent-continuous path instead of raw corner-to-corner segments.
+ */
+export class CatmullRomResampler {
+  private history: Array<{ x: number; y: number }> = [];
+  private readonly window: number;
+
+  constructor(private readonly divisions = 1, window = 4) {
+    this.window = Math.max(4, Math.min(window, 4));
+  }
+
+  reset(): void {
+    this.history = [];
+  }
+
+  /**
+   * Records the given point (already One-Euro filtered) and returns the resampled segment from the
+   * previous recorded point to it. First call (or after reset) returns just the point itself.
+   */
+  push(point: { x: number; y: number }, timestamp: number): Array<{ x: number; y: number }> {
+    this.history.push({ ...point });
+    if (this.history.length > this.window) this.history.shift();
+    if (this.history.length < 2) return [{ ...point }];
+    const [p1, p2, p3, p4] = this.tail();
+    const out: Array<{ x: number; y: number }> = [{ x: p3.x, y: p3.y }];
+    for (let i = 1; i <= this.divisions; i++) out.push(catmullRom(p1, p2, p3, p4, i / this.divisions, timestamp));
+    return out;
+  }
+
+  /** Oldest..newest, always exactly 4 entries. */
+  private tail(): [{ x: number; y: number }, { x: number; y: number }, { x: number; y: number }, { x: number; y: number }] {
+    const h = this.history;
+    const p0 = h[0]!;
+    const p1 = h[1] ?? p0;
+    const p2 = h[2] ?? p1;
+    const p3 = h[3] ?? p2;
+    return [p0, p1, p2, p3];
+  }
+}
+
+/** Catmull-Rom basis at parameter t in 0..1 between p2 and p3. */
+function catmullRom(
+  p1: { x: number; y: number },
+  p2: { x: number; y: number },
+  p3: { x: number; y: number },
+  p4: { x: number; y: number },
+  t: number,
+  timestamp: number,
+): { x: number; y: number } {
+  void timestamp;
+  const t2 = t * t;
+  const t3 = t2 * t;
+  const mix = (a: number, b: number, c: number, d: number) =>
+    0.5 * (2 * b + (-a + c) * t + (2 * a - 5 * b + 4 * c - d) * t2 + (-a + 3 * b - 3 * c + d) * t3);
+  return { x: mix(p1.x, p2.x, p3.x, p4.x), y: mix(p1.y, p2.y, p3.y, p4.y) };
+}
+
 export class PointSmoother {
   private last: { x: number; y: number } | null = null;
   private oneEuro: OneEuroFilter2D | null = null;

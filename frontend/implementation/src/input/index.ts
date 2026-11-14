@@ -85,6 +85,7 @@ export class DrawingSurface {
       this.setEraserRadius(px);
     },
     isFixed: () => this.options.fixedEraser === true,
+      allowFistErase: () => this.options.fixedEraser !== true,
   };
 
   /**

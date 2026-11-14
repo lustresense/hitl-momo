@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.15.8-alpha | 2026-11-15 | Perbaikan | `(0.15.8-alpha)` |
 | 0.15.7-alpha | 2026-11-15 | Perbaikan | `(0.15.7-alpha)` |
 | 0.15.6-alpha | 2026-11-14 | Perbaikan | `(0.15.6-alpha)` |
 | 0.15.5-alpha | 2026-11-14 | Perbaikan | `(0.15.5-alpha)` |
@@ -106,6 +107,19 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.15.8-alpha — 2026-11-15 — Perbaikan
+
+**Sumber:** mandat m20261114-132140-bcbd
+
+**Perubahan:**
+- Perbaiki ref stageRef dan TDZ state pada DreamLoader agar animasi terbang dan morphing aktif sempurna
+
+**Commit:** commit berjudul `(0.15.8-alpha)`
+
+**Bukti:** DreamLoader fix TDZ state & stageRef, vitest 56 passed, tsc clean
 
 ---
 

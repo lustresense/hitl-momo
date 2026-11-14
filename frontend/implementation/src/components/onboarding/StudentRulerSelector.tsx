@@ -356,6 +356,8 @@ export function StudentRulerSelector({
   };
 
   const quiet = moved && !settled;
+  /** Idle pinch demo: the body of the ruler slides left-right; the white centre marker itself never moves. */
+  const hinting = phase === "docked" && !moved && !dragging && finalNumber === null;
   let momoStep: GuideStep;
   if (phase !== "docked") momoStep = RULER_FOCUS_STEP;
   else if (finalNumber !== null) momoStep = offlineClass ? RULER_CLASS_OFFLINE_STEP : rulerAskStep(finalNumber);
@@ -375,7 +377,7 @@ export function StudentRulerSelector({
         <div className="student-ruler-wrap">
           <div
             ref={root}
-            className={`student-ruler${dragging ? " is-grabbing" : ""}`}
+            className={`student-ruler${dragging ? " is-grabbing" : ""}${hinting ? " is-hinting" : ""}`}
             role="slider"
             aria-label="Nomor absen"
             aria-valuemin={1}
@@ -391,9 +393,12 @@ export function StudentRulerSelector({
             onPointerCancel={onPointerUp}
             onWheel={onWheel}
           >
-            {Array.from({ length: POOL }, (_, index) => (
-              <div className="student-ruler-tick" key={index}><span /></div>
-            ))}
+            {/* The pinch hint slides this whole body left and right; the white centre marker stays put. */}
+            <div className="student-ruler-track">
+              {Array.from({ length: POOL }, (_, index) => (
+                <div className="student-ruler-tick" key={index}><span /></div>
+              ))}
+            </div>
             <div className="student-ruler-needle" aria-hidden="true" />
             {/* Papercraft grab handle on the centre marker: the sign that the ruler can be moved. */}
             <div

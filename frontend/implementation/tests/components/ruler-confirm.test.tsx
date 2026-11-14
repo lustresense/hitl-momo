@@ -247,6 +247,20 @@ describe("StudentRulerSelector: Momo focus, pick and confirm (BIGPROMPT 6.2, sto
     expect(handle.querySelector(".nb-icon--gesture")).not.toBeNull();
   });
 
+  it("the pinch hint slides the ruler body left-right, never the white centre marker", () => {
+    mount();
+    advance(DOCKED_MS);
+    const ruler = slider();
+    expect(ruler.classList.contains("is-hinting")).toBe(true);
+    expect(ruler.querySelector(".student-ruler-track")).not.toBeNull();
+    // The marker stays a static reference: it gains no motion class of its own.
+    const handle = screen.getByTestId("student-ruler-handle");
+    expect(handle.className).not.toMatch(/hint/);
+    // First move ends the idle hint.
+    fireEvent.keyDown(ruler, { key: "ArrowRight" });
+    expect(ruler.classList.contains("is-hinting")).toBe(false);
+  });
+
   it("slider updates large number in real time while dragging", () => {
     mount();
     advance(DOCKED_MS);

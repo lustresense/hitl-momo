@@ -1,5 +1,13 @@
 # NOW
 
+## 2026-11-15 — status aktif GitHub Can / NUI
+- **Branch kerja atas permintaan Owner:** `ujang-monorepo`, HEAD sumber `cebbaa4797c963da80090d54728a5b0e39c811e4`, versi global `0.17.0-alpha`; `main` tidak boleh diubah tanpa perintah baru Owner.
+- **Source yang benar-benar terlihat:** perbaikan gesture/icon, Card 3, BookFlip, Momo recovery kamera, NUI Lab, instalasi/handoff; patch sebelumnya `0.16.1-alpha` mencakup FaceAnchor/backlight/wave. Inspeksi dan commit via GitHub membuktikan keberadaan source, BUKAN runtime.
+- **Bukti:** `STATIC_ONLY` dan `NOT_TESTED` untuk typecheck, lint, Vitest, build, E2E, kamera fisik dan URL deployed. Tidak ada CI sukses pada `cebbaa4` ketika diperiksa. Jangan mengubah status menjadi PASS sebelum log konkret.
+- **Keputusan:** D-20261115-01 mengunci artwork ikon gesture yang dibuat sendiri; D-20261115-02 menandai konflik mapping Card 1/Card 3 dengan D-20261110-06/07 sebagai Belum dikunci.
+- **Sumber terbaru:** `REVISIONS.md` R15-01..06, `project/OWNER_MANDATES.md` M-032/033, `frontend/implementation/docs/execution/UJANG_HANDOFF_0.17.0-alpha.md`, `CHANGELOG.md` root.
+- **Next:** Ujang verifikasi `scripts/ujang-verify-web.sh`, browser E2E serta webcam USB dan deploy; Owner cukup membuka URL web setelah Ujang memberikan bukti.
+
 Base ancestry: `54ebec1830760fe0b692d7a40b25ceb041bfdef9` (descendant of `840973b4d4e76d829b8e2059912ee393051616c7`)
 
 Diperbarui: 2026-11-05. Satu halaman: keadaan paling baru. Keputusan: `DECISIONS.md` (D-20261105-01..24; riwayat GPT di Lampiran). Aturan kerja/TOV: `SOUL.md`. Instruksi Owner satu per satu: `project/OWNER_MANDATES.md`. Perubahan teknis per versi: `implementation/CHANGELOG.md` (0.0.13). Laporan progres yang bisa dibaca Owner dan Ujang: `implementation/docs/execution/PROGRESS_REPORT_2026-11-05.md`.

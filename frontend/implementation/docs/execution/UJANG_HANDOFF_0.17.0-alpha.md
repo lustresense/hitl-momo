@@ -1,5 +1,8 @@
 # Handoff Ujang | Sketchbook Universe 0.17.0-alpha | 15 November 2026
 
+> **Addendum dokumentasi 0.17.1-alpha, 15 November 2026.** Sejak permintaan Owner M-033, dokumentasi implementasi wajib direkonsiliasi mengikuti `contexts/can/AGENTS.md`, bukan hanya versi/changelog.
+> Source implementation batch ini tetap commit `cebbaa4` (0.17.0-alpha). Update 0.17.1-alpha adalah sinkronisasi MD tanpa bukti build/E2E/webcam baru. Cek `contexts/can/REVISIONS.md` R15-01..06 untuk acceptance dan status.
+> Konflik keputusan Card 1/Card 3 ada di `contexts/can/DECISIONS.md` D-20261115-02, belum boleh diperlakukan sebagai keputusan aktif hanya karena kode terpasang.
 ## Konteks dan batas kerja
 - Base branch: ujang-monorepo dari commit 9452cc64952166c7221655d746fc3fb7a644b2d8.
 - Owner meminta perbaikan inkonsistensi icon gestur, audit bug, manifest dependency, dan jalur deployment yang tidak mewajibkan Owner menginstal tool.

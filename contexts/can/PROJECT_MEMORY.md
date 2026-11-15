@@ -6,6 +6,12 @@
 Keep this file small. It is the Hermes-inspired "hot durable memory" layer; detailed experience belongs in ECC memory.
 
 ## Product identity
+## Latest documented handoff (2026-11-15, non-authoritative)
+- Sumber status aktif: `contexts/can/NOW.md`, `REVISIONS.md`; status source GitHub branch `ujang-monorepo` commit `cebbaa4`, global `0.17.0-alpha`, **STATIC_ONLY**.
+- Setiap implementer harus membaca `contexts/can/AGENTS.md` lebih dulu dan menyinkronkan keputusan produk (`DECISIONS.md`), mandat (`project/OWNER_MANDATES.md`), revisi, NOW, konteks teknis, dan changelog root. Ini perintah Owner M-033.
+- Ikon petunjuk gestur dibuat sendiri (D-20261115-01); perbedaan mapping tutorial vs keputusan lama tetap **Belum dikunci** (D-20261115-02). Jangan menyimpulkan tes webcam atau deploy berhasil.
+- Pemilik instalasi/build/deploy = Ujang. Owner membuka URL web setelah deploy diverifikasi, tidak diminta menjalankan npm atau pip.
+
 
 - Internal/IP name: **Sketchbook Universe**.
 - One integrated PA system for AI literacy, not two separate applications.

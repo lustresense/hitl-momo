@@ -79,6 +79,7 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 | Evaluasi | Gunakan log untuk menggambarkan pola keputusan yang teramati. Jangan mengklaim perubahan psikologis/kognitif atau hasil pre/post tanpa rancangan dan bukti evaluasi yang sah. | Aktif |
 | Metodologi | Fishbone: Concept, Design, Material Collecting, Assembly, User Testing, Distribution. | Aktif |
 | Sistem visual | Warna oranye/hijau, dots di belakang, outline dan bayangan yang ada sekarang **dikunci Owner**. "Anti-slop" = perbaikan detail, bukan ganti palet/tipografi (D-20261105-01). | Aktif |
+| Ikon visual gestur | Ilustrasi tangan SVG khusus yang menerangkan aksi dengan jelas, bukan ikon generik yang salah arti, sesuai instruksi Owner 15 November 2026 (D-20261115-01). Warna dan sistem visual yang sudah dikunci tetap berlaku. | Aktif (desain), belum diuji pengguna |
 | Alur keputusan HITL di UI | Terima/Pilih lain/Bukan semua langsung berlaku (tanpa tombol "Wujudkan Objek"); lalu tawaran "Masukkan ke dunia" (D-20261105-02). Sejak 2026-11-11: gambar menjadi stiker lalu "Lempar" (D-20261110-08); submission dikirim saat cincin keputusan penuh (D-20261111-01). | Aktif |
 | Ringkasan level | Pop-up di dalam dunia game dengan Momo yang merayakan, bukan layar penuh (D-20261105-04). | Aktif |
 | Jumlah level | Hanya Level 1–3; Level 4 dihapus (D-20261110-01). | Aktif |
@@ -94,7 +95,7 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 | Login/history | Notulensi menggeser rancangan dari session-only menuju identitas/login bila progres dan returning-user history harus disimpan. Mekanisme login, ID, durasi sesi, dan penyimpanan final harus mengikuti dokumen/repo terbaru; jangan memilih sendiri. |
 | Manipulasi kesalahan AI | Gagasan menurunkan confidence, memaksa prediksi salah, atau membuat jebakan automation-bias pernah dibahas, tetapi belum boleh disebut keputusan final atau persetujuan dosen tanpa rancangan evaluasi dan konfirmasi terbaru. |
 | Kontrol karakter | Kiri/kanan/lompat pernah disarankan dalam eksplorasi. Status aktual harus mengikuti prototype dan desain gameplay terbaru. |
-| Implementasi gesture/camera tutorial | Pemetaan gesture tutorial sudah ditetapkan pada UI sebagai **🤏 Coret, ✊ Hapus, ✌️ Undo/Batal, 🖐️ Redo/Ulang**, dan pointer/mouse dapat dipakai pada prototype. Namun pipeline camera/MediaPipe sebagai input aktual **belum dikunci** hanya karena gesture tampil di UI. |
+| Implementasi gesture/camera tutorial | Riwayat ikon lama adalah 🤏 Coret, ✊ Hapus, ✌️ Undo, 🖐️ Redo. **Jangan pakai baris lama untuk menjelaskan gesture Card 3 saat ini**. Kode 0.17.0-alpha memakai cubit Coret, telapak lima jari Hapus, satu jari Undo, dua jari Redo; Card 1 memakai sudut telunjuk. Ketidakselarasan dengan D-20261110-06/07 dicatat pada D-20261115-02 (Belum dikunci); uji kamera nyata belum ada. |
 | Cakupan kontrol Stickman | Gerak kiri/kanan Stickman pada Kartu 1 adalah interaksi tutorial aktif, tetapi **belum cukup bukti** untuk menyimpulkan kontrol karakter gameplay global hanya kiri/kanan atau mencakup lompat. |
 | Detail proposal | Struktur bab, judul final, daftar referensi, nama lengkap pembimbing, dan status persetujuan mengikuti dokumen resmi terbaru, bukan template/backup AI. |
 
@@ -123,6 +124,19 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 | 2026-10-05 — Penegasan visual cover onboarding | Onboarding camera ditegaskan sebagai cover Sketchbook Universe sehingga dominasi hijau pada keseluruhan layar adalah treatment khusus cover, bukan aturan background global untuk page lain. | Aktif |
 
 ## Entri Perubahan Terbaru
+
+### D-20261115-01 — Aktif (instruksi langsung Owner 2026-11-15) — Artwork ikon gestur
+- Keputusan: seluruh petunjuk gestur yang diperbaiki harus memakai gambar tangan yang jelas dan dibuat sendiri; jangan memakai ikon lama yang mengajarkan gestur salah. Bahasa visual terpilih tidak diganti.
+- Bukti: instruksi langsung Owner 2026-11-15 tentang memperbaiki ikon dan membuat gambar sendiri; perintah sinkronisasi MD terkait pada sesi yang sama.
+- Mengubah: mandat ikon SVG Figma lama M-020/D-20261105-24 pada komponen yang telah diperbaiki; arsip lama tidak dihapus.
+- Dampak: tutorial, toolbar, penggaris, cincin gestur, kontrol objek; tidak mengubah model/DB.
+- Teknis: `CHANGELOG.md` root versi 0.17.0-alpha, commit cebbaa4, `frontend/implementation/src/components/ui/GestureGlyph.tsx` dan pemakainya. Bukti STATIC_ONLY, belum ada uji pemahaman siswa.
+
+### D-20261115-02 — Belum dikunci (konflik keputusan dan kode) — Mapping gestur Card 1/Card 3
+- Fakta source: `gesture-mode.ts` pada commit cebbaa4 memakai Card 3 cubit→Coret, telapak lima jari→Hapus, satu jari→Undo, dua jari→Redo; Card 1 memakai sudut telunjuk. Kanvas utama masih menerima fist untuk Hapus.
+- Konflik: D-20261110-06 sudah Aktif mengatur cubit-drag Card 1; D-20261110-07 sudah Aktif menyebut redo telapak di kanvas. Perubahan source tidak otomatis mencabut entri yang disetujui Owner.
+- Bukti: Owner memberi paket revisi REV-B03 dan meminta implementasi; hasil code hanya STATIC_ONLY. Tidak ada persetujuan pengganti yang cukup eksplisit untuk secara diam-diam merevisi dua ID tersebut.
+- Dampak: copy tutorial, icon, tes gesture dan perilaku. Tindak lanjut: audit/SETUJUI perubahan keputusan secara eksplisit sebelum mengubah status D-20261110-06/07.
 
 ### D-20261111-01 — Aktif (instruksi eksplisit Owner 2026-11-11) — Data dikirim saat keputusan Top-3
 - Keputusan: submission ke backend dikirim saat siswa memilih di Top-3 (gestur 1/2/3, atau 4 = override) dan cincin konfirmasi penuh. Cincin itu sudah cukup sebagai konfirmasi; tidak ada konfirmasi tambahan dan tidak menunggu "Lempar". Gestur 5 (gambar lagi) tidak mengirim.

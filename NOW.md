@@ -1,5 +1,13 @@
 # NOW.md — Status integrasi bersama
 
+## Snapshot per 2026-11-15 (status terbaru bagi implementasi Can)
+- **Can source:** `ujang-monorepo` commit `cebbaa4797c963da80090d54728a5b0e39c811e4`, global `0.17.0-alpha`, dengan patch 0.16.1 dan 0.17.0 (NUI/gesture, SVG original, Momo recovery, BookFlip, instalasi). `main` tetap `56bdc2e4b430f80af6b196825d7748d9abb882d5` dalam verifikasi terakhir.
+- **Evidence:** `STATIC_ONLY` dari GitHub. Tidak ada verifikasi CI, typecheck, lint, unit, build, E2E, USB webcam maupun deployment pada commit terbaru. Hasil integration lama di bawah berlaku pada tanggal dan SHA masing-masing, bukan klaim untuk versi 0.17.0.
+- **Product truth:** `contexts/can/DECISIONS.md` D-20261115-01 menetapkan artwork ikon custom; D-20261115-02 menandai konflik mapping Card 1/Card 3 dengan keputusan lama sebagai belum dikunci. Task R15-01..06 di `contexts/can/REVISIONS.md`.
+- **Owner's process:** hanya `ujang-monorepo` untuk perubahan ChatGPT; `main` jangan disentuh. Ujang bertugas install/test/deploy, Owner cukup membuka web setelah URL diverifikasi.
+- **Next action:** Ujang menjalankan `frontend/implementation/scripts/ujang-verify-web.sh` lalu browser/physical-camera acceptance dan deployment; tidak perlu menambah paket pip ke frontend Next.js.
+
+
 **As of:** 2026-11-09 · **Status:** `LOCAL_STAGING` (branch `claude-monorepo` di atas `can`; belum dirilis, belum dideploy)
 **Can source:** `d4bbaec` · **Dias source:** `81bab5e` · Bukti: `docs/migration/INTEGRATION_REPORT.md`
 

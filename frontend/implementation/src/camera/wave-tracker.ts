@@ -11,8 +11,8 @@
  * - with a face in view, only a hand near that face counts (face-anchor.ts, primary-hand.ts).
  */
 import type { HandLandmarker, HandLandmarkerResult } from "@mediapipe/tasks-vision";
-import { delegateLabel } from "./hand-landmarker";
-import { takeHandLandmarker } from "./landmarker-warmup";
+import { delegateLabel, type CreatedHandLandmarker } from "./hand-landmarker";
+import { takeHandLandmarker, returnHandLandmarker } from "./landmarker-warmup";
 import { classifyCameraError, messageFor, type CameraFailureReason } from "./messages";
 import { frameForDetection } from "./frame-source";
 import { pollDetection } from "./inference-scheduler";
@@ -217,6 +217,8 @@ export interface WaveTrackerOptions {
   wasmRoot?: string;
   onWave(): void;
   onStatus?(status: WaveTrackerStatus): void;
+  /** Opt-in standby reuse for the persistent cover camera; isolated tracker tests keep close-on-stop. */
+  cacheOnStop?: boolean;
   /** Where the player's face is. Default: a FaceAnchor (falls back to the plain hand rule without a face model). */
   face?: FaceSource;
 }
@@ -225,6 +227,9 @@ const MAX_CONSECUTIVE_DETECT_FAILURES = 3;
 
 export class WaveTracker {
   private landmarker: HandLandmarker | null = null;
+  private created: CreatedHandLandmarker | null = null;
+  private detectionCount = 0;
+  private pickMisses = 0;
   private rafId: number | null = null;
   private generation = 0;
   private starting = false;
@@ -284,6 +289,7 @@ export class WaveTracker {
         return;
       }
       this.landmarker = created.landmarker;
+      this.created = created;
       this.sweep.reset();
       this.failures = 0;
       this.lastVideoTime = -1;
@@ -309,19 +315,27 @@ export class WaveTracker {
     this.primary = null;
     this.lastVideoTime = -1;
     this.failures = 0;
+    this.detectionCount = 0;
+    this.pickMisses = 0;
     this.setProgress(0);
   }
 
-  private release(): void {
+  /** Diagnostic-only counters to distinguish no landmarks from rejected primary hands. */
+  get diagnostics(): { detections: number; primaryMisses: number } {
+    return { detections: this.detectionCount, primaryMisses: this.pickMisses };
+  }
+
+  private release(healthy = true): void {
     if (this.rafId !== null) cancelAnimationFrame(this.rafId);
     this.rafId = null;
-    const lm = this.landmarker;
+    const created = this.created;
+    this.created = null;
     this.landmarker = null;
-    try {
-      lm?.close();
-    } catch {
-      /* best-effort */
-    }
+    if (!created) return;
+    returnHandLandmarker(created, {
+      wasmRoot: this.options.wasmRoot ?? "/mediapipe/wasm",
+      modelUrl: this.options.modelUrl(),
+    }, healthy && this.options.cacheOnStop === true);
   }
 
   private loop = (): void => {
@@ -343,15 +357,17 @@ export class WaveTracker {
     } catch {
       this.failures++;
       if (this.failures >= MAX_CONSECUTIVE_DETECT_FAILURES) {
-        this.release();
+        this.release(false);
         this.options.onStatus?.({ kind: "error", reason: "tracker-error", message: messageFor("tracker-error") });
       }
       return;
     }
     if (!result) return;
+    this.detectionCount++;
     const face: FaceBox | null = this.face.current(now);
     const pick = pickPrimaryHand(result.landmarks, this.primary, now, face);
     this.primary = pick.state;
+    if (result.landmarks.length > 0 && pick.index === null) this.pickMisses++;
     const wrist = pick.index === null ? undefined : result.landmarks[pick.index]?.[0];
     const step = this.sweep.feed(wrist ?? null, now, { handSize: pick.state?.size, face });
     this.setProgress(step.progress);

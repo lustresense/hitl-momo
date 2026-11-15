@@ -6,6 +6,11 @@
 Keep this file small. It is the Hermes-inspired "hot durable memory" layer; detailed experience belongs in ECC memory.
 
 ## Product identity
+## 2026-11-15 — B04 GitHub implementation handoff (non-authoritative)
+- Perintah Owner GAS untuk PRD REV-B04 pada branch `ujang-monorepo`. Source staging 0.18.0-alpha: readiness loader 80%, URL cam, bubble CSS, reusable model wave. Bukti STATIC_ONLY, build/webcam/deploy belum terbukti.
+- `REV-B04-004` mengganti wake wave menjadi kamera ON adalah opsi yang BELUM DIKUNCI. Wave tetap. Card 3, Card 1, dan camera card Claude tidak disentuh.
+- Lihat `REVISIONS.md`, `NOW.md`, dan `frontend/implementation/docs/execution/REV-B04-0.18.0-alpha.md`.
+
 ## Latest documented handoff (2026-11-15, non-authoritative)
 - Sumber status aktif: `contexts/can/NOW.md`, `REVISIONS.md`; status source GitHub branch `ujang-monorepo` commit `cebbaa4`, global `0.17.0-alpha`, **STATIC_ONLY**.
 - Setiap implementer harus membaca `contexts/can/AGENTS.md` lebih dulu dan menyinkronkan keputusan produk (`DECISIONS.md`), mandat (`project/OWNER_MANDATES.md`), revisi, NOW, konteks teknis, dan changelog root. Ini perintah Owner M-033.

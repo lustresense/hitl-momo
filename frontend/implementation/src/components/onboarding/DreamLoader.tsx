@@ -94,6 +94,8 @@ export function DreamLoader({
 }: DreamLoaderProps) {
   const [progress, setProgress] = useState(15);
   const [statusText, setStatusText] = useState("Membuka alam imajinasi…");
+  const [loadFailed, setLoadFailed] = useState(false);
+  const retryWarmRef = useRef<() => void>(() => undefined);
 
   const stageRef = useRef<HTMLDivElement>(null);
   const skyRef = useRef<HTMLDivElement>(null);
@@ -260,8 +262,12 @@ export function DreamLoader({
       let baseY = geo.momoCenter.y;
       if (state.phase === "intro") {
         baseY = geo.momoCenter.y + (1 - state.introV) * (geo.vh * 0.58);
+      } else if (state.phase === "loading") {
+        // Reach the clouds at ~90%; the 80% gate below guarantees model readiness first.
+        baseY = geo.momoCenter.y - geo.vh * 0.3 * easeInOut(clamp((state.progress - 80) / 10));
       } else if (state.phase === "blast") {
-        baseY = geo.momoCenter.y - state.blastV * (geo.momoCenter.y + geo.momoCenter.h * 1.25);
+        const atCloud = geo.momoCenter.y - geo.vh * 0.3;
+        baseY = atCloud - state.blastV * (atCloud + geo.momoCenter.h * 1.25);
       } else if (state.phase === "morph" || state.phase === "done") {
         baseY = -geo.momoCenter.h * 1.5;
       }
@@ -278,7 +284,7 @@ export function DreamLoader({
       if (!topCloudBankRef.current) return;
       let y = -108;
       if (state.phase === "loading") {
-        const approach = clamp((state.progress - 65) / 35);
+        const approach = clamp((state.progress - 75) / 15);
         y = lerp(-108, -6, easeInOut(approach));
       } else if (state.phase === "blast") {
         y = lerp(-6, 6, easeInOut(state.blastV));
@@ -430,47 +436,16 @@ export function DreamLoader({
     };
     window.addEventListener("resize", onResize);
 
-    // Initial Intro Animation
-    const mainTl = gsap.timeline({
-      onComplete: () => {
-        state.phase = "loading";
-      },
-    });
-    mainTl.to(
-      state,
-      {
-        introV: 1,
-        duration: 1.0,
-        ease: "power3.out",
-      },
-      0
-    );
-
-    // REAL NUI warmup subscription
-    void warmHandLandmarker({ wasmRoot, modelUrl });
-    const unsub = subscribeHandLandmarkerStatus((s) => {
-      let target = 20;
-      if (s.kind === "loading") {
-        target = 45;
-        statusTextRef.current = "Memuat kecerdasan visual…";
-        setStatusText(statusTextRef.current);
-      } else if (s.kind === "warming") {
-        target = 75;
-        statusTextRef.current = `Menyiapkan pengenal tangan (${s.delegate})…`;
-        setStatusText(statusTextRef.current);
-      } else if (s.kind === "ready") {
-        target = 100;
-        statusTextRef.current = "Siap bermimpi!";
-        setStatusText(statusTextRef.current);
-      } else if (s.kind === "failed") {
-        target = 100;
-        statusTextRef.current = "Pengenal tangan gagal. Kontrol pointer tersedia.";
-        setStatusText(statusTextRef.current);
-      }
-
+    // Defer MediaPipe initialization until Momo has reached the middle: Web inference is synchronous
+    // and can stall the first flight on low-end machines. Never advance 80% until hand+face init settles.
+    let unsub: (() => void) | null = null;
+    let run = 0;
+    function animateProgress(target: number, finished?: () => void) {
+      const seq = ++run;
+      gsap.killTweensOf(state, "progress");
       gsap.to(state, {
         progress: target,
-        duration: target === 100 ? 0.8 : 1.2,
+        duration: target === 100 ? 0.45 : 0.55,
         ease: "power2.out",
         onUpdate: () => {
           const p = Math.round(state.progress);
@@ -479,18 +454,50 @@ export function DreamLoader({
             barFillRef.current.style.width = state.progress.toFixed(1) + "%";
             barFillRef.current.classList.toggle("is-full", state.progress >= 99.5);
           }
-          if (barTextRef.current) {
-            barTextRef.current.textContent = `${p}% · ${statusTextRef.current}`;
-          }
+          if (barTextRef.current) barTextRef.current.textContent = `${p}% · ${statusTextRef.current}`;
           updateTopClouds();
         },
         onComplete: () => {
-          if (target === 100 && (s.kind === "ready" || s.kind === "failed")) {
-            triggerBlastAndMorph();
-          }
+          if (seq === run && !onReadyCalledRef.current) finished?.();
         },
       });
-    });
+    }
+    function onModelStatus(status: HandLandmarkerStatus) {
+      if (state.phase !== "loading" || onReadyCalledRef.current) return;
+      if (status.kind === "loading" || status.kind === "idle") {
+        statusTextRef.current = "Memuat pengenal tangan…";
+        setStatusText(statusTextRef.current);
+        animateProgress(45);
+      } else if (status.kind === "warming") {
+        statusTextRef.current = `Menyiapkan pengenal tangan (${status.delegate})…`;
+        setStatusText(statusTextRef.current);
+        animateProgress(75);
+      } else if (status.kind === "failed") {
+        // Do not falsely display 80% readiness or 100% success. Student can retry or skip to pointer.
+        statusTextRef.current = "Pelacak gagal dimuat. Coba lagi atau gunakan pointer.";
+        setStatusText(statusTextRef.current);
+        setLoadFailed(true);
+        animateProgress(Math.min(state.progress, 75));
+      } else if (status.kind === "ready") {
+        setLoadFailed(false);
+        statusTextRef.current = `Pelacak siap (${status.delegate}). Menuju awan…`;
+        setStatusText(statusTextRef.current);
+        animateProgress(80, () => animateProgress(90, () => animateProgress(100, triggerBlastAndMorph)));
+      }
+    }
+    function beginLoading() {
+      if (state.phase !== "intro" || onReadyCalledRef.current) return;
+      state.phase = "loading";
+      unsub = subscribeHandLandmarkerStatus(onModelStatus);
+      void warmHandLandmarker({ wasmRoot, modelUrl });
+    }
+    retryWarmRef.current = () => {
+      if (state.phase !== "loading" || onReadyCalledRef.current) return;
+      setLoadFailed(false);
+      void warmHandLandmarker({ wasmRoot, modelUrl });
+    };
+    const mainTl = gsap.timeline({ onComplete: beginLoading });
+    mainTl.to(state, { introV: 1, duration: 1.0, ease: "power3.out" }, 0);
 
     // Skip handler
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -504,7 +511,9 @@ export function DreamLoader({
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      unsub();
+      ++run;
+      unsub?.();
+      retryWarmRef.current = () => undefined;
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("resize", onResize);
       try { gsap.ticker.remove(tickerCallback); } catch {}
@@ -523,7 +532,7 @@ export function DreamLoader({
   };
 
   return (
-    <main ref={stageRef} className="dream-stage" data-testid="dream-loader" aria-label="Loading Momo Dream">
+    <main ref={stageRef} className="dream-stage" data-testid="dream-loader" data-model-failed={loadFailed ? "true" : "false"} aria-label="Loading Momo Dream">
       <button
         type="button"
         className="dream-skip-btn"
@@ -615,6 +624,11 @@ export function DreamLoader({
             {progress}% · {statusText}
           </span>
         </div>
+        {loadFailed && (
+          <button className="dream-retry-btn" type="button" data-testid="dream-loader-retry" onClick={() => retryWarmRef.current()}>
+            Coba lagi
+          </button>
+        )}
         <div ref={bubbleCopyRef} className="dream-bubble-copy" aria-hidden="true">
           Zzz... coba sapa aku, dong.
         </div>

@@ -1,5 +1,5 @@
 
-    :root {
+    .dream-stage {
       --ink: #111111;
       --paper: #fffaf0;
       --leaf: #eff3db;
@@ -8,22 +8,21 @@
       --orange-deep: #e2641f;
       --momo-ink: #2e0d06;
     }
-    * { box-sizing: border-box; }
-    html, body { width: 100%; height: 100%; margin: 0; overflow: hidden; }
-    body {
+    .dream-stage, .dream-stage * { box-sizing: border-box; }
+    .dream-stage {
       font-family: ui-rounded, "Arial Rounded MT Bold", "Segoe UI", system-ui, -apple-system, sans-serif;
       background: var(--leaf); color: var(--ink);
       -webkit-font-smoothing: antialiased; user-select: none;
     }
-    button { font: inherit; cursor: pointer; }
-    button:focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; }
+    .dream-stage button { font: inherit; cursor: pointer; }
+    .dream-stage button:focus-visible { outline: 3px solid var(--orange); outline-offset: 3px; }
     .dream-stage { position: fixed; inset: 0; isolation: isolate; overflow: hidden; z-index: 99999 !important; }
-    #cover {
+    .dream-stage #cover {
       position: absolute; inset: 0;
       background: radial-gradient(ellipse at 48% 44%, #f1f4df 0%, #dbe9c0 45%, #c6dfa0 100%);
       z-index: 0;
     }
-    #cover::before {
+    .dream-stage #cover::before {
       content: ""; position: absolute; inset: 0; opacity: 0.21; pointer-events: none;
       background-image: radial-gradient(#748e6433 0.9px, transparent 1.2px);
       background-size: 24px 24px;
@@ -44,13 +43,13 @@
       letter-spacing: -0.075em; line-height: 1.04; white-space: nowrap;
       color: #111; text-shadow: 3px 4px 0 var(--orange); margin: 0;
     }
-    .camera-demo {
+    .dream-stage .camera-demo {
       width: 285px; padding: 13px 13px 11px;
       border: 3px solid #111; border-radius: 20px;
       box-shadow: 5px 6px 0 #111; background: var(--orange);
       text-align: left; font-size: 13px; font-weight: 900;
     }
-    .camera-demo .inside {
+    .dream-stage .camera-demo .inside {
       padding: 11px 9px 9px; border: 1.5px dashed #fff8dc; border-radius: 12px;
     }
     .camera-line { display: flex; justify-content: space-between; align-items: center; margin-bottom: 11px; }
@@ -204,6 +203,21 @@
       .preview-actions { bottom: 12px; left: 12px; }
     }
   
+.dream-retry-btn {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 12;
+  border: 2px solid var(--ink);
+  border-radius: 12px;
+  padding: 7px 16px;
+  background: var(--paper);
+  color: var(--ink);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
 .dream-skip-btn {
   position: fixed;
   top: max(16px, env(safe-area-inset-top));

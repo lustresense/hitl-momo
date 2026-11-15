@@ -31,9 +31,41 @@ const WARM_FRAME_PX = 96;
 
 let status: HandLandmarkerStatus = { kind: "idle" };
 const listeners = new Set<(s: HandLandmarkerStatus) => void>();
-let warm: { numHands: number; created: CreatedHandLandmarker } | null = null;
+let warm: { numHands: number; created: CreatedHandLandmarker; modelUrl: string; wasmRoot: string } | null = null;
+/** Standby lifetime is a prototype parameter, not a measurement on the Owner's computer. */
+const CACHE_IDLE_MS = 30_000;
+let idleTimer: ReturnType<typeof setTimeout> | null = null;
+function clearExpiry(): void {
+  if (idleTimer !== null) clearTimeout(idleTimer);
+  idleTimer = null;
+}
+export function disposeWarmHandLandmarker(): void {
+  clearExpiry();
+  const old = warm;
+  warm = null;
+  try { old?.created.landmarker.close(); } catch { /* best effort */ }
+}
+function compatible(options: HandLandmarkerOptions): boolean {
+  return !!warm && warm.numHands === (options.numHands ?? DEFAULT_NUM_HANDS)
+    && warm.modelUrl === options.modelUrl && warm.wasmRoot === options.wasmRoot;
+}
+function cache(created: CreatedHandLandmarker, options: HandLandmarkerOptions): void {
+  disposeWarmHandLandmarker();
+  warm = { numHands: options.numHands ?? DEFAULT_NUM_HANDS, created, modelUrl: options.modelUrl, wasmRoot: options.wasmRoot };
+  idleTimer = setTimeout(disposeWarmHandLandmarker, CACHE_IDLE_MS);
+  if (typeof idleTimer === "object" && "unref" in idleTimer) idleTimer.unref();
+}
+/** Return a healthy exclusive model lease. The camera stream can be off while the model remains warm. */
+export function returnHandLandmarker(created: CreatedHandLandmarker, options: HandLandmarkerOptions, healthy = true): void {
+  if (!healthy || warm) {
+    try { created.landmarker.close(); } catch { /* best effort */ }
+    return;
+  }
+  cache(created, options);
+}
+
 /** A load in flight; `claimed` is set when a reader took it, so the warm-up does not keep a second copy. */
-let pending: { numHands: number; promise: Promise<CreatedHandLandmarker>; claimed: boolean } | null = null;
+let pending: { numHands: number; modelUrl: string; wasmRoot: string; promise: Promise<CreatedHandLandmarker>; claimed: boolean } | null = null;
 
 function publish(next: HandLandmarkerStatus): void {
   status = next;
@@ -77,25 +109,26 @@ function blankInference(landmarker: HandLandmarker): void {
 /** Load and warm the model. Safe to call many times; never throws (the status says what happened). */
 export async function warmHandLandmarker(options: HandLandmarkerOptions): Promise<void> {
   const numHands = options.numHands ?? DEFAULT_NUM_HANDS;
-  if (warm?.numHands === numHands || pending?.numHands === numHands) return;
+  if (compatible(options) || (pending?.numHands === numHands && pending.modelUrl === options.modelUrl && pending.wasmRoot === options.wasmRoot)) return;
   publish({ kind: "loading" });
   const promise = build({ ...options, numHands });
-  const job = { numHands, promise, claimed: false };
+  const job = { numHands, modelUrl: options.modelUrl, wasmRoot: options.wasmRoot, promise, claimed: false };
   pending = job;
   try {
     const created = await promise;
+    publish({ kind: "warming", delegate: delegateLabel(created) });
+    if (!job.claimed) blankInference(created.landmarker);
+    // Face is loaded after hand, so heavy model initialization is staggered.
+    // A failed face model degrades to hand-only recognition.
+    const faceReady = await loadFaceDetector(options.wasmRoot, FACE_MODEL_PATH).then(() => true, () => false);
+    const label = faceReady ? delegateLabel(created) : `${delegateLabel(created)} / tanpa filter wajah`;
     if (pending === job) pending = null;
-    // The face model loads once the hand model is ready, so the two do not compete during the cold start.
-    // A failure is harmless: the wave then runs on the plain hand rule.
-    void loadFaceDetector(options.wasmRoot, FACE_MODEL_PATH).catch(() => undefined);
     if (job.claimed) {
-      publish({ kind: "ready", delegate: delegateLabel(created) });
+      publish({ kind: "ready", delegate: label });
       return;
     }
-    publish({ kind: "warming", delegate: delegateLabel(created) });
-    blankInference(created.landmarker);
-    warm = { numHands, created };
-    publish({ kind: "ready", delegate: delegateLabel(created) });
+    cache(created, { ...options, numHands });
+    publish({ kind: "ready", delegate: label });
   } catch (err) {
     if (pending === job) pending = null;
     publish({ kind: "failed", message: messageFor(classifyCameraError(err)) });
@@ -105,12 +138,13 @@ export async function warmHandLandmarker(options: HandLandmarkerOptions): Promis
 /** Gives the warm instance (or the one still loading) to a reader. The reader closes it when it stops. */
 export async function takeHandLandmarker(options: HandLandmarkerOptions): Promise<CreatedHandLandmarker> {
   const numHands = options.numHands ?? DEFAULT_NUM_HANDS;
-  if (warm?.numHands === numHands) {
-    const created = warm.created;
+  if (compatible(options)) {
+    const created = warm!.created;
+    clearExpiry();
     warm = null;
     return created;
   }
-  if (pending?.numHands === numHands) {
+  if (pending?.numHands === numHands && pending.modelUrl === options.modelUrl && pending.wasmRoot === options.wasmRoot) {
     const job = pending;
     job.claimed = true;
     pending = null;
@@ -119,8 +153,11 @@ export async function takeHandLandmarker(options: HandLandmarkerOptions): Promis
   return build({ ...options, numHands });
 }
 
-/** TEST ONLY: forget the warm instance and the status (closes nothing it does not own). */
+/** TEST ONLY: reset status and dispose the unclaimed cached model. */
+if (typeof window !== "undefined") window.addEventListener("pagehide", disposeWarmHandLandmarker);
+
 export function resetHandLandmarkerForTest(): void {
+  disposeWarmHandLandmarker();
   warm = null;
   pending = null;
   status = { kind: "idle" };

@@ -457,6 +457,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
   function getTracker(): WaveTracker {
     if (!trackerRef.current) {
       const options: WaveTrackerOptions = {
+        cacheOnStop: true,
         getVideo: () => videoRef.current,
         modelUrl: () => modelUrlRef.current,
         onWave: () => {

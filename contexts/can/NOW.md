@@ -1,5 +1,11 @@
 # NOW
 
+## 2026-11-15 — batch REV-B04 setelah GAS (0.18.0-alpha, STATIC_ONLY)
+- Baseline `ujang-monorepo` 24e17c4 (0.17.1-alpha). Perubahan source untuk B04-001 loader readiness/staging, B04-002 static route cam/bubble, B04-003 wave diagnostic dan single-owner warm reuse 30 s. B04-004 hanya opsi dan tidak diaktifkan.
+- Evaluasi: source dan test file berubah, **BELUM DIJALANKAN** typecheck, lint, Vitest, Next build, Playwright/static-host, webcam fisik, performance trace. Tidak ada bukti deployment Ujang. Nama versi batch merujuk root `VERSION`, bukan klaim deploy.
+- Invarian: Card kamera lama, Card 1/3 mapping 0.17.1, jempol selesai, wave wake cover, visual Claude, model mock, `main` tidak diubah.
+- Laporan untuk implementer `frontend/implementation/docs/execution/REV-B04-0.18.0-alpha.md`; revisi Owner `REVISIONS.md`.
+
 ## 2026-11-15 — status aktif GitHub Can / NUI
 - **Branch kerja atas permintaan Owner:** `ujang-monorepo`, HEAD sumber `cebbaa4797c963da80090d54728a5b0e39c811e4`, versi global `0.17.0-alpha`; `main` tidak boleh diubah tanpa perintah baru Owner.
 - **Source yang benar-benar terlihat:** perbaikan gesture/icon, Card 3, BookFlip, Momo recovery kamera, NUI Lab, instalasi/handoff; patch sebelumnya `0.16.1-alpha` mencakup FaceAnchor/backlight/wave. Inspeksi dan commit via GitHub membuktikan keberadaan source, BUKAN runtime.

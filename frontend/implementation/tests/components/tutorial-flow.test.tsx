@@ -61,13 +61,13 @@ describe("tutorial flow in fallback (R4): each card waits for Momo, the practice
     pointer(canvas, "pointermove", 40);
     pointer(canvas, "pointerup", 40);
     await waitFor(() => expect(toolUsed("draw")).toBe(true));
-    fireEvent.click(screen.getByRole("button", { name: "Hapus, gestur kepal" }));
+    fireEvent.click(screen.getByRole("button", { name: "Hapus, gestur lima jari" }));
     pointer(canvas, "pointerdown", 10);
     pointer(canvas, "pointerup", 10);
     await waitFor(() => expect(toolUsed("erase")).toBe(true));
-    fireEvent.click(screen.getByRole("button", { name: "Mundur satu goresan, gestur dua jari" }));
+    fireEvent.click(screen.getByRole("button", { name: "Mundur satu goresan, gestur satu jari" }));
     await waitFor(() => expect(toolUsed("undo")).toBe(true));
-    fireEvent.click(screen.getByRole("button", { name: "Maju satu goresan, gestur telapak" }));
+    fireEvent.click(screen.getByRole("button", { name: "Maju satu goresan, gestur dua jari" }));
     await waitFor(() => expect(toolUsed("redo")).toBe(true));
 
     // All four done: after Momo and the read time, the thumb offers "Mulai Level 1" and a 2 s hold starts Level 1.

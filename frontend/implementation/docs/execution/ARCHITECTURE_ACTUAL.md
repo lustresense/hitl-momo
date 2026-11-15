@@ -35,3 +35,11 @@ The original strokes travel with the creation and are rendered as the object's s
 - Tidak ada bukti baru untuk mengganti status model partner, database, CI, build, screenshot atau webcam. Seluruh item addendum harus dianggap perubahan source, bukan hasil uji.
 ## Known structural limits
 Level data are placeholders (`levels.ts`); creations persist through Redraw (no delete, only "Geser"); integrated gameplay uses keyboard / on-screen buttons unless the hand-control toggle is wired (see INPUT_ARCHITECTURE.md); progression unlock is client-side (localStorage); the integrated canvas forces `pixelDensity ≥ 2`.
+
+## REV-B04 source addendum — 2026-11-15 (0.18.0-alpha, STATIC_ONLY)
+
+- Root `/` memuat DreamLoader lalu mengganti URL memakai `history.replaceState` ke `/onboarding/cam` setelah morph. Entry `app/onboarding/cam/page.tsx` disediakan untuk Next.js `output: "export"`. Ini hanya kontrak source, static-host deep link belum diuji.
+- Loader memisahkan intro GSAP dari warmHandLandmarker agar tugas berat mulai setelah Momo mencapai tengah. Status `ready` menahan progress 80% sampai hand blank-inference dan face startup selesai/ditangani fallback. 90% mendekati awan, failed berhenti sebelum 80% dengan retry/skip.
+- Kamera off melepaskan MediaStream tracks dan WaveTracker menghentikan rAF. Instance `HandLandmarker` yang sehat milik cover dapat dikembalikan ke cache warmup (single owner, config identity, TTL prototype 30 detik); crash menutupnya. Event `pagehide` membebaskan instance standby. Model bisa dibuat ulang jika cache habis/berbeda config.
+- Perhitungan wave thresholds, hand-to-face gating, gestures Card 1/3, mekanisme wake lambaian, dan camera card existing tidak dimodifikasi pada batch ini. Counters diagnostik ada pada WaveTracker tetapi belum menjadi benchmark kamera nyata.
+- Bukti STATIC_ONLY; tidak ada pengujian typecheck, Vitest, build, FPS, webcam, visual capture atau deployment terbaru. Lihat `REV-B04-0.18.0-alpha.md`.

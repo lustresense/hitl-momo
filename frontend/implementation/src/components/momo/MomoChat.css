@@ -48,3 +48,23 @@
 .momo-chat .momo-chat__done:empty {
   margin-bottom: -6px;
 }
+
+/* B04-002: keep text near the avatar without widening its entire fixed-position host.
+   These constraints apply to the existing MomoChat, never to the Claude camera card. */
+.momo-chat .momo-chat__col,
+.momo-chat .momo-chat__thread {
+  min-width: 0;
+  max-width: min(340px, calc(100vw - 32px));
+}
+.momo-chat .momo-chat__bubble {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 640px) {
+  .momo-guide .momo-chat__thread {
+    max-width: min(340px, calc(100vw - 32px));
+  }
+  .momo-guide--cover .momo-chat__thread {
+    max-width: min(300px, calc(100vw - 32px));
+  }
+}

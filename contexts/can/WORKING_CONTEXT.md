@@ -3,6 +3,13 @@
 Last updated: 2026-11-05 (sesi eksekusi teknis; diperbarui oleh IT ORCHESTRATOR atas permintaan Owner)
 
 ## NOW (baca ini dulu)
+### REV-B04 2026-11-15 — implementasi source (STATIC_ONLY)
+- Owner: GAS mengeksekusi PRD B04 berdasarkan tiket asli. Target `ujang-monorepo`; branch `main` tetap tidak boleh diubah.
+- Source disiapkan untuk loader (80% gate dan retry, 90% awan), canonical route `/onboarding/cam`, bubble Momo CSS, wave model reuse 30 s, diagnostic counters. Card kamera dan gestur 0.17.1-alpha tetap.
+- Tests baru/direvisi tetapi belum dijalankan; seluruh typecheck/lint/unit/build/E2E/profiling webcam/deploy `NOT_TESTED`. Bug wave low-light/face occlusion belum boleh disebut solved.
+- B04-004 opsi toggle ON masih belum dikunci. Jangan menulis ulang D-20261110-04 tanpa keputusan Owner.
+- Rujukan root CHANGELOG `0.18.0-alpha`, `REVISIONS.md`, dan laporan `frontend/implementation/docs/execution/REV-B04-0.18.0-alpha.md`.
+
 ### STATUS TERBARU 2026-11-15 (menggantikan snapshot 2026-11-05 di bawah)
 - **TERBUKTI dari connector GitHub:** branch `ujang-monorepo` pada `cebbaa4797c963da80090d54728a5b0e39c811e4`, versi `0.17.0-alpha`. Perubahan 0.16.1 dan 0.17.0 ada pada source remote; `main` tetap pada `56bdc2e4b430f80af6b196825d7748d9abb882d5` ketika terakhir diverifikasi.
 - **STATIC_ONLY:** ikon tangan SVG, Card 1/3, Momo recovery, BookFlip, NUI Lab, FaceAnchor/backlight/wave, requirements frontend dokumenter dan skrip Ujang. Sebanyak 35 file berubah di commit `cebbaa4`; bukan jaminan fitur lolos runtime.

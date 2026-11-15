@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.18.0-alpha | 2026-11-15 | Fitur | `(0.18.0-alpha)` |
 | 0.17.1-alpha | 2026-11-15 | Dokumen | `(0.17.1-alpha)` |
 | 0.17.0-alpha | 2026-11-15 | Fitur | `(0.17.0-alpha)` |
 | 0.16.1-alpha | 2026-11-15 | Perbaikan | `(0.16.1-alpha)` |
@@ -111,6 +112,24 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.18.0-alpha — 2026-11-15 — Fitur
+
+**Sumber:** GAS Owner 2026-11-15 untuk PRD REV-B04, mengikuti tiket REV-0.17.1-alpha.md. Baseline ujang-monorepo SHA 24e17c4.
+
+**Perubahan:**
+- B04-001: DreamLoader menunda cold-start model sampai Momo selesai intro; status ready memberi gate 80%, animasi terpisah 90% mendekati awan dan 100% transisi; gagal punya retry dan skip pointer, bukan 100% sukses.
+- B04-002: route statis /onboarding/cam dan replaceState dari root sesudah intro; MomoChat CSS responsif, tanpa mengganti kamera card React Claude.
+- B04-003: cache single-owner HandLandmarker sehat selama idle maksimum 30 detik setelah wave tracker berhenti; stop stream tetap melepaskan track, error menutup model; diagnostic counters untuk investigasi primary-hand dan wave. Tidak ada tuning threshold spekulatif.
+- B04-004 tetap belum dikunci. Kamera ON tidak otomatis membangunkan Momo; wave dan fallback saat ini tetap. Mapping gestur Card1/3 0.17.1-alpha tidak diubah.
+- Regression tests untuk warmup/reuse dan lifecycle kamera serta dokumentasi Can/handoff Ujang diselaraskan.
+- Global product version naik ke 0.18.0-alpha untuk batch revisi Owner, tanpa mengubah REST API_VERSION.
+
+**Commit:** commit berjudul `(0.18.0-alpha)`.
+
+**Bukti:** STATIC_ONLY. npm ci, tsc, lint, Vitest, Next build, static-host/Playwright, visual screenshots, FPS, webcam low-light/face and deployment NOT_TESTED. Ujang perlu menjalankan scripts/bump_version.py --check dan gate verifikasi. Hasil tes tidak boleh disebut PASS sebelum ada log nyata.
 
 ---
 

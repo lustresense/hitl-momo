@@ -18,6 +18,17 @@ Aturan isi:
 - Jangan menghapus revisi. Revisi yang batal diberi status `BATAL` beserta alasannya.
 - Kamera fisik tidak ada di sandbox AI. Semua gestur diuji dengan landmark sintetis atau mouse. Uji kamera asli wajib dilakukan Owner sebelum pameran.
 
+## R-2026-11-15 — REV-B04 (GAS Owner, build 0.17.1-alpha)
+
+| ID | Permintaan Owner | Status | Bukti/next step |
+|---|---|---|---|
+| REV-B04-001 | Intro DreamLoader halus, model prewarm sebelum 80%, Momo mencapai awan di 90%, gagal tidak berpura-pura ready. | JALAN | Patch `DreamLoader.tsx/.css`, `landmarker-warmup.ts`; STATIC_ONLY. Ujang perlu cold/warm browser FPS dan readiness trace. |
+| REV-B04-002 | Root loader menuju `/onboarding/cam`, cover React lama dan bubble Momo konsisten. | JALAN | Static route cam, `replaceState` pada loader completion, CSS bubble lokal; static-host direct load dan screenshot QA BELUM DIUJI. Kamera card Claude tidak diubah desainnya. |
+| REV-B04-003 | Wave fail/face distraction dan model cold-start off/on. | JALAN | `WaveTracker` diagnostic counters, single-owner return/cache 30 detik dengan cleanup dan error-close; tests ditambahkan/dikoreksi. Threshold wave tidak diubah sebelum kamera fisik. |
+| REV-B04-004 | Riset opsi toggle kamera ON membangunkan Momo menggantikan wave. | BELUM DIKUNCI | Default wave tetap berlaku (D-20261110-04). Tidak ada implementasi trigger kamera ON. Perlu keputusan Owner eksplisit. |
+
+**Baseline:** `ujang-monorepo` 24e17c4 (`0.17.1-alpha`). **Bukti:** GitHub source only, bukan hasil browser/E2E/webcam, bukan deployment. **Handoff:** `frontend/implementation/docs/execution/REV-B04-0.18.0-alpha.md`.
+
 ## R-2026-11-15 — Pembaruan NUI dan disiplin sinkronisasi dokumentasi
 
 | ID | Revisi Owner | Status | Bukti dan langkah berikutnya |

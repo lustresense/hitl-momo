@@ -8,9 +8,13 @@ import {
   subscribeHandLandmarkerStatus,
   takeHandLandmarker,
   warmHandLandmarker,
+  returnHandLandmarker,
 
 } from "@/src/camera/landmarker-warmup";
 
+vi.mock("@/src/camera/face-anchor", () => ({
+  loadFaceDetector: vi.fn(async () => ({ detectForVideo: vi.fn(), close: vi.fn() })),
+}));
 vi.mock("@/src/camera/hand-landmarker", () => ({
   createHandLandmarker: vi.fn(),
   delegateLabel: (c: { delegate: string; fellBack: boolean }) => (c.fellBack ? `${c.delegate} (cadangan)` : c.delegate),
@@ -119,5 +123,36 @@ describe("takeHandLandmarker hands the warm instance over once", () => {
     await takeHandLandmarker(OPTS);
     expect(createHandLandmarker).toHaveBeenCalledTimes(1);
     expect(createHandLandmarker).toHaveBeenCalledWith(expect.objectContaining({ numHands: 2 }));
+  });
+});
+
+describe("B04-003 camera model standby", () => {
+  it("reuses a healthy model on the next ON without another create call", async () => {
+    const created = fake();
+    vi.mocked(createHandLandmarker).mockResolvedValue(created as never);
+    await warmHandLandmarker(OPTS);
+    const first = await takeHandLandmarker(OPTS);
+    returnHandLandmarker(first, OPTS);
+    const second = await takeHandLandmarker(OPTS);
+    expect(second.landmarker).toBe(first.landmarker);
+    expect(createHandLandmarker).toHaveBeenCalledTimes(1);
+  });
+  it("does not cache a model after inference failure", async () => {
+    const first = fake();
+    const second = fake();
+    vi.mocked(createHandLandmarker).mockResolvedValueOnce(first as never).mockResolvedValueOnce(second as never);
+    const borrowed = await takeHandLandmarker(OPTS);
+    returnHandLandmarker(borrowed, OPTS, false);
+    expect(first.landmarker.close).toHaveBeenCalledTimes(1);
+    const fresh = await takeHandLandmarker(OPTS);
+    expect(fresh.landmarker).toBe(second.landmarker);
+  });
+  it("does not return an incompatible config as though it were the same lease", async () => {
+    const first = fake();
+    const second = fake();
+    vi.mocked(createHandLandmarker).mockResolvedValueOnce(first as never).mockResolvedValueOnce(second as never);
+    returnHandLandmarker(await takeHandLandmarker(OPTS), OPTS);
+    const changedModel = await takeHandLandmarker({ ...OPTS, modelUrl: "/models/other.task" });
+    expect(changedModel.landmarker).toBe(second.landmarker);
   });
 });

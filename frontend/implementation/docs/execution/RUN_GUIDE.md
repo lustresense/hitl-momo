@@ -26,3 +26,9 @@ Evidence lands under `docs/execution/evidence/`. Real partner mode: copy `.env.e
 - Sesudah lolos, ulangi E2E relevan termasuk cover, penggaris, Card 1, Card 3, gesture icons, fallback kamera, dan perjalanan game menggunakan browser nyata. Kemudian validasi webcam USB via `/nui-lab` untuk low-light/backlight dan false-trigger.
 - Commit di `ujang-monorepo` tidak otomatis membuat web ter-deploy; hanya Ujang yang menangani instalasi, deployment, HTTPS dan URL. Owner cukup membuka situs setelah ada bukti.
 - Evidence commit `cebbaa4` adalah `STATIC_ONLY`/`NOT_TESTED`. Build/E2E/webcam/deployment harus dilaporkan terpisah.
+
+## Verifikasi REV-B04 0.18.0-alpha (belum dijalankan)
+
+Dari repo root `python3 scripts/bump_version.py --check`. Dari `frontend/implementation` jalankan `npm ci`, `npm run typecheck`, `npm run lint`, `npm test`, dan `NEXT_PUBLIC_TEST_HOOKS=0 npm run build`. Berhenti bila ada satu gate gagal, perbaiki dulu. Untuk QA, serve static `out/` dengan host yang menangani direct URL `/onboarding/cam`, lalu cek root -> loader -> cover dan direct refresh, Back/Forward, satu camera card, bubble mobile/desktop. Uji `/nui-lab` dan kamera USB nyata untuk wave, face occlusion, lampu atas/backlight/low-light, FPS efektif, on/off x10 serta izin kamera ditolak; lihat matriks pada `REV-B04-0.18.0-alpha.md`.
+
+**Status sekarang:** GitHub source / tests staged, `STATIC_ONLY`. Perintah ini belum dieksekusi. Ujang pemilik npm, browser, kamera fisik, server dan deploy. `main` tidak tersentuh; Card 3 tetap 0.17.1-alpha.

@@ -5,6 +5,7 @@ import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
 import { GlobalCamera } from "@/src/components/camera/GlobalCamera";
 import { handAt } from "./hand-points";
 import { getSharedStream, resetSharedStreamForTest } from "@/src/camera/shared-stream";
+import { resetHandLandmarkerForTest } from "@/src/camera/landmarker-warmup";
 
 vi.mock("gsap", () => {
   const g = { fromTo: vi.fn(), killTweensOf: vi.fn(), to: vi.fn(), set: vi.fn() };
@@ -57,6 +58,7 @@ beforeEach(() => {
   HTMLMediaElement.prototype.play = vi.fn(() => Promise.resolve());
   HTMLMediaElement.prototype.pause = vi.fn();
   resetSharedStreamForTest();
+  resetHandLandmarkerForTest();
   rafQueue = []; rafId = 0; cancelledRaf.clear();
   vi.spyOn(globalThis, "requestAnimationFrame").mockImplementation((cb) => { rafQueue.push({ id: ++rafId, cb }); return rafId; });
   vi.spyOn(globalThis, "cancelAnimationFrame").mockImplementation((id) => { cancelledRaf.add(id as number); });
@@ -72,6 +74,7 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+  resetHandLandmarkerForTest();
   vi.restoreAllMocks();
 });
 
@@ -225,7 +228,7 @@ describe("GlobalCamera: wave loop robustness + cleanup", () => {
     expect(widget.className).toContain("has-momo-awake");
   });
 
-  it("unmount stops every track, cancels the rAF loop and closes the landmarker", async () => {
+  it("unmount stops every track and inference loop while model remains in bounded standby", async () => {
     const lm = { detectForVideo: vi.fn(() => ({ landmarks: [] })), close: vi.fn() };
     vi.mocked(HandLandmarker.createFromOptions).mockResolvedValue(lm as never);
     const { stream, track } = fakeStream();
@@ -237,12 +240,32 @@ describe("GlobalCamera: wave loop robustness + cleanup", () => {
     expect(liveRaf()).toBeGreaterThan(0);
     unmount();
     expect(track.stop).toHaveBeenCalled();
-    expect(lm.close).toHaveBeenCalledTimes(1);
+    expect(lm.close).not.toHaveBeenCalled(); // healthy model is returned for reuse
     expect(liveRaf()).toBe(0);
     expect(getSharedStream()).toBeNull();
   });
 
-  it("docking to the PIP (cover -> floating) stops the wave loop and landmarker but keeps the stream", async () => {
+  it("B04: camera OFF/ON reuses the same healthy landmarker without losing stream privacy", async () => {
+    const lm = { detectForVideo: vi.fn(() => ({ landmarks: [] })), close: vi.fn() };
+    vi.mocked(HandLandmarker.createFromOptions).mockResolvedValue(lm as never);
+    const first = fakeStream();
+    const second = fakeStream();
+    getUserMedia.mockResolvedValueOnce(first.stream).mockResolvedValueOnce(second.stream);
+    render(<GlobalCamera mode="cover" modelUrl="/m" waveStartDelayMs={0} />);
+    fireEvent.click(toggle()); // ON
+    await tick(); await tick();
+    expect(HandLandmarker.createFromOptions).toHaveBeenCalledTimes(1);
+    fireEvent.click(toggle()); // OFF
+    expect(first.track.stop).toHaveBeenCalled();
+    expect(getSharedStream()).toBeNull();
+    fireEvent.click(toggle()); // ON
+    await tick(); await tick();
+    expect(HandLandmarker.createFromOptions).toHaveBeenCalledTimes(1);
+    expect(getSharedStream()).toBe(second.stream);
+    expect(lm.close).not.toHaveBeenCalled();
+  });
+
+  it("docking to PIP stops wave inference and retains the stream plus reusable model", async () => {
     const lm = { detectForVideo: vi.fn(() => ({ landmarks: [] })), close: vi.fn() };
     vi.mocked(HandLandmarker.createFromOptions).mockResolvedValue(lm as never);
     const { stream, track } = fakeStream();
@@ -252,7 +275,7 @@ describe("GlobalCamera: wave loop robustness + cleanup", () => {
     await tick();
     await tick();
     rerender(<GlobalCamera mode="floating" modelUrl="/m" />);
-    expect(lm.close).toHaveBeenCalledTimes(1);
+    expect(lm.close).not.toHaveBeenCalled();
     expect(liveRaf()).toBe(0);
     expect(track.stop).not.toHaveBeenCalled();
     expect(getSharedStream()).toBe(stream);

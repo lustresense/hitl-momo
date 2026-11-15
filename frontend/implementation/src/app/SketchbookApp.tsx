@@ -223,7 +223,11 @@ export function SketchbookApp() {
       {!dreamLoaded && (
         <DreamLoader
           modelUrl={env.mediapipeModelUrl}
-          onReady={() => setDreamLoaded(true)}
+          onReady={() => {
+            // Canonical static route: replace the entry URL, never add a second onboarding history step.
+            if (window.location.pathname === "/") window.history.replaceState(null, "", "/onboarding/cam");
+            setDreamLoaded(true);
+          }}
         />
       )}
       <div

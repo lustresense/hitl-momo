@@ -1,5 +1,11 @@
 # NOW.md — Status integrasi bersama
 
+## Batch Can REV-B04 2026-11-15 — Global 0.18.0-alpha (STATIC_ONLY)
+- **Owner GAS:** source change berdasarkan PRD dan tiket REV-B04-001..004, target `ujang-monorepo`, baseline `24e17c4` versi 0.17.1-alpha.
+- **B04-001..003:** warmup setelah intro, readiness gate/awan dan fail-retry, static route `/onboarding/cam` dan bubble Momo CSS, reuse single-owner model wave dengan idle cap; instrumentasi diagnosis. Source/test disiapkan, **BELUM ada build/CI/E2E/webcam/deploy**.
+- **B04-004:** mengganti bangun Momo menjadi toggle ON masih pilihan belum disahkan. Wave lama tetap. Kamera card Claude serta gestur Card1/3 versi 0.17.1-alpha tidak diubah.
+- **Rujukan:** `contexts/can/REVISIONS.md`, `frontend/implementation/docs/execution/REV-B04-0.18.0-alpha.md`, `CHANGELOG.md`. Ujang tetap pemilik tes, instalasi dan deploy. `main` tidak disentuh.
+
 ## Snapshot per 2026-11-15 (status terbaru bagi implementasi Can)
 - **Can source:** `ujang-monorepo` commit `cebbaa4797c963da80090d54728a5b0e39c811e4`, global `0.17.0-alpha`, dengan patch 0.16.1 dan 0.17.0 (NUI/gesture, SVG original, Momo recovery, BookFlip, instalasi). `main` tetap `56bdc2e4b430f80af6b196825d7748d9abb882d5` dalam verifikasi terakhir.
 - **Evidence:** `STATIC_ONLY` dari GitHub. Tidak ada verifikasi CI, typecheck, lint, unit, build, E2E, USB webcam maupun deployment pada commit terbaru. Hasil integration lama di bawah berlaku pada tanggal dan SHA masing-masing, bukan klaim untuk versi 0.17.0.

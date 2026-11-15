@@ -9,13 +9,11 @@ import { MomoGuide } from "../momo/MomoGuide";
 import { BookFlip } from "../ui/BookFlip";
 import { ThumbConfirm } from "../ui/ThumbConfirm";
 import { useInputMode } from "@/src/hooks/useHandGesture";
-import { COVER_NO_CAMERA_HINT, COVER_SLEEP_NUDGE, COVER_WAKE } from "@/src/domain/guide-script";
-import { reportCameraAvailable, reportCameraUnavailable, reportTrackerFailed } from "../../input/input-mode";
-import { WaveTracker, type WaveTrackerOptions } from "../../camera/wave-tracker";
+import { COVER_NO_CAMERA_HINT, COVER_WAKE } from "@/src/domain/guide-script";
+import { reportCameraAvailable, reportCameraUnavailable } from "../../input/input-mode";
 import { subscribeHandLandmarkerStatus, warmHandLandmarker } from "../../camera/landmarker-warmup";
 import { DRAWING_MODE_EVENT, HAND_STATUS_EVENT, classifyCameraError, messageFor } from "../../camera/messages";
 import type { HandInputStatus } from "../../input/types";
-import "./cover-wave-hold.css";
 import "./cover-stage.css";
 import { COVER_MOMO_FADE_MS } from "./cover-handoff";
 
@@ -24,7 +22,7 @@ export interface GlobalCameraProps {
   mode: "cover" | "floating";
   modelUrl: string;
   /**
-   * Called when the cover is done: the student waved (or pressed the fallback button), Momo said her lines and the
+   * Called after the stream is playable (or the no-camera fallback), Momo said her lines and the
    * student confirmed with a thumb. Fires at the book's midpoint, when the page under the leaf may change.
    */
   onWave?: () => void;
@@ -36,17 +34,12 @@ export interface GlobalCameraProps {
    * MediaStream) stays mounted.
    */
   recessed?: boolean;
-  /** Pause between the camera turning on and the wave tracker starting. 0 by default (R1: Momo still sleeps). Kept for tests. */
+  /** Legacy test prop for older callers. Cover no longer waits for waving. */
   waveStartDelayMs?: number;
 }
 
 /** Layout effect is a no-op (and warns) while server-rendering the shell. */
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect;
-
-/** R1: the tracker starts right away; Momo is still asleep, so a model-load stall does not break her wake-up animation. */
-const WAKE_SETTLE_MS = 0;
-const COVER_HINT_DELAY_MS = 5000;
-
 
 /**
  * Cover choreography (R3). One schedule, started by the wake and cancelled on unmount. Story animation keeps its
@@ -63,8 +56,8 @@ const MOMO_FLY_S = 1.1;
 const MOMO_COVER_PX = 250;
 const MOMO_CENTER_PX = 320;
 /**
- * Her words start right after the wave; the flight runs alongside them (NUI-2: the thumb ring must be holdable within
- * 8 s of the wave). The beats overlap on purpose, the animations themselves keep their full duration.
+ * Her words start after a playable camera stream; the flight runs alongside them (the thumb ring must be holdable within
+ * 8 s of the wake). The beats overlap on purpose, the animations themselves keep their full duration.
  */
 const DIALOG_START_MS = 300;
 /**
@@ -72,14 +65,6 @@ const DIALOG_START_MS = 300;
  * 0.45 types and reads them ~2.2x faster and puts the thumb ring at ~7.8 s; every line is still shown in full.
  */
 const COVER_DIALOG_PACE = 0.45;
-/** Camera on, nobody waved: Momo mumbles at 8 s, the nudge level 2 follows at 20 s. */
-const NUDGE_MUMBLE_MS = 8000;
-const NUDGE_BUTTON_MS = 20000;
-/**
- * NUI-FIX: a silent 1 s press on the wave ring wakes Momo in camera mode, the way the thumb ring takes a press. It
- * is the only wake besides the wave, so a student whose hand is not seen is never stuck.
- */
-const WAVE_RING_HOLD_MS = 1000;
 /** Momo's flight and the thumb ring: the student confirms with a 1 s thumb after the last line. */
 const COVER_THUMB_HOLD_MS = 1000;
 
@@ -188,7 +173,7 @@ export function pipMorph(from: CardRect, to: CardRect): { x: number; y: number; 
   return { x: to.left - from.left, y: to.top - from.top, scale, cutBottom };
 }
 
-export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveStartDelayMs = WAKE_SETTLE_MS }: GlobalCameraProps) {
+export function GlobalCamera({ mode, modelUrl, onWave, recessed = false }: GlobalCameraProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   /**
@@ -204,9 +189,6 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
   onWaveRef.current = onWave;
   const modelUrlRef = useRef(modelUrl);
   modelUrlRef.current = modelUrl;
-  const trackerRef = useRef<WaveTracker | null>(null);
-  /** Release function of the wave ring's progress subscription; null while not subscribed. */
-  const progressUnsubRef = useRef<(() => void) | null>(null);
   /** The model warm-up starts once per mount, after the camera permission. */
   const warmStartedRef = useRef(false);
   const handDelegateRef = useRef("");
@@ -222,7 +204,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
   const momoFromRef = useRef<CardRect | null>(null);
   const cameraTweenRef = useRef<gsap.core.Tween | null>(null);
   const momoTweenRef = useRef<gsap.core.Tween | null>(null);
-  /** Synchronous guard: the first wave wins, later waves are ignored. */
+  /** Synchronous guard: a playable stream or fallback wakes Momo only once. */
   const wokenRef = useRef(false);
   /** One confirmation = one book turn. */
   const flipStartedRef = useRef(false);
@@ -240,33 +222,13 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
   const [failed, setFailed] = useState(false);
   const [delegate, setDelegate] = useState("");
   const inputMode = useInputMode();
-  /** Momo sleeps on the cover until a wave (or the fallback button) wakes her. */
+  /** Momo sleeps until the user enables a playable stream or uses the no-camera fallback. */
   const [awake, setAwake] = useState(false);
   const [wake, setWake] = useState({ key: 0, startled: false, wave: 0 });
   /** Momo is (or has been) moved to the centre of the cover. */
   const [flying, setFlying] = useState(false);
   /** The camera card is in its bottom-left PIP box: the layout switches here (no jump, the box is the same). */
   const [pipReached, setPipReached] = useState(false);
-  const [coverHintReady, setCoverHintReady] = useState(false);
-  /** Wave ring: 0..1 while the student's wave is being recognised. */
-  const [waveProgress, setWaveProgress] = useState(0);
-  /** Camera on and no wave yet: 0 = nothing, 1 = Momo mumbles, 2 = the small wake button appears. */
-  const [nudge, setNudge] = useState(0);
-  /** The book has been started: the cover text and the thumb confirmation are gone. */
-  const [coverDone, setCoverDone] = useState(false);
-  const [hintDelayPassed, setHintDelayPassed] = useState(false);
-  useEffect(() => {
-    if (mode === 'cover' && hasStream && !awake) {
-      if (process.env.NEXT_PUBLIC_TEST_HOOKS === '1') {
-        setHintDelayPassed(true);
-        return;
-      }
-      const t = setTimeout(() => setHintDelayPassed(true), 5000);
-      return () => clearTimeout(t);
-    } else {
-      setHintDelayPassed(false);
-    }
-  }, [mode, hasStream, awake]);
   /** Momo has typed her last line: the thumb ring appears now, not after the reading pause. */
   const [coverLinesTyped, setCoverLinesTyped] = useState(false);
   /** Momo on the cover: on, fading (0.3 s after the midpoint), gone. */
@@ -278,28 +240,11 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
    * The cover's card and Momo are the same cover mode until the card has landed in its PIP box. After that the
    * layout is the floating one, even though `mode` still reads "cover" until the navigation at the book's midpoint.
    */
-  useEffect(() => {
-    if (!hasStream || mode !== "cover" || awake) {
-      setCoverHintReady(false);
-      return;
-    }
-    const bypass = typeof process !== "undefined" && process.env?.NEXT_PUBLIC_TEST_HOOKS === "1";
-    if (bypass) {
-      setCoverHintReady(true);
-      return;
-    }
-    const timer = window.setTimeout(() => {
-      setCoverHintReady(true);
-    }, COVER_HINT_DELAY_MS);
-    return () => window.clearTimeout(timer);
-  }, [hasStream, mode, awake]);
-
   const layoutMode: "cover" | "floating" = mode === "floating" || pipReached ? "floating" : "cover";
 
   const wakeMomo = () => {
     if (modeRef.current !== "cover" || wokenRef.current) return;
     wokenRef.current = true;
-    stopWaveTracking();
     cameraFromRef.current = readRect(cameraCardRef.current);
     momoFromRef.current = readRect(momoRef.current);
     // The "typed" flag may be left over from the sleepy nudge line; the ring must wait for the wake lines.
@@ -308,23 +253,6 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
   };
   const wakeRef = useRef(wakeMomo);
   wakeRef.current = wakeMomo;
-  /** Pending silent hold on the wave ring (see WAVE_RING_HOLD_MS). */
-  const ringHoldRef = useRef<number | null>(null);
-
-  function startRingHold() {
-    if (ringHoldRef.current !== null || wokenRef.current) return;
-    ringHoldRef.current = window.setTimeout(() => {
-      ringHoldRef.current = null;
-      wakeRef.current();
-    }, WAVE_RING_HOLD_MS);
-  }
-
-  function stopRingHold() {
-    if (ringHoldRef.current === null) return;
-    window.clearTimeout(ringHoldRef.current);
-    ringHoldRef.current = null;
-  }
-
   /** The one wake-up schedule: startle, the card and Momo fly, Momo waves on landing. Cancelled on unmount. */
   useEffect(() => {
     if (!awake) return;
@@ -404,7 +332,6 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
   const handOff = () => {
     if (leftCoverRef.current) return;
     leftCoverRef.current = true;
-    stopWaveTracking();
     setCoverDone(true);
     setMomoPhase("fading");
     onWaveRef.current?.();
@@ -416,20 +343,6 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
     return () => window.clearTimeout(gone);
   }, [coverDone]);
 
-  /** Help while the camera is on: Momo mumbles at 8 s, a small button appears at 20 s. */
-  useEffect(() => {
-    if (!hasStream || awake || mode !== "cover") {
-      setNudge(0);
-      return;
-    }
-    const mumble = window.setTimeout(() => setNudge((n) => Math.max(n, 1)), NUDGE_MUMBLE_MS);
-    const button = window.setTimeout(() => setNudge(2), NUDGE_BUTTON_MS);
-    return () => {
-      window.clearTimeout(mumble);
-      window.clearTimeout(button);
-    };
-  }, [hasStream, awake, mode]);
-
   /** Only a failed warm-up is shown (one honest sentence); loading and GPU/CPU states stay hidden from the student. */
   useEffect(() => {
     if (mode !== "cover") return;
@@ -439,7 +352,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
     });
   }, [mode]);
 
-  // Test hooks (R1): simulate a wave on a fake camera. Never installed in production builds.
+  // Legacy test-only hook simulates wake choreography. No wave detection is active in the cover.
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_TEST_HOOKS !== "1" || mode !== "cover") return;
     const w = window as Window & { __skbWave?: () => void };
@@ -453,34 +366,6 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
       window.removeEventListener("keydown", onKey);
     };
   }, [mode]);
-
-  function getTracker(): WaveTracker {
-    if (!trackerRef.current) {
-      const options: WaveTrackerOptions = {
-        cacheOnStop: true,
-        getVideo: () => videoRef.current,
-        modelUrl: () => modelUrlRef.current,
-        onWave: () => {
-          setPreviewLabel("Lambaian terdeteksi. Momo bangun!");
-          wakeRef.current();
-        },
-        onStatus: (status) => {
-          if (unmountedRef.current) return;
-          if (status.kind === "ready") {
-            setDelegate(status.delegate);
-            setStatusNote(`Deteksi tangan siap · ${status.delegate}`);
-            reportTrackerFailed(false);
-          } else {
-            // MediaPipe failed: the fallback buttons appear (R13).
-            setStatusNote(status.message);
-            reportTrackerFailed(true);
-          }
-        },
-      };
-      trackerRef.current = new WaveTracker(options);
-    }
-    return trackerRef.current;
-  }
 
   useEffect(() => {
     unmountedRef.current = false;
@@ -510,24 +395,12 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
       window.removeEventListener("pagehide", onPageHide);
       window.removeEventListener(HAND_STATUS_EVENT, onHandStatus);
       window.removeEventListener(DRAWING_MODE_EVENT, onMode);
-      stopRingHold();
       cameraTweenRef.current?.kill();
       momoTweenRef.current?.kill();
       stopStream();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
-  // Cover is the only mode that watches for the wake-up wave; stop the detector
-  // as soon as we dock to the PIP so it cannot re-trigger navigation.
-  useEffect(() => {
-    if (mode === "cover") {
-      if (streamRef.current && !wokenRef.current) void startWaveTracking();
-      return;
-    }
-    stopWaveTracking();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [mode]);
 
   /**
    * Single persistent card: every commit records where the card currently sits,
@@ -566,17 +439,8 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
     }
   }
 
-  /** Releases the progress subscription first (so the reset to 0 is not shown), then stops the detector. */
-  function stopWaveTracking() {
-    progressUnsubRef.current?.();
-    progressUnsubRef.current = null;
-    trackerRef.current?.stop();
-    if (!unmountedRef.current) setWaveProgress(0);
-  }
-
   function stopStream() {
     requestRef.current++; // invalidate any getUserMedia still pending
-    stopWaveTracking();
     streamRef.current?.getTracks().forEach((track) => track.stop());
     streamRef.current = null;
     setSharedStream(null);
@@ -646,27 +510,27 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
         return;
       }
       video.srcObject = stream;
-      await video.play().catch(() => undefined);
+      // Owner B04-004: a successful user-enabled, playable camera stream wakes Momo.
+      // A click alone, denied permission, failed playback, or stale request must never wake her.
+      await video.play();
       if (isStale()) return;
+      if (stream.getVideoTracks().length === 0 || stream.getVideoTracks().some((track) => track.readyState === "ended")) {
+        throw new Error("Camera stream ended before playback");
+      }
       setHasStream(true);
       publishCameraAssistState("ready");
+      setPreviewLabel("Kamera siap!");
+      if (modeRef.current === "cover" && !wokenRef.current) wakeRef.current();
       const activeTrack = stream.getVideoTracks()[0];
       const activeDeviceId = activeTrack?.getSettings?.().deviceId || selectedDevice;
       await populateCameraChoices(activeDeviceId);
-      if (isStale()) return;
-      setPreviewLabel("Menunggu lambaian tanganmu...");
-      if (mode === "cover" && !wokenRef.current) {
-        if (waveStartDelayMs > 0) {
-          await new Promise((resolve) => setTimeout(resolve, waveStartDelayMs));
-          if (isStale() || modeRef.current !== "cover") return;
-        }
-        await startWaveTracking();
-      }
     } catch (error) {
       if (isStale()) {
         stream?.getTracks().forEach((track) => track.stop());
         return;
       }
+      // Playback or permission failed: release the stream and leave Momo asleep.
+      stopStream();
       const reason = classifyCameraError(error);
       reportCameraFailure(messageFor(reason === "model-error" || reason === "tracker-error" ? "camera-failed" : reason));
     }
@@ -674,24 +538,13 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
 
   /**
    * Cold start (I1): on the cover, the hand model starts loading as soon as the camera permission is granted, in the
-   * background and once per mount. It starts before the tracker asks for a model, so the tracker takes this same
-   * load instead of building a second one. It never touches the camera and never blocks the UI.
+   * background and once per mount. The loader may have already prewarmed it; this is idempotent.
+   * The cover does not start a wave tracker, so this does not block waking on a playable stream.
    */
   function warmModelOnce() {
     if (warmStartedRef.current) return;
     warmStartedRef.current = true;
     void warmHandLandmarker({ wasmRoot: WASM_ROOT, modelUrl: modelUrlRef.current }).catch(() => undefined);
-  }
-
-  async function startWaveTracking() {
-    const tracker = getTracker();
-    // One subscription per tracking run: the ring fills with the tracker's real progress.
-    if (!progressUnsubRef.current) {
-      progressUnsubRef.current = tracker.subscribeProgress((progress) => {
-        if (!unmountedRef.current) setWaveProgress(Math.min(1, Math.max(0, progress)));
-      });
-    }
-    await tracker.start();
   }
 
   async function setCameraState(nextOn: boolean) {
@@ -710,15 +563,9 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
     setPreviewLabel("Camera Preview");
   }
 
-  /** Momo's dialog on the cover: the wake lines, or the sleepy mumble after 8 s without a wave. */
-  const coverStep = awake
-    ? { ...COVER_WAKE, mood: wake.startled ? "Kaget" : COVER_WAKE.mood }
-    : nudge >= 1
-      ? COVER_SLEEP_NUDGE
-      : null;
+  const coverStep = awake ? { ...COVER_WAKE, mood: wake.startled ? "Kaget" : COVER_WAKE.mood } : null;
   const showCoverMomo = mode === "cover" || momoPhase !== "gone";
-  const showWaveRing = mode === "cover" && hasStream && !awake && inputMode === "camera" && (coverHintReady || waveProgress > 0);
-  // Camera mode never shows the text button: the wave ring (below) takes the silent hold instead.
+  // Only the explicit no-camera fallback shows a text wake button.
   const showWakeButton = mode === "cover" && !awake && !coverDone && inputMode === "fallback";
 
   return (
@@ -774,57 +621,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
               <span className="label">{previewLabel}</span>
             </div>
             <div className="rec-dot">REC</div>
-            {showWaveRing && (
-              <div
-                className="cover-wave-ring"
-                data-testid="cover-wave-hint"
-                data-progress={Math.round(waveProgress * 100)}
-                role="progressbar"
-                aria-label="Lambaian tangan"
-                aria-valuemin={0}
-                aria-valuemax={100}
-                aria-valuenow={Math.round(waveProgress * 100)}
-                tabIndex={0}
-                onPointerDown={(e) => {
-                  e.preventDefault();
-                  startRingHold();
-                }}
-                onPointerUp={stopRingHold}
-                onPointerLeave={stopRingHold}
-                onPointerCancel={stopRingHold}
-                onBlur={stopRingHold}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" || e.key === " ") {
-                    e.preventDefault();
-                    startRingHold();
-                  }
-                }}
-                onKeyUp={(e) => {
-                  if (e.key === "Enter" || e.key === " ") stopRingHold();
-                }}
-                onContextMenu={(e) => e.preventDefault()}
-              >
-                <svg className="cover-wave-ring__svg" viewBox="0 0 72 72">
-                  <circle className="cover-wave-ring__track" cx="36" cy="36" r="30" />
-                  {/* The offset is a style, so the CSS transition smooths each progress step. */}
-                  <circle
-                    className="cover-wave-ring__fill"
-                    cx="36"
-                    cy="36"
-                    r="30"
-                    strokeDasharray={2 * Math.PI * 30}
-                    style={{ strokeDashoffset: 2 * Math.PI * 30 * (1 - waveProgress) }}
-                    transform="rotate(-90 36 36)"
-                  />
-                </svg>
-                <svg className="cover-wave-ring__hand" viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M7 11V6.5a1.5 1.5 0 0 1 3 0V11" />
-                  <path d="M10 10V4.5a1.5 1.5 0 0 1 3 0V10" />
-                  <path d="M13 10V5.5a1.5 1.5 0 0 1 3 0V12" />
-                  <path d="M16 12V8.5a1.5 1.5 0 0 1 3 0V14a7 7 0 0 1-7 7h-1a6 6 0 0 1-5-2.7L3.6 14.6a1.5 1.5 0 0 1 2.4-1.8L7 14" />
-                </svg>
-              </div>
-            )}
+
           </div>
 
           <div className="toggle-row">

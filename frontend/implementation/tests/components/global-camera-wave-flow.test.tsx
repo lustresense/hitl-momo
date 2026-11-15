@@ -2,7 +2,7 @@
 /**
  * R3 cover choreography on fake timers: wake beat, camera card to the PIP box (one tween), Momo's flight and wave,
  * the dialog delay, the help nudges, and cancellation on unmount. GSAP is mocked; the tweens are inspected, not run.
- * I1: the wave ring follows the tracker's progress subscription, and the card morph is uniform (no stretched video).
+ * B04-004: camera stream-ready wakes Momo without a wave gate; the camera card morph stays uniform.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
@@ -118,81 +118,45 @@ afterEach(() => {
 });
 
 describe("GlobalCamera cover choreography (R3)", () => {
-  it("camera on, no wave: Momo mumbles at 8 s, and no button appears at 20 s (camera mode has no text button)", async () => {
+  it("a playable camera wakes Momo automatically, without a wave detector or ring", async () => {
     render(<GlobalCamera mode="cover" modelUrl="/m" />);
-    await cameraOn();
-    act(() => { vi.advanceTimersByTime(7900); });
-    expect(momo.props?.step).toBeNull();
-    act(() => { vi.advanceTimersByTime(200); });
-    expect(momo.props?.step?.lines).toEqual(["Zzz... coba sapa aku, dong."]);
-    expect(screen.queryByTestId("cover-wake")).toBeNull();
-    act(() => { vi.advanceTimersByTime(12000); });
-    expect(screen.queryByTestId("cover-wake")).toBeNull();
     expect(momo.props?.sleeping).toBe(true);
-  });
-
-  it("camera mode: a silent 1 s press on the wave ring wakes Momo; a short press does not", async () => {
-    render(<GlobalCamera mode="cover" modelUrl="/m" />);
     await cameraOn();
-    const ring = screen.getByTestId("cover-wave-hint");
-    fireEvent.pointerDown(ring);
-    act(() => { vi.advanceTimersByTime(900); });
-    fireEvent.pointerUp(ring);
-    act(() => { vi.advanceTimersByTime(500); });
-    expect(momo.props?.sleeping).toBe(true);
-    fireEvent.pointerDown(ring);
-    act(() => { vi.advanceTimersByTime(1000); });
+    expect(momo.props?.sleeping).toBe(false);
+    expect(momo.props?.step?.lines).toBeTruthy();
+    expect(screen.queryByTestId("cover-wave-hint")).toBeNull();
+    expect(trackers).toHaveLength(0);
+    act(() => { vi.advanceTimersByTime(25_000); });
     expect(momo.props?.sleeping).toBe(false);
     expect(screen.queryByTestId("cover-wake")).toBeNull();
   });
 
-  it("camera mode: leaving the ring cancels the hold, and Enter on the focused ring holds like a press", async () => {
+  it("camera OFF leaves Momo sleeping", () => {
     render(<GlobalCamera mode="cover" modelUrl="/m" />);
-    await cameraOn();
-    const ring = screen.getByTestId("cover-wave-hint");
-    fireEvent.pointerDown(ring);
-    act(() => { vi.advanceTimersByTime(600); });
-    fireEvent.pointerLeave(ring);
-    act(() => { vi.advanceTimersByTime(1000); });
     expect(momo.props?.sleeping).toBe(true);
-    fireEvent.keyDown(ring, { key: "Enter" });
-    act(() => { vi.advanceTimersByTime(1000); });
-    expect(momo.props?.sleeping).toBe(false);
+    expect(screen.queryByTestId("cover-wave-hint")).toBeNull();
+    expect(trackers).toHaveLength(0);
   });
 
-  it("the wave ring is filled by the tracker's progress, and shows the value it was given", async () => {
+  it("camera-ready triggers one and only one cover flight", async () => {
     render(<GlobalCamera mode="cover" modelUrl="/m" />);
     await cameraOn();
-    expect(trackers.length).toBe(1);
-    expect(trackers[0]!.subscribeProgress).toHaveBeenCalledTimes(1);
-    act(() => { trackers[0]!.emit(0.4); });
-    const ring = screen.getByTestId("cover-wave-hint");
-    expect(ring.dataset.progress).toBe("40");
-    const fill = ring.querySelector("circle.cover-wave-ring__fill") as SVGCircleElement;
-    const circumference = 2 * Math.PI * 30;
-    expect(parseFloat(fill.style.getPropertyValue("stroke-dashoffset"))).toBeCloseTo(circumference * 0.6, 3);
-    act(() => { trackers[0]!.emit(1); });
-    expect(ring.dataset.progress).toBe("100");
-  });
-
-  it("the progress subscription is released when the wave is recognised, and on unmount", async () => {
-    const { unmount } = render(<GlobalCamera mode="cover" modelUrl="/m" />);
-    await cameraOn();
-    expect(trackers[0]!.unsubscribes).toBe(0);
+    act(() => { vi.advanceTimersByTime(750); });
+    expect(fromToCalls()).toHaveLength(1);
     act(() => { (window as Window & { __skbWave?: () => void }).__skbWave?.(); });
-    expect(trackers[0]!.unsubscribes).toBe(1);
-    unmount();
-    expect(trackers[0]!.unsubscribes).toBe(1); // already released: no double unsubscribe
+    act(() => { vi.advanceTimersByTime(3000); });
+    expect(fromToCalls()).toHaveLength(1);
+    expect(trackers).toHaveLength(0);
   });
 
-  it("unmounting while the camera waits for a wave releases the progress subscription", async () => {
+  it("unmounting after camera-ready leaves no wave detector", async () => {
     const { unmount } = render(<GlobalCamera mode="cover" modelUrl="/m" />);
     await cameraOn();
     unmount();
-    expect(trackers[0]!.unsubscribes).toBe(1);
+    expect(trackers).toHaveLength(0);
   });
 
-  it("one wave: the card flies to the PIP box once, Momo flies to the centre and waves on landing, the dialog starts 0.3 s after the wave", async () => {
+  it("camera-ready: the card flies to the PIP box once, Momo flies to the centre and waves on landing, the dialog starts 0.3 s after waking", async () => {
     render(<GlobalCamera mode="cover" modelUrl="/m" />);
     await cameraOn();
     act(() => { (window as Window & { __skbWave?: () => void }).__skbWave?.(); });
@@ -223,7 +187,7 @@ describe("GlobalCamera cover choreography (R3)", () => {
     act(() => { vi.advanceTimersByTime(100); });
     expect(momo.props?.waveKey).toBe(1);
 
-    // A second wave changes nothing: one flight, one wave.
+    // A legacy test-only wake trigger cannot duplicate the camera-ready flight.
     act(() => { (window as Window & { __skbWave?: () => void }).__skbWave?.(); });
     act(() => { vi.advanceTimersByTime(3000); });
     expect(fromToCalls()).toHaveLength(1);

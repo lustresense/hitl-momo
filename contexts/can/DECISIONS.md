@@ -79,6 +79,7 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 | Evaluasi | Gunakan log untuk menggambarkan pola keputusan yang teramati. Jangan mengklaim perubahan psikologis/kognitif atau hasil pre/post tanpa rancangan dan bukti evaluasi yang sah. | Aktif |
 | Metodologi | Fishbone: Concept, Design, Material Collecting, Assembly, User Testing, Distribution. | Aktif |
 | Sistem visual | Warna oranye/hijau, dots di belakang, outline dan bayangan yang ada sekarang **dikunci Owner**. "Anti-slop" = perbaikan detail, bukan ganti palet/tipografi (D-20261105-01). | Aktif |
+| Pemicu bangun Momo di cover | Kamera berawal OFF; setelah siswa menyalakan kamera dan stream benar-benar bisa diputar, Momo bangun kaget, kamera morph ke PIP dan perkenalan dilanjutkan lewat bubble; jempol mengantar ke penggaris. Wave bukan lagi syarat membuka cover. Jika izin/stream gagal, tidak boleh membangunkan Momo palsu dan fallback pointer tetap tersedia. (D-20261115-03, merevisi bagian wake D-20261110-04.) | Aktif (source 0.18.1-alpha, runtime belum diuji) |
 | Ikon visual gestur | Ilustrasi tangan SVG khusus yang menerangkan aksi dengan jelas, bukan ikon generik yang salah arti, sesuai instruksi Owner 15 November 2026 (D-20261115-01). Warna dan sistem visual yang sudah dikunci tetap berlaku. | Aktif (desain), belum diuji pengguna |
 | Alur keputusan HITL di UI | Terima/Pilih lain/Bukan semua langsung berlaku (tanpa tombol "Wujudkan Objek"); lalu tawaran "Masukkan ke dunia" (D-20261105-02). Sejak 2026-11-11: gambar menjadi stiker lalu "Lempar" (D-20261110-08); submission dikirim saat cincin keputusan penuh (D-20261111-01). | Aktif |
 | Ringkasan level | Pop-up di dalam dunia game dengan Momo yang merayakan, bukan layar penuh (D-20261105-04). | Aktif |
@@ -125,6 +126,13 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 
 ## Entri Perubahan Terbaru
 
+### D-20261115-03 — Aktif (keputusan eksplisit Owner 2026-11-15) — Wake Momo dari kamera siap, bukan wave
+- **Keputusan:** pilihan B dari PRD REV-B04-004 diterapkan sebagai pengganti *wave-gated cover*. Siswa masuk ke cover dengan kamera OFF dan Momo tidur. Saat siswa menyalakan kamera, Momo baru bangun setelah browser memperoleh stream kamera dan playback video berhasil. Kemudian animasi kaget, kamera mengecil ke PIP, Momo ke tengah, dialog perkenalan bubble, dan konfirmasi jempol menuju penggaris tetap.
+- **Batas:** klik toggle saja, permission ditolak, stream tidak playable, atau request yang kedaluwarsa tidak boleh membangunkan Momo. Fallback tanpa kamera yang sudah ada dipertahankan. Momo boleh melakukan animasi sayap menyapa; yang dihapus adalah **kewajiban siswa melakukan waving hand untuk membangunkan Momo**.
+- **Bukti keputusan:** instruksi langsung Owner terbaru setelah implementasi 0.18.0-alpha, “wavinghand diganti” dan “PRD LU INI YANG LU IMPLEMENT”, dalam rangka GAS REV-B04. PRD sebelumnya mengusulkan A/B bersyarat; Owner sekarang memilih B.
+- **Merevisi hanya:** D-20261110-04 pada **trigger bangun di cover**. Posisi PIP kiri bawah, cerita Momo, transisi buku, jempol konfirmasi, camera card existing dan mapping gesture Card 1/Card 3 0.17.1-alpha tidak dicabut. Algoritme WaveTracker untuk lab/riset tidak otomatis dihapus.
+- **Teknis:** source patch 0.18.1-alpha pada `GlobalCamera.tsx`, tes cover dan handoff REV-B04. Bukti `STATIC_ONLY`, bukan bukti kamera fisik/web/browser PASS. Dokumen ini adalah keputusan produk; kode terbaru tetap harus diverifikasi di runtime.
+
 ### D-20261115-01 — Aktif (instruksi langsung Owner 2026-11-15) — Artwork ikon gestur
 - Keputusan: seluruh petunjuk gestur yang diperbaiki harus memakai gambar tangan yang jelas dan dibuat sendiri; jangan memakai ikon lama yang mengajarkan gestur salah. Bahasa visual terpilih tidak diganti.
 - Bukti: instruksi langsung Owner 2026-11-15 tentang memperbaiki ikon dan membuat gambar sendiri; perintah sinkronisasi MD terkait pada sesi yang sama.
@@ -161,7 +169,7 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 - Keputusan: durasi animasi kartu, buka buku, Momo, kamera kembali ke nilai `9f9d35d`; tutup kartu 1,0 s, jeda 1,1 s. `prefers-reduced-motion` mengurangi amplitudo, tidak memotong durasi cerita.
 - Mengubah: praktik di kode (`timeScale(6)`, fade 0,2 s) dan nilai `8520cda`.
 
-### D-20261110-04 — Aktif (disetujui Owner 2026-11-11: "semua") — Cover: lambaian, kamera turun ke kiri bawah
+### D-20261110-04 — Direvisi sebagian oleh D-20261115-03 (sebelumnya disetujui Owner 2026-11-11: "semua") — Cover: riwayat lambaian dan PIP kiri bawah
 - Teknis: `CHANGELOG.md` (root monorepo), bagian "Can — Student Game: restorasi dan NUI"; cabang `claude-monorepo`.
 - Bukti: big prompt dan REVISI-NUI-PA Owner 2026-11-10; persetujuan Owner 2026-11-11.
 - Keputusan: kamera besar di tengah cover; lambaian (dengan cincin progres) membangunkan Momo; kartu kamera mengecil ke PIP KIRI BAWAH; Momo terbang ke tengah; teks "Lambaikan tanganmu" dihapus; cerita "Aku Momo, gambar satu-satunya yang hidup ..."; jempol "Aku mengerti" membuka buku.

@@ -3,6 +3,12 @@
 Last updated: 2026-11-05 (sesi eksekusi teknis; diperbarui oleh IT ORCHESTRATOR atas permintaan Owner)
 
 ## NOW (baca ini dulu)
+### KOREKSI OWNER B04-004 2026-11-15 — stream-ready replaces waving (0.18.1-alpha)
+- Owner secara eksplisit menolak implementasi 0.18.0-alpha yang mempertahankan wave dan meminta PRD REV-B04 opsi kamera ON diterapkan. Keputusan produk D-20261115-03, mandat M-035.
+- `GlobalCamera` cover kini tanpa WaveTracker/ring wave/nudge. Setelah getUserMedia dan playback video berhasil, satu kali `wakeMomo()` menjalankan animasi kamera PIP, Momo kaget/terbang, chat perkenalan, jempol menuju penggaris. Kamera OFF atau permission ditolak, video gagal, stale request tidak otomatis membangunkan Momo. Fallback manual saat tidak ada kamera tetap.
+- WaveTracker terpisah tetap ada sebagai modul riset; mapping Card1/3, card kamera Claude, Momo sayap menyapa dan loading/route B04-001..003 tidak dirombak.
+- Tests cover/lifecycle diubah sesuai kontrak baru. `STATIC_ONLY / NOT_TESTED`. Belum ada npm, CI, E2E, webcam, screenshot maupun deploy terverifikasi. Ujang pemilik validasi.
+
 ### REV-B04 2026-11-15 — implementasi source (STATIC_ONLY)
 - Owner: GAS mengeksekusi PRD B04 berdasarkan tiket asli. Target `ujang-monorepo`; branch `main` tetap tidak boleh diubah.
 - Source disiapkan untuk loader (80% gate dan retry, 90% awan), canonical route `/onboarding/cam`, bubble Momo CSS, wave model reuse 30 s, diagnostic counters. Card kamera dan gestur 0.17.1-alpha tetap.

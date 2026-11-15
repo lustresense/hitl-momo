@@ -3,7 +3,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { FilesetResolver, HandLandmarker } from "@mediapipe/tasks-vision";
 import { GlobalCamera } from "@/src/components/camera/GlobalCamera";
-import { handAt } from "./hand-points";
 import { getSharedStream, resetSharedStreamForTest } from "@/src/camera/shared-stream";
 import { resetHandLandmarkerForTest } from "@/src/camera/landmarker-warmup";
 
@@ -198,87 +197,78 @@ describe("GlobalCamera: GPU -> CPU delegate fallback is surfaced", () => {
   });
 });
 
-describe("GlobalCamera: wave loop robustness + cleanup", () => {
-  it("a detectForVideo throw does not silently kill the wave loop", async () => {
-    const xs = [0.5, 0.35, 0.65, 0.35, 0.65, 0.4, 0.62, 0.5, 0.3, 0.7];
-    let n = 0;
-    const lm = {
-      detectForVideo: vi.fn(() => {
-        n++;
-        if (n === 2) throw new Error("transient");
-        return { landmarks: [handAt(xs[n % xs.length]!)] };
-      }),
-      close: vi.fn(),
-    };
+describe("GlobalCamera: B04-004 camera-ready wake and cleanup", () => {
+  it("a playable stream wakes Momo without starting a wave inference loop", async () => {
+    const lm = { detectForVideo: vi.fn(() => ({ landmarks: [] })), close: vi.fn() };
     vi.mocked(HandLandmarker.createFromOptions).mockResolvedValue(lm as never);
     getUserMedia.mockResolvedValue(fakeStream().stream);
-    // PRD 0.0.16 R1: the wave wakes Momo (onWave navigates only after her lines + the book flip).
-    render(<GlobalCamera mode="cover" modelUrl="/m" waveStartDelayMs={0} />);
+    render(<GlobalCamera mode="cover" modelUrl="/m" />);
     fireEvent.click(toggle());
-    await tick();
-    await tick();
-    const video = document.querySelector("video")!;
-    const widget = screen.getByTestId("global-camera-widget");
-    let t = 0;
-    for (let i = 1; i <= 30 && !widget.className.includes("has-momo-awake"); i++) {
-      Object.defineProperty(video, "currentTime", { configurable: true, value: ++t });
-      await act(async () => stepRaf());
-    }
-    expect(lm.detectForVideo.mock.calls.length).toBeGreaterThan(3);
-    expect(widget.className).toContain("has-momo-awake");
+    await tick(); await tick();
+    expect(card().className).toContain("has-stream");
+    expect(screen.getByTestId("global-camera-widget").className).toContain("has-momo-awake");
+    expect(liveRaf()).toBe(0);
+    expect(screen.queryByTestId("cover-wave-hint")).toBeNull();
   });
 
-  it("unmount stops every track and inference loop while model remains in bounded standby", async () => {
+  it("unmount stops every media track and leaves no cover-wave inference loop", async () => {
     const lm = { detectForVideo: vi.fn(() => ({ landmarks: [] })), close: vi.fn() };
     vi.mocked(HandLandmarker.createFromOptions).mockResolvedValue(lm as never);
     const { stream, track } = fakeStream();
     getUserMedia.mockResolvedValue(stream);
-    const { unmount } = render(<GlobalCamera mode="cover" modelUrl="/m" waveStartDelayMs={0} />);
+    const { unmount } = render(<GlobalCamera mode="cover" modelUrl="/m" />);
     fireEvent.click(toggle());
-    await tick();
-    await tick();
-    expect(liveRaf()).toBeGreaterThan(0);
+    await tick(); await tick();
+    expect(liveRaf()).toBe(0);
     unmount();
     expect(track.stop).toHaveBeenCalled();
-    expect(lm.close).not.toHaveBeenCalled(); // healthy model is returned for reuse
     expect(liveRaf()).toBe(0);
     expect(getSharedStream()).toBeNull();
   });
 
-  it("B04: camera OFF/ON reuses the same healthy landmarker without losing stream privacy", async () => {
+  it("camera OFF/ON does not rebuild a previously warmed hand model", async () => {
     const lm = { detectForVideo: vi.fn(() => ({ landmarks: [] })), close: vi.fn() };
     vi.mocked(HandLandmarker.createFromOptions).mockResolvedValue(lm as never);
     const first = fakeStream();
     const second = fakeStream();
     getUserMedia.mockResolvedValueOnce(first.stream).mockResolvedValueOnce(second.stream);
-    render(<GlobalCamera mode="cover" modelUrl="/m" waveStartDelayMs={0} />);
-    fireEvent.click(toggle()); // ON
+    render(<GlobalCamera mode="cover" modelUrl="/m" />);
+    fireEvent.click(toggle());
     await tick(); await tick();
     expect(HandLandmarker.createFromOptions).toHaveBeenCalledTimes(1);
-    fireEvent.click(toggle()); // OFF
+    fireEvent.click(toggle());
     expect(first.track.stop).toHaveBeenCalled();
     expect(getSharedStream()).toBeNull();
-    fireEvent.click(toggle()); // ON
+    fireEvent.click(toggle());
     await tick(); await tick();
     expect(HandLandmarker.createFromOptions).toHaveBeenCalledTimes(1);
     expect(getSharedStream()).toBe(second.stream);
-    expect(lm.close).not.toHaveBeenCalled();
   });
 
-  it("docking to PIP stops wave inference and retains the stream plus reusable model", async () => {
+  it("docking to PIP keeps the existing stream and does not start wave inference", async () => {
     const lm = { detectForVideo: vi.fn(() => ({ landmarks: [] })), close: vi.fn() };
     vi.mocked(HandLandmarker.createFromOptions).mockResolvedValue(lm as never);
     const { stream, track } = fakeStream();
     getUserMedia.mockResolvedValue(stream);
-    const { rerender } = render(<GlobalCamera mode="cover" modelUrl="/m" waveStartDelayMs={0} />);
+    const { rerender } = render(<GlobalCamera mode="cover" modelUrl="/m" />);
     fireEvent.click(toggle());
-    await tick();
-    await tick();
+    await tick(); await tick();
     rerender(<GlobalCamera mode="floating" modelUrl="/m" />);
-    expect(lm.close).not.toHaveBeenCalled();
     expect(liveRaf()).toBe(0);
     expect(track.stop).not.toHaveBeenCalled();
     expect(getSharedStream()).toBe(stream);
+  });
+
+  it("a rejected video playback keeps Momo asleep and closes the acquired stream", async () => {
+    HTMLMediaElement.prototype.play = vi.fn(() => Promise.reject(new Error("playback unavailable")));
+    const { stream, track } = fakeStream();
+    getUserMedia.mockResolvedValue(stream);
+    render(<GlobalCamera mode="cover" modelUrl="/m" />);
+    fireEvent.click(toggle());
+    await tick(); await tick();
+    expect(track.stop).toHaveBeenCalled();
+    expect(screen.getByTestId("global-camera-widget").className).not.toContain("has-momo-awake");
+    expect(getSharedStream()).toBeNull();
   });
 
   it("window 'pagehide' releases the camera", async () => {

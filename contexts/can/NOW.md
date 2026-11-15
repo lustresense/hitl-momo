@@ -6,6 +6,12 @@
 - Invarian: Card kamera lama, Card 1/3 mapping 0.17.1, jempol selesai, wave wake cover, visual Claude, model mock, `main` tidak diubah.
 - Laporan untuk implementer `frontend/implementation/docs/execution/REV-B04-0.18.0-alpha.md`; revisi Owner `REVISIONS.md`.
 
+## 2026-11-15 — Owner memilih B04-004 opsi B (0.18.1-alpha, STATIC_ONLY)
+- **Keputusan terbaru D-20261115-03:** Momo di cover bangun hanya setelah user menyalakan kamera dan stream video benar-benar playable. Wave siswa tidak lagi menjadi gerbang; fallback tanpa kamera, jempol konfirmasi, kamera card Claude/PIP, mapping Card1/Card3 tetap.
+- **Patch scope:** `GlobalCamera.tsx`, regression tests cover/lifecycle, keputusan/mandat/REVISIONS, root CHANGELOG dan handoff. B04-001..003 sudah terdapat pada 0.18.0-alpha dan tidak diimplementasikan ulang.
+- **Bukti:** `STATIC_ONLY / NOT_TESTED`, GitHub source edit tidak membuktikan unit/build/browser/webcam/deploy. Ujang wajib cek kamera ON, denial, playback gagal, stale toggle, double wake, Momo intro/bubble, thumb, static route.
+- **Branch:** hanya `ujang-monorepo`; `main` tidak disentuh. Lihat `D-20261115-03`, M-035, REV-B04-004 dan handoff B04.
+
 ## 2026-11-15 — status aktif GitHub Can / NUI
 - **Branch kerja atas permintaan Owner:** `ujang-monorepo`, HEAD sumber `cebbaa4797c963da80090d54728a5b0e39c811e4`, versi global `0.17.0-alpha`; `main` tidak boleh diubah tanpa perintah baru Owner.
 - **Source yang benar-benar terlihat:** perbaikan gesture/icon, Card 3, BookFlip, Momo recovery kamera, NUI Lab, instalasi/handoff; patch sebelumnya `0.16.1-alpha` mencakup FaceAnchor/backlight/wave. Inspeksi dan commit via GitHub membuktikan keberadaan source, BUKAN runtime.

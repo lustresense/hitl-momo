@@ -43,7 +43,7 @@ const EXPECTED: Record<GestureMode, Partial<Record<HandPose, string>>> = {
   [MODE_TOP3_PANEL]: { "one-finger": "choose-1", "two-fingers": "choose-2", "three-fingers": "choose-3", "open-palm": "not-this", pinch: "redraw" },
   [MODE_TOP3_ALTERNATIVES]: { "one-finger": "choose-1", "two-fingers": "choose-2", "three-fingers": "choose-3" },
   [MODE_DIALOG_ACK]: { "thumb-up": "ack" },
-  [MODE_TUTORIAL]: { "thumb-up": "ack", pinch: "pinch", "open-palm": "erase", "one-finger": "undo", "two-fingers": "redo" },
+  [MODE_TUTORIAL]: { "thumb-up": "ack", pinch: "pinch", "open-palm": "erase", "split-palm": "erase", "one-finger": "undo", "two-fingers": "redo" },
   [MODE_COVER_WAVE]: {},
   [MODE_LEVEL_SELECT]: { "one-finger": "level-1", "two-fingers": "level-2", "three-fingers": "level-3" },
   [MODE_FAIL]: { "one-finger": "retry", "two-fingers": "move-object", "three-fingers": "redraw" },
@@ -59,6 +59,7 @@ describe("gesture-mode: one router, each mode allows only its own actions", () =
   it("the old fist eraser is disabled only in tutorial", () => {
     expect(actionFor(MODE_TUTORIAL, "fist")).toBeNull();
     expect(actionFor(MODE_TUTORIAL, "open-palm")).toBe("erase");
+    expect(actionFor(MODE_TUTORIAL, "split-palm")).toBe("erase");
     expect(actionFor(MODE_CANVAS_DRAWING, "fist")).toBe("erase");
   });
 

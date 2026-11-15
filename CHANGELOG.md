@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.17.0-alpha | 2026-11-15 | Fitur | `(0.17.0-alpha)` |
 | 0.16.1-alpha | 2026-11-15 | Perbaikan | `(0.16.1-alpha)` |
 | 0.16.0-alpha | 2026-11-15 | Fitur | `(0.16.0-alpha)` |
 | 0.15.8-alpha | 2026-11-15 | Perbaikan | `(0.15.8-alpha)` |
@@ -109,6 +110,24 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.17.0-alpha — 2026-11-15 — Fitur
+
+**Sumber:** Owner 2026-11-15, perbaikan bug Ujang Monorepo, ikon gestur custom, requirements frontend dan handoff deploy Ujang; menindaklanjuti REV-B03-001..006.
+
+**Perubahan:**
+- Katalog ikon tangan SVG original gesture-pinch/five/one/two/point-right/point-up ditambahkan dan dihubungkan ke toolbar, Card1/Card3, ruler, ring dan kontrol object; legacy Figma tidak dihapus.
+- Card 3 menolak fist (termasuk saat tool Hapus dipilih), sedangkan open-palm dan split-palm lima jari menghapus; penanganan dibatasi ke mode tutorial, lengkap dengan regression test.
+- Momo pada halaman yang sudah ada memberi recovery dan membesar saat kamera gagal, tanpa Momo kedua dan tanpa mengubah dialog/callback.
+- BookFlip diperbaiki top hinge dan rotateX -180 agar konsisten dengan tes; perubahan playKey saat animasi aktif me-restart timeline.
+- /nui-lab mengembalikan pilihan preprocessing semula saat dilepas supaya mode diagnostik tidak bocor ke gameplay.
+- Frontend requirements.txt dokumenter, skrip npm ci/typecheck/lint/Vitest/build untuk Ujang, dan handoff browser-only deployment.
+
+**Commit:** commit berjudul `(0.17.0-alpha)`
+
+**Bukti:** STATIC_ONLY. Source, test dan dokumen dikirim melalui GitHub connector; dependency install, test, build, E2E, kamera fisik dan web deploy BELUM dijalankan. Ujang wajib verifikasi sebelum menayangkan.
 
 ---
 

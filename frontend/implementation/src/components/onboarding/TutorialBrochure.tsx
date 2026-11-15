@@ -190,7 +190,7 @@ function WalkPlayground({ onComplete, live, keys }: WalkPlaygroundProps) {
       <div className={`tut-handhint${moved ? " is-gone" : ""}`} aria-hidden="true">
         <Icon name="arrow-left" size={26} stroke={3} />
         <span className="tut-handhint__hand">
-          <Icon name="arrow-up" size={44} stroke={2} />
+          <Icon name="gesture-point-up" size={48} />
         </span>
         <Icon name="arrow-right" size={26} stroke={3} />
       </div>
@@ -277,10 +277,10 @@ function SafetyPlayground() {
 
 /* ---------- Practice page 3: gesture practice on the real drawing surface ---------- */
 const TOOLS: Array<{ id: (typeof TUTORIAL_PRACTICE_TOOLS)[number]; icon: IconName; label: string; aria: string }> = [
-  { id: "draw", icon: "hand-draw", label: "Coret", aria: "Coret, gestur cubit" },
-  { id: "erase", icon: "eraser", label: "Hapus", aria: "Hapus, gestur lima jari" },
-  { id: "undo", icon: "undo", label: "Mundur", aria: "Mundur satu goresan, gestur satu jari" },
-  { id: "redo", icon: "redo", label: "Maju", aria: "Maju satu goresan, gestur dua jari" },
+  { id: "draw", icon: "gesture-pinch", label: "Coret", aria: "Coret, gestur cubit" },
+  { id: "erase", icon: "gesture-five", label: "Hapus", aria: "Hapus, gestur lima jari" },
+  { id: "undo", icon: "gesture-one", label: "Mundur", aria: "Mundur satu goresan, gestur satu jari" },
+  { id: "redo", icon: "gesture-two", label: "Maju", aria: "Maju satu goresan, gestur dua jari" },
 ];
 
 interface DrawPlaygroundProps {

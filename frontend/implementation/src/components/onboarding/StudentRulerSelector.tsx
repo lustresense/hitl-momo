@@ -400,7 +400,7 @@ export function StudentRulerSelector({
               ))}
             </div>
             <div className="student-ruler-needle" aria-hidden="true" />
-            {/* Papercraft grab handle on the centre marker: the sign that the ruler can be moved. */}
+            {/* Gesture hint on the orange ruler body: the white needle is only a fixed readout. */}
             <div
               className={`student-ruler-handle${dragging ? " is-active is-dragging" : ""}`}
               data-testid="student-ruler-handle"
@@ -408,7 +408,7 @@ export function StudentRulerSelector({
             >
               <div className="student-ruler-handle-ring" data-testid="student-ruler-handle-ring" />
               <div className="student-ruler-handle-icon" data-testid="student-ruler-handle-icon">
-                <Icon name="hand-draw" size={26} />
+                <Icon name="gesture-pinch" size={30} />
               </div>
               <div className="student-ruler-handle-grips">
                 <span />

@@ -1,6 +1,6 @@
 /**
  * Right-hand drawing toolbar. Each tool is a hand gesture drawn with the same glyph the tutorial teaches:
- * pinch to draw, fist to erase, two fingers for undo and split palm for redo. Hapus is a tool (erase where you
+ * pinch to draw, open palm to erase, one finger to undo and two fingers to redo. Hapus is a tool (erase where you
  * drag), toggled with Gambar; it never clears the whole page. Shown only while the student is drawing.
  */
 import { Icon, type IconName } from "../ui/Icon";
@@ -68,8 +68,8 @@ export function DrawingToolbar({
 }: DrawingToolbarProps) {
   return (
     <aside className={`nb-toolbar${enabled ? "" : " is-idle"}`} role="toolbar" aria-label="Alat menggambar">
-      <ToolButton icon="hand-draw" label="Gambar" ariaLabel="Gambar, gestur cubit" title="Gambar dengan cubitan jari" active={!erasing} disabled={!enabled} onClick={() => onErasingChange(false)} />
-      <ToolButton icon="hand-erase" label="Hapus" ariaLabel="Hapus" title="Hapus bagian yang kamu geser, atau kepalkan tangan" active={erasing} extraClass="erase-tool" disabled={!enabled} onClick={() => onErasingChange(!erasing)} />
+      <ToolButton icon="gesture-pinch" label="Gambar" ariaLabel="Gambar, gestur cubit" title="Gambar dengan cubitan jari" active={!erasing} disabled={!enabled} onClick={() => onErasingChange(false)} />
+      <ToolButton icon="gesture-five" label="Hapus" ariaLabel="Hapus" title="Hapus dengan telapak terbuka, kepalan (kanvas utama), atau alat Hapus" active={erasing} extraClass="erase-tool" disabled={!enabled} onClick={() => onErasingChange(!erasing)} />
       {erasing && onEraserSizeChange && (
         <div className="eraser-size" role="group" aria-label="Ukuran penghapus">
           {ERASER_SIZES.map((size) => {
@@ -91,8 +91,8 @@ export function DrawingToolbar({
           })}
         </div>
       )}
-      <ToolButton icon="hand-undo" label="Mundur" ariaLabel="Undo Goresan" title="Mundur satu goresan" extraClass="undo-tool" disabled={!enabled} onClick={onUndo} />
-      <ToolButton icon="hand-redo" label="Maju" ariaLabel="Maju" title="Maju satu goresan" extraClass="redo-tool" disabled={!enabled} onClick={onRedo} />
+      <ToolButton icon="gesture-one" label="Mundur" ariaLabel="Undo Goresan" title="Mundur satu goresan" extraClass="undo-tool" disabled={!enabled} onClick={onUndo} />
+      <ToolButton icon="gesture-two" label="Maju" ariaLabel="Maju" title="Maju satu goresan" extraClass="redo-tool" disabled={!enabled} onClick={onRedo} />
     </aside>
   );
 }

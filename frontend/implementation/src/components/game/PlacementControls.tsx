@@ -49,7 +49,7 @@ export function PlacementControls({
               holdMs={GRAB_HOLD_MS}
               onConfirm={onGrab}
               label="Geser objek"
-              icon={<Icon name="hand-draw" size={24} />}
+              icon={<Icon name="gesture-pinch" size={24} />}
             />
           )}
           <GestureRing

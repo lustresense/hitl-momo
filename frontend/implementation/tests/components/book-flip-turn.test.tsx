@@ -65,6 +65,15 @@ describe("BookFlip semi-3D turn (R12-04)", () => {
     expect(closeLeaf.style.transform).toContain("rotateX(-180deg)");
   });
 
+  it("restarts when a newer playKey arrives during an active turn", () => {
+    setReducedMotion(false);
+    recordingTimeline();
+    const { rerender } = render(<BookFlip playKey={1} direction="open" />);
+    expect(vi.mocked(gsap.timeline)).toHaveBeenCalledTimes(1);
+    rerender(<BookFlip playKey={2} direction="open" />);
+    expect(vi.mocked(gsap.timeline)).toHaveBeenCalledTimes(2);
+  });
+
   it("a soft shadow sweeps over the page underneath in normal motion", () => {
     setReducedMotion(false);
     const tl = recordingTimeline();

@@ -146,6 +146,12 @@ export class HandStrokePipeline {
     }
     const palm = poses.indexOf("open-palm");
     if (palm >= 0) return palm;
+    // The tutorial's five-finger open palm may classify as split-palm when the gap
+    // between middle and ring fingers is unusually wide. It is still FIVE fingers.
+    if (this.options.eraser.isFixed?.() === true) {
+      const split = poses.indexOf("split-palm");
+      if (split >= 0) return split;
+    }
     const pinching = poses.flatMap((p, i) => (p === "pinch" ? [i] : []));
     if (pinching.length <= 1) return pinching[0] ?? 0;
     if (!this.lastInk) return pinching[0]!;
@@ -190,10 +196,16 @@ export class HandStrokePipeline {
     // With the Hapus tool on, any pose erases under the cursor except the commands: a thumbs-up
     // confirmation, undo or redo must never cut the drawing, and an open palm is no tool at all.
     const allowFist = this.options.eraser.allowFistErase?.() !== false;
-    const isErasePose = (allowFist && this.stable === "fist") || this.stable === "open-palm";
+    const tutorial = this.options.eraser.isFixed?.() === true;
+    const isErasePose = (allowFist && this.stable === "fist")
+      || this.stable === "open-palm"
+      || (tutorial && this.stable === "split-palm");
     const command =
       raw === "thumb-up" || raw === "two-fingers" || raw === "one-finger" || raw === "three-fingers" || raw === "split-palm";
-    const erasing = (isErasePose && !drawing) || (store.eraserMode && !command);
+    // In Card 3, a fist must NEVER erase, even after the student clicked the Hapus tool.
+    // Otherwise the old gesture remains an undocumented backdoor despite the router change.
+    const erasing = (isErasePose && !drawing)
+      || (store.eraserMode && !command && !(tutorial && raw === "fist"));
 
     const ink = this.toCanvas(this.inkSmoother.smooth(indexTipNormalized(lm), nowMs));
     this.lastInk = ink;

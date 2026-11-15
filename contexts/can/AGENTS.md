@@ -14,6 +14,17 @@ Do not modify Dias backend, model, database or admin without cross-owner review.
 Path note: the Can policy below was written for the pre-monorepo layout. In this monorepo, `implementation/` is `frontend/implementation/`, and `CHANGELOG.md` of the game is archived under `docs/history/can/`.
 
 <!-- ORIGINAL CAN AGENTS.md BELOW, verbatim from source SHA d4bbaec -->
+## Mandatory documentation reconciliation for all implementers (Owner M-033, 2026-11-15)
+Before code modification via GitHub, Git CLI, Ujang, Claude, ChatGPT or another harness: read the Can router above, `SOUL.md`, `DECISIONS.md`, `SOURCE_OF_TRUTH.md`, `NOW.md`, and the relevant source. After code modification, trace each affected source area to **all relevant** docs, not only `VERSION` and root `CHANGELOG.md`:
+- Owner's exact request → `project/OWNER_MANDATES.md` newest-first.
+- Task, blocker, test needed → `REVISIONS.md` newest-first, use `JALAN`/`BLOKIR` if runtime not proven.
+- Approved product decision → `DECISIONS.md` with date/ID/evidence/status; conflicts remain `Belum dikunci` until explicit approval. Do not treat an AI patch or code as approval.
+- Current technical status → `NOW.md`, `WORKING_CONTEXT.md`; durable short context → `PROJECT_MEMORY.md` when needed.
+- Engineering changes → root `CHANGELOG.md`, global `VERSION`, frontend/admin package versions, backend FastAPI version per root versioning rule. Update actual architecture, run guide and execution handoff if their instructions changed.
+Always state evidence class (`STATIC_ONLY`, `UNIT_ONLY`, `MOCK_MODEL`, `REAL_MODEL`, `NOT_TESTED`); `npm`/webcam/deploy cannot be called PASS from a GitHub edit.
+Current Owner override for ChatGPT: work on `ujang-monorepo`, **do not touch `main`**. The older `claude-monorepo → main` M-030 release procedure is not permission to alter main in this session.
+
+
 
 # Sketchbook Universe — Agent Bootstrap
 

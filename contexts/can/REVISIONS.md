@@ -18,9 +18,19 @@ Aturan isi:
 - Jangan menghapus revisi. Revisi yang batal diberi status `BATAL` beserta alasannya.
 - Kamera fisik tidak ada di sandbox AI. Semua gestur diuji dengan landmark sintetis atau mouse. Uji kamera asli wajib dilakukan Owner sebelum pameran.
 
+## R-2026-11-15 — Pembaruan NUI dan disiplin sinkronisasi dokumentasi
+
+| ID | Revisi Owner | Status | Bukti dan langkah berikutnya |
+|---|---|---|---|
+| R15-01 | Ikon gestur yang keliru diganti dengan artwork tangan buatan sendiri, konsisten untuk tutorial, penggaris, toolbar dan cincin. | JALAN | Kode commit `cebbaa4`, `GestureGlyph.tsx`, 6 glyph SVG. STATIC_ONLY, belum tes visual/siswa. D-20261115-01. |
+| R15-02 | Card 1, Card 3 dan mapping gestur harus sesuai petunjuk visual terbaru. | JALAN | Card 1 sudut telunjuk; Card 3 cubit Coret, lima jari Hapus, satu jari Undo, dua jari Redo; sumber `gesture-mode.ts`. Konflik dengan D-20261110-06/07 BELUM DIKUNCI dalam D-20261115-02. Test source belum dieksekusi. |
+| R15-03 | Momo memberikan fallback kamera tanpa maskot ganda dan NUI low-light/wave diperbaiki. | JALAN | `camera-assist-state.ts`, `MomoGuide.tsx`, FaceAnchor dan `/nui-lab`. STATIC_ONLY; butuh uji kamera fisik dan responsive. |
+| R15-04 | BookFlip, loading, penggaris, kontrol gesture, NUI Lab tidak boleh mengalami regresi. | JALAN | Patch di 0.16.1 dan 0.17.0, pemeriksaan build/E2E belum tersedia. Jangan tandai SELESAI tanpa bukti. |
+| R15-05 | Ujang memasang dependency dan deploy, Owner cukup membuka web. | BLOKIR | `frontend/implementation/requirements.txt` penjelas; dependency asli `package-lock.json`, `scripts/ujang-verify-web.sh`; handoff deploy `UJANG_HANDOFF_0.17.0-alpha.md`. Deploy belum terverifikasi. |
+| R15-06 | Semua sesi AI yang mengubah repo harus baca `contexts/can/AGENTS.md` dan update MD terkait berdasarkan kategori produk/teknis. | JALAN | Mandat Owner M-033 tanggal 2026-11-15; audit sinkronisasi dokumentasi ini, cek commit docs dan jangan menyamakan source dengan runtime. |
 ## Cara melanjutkan (handoff)
 
-- Repo kerja: cabang `claude-monorepo`. Game: `frontend/implementation/`. Jangan push ke `main` atau `can` tanpa perintah Owner.
+- Repo ChatGPT yang dipakai Owner pada 15 November 2026 adalah `ujang-monorepo`; lokasi game `frontend/implementation/`. Owner melarang perubahan `main`. Aturan lama `claude-monorepo` hanya riwayat, bukan izin otomatis merge.
 - Dokumen kerja revisi 2026-11-10: `docs/audit-2026-11-10/` (BIGPROMPT, PANDUAN-NUI, REVISI-NUI, RECONCILE, NUI-PLAN, NUI-RESULTS, MILESTONES-LOG).
 - Gerbang sebelum commit: `npx tsc --noEmit`, `npx next lint`, `npx vitest run` (dari `frontend/implementation`).
 - Uji browser (mouse, tanpa kamera): build `NEXT_PUBLIC_TEST_HOOKS=0 npm run build`, lalu satu per satu dengan `NO_VIDEO=1`: `e2e/recovery-paths.mjs`, `e2e/route-canvas.mjs`, `e2e/normal-journey.mjs`, `e2e/finish-thumb-flow.mjs`, `e2e/visual-tour.mjs`.

@@ -10,6 +10,12 @@ This repository contains one product with two owner scopes. This is a **neutral 
 4. `NOW.md` — current integration status (not proof without linked evidence).
 
 ## Route by area
+
+### Owner's current implementation session (15 November 2026)
+Owner explicitly directed ChatGPT's GitHub work to `ujang-monorepo` and prohibited changing `main`. This later, more specific instruction **overrides** the historic default auto-promotion `claude-monorepo → main` in M-030 for this session. Never infer permission to merge or deploy from a green static source diff.
+After implementing Can changes, read `contexts/can/AGENTS.md` and synchronize **all affected** portable docs before a versioned push. Product decisions: `contexts/can/DECISIONS.md` (governed, don't ratify ambiguous changes). Owner requests: `project/OWNER_MANDATES.md`. Task progress: `REVISIONS.md`. Current state: `NOW.md`, `WORKING_CONTEXT.md`, `PROJECT_MEMORY.md`. Technical versions: root `CHANGELOG.md`, `VERSION`, frontend/admin package versions and FastAPI app version. Update architecture/run guide/handoff only when relevant; preserve historical entries.
+Documentation sync never turns `STATIC_ONLY` source changes into PASS/REAL_MODEL/deployed. Ujang owns infrastructure, install and deploy; ChatGPT's GitHub connector cannot run local npm or physical webcam tests.
+
 - Game, canvas, interaction, Momo, gameplay: read `contexts/can/AGENTS.md` (router + Can policy), then `frontend/implementation/AGENTS.md`, then the relevant source.
 - FastAPI, AI inference, training, database, admin: read `contexts/dias/AGENTS.md`, then the relevant source.
 - Shared API, deployment, cross-owner refactor: read BOTH owner routers and the API contract, then identify review requirements.

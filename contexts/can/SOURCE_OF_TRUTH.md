@@ -4,6 +4,12 @@ Dokumen ini menentukan **sumber mana yang authoritative untuk jenis pertanyaan t
 
 ## 1. Cara AI harus bekerja
 
+### Monorepo path correction and documentation responsibilities (2026-11-15)
+Historically, files inside Can referred to `implementation/CHANGELOG.md` and `implementation/` at the old project root. In the **current** monorepo, source is `frontend/implementation/` and the living technical changelog is **`CHANGELOG.md` at repo root**. The old game changelog is archived under `docs/history/can/`.
+Read `contexts/can/AGENTS.md` before modifying Can source. Owner mandates live at `contexts/can/project/OWNER_MANDATES.md`, tasks at `contexts/can/REVISIONS.md`, product truth at `contexts/can/DECISIONS.md`, Can state at `contexts/can/NOW.md`, and global integration state at root `NOW.md`. `WORKING_CONTEXT.md`/`PROJECT_MEMORY.md` are non-authoritative implementation context, not replacements for Product decisions.
+User's current working branch is `ujang-monorepo`; `main` is explicitly off-limits for ChatGPT until new permission. This specific 2026-11-15 instruction outranks the historical auto-promotion wording in the root release flow.
+
+
 Urutan:
 1. instruksi eksplisit pengguna terbaru;
 2. `SOUL.md`;

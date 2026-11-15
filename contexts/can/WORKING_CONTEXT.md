@@ -3,6 +3,13 @@
 Last updated: 2026-11-05 (sesi eksekusi teknis; diperbarui oleh IT ORCHESTRATOR atas permintaan Owner)
 
 ## NOW (baca ini dulu)
+### STATUS TERBARU 2026-11-15 (menggantikan snapshot 2026-11-05 di bawah)
+- **TERBUKTI dari connector GitHub:** branch `ujang-monorepo` pada `cebbaa4797c963da80090d54728a5b0e39c811e4`, versi `0.17.0-alpha`. Perubahan 0.16.1 dan 0.17.0 ada pada source remote; `main` tetap pada `56bdc2e4b430f80af6b196825d7748d9abb882d5` ketika terakhir diverifikasi.
+- **STATIC_ONLY:** ikon tangan SVG, Card 1/3, Momo recovery, BookFlip, NUI Lab, FaceAnchor/backlight/wave, requirements frontend dokumenter dan skrip Ujang. Sebanyak 35 file berubah di commit `cebbaa4`; bukan jaminan fitur lolos runtime.
+- **NOT_TESTED / BELUM-TERBUKTI:** `npm ci`, typecheck, lint, Vitest, Next.js build, E2E browser, performa kamera, low light dan deploy server. Perintah Owner adalah Ujang menginstal dan men-deploy; Owner hanya membuka situs.
+- **Governance:** instruksi M-033 mewajibkan membaca `contexts/can/AGENTS.md` dan melacak seluruh MD relevan per perubahan. `DECISIONS.md` hanya untuk keputusan produk; status/tool di file ini. D-20261115-02 adalah konflik mapping yang belum diratifikasi.
+- **Lanjutan:** R15-01..06, `frontend/implementation/docs/execution/UJANG_HANDOFF_0.17.0-alpha.md`, `CHANGELOG.md` root. Snapshot lama di bawah adalah arsip, bukan keadaan terbaru.
+
 
 > Versi satu halaman yang selalu diperbarui: **`NOW.md`** di root repo. Bagian di bawah adalah ringkasannya.
 

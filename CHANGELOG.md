@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.17.1-alpha | 2026-11-15 | Dokumen | `(0.17.1-alpha)` |
 | 0.17.0-alpha | 2026-11-15 | Fitur | `(0.17.0-alpha)` |
 | 0.16.1-alpha | 2026-11-15 | Perbaikan | `(0.16.1-alpha)` |
 | 0.16.0-alpha | 2026-11-15 | Fitur | `(0.16.0-alpha)` |
@@ -110,6 +111,23 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.17.1-alpha — 2026-11-15 — Dokumen
+
+**Sumber:** Owner 2026-11-15 (M-033), wajib membaca `contexts/can/AGENTS.md` sebelum implementasi dan merekonsiliasi semua dokumen terkait, tidak hanya versioning; tindak lanjut M-032/R15-01..06.
+
+**Perubahan:**
+- Sinkronisasi `contexts/can/DECISIONS.md` dengan D-20261115-01 (artwork ikon gestur asli, perintah eksplisit Owner) dan D-20261115-02 (konflik mapping kode Card 1/Card 3 dengan keputusan lama, masih Belum dikunci). Riwayat lama dipertahankan.
+- Pembaruan `project/OWNER_MANDATES.md` M-032/033, `REVISIONS.md` R15-01..06 dengan status yang jujur, serta `NOW.md`, `WORKING_CONTEXT.md`, `PROJECT_MEMORY.md` dan peta `SOURCE_OF_TRUTH.md` Can.
+- Penyelarasan panduan root, Can, dan frontend `AGENTS.md`, root `NOW.md`, dan panduan actual architecture/run/handoff. Perbaikan path lama menuju lokasi monorepo saat ini.
+- `0.17.0-alpha` adalah patch source, bukan bukti runtime. Dokumentasi menyebut ketiadaan typecheck/lint/Vitest/build/E2E/webcam dan bukti deploy Ujang; `main` tetap tidak disentuh.
+- Sinkronisasi versi global dokumen ke `0.17.1-alpha`, format tetap `-alpha`.
+
+**Commit:** commit berjudul `(0.17.1-alpha)`
+
+**Bukti:** STATIC_ONLY, dokumentasi GitHub dan SHA commit/source diverifikasi. Unit, integration, E2E, camera fisik, deployment, `scripts/bump_version.py --check` belum dijalankan dari runtime build. Tidak ada klaim PASS.
 
 ---
 

@@ -26,5 +26,12 @@ The original strokes travel with the creation and are rendered as the object's s
 * Physics constants (walk 200, jump 520, g 1600, body 24×40) unchanged; only coyote/buffer assists added.
 * Events contain no strokes and no student number unless explicitly enabled.
 
+## Addendum hasil inspeksi source pada 2026-11-15 (belum diuji runtime)
+- UI gesture baru: `src/components/ui/GestureGlyph.tsx` dan `Icon.tsx`; enam glyph SVG original dipakai pada toolbar, penggaris, Card1/Card3, cincin gestur dan kontrol objek. Legacy Figma disimpan untuk kompatibilitas.
+- Pipeline Card 3: `src/input/gesture-mode.ts` dan `hand-stroke-pipeline.ts` memisahkan gestur tutorial dari kanvas utama; mode tutorial melarang fist erase, sedangkan telapak lima jari bisa menghapus. Perbedaan mapping terhadap keputusan aktif lama ditandai sebagai `Belum dikunci` di `contexts/can/DECISIONS.md` D-20261115-02.
+- Kamera: `src/camera/camera-assist-state.ts` menyalurkan state gagal/siap/idle; `GlobalCamera.tsx` menerbitkannya dan `MomoGuide.tsx` merender recovery pada maskot yang sama. `src/camera/frame-source.ts` mendukung RAW 320/CLAHE 320 dan heuristik luma pusat; `face-anchor.ts` menormalisasi box sesuai frame input; `nui-lab` mengembalikan mode global ketika unmount.
+- Animasi `BookFlip` memakai top hinge `rotateX` dan restart saat `playKey` berubah. Ini masih STATIC_ONLY pada commit `cebbaa4`.
+- Pemasangan frontend memakai `npm ci`; `requirements.txt` hanya metadata penjelas. Handoff dan gate verifikasi di `docs/execution/UJANG_HANDOFF_0.17.0-alpha.md` serta `scripts/ujang-verify-web.sh`.
+- Tidak ada bukti baru untuk mengganti status model partner, database, CI, build, screenshot atau webcam. Seluruh item addendum harus dianggap perubahan source, bukan hasil uji.
 ## Known structural limits
 Level data are placeholders (`levels.ts`); creations persist through Redraw (no delete, only "Geser"); integrated gameplay uses keyboard / on-screen buttons unless the hand-control toggle is wired (see INPUT_ARCHITECTURE.md); progression unlock is client-side (localStorage); the integrated canvas forces `pixelDensity ≥ 2`.

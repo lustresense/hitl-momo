@@ -4,6 +4,9 @@
 **Source requirements:** Owner ZIP `Sketchbook-Revisi-Ujang-0.15.5-alpha.zip` containing `REV-0.15.5-alpha.md` and `deepseek_html_20261114_14c00d.html`.  
 **Evidence:** STATIC_ONLY / NOT_TESTED. The assistant inspected and changed code via GitHub connector, but has not run the project's Vitest, TypeScript, lint, Next.js build, browser E2E, or a physical webcam. Claims of acceptance must await these tests.
 
+> **Catatan lanjutan 2026-11-15 (0.17.0-alpha / `cebbaa4`):** Tabel di bawah adalah snapshot historis 0.16.1-alpha, bukan status paling baru.
+> BookFlip (REV-B03-001), fallback Momo kamera (REV-B03-003), dan ikon custom Card 3 (REV-B03-005) telah mendapat patch source pada 0.17.0-alpha. Seluruh perubahan ini masih `STATIC_ONLY`/`NOT_TESTED` dan belum dapat dinaikkan menjadi PASS.
+> Kontrak gesture yang masih bertentangan dengan keputusan lama dicatat di `contexts/can/DECISIONS.md` D-20261115-02 sebagai Belum dikunci. Status revisi terkini di `contexts/can/REVISIONS.md` R15-01..06.
 ## Ticket status
 
 | Ticket | Static result of 0.16.1-alpha | Remaining / acceptance gap |

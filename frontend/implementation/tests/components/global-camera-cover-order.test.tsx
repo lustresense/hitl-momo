@@ -1,13 +1,13 @@
 // @vitest-environment jsdom
 /**
  * R11-15: the cover's "Aku mengerti" ring must not appear before Momo has typed out all four wake lines, in order.
- * The bug this guards: the sleepy nudge ("Zzz...") finishing while the camera is on set a sticky "typed" flag, so
- * the ring appeared at the wake, before the wake lines were typed. Real MomoGuide and MomoChat, fake timers.
+ * The ring appears only after the wake lines have been typed, including the camera-ready trigger.
+ * Real MomoGuide and MomoChat, fake timers, no wave gate.
  */
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { GlobalCamera } from "@/src/components/camera/GlobalCamera";
-import { COVER_SLEEP_NUDGE, COVER_WAKE } from "@/src/domain/guide-script";
+import { COVER_WAKE } from "@/src/domain/guide-script";
 import { resetInputModeForTest } from "@/src/input/input-mode";
 
 vi.mock("gsap", () => {
@@ -38,7 +38,6 @@ vi.mock("@/src/components/ui/ThumbConfirm", () => ({
 
 const STEP_MS = 10;
 const WAKE_LINES = COVER_WAKE.lines.map((line) => line.replace(/\*\*/g, ""));
-const SLEEP_LINE = COVER_SLEEP_NUDGE.lines[0] ?? "";
 
 function chatText(): string {
   return document.querySelector('[data-testid="cover-momo-chat"]')?.textContent ?? "";
@@ -69,8 +68,8 @@ async function cameraOn() {
  * Wakes Momo, then samples every STEP_MS until the ring is in the DOM. Records each wake line the first time it is
  * fully on screen, so the check is about what the student saw before the ring, not what is on screen at the end.
  */
-function wakeUntilRing(maxMs: number) {
-  act(() => { (window as Window & { __skbWave?: () => void }).__skbWave?.(); });
+function wakeUntilRing(maxMs: number, trigger: () => void = () => act(() => { (window as Window & { __skbWave?: () => void }).__skbWave?.(); })) {
+  trigger();
   const shown: string[] = [];
   let ringAt: number | null = null;
   for (let t = 0; t <= maxMs; t += STEP_MS) {
@@ -101,20 +100,16 @@ describe("GlobalCamera cover: the Aku mengerti ring waits for Momo's wake lines 
     render(<GlobalCamera mode="cover" modelUrl="/m" />);
     const { shown, ringAt } = wakeUntilRing(15000);
     expect(ringAt, "ring never appeared").not.toBeNull();
-    expect(shown, `ring at ${ringAt} ms after the wave; wake lines fully shown before it`).toEqual(WAKE_LINES);
+    expect(shown, `ring at ${ringAt} ms after wake; wake lines fully shown before it`).toEqual(WAKE_LINES);
   });
 
-  it("after the sleepy nudge (camera on, no wave for 8 s): the ring still waits for the wake lines", async () => {
+  it("after camera becomes playable, the thumb still waits for all wake lines", async () => {
     render(<GlobalCamera mode="cover" modelUrl="/m" />);
     await cameraOn();
-    // Momo mumbles at 8 s; wait until the mumble is fully typed, so its "done" has fired before the wave.
-    advance(8000);
-    for (let t = 0; t < 20000 && !chatText().includes(SLEEP_LINE); t += STEP_MS) advance(STEP_MS);
-    expect(chatText()).toContain(SLEEP_LINE);
+    expect(screen.getByTestId("global-camera-widget").className).toContain("has-momo-awake");
     expect(screen.queryByTestId("cover-thumb")).toBeNull();
-
-    const { shown, ringAt } = wakeUntilRing(15000);
-    expect(ringAt, "ring never appeared").not.toBeNull();
-    expect(shown, `ring at ${ringAt} ms after the wave; wake lines fully shown before it`).toEqual(WAKE_LINES);
+    const { shown, ringAt } = wakeUntilRing(15000, () => undefined);
+    expect(ringAt, "thumb ring never appeared").not.toBeNull();
+    expect(shown, `ring at ${ringAt} ms after camera ready; wake lines fully shown first`).toEqual(WAKE_LINES);
   });
 });

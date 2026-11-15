@@ -1,5 +1,7 @@
 # REV-B04 — Handoff implementasi source 0.18.0-alpha
 
+> **SUPERSEDED untuk B04-004 pada 2026-11-15:** Owner memilih opsi B. Trigger wake cover berubah menjadi kamera ON setelah video playable di `0.18.1-alpha`, bukan wave. Dokumen 0.18.0 ini disimpan sebagai bukti riwayat dan tidak boleh dijadikan instruksi aktif untuk B04-004. Baca `REV-B04-0.18.1-alpha.md` dan D-20261115-03. B04-001..003 tetap relevan.
+
 **Tanggal:** 2026-11-15 WIB  
 **Owner:** CAN / Sketchbook Universe  
 **Sumber:** Owner `GAS`, `REV-0.17.1-alpha.md`, PRD R&D REV-B04 (sumber turunan).  

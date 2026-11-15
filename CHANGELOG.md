@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.18.1-alpha | 2026-11-15 | Perbaikan | `(0.18.1-alpha)` |
 | 0.18.0-alpha | 2026-11-15 | Fitur | `(0.18.0-alpha)` |
 | 0.17.1-alpha | 2026-11-15 | Dokumen | `(0.17.1-alpha)` |
 | 0.17.0-alpha | 2026-11-15 | Fitur | `(0.17.0-alpha)` |
@@ -112,6 +113,21 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.18.1-alpha — 2026-11-15 — Perbaikan
+
+**Sumber:** Keputusan eksplisit Owner 2026-11-15 untuk REV-B04-004, “wavinghand diganti” dan “PRD LU INI YANG LU IMPLEMENT”, setelah 0.18.0-alpha keliru mempertahankan wave sebagai syarat bangun Momo di cover. D-20261115-03, M-035.
+
+**Perubahan:**
+- `GlobalCamera` cover mempertahankan card kamera, PIP morph dan Momo existing, tetapi Momo kini bangun setelah user toggle kamera ON dan `getUserMedia` + `video.play()` berhasil. Tidak lagi meminta wave atau menampilkan wave ring/nudge di cover.
+- Kamera izin ditolak, playback gagal, stale request/off tidak membangunkan Momo. Fallback tanpa kamera tetap ada. Intro Momo dengan bubble, gerakan sayap menyapa, jempol lanjut ke ruler tidak diganti.
+- Unit/regression tests cover, cover order, choreography dan lifecycle diperbarui agar tidak lagi menyatakan wave sebagai kewajiban siswa. Engine WaveTracker standalone tidak dihapus dari riset/NUI.
+- Menyelaraskan D-20261115-03, OWNER_MANDATES M-035, REV-B04, NOW/WORKING_CONTEXT/PROJECT_MEMORY, architecture/run guide dan handoff Ujang. B04-001..003 0.18.0-alpha dipertahankan, tidak diimplementasikan ulang.
+- Global version menjadi 0.18.1-alpha. Ini patch bug kesesuaian keputusan, bukan batch fitur baru.
+
+**Bukti:** GitHub `STATIC_ONLY`, file source dan tes disiapkan. **NOT_TESTED** untuk npm ci/typecheck/lint/Vitest/build, static browser/E2E, webcam nyata dan deployment. Ujang wajib memverifikasi sebelum publish tunnel dev.
 
 ---
 

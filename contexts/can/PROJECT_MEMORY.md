@@ -6,6 +6,11 @@
 Keep this file small. It is the Hermes-inspired "hot durable memory" layer; detailed experience belongs in ECC memory.
 
 ## Product identity
+## 2026-11-15 — B04-004 Owner override (0.18.1-alpha, STATIC_ONLY)
+- Owner memerintahkan ganti waving hand cover sesuai PRD opsi B. Product truth `DECISIONS.md` D-20261115-03: kamera OFF + Momo tidur, ON dan stream playable bangun Momo, lanjut bubble/animasi PIP/jempol, fallback tanpa kamera.
+- Repo `ujang-monorepo` source/test patch 0.18.1-alpha, bukan bukti runtime. `0.18.0-alpha` sebelumnya tetap memerlukan wave; kini catatan itu historical. Jangan menghidupkan lagi wave sebagai syarat cover.
+- Card1/3, camera card Claude, Momo text-only, model partner dan `main` tidak disentuh.
+
 ## 2026-11-15 — B04 GitHub implementation handoff (non-authoritative)
 - Perintah Owner GAS untuk PRD REV-B04 pada branch `ujang-monorepo`. Source staging 0.18.0-alpha: readiness loader 80%, URL cam, bubble CSS, reusable model wave. Bukti STATIC_ONLY, build/webcam/deploy belum terbukti.
 - `REV-B04-004` mengganti wake wave menjadi kamera ON adalah opsi yang BELUM DIKUNCI. Wave tetap. Card 3, Card 1, dan camera card Claude tidak disentuh.

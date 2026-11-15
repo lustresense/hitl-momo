@@ -43,3 +43,11 @@ Level data are placeholders (`levels.ts`); creations persist through Redraw (no 
 - Kamera off melepaskan MediaStream tracks dan WaveTracker menghentikan rAF. Instance `HandLandmarker` yang sehat milik cover dapat dikembalikan ke cache warmup (single owner, config identity, TTL prototype 30 detik); crash menutupnya. Event `pagehide` membebaskan instance standby. Model bisa dibuat ulang jika cache habis/berbeda config.
 - Perhitungan wave thresholds, hand-to-face gating, gestures Card 1/3, mekanisme wake lambaian, dan camera card existing tidak dimodifikasi pada batch ini. Counters diagnostik ada pada WaveTracker tetapi belum menjadi benchmark kamera nyata.
 - Bukti STATIC_ONLY; tidak ada pengujian typecheck, Vitest, build, FPS, webcam, visual capture atau deployment terbaru. Lihat `REV-B04-0.18.0-alpha.md`.
+
+## Owner REV-B04-004 correction — 2026-11-15 (0.18.1-alpha, STATIC_ONLY)
+
+Keputusan Owner D-20261115-03 menggantikan **waving siswa sebagai trigger cover**. `GlobalCamera` adalah single persistent React camera card existing dan tetap mengelola MediaStream, cover→PIP GSAP morph, Momo cover, bubble serta thumb/book handoff. Alur baru adalah `cover OFF + Momo tidur → user ON → getUserMedia berhasil → video.play berhasil dan track masih aktif → wakeMomo tepat sekali → Momo terkejut/terbang/bubble → thumb confirm → book midpoint menuju ruler`. Izin ditolak, playback gagal atau request stale tidak boleh membangunkan Momo; fallback tanpa kamera tetap tersedia.
+
+Tidak ada lagi `WaveTracker`, ring progress wave atau sleep-nudge yang mewajibkan lambaian pada cover. Modul `wave-tracker.ts` tetap tersedia untuk diagnosis/riset, tetapi bukan syarat membuka cover. Model `landmarker-warmup.ts` dan cache 30 detik dari B04-003 tetap untuk kebutuhan interaksi tangan berikutnya, bukan proof wave berhasil di cover. Identitas `onWave` prop dipertahankan sebagai callback navigasi setelah konfirmasi jempol agar pemanggil lama tidak patah.
+
+Tidak mengubah HTML card Claude, CSS cover, gesture Card1/3, Top-3 HITL, model partner atau rest API. Seluruh perubahan `STATIC_ONLY` sampai npm, browser, webcam dan deploy diverifikasi oleh Ujang.

@@ -53,7 +53,7 @@ describe("GlobalCamera cover (R1, R3: camera, wave, Momo, book)", () => {
     expect(screen.queryByTestId("cover-continue")).toBeNull();
   });
 
-  it("turning the camera on keeps Momo asleep, shows no headline and shows the wave ring", async () => {
+  it("camera-ready wakes Momo without requiring wave, preserving the existing camera card", async () => {
     const track = { stop: vi.fn(), addEventListener: vi.fn(), getSettings: () => ({ deviceId: "c" }) };
     const stream = { getTracks: () => [track], getVideoTracks: () => [track] } as unknown as MediaStream;
     Object.defineProperty(navigator, "mediaDevices", {
@@ -67,11 +67,12 @@ describe("GlobalCamera cover (R1, R3: camera, wave, Momo, book)", () => {
     // The old "Lambaikan Tanganmu!" headline is gone from the display (R3).
     expect(screen.queryByText("Lambaikan Tanganmu!")).toBeNull();
     expect(screen.getByTestId("camera-card").className).toContain("has-stream");
-    expect(screen.getByTestId("cover-momo").dataset.asleep).toBe("true");
-    expect(screen.getByTestId("cover-wave-hint").dataset.progress).toBe("0");
+    expect(screen.getByTestId("cover-momo").dataset.asleep).toBe("false");
+    expect(screen.queryByTestId("cover-wave-hint")).toBeNull();
+    expect(screen.getByTestId("camera-card")).toBeTruthy();
   });
 
-  it("a wave wakes Momo with her lines, and only a confirmed thumb opens the book, which navigates at its midpoint", () => {
+  it("the legacy TEST hook wakes Momo with her lines; only the confirmed thumb opens the book at its midpoint", () => {
     vi.useFakeTimers();
     const onWave = vi.fn();
     render(<GlobalCamera mode="cover" modelUrl="/m" onWave={onWave} />);
@@ -83,7 +84,7 @@ describe("GlobalCamera cover (R1, R3: camera, wave, Momo, book)", () => {
     expect(screen.getByTestId("cover-momo").dataset.asleep).toBe("false");
     expect(momo.props?.step?.lines.at(-1)).toBe("Yuk, antar dia ke tempat yang tepat.");
     expect(momo.props?.step?.lines.join(" ")).toMatch(/gambar satu-satunya/);
-    // Her words start right after the wave (the flight runs alongside them, NUI-2 budget), and the thumb waits for the last line.
+    // The test-only wake hook exercises animation timing; production wakes on playable video instead.
     expect(momo.props?.startDelay).toBe(300);
     expect(momo.props?.extrasFrom).toBe("first");
     expect(screen.queryByTestId("cover-thumb")).toBeNull();
@@ -102,7 +103,7 @@ describe("GlobalCamera cover (R1, R3: camera, wave, Momo, book)", () => {
     expect(onWave).toHaveBeenCalledTimes(1);
   });
 
-  it("the W key simulates a wave only behind test hooks", () => {
+  it("legacy W key can simulate wake ONLY behind test hooks", () => {
     render(<GlobalCamera mode="cover" modelUrl="/m" />);
     fireEvent.keyDown(window, { key: "w" });
     expect(screen.getByTestId("cover-momo").dataset.asleep).toBe("false");
@@ -114,6 +115,19 @@ describe("GlobalCamera cover (R1, R3: camera, wave, Momo, book)", () => {
     expect((window as Window & { __skbWave?: () => void }).__skbWave).toBeUndefined();
     fireEvent.keyDown(window, { key: "w" });
     expect(screen.getByTestId("cover-momo").dataset.asleep).toBe("true");
+  });
+
+  it("a denied camera request never wakes Momo and allows the existing fallback", async () => {
+    Object.defineProperty(navigator, "mediaDevices", {
+      configurable: true,
+      value: { getUserMedia: vi.fn().mockRejectedValue(new DOMException("denied", "NotAllowedError")), enumerateDevices: vi.fn().mockResolvedValue([]) },
+    });
+    render(<GlobalCamera mode="cover" modelUrl="/m" />);
+    await act(async () => { fireEvent.click(screen.getByTestId("btn-camera-toggle-switch")); });
+    await act(async () => { await Promise.resolve(); });
+    expect(screen.getByTestId("cover-momo").dataset.asleep).toBe("true");
+    expect(screen.getByTestId("global-camera-widget").className).not.toContain("has-momo-awake");
+    expect(screen.queryByTestId("cover-wave-hint")).toBeNull();
   });
 
   it("fallback mode shows the Bangunkan Momo button, which wakes her; it hides again in camera mode", () => {

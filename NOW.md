@@ -1,5 +1,10 @@
 # NOW.md — Status integrasi bersama
 
+## Koreksi Can REV-B04-004 2026-11-15 — Global 0.18.1-alpha (STATIC_ONLY)
+- Owner memilih B04-004 opsi B setelah melihat 0.18.0-alpha salah mempertahankan lambaian. **Wake cover:** kamera OFF→user ON→stream playable→Momo bangun/animasi, tanpa kewajiban wave; fallback tanpa kamera masih ada.
+- Patch source/tests, keputusan D-20261115-03, M-035 dan handoff terbaru. B04-001..003 dari 0.18.0-alpha tidak diulang. Camera card Claude dan gesture 0.17.1-alpha dipertahankan.
+- **Evidence:** `STATIC_ONLY / NOT_TESTED`, bukan build PASS, webcam PASS, browser PASS atau deployed. Ujang wajib menguji melalui tunnel dev ketika gates lolos, `main` tidak disentuh.
+
 ## Batch Can REV-B04 2026-11-15 — Global 0.18.0-alpha (STATIC_ONLY)
 - **Owner GAS:** source change berdasarkan PRD dan tiket REV-B04-001..004, target `ujang-monorepo`, baseline `24e17c4` versi 0.17.1-alpha.
 - **B04-001..003:** warmup setelah intro, readiness gate/awan dan fail-retry, static route `/onboarding/cam` dan bubble Momo CSS, reuse single-owner model wave dengan idle cap; instrumentasi diagnosis. Source/test disiapkan, **BELUM ada build/CI/E2E/webcam/deploy**.

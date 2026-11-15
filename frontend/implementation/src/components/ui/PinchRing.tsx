@@ -108,7 +108,7 @@ export function PinchRing({ holdMs, onConfirm, label = "Cubit & tahan", disabled
         />
       </svg>
       <span className="pinch-ring__icon">
-        <Icon name="hand-draw" size={40} />
+        <Icon name="gesture-pinch" size={40} />
       </span>
     </span>
   );

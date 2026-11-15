@@ -7,6 +7,7 @@
 import { useEffect, useState, type ReactNode, type Ref } from "react";
 import type { GuideStep } from "@/src/domain/guide-script";
 import { MomoChat } from "./MomoChat";
+import { getCameraAssistState, subscribeCameraAssistState } from "@/src/camera/camera-assist-state";
 
 export interface MomoGuideProps {
   step: GuideStep | null;
@@ -52,8 +53,13 @@ function useCompact(): boolean {
 
 export function MomoGuide({ step, height = 150, sleeping = false, flapKey, waveKey, startDelay = 0, children, placement = "page", extrasFrom = "first", testId = "momo-guide", onDone, onAllShown, className, rootRef, fullSize = false, pace = 1 }: MomoGuideProps) {
   const compact = useCompact();
-  const shown = compact && !fullSize ? Math.min(height, 104) : height;
-  const classes = [`momo-guide`, `momo-guide--${placement}`, sleeping ? "is-asleep" : "", className ?? ""].filter(Boolean).join(" ");
+  const [cameraAssist, setCameraAssist] = useState(getCameraAssistState);
+  useEffect(() => subscribeCameraAssistState(setCameraAssist), []);
+  // Promote the existing page Momo, not a second mascot. The story callbacks remain untouched.
+  const recoveringCamera = placement === "page" && cameraAssist === "failed";
+  const normalSize = compact && !fullSize ? Math.min(height, 104) : height;
+  const shown = recoveringCamera ? Math.max(normalSize, compact ? 124 : 184) : normalSize;
+  const classes = [`momo-guide`, `momo-guide--${placement}`, sleeping ? "is-asleep" : "", recoveringCamera ? "is-camera-assist" : "", className ?? ""].filter(Boolean).join(" ");
   return (
     <div ref={rootRef} className={classes} data-testid={testId} data-asleep={sleeping ? "true" : "false"} style={{ ["--mg-h" as string]: `${shown}px` }}>
       {sleeping && (
@@ -80,6 +86,12 @@ export function MomoGuide({ step, height = 150, sleeping = false, flapKey, waveK
       >
         {children}
       </MomoChat>
+      {recoveringCamera && (
+        <p className="momo-guide__camera-recovery" role="status">
+          Kamera belum siap melihat tanganmu. Kamu tetap bisa pakai mouse atau keyboard.
+          Coba nyalakan kamera lagi kalau sudah siap.
+        </p>
+      )}
     </div>
   );
 }

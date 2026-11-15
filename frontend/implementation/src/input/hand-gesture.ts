@@ -251,7 +251,7 @@ export function classifyHandPose(landmarks: Landmark[] | undefined, opts: { pinc
     return "fist";
   }
 
-  // Two fingers (Mundur): index and middle not folded (one of them straight); ring and pinky not straight.
+  // Two fingers (Maju/redo in the current drawing mapping): index and middle up.
   if (
     index !== "curled" && middle !== "curled" && (index === "extended" || middle === "extended") &&
     ring !== "extended" && pinky !== "extended"
@@ -309,7 +309,7 @@ export const isSplitPalm = (lm: Landmark[] | undefined): boolean => classifyHand
 
 /**
  * Drawing command for a pose under the R12 mapping; null = no command. Read from the gesture router (the canvas
- * map): pinch draws, fist erases, two fingers undo, open or split palm redo (Owner: "redo is the open palm").
+ * map): pinch draws, open palm erases, one finger undoes, two fingers redoes. Main canvas retains fist erase.
  */
 export type DrawingGestureCommand = "draw" | "erase" | "undo" | "redo";
 export function drawingCommandFor(pose: HandPose): DrawingGestureCommand | null {

@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { setSharedStream } from "../../camera/shared-stream";
+import { publishCameraAssistState } from "../../camera/camera-assist-state";
 import { Icon } from "../ui/Icon";
 import { MomoGuide } from "../momo/MomoGuide";
 import { BookFlip } from "../ui/BookFlip";
@@ -593,6 +594,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
   /** Failure path: back to "off" with a short reason, pointer/keyboard unaffected. */
   function reportCameraFailure(message: string) {
     reportCameraUnavailable();
+    publishCameraAssistState("failed");
     setHasStream(false);
     setIsOn(false);
     setFailed(true);
@@ -609,10 +611,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
     setStatusNote("");
     setPreviewLabel("Membuka kamera…");
     if (!navigator.mediaDevices?.getUserMedia) {
-      // Keep the switch as the user left it (legacy contract); show why nothing happens.
-      setPreviewLabel(messageFor("unsupported"));
-      setStatusNote(messageFor("unsupported"));
-      reportCameraUnavailable();
+      reportCameraFailure(messageFor("unsupported"));
       return;
     }
     let stream: MediaStream | null = null;
@@ -649,6 +648,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
       await video.play().catch(() => undefined);
       if (isStale()) return;
       setHasStream(true);
+      publishCameraAssistState("ready");
       const activeTrack = stream.getVideoTracks()[0];
       const activeDeviceId = activeTrack?.getSettings?.().deviceId || selectedDevice;
       await populateCameraChoices(activeDeviceId);
@@ -702,6 +702,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false, waveSta
       return;
     }
     stopStream();
+    publishCameraAssistState("idle");
     setFailed(false);
     setStatusNote("");
     setToggleLabel("Nyalakan Kamera");

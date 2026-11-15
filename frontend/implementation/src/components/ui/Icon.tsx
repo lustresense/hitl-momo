@@ -4,6 +4,7 @@
  * sees one drawing of "pinch", "erase", "undo" and "redo" everywhere.
  */
 import type { CSSProperties, ReactNode } from "react";
+import { GestureGlyph, GESTURE_GLYPH_NAMES, isGestureGlyph, type GestureGlyphName } from "./GestureGlyph";
 
 /**
  * PRD 0.0.16 R12 — drawing-gesture icons from the Owner's Figma (design/visual/drawing-gestures/*.svg).
@@ -86,9 +87,9 @@ const GLYPHS = {
   sparkles: <>{P("M16 18a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2")}{P("M16 6a2 2 0 0 1 2 2a2 2 0 0 1 2 -2a2 2 0 0 1 -2 -2a2 2 0 0 1 -2 2")}{P("M9 18a6 6 0 0 1 6 -6a6 6 0 0 1 -6 -6a6 6 0 0 1 -6 6a6 6 0 0 1 6 6")}</>,
 } satisfies Record<string, ReactNode>;
 
-export type IconName = keyof typeof GLYPHS | GestureIconName;
+export type IconName = keyof typeof GLYPHS | GestureIconName | GestureGlyphName;
 
-export const ICON_NAMES = [...Object.keys(GLYPHS), ...Object.keys(GESTURE_ART)] as IconName[];
+export const ICON_NAMES = [...Object.keys(GLYPHS), ...Object.keys(GESTURE_ART), ...GESTURE_GLYPH_NAMES] as IconName[];
 
 export function isGestureIcon(name: IconName): name is GestureIconName {
   return name in GESTURE_ART;
@@ -121,6 +122,7 @@ export interface IconProps {
 }
 
 export function Icon({ name, size = 22, stroke = 2.2, fill = "none", className, style, title }: IconProps) {
+  if (isGestureGlyph(name)) return <GestureGlyph name={name} size={size} className={className} style={style} title={title} />;
   if (isGestureIcon(name)) {
     const art = GESTURE_ART[name];
     return (

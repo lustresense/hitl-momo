@@ -30,7 +30,7 @@ export function ExplorationRings({ gesture, onMove, onRotate }: ExplorationRings
         holdMs={GRAB_HOLD_MS}
         onConfirm={onMove}
         label="Geser objek"
-        icon={<Icon name="hand-draw" size={24} />}
+        icon={<Icon name="gesture-pinch" size={24} />}
       />
       <GestureRing
         testId="ring-rotate"
@@ -39,7 +39,7 @@ export function ExplorationRings({ gesture, onMove, onRotate }: ExplorationRings
         holdMs={ROTATE_HOLD_MS}
         onConfirm={turn.begin}
         label="Putar"
-        icon={<Icon name="hand-redo" size={24} />}
+        icon={<Icon name="gesture-five" size={24} />}
       />
       {turn.turning && <TurnIndicator />}
     </div>

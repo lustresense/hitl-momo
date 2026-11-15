@@ -129,16 +129,20 @@ export function NuiLabPage() {
   const overlayRef = useRef<HTMLCanvasElement>(null);
   const inkRef = useRef<HTMLCanvasElement>(null);
   const session = useRef<Session | null>(null);
+  /** The lab must not leave its diagnostic preprocessing override active in the student game. */
+  const initialDetectionMode = useRef<LowLightMode>("auto");
   /** Bumped by stop and unmount, so a camera that is still opening is closed instead of kept. */
   const generation = useRef(0);
   const mounted = useRef(false);
 
   useEffect(() => {
     mounted.current = true;
+    initialDetectionMode.current = getFrameSourceStats().mode;
     setSupported(typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia);
     setLowLightState(getFrameSourceStats().mode);
     return () => {
       mounted.current = false;
+      setLowLightEnhancement(initialDetectionMode.current);
       // generation is a plain counter, not a DOM ref: bumping the live value is the intent.
       // eslint-disable-next-line react-hooks/exhaustive-deps
       generation.current++;

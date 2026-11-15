@@ -7,6 +7,28 @@
 .momo-guide .momo-chat__thread { max-width: min(340px, calc(100vw - 340px)); }
 .momo-guide .momo-chat { align-items: flex-end; }
 .momo-guide .momo-chat__col { padding-top: 0; padding-bottom: 14%; }
+/* Camera-failure recovery promotes the SAME page guide, never a duplicate Momo.
+   Informational notice does not intercept gameplay or card gestures. */
+.momo-guide.is-camera-assist .momo-chat { align-items: flex-end; }
+.momo-guide__camera-recovery {
+  position: absolute;
+  right: 4px;
+  bottom: calc(var(--mg-h, 150px) + 8px);
+  width: min(270px, calc(100vw - 34px));
+  margin: 0;
+  padding: 10px 12px;
+  border: 3px solid var(--nb-ink, #111);
+  border-radius: 15px;
+  background: var(--nb-paper, #fffaf0);
+  box-shadow: 4px 4px 0 var(--nb-ink, #111);
+  color: var(--nb-ink, #111);
+  font-size: 14px;
+  font-weight: 750;
+  line-height: 1.4;
+}
+@media (max-width: 640px) {
+  .momo-guide__camera-recovery { font-size: 12px; width: min(240px, calc(100vw - 24px)); }
+}
 /* On the cover Momo is big and her words stand above her head, so they never cover the camera card. */
 .momo-guide--cover { bottom: 6px; right: max(24px, calc((100vw - 1180px) / 2)); }
 .momo-guide--cover .momo-chat { flex-direction: column-reverse; align-items: flex-end; gap: 4px; }

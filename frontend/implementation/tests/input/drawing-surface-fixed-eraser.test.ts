@@ -2,7 +2,7 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { DrawingSurface } from "@/src/input";
 import { ERASER_RADIUS_PX } from "@/src/input/eraser";
-import { fistHand, spreadHand } from "./hand-fixtures";
+import { fistHand, makeHand, spreadHand } from "./hand-fixtures";
 
 vi.mock("@mediapipe/tasks-vision", () => ({
   FilesetResolver: { forVisionTasks: vi.fn() },
@@ -81,9 +81,30 @@ describe("fixed eraser (tutorial card 3)", () => {
     expect(surface.getEraserRadius()).toBe(ERASER_RADIUS_PX);
   });
 
-  it("a fist does not erase on card 3 (fixedEraser mode) while open palm does (REV-B03-05)", () => {
+  it("a fist never erases in Card 3, even when Hapus tool was clicked", () => {
     const { surface } = makeSurface(true);
     expect(surface.store.eraserMode).toBe(true);
+    const spy = vi.spyOn(surface.store, "eraseAt");
+    for (let i = 0; i < 12; i++) surface.feedHandLandmarksForTest(fistHand(), at(i));
+    expect(spy).not.toHaveBeenCalled();
+  });
+
+  it("a five-finger palm erases in Card 3 with the Hapus tool off", () => {
+    const { surface } = makeSurface(true);
+    surface.setErasing(false);
+    const spy = vi.spyOn(surface.store, "eraseAt");
+    const palm = makeHand({ ratios: [1.5, 1.5, 1.5, 1.5] });
+    for (let i = 0; i < 12; i++) surface.feedHandLandmarksForTest(palm, at(i));
+    expect(spy).toHaveBeenCalled();
+  });
+
+  it("a spread five-finger palm (split-palm classifier) also erases only in the tutorial", () => {
+    const { surface } = makeSurface(true);
+    surface.setErasing(false);
+    const spy = vi.spyOn(surface.store, "eraseAt");
+    const wide = makeHand({ ratios: [1.5, 1.5, 1.5, 1.5], tipX: [0.38, 0.42, 0.62, 0.66] });
+    for (let i = 0; i < 12; i++) surface.feedHandLandmarksForTest(wide, at(i));
+    expect(spy).toHaveBeenCalled();
   });
 });
 

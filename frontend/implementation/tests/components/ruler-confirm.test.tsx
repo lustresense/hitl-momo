@@ -244,7 +244,7 @@ describe("StudentRulerSelector: Momo focus, pick and confirm (BIGPROMPT 6.2, sto
     const handle = screen.getByTestId("student-ruler-handle");
     expect(screen.getByTestId("student-ruler-handle-icon")).not.toBeNull();
     expect(screen.getByTestId("student-ruler-handle-ring")).not.toBeNull();
-    expect(handle.querySelector(".nb-icon--gesture")).not.toBeNull();
+    expect(handle.querySelector(".nb-icon--gesture-cue")).not.toBeNull();
   });
 
   it("the pinch hint slides the ruler body left-right, never the white centre marker", () => {

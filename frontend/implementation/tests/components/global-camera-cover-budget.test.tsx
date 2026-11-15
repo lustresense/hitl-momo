@@ -41,7 +41,7 @@ function chatText(): string {
 beforeEach(() => {
   vi.stubEnv("NEXT_PUBLIC_TEST_HOOKS", "1");
   resetInputModeForTest();
-  vi.useFakeTimers();
+  vi.useFakeTimers({ toFake: ["setTimeout", "clearTimeout", "Date"] });
 });
 afterEach(() => {
   cleanup();

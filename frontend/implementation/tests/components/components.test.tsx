@@ -33,7 +33,6 @@ vi.mock("@/src/input", async (importOriginal) => {
     constructor(_canvas: HTMLCanvasElement, _video: HTMLVideoElement, options: { onInkChange?: (value: boolean) => void }) {
       if (mockHasInk) options.onInkChange?.(true);
     }
-    // useDrawingSurface wraps the store's stroke/erase methods, so the stub needs a store too.
     store = { endStroke() {}, eraseAt: () => false, hasActiveStroke: () => false, lastActivePoint: () => null };
     resizeForDpr() {}
     dispose() {}
@@ -49,8 +48,24 @@ describe("DrawingScreen explicit prediction", () => {
  const openBantuanIfHidden = () => {
    if (!screen.queryByTestId("btn-submit-drawing")) fireEvent.click(screen.getByTestId("btn-drawing-help"));
  };
- it("shows disabled prediction submit before ink and no placeholder catalog",()=>{mockHasInk=false;render(<DrawingScreen level={LEVELS[0]!} initialMode="pointer" feedback={null} surfaceOut={{current:null}} onSubmit={vi.fn()} onExit={vi.fn()}/>);expect(screen.queryByText(/Katalog DEMO/)).toBeNull();openBantuanIfHidden();expect(screen.getByTestId("btn-submit-drawing").hasAttribute("disabled")).toBe(true);expect(screen.queryByLabelText("Tebakan AI")).toBeNull();});
- it("submit requests prediction without selecting catalog intent",()=>{mockHasInk=true;const submit=vi.fn();render(<DrawingScreen level={LEVELS[0]!} initialMode="pointer" feedback={null} surfaceOut={{current:null}} onSubmit={submit} onExit={vi.fn()} showCanvasFocus={false}/>);expect(submit).not.toHaveBeenCalled();openBantuanIfHidden();fireEvent.click(screen.getByTestId("btn-submit-drawing"));expect(submit).toHaveBeenCalledWith(null);mockHasInk=false;});
+ it("shows disabled prediction submit before ink and no placeholder catalog", () => {
+   mockHasInk = false;
+   render(<DrawingScreen level={LEVELS[0]!} initialMode="pointer" feedback={null} surfaceOut={{current:null}} onSubmit={vi.fn()} onExit={vi.fn()} />);
+   expect(screen.queryByText(/Katalog DEMO/)).toBeNull();
+   openBantuanIfHidden();
+   expect(screen.getByTestId("btn-submit-drawing").hasAttribute("disabled")).toBe(true);
+   expect(screen.queryByLabelText("Tebakan AI")).toBeNull();
+ });
+ it("submit requests prediction without selecting catalog intent", () => {
+   mockHasInk = true;
+   const submit = vi.fn();
+   render(<DrawingScreen level={LEVELS[0]!} initialMode="pointer" feedback={null} surfaceOut={{current:null}} onSubmit={submit} onExit={vi.fn()} showCanvasFocus={false} />);
+   expect(submit).not.toHaveBeenCalled();
+   openBantuanIfHidden();
+   fireEvent.click(screen.getByTestId("btn-submit-drawing"));
+   expect(submit).toHaveBeenCalledWith(null);
+   mockHasInk = false;
+ });
 });
 
 describe("StudentRulerSelector", () => {
@@ -67,15 +82,10 @@ describe("StudentRulerSelector", () => {
     render(<StudentRulerSelector onConfirm={onConfirm} />);
 
     expect(screen.getByRole("heading", { name: "GESER PENGGARIS SESUAI NOMOR ABSENMU" })).toBeTruthy();
-    // Momo's focus phase locks the ruler (BIGPROMPT 6.2): a key press does nothing yet.
-    // Moving, saving and the thumbs-up are covered in tests/components/ruler-confirm.test.tsx.
     const slider = screen.getByRole("slider", { name: "Nomor absen" });
     fireEvent.keyDown(slider, { key: "ArrowRight" });
-    // A new student starts at number 1 (BIGPROMPT 6.2 default), not 20.
     expect(slider.getAttribute("aria-valuenow")).toBe("1");
     expect(window.localStorage.getItem("sketchbook.studentNumber")).toBeNull();
-
-    // PRD 0.0.16 R3: no "Lanjut ke Tutorial" button; confirmation is Momo's thumbs-up (tests/components/ruler-confirm.test.tsx).
     expect(screen.queryByRole("button", { name: /Lanjut ke Tutorial/ })).toBeNull();
     expect(onConfirm).not.toHaveBeenCalled();
   });
@@ -90,7 +100,7 @@ describe("StudentRulerSelector", () => {
     });
     render(<StudentRulerSelector onConfirm={() => {}} takenNumbers={[20]} />);
     expect(screen.getByText("20").className).toContain("is-taken");
-    expect(screen.queryByText(/\/ 30/)).toBeNull();
+    expect(screen.queryByText(/\//)).toBeNull();
     expect(screen.getByRole("slider").getAttribute("aria-valuetext")).toContain("sudah diambil");
   });
 });
@@ -164,8 +174,8 @@ describe("DecisionPanel (TASK 09)", () => {
     expect(screen.queryByTestId("override-option-papan")).toBeNull();
     expect(screen.getByTestId("override-option-tangga")).toBeTruthy();
     expect(screen.getByTestId("override-option-ember")).toBeTruthy();
-    expect(screen.queryByTestId("override-confirm")).toBeNull(); // nothing chosen yet
-    hold("two-fingers"); // ember is the second label offered: two fingers
+    expect(screen.queryByTestId("override-confirm")).toBeNull();
+    hold("two-fingers");
     expect(onOverride).not.toHaveBeenCalled();
     hold("thumb-up", 2100);
     expect(onOverride).toHaveBeenCalledTimes(1);
@@ -200,6 +210,38 @@ describe("PredictingScreen (TASK 13 states)", () => {
 });
 
 describe("GlobalCamera (Persistent Floating Camera)", () => {
+  // Mock getUserMedia for tests
+  beforeEach(() => {
+    const mockStream = {
+      getTracks: () => [{ stop: vi.fn(), addEventListener: vi.fn() }],
+      getVideoTracks: () => [{ getSettings: () => ({ deviceId: "mock-device" }), addEventListener: vi.fn() }],
+    };
+    vi.stubGlobal("navigator", {
+      ...navigator,
+      mediaDevices: {
+        getUserMedia: vi.fn().mockResolvedValue(mockStream),
+        enumerateDevices: vi.fn().mockResolvedValue([{ deviceId: "mock-device", kind: "videoinput", label: "Mock Camera" }]),
+      },
+    });
+    vi.stubGlobal("window", {
+      ...window,
+      matchMedia: vi.fn().mockImplementation((query) => ({
+        matches: false,
+        media: query,
+        onchange: null,
+        addListener: vi.fn(),
+        removeListener: vi.fn(),
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+        dispatchEvent: vi.fn(),
+      })),
+    });
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
   // PRD 0.0.16 R1/R13: camera mode is full NUI, the cover has no skip button any more.
   it("renders centered hero cover view when mode is cover, without a skip button", () => {
     render(<GlobalCamera mode="cover" modelUrl="/mock-model.task" />);
@@ -248,7 +290,7 @@ describe("GlobalCamera (Persistent Floating Camera)", () => {
     const toggleSwitch = screen.getByTestId("btn-camera-toggle-switch");
     expect(toggleSwitch.getAttribute("aria-checked")).toBe("false");
     expect(screen.getByText("Nyalakan Kamera")).toBeTruthy();
-    fireEvent.click(toggleSwitch);
+    act(() => fireEvent.click(toggleSwitch));
     expect(toggleSwitch.getAttribute("aria-checked")).toBe("true");
     expect(screen.getByText("Kamera Aktif")).toBeTruthy();
   });

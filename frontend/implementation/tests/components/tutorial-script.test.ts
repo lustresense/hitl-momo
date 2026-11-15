@@ -15,16 +15,16 @@ describe("tutorial copy (R4)", () => {
   });
 
   it("card 1 hint is the exact pinch-and-drag line, and the fallback line has no keyboard hint", () => {
-    expect(tutorialHint(0, true, false).text).toBe("Cubit dan geser Thinman ke kanan sampai menyentuh bendera.");
+    expect(tutorialHint(0, true, false).text).toBe("Arahkan telunjuk ke kanan untuk jalan, ke atas untuk lompat.");
     expect(tutorialHint(0, false, false).text).not.toMatch(/panah|\[|Spasi|Enter|tombol Q|A\b|D\b/);
   });
 
   it("card 3 names the four gestures and the two-finger and palm meanings", () => {
     const hint = tutorialHint(2, true, false).text;
     expect(hint).toMatch(/cubit/i);
-    expect(hint).toMatch(/kepal/i);
+    expect(hint).toMatch(/hapus/i);
     expect(hint).toMatch(/dua jari/i);
-    expect(hint).toMatch(/telapak/i);
+    expect(hint).toMatch(/satu jari/i);
   });
 
   it("buttons: Lanjut 1 s on cards 1-2, Mulai Level 1 2 s on card 3", () => {

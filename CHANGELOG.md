@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.18.2-alpha | 2026-11-16 | Perbaikan | `(0.18.2-alpha)` |
 | 0.18.1-alpha | 2026-11-15 | Perbaikan | `(0.18.1-alpha)` |
 | 0.18.0-alpha | 2026-11-15 | Fitur | `(0.18.0-alpha)` |
 | 0.17.1-alpha | 2026-11-15 | Dokumen | `(0.17.1-alpha)` |
@@ -113,6 +114,20 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.18.2-alpha — 2026-11-16 — Perbaikan
+
+**Sumber:** Owner 2026-11-16: kerja gameplay dari main (M-034); main sebelumnya tidak bisa di-build
+
+**Perubahan:**
+- GlobalCamera.tsx: deklarasi state `coverDone` hilang di `a18a6e8` (kesalahan penggabungan), sehingga `next build` gagal dengan TS2304. Dikembalikan.
+- main = ujang-monorepo (a18a6e8, 0.18.1-alpha) di-fast-forward lebih dulu atas perintah Owner.
+
+**Commit:** commit berjudul `(0.18.2-alpha)`
+
+**Bukti:** tsc bersih; next lint 0 error (2 warning lama); vitest 2035 lulus, 12 gagal di 4 file UI yang sudah merah di a18a6e8 (components.test, tutorial-pinch, gesture-mode, global-camera-lifecycle)
 
 ---
 

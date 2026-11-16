@@ -51,18 +51,34 @@ describe("visual-only stage artwork contract", () => {
   expect(container.querySelector('svg')!.outerHTML).toBe(original.outerHTML);
   unmount();
  });
- it("R15: levels end at a signpost naming the next chapter; tutorial keeps the flag", () => {
-  const next = { 1: "Menara Lipatan", 2: "Lorong Kabut", 3: "Pusat Halaman" } as const;
+ it("R15: levels end at an arrow signpost: levels 1-2 say where to go next, level 3 leads to the Pusat Halaman; no board", () => {
+  const big = { 1: "Bab 2", 2: "Bab 3", 3: "Pusat Halaman" } as const;
+  const small = { 1: "Lanjut ke", 2: "Lanjut ke", 3: "Menuju" } as const;
   for (const scene of [1,2,3] as const) {
    const {container, unmount}=render(<StageArtwork scene={scene} gameplay/>);
    const goal=container.querySelector('[data-asset-role="goal-preview"]')!;
    expect(goal.getAttribute("data-goal-kind")).toBe("signpost");
-   expect(goal.textContent).toContain(`Bab ${scene} selesai`);
-   expect(goal.textContent).toContain(next[scene]);
+   // The "Bab N selesai" board is gone: only the arrow stays.
+   expect(goal.textContent).not.toMatch(/selesai/i);
+   expect(goal.querySelectorAll("path[fill=\"#f3ead2\"]")).toHaveLength(0);
+   const texts = [...goal.querySelectorAll("tspan")].map((t) => t.textContent);
+   expect(texts).toEqual([small[scene], big[scene]]);
    unmount();
   }
   const {container}=render(<StageArtwork scene={0}/>);
   expect(container.querySelector('[data-asset-role="goal-preview"]')!.getAttribute("href")).toMatch(/-flag$/);
+ });
+ it("the arrow text always fits its arrow (never clipped, whatever the copy)", () => {
+  for (const scene of [1,2,3] as const) {
+   const {container, unmount}=render(<StageArtwork scene={scene} gameplay/>);
+   const goal=container.querySelector('[data-asset-role="goal-preview"]')!;
+   for (const t of goal.querySelectorAll("tspan")) {
+    const fs = Number(t.getAttribute("font-size"));
+    const len = Number(t.getAttribute("textLength") ?? (t.textContent!.length * fs * 0.56));
+    expect(len, t.textContent!).toBeLessThanOrEqual(54 + 1e-6);
+   }
+   unmount();
+  }
  });
  it("provides exactly four original scene metadata entries", () => {
   expect(STAGE_SCENES).toHaveLength(4);

@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.19.0-alpha | 2026-11-16 | Fitur | `(0.19.0-alpha)` |
 | 0.18.2-alpha | 2026-11-16 | Perbaikan | `(0.18.2-alpha)` |
 | 0.18.1-alpha | 2026-11-15 | Perbaikan | `(0.18.1-alpha)` |
 | 0.18.0-alpha | 2026-11-15 | Fitur | `(0.18.0-alpha)` |
@@ -114,6 +115,24 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.19.0-alpha — 2026-11-16 — Fitur
+
+**Sumber:** Owner 2026-11-16 (M-036), REVISIONS R16-01..R16-07
+
+**Perubahan:**
+- Collider objek siswa = kotak gambarnya sendiri (proporsi dijaga, diperbesar sampai kotak terbesar bab): yang dilihat siswa sama dengan yang diinjak. Batas ukuran per bab di `object-limits.ts`.
+- Objek tidak boleh menimpa titik awal Thinman atau bendera; objek bahaya (duri) melukai hanya di dalam gambar (zona 12% lebih kecil).
+- Bab 1, 2, 3 disetel ulang untuk objek berukuran gambar (rencana e2e, tes keterselesaian: satu objek tidak pernah cukup); Bab 1 dan 2 memakai batas lebar lebih kecil (60 dan 50 satuan sumber).
+- Papan petunjuk akhir bab: satu panah tanpa papan "Bab N selesai"; "Lanjut ke Bab 2/3" dan "Menuju Pusat Halaman"; teks selalu muat.
+- Pratinjau panggung hanya 3 bab (01/03 sampai 03/03); semua teks siswa memakai kata "Bab", bukan "Level".
+- Alat tes: collider-audit, signpost-shot, UNLOCK_ALL; harness mengabaikan log INFO MediaPipe; recovery bagian B disesuaikan.
+
+**Commit:** commit berjudul `(0.19.0-alpha)`
+
+**Bukti:** tsc bersih; vitest 2134 lulus, 13 gagal (12 UI Ujang merah sejak a18a6e8 + 1 flaky saat beban, lulus sendiri); browser mouse+keyboard (mock): normal-journey Bab 1-3 PASS, recovery 16/16, finish 12/12, route 15/15; overlay collider Bab 1-3; kamera fisik NOT_TESTED
 
 ---
 

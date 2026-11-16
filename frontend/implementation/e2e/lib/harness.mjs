@@ -45,7 +45,8 @@ export async function launch({ videoDir, viewport = { width: 1280, height: 720 }
   const context = await browser.newContext({ viewport, deviceScaleFactor, ...(permissions ? { permissions } : {}), ...(videoDir ? { recordVideo: { dir: videoDir, size: viewport } } : {}) });
   const page = await context.newPage();
   const errors = [];
-  page.on("console", m => { if (m.type() === "error") errors.push({ type: "console", text: m.text() }); });
+  // MediaPipe's native logger prints "INFO: Created TensorFlow Lite XNNPACK delegate for CPU." through console.error; it is not an error.
+  page.on("console", m => { if (m.type() === "error" && !/^INFO: /.test(m.text())) errors.push({ type: "console", text: m.text() }); });
   page.on("pageerror", e => errors.push({ type: "pageerror", text: String(e) }));
   page.__consoleLog = [];
   page.on("console", m => page.__consoleLog.push(`${m.type()}: ${m.text()}`.slice(0, 300)));

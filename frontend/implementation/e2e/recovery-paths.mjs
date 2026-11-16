@@ -125,8 +125,14 @@ try {
   const d1 = await submitAndDecide(page, { prefer: "tali", log: m => log(m) });
   check("B: HITL decision reached label 'tali' through Correct/Accept", d1.decision.label === "tali", d1.decision);
   await shot("B-01-decision-tali");
+  // The danger "tali" is drawn as a spike (80.5 x 58.8) and stands on the left cliff at x 120, in Thinman's way: the
+  // first walk of the plan runs into its hurt zone (12% smaller than its box), so the failure is the danger object,
+  // not the spike floor. Plan cycle 0 is the block footprint (130.6 x 49.5), cycle 1 the spike footprint.
+  await placeByDrag(page, 120 + 80.5 / 2, 224.2 + 58.8 / 2); await confirmPlacement(page);
+  await press(page, "btn-draw-again");
+  await drawScribble(page, "block");
+  await submitAndDecide(page, { prefer: plans["3"].cycles[0].label, log: m => log(m) });
   await placeByDrag(page, ...toCentre(plans["3"].cycles[0])); await confirmPlacement(page);
-  await placeSecond(3);
   const dangerPhase = await page.evaluate(() => JSON.parse(document.querySelector("[data-testid=game-canvas]").dataset.creations));
   check("B: label 'tali' resolved to danger behaviour", dangerPhase[0]?.behavior === "danger" && dangerPhase[0]?.label === "tali", dangerPhase.map(c => ({ label: c.label, behavior: c.behavior })));
   const rb = await playPlan({ steps: plans["3"].steps });
@@ -136,12 +142,12 @@ try {
   await press(page, "btn-redraw-gameplay");
   await page.locator("[data-testid=draw-canvas]").waitFor({ state: "visible", timeout: 10000 });
   check("B: Redraw returns to the drawing phase", true);
-  await drawScribble(page, "block");
+  await drawScribble(page, "spike"); // same footprint as the danger object, now with a solid label
   const d2 = await submitAndDecide(page, { prefer: "papan", log: m => log(m) });
   check("B: second cycle (after Redraw) reached solid label 'papan'", d2.decision.label === "papan", d2.decision);
   const chip = await page.locator(".decision-chip").first().textContent({ timeout: 3000 }).catch(() => null);
   await shot("B-03-second-decision");
-  await placeByDrag(page, ...toCentre(plans["3"].cycles[0]));
+  await placeByDrag(page, ...toCentre(plans["3"].cycles[1]));
   let legalNow = await page.locator("[data-testid=btn-confirm-placement]").isEnabled();
   const creationsAfterRedraw = await page.evaluate(() => JSON.parse(document.querySelector("[data-testid=game-canvas]").dataset.creations));
   log("creations carried through Redraw", creationsAfterRedraw.map(c => ({ label: c.label, behavior: c.behavior, x: c.x, y: c.y })));
@@ -156,7 +162,6 @@ try {
   await confirmPlacement(page);
   const moved = await page.evaluate(() => JSON.parse(document.querySelector("[data-testid=game-canvas]").dataset.creations));
   check("B: earlier danger object repositioned off the route via UI", moved.find(c => c.label === "tali")?.y < 200, moved.map(c => ({ label: c.label, x: Math.round(c.x), y: Math.round(c.y) })));
-  if (moved.filter(c => c.behavior === "solid").length < plans["3"].cycles.length) await placeSecond(3);
   const rb2 = await playPlan({ steps: plans["3"].steps });
   const hazards = (await page.evaluate(() => JSON.parse(document.querySelector("[data-testid=game-canvas]").dataset.creations))).filter(c => c.behavior === "danger");
   check("B: after Redraw with a solid label the level can be WON", rb2.outcome === "success", { outcome: rb2.outcome, leftoverDangerObjects: hazards.length });

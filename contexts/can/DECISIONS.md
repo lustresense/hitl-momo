@@ -126,6 +126,13 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 
 ## Entri Perubahan Terbaru
 
+### D-20261116-01 — Aktif (keputusan eksplisit Owner 2026-11-16, M-036) — Objek siswa memakai kotak gambarnya sendiri; hanya tiga bab; satu kata "Bab"
+- **Keputusan:** (1) Collider objek siswa adalah kotak gambarnya sendiri: gambar dipertahankan proporsinya dan diperbesar sampai memenuhi kotak terbesar bab, sehingga yang dilihat siswa sama dengan yang diinjak Thinman. Owner memilih "opsi 1" dan menolak opsi gambar dipipihkan ke papan 130 x 20. (2) Objek tidak boleh menimpa titik awal Thinman atau bendera. (3) Objek bahaya (duri) melukai hanya di dalam gambarnya. (4) Papan petunjuk akhir bab hanya satu panah tanpa papan "Bab N selesai": Bab 1 dan 2 "Lanjut ke Bab 2/3", Bab 3 "Menuju Pusat Halaman". (5) Hanya tiga bab; pratinjau 01/03 sampai 03/03; semua teks siswa memakai kata **Bab**, bukan Level.
+- **Batas:** fisika (jalan 130, lompat 520, gravitasi 1600, badan 24 x 40), geometri tanah (terikat art), minimal 2 objek per bab dan "satu objek saja tidak pernah cukup" tidak berubah. Ukuran maksimal per bab ada di `frontend/implementation/src/game/object-limits.ts` dan boleh disetel bila tes keterselesaian menuntut.
+- **Mengubah:** ukuran hitbox objek pada praktik PRD 0.0.16 K2 (semua objek papan 80 x 12 satuan sumber) dan D-20261110-08 hanya pada ukuran hitbox. Alur stiker, "Lempar", "Taruh di sini" tidak berubah. Tidak mencabut D-20261115-03.
+- **Teknis:** `CHANGELOG.md` root 0.19.0-alpha; `frontend/implementation/docs/execution/gameplay/README.md`.
+- **Bukti:** browser (mock, mouse+keyboard) perjalanan Bab 1-3 PASS, recovery 16/16, finish 12/12, route 15/15; unit tsc bersih, tes game 371 lulus; kamera fisik NOT_TESTED. Rincian REVISIONS R16-01..R16-10.
+
 ### D-20261115-03 — Aktif (keputusan eksplisit Owner 2026-11-15) — Wake Momo dari kamera siap, bukan wave
 - **Keputusan:** pilihan B dari PRD REV-B04-004 diterapkan sebagai pengganti *wave-gated cover*. Siswa masuk ke cover dengan kamera OFF dan Momo tidur. Saat siswa menyalakan kamera, Momo baru bangun setelah browser memperoleh stream kamera dan playback video berhasil. Kemudian animasi kaget, kamera mengecil ke PIP, Momo ke tengah, dialog perkenalan bubble, dan konfirmasi jempol menuju penggaris tetap.
 - **Batas:** klik toggle saja, permission ditolak, stream tidak playable, atau request yang kedaluwarsa tidak boleh membangunkan Momo. Fallback tanpa kamera yang sudah ada dipertahankan. Momo boleh melakukan animasi sayap menyapa; yang dihapus adalah **kewajiban siswa melakukan waving hand untuk membangunkan Momo**.

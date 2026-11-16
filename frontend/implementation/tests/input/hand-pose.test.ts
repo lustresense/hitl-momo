@@ -42,10 +42,11 @@ describe("R12 drawing poses are mutually exclusive", () => {
       expect(isThumbUp(lm)).toBe(expected === "thumb-up");
     });
   }
-  it("mapping: pinch draw, fist/palm erase, one finger undo, two fingers redo (REV-B02-006)", () => {
+  it("mapping: pinch draw, five-finger palm erase, one finger undo, two fingers redo", () => {
     expect(drawingCommandFor("pinch")).toBe("draw");
-    expect(drawingCommandFor("fist")).toBe("erase");
+    expect(drawingCommandFor("fist")).toBeNull();
     expect(drawingCommandFor("open-palm")).toBe("erase");
+    expect(drawingCommandFor("split-palm")).toBe("erase");
     expect(drawingCommandFor("one-finger")).toBe("undo");
     expect(drawingCommandFor("two-fingers")).toBe("redo");
     expect(drawingCommandFor("thumb-up")).toBeNull();

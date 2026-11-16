@@ -44,7 +44,7 @@ export function useDrawingSurface({ canvasRef, surfaceOut, initialMode, active, 
       setHandPose(pose);
     };
 
-    // R12: dua jari = Mundur, telapak = Maju, each once per held pose. Kepal (Hapus tool) erases inside DrawingSurface itself.
+    // Shared mapping: pinch draws, all-five palm erases, one finger undoes, two fingers redoes. Fist is inert.
     const commander = createGestureCommander();
     const surface: DrawingSurface = new DrawingSurface(canvas, video, {
       initialMode,

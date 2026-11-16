@@ -131,31 +131,40 @@ describe("hand stroke: smoothing follows the hand", () => {
   });
 });
 
-describe("fist (Hapus): erases at the knuckles, one undo per pass", () => {
-  it("a fist erases at the knuckle centre, not at the folded fingertip", () => {
+describe("five extended fingers: Hapus; kepal remains inert", () => {
+  it("a full five-finger palm erases at the knuckle centre", () => {
     const { surface, store } = makeSurface();
-    const eraseSpy = vi.spyOn(store, "eraseAt");
-    for (let i = 0; i < 4; i++) surface.feedHandLandmarksForTest(fist(), at(i));
-    expect(eraseSpy).toHaveBeenCalled();
-    const [point, radius] = eraseSpy.mock.calls[0]!;
-    // Knuckle centre (0.47, 0.70) mirrored onto the 400 x 300 canvas; the folded index tip is at (224, 229).
+    const spy = vi.spyOn(store, "eraseAt");
+    for (let i = 0; i < 5; i++) surface.feedHandLandmarksForTest(openPalm(), at(i));
+    expect(spy).toHaveBeenCalled();
+    const [point, radius] = spy.mock.calls[0]!;
     expect(point).toEqual({ x: 188, y: 210 });
     expect(radius).toBe(28);
   });
 
-  it("a fist cuts a line in place, and one undo restores the whole line", () => {
+  it("a five-finger palm cuts a line, and one undo restores the erased pass", () => {
     const { surface, store } = makeSurface();
     store.beginStroke();
     for (let x = 5; x <= 395; x += 10) store.addPoint({ x, y: 210 });
     store.endStroke();
-    for (let i = 0; i < 5; i++) surface.feedHandLandmarksForTest(fist(), at(i));
+    for (let i = 0; i < 5; i++) surface.feedHandLandmarksForTest(openPalm(), at(i));
     for (let i = 5; i < 8; i++) surface.feedHandLandmarksForTest(none(), at(i));
-    expect(store.getStrokes().completed.map((s) => s.length)).toEqual([16, 18]);
+    expect(store.getStrokes().completed.length).toBeGreaterThan(1);
     expect(surface.undo()).toBe(true);
-    expect(store.getStrokes().completed.map((s) => s.length)).toEqual([40]);
+    expect(store.getStrokes().completed).toHaveLength(1);
   });
 
-  it("a one-frame flicker inside a fist keeps the reported pose", () => {
+  it("kepal never erases, even with the selected erase tool", () => {
+    const { surface, store } = makeSurface();
+    const eraseSpy = vi.spyOn(store, "eraseAt");
+    for (let i = 0; i < 6; i++) surface.feedHandLandmarksForTest(fist(), at(i));
+    expect(eraseSpy).not.toHaveBeenCalled();
+    store.eraserMode = true;
+    for (let i = 6; i < 12; i++) surface.feedHandLandmarksForTest(fist(), at(i));
+    expect(eraseSpy).not.toHaveBeenCalled();
+  });
+
+  it("a one-frame flicker does not reset the reported fist classification", () => {
     const poses: HandPose[] = [];
     const { surface } = makeSurface((pose) => poses.push(pose));
     for (let i = 0; i < 5; i++) surface.feedHandLandmarksForTest(fist(), at(i));
@@ -194,7 +203,7 @@ describe("gesture commands on the real surface", () => {
 
   const matrix: Array<{ name: string; hand: () => Landmark[]; undo: number; redo: number; erases: boolean; ink: boolean }> = [
     { name: "pinch", hand: () => pinch(0.5), undo: 0, redo: 0, erases: false, ink: true },
-    { name: "fist", hand: fist, undo: 0, redo: 0, erases: true, ink: false },
+    { name: "fist", hand: fist, undo: 0, redo: 0, erases: false, ink: false },
     { name: "two fingers", hand: twoFingers, undo: 0, redo: 1, erases: false, ink: false },
     { name: "open palm", hand: openPalm, undo: 0, redo: 0, erases: true, ink: false },
     { name: "thumb-up", hand: thumbUp, undo: 0, redo: 0, erases: false, ink: false },

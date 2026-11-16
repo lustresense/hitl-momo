@@ -35,7 +35,7 @@ const ALL_MODES: GestureMode[] = [
 ];
 
 const EXPECTED: Record<GestureMode, Partial<Record<HandPose, string>>> = {
-  [MODE_CANVAS_DRAWING]: { pinch: "draw", fist: "erase", "open-palm": "erase", "one-finger": "undo", "two-fingers": "redo" },
+  [MODE_CANVAS_DRAWING]: { pinch: "draw", "open-palm": "erase", "split-palm": "erase", "one-finger": "undo", "two-fingers": "redo" },
   [MODE_CANVAS_PREDICT_TRIGGER]: { "thumb-up": "request-prediction" },
   [MODE_CANVAS_STAMP_READY]: { "thumb-up": "throw", "open-palm": "redraw" },
   [MODE_GAMEPLAY_PLACEMENT]: { "thumb-up": "place", "open-palm": "redraw", pinch: "grab" },
@@ -56,11 +56,12 @@ describe("gesture-mode: one router, each mode allows only its own actions", () =
     });
   }
 
-  it("the old fist eraser is disabled only in tutorial", () => {
+  it("fist never erases on either drawing surface or tutorial", () => {
     expect(actionFor(MODE_TUTORIAL, "fist")).toBeNull();
     expect(actionFor(MODE_TUTORIAL, "open-palm")).toBe("erase");
     expect(actionFor(MODE_TUTORIAL, "split-palm")).toBe("erase");
-    expect(actionFor(MODE_CANVAS_DRAWING, "fist")).toBe("erase");
+    expect(actionFor(MODE_CANVAS_DRAWING, "fist")).toBeNull();
+    expect(actionFor(MODE_CANVAS_DRAWING, "split-palm")).toBe("erase");
   });
 
   it("the thumbs-up never draws, and the drawing pinch never acknowledges a dialog", () => {

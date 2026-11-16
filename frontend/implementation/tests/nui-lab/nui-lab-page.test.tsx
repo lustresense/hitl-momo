@@ -357,3 +357,48 @@ describe("NuiLabPage face and wave rule", () => {
   });
 });
 
+
+describe("NUI Lab isolated workspaces", () => {
+  it("gesture route shows every shared pose and does not request a camera on render", () => {
+    const getUserMedia = vi.fn(async () => fakeStream().stream);
+    setMediaDevices({ getUserMedia });
+    render(<NuiLabPage variant="gesture" />);
+    expect(screen.getByRole("heading", { name: "Gesture Detection Lab" })).toBeTruthy();
+    expect(screen.getByRole("link", { name: "Canvas Lab" }).getAttribute("href")).toBe("/nui-lab/canvas");
+    for (const pose of ["Jempol", "Cubit", "Telapak"]) {
+      // Real labels come from poseLabel; the cards exist even before a hand is present.
+      expect(screen.getAllByText(new RegExp(pose, "i")).length).toBeGreaterThan(0);
+    }
+    expect(getUserMedia).not.toHaveBeenCalled();
+    expect(screen.queryByLabelText("Kanvas gambar NUI")).toBeNull();
+    expect(screen.getAllByTestId("lab-relock-hand")).toHaveLength(1);
+    expect(document.querySelectorAll(".nui-lab__pose")).toHaveLength(7);
+  });
+
+  it("canvas route exposes a drawable canvas, tools, and the same camera gate", () => {
+    const getUserMedia = vi.fn(async () => fakeStream().stream);
+    setMediaDevices({ getUserMedia });
+    render(<NuiLabPage variant="canvas" />);
+    expect(screen.getByRole("heading", { name: "Canvas NUI Lab" })).toBeTruthy();
+    const canvas = screen.getByLabelText("Kanvas gambar NUI") as HTMLCanvasElement;
+    expect(canvas.width).toBe(1280);
+    expect(canvas.height).toBe(720);
+    expect(screen.getByTestId("lab-gesture-hud")).toBeTruthy();
+    expect(screen.getByTestId("lab-lock-status")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Pena pointer" })).toBeTruthy();
+    fireEvent.pointerDown(canvas, { pointerId: 1, clientX: 25, clientY: 25 });
+    fireEvent.pointerMove(canvas, { pointerId: 1, clientX: 80, clientY: 80 });
+    fireEvent.pointerUp(canvas, { pointerId: 1 });
+    fireEvent.click(screen.getByRole("button", { name: "Undo" }));
+    fireEvent.click(screen.getByRole("button", { name: "Redo" }));
+    fireEvent.click(screen.getByRole("button", { name: "Bersihkan kanvas" }));
+    expect(getUserMedia).not.toHaveBeenCalled();
+  });
+
+  it("preserves the legacy diagnostics screen used by existing owner tests", () => {
+    render(<NuiLabPage />);
+    expect(screen.getByRole("heading", { name: "Uji Tangan NUI" })).toBeTruthy();
+    expect(screen.getByLabelText("Kanvas coret uji")).toBeTruthy();
+    expect(screen.getByRole("button", { name: "Mulai uji lambaian" })).toBeTruthy();
+  });
+});

@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.21.0-alpha | 2026-11-16 | Fitur | `(0.21.0-alpha)` |
 | 0.19.1-alpha | 2026-11-16 | Dokumen | `(0.19.1-alpha)` |
 | 0.19.0-alpha | 2026-11-16 | Fitur | `(0.19.0-alpha)` |
 | 0.18.2-alpha | 2026-11-16 | Perbaikan | `(0.18.2-alpha)` |
@@ -116,6 +117,23 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.21.0-alpha — 2026-11-16 — Fitur
+
+**Sumber:** Instruksi Owner 16 November 2026 untuk menyatukan NUI Lab ke `main`, agar tunnel domain milik Ujang dapat mengakses `/nui-lab`, `/nui-lab/gesture` dan `/nui-lab/canvas` langsung. Koreksi mapping canvas game: Hapus = kelima jari, bukan fist.
+
+**Integrasi non-destruktif:**
+- Ambil 24 file UI/pipeline/test dari `ujang-monorepo` 4d9ebb0 di atas `main` 6e89a47; tidak menimpa 13 commit gameplay yang sudah lebih maju di `main`.
+- App Router mengekspor hub, gesture, canvas, dan diagnostics dari `frontend/implementation/app/nui-lab`.
+- Kedua workspace memakai MediaPipe, `LabAnalyzer`, `HandStrokePipeline`, cursor, mouse fallback, gesture HUD, Momo, dan hand-lock yang sama dengan source hasil rekonsiliasi. `FullFrameHandLock` berlaku khusus lab; tidak menyatakan biometrik atau kepastian setiap kondisi webcam.
+- Mapping mode canvas: pinch Coret, lima jari Hapus, satu jari Undo, dua jari Redo. Kepalan bukan Hapus. Perubahan pada router/input pipeline juga memengaruhi canvas game agar konsisten.
+- Tidak ada klaim webcam fisik, build, lint, atau tes browser yang dijalankan melalui GitHub connector. `STATIC_ONLY / NOT_TESTED`.
+
+**Versi:** 0.21.0-alpha melanjutkan versi 0.20.0-alpha yang pernah dipakai `ujang-monorepo`, sambil mempertahankan riwayat `main` 0.19.1-alpha. Ujang harus menjalankan `scripts/bump_version.py --check` dan seluruh quality gate.
+
+**Repo:** `main` | **Commit:** `feat(nui-lab): integrate gesture and canvas lab into main (0.21.0-alpha)`.
 
 ---
 

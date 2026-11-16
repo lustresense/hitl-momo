@@ -1,5 +1,9 @@
 # Project Memory — Durable Bootstrap
 
+## 2026-11-16 — NUI Lab di frontend `main`
+Owner menginstruksikan integrasi NUI lab ke domain tunnel monorepo aktif, bukan branch terpisah. Empat route App Router tersedia; pipeline menggambar game/lab memakai pinch Coret, 5 jari Hapus, satu jari Undo, dua jari Redo. Kepalan tidak menghapus. Lab memiliki FullFrameHandLock tanpa face ROI untuk penggunaan seluruh frame; track ambigu/lost mengunci input sampai pengguna relock. Semua status kode `STATIC_ONLY / NOT_TESTED` sampai Ujang memverifikasi browser + webcam.
+
+
 > AI-maintained, human-readable, **non-authoritative context**.
 > Verify product decisions against `DECISIONS.md`.
 

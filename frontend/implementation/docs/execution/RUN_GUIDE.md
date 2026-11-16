@@ -44,3 +44,8 @@ Kasus negatif wajib adalah permission denied, browser tanpa kamera, video playba
 - Papan petunjuk: `OUT=<dir> node e2e/signpost-shot.mjs`.
 - Satu bab saja: `UNLOCK_ALL=1 LEVELS=2 NO_VIDEO=1 node e2e/normal-journey.mjs`.
 - Rencana level: `e2e/lib/level-plans.json` (tiap siklus membawa `w`,`h`); jaga dengan `npx vitest run tests/game`.
+
+## NUI Lab integrated into main 0.21.0-alpha (2026-11-16)
+- Entry pages in the existing Next.js static-export build are `/nui-lab`, `/nui-lab/gesture`, `/nui-lab/canvas`, `/nui-lab/diagnostics`. No branch-specific deployment configuration needed if Ujang deploys `main`.
+- Source and gesture action mapping are shared with the game: pinch Coret, five extended fingers Hapus (not fist), 1-finger Undo, 2-finger Redo. Lab has full-frame hand lock and manual relock; webcam browser testing not yet run.
+- Use `NUILAB_MAIN_HANDOFF_2026-11-16.md` for static export, deep-link, build, device permission and hard-case validation. Status at source push: STATIC_ONLY / NOT_TESTED.

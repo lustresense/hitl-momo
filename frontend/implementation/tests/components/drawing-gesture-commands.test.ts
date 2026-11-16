@@ -19,21 +19,25 @@ describe("R12 gesture commands", () => {
     expect(run([["one-finger", GESTURE_HOLD_MS.undo - 100], ["none", 100]])).toEqual([]);
     expect(run([["one-finger", 500], ["none", 100], ["one-finger", 500]])).toEqual(["undo", "undo"]);
   });
-  it("fist is the held Hapus tool, never a one-shot command; pinch and thumb never fire", () => {
+  it("fist never erases and is never a command, pinch and thumb likewise", () => {
     expect(run([["fist", 2000], ["pinch", 2000], ["thumb-up", 2000]])).toEqual([]);
     const c = createGestureCommander();
     c.feed("fist", 0);
-    expect(c.isErasing()).toBe(true);
+    expect(c.isErasing()).toBe(false);
     c.feed("pinch", 50);
     expect(c.isErasing()).toBe(false);
   });
 });
 
 describe("open palm erases (REV-B02-006)", () => {
-  it("an open palm held is the erase tool", () => {
+  it("an open or split five-finger palm enters the erase pose", () => {
     const c = createGestureCommander();
     c.feed("open-palm", 0);
     expect(c.isErasing()).toBe(true);
+    c.feed("split-palm", 50);
+    expect(c.isErasing()).toBe(true);
+    c.feed("fist", 100);
+    expect(c.isErasing()).toBe(false);
   });
 });
 

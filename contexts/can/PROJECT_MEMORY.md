@@ -1,5 +1,8 @@
 # Project Memory — Durable Bootstrap
 
+## 2026-11-16 — Baseline-first NUI Lab 0.22.1-alpha, pending QA
+Patch berbasis audit 0.22.0-alpha. Di lab Gesture/Canvas, classifier harus dimulai dari baseline game dan eksperimen hanya melalui opt-in; UI Pilih Ulang menjadi fallback saat ambiguous/unmatched-hand. Auto-release sesudah benar-benar kosong dan no-takeover saat bystander terlihat tetap berlaku. Bukti hanya source dan test yang ditulis, belum npm/Playwright/webcam. Tidak mengubah gesture mapping atau model MediaPipe; perubahan di review branch sebelum promosi main.
+
 ## 2026-11-16 — NUI Lab P0–P2 auto-lock eksperimen 0.22.0-alpha
 Mandat M-039. Lab: jika kamera tanpa kandidat beberapa frame maka auto-release, satu kandidat baru yang stabil auto-lock tanpa klik; hands ambiguous menahan aksi. Bukan identifikasi manusia/biometrik. Cursor terpisah dari gate tinta dan mode eksperimen lab menguji pinch telunjuk terlipat/tiga-jari, dengan diagnostik ratio+reason. Game default dan mapping tetap. Bukti 12 V8 synthetic tests saja, belum npm/browser/webcam. Training dataset P3/P4 belum dilaksanakan.
 

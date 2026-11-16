@@ -66,6 +66,17 @@ describe("automatic relock after an actually empty frame interval", () => {
     }
     expect(lock.acquisitionId).toBe(1);
   });
+  it("reacquires after a sufficiently long empty gap even if no sampled frame lands on the timeout", () => {
+    const lock = new FullFrameHandLock();
+    lock.pick([handAt(.15,.6,.2)],0);
+    lock.pick([handAt(.15,.6,.2)],33);
+    const before = lock.acquisitionId;
+    lock.pick([],100);
+    lock.pick([],140);
+    expect(lock.pick([handAt(.82,.6,.2)],420)).toEqual({index:null,status:"locking"});
+    expect(lock.pick([handAt(.82,.6,.2)],453)).toEqual({index:0,status:"locked"});
+    expect(lock.acquisitionId).toBeGreaterThan(before);
+  });
   it("waits when two hands arrive together after an empty interval", () => {
     const lock = new FullFrameHandLock();
     lock.pick([handAt(.16,.6,.2)],0);lock.pick([handAt(.16,.6,.2)],33);

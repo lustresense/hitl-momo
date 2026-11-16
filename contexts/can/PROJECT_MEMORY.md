@@ -6,6 +6,15 @@
 Keep this file small. It is the Hermes-inspired "hot durable memory" layer; detailed experience belongs in ECC memory.
 
 ## Product identity
+## 2026-11-16 — NUI Lab pada branch deploy `ujang-monorepo`
+- Owner mengoreksi branch workflow: tunnel dev tetap pada `ujang-monorepo`. Source/UI NUI Lab yang sebelumnya staged di `nui-lab` dibawa ke `frontend/implementation/` cabang deploy itu (version 0.19.0-alpha). `main` tetap, tidak ada deploy/QA terbukti.
+- `nui-lab` perlu dibersihkan sebagai ref sementara oleh Ujang karena konektor GitHub tidak menyediakan delete branch. Handoff aktif `NUILAB_MONOREPO_HANDOFF_2026-11-16.md`. Jangan menginstruksikan Ujang checkout ke branch lama.
+
+## 2026-11-16 — Branch `nui-lab` eksperimen owner
+- User meminta route statis `/nui-lab`, `/nui-lab/gesture`, `/nui-lab/canvas` agar bisa di-deploy Ujang dari branch baru, tanpa melewati game. Existing lab diagnostics tersedia di `/nui-lab/diagnostics`.
+- Kesamaan pipeline lebih penting daripada membuat model kedua. Mode gesture pose detection, mode canvas scratch drawing + pointer tools + Momo, camera diminta hanya dengan tombol.
+- Status `STATIC_ONLY / NOT_TESTED`; tidak ada webcam/CI/browser/deploy. Lihat `NUILAB_BRANCH_HANDOFF_2026-11-16.md`. Visual prototype pindah ke sesi baru memakai HTML V4.
+
 ## 2026-11-15 — B04-004 Owner override (0.18.1-alpha, STATIC_ONLY)
 - Owner memerintahkan ganti waving hand cover sesuai PRD opsi B. Product truth `DECISIONS.md` D-20261115-03: kamera OFF + Momo tidur, ON dan stream playable bangun Momo, lanjut bubble/animasi PIP/jempol, fallback tanpa kamera.
 - Repo `ujang-monorepo` source/test patch 0.18.1-alpha, bukan bukti runtime. `0.18.0-alpha` sebelumnya tetap memerlukan wave; kini catatan itu historical. Jangan menghidupkan lagi wave sebagai syarat cover.

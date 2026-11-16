@@ -51,3 +51,11 @@ Keputusan Owner D-20261115-03 menggantikan **waving siswa sebagai trigger cover*
 Tidak ada lagi `WaveTracker`, ring progress wave atau sleep-nudge yang mewajibkan lambaian pada cover. Modul `wave-tracker.ts` tetap tersedia untuk diagnosis/riset, tetapi bukan syarat membuka cover. Model `landmarker-warmup.ts` dan cache 30 detik dari B04-003 tetap untuk kebutuhan interaksi tangan berikutnya, bukan proof wave berhasil di cover. Identitas `onWave` prop dipertahankan sebagai callback navigasi setelah konfirmasi jempol agar pemanggil lama tidak patah.
 
 Tidak mengubah HTML card Claude, CSS cover, gesture Card1/3, Top-3 HITL, model partner atau rest API. Seluruh perubahan `STATIC_ONLY` sampai npm, browser, webcam dan deploy diverifikasi oleh Ujang.
+
+## NUI Lab integrated routes — 2026-11-16 (0.19.0-alpha, STATIC_ONLY)
+
+The deploy branch `ujang-monorepo` includes independent Next.js App Router static-export pages `/nui-lab`, `/nui-lab/gesture`, `/nui-lab/canvas`, and a legacy diagnostics page at `/nui-lab/diagnostics`. These routes are outside SketchbookApp's gameplay/onboarding state machine. They are not listed as student game transitions.
+
+`NuiLabPage` has three render variants on one shared MediaPipe camera/session driver. Gesture mode reuses `LabAnalyzer`, `hand-gesture.ts`, `primary-hand.ts`, `FaceAnchor`, `frame-source`, `inference-scheduler` and renders all existing heuristic poses; it does not invent AI confidence for a rule-based classifier. Canvas mode reuses `HandStrokePipeline`/`StrokeStore` and `createGestureCommander`, keeps a real camera preview at the left, a scratch drawing canvas and pointer tools, and a visual `MomoAvatar` companion. Every camera request requires user action, and cleanup stops tracks and closes models on stop/unmount. Do not change gameplay gesture mapping or partner API from within lab.
+
+Static-host direct routes, webcam inference, Chrome FPS, lowlight, identity lock, duplicate stream prevention and device permissions require runtime evidence. Source presence does not establish those tests passed. See `NUILAB_MONOREPO_HANDOFF_2026-11-16.md`.

@@ -3,6 +3,17 @@
 Last updated: 2026-11-05 (sesi eksekusi teknis; diperbarui oleh IT ORCHESTRATOR atas permintaan Owner)
 
 ## NOW (baca ini dulu)
+### 2026-11-16 — NUI Lab disatukan ke `ujang-monorepo` (source only)
+- Instruksi Owner mengoreksi strategi sebelumnya. Tunnel dev Ujang tetap mengambil `ujang-monorepo`; semua path NUI Lab `app/nui-lab/**` dan `src/components/nui-lab/**` ditransfer ke branch tersebut tanpa merombak alur siswa.
+- Branch `nui-lab` adalah branch sementara; connector GitHub tidak mempunyai operasi delete branch, sehingga Ujang harus membersihkannya setelah memastikan HEAD deploy baru. Tidak boleh menghapus lebih dahulu.
+- Versi global `0.19.0-alpha`, tidak ada klaim build/webcam/runtime PASS. Handoff terbaru `NUILAB_MONOREPO_HANDOFF_2026-11-16.md`.
+
+### 2026-11-16 — Branch NUI Lab workspace (source only)
+- Owner memisah sesi visual cover (prototype HTML V4) dari sesi NUI Lab dan meminta branch `nui-lab` tersendiri untuk routing dari domain monorepo.
+- Routes `/nui-lab` (landing), `/nui-lab/gesture`, `/nui-lab/canvas`, `/nui-lab/diagnostics`. Pipeline MediaPipe asli dipakai ulang dari `NuiLabPage` dan `LabAnalyzer`.
+- Canvas test-only memakai pinch, 1/2-finger undo/redo sesuai mapping mode drawing, tools pointer (pen/erase/undo/redo/clear), overlay preview kecil, Momo visual; pose page menguji semua pose tanpa action game.
+- Bukti `STATIC_ONLY` sampai Ujang menjalankan seluruh gates dan browser webcam nyata. Tidak ada backend/model partner/cover/gameplay berubah, `ujang-monorepo` dan `main` tidak disentuh.
+
 ### KOREKSI OWNER B04-004 2026-11-15 — stream-ready replaces waving (0.18.1-alpha)
 - Owner secara eksplisit menolak implementasi 0.18.0-alpha yang mempertahankan wave dan meminta PRD REV-B04 opsi kamera ON diterapkan. Keputusan produk D-20261115-03, mandat M-035.
 - `GlobalCamera` cover kini tanpa WaveTracker/ring wave/nudge. Setelah getUserMedia dan playback video berhasil, satu kali `wakeMomo()` menjalankan animasi kamera PIP, Momo kaget/terbang, chat perkenalan, jempol menuju penggaris. Kamera OFF atau permission ditolak, video gagal, stale request tidak otomatis membangunkan Momo. Fallback manual saat tidak ada kamera tetap.

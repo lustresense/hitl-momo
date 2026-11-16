@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.19.0-alpha | 2026-11-16 | Fitur | `(0.19.0-alpha)` |
 | 0.18.1-alpha | 2026-11-15 | Perbaikan | `(0.18.1-alpha)` |
 | 0.18.0-alpha | 2026-11-15 | Fitur | `(0.18.0-alpha)` |
 | 0.17.1-alpha | 2026-11-15 | Dokumen | `(0.17.1-alpha)` |
@@ -113,6 +114,23 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.19.0-alpha — 2026-11-16 — Fitur
+
+**Sumber:** Instruksi eksplisit Owner 16 November 2026 untuk NUI Lab yang terintegrasi langsung pada `ujang-monorepo`, path `/nui-lab`, `/nui-lab/gesture`, `/nui-lab/canvas`, terhubung ke monorepo dan disiapkan untuk deployment Ujang.
+
+**Perubahan:**
+- NUI Lab berada di `frontend/implementation/` dalam branch deploy aktif `ujang-monorepo`; branch eksperimen `nui-lab` adalah staging historis, bukan sumber deploy. `main` tidak disentuh dan state machine game siswa tidak berubah.
+- Next.js static-export entry: `/nui-lab` hub, `/nui-lab/gesture` untuk katalog pose + preview skeleton/diagnostics, `/nui-lab/canvas` untuk scratch canvas dengan preview kiri bawah, tool pointer dan Momo, serta `/nui-lab/diagnostics` untuk dashboard lama.
+- Satu `NuiLabPage` dengan varian mode, `LabAnalyzer`, `HandStrokePipeline`, `StrokeStore`, MediaPipe hand dan face yang sudah ada. Undo/redo di canvas memakai gesture commander mode menggambar, pointer juga dapat digunakan tanpa kamera.
+- Styling lab disesuaikan dengan token `--nb-*` proyek tanpa mengganti camera preview alami atau mengubah preprocessing MediaPipe global.
+- Test React baru untuk variant gesture/canvas dan proteksi kamera tidak otomatis hidup. Handoff dan perintah build Ujang ditambahkan.
+
+**Batas:** `STATIC_ONLY / NOT_TESTED`. GitHub tidak menjalankan npm install, typecheck, Vitest, Next build, browser static host, webcam fisik atau tunnel dev. Route perlu diverifikasi Ujang setelah pull `ujang-monorepo`. Riset low-light dan tuning NUI bukan klaim PASS dari scaffold UI ini.
+
+**Commit:** `feat(nui-lab): integrate gesture and canvas routes into ujang-monorepo (0.19.0-alpha)`.
 
 ---
 

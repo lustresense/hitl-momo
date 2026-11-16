@@ -6,6 +6,7 @@
 import type { FaceBox } from "@/src/camera/face-anchor";
 import { handSize, isLargeEnough, pickPrimaryHand, type PrimaryHandState } from "@/src/camera/primary-hand";
 import { classifyHandPose, indexTipNormalized, type HandPose } from "@/src/input/hand-gesture";
+import { createGestureCommander } from "@/src/components/drawing/gesture-commands";
 import { HandStrokePipeline } from "@/src/input/hand-stroke-pipeline";
 import type { EraserControl } from "@/src/input/eraser";
 import { DRAWING_ONE_EURO, PointSmoother } from "@/src/input/smoothing";
@@ -94,6 +95,7 @@ export class LabAnalyzer {
   private readonly sampler = new WaveLabSampler();
   private waveStatus: WaveStatus = "idle";
   private readonly store = new StrokeStore();
+  private readonly gestureCommands = createGestureCommander();
   private readonly ink = new HandStrokePipeline({
     store: this.store,
     size: () => INK_SIZE,
@@ -122,6 +124,7 @@ export class LabAnalyzer {
         this.inkSmoother.reset();
       }
       this.ink.feed(undefined, nowMs);
+      this.gestureCommands.feed("none", nowMs);
       this.feedWave(null, nowMs);
       return;
     }
@@ -131,7 +134,10 @@ export class LabAnalyzer {
     const raw = indexTipNormalized(lm);
     this.rawTips.push({ t: nowMs, v: raw });
     this.inkTips.push({ t: nowMs, v: this.inkSmoother.smooth(raw, nowMs) });
-    this.ink.feed(lm, nowMs);
+    const inkFrame = this.ink.feed(lm, nowMs);
+    const command = this.gestureCommands.feed(inkFrame.pose, nowMs);
+    if (command === "undo") this.store.undo();
+    if (command === "redo") this.store.redo();
     // The wave rule scales its swing with the hand's own size, as the game does.
     this.feedWave(lm[0] ?? null, nowMs, this.primarySizeNow, face);
   }
@@ -150,6 +156,7 @@ export class LabAnalyzer {
   /** Forgets all hands, filters and the wave test (camera stopped). */
   reset(nowMs: number): void {
     this.ink.reset(nowMs);
+    this.gestureCommands.reset();
     this.inkSmoother.reset();
     this.inferSamples = [];
     this.detectTimes = [];
@@ -169,6 +176,29 @@ export class LabAnalyzer {
   /** Strokes of the scratch ink canvas (canvas px). */
   strokes(): { completed: RawStroke[]; active: RawStroke | null } {
     return this.store.getStrokes();
+  }
+
+  /** Lab-only fallback tools, backed by the same stroke store as MediaPipe. */
+  beginPointerStroke(point: { x: number; y: number }): void {
+    this.store.beginStroke();
+    this.store.addPoint(point);
+  }
+  movePointerStroke(point: { x: number; y: number }): void {
+    this.store.addPoint(point);
+  }
+  endPointerStroke(): void {
+    this.store.endStroke();
+  }
+  erasePointer(point: { x: number; y: number }): void {
+    this.store.eraseAt(point, 16);
+    this.store.endErase();
+  }
+  canvasAction(action: "undo" | "redo" | "clear"): void {
+    this.ink.reset(performance.now());
+    this.gestureCommands.reset();
+    if (action === "undo") this.store.undo();
+    if (action === "redo") this.store.redo();
+    if (action === "clear") this.store.clear();
   }
 
   /** Hands of the last analysed frame, for the overlay. */

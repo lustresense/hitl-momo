@@ -6,7 +6,8 @@
  * The camera starts only on a click; stopping or leaving the page releases the camera and the model.
  */
 import type { HandLandmarker } from "@mediapipe/tasks-vision";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type PointerEvent } from "react";
+import { MomoAvatar } from "@/src/components/momo/MomoAvatar";
 import { frameForDetection, getFrameSourceStats, setLowLightEnhancement, type LowLightMode } from "@/src/camera/frame-source";
 import { FaceAnchor, type FaceModelStatus } from "@/src/camera/face-anchor";
 import { createHandLandmarker, delegateLabel, getDelegateInfo } from "@/src/camera/hand-landmarker";
@@ -26,6 +27,7 @@ const MODEL_URL = "/models/hand_landmarker.task";
 /** Width of the overlay canvas; its height follows the camera's own aspect ratio. */
 const OVERLAY_WIDTH = 640;
 const INK_SIZE = { width: 400, height: 300 };
+const POSES = ["thumb-up", "pinch", "fist", "one-finger", "two-fingers", "three-fingers", "split-palm", "open-palm"] as const;
 /** How often the numbers on screen are refreshed (the loop itself runs every frame). */
 const REFRESH_MS = 250;
 /** Consecutive detector errors before the page stops and says so (as the game's trackers do). */
@@ -116,7 +118,13 @@ const fmtMs = (v: number | null): string => (v === null ? "—" : `${Math.round(
 const fmtPx = (v: number | null): string => (v === null ? "tahan tangan diam" : `${v.toFixed(1)} px`);
 const fmtPct = (v: number | null): string => (v === null ? "—" : `${Math.round(v)}%`);
 
-export function NuiLabPage() {
+/** All variants reuse one MediaPipe session and the same LabAnalyzer. */
+export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics" | "gesture" | "canvas" } = {}) {
+  const isCanvas = variant === "canvas";
+  const isGesture = variant === "gesture";
+  const [pointerTool, setPointerTool] = useState<"pen" | "eraser">("pen");
+  const pointerDown = useRef(false);
+  const analyzerRef = useRef(new LabAnalyzer());
   const [supported, setSupported] = useState<boolean | null>(null);
   const [phase, setPhase] = useState<"off" | "starting" | "on">("off");
   const [message, setMessage] = useState("");
@@ -156,10 +164,63 @@ export function NuiLabPage() {
     const s = session.current;
     session.current = null;
     releaseSession(s);
+    analyzerRef.current.reset(performance.now());
     if (videoRef.current) videoRef.current.srcObject = null;
     setPhase("off");
     setInfo(EMPTY_INFO);
     setReadout(EMPTY_READOUT);
+    paintInk();
+  };
+
+  const paintInk = (_cur?: Session) => {
+      const ctx = inkRef.current?.getContext("2d");
+      if (!ctx) return;
+      ctx.clearRect(0, 0, INK_SIZE.width, INK_SIZE.height);
+      const { completed, active } = analyzerRef.current.strokes();
+      ctx.strokeStyle = "#0f172a";
+      ctx.lineWidth = 4;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      for (const stroke of [...completed, ...(active ? [active] : [])]) {
+        if (stroke.length < 2) continue;
+        ctx.beginPath();
+        ctx.moveTo(stroke[0]!.x, stroke[0]!.y);
+        for (const p of stroke.slice(1)) ctx.lineTo(p.x, p.y);
+        ctx.stroke();
+      }
+    };
+
+  const canvasPoint = (event: PointerEvent<HTMLCanvasElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = Math.max(0, Math.min(INK_SIZE.width, ((event.clientX - rect.left) / Math.max(1, rect.width)) * INK_SIZE.width));
+    const y = Math.max(0, Math.min(INK_SIZE.height, ((event.clientY - rect.top) / Math.max(1, rect.height)) * INK_SIZE.height));
+    return { x, y };
+  };
+  const onCanvasDown = (event: PointerEvent<HTMLCanvasElement>) => {
+    if (!isCanvas) return;
+    event.currentTarget.setPointerCapture?.(event.pointerId);
+    pointerDown.current = true;
+    const point = canvasPoint(event);
+    if (pointerTool === "pen") analyzerRef.current.beginPointerStroke(point);
+    else analyzerRef.current.erasePointer(point);
+    paintInk();
+  };
+  const onCanvasMove = (event: PointerEvent<HTMLCanvasElement>) => {
+    if (!isCanvas || !pointerDown.current) return;
+    const point = canvasPoint(event);
+    if (pointerTool === "pen") analyzerRef.current.movePointerStroke(point);
+    else analyzerRef.current.erasePointer(point);
+    paintInk();
+  };
+  const onCanvasUp = () => {
+    if (!pointerDown.current) return;
+    pointerDown.current = false;
+    analyzerRef.current.endPointerStroke();
+    paintInk();
+  };
+  const runCanvasAction = (action: "undo" | "redo" | "clear") => {
+    analyzerRef.current.canvasAction(action);
+    paintInk();
   };
 
   const startCamera = async () => {
@@ -186,7 +247,7 @@ export function NuiLabPage() {
       stream,
       landmarker: null,
       face: new FaceAnchor(),
-      analyzer: new LabAnalyzer(),
+      analyzer: analyzerRef.current,
       rafId: null,
       timerId: null,
       frameTimes: [],
@@ -284,23 +345,6 @@ export function NuiLabPage() {
         drawFaceArea(ctx, cur.analyzer.currentFace, canvas.width, canvas.height, cur.face.others(performance.now()));
       }
     };
-    const paintInk = (cur: Session) => {
-      const ctx = inkRef.current?.getContext("2d");
-      if (!ctx) return;
-      ctx.clearRect(0, 0, INK_SIZE.width, INK_SIZE.height);
-      const { completed, active } = cur.analyzer.strokes();
-      ctx.strokeStyle = "#0f172a";
-      ctx.lineWidth = 4;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      for (const stroke of [...completed, ...(active ? [active] : [])]) {
-        if (stroke.length < 2) continue;
-        ctx.beginPath();
-        ctx.moveTo(stroke[0]!.x, stroke[0]!.y);
-        for (const p of stroke.slice(1)) ctx.lineTo(p.x, p.y);
-        ctx.stroke();
-      }
-    };
     const refresh = () => {
       if (session.current !== s) return;
       const now = performance.now();
@@ -347,12 +391,21 @@ export function NuiLabPage() {
   const wave = snap?.wave;
 
   return (
-    <main className="nui-lab">
+    <main className={`nui-lab nui-lab--${variant}`} data-testid={`nui-lab-${variant}`}>
+      <nav className="nui-lab__nav" aria-label="Navigasi NUI Lab">
+        <a href="/nui-lab">Beranda Lab</a>
+        <a href="/nui-lab/gesture" aria-current={isGesture ? "page" : undefined}>Gesture Detection</a>
+        <a href="/nui-lab/canvas" aria-current={isCanvas ? "page" : undefined}>Canvas Lab</a>
+        {variant === "diagnostics" && <span className="nui-lab__nav-note">Mode diagnostik lama</span>}
+      </nav>
       <header className="nui-lab__header">
-        <h1>Uji Tangan NUI</h1>
+        <h1>{isCanvas ? "Canvas NUI Lab" : isGesture ? "Gesture Detection Lab" : "Uji Tangan NUI"}</h1>
         <p className="nui-lab__lede">
-          Halaman untuk Owner sebelum pameran. Tidak tertaut dari permainan siswa. Kamera hanya menyala setelah
-          tombol ditekan.
+          {isCanvas
+            ? "Uji menggambar memakai MediaPipe atau pointer. Tidak menjalankan game, prediksi Top-3, atau onboarding."
+            : isGesture
+              ? "Kenali semua pose tangan dari classifier yang sama dengan game. Status merupakan hasil heuristik, bukan confidence model."
+              : "Halaman diagnostik lama untuk Owner. Kamera hanya menyala setelah tombol ditekan."}
         </p>
       </header>
 
@@ -378,8 +431,8 @@ export function NuiLabPage() {
       </div>
 
       <div className="nui-lab__layout">
-        <section className="nui-lab__panel" aria-labelledby="nui-lab-camera-title">
-          <h2 id="nui-lab-camera-title">Kamera dan tangan</h2>
+        <section className="nui-lab__panel nui-lab__camera-panel" aria-labelledby="nui-lab-camera-title">
+          <h2 id="nui-lab-camera-title">{isCanvas ? "Kamera langsung" : "Kamera dan tangan"}</h2>
           <div ref={stageRef} className="nui-lab__stage">
             <video ref={videoRef} className="nui-lab__video" muted playsInline autoPlay aria-label="Pratinjau kamera" />
             <canvas ref={overlayRef} className="nui-lab__overlay" aria-label="Kerangka tangan" />
@@ -393,18 +446,66 @@ export function NuiLabPage() {
             <span className="nui-lab__swatch nui-lab__swatch--region" aria-hidden="true" /> Ungu = area tangan pemain
           </p>
 
-          <h3>Coret uji</h3>
-          <p className="nui-lab__muted">Cubit telunjuk dan jempol untuk menulis, kepal untuk menghapus.</p>
-          <canvas
-            ref={inkRef}
-            className="nui-lab__ink"
-            width={INK_SIZE.width}
-            height={INK_SIZE.height}
-            aria-label="Kanvas coret uji"
-          />
+          {variant === "diagnostics" && (
+            <>
+              <h3>Coret uji</h3>
+              <p className="nui-lab__muted">Cubit telunjuk dan jempol untuk menulis, kepal untuk menghapus.</p>
+              <canvas ref={inkRef} className="nui-lab__ink" width={INK_SIZE.width} height={INK_SIZE.height} aria-label="Kanvas coret uji" />
+            </>
+          )}
         </section>
 
-        <section className="nui-lab__panel" aria-labelledby="nui-lab-numbers-title">
+        {isCanvas && (
+          <section className="nui-lab__panel nui-lab__canvas-workspace" aria-labelledby="nui-lab-canvas-title">
+            <h2 id="nui-lab-canvas-title">Kanvas bebas</h2>
+            <p className="nui-lab__muted">Cubit jempol dan telunjuk untuk menggambar. Coba mouse atau sentuh langsung di kanvas sebagai pembanding.</p>
+            <canvas
+              ref={inkRef}
+              className="nui-lab__ink nui-lab__ink--large"
+              width={INK_SIZE.width}
+              height={INK_SIZE.height}
+              aria-label="Kanvas gambar NUI"
+              onPointerDown={onCanvasDown}
+              onPointerMove={onCanvasMove}
+              onPointerUp={onCanvasUp}
+              onPointerCancel={onCanvasUp}
+            />
+            <div className="nui-lab__momo" aria-label="Petunjuk Momo">
+              <MomoAvatar expression={snap?.pose === "pinch" ? "Semangat" : "Penasaran"} height={105} />
+              <p className="momo-chat__bubble">Coba gambar perlahan, lalu cepat. Perhatikan garisnya. Kalau tracking hilang, gunakan mouse dulu, ya!</p>
+            </div>
+          </section>
+        )}
+        <section className="nui-lab__panel nui-lab__tools-panel" aria-labelledby="nui-lab-numbers-title">
+          {isCanvas && (
+            <section aria-label="Alat menggambar">
+              <h2>Tools gambar</h2>
+              <div className="nui-lab__choices">
+                <button className="nui-lab__button" type="button" aria-pressed={pointerTool === "pen"} onClick={() => setPointerTool("pen")}>Pena pointer</button>
+                <button className="nui-lab__button" type="button" aria-pressed={pointerTool === "eraser"} onClick={() => setPointerTool("eraser")}>Penghapus pointer</button>
+                <button className="nui-lab__button" type="button" onClick={() => runCanvasAction("undo")}>Undo</button>
+                <button className="nui-lab__button" type="button" onClick={() => runCanvasAction("redo")}>Redo</button>
+                <button className="nui-lab__button" type="button" onClick={() => runCanvasAction("clear")}>Bersihkan kanvas</button>
+              </div>
+              <p className="nui-lab__muted">Gestur kamera tetap memakai mapping mode gambar. Tombol pena dan penghapus hanya mengubah alat mouse/sentuh.</p>
+            </section>
+          )}
+          {isGesture && (
+            <section aria-label="Katalog pose yang dapat dideteksi">
+              <h2>Pose tangan</h2>
+              <p className="nui-lab__pose-now" aria-live="polite">{snap ? poseLabel(snap.pose) : "Nyalakan kamera untuk mendeteksi"}</p>
+              <div className="nui-lab__poses">
+                {POSES.map((pose) => (
+                  <div key={pose} className="nui-lab__pose" data-active={snap?.pose === pose ? "true" : "false"}>
+                    <strong>{poseLabel(pose)}</strong>
+                    <small>{snap?.pose === pose ? "TERDETEKSI" : "belum terdeteksi"}</small>
+                  </div>
+                ))}
+              </div>
+              <p className="nui-lab__muted">Jempol, pinch, kepal, satu/dua/tiga jari, split palm, dan telapak. Setiap pose bisa dicoba satu per satu, tanpa mengeksekusi aksi game.</p>
+            </section>
+          )}
+
           <h2 id="nui-lab-numbers-title">Angka langsung</h2>
           <dl className="nui-lab__numbers">
             <Stat label="Resolusi kamera" value={info.width && info.height ? `${info.width} × ${info.height}` : "—"} />

@@ -1,5 +1,16 @@
 # NOW
 
+## 2026-11-16 — NUI Lab digabung ke `ujang-monorepo` (0.19.0-alpha, STATIC_ONLY)
+- Owner membatalkan branch NUI terpisah karena tunnel deploy dari `ujang-monorepo`. Empat route NUI Lab dipasang pada tree frontend branch tersebut; game/cover dan `main` tetap.
+- Branch `nui-lab` hanya staging riwayat dan penghapusannya perlu CLI Git Ujang. Tidak ada alasan mengganti tunnel atau domain.
+- Runbook aktif `frontend/implementation/docs/execution/NUILAB_MONOREPO_HANDOFF_2026-11-16.md`. `STATIC_ONLY`, npm/browser/webcam belum diuji. Catatan eksperimen branch di bawah superseded.
+
+## 2026-11-16 — `nui-lab` workspace source 0.19.0-alpha (STATIC_ONLY)
+- Owner meminta branch NUI tersendiri beserta route `/nui-lab` (hub), `/nui-lab/gesture`, `/nui-lab/canvas`. Dashboard lama pindah `/nui-lab/diagnostics`, tetap tersedia.
+- Satu model MediaPipe + LabAnalyzer, overlay/FaceAnchor dan stroke pipeline yang sudah ada, bukan model klasifikasi game yang baru. Pose gallery, canvas + pointer tools dan Momo. Tidak auto-request kamera.
+- Branch `nui-lab` terisolasi dari `ujang-monorepo` dan `main`. **Source only, belum npm typecheck/Vitest/build/E2E/webcam/tunnel**. Ujang perlu uji static host deep links, HTTPS permission dan webcam.
+- `frontend/implementation/docs/execution/NUILAB_BRANCH_HANDOFF_2026-11-16.md` memuat prosedur serta batas.
+
 ## 2026-11-15 — batch REV-B04 setelah GAS (0.18.0-alpha, STATIC_ONLY)
 - Baseline `ujang-monorepo` 24e17c4 (0.17.1-alpha). Perubahan source untuk B04-001 loader readiness/staging, B04-002 static route cam/bubble, B04-003 wave diagnostic dan single-owner warm reuse 30 s. B04-004 hanya opsi dan tidak diaktifkan.
 - Evaluasi: source dan test file berubah, **BELUM DIJALANKAN** typecheck, lint, Vitest, Next build, Playwright/static-host, webcam fisik, performance trace. Tidak ada bukti deployment Ujang. Nama versi batch merujuk root `VERSION`, bukan klaim deploy.

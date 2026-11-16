@@ -18,6 +18,21 @@ Aturan isi:
 - Jangan menghapus revisi. Revisi yang batal diberi status `BATAL` beserta alasannya.
 - Kamera fisik tidak ada di sandbox AI. Semua gestur diuji dengan landmark sintetis atau mouse. Uji kamera asli wajib dilakukan Owner sebelum pameran.
 
+## Koreksi workflow 2026-11-16 (instruksi langsung Owner)
+- Tunnel dev selama ini mengikuti branch `ujang-monorepo`; Owner membatalkan penggunaan branch `nui-lab` khusus dan meminta semua route NUI Lab hidup langsung di monorepo frontend. `nui-lab` adalah riwayat staging, **bukan** sumber deploy.
+- Handoff aktif `frontend/implementation/docs/execution/NUILAB_MONOREPO_HANDOFF_2026-11-16.md`. Tidak perlu mengganti tunnel, source-level integration bukan bukti runtime.
+ 
+## 2026-11-16 — NUI Lab terintegrasi ujang-monorepo (Owner, STATIC_ONLY)
+
+| ID | Permintaan Owner | Status | Bukti/next step |
+|---|---|---|---|
+| NUI-LAB-01 | NUI Lab diintegrasikan langsung pada `frontend/implementation/` branch `ujang-monorepo`, tanpa mengubah `main`. Branch `nui-lab` hanya staging historis yang perlu dihapus oleh Ujang. | JALAN | Source 0.19.0-alpha ditransfer tanpa perubahan game. Belum ada bukti build/deploy. |
+| NUI-LAB-02 | Hub `/nui-lab` dan route `/nui-lab/gesture`, `/nui-lab/canvas`; terhubung ke static-export monorepo, bukan flow game. | JALAN | Next.js page entries; Ujang perlu build dan uji deep-link melalui tunnel dev. |
+| NUI-LAB-03 | Gesture Detection menampilkan semua pose + skeleton, hand lock, metrik MediaPipe, termasuk uji low-light/wave terpisah. | JALAN | Reuse LabAnalyzer dan classifier lama, tidak mengklaim confidence ML. Real webcam BELUM DIUJI. |
+| NUI-LAB-04 | Canvas Lab menggambar dengan pinch, tools sisi kanan, kamera kiri bawah, Momo, pointer fallback, undo/redo/clear. | JALAN | Reuse stroke pipeline + gesture commander; visual dan fisik belum diverifikasi. |
+
+**Scope:** routing Owner pada domain frontend yang sama, bukan alur gameplay siswa. Tidak mengubah `DECISIONS.md`, cover, atau mapping Card 3; status `STATIC_ONLY / NOT_TESTED`.
+
 ## Koreksi terbaru 2026-11-15 — PRD REV-B04 opsi B
 - **Owner menegaskan B04-004:** waving hand harus diganti; implementasi PRD yang diminta adalah kamera ON setelah stream playable, bukan wave cover. Status kode `JALAN / STATIC_ONLY` pada batch 0.18.1-alpha, belum ada runtime proof.
 - **Regresi yang harus dijaga:** camera card Claude, Card 1 telunjuk, Card 3 `0.17.1-alpha`, Momo intro, PIP morph dan jempol tetap. WaveTracker standalone tetap untuk penelitian NUI, bukan cover gate.

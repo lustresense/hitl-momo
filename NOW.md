@@ -1,5 +1,16 @@
 # NOW.md — Status integrasi bersama
 
+## 2026-11-16 — NUI Lab langsung di `ujang-monorepo` (0.19.0-alpha, STATIC_ONLY)
+- **Instruksi terbaru Owner mengoreksi strategi branch:** NUI Lab tidak terpisah sebagai branch untuk deployment. Seluruh route `/nui-lab`, `/nui-lab/gesture`, `/nui-lab/canvas`, dan `/nui-lab/diagnostics` sudah dimasukkan ke tree `ujang-monorepo` di `frontend/implementation/`.
+- Tunnel dev yang sudah menunjuk `ujang-monorepo` cukup rebuild/deploy seperti biasa, tanpa mengganti sumber branch. `main` tidak disentuh. Branch sementara `nui-lab` tersisa untuk cleanup Git ref oleh Ujang karena konektor belum menyediakan delete branch.
+- Bukti `STATIC_ONLY / NOT_TESTED`: Ujang wajib npm check, Next static export, deep link, browser/permission, webcam/fps sebelum klaim PASS. Handoff terbaru `frontend/implementation/docs/execution/NUILAB_MONOREPO_HANDOFF_2026-11-16.md`.
+- Catatan di bawah tentang branch `nui-lab` adalah **riwayat staging**, bukan konfigurasi deployment aktif.
+
+## 2026-11-16 — Can NUI Lab eksperimen `nui-lab` (0.19.0-alpha, STATIC_ONLY)
+- Branch khusus `nui-lab` dari SHA `a18a6e8` dan entry /nui-lab, /nui-lab/gesture, /nui-lab/canvas plus /nui-lab/diagnostics. Tidak mengubah `main` atau flow game siswa.
+- Reuse MediaPipe/FaceAnchor/LabAnalyzer/HandStrokePipeline. UI eksperimen untuk kamera/gesture dan canvas/mouse dengan Momo. Ujang yang menjalankan npm/build/QA/browser/webcam dan tunnel.
+- Status `STATIC_ONLY / NOT_TESTED`; versi global berubah di branch eksperimen saja. Tidak menyatakan model hand akurat dalam lowlight.
+
 ## Koreksi Can REV-B04-004 2026-11-15 — Global 0.18.1-alpha (STATIC_ONLY)
 - Owner memilih B04-004 opsi B setelah melihat 0.18.0-alpha salah mempertahankan lambaian. **Wake cover:** kamera OFF→user ON→stream playable→Momo bangun/animasi, tanpa kewajiban wave; fallback tanpa kamera masih ada.
 - Patch source/tests, keputusan D-20261115-03, M-035 dan handoff terbaru. B04-001..003 dari 0.18.0-alpha tidak diulang. Camera card Claude dan gesture 0.17.1-alpha dipertahankan.

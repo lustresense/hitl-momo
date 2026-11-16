@@ -239,3 +239,70 @@
   gap: 8px;
   margin-top: 12px;
 }
+
+/* NUI Lab workspaces: project palette and strong outlines, scoped to lab only. */
+.nui-lab {
+  --lab-bg: var(--nb-bg, #f7f5ea);
+  --lab-panel: var(--nb-paper, #fffaf0);
+  --lab-text: var(--nb-ink, #111);
+  --lab-accent: var(--nb-orange, #ef7a37);
+  --lab-muted: var(--ink-soft, #756f65);
+  --lab-border: var(--nb-ink, #111);
+  --lab-focus: var(--nb-sky, #a8c8d8);
+  background: var(--dot-grid-pattern, var(--lab-bg));
+}
+.nui-lab__nav { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin:0 0 18px; }
+.nui-lab__nav a, .nui-lab__diagnostics-link {
+  color:var(--nb-ink, #111); background:var(--nb-paper, #fffaf0);
+  border:2px solid var(--nb-ink, #111); box-shadow:3px 3px 0 var(--nb-ink, #111);
+  border-radius:12px; padding:9px 14px; text-decoration:none; font-weight:800;
+}
+.nui-lab__nav a[aria-current="page"] { background:var(--nb-orange, #ef7a37); }
+.nui-lab__nav-note { color:var(--lab-muted); font-size:13px; }
+.nui-lab__panel { border:2.5px solid var(--nb-ink,#111); border-radius:var(--nb-radius,16px); box-shadow:var(--nb-shadow,4px 4px 0 #111); }
+.nui-lab__button { border-radius:12px; box-shadow:var(--nb-shadow-sm,3px 3px 0 #111); }
+.nui-lab__button--primary { background:var(--nb-orange,#ef7a37); color:var(--nb-ink,#111); border-color:var(--nb-ink,#111); }
+.nui-lab__ink { background:var(--nb-paper,#fffaf0); border:2.5px solid var(--nb-ink,#111); }
+.nui-lab--gesture .nui-lab__layout { grid-template-columns: minmax(0,1.3fr) minmax(285px,0.7fr); }
+.nui-lab--gesture .nui-lab__stage { min-height: 320px; }
+.nui-lab--canvas .nui-lab__layout { grid-template-columns:minmax(185px,260px) minmax(360px,1fr) minmax(245px,305px); align-items:stretch; }
+.nui-lab--canvas .nui-lab__camera-panel { grid-column:1; grid-row:1; align-self:end; position:sticky; bottom:16px; }
+.nui-lab--canvas .nui-lab__canvas-workspace { grid-column:2; grid-row:1; }
+.nui-lab--canvas .nui-lab__tools-panel { grid-column:3; grid-row:1; max-height:calc(100dvh - 130px); overflow-y:auto; }
+.nui-lab--canvas .nui-lab__stage { aspect-ratio:5 / 4; min-height:175px; }
+.nui-lab__ink--large { max-width:none; width:100%; height:auto; aspect-ratio:4 / 3; touch-action:none; cursor:crosshair; border-radius:16px; }
+.nui-lab--canvas .nui-lab__legend { font-size:12px; }
+.nui-lab--canvas .nui-lab__tools-panel .nui-lab__choices { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
+.nui-lab--canvas .nui-lab__tools-panel .nui-lab__button { padding:8px; font-size:13px; }
+.nui-lab__momo { margin-top:14px; display:flex; align-items:center; gap:12px; }
+.nui-lab__momo .momo-chat__bubble { font-size:14px; max-width:410px; }
+.nui-lab__poses { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:9px; margin:12px 0; }
+.nui-lab__pose { border:2px solid var(--nb-ink,#111); border-radius:12px; padding:10px; background:var(--nb-paper,#fffaf0); display:grid; gap:5px; }
+.nui-lab__pose[data-active="true"] { background:var(--nb-leaf,#c8d9a4); box-shadow:3px 3px 0 var(--nb-ink,#111); }
+.nui-lab__pose small { color:var(--lab-muted); font-size:12px; }
+.nui-lab__pose-now { font-size:clamp(20px,3vw,28px); font-weight:900; color:var(--nb-green,#4a8c1f); }
+.nui-lab__eyebrow { font-size:12px; letter-spacing:.15em; font-weight:900; }
+.nui-lab__landing { max-width:1050px; margin:clamp(25px,6vh,85px) auto; }
+.nui-lab__landing h1 { font-size:clamp(42px,7vw,86px); font-weight:900; }
+.nui-lab__landing-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px; margin:28px 0; }
+.nui-lab__landing-card { text-decoration:none; color:var(--nb-ink,#111); display:flex; flex-direction:column; gap:16px; padding:28px; border:3px solid var(--nb-ink,#111); border-radius:24px; background:var(--nb-paper,#fffaf0); box-shadow:7px 7px 0 var(--nb-ink,#111); transition:transform .18s ease,box-shadow .18s ease; }
+.nui-lab__landing-card:nth-child(2) { background:var(--nb-leaf-soft,#eff3db); }
+.nui-lab__landing-card:hover { transform:translate(-2px,-2px); box-shadow:9px 9px 0 var(--nb-ink,#111); }
+.nui-lab__landing-card strong { font-size:clamp(22px,2.8vw,34px); font-weight:900; }
+.nui-lab__landing-count { font-size:12px; font-weight:900; letter-spacing:.1em; }
+.nui-lab__landing-open { align-self:flex-start; font-weight:900; border-bottom:3px solid var(--nb-orange,#ef7a37); }
+.nui-lab__diagnostics-link { display:inline-block; margin-top:8px; }
+@media (max-width:1120px) {
+  .nui-lab--canvas .nui-lab__layout { grid-template-columns:minmax(0,1fr) minmax(240px,300px); }
+  .nui-lab--canvas .nui-lab__camera-panel { grid-column:1; grid-row:2; position:static; max-width:340px; }
+  .nui-lab--canvas .nui-lab__canvas-workspace { grid-column:1; grid-row:1; }
+  .nui-lab--canvas .nui-lab__tools-panel { grid-column:2; grid-row:1 / span 2; }
+}
+@media (max-width:720px) {
+  .nui-lab--gesture .nui-lab__layout, .nui-lab--canvas .nui-lab__layout, .nui-lab__landing-grid { grid-template-columns:minmax(0,1fr); }
+  .nui-lab--canvas .nui-lab__camera-panel, .nui-lab--canvas .nui-lab__canvas-workspace, .nui-lab--canvas .nui-lab__tools-panel { grid-column:1; grid-row:auto; max-height:none; }
+  .nui-lab--canvas .nui-lab__canvas-workspace { order:0; }
+  .nui-lab--canvas .nui-lab__camera-panel { order:1; }
+  .nui-lab--canvas .nui-lab__tools-panel { order:2; }
+  .nui-lab--gesture .nui-lab__stage { min-height:220px; }
+}

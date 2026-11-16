@@ -7,7 +7,8 @@ describe("integrated runtime placement", () => {
   it("rejects penetrating solids, permits edge contact and air anchors", () => {
     const g = getStageGeometry(1);
     const left = g.platforms[0]!;
-    const onTop = { x: 20, y: left.y - g.object.h, ...g.object };
+    // Clear of Thinman's start (a box on his body is refused, see placement-spawn-goal.test.ts).
+    const onTop = { x: g.spawn.x + 40, y: left.y - g.object.h, ...g.object };
     expect(integratedPlacementAllowed(onTop, g, [])).toBe(true);
     expect(integratedPlacementAllowed({ ...onTop, y: onTop.y + 1 }, g, [])).toBe(false);
     expect(integratedPlacementAllowed({ ...onTop, y: 30 }, g, [])).toBe(true);

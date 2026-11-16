@@ -94,7 +94,7 @@ describe("creation rotation: legal placement uses the rotated footprint", () => 
   const geometry = getStageGeometry(2);
 
   it("a tall 90-degree footprint that pokes through a platform is illegal", () => {
-    const platform = geometry.platforms.find((p) => p.w > 0)!;
+    const platform = geometry.platforms.find((p) => p.id === "stage-2-middle-cap")!;
     // Put the object's centre on the platform top: the tall footprint must cross it.
     const item = base({ x: platform.x + 20, y: platform.y - 40, w: 150, h: 8 });
     const turned = rotatedAround(item, 90);
@@ -102,14 +102,14 @@ describe("creation rotation: legal placement uses the rotated footprint", () => 
   });
 
   it("the counter-clockwise tall footprint that pokes through a platform is illegal too", () => {
-    const platform = geometry.platforms.find((p) => p.w > 0)!;
+    const platform = geometry.platforms.find((p) => p.id === "stage-2-middle-cap")!;
     const item = base({ x: platform.x + 20, y: platform.y - 40, w: 150, h: 8 });
     const turned = rotatedAround(item, quarterTurn(item.angle, -1));
     expect(integratedPlacementAllowed(footprintOf(turned), geometry, [], turned.id)).toBe(false);
   });
 
   it("the unrotated object at the same spot is legal when it sits above the platform", () => {
-    const platform = geometry.platforms.find((p) => p.w > 0)!;
+    const platform = geometry.platforms.find((p) => p.id === "stage-2-middle-cap")!;
     const item = base({ x: platform.x + 20, y: platform.y - 40, w: 150, h: 8 });
     expect(integratedPlacementAllowed(footprintOf(item), geometry, [], item.id)).toBe(true);
   });

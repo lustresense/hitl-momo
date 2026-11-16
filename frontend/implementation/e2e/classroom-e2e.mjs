@@ -28,6 +28,12 @@ const missingEnv = [!DB && "DB_PATH", !PASS && "TEACHER_PASSWORD"].filter(Boolea
 if (missingEnv.length) { console.error(`classroom-e2e: missing env ${missingEnv.join(", ")}`); process.exit(2); }
 fs.mkdirSync(OUT, { recursive: true });
 const plans = JSON.parse(fs.readFileSync(path.join(ROOT, "e2e/lib/level-plans.json"), "utf8"));
+// The UI shows the Indonesian displayName from src/prediction/label-map.ts, not the raw model class.
+// Read the map from the source so the expectation follows the map without a second copy here.
+const DISPLAY_NAME = Object.fromEntries(
+  [...fs.readFileSync(path.join(ROOT, "src/prediction/label-map.ts"), "utf8").matchAll(/modelLabel: "([a-z]+)", displayName: "([^"]+)"/g)]
+    .map(m => [m[1], m[2]]),
+);
 
 const checks = [];
 const check = (name, ok, extra = "") => { checks.push({ name, ok: !!ok, extra: String(extra).slice(0, 300) }); console.log(`[${ok ? "PASS" : "FAIL"}] ${name}${extra ? " — " + String(extra).slice(0, 200) : ""}`); };
@@ -94,7 +100,8 @@ try {
   const predictResp = net.filter(n => /\/predict$/.test(n.url)).at(-1);
   check("predict: real backend answered 200 with 3 candidates", predictResp?.status === 200 && predictResp.body?.candidates?.length === 3, predictResp ? `status=${predictResp.status}` : "no /predict response");
   const predLabels = (predictResp?.body?.candidates ?? []).map(c => c.label);
-  check("predict: UI shows the labels returned by the server", JSON.stringify(predLabels) === JSON.stringify(labels), `server=${JSON.stringify(predLabels)} ui=${JSON.stringify(labels)}`);
+  const expectedUi = predLabels.map(l => DISPLAY_NAME[l] ?? l);
+  check("predict: UI shows the display names of the labels returned by the server", JSON.stringify(expectedUi) === JSON.stringify(labels), `server=${JSON.stringify(predLabels)} expectedUi=${JSON.stringify(expectedUi)} ui=${JSON.stringify(labels)}`);
   check("submit: first delivery was dropped and retried (>=2 POSTs)", postCount >= 2, `posts=${postCount}`);
   const posts = net.filter(n => n.method === "POST" && n.url.endsWith("/api/submissions"));
   // The first response was dropped on purpose, so the browser only sees the retry's answer.

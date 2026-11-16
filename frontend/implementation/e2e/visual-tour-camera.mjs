@@ -36,6 +36,7 @@ const timings = {};
 const shotLog = [];
 const gameplayAttempts = [];
 const findings = [];
+const handovers = []; // automatic hand-overs seen instead of a manual thumb (reported in run.json)
 const log = (msg, detail) => {
   const row = { at: Date.now() - T0, msg, ...(detail !== undefined ? { detail } : {}) };
   steps.push(row);
@@ -169,9 +170,13 @@ async function waitRingDone(testId, holdMs) {
   return confirmed || gone;
 }
 
-async function holdThumb(page, testId, { timeout = 15000, tries = 3 } = {}) {
-  const el = page.locator(`[data-testid="${testId}"] >> visible=true`);
-  await el.waitFor({ state: "visible", timeout });
+async function holdThumb(page, testId, { timeout = 15000, tries = 3, optional = false } = {}) {
+  const el = page.locator(`[data-testid="${testId}"] >> visible=true`).first();
+  const appeared = await el.waitFor({ state: "visible", timeout }).then(() => true, () => false);
+  if (!appeared) {
+    if (optional) return null;
+    throw new Error(`${testId}: not visible within ${timeout} ms`);
+  }
   const mode = await el.getAttribute("data-mode");
   const holdMs = Number(await el.getAttribute("data-hold-ms")) || 2000;
   if (mode === null) { await el.click(); return { mode: "tap", holdMs: 0 }; }
@@ -181,7 +186,14 @@ async function holdThumb(page, testId, { timeout = 15000, tries = 3 } = {}) {
   await sleep(1500);
   for (let attempt = 1; attempt <= tries; attempt++) {
     await sleep(300); // a ring that appears under a held pointer is armed only after one released frame
-    const b = await el.boundingBox();
+    // Re-query right before the press: the ring can leave the screen during the wait (the step moved on, or the
+    // app handed over by itself). A missing box is a hand-over, not a crash; the next wait checks the new screen.
+    const b = await el.boundingBox().catch(() => null);
+    if (!b) {
+      handovers.push({ testId, at: Date.now() - T0, reason: "left the screen before the press" });
+      log(`${testId}: left the screen before the press (automatic hand-over or step moved on)`);
+      return { mode, holdMs, gone: true };
+    }
     await page.mouse.move(b.x + b.width / 2, b.y + Math.min(36, b.height / 3));
     await page.mouse.down();
     const confirmed = await waitRingDone(testId, holdMs);
@@ -528,8 +540,12 @@ async function confirmPlacementCam() {
  * rings; the first (Coba lagi) is held to retry. Returns false when the walk does not fall (screen not reached).
  */
 async function recoveryFall() {
-  await walkRightUntilOutcome(6000);
+  // Level 1 cliff edge is at source x 154 (stage-geometry.ts), spawn at 42: a walk right must reach it in a few
+  // seconds. The x trail tells a real block (no movement) from a fall that did not come yet.
+  const xBefore = (await readGame(page))?.x ?? null;
+  await walkRightUntilOutcome(10000);
   const after = await readGame(page);
+  log("recovery: walk right trail", { xBefore, xAfter: after?.x ?? null, outcome: after?.outcome ?? null });
   if (!after.outcome) { log("recovery: walk right did not fall, fail screen not reached", { phase: after.phase }); return false; }
   if (after.outcome === "success") throw new Error("recovery probe: walking right WON the level, the fail screen was not reached");
   await page.locator("[data-testid=outcome-overlay]").waitFor({ state: "visible", timeout: 10000 });
@@ -656,6 +672,23 @@ async function level(stage) {
   log(`L${stage}: Momo success chat finished`);
 }
 
+/**
+ * After a win: the book's "btn-continue" thumb, or the automatic hand-over to the level list (normal-journey.mjs
+ * stage 2 proves the automatic one). Either way the level list must open; a miss throws.
+ */
+async function handOverToLevels(stage) {
+  const manual = await page.locator("[data-testid=btn-continue] >> visible=true").first()
+    .waitFor({ state: "visible", timeout: 8000 }).then(() => true, () => false);
+  if (manual) {
+    const r = await holdThumb(page, "btn-continue", { timeout: 8000, optional: true });
+    log(`L${stage}: btn-continue ${r ? "held" : "not held (automatic hand-over)"}`);
+  } else {
+    handovers.push({ testId: "btn-continue", stage, at: Date.now() - T0, reason: "no thumb shown, automatic" });
+    log(`L${stage}: no btn-continue thumb, automatic hand-over`);
+  }
+  await page.waitForURL(u => u.pathname === "/levels", { timeout: 20000 });
+}
+
 async function ending() {
   await page.locator("[data-testid=center-of-page]").waitFor({ state: "visible", timeout: 30000 });
   await sleep(3000);
@@ -683,11 +716,11 @@ try {
     }
     await level(stage);
     if (stage === ENDING_AFTER) {
-      await holdThumb(page, "btn-continue", { timeout: 8000 }).catch(() => {});
+      await holdThumb(page, "btn-continue", { timeout: 8000, optional: true });
       await ending();
       break;
     }
-    if (stage === 1) await holdThumb(page, "btn-continue");
+    await handOverToLevels(stage);
     await page.locator(".level-card").first().waitFor({ state: "visible", timeout: 15000 });
     await page.waitForURL(u => u.pathname === "/levels", { timeout: 15000 });
     await sleep(1500);
@@ -709,6 +742,6 @@ await context.close();
 await browser.close();
 server.close();
 writeJson(path.join(OUT, "timings.json"), { timings, gameplayAttempts });
-writeJson(path.join(OUT, "run.json"), { result, failure, git: gitInfo(), findings, shots: shotLog, consoleAndPageErrors: criticalErrors, steps });
+writeJson(path.join(OUT, "run.json"), { result, failure, git: gitInfo(), findings, handovers, shots: shotLog, consoleAndPageErrors: criticalErrors, steps });
 console.log(`RESULT ${result}  shots=${shotLog.length}  findings=${findings.length}  consoleErrors=${criticalErrors.length}  out=${OUT}`);
 process.exit(result === "PASS" ? 0 : 1);

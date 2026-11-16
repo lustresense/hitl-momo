@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.15.3-alpha | 2026-11-16 | Tes | `(0.15.3-alpha)` |
 | 0.15.2-alpha | 2026-11-12 | Dokumen | `(0.15.2-alpha)` |
 | 0.15.1-alpha | 2026-11-12 | Tes | `(0.15.1-alpha)` |
 | 0.15.0-alpha | 2026-11-12 | Fitur | `(0.15.0-alpha)` |
@@ -101,6 +102,20 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.15.3-alpha — 2026-11-16 — Tes
+
+**Sumber:** Pekerjaan worker W-TOUR2 dan W-CLASS (R11-14, R11-17), diselamatkan sebelum sesi berhenti
+
+**Perubahan:**
+- visual-tour-camera.mjs: skrip tour mode kamera lebih tahan (re-query tombol, terima serah-terima otomatis) dan lanjut setelah Level 1; belum terbukti sampai akhir.
+- classroom-e2e.mjs: penyesuaian alur UI untuk uji kelas; satu cek dari 19 masih gagal di run pertama.
+
+**Commit:** commit berjudul `(0.15.3-alpha)`
+
+**Bukti:** Hanya node --check sintaks; BELUM dijalankan penuh. W-TOUR2 dan W-CLASS belum lapor. Uji kelas run pertama: 18/19 (bukti di luar repo)
 
 ---
 

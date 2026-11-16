@@ -1,5 +1,10 @@
 # Working Context
 
+### 2026-11-16 — NUI Lab 0.22.1-alpha review patch (STATIC_ONLY)
+- Audit commit f19b04d memisahkan dua hal: bila kamera kosong, reacquire sudah otomatis; bila bystander tetap terlihat, menolak auto-takeover adalah safety yang harus dipertahankan. Kamera RGB tidak membuktikan identitas orang.
+- Patch kandidat NUI Lab mengubah default A/B jadi baseline, mengubah visibilitas relock fallback, dan menambah regression tests tanpa mengubah model MediaPipe/aturan gesture siswa. Perlu Ujang jalankan version check, Vitest, typecheck, lint, build, kamera nyata dan tunnel sebelum dipromosikan ke main.
+- Dataset collector, model baru, rekaman pribadi dan Undo/Redo swipe tetap di luar scope patch.
+
 ### 2026-11-16 — NUI Lab auto-reacquire & diagnostics eksperimen 0.22.0-alpha (STATIC_ONLY)
 - Source `main` diperluas: `lab-hand-lock.ts`, `lab-analyzer.ts`, NUI Lab UI, opsi `experimentalRobust` di classifier/pipeline tanpa mengubah default game. Prioritas adalah hand tracking kontinu, auto-release saat tidak ada tangan, dan rearm tindakan pasca-acquire baru.
 - Aturan lab baru menggunakan 2 sample kamera tanpa hand dan jeda 300ms sebelum melepaskan pemilik lama; jika background hand tetap terlihat, lock tidak dipromosikan. Parameter prototype; perlu tes kamera depan/crowd/distraksi.

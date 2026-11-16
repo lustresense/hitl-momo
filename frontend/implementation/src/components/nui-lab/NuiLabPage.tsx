@@ -126,13 +126,13 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
   const isCanvas = variant === "canvas";
   const isGesture = variant === "gesture";
   const [pointerTool, setPointerTool] = useState<"pen" | "eraser">("pen");
-  const [experimentalMode, setExperimentalMode] = useState(true);
+  const [experimentalMode, setExperimentalMode] = useState(false);
   const pointerDown = useRef(false);
   const pointerCursor = useRef<HandCursor | null>(null);
   const analyzerRef = useRef(new LabAnalyzer({
     fullFrameLock: variant !== "diagnostics",
     enableInk: variant !== "gesture",
-    experimentalRobust: variant !== "diagnostics",
+    experimentalRobust: false, // opt-in: the initial A/B baseline must match the game
   }));
   const [supported, setSupported] = useState<boolean | null>(null);
   const [phase, setPhase] = useState<"off" | "starting" | "on">("off");
@@ -493,11 +493,14 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
           </button>
         )}
         {phase === "starting" && <span className="nui-lab__muted">Kamera dan pelacak sedang dibuka…</span>}
-        {variant !== "diagnostics" && (
+        {variant !== "diagnostics" && running && (
+          snap?.lockStatus === "ambiguous" ||
+          (snap?.lockStatus === "lost" && snap.lockReason === "unmatched-hand")
+        ) && (
           <button type="button" className="nui-lab__button" onClick={relockHand} data-testid="lab-relock-hand">
             Pilih ulang tangan (opsional)
           </button>
-        )}
+        )
         <p role="status" className="nui-lab__status">
           {supported === false ? "Browser ini belum bisa pakai kamera." : message}
         </p>
@@ -514,6 +517,7 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
           {variant !== "diagnostics" && (
             <p className="nui-lab__lock-banner" data-testid="lab-lock-status" aria-live="polite">
               {snap?.lockStatus === "locked" ? "Tangan siap" :
+                snap?.lockStatus === "lost" && snap.lockReason === "unmatched-hand" ? "Tangan aktif tidak terlihat. Tunjukkan satu tangan saja atau pilih ulang jika perlu." :
                 snap?.lockStatus === "lost" ? "Mencari tangan aktif lagi… tinta dihentikan" :
                 snap?.lockStatus === "ambiguous" ? "Tunjukkan satu tangan. Aksi ditahan agar tidak salah." :
                 snap?.lockStatus === "locking" ? "Tangan sedang dipastikan…" :
@@ -608,7 +612,7 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
           {variant !== "diagnostics" && (
             <section className="nui-lab__debug" aria-label="Diagnostik gestur" data-testid="lab-gesture-diagnostics">
               <h3>Kenapa gestur terbaca atau ditolak?</h3>
-              <p className="nui-lab__muted">Angka berasal dari landmark dan aturan, bukan confidence AI. Eksperimen hanya memengaruhi NUI Lab.</p>
+              <p className="nui-lab__muted">Awalnya memakai aturan baseline game. Aktifkan eksperimen untuk membandingkan pada gerakan yang sama. Angka berasal dari landmark, bukan confidence AI; game tidak berubah.</p>
               <button type="button" className="nui-lab__button" onClick={toggleExperimentMode}
                 aria-pressed={experimentalMode} data-testid="lab-experiment-toggle">
                 {experimentalMode ? "Aturan eksperimen ON · bandingkan baseline" : "Aturan baseline ON · coba eksperimen"}

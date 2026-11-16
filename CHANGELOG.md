@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.22.1-alpha | 2026-11-16 | Perbaikan | `(0.22.1-alpha)` |
 | 0.22.0-alpha | 2026-11-16 | Fitur | `(0.22.0-alpha)` |
 | 0.21.0-alpha | 2026-11-16 | Fitur | `(0.21.0-alpha)` |
 | 0.19.1-alpha | 2026-11-16 | Dokumen | `(0.19.1-alpha)` |
@@ -121,6 +122,22 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 ---
 
+
+## 0.22.1-alpha — 2026-11-16 — Perbaikan
+
+**Sumber:** Koreksi langsung pengguna 16 November 2026 untuk melanjutkan R&D NUI Lab, audit `0.22.0-alpha` dan mandat M-040 (follow-up audit R16-NUI).
+
+**Perubahan:**
+- Gestur dan Canvas NUI Lab mulai di classifier **baseline**, eksperimen robust hanya setelah tombol toggle; perbandingan bisa kembali ke baseline tanpa memulai ulang kamera.
+- Pilih ulang tangan hanya ditampilkan sebagai fallback pada kondisi `unmatched-hand` atau `ambiguous` ketika kamera sedang berjalan; kondisi hilang dengan tangan asing diberi pesan yang jujur, tanpa auto-takeover.
+- Tambahkan tes regressi mode baseline/eksperimen dan akuisisi ulang setelah interval frame kosong tidak tepat di batas waktu.
+- MediaPipe, mapping siswa, model partner, dataset, dan logika hand-lock aman yang sudah ada tidak diubah.
+
+**Commit:** `fix(nui-lab): explicit experimental opt-in and honest relock UX (0.22.1-alpha)`.
+
+**Bukti:** `STATIC_ONLY / NOT_TESTED` — tes regresi baru berupa source; Node/Vitest/typecheck/Next build/browser/webcam dan tunnel wajib diverifikasi Ujang sebelum merge ke main.
+
+---
 ## 0.22.0-alpha — 2026-11-16 — Fitur
 
 **Sumber:** Owner 16 November 2026 memerintahkan eksekusi hasil R&D NUI Lab Auto-Lock & Gesture UX, setelah menyetujui arah P0 observabilitas, P1 auto-reacquire, P2 eksperimen pinch/tiga-jari. Dokumen sumber: `RND-DATASET-ROBUST-GESTURE-LOCK-2026-11-16-REVISI-UX.md` (konteks chat, bukan otomatis perubahan proposal).

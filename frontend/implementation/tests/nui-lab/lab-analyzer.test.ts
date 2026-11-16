@@ -3,7 +3,7 @@ import type { FaceBox } from "@/src/camera/face-anchor";
 import { LabAnalyzer } from "@/src/components/nui-lab/lab-analyzer";
 import { handAt } from "../camera/hand-points";
 import { gaussian, seededRandom } from "../input/ink-synthetic";
-import { pinchHand } from "../input/hand-fixtures";
+import { pinchHand, fistHand } from "../input/hand-fixtures";
 import { poseHand } from "../input/pose-fixtures";
 
 const FRAME_MS = 33;
@@ -250,5 +250,45 @@ describe("LabAnalyzer experimental camera-wide lock and game cursor", () => {
     expect(lab.strokes().completed).toHaveLength(0);
     expect(lab.strokes().active).toBeNull();
     expect(lab.snapshot(231).cursor).toBeNull();
+  });
+});
+
+describe("NUI Lab automated hand ownership and action safety", () => {
+  it("automatically reassigns after an empty camera, but never continues a stale pinch", () => {
+    const lab = new LabAnalyzer({fullFrameLock:true, experimentalRobust:true});
+    const pinch = pinchHand(.5);
+    lab.analyse({landmarks:[pinch],inferMs:5,nowMs:0});
+    lab.analyse({landmarks:[pinch],inferMs:5,nowMs:33});
+    lab.analyse({landmarks:[pinch],inferMs:5,nowMs:66});
+    expect(lab.snapshot(66).cursor).not.toBeNull();
+    expect(lab.strokes().active).toBeNull();
+    expect(lab.snapshot(66).rejectionReason).toContain("dilepas");
+    const original = lab.snapshot(66).acquisitionId;
+    lab.analyse({landmarks:[],inferMs:5,nowMs:100});
+    lab.analyse({landmarks:[],inferMs:5,nowMs:450});
+    expect(lab.snapshot(450).lockStatus).toBe("waiting");
+    lab.analyse({landmarks:[pinch],inferMs:5,nowMs:500});
+    lab.analyse({landmarks:[pinch],inferMs:5,nowMs:533});
+    expect(lab.snapshot(533).acquisitionId).toBeGreaterThan(original);
+    expect(lab.snapshot(533).cursor).not.toBeNull();
+    expect(lab.strokes().active).toBeNull();
+    lab.analyse({landmarks:[fistHand()],inferMs:5,nowMs:566});
+    lab.analyse({landmarks:[pinch],inferMs:5,nowMs:599});
+    lab.analyse({landmarks:[pinch],inferMs:5,nowMs:632});
+    lab.analyse({landmarks:[pinch],inferMs:5,nowMs:665});
+    expect(lab.strokes().active).not.toBeNull();
+  });
+
+  it("publishes diagnostic ratio and finger states without inventing a confidence probability", () => {
+    const lab = new LabAnalyzer({fullFrameLock:true,enableInk:false,experimentalRobust:true});
+    lab.analyse({landmarks:[pinchHand(.5)],inferMs:5,nowMs:0});
+    lab.analyse({landmarks:[pinchHand(.5)],inferMs:5,nowMs:33});
+    const s=lab.snapshot(33);
+    expect(s.pinchRatio).not.toBeNull();
+    expect(s.pinchEnter).toBe(0.42);
+    expect(s.pinchExit).toBe(0.55);
+    expect(s.fingerStates).toHaveLength(4);
+    expect(s.classifierMode).toBe("experiment");
+    expect(s.lockReason).toBe("active");
   });
 });

@@ -5,10 +5,10 @@
  */
 import type { FaceBox } from "@/src/camera/face-anchor";
 import { handSize, isLargeEnough, pickPrimaryHand, type PrimaryHandState } from "@/src/camera/primary-hand";
-import { classifyHandPose, countExtendedFingers, indexTipNormalized, type HandPose } from "@/src/input/hand-gesture";
+import { PINCH_ENTER, PINCH_EXIT, LAB_FOLDED_PINCH_ENTER, LAB_FOLDED_PINCH_EXIT, TOUCH_FOLDED_INDEX, TOUCH_FOLDED_INDEX_EXIT, classifyHandPose, countExtendedFingers, evaluateGesture, fingerDiagnosticStates, indexTipNormalized, type FingerState, type HandPose } from "@/src/input/hand-gesture";
 import { MODE_CANVAS_DRAWING, actionFor, type GestureAction } from "@/src/input/gesture-mode";
 import type { HandCursor } from "@/src/input/hand-stroke-pipeline";
-import { FullFrameHandLock, type LabLockStatus } from "./lab-hand-lock";
+import { FullFrameHandLock, type LabLockStatus, type LabLockReason } from "./lab-hand-lock";
 import { createGestureCommander } from "@/src/components/drawing/gesture-commands";
 import { HandStrokePipeline } from "@/src/input/hand-stroke-pipeline";
 import type { EraserControl } from "@/src/input/eraser";
@@ -77,6 +77,17 @@ export interface LabSnapshot {
   fingerCount: number;
   drawingAction: GestureAction | null;
   lockStatus: LabLockStatus;
+  lockReason: LabLockReason | null;
+  acquisitionId: number;
+  pinchRatio: number | null;
+  pinchEnter: number;
+  pinchExit: number;
+  foldedPinchEnter: number;
+  foldedPinchExit: number;
+  fingerStates: FingerState[] | null;
+  inkAllowed: boolean;
+  rejectionReason: string;
+  classifierMode: "baseline" | "experiment";
 }
 
 interface Timed<T> {
@@ -108,11 +119,42 @@ export class LabAnalyzer {
   private liveCursor: HandCursor | null = null;
   private fingerCountNow = 0;
   private drawingActionNow: GestureAction | null = null;
-  constructor(private readonly options: { fullFrameLock?: boolean; enableInk?: boolean } = {}) {}
+  private pinchRatioNow: number | null = null;
+  private fingerStatesNow: FingerState[] | null = null;
+  private rejectNow = "Tangan belum aktif";
+  private inkPermitted = false;
+  private lastAcquisition = 0;
+  private experimental = false;
+  private armed = { draw: false, erase: false, commands: false };
+  constructor(private readonly options: { fullFrameLock?: boolean; enableInk?: boolean; experimentalRobust?: boolean } = {}) {
+    if (options.experimentalRobust) this.setExperimentalMode(true, 0);
+  }
+  /** A candidate may control the cursor before it can execute its first gesture. */
+  private canExecute(raw: HandPose, fingerCount: number): boolean {
+    if (this.options.fullFrameLock !== true) return true;
+    if (raw === "pinch") return this.armed.draw;
+    if (fingerCount === 5 && (raw === "open-palm" || raw === "split-palm")) return this.armed.erase;
+    if (raw === "one-finger" || raw === "two-fingers") return this.armed.commands;
+    return true;
+  }
+  /** Changing modes resets the ink FSM, not MediaPipe, for side-by-side field testing. */
+  setExperimentalMode(enabled: boolean, nowMs: number): void {
+    this.experimental = enabled;
+    this.ink.setExperimentalRobust(enabled, nowMs);
+    this.gestureCommands.reset();
+    this.armed = { draw: false, erase: false, commands: false };
+    this.liveCursor = null;
+    this.pinchRatioNow = null;
+    this.fingerStatesNow = null;
+    this.inkPermitted = false;
+    this.rejectNow = "Mode berubah, tunggu gestur baru";
+  }
+
   private readonly ink = new HandStrokePipeline({
     store: this.store,
     size: () => INK_SIZE,
     eraser: INK_ERASER,
+    canPerformAction: (pose, fingers) => this.canExecute(pose, fingers),
   });
 
   analyse({ landmarks, inferMs, nowMs, face = null }: LabDetection): void {
@@ -143,6 +185,10 @@ export class LabAnalyzer {
       this.liveCursor = null;
       this.fingerCountNow = 0;
       this.drawingActionNow = null;
+      this.pinchRatioNow = null;
+      this.fingerStatesNow = null;
+      this.inkPermitted = false;
+      this.rejectNow = strict ? this.fullLock.reason : "Tangan tidak ditemukan";
       this.ink.feed(undefined, nowMs);
       this.gestureCommands.feed("none", nowMs);
       this.feedWave(null, nowMs);
@@ -150,8 +196,27 @@ export class LabAnalyzer {
     }
 
     this.primarySizeNow = handSize(lm);
-    this.pose = classifyHandPose(lm, { pinchHeld: this.pose === "pinch" });
+    if (strict && this.fullLock.acquisitionId !== this.lastAcquisition) {
+      this.lastAcquisition = this.fullLock.acquisitionId;
+      this.ink.reset(nowMs);
+      this.gestureCommands.reset();
+      this.armed = { draw: false, erase: false, commands: false };
+      this.rawTips = [];
+      this.inkTips = [];
+      this.inkSmoother.reset();
+    }
+    this.pose = classifyHandPose(lm, { pinchHeld: this.pose === "pinch", experimentalRobust: this.experimental });
     this.fingerCountNow = countExtendedFingers(lm);
+    const diag = evaluateGesture(lm);
+    this.pinchRatioNow = diag.state === "tracking" ? diag.pinchRatio : null;
+    this.fingerStatesNow = fingerDiagnosticStates(lm);
+    if (this.pose !== "pinch") this.armed.draw = true;
+    if (!(this.fingerCountNow === 5 && (this.pose === "open-palm" || this.pose === "split-palm"))) this.armed.erase = true;
+    if (this.pose !== "one-finger" && this.pose !== "two-fingers") this.armed.commands = true;
+    this.inkPermitted = this.canExecute(this.pose, this.fingerCountNow);
+    this.rejectNow = !this.inkPermitted ? "Tunggu gestur dilepas sebelum aksi baru"
+      : this.pose === "pinch" && this.options.enableInk !== false ? "Pinch dibaca, menunggu validasi tinta"
+      : "Tidak ada aksi gambar";
     const raw = indexTipNormalized(lm);
     this.rawTips.push({ t: nowMs, v: raw });
     this.inkTips.push({ t: nowMs, v: this.inkSmoother.smooth(raw, nowMs) });
@@ -159,8 +224,9 @@ export class LabAnalyzer {
       const inkFrame = this.ink.feed(lm, nowMs);
       this.liveCursor = inkFrame.cursor;
       const mapped = actionFor(MODE_CANVAS_DRAWING, inkFrame.pose);
-      this.drawingActionNow = mapped === "erase" && this.fingerCountNow !== 5 ? null : mapped;
-      const command = this.gestureCommands.feed(inkFrame.pose, nowMs);
+      this.drawingActionNow = !this.inkPermitted || (mapped === "erase" && this.fingerCountNow !== 5) ? null : mapped;
+      if (this.pose === "pinch" && this.store.hasActiveStroke()) this.rejectNow = "Tinta aktif";
+      const command = this.gestureCommands.feed(this.canExecute(inkFrame.pose, this.fingerCountNow) ? inkFrame.pose : "none", nowMs);
       if (command === "undo") this.store.undo();
       if (command === "redo") this.store.redo();
     } else {
@@ -191,6 +257,12 @@ export class LabAnalyzer {
     this.liveCursor = null;
     this.fingerCountNow = 0;
     this.drawingActionNow = null;
+    this.pinchRatioNow = null;
+    this.fingerStatesNow = null;
+    this.rejectNow = "Kamera belum membaca tangan";
+    this.inkPermitted = false;
+    this.lastAcquisition = 0;
+    this.armed = { draw: false, erase: false, commands: false };
     this.inkSmoother.reset();
     this.inferSamples = [];
     this.detectTimes = [];
@@ -207,14 +279,20 @@ export class LabAnalyzer {
     this.waveStatus = "idle";
   }
 
-  /** Explicitly recapture after an ambiguous/lost hand. Never auto-transfer to a bystander. */
+  /** Manual recovery remains an escape hatch. Normal reacquisition is automatic after empty frames. */
   resetHandLock(nowMs: number): void {
     this.fullLock.reset();
+    this.lastAcquisition = 0;
+    this.armed = { draw: false, erase: false, commands: false };
     this.ink.reset(nowMs);
     this.gestureCommands.reset();
     this.liveCursor = null;
     this.fingerCountNow = 0;
     this.drawingActionNow = null;
+    this.pinchRatioNow = null;
+    this.fingerStatesNow = null;
+    this.inkPermitted = false;
+    this.rejectNow = "Kunci manual diulang";
     this.primaryIdx = null;
     this.primary = null;
     this.rawTips = [];
@@ -291,6 +369,17 @@ export class LabAnalyzer {
       lockStatus: this.options.fullFrameLock
         ? this.fullLock.status
         : this.primaryIdx !== null ? "locked" : "waiting",
+      lockReason: this.options.fullFrameLock ? this.fullLock.reason : null,
+      acquisitionId: this.options.fullFrameLock ? this.fullLock.acquisitionId : 0,
+      pinchRatio: this.pinchRatioNow,
+      pinchEnter: PINCH_ENTER,
+      pinchExit: PINCH_EXIT,
+      foldedPinchEnter: this.experimental ? LAB_FOLDED_PINCH_ENTER : TOUCH_FOLDED_INDEX,
+      foldedPinchExit: this.experimental ? LAB_FOLDED_PINCH_EXIT : TOUCH_FOLDED_INDEX_EXIT,
+      fingerStates: this.fingerStatesNow ? [...this.fingerStatesNow] : null,
+      inkAllowed: this.inkPermitted && this.options.enableInk !== false,
+      rejectionReason: this.rejectNow,
+      classifierMode: this.experimental ? "experiment" : "baseline",
     };
   }
 

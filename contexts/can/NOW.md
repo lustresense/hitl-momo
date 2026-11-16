@@ -1,5 +1,12 @@
 # NOW
 
+## 2026-11-16 — NUI Lab Auto-Lock UX P0–P2 (0.22.0-alpha, STATIC_ONLY)
+- Mandat M-039 meneruskan audit R&D pengguna; mode NUI Lab pada main mendapat telemetri penyebab gagal, opsi classifier eksperimen versus baseline, hand lock otomatis setelah frame kosong berulang. Tidak memakai biometrik/fingerprint atau face ROI sebagai pemilik tangan.
+- Track lama tidak dipromosikan ke tangan background jika tetap ada kandidat lain. Setelah kehilangan terlalu lama, sesi akuisisi baru mereset perintah/tinta agar tidak menyambung stroke lama. Gesture dipertahankan pinch Coret, 5 jari Hapus, 1 jari Undo, 2 jari Redo; swipe belum diputuskan.
+- Bukti: 12 tes lock sintetis dijalankan di isolated JS V8, tapi belum ada npm typecheck/Vitest/Next build/model webcam/tunnel. Tuning P2 **hanya di NUI Lab**; game tetap baseline. Parameter 300ms dan ambang folded 0.20/0.27 hanya percobaan.
+- Handoff `frontend/implementation/docs/execution/NUILAB_AUTOLOCK_HANDOFF_2026-11-16.md`; `DECISIONS.md` tidak diratifikasi otomatis; P3/P4 training/data opt-in belum dimulai.
+
+
 ## 2026-11-16 — NUI Lab berintegrasi `main` (0.21.0-alpha, STATIC_ONLY)
 - Source NUI 0.20.0-alpha dari `ujang-monorepo` diambil secara selektif ke `main` yang sudah memiliki perubahan gameplay 0.19.1-alpha, tanpa menimpa file gameplay yang menyimpang. Rute: `/nui-lab`, `/nui-lab/gesture`, `/nui-lab/canvas`, `/nui-lab/diagnostics`.
 - Hapus memakai lima jari, kepalan inert; pinch Coret, satu jari Undo, dua jari Redo; diselaraskan antara lab dan game. FullFrameHandLock dan indicator pointer lab memungkinkan area frame penuh tetapi tidak menjamin identitas atau deteksi saat tangan terpotong.

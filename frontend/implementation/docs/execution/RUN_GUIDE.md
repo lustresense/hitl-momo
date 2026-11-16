@@ -49,3 +49,8 @@ Kasus negatif wajib adalah permission denied, browser tanpa kamera, video playba
 - Entry pages in the existing Next.js static-export build are `/nui-lab`, `/nui-lab/gesture`, `/nui-lab/canvas`, `/nui-lab/diagnostics`. No branch-specific deployment configuration needed if Ujang deploys `main`.
 - Source and gesture action mapping are shared with the game: pinch Coret, five extended fingers Hapus (not fist), 1-finger Undo, 2-finger Redo. Lab has full-frame hand lock and manual relock; webcam browser testing not yet run.
 - Use `NUILAB_MAIN_HANDOFF_2026-11-16.md` for static export, deep-link, build, device permission and hard-case validation. Status at source push: STATIC_ONLY / NOT_TESTED.
+
+## NUI Lab 0.22.0-alpha (P0-P2 Auto-Lock source only, 2026-11-16)
+- `main` routes unchanged: `/nui-lab`, `/nui-lab/gesture`, `/nui-lab/canvas` and `/nui-lab/diagnostics`.
+- Experimental classifier toggle is lab-only; MediaPipe hand_landmarker.task and game drawing defaults untouched. Lock automatically resets only after ≥2 empty detection samples across ≥300 ms; crossing and bystander scenarios require real tests.
+- Handoff: `NUILAB_AUTOLOCK_HANDOFF_2026-11-16.md`; status STATIC_ONLY/NOT_TESTED until Ujang QA (typecheck/lint/Vitest/Next build/webcam/tunnel).

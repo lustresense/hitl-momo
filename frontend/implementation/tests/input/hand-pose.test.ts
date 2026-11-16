@@ -87,3 +87,23 @@ describe("gateFrameByPose (R12 wiring)", () => {
     expect(seen).toEqual(["pinch", "fist", "pinch", "none"]);
   });
 });
+
+describe("lab-only experimental recognition (default game rules unchanged)", () => {
+  it("accepts near-straight ring finger as three fingers only in experimental mode", () => {
+    const h = pose(["up","up","up","down"], {thumb:"tucked"});
+    // Set ring just beyond its PIP toward the fingertip. It is between in the
+    // strict wrist-distance rule but its PIP is nearly straight in image space.
+    h[16] = {x:0.54,y:0.509};
+    expect(classifyHandPose(h)).not.toBe("three-fingers");
+    expect(classifyHandPose(h,{experimentalRobust:true})).toBe("three-fingers");
+    expect(classifyHandPose(pose(["up","up","down","down"]),{experimentalRobust:true})).toBe("two-fingers");
+  });
+  it("never turns a loose closed fist into an eraser in experimental mode", () => {
+    const h = pose(["down","down","down","down"]);
+    expect(classifyHandPose(h,{experimentalRobust:true})).toBe("fist");
+    expect(drawingCommandFor("fist")).toBeNull();
+  });
+  it("retains existing classifier as default when opts are omitted", () => {
+    for (const [, lm, expected] of cases) expect(classifyHandPose(lm)).toBe(expected);
+  });
+});

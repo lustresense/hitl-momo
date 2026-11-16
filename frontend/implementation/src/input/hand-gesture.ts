@@ -197,6 +197,9 @@ export const PINCH_EXIT = 0.55;
  */
 export const TOUCH_FOLDED_INDEX = 0.15;
 export const TOUCH_FOLDED_INDEX_EXIT = 0.2;
+/** Owner lab trial, not a production/calibrated MediaPipe threshold. */
+export const LAB_FOLDED_PINCH_ENTER = 0.2;
+export const LAB_FOLDED_PINCH_EXIT = 0.27;
 /** A thumb raised this far (hand spans) is not a fist: a raised thumb must never erase. */
 const FIST_MAX_THUMB_LIFT = 0.3;
 /** Tip beyond this many PIP distances from the wrist = straight. Was 1.15; loosened for children's hands. */
@@ -206,7 +209,13 @@ const SPLIT_GAP_RATIO = 1.8;
 /** Split palm: middle-ring gap as a share of the hand span. Was 0.35; loosened for small hands. */
 const SPLIT_MIN_SPREAD = 0.25;
 
-type FingerState = "extended" | "curled" | "between";
+export type FingerState = "extended" | "curled" | "between";
+
+/** Observable facts for owner-only NUI Lab. No made-up gesture confidence. */
+export function fingerDiagnosticStates(lm: Landmark[] | undefined): FingerState[] | null {
+  if (!lm || lm.length < 21 || lm.some(p => !p || !Number.isFinite(p.x) || !Number.isFinite(p.y))) return null;
+  return fingerStates(lm);
+}
 
 function fingerStates(lm: Landmark[]): FingerState[] {
   const wrist = lm[WRIST]!;
@@ -221,6 +230,19 @@ function fingerStates(lm: Landmark[]): FingerState[] {
   });
 }
 
+/** Interior PIP angle, invariant to 2D image rotation. Returns 0 on degenerate points. */
+function jointAngle(a: Landmark, b: Landmark, c: Landmark): number {
+  const ax = a.x - b.x, ay = a.y - b.y, bx = c.x - b.x, by = c.y - b.y;
+  const len = Math.hypot(ax,ay)*Math.hypot(bx,by);
+  if (len < 1e-8) return 0;
+  return Math.acos(Math.max(-1,Math.min(1,(ax*bx+ay*by)/len)))*180/Math.PI;
+}
+function isNearlyStraightRing(lm: Landmark[]): boolean {
+  const wrist=lm[0]!, pip=lm[14]!, tip=lm[16]!;
+  return jointAngle(lm[13]!, pip, tip) >= 154
+    && dist(tip,wrist) > 1.02 * dist(pip,wrist);
+}
+
 function dist(a: Landmark, b: Landmark): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
@@ -228,7 +250,7 @@ function dist(a: Landmark, b: Landmark): number {
 /**
  * `opts.pinchHeld`: the previous frame was a pinch, so the looser exit ratio applies (hysteresis).
  */
-export function classifyHandPose(landmarks: Landmark[] | undefined, opts: { pinchHeld?: boolean } = {}): HandPose {
+export function classifyHandPose(landmarks: Landmark[] | undefined, opts: { pinchHeld?: boolean; experimentalRobust?: boolean } = {}): HandPose {
   if (!landmarks || landmarks.length < 21 || landmarks.some((p) => !p)) return "none";
   const wrist = landmarks[WRIST]!;
   const span = dist(wrist, landmarks[MIDDLE_MCP]!);
@@ -240,7 +262,7 @@ export function classifyHandPose(landmarks: Landmark[] | undefined, opts: { pinc
   const [index, middle, ring, pinky] = fingerStates(landmarks);
   const pinched =
     index === "curled"
-      ? touch < (opts.pinchHeld ? TOUCH_FOLDED_INDEX_EXIT : TOUCH_FOLDED_INDEX)
+      ? touch < (opts.pinchHeld ? (opts.experimentalRobust ? LAB_FOLDED_PINCH_EXIT : TOUCH_FOLDED_INDEX_EXIT) : (opts.experimentalRobust ? LAB_FOLDED_PINCH_ENTER : TOUCH_FOLDED_INDEX))
       : touch < (opts.pinchHeld ? PINCH_EXIT : PINCH_ENTER);
   if (pinched) return "pinch";
 
@@ -250,6 +272,14 @@ export function classifyHandPose(landmarks: Landmark[] | undefined, opts: { pinc
     thumbLift(landmarks, span) < FIST_MAX_THUMB_LIFT
   ) {
     return "fist";
+  }
+
+  // Lab-only alternate: tolerate a moderately bent ring finger in a 3-finger pose.
+  // Palm-local joint angle guards the two-finger pose against false promotion.
+  if (opts.experimentalRobust && !thumbExtended(landmarks) && pinky === "curled"
+      && index === "extended" && middle === "extended"
+      && (ring === "extended" || (ring === "between" && isNearlyStraightRing(landmarks)))) {
+    return "three-fingers";
   }
 
   // Two fingers (Maju/redo in the current drawing mapping): index and middle up.

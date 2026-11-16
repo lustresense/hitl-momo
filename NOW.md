@@ -1,5 +1,11 @@
 # NOW.md — Status integrasi bersama
 
+## 2026-11-16 — NUI Lab P0–P2 auto-lock/gesture baseline-vs-experiment (0.22.0-alpha)
+- `main`: NUI Lab punya auto-reacquire saat kamera benar-benar kosong, safety untuk multi-hand ambiguitas, sesi aksi baru tanpa stale ink, finger-state diagnostics, pinch ratio dan A/B rules. Game siswa tetap memakai aturan default tanpa eksperimen.
+- Evidence: JS V8 synthetic lock 12/12 PASS, tes source baru ditulis namun belum dijalankan via Vitest, tidak ada webcam/browser/build/deploy. `STATIC_ONLY / NOT_TESTED`; Ujang perlu verifikasi.
+- No fingerprint, training dataset atau swipe Undo/Redo. Handoff `frontend/implementation/docs/execution/NUILAB_AUTOLOCK_HANDOFF_2026-11-16.md`.
+
+
 ## 2026-11-16 — NUI Lab di `main` (0.21.0-alpha, STATIC_ONLY)
 - Instruksi Owner memindahkan NUI Lab dari workflow branch ke URL monorepo aktif agar tunnel dev Ujang tetap menggunakan `main`. Routes `/nui-lab`, `/nui-lab/gesture`, `/nui-lab/canvas`, `/nui-lab/diagnostics` ada di frontend Next.js, tanpa alur game.
 - Pemetaan drawing game dan lab: pinch Coret, 5 jari Hapus, satu jari Undo, dua jari Redo; kepalan tidak menghapus. Canvas lab memakai cursor, stroke smoothing, Momo, dan alat fallback mouse/touch.

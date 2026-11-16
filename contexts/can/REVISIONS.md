@@ -1,5 +1,13 @@
 # REVISIONS — daftar revisi Owner dan progresnya
 
+## R16-NUI 2026-11-16 — Auto-Lock & Gesture UX Lab 0.22.0-alpha (STATIC_ONLY)
+| ID | Mandat / Scope | Status | Bukti / next step |
+|---|---|---|---|
+| R16-NUI-05 | P0 tampilan alasan tracking/gesture ditolak, pinch ratio, finger states, ink gate, mode classifier baseline/experiment. | JALAN | Source NUI Lab + test regresi, butuh npm + webcam nyata. |
+| R16-NUI-06 | P1 auto acquire ketika kamera kembali kosong dan satu tangan stabil; tahan takeover background dan ambiguity, fresh actions ketika sesi berubah. | JALAN | FullFrameHandLock state & 12 V8 synthetic cases PASS, belum tes MediaPipe/browser. |
+| R16-NUI-07 | P2 classifier pinch/3 jari **hanya mode lab**, cursor independen dari tinta; gameplay mapping tidak berubah. | JALAN | Opt-in experimentalRobust + ratio telemetry + tests source; butuh A/B footage nyata. |
+| R16-NUI-08 | P3/P4 pengumpulan dataset opt-in dan retraining lightweight classifier, benchmark. | BELUM DIMULAI | Belum ada data berizin maupun runtime untuk training; jangan unduh ke bundle siswa. |
+
 ## R16-NUI 2026-11-16 — Integrasi lab ke `main` (Owner, STATIC_ONLY)
 | ID | Mandat | Status | Evidensi berikutnya |
 |---|---|---|---|

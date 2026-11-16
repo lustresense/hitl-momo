@@ -1,5 +1,11 @@
 # NOW
 
+## 2026-11-16 — gameplay dari `main` (Owner M-036)
+- **Cabang:** `main` = `ujang-monorepo` (`a18a6e8`) + perbaikan build (`cd7978e`) + pekerjaan gameplay. Izin Owner untuk bekerja di `main` tercatat di M-036; aturan lama "main tidak boleh diubah tanpa perintah baru Owner" sudah dipenuhi oleh perintah itu.
+- **Gameplay:** objek siswa memakai kotak gambarnya sendiri (collider = yang terlihat), objek tidak boleh menimpa Thinman atau bendera, duri melukai hanya di dalam gambar, Bab 1-3 disetel ulang (`level-plans.json`), papan akhir bab satu panah, pratinjau 3 bab, satu kata "Bab". Rincian: `frontend/implementation/docs/execution/gameplay/README.md`, REVISIONS R16.
+- **Bukti:** `normal-journey` Bab 1-3 PASS (mouse+keyboard, mock), unit tsc/vitest hijau kecuali 12 tes UI Ujang yang sudah merah sejak `a18a6e8` (R16-10). Kamera fisik NOT_TESTED.
+- **Keputusan menunggu Owner:** penulisan D-20261116-01 ke `DECISIONS.md` (berkas tata kelola, butuh persetujuan eksplisit).
+
 ## 2026-11-15 — batch REV-B04 setelah GAS (0.18.0-alpha, STATIC_ONLY)
 - Baseline `ujang-monorepo` 24e17c4 (0.17.1-alpha). Perubahan source untuk B04-001 loader readiness/staging, B04-002 static route cam/bubble, B04-003 wave diagnostic dan single-owner warm reuse 30 s. B04-004 hanya opsi dan tidak diaktifkan.
 - Evaluasi: source dan test file berubah, **BELUM DIJALANKAN** typecheck, lint, Vitest, Next build, Playwright/static-host, webcam fisik, performance trace. Tidak ada bukti deployment Ujang. Nama versi batch merujuk root `VERSION`, bukan klaim deploy.

@@ -38,3 +38,9 @@ Dari repo root `python3 scripts/bump_version.py --check`. Dari `frontend/impleme
 Sesudah `npm ci`, `npm run typecheck`, `npm run lint`, `npm test` dan `NEXT_PUBLIC_TEST_HOOKS=0 npm run build`, uji lewat tunnel dev menggunakan browser nyata dengan **test hooks OFF**. Saat masuk `/onboarding/cam`, kamera harus OFF dan Momo tidur. Setelah user ON dan izin diberikan serta stream playable, Momo harus bangun dan kamera card asli morph ke PIP **tanpa waving**. Pastikan Momo mengatakan seluruh kalimat sebelum jempol `Aku mengerti` dan baru berpindah ke penggaris ketika buku mencapai midpoint.
 
 Kasus negatif wajib adalah permission denied, browser tanpa kamera, video playback error, OFF selama permission prompt, ON/OFF cepat, unmount/pagehide, stream ended, direct refresh dan dua kamera. Tidak boleh auto-wake hanya karena click, tidak boleh membuka kamera otomatis selama loader. Fallback pointer/mouse tetap dapat dipakai tanpa webcam. Kamera card visual Claude dan mapping Card3 versi 0.17.1-alpha harus sama. Lampirkan screenshot/video, hasil test, SHA deploy dan URL. Sumber: D-20261115-03, `REV-B04-0.18.1-alpha.md`. Status source pada pembuatan catatan ini `STATIC_ONLY`.
+
+## Alat audit gameplay (2026-11-16)
+- Overlay collider: `NO_VIDEO=1 SHAPE=free LEVELS=1 OUT=<dir> node e2e/collider-audit.mjs` (pink = objek, biru = tanah, hijau = bendera, oranye = pemain; screenshot polos dan overlay). Satu bab per run.
+- Papan petunjuk: `OUT=<dir> node e2e/signpost-shot.mjs`.
+- Satu bab saja: `UNLOCK_ALL=1 LEVELS=2 NO_VIDEO=1 node e2e/normal-journey.mjs`.
+- Rencana level: `e2e/lib/level-plans.json` (tiap siklus membawa `w`,`h`); jaga dengan `npx vitest run tests/game`.

@@ -23,6 +23,21 @@ Aturan isi:
 - **Regresi yang harus dijaga:** camera card Claude, Card 1 telunjuk, Card 3 `0.17.1-alpha`, Momo intro, PIP morph dan jempol tetap. WaveTracker standalone tetap untuk penelitian NUI, bukan cover gate.
 - **Pengujian:** permission denied, stale request OFF saat prompt, video.play gagal, fallback pointer, satu wake saja, tombol jempol setelah seluruh bubble, cover→PIP→ruler.
  
+## R-2026-11-16 — gameplay: collider, kenyamanan, papan petunjuk, satu kata "Bab" (dikerjakan dari `main`)
+
+| ID | Permintaan Owner | Status | Bukti / next step |
+|---|---|---|---|
+| R16-01 | Collider objek siswa sama dengan yang terlihat (opsi 1: hitbox mengikuti gambar). | SELESAI-BELUM-KAMERA | `src/game/runtime/footprint.ts`, `object-limits.ts`; `ink-footprint.test.ts`; overlay `scratchpad/audit-game`; perjalanan Bab 1-3 menang di percobaan pertama |
+| R16-02 | Objek tidak boleh menimpa Thinman di titik awal atau bendera. | SELESAI | `rules.ts` `spawnBodyOf`; `placement-spawn-goal.test.ts` |
+| R16-03 | Duri tidak mematikan di sudut kosong kotaknya. | SELESAI | `hazardZone` 12%; tes di `ink-footprint.test.ts` |
+| R16-04 | Bab 1, 2, 3 tetap bisa diselesaikan dengan objek ukuran gambar (min 2 objek, 1 objek tidak cukup). | SELESAI-BELUM-KAMERA | `level-plans.json`, `level1/2-footprint.test.ts`, `level-solvability.test.ts`; `normal-journey` L1-L3 PASS |
+| R16-05 | Papan petunjuk akhir bab: hanya panah, teks enak dibaca dan tidak terpotong. | SELESAI | `StageArtwork.tsx`; `e2e/signpost-shot.mjs`; `stage-artwork.test.tsx` |
+| R16-06 | Hanya tiga bab: pratinjau tidak lagi 03/04 melainkan 01/03 s/d 03/03. | SELESAI | `StagePreview.tsx`; `stage-preview-three.test.tsx` |
+| R16-07 | Satu kata konsisten: "Bab" (bukan Level) di semua teks siswa. | SELESAI | `tutorial-script.ts`, `guide-script.ts`, `canvas-focus.ts`, `DecisionPanel.tsx`, `level-summary.ts`, `DrawingScreen.tsx`, `LevelRibbonBookmark.tsx` |
+| R16-08 | `main` bisa di-build lagi (deklarasi `coverDone` hilang di `a18a6e8`). | SELESAI | `cd7978e` (0.18.2-alpha) |
+| R16-09 | Momo tidur muncul lagi di kanan bawah bila halaman di-refresh di tengah bab (temuan, belum dicek di perangkat Owner). | BELUM | Muncul saat skrip tes me-reload; di alur normal tidak muncul |
+| R16-10 | 12 tes unit merah milik UI Ujang di `main` (`components.test`, `tutorial-pinch`, `gesture-mode`, `global-camera-lifecycle`). | MENUNGGU | Merah sejak `a18a6e8`, tidak diubah oleh pekerjaan gameplay |
+
 ## R-2026-11-15 — REV-B04 (GAS Owner, build 0.17.1-alpha)
 
 | ID | Permintaan Owner | Status | Bukti/next step |

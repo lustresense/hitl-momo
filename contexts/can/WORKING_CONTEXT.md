@@ -3,6 +3,12 @@
 Last updated: 2026-11-05 (sesi eksekusi teknis; diperbarui oleh IT ORCHESTRATOR atas permintaan Owner)
 
 ## NOW (baca ini dulu)
+### GAMEPLAY 2026-11-16 — hitbox objek mengikuti gambar (dikerjakan dari `main`, M-036)
+- `src/game/runtime/footprint.ts` `inkFootprint()` menghitung kotak objek dari gambar siswa (proporsi dijaga, diperbesar sampai kotak terbesar level); batas per bab di `src/game/object-limits.ts`. `createPendingCreation` memakainya; placement membaca ukuran hidup dari telemetry kanvas (`objectWidth/Height`).
+- `integratedPlacementAllowed` menolak kotak di atas badan spawn Thinman dan bendera (`spawnBodyOf`); objek bahaya melukai hanya di dalam `hazardZone` (12% lebih kecil).
+- `e2e/lib/level-plans.json`: tiap siklus membawa `w`,`h` (block 130,6 x 49,5 untuk Bab 3 siklus 1; spike 80,5 x 58,8). Alat: `e2e/collider-audit.mjs`, `e2e/signpost-shot.mjs`, `UNLOCK_ALL=1 LEVELS=n` untuk `normal-journey`.
+- Bukti: `normal-journey` Bab 1-3, `recovery-paths` 16/16, `finish-thumb-flow` 12/12, `route-canvas` 15/15 (mock, mouse+keyboard); kamera fisik NOT_TESTED. Rincian `frontend/implementation/docs/execution/gameplay/README.md`.
+
 ### KOREKSI OWNER B04-004 2026-11-15 — stream-ready replaces waving (0.18.1-alpha)
 - Owner secara eksplisit menolak implementasi 0.18.0-alpha yang mempertahankan wave dan meminta PRD REV-B04 opsi kamera ON diterapkan. Keputusan produk D-20261115-03, mandat M-035.
 - `GlobalCamera` cover kini tanpa WaveTracker/ring wave/nudge. Setelah getUserMedia dan playback video berhasil, satu kali `wakeMomo()` menjalankan animasi kamera PIP, Momo kaget/terbang, chat perkenalan, jempol menuju penggaris. Kamera OFF atau permission ditolak, video gagal, stale request tidak otomatis membangunkan Momo. Fallback manual saat tidak ada kamera tetap.

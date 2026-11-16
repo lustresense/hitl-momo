@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.19.1-alpha | 2026-11-16 | Dokumen | `(0.19.1-alpha)` |
 | 0.19.0-alpha | 2026-11-16 | Fitur | `(0.19.0-alpha)` |
 | 0.18.2-alpha | 2026-11-16 | Perbaikan | `(0.18.2-alpha)` |
 | 0.18.1-alpha | 2026-11-15 | Perbaikan | `(0.18.1-alpha)` |
@@ -115,6 +116,20 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.19.1-alpha — 2026-11-16 — Dokumen
+
+**Sumber:** Owner 2026-11-16 (M-037), D-20261116-01
+
+**Perubahan:**
+- D-20261116-01 ditulis ke `DECISIONS.md` atas persetujuan eksplisit Owner: hitbox objek = kotak gambar, objek tidak menimpa Thinman/bendera, duri melukai di dalam gambar, papan satu panah, tiga bab, satu kata "Bab".
+- Mandat M-037 dicatat; NOW menunjuk keputusan yang sudah sah.
+
+**Commit:** commit berjudul `(0.19.1-alpha)`
+
+**Bukti:** Dokumen saja; kode 0.19.0-alpha sudah diverifikasi di browser (journey 1-3, recovery 16/16, finish 12/12, route 15/15)
 
 ---
 

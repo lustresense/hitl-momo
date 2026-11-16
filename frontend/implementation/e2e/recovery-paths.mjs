@@ -103,7 +103,13 @@ try {
   check("A: retry respawns at checkpoint, gameplay phase, no stale outcome", afterRetry.phase === "gameplay" && !afterRetry.outcome && afterRetry.x < 80 && afterRetry.y < 300, afterRetry);
   // Put the balok back on its spot; minDrawings = 2, so the second object goes in before the winning run.
   await geser(...toCentre(plans["1"].cycles[0]));
-  await placeSecond(1);
+  // The L1 plan's second cycle is the SPIKE drawing (80.5 x 58.8, same as normal-journey draws for cycle 2): placeSecond would draw a block.
+  for (const cycle of plans["1"].cycles.slice(1)) {
+    await press(page, "btn-draw-again");
+    await drawScribble(page, "spike");
+    await submitAndDecide(page, { prefer: cycle.label, log: m => log(m) });
+    await placeByDrag(page, ...toCentre(cycle)); await confirmPlacement(page);
+  }
   const r1 = await playPlan(plans["1"]);
   check("A: after retry the level is WON with normal input", r1.outcome === "success", { outcome: r1.outcome });
   await shot("A-02-win-after-retry");

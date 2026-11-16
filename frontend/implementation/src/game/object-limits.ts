@@ -17,7 +17,9 @@ export interface ObjectLimitsSource {
 }
 
 export const OBJECT_LIMITS_SOURCE: Record<1 | 2 | 3, ObjectLimitsSource> = {
-  1: { maxW: 80, maxH: 36, minW: 24, minH: 6 },
-  2: { maxW: 80, maxH: 36, minW: 24, minH: 6 },
+  1: { maxW: 60, maxH: 36, minW: 24, minH: 6 },
+  // L2: narrower than the others. Thinman's spawn column (x 113.7-137.7) may not be covered below y 230, and the
+  // middle building starts at x 238.4, so the first step beside him has only 100.7 world px; maxW 50 (81.6 world) leaves 19.
+  2: { maxW: 50, maxH: 36, minW: 24, minH: 6 },
   3: { maxW: 80, maxH: 36, minW: 24, minH: 6 },
 };

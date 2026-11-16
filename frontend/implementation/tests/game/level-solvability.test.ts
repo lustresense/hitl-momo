@@ -26,17 +26,20 @@ describe("level solvability (kinematic model; browser E2E is the authority)", ()
       expect(r.outcome, r.log.join("\n")).toBe("goal");
     });
   }
-  // Level 2 buildings are solid, so the documented balok at (190, 220) now sits inside the middle
-  // building and is illegal. This 2-object plan (balok moved left of the building, papan as documented)
-  // is the one the kinematic solver verified; it proves minDrawings = 2 still reaches the goal.
-  it("L2: a legal 2-object plan reaches the goal once the buildings are solid (balok at 100,220)", () => {
+  // A second, different legal 2-object plan for Level 2: two flat planks (the thinnest, widest box a straight line gets),
+  // both clear of Thinman's spawn body. Proves minDrawings = 2 is reachable by more than the documented plan.
+  it("L2: a legal 2-object plan of two flat planks reaches the goal (clear of the spawn body)", () => {
     const g = getStageGeometry(2);
-    const balok = { x: 100, y: 220, w: size.w, h: size.h };
-    const papan = { x: plans["2"].cycles[1].x, y: plans["2"].cycles[1].y, ...boxOf(plans["2"].cycles[1]) };
-    expect(integratedPlacementAllowed(balok, g, []), "balok placement legal").toBe(true);
-    expect(integratedPlacementAllowed(papan, g, [{ id: "b", label: "balok", behavior: "solid", drawingInput: null, ...balok }]), "papan placement legal").toBe(true);
-    const w = buildWorld(2, [{ ...balok, behavior: "solid" }, { ...papan, behavior: "solid" }]);
-    const r = runPlan(w, [{ launchX: 76, hold: 10 }, { launchX: 201, hold: 22 }, { launchX: 294, hold: 36 }, { launchX: 417, hold: 22 }, { launchX: 500, hold: 30 }]);
+    const { maxW, minH } = g.objectLimits;
+    const plank1 = { x: 145, y: 225, w: maxW, h: minH };
+    const plank2 = { x: 385, y: 120, w: maxW, h: minH };
+    const spawnBody = { x: g.spawn.x - 12, y: g.spawn.y - 40, w: 24, h: 40 };
+    const hits = (a: typeof plank1) => a.x < spawnBody.x + spawnBody.w && a.x + a.w > spawnBody.x && a.y < spawnBody.y + spawnBody.h && a.y + a.h > spawnBody.y;
+    for (const p of [plank1, plank2]) expect(hits(p), "clear of the spawn body").toBe(false);
+    expect(integratedPlacementAllowed(plank1, g, []), "plank 1 placement legal").toBe(true);
+    expect(integratedPlacementAllowed(plank2, g, [{ id: "a", label: "balok", behavior: "solid", drawingInput: null, ...plank1 }]), "plank 2 placement legal").toBe(true);
+    const w = buildWorld(2, [{ ...plank1, behavior: "solid" }, { ...plank2, behavior: "solid" }]);
+    const r = runPlan(w, [{ launchX: 105, hold: 19 }, { launchX: 174, hold: 31 }, { launchX: 233, hold: 23 }, { launchX: 307, hold: 36 }, { launchX: 406, hold: 37 }, { launchX: 520, hold: 35 }]);
     expect(r.outcome, r.log.join("\n")).toBe("goal");
   });
   it("L1-L3 are NOT solvable without a placed object (the object matters)", () => {

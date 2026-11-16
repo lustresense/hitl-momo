@@ -67,6 +67,11 @@ const SIGNPOST_TEXT: Record<1 | 2 | 3, { small: string; big: string }> = {
 };
 /** Widest text the arrow body can carry (source units); longer copy is squeezed to this, never cut off. */
 const SIGNPOST_TEXT_MAX = 54;
+/**
+ * How far the arrow hangs below the top of the post (source units). In-game the top ~25 source units of the art are cut
+ * off by the 800x450 crop, and the level 2 post stands on the roof peak right at that edge, so its arrow sits lower.
+ */
+const SIGNPOST_ARM_DROP: Record<1 | 2 | 3, number> = { 1: 0, 2: 16, 3: 0 };
 const SIGNPOST_BIG_SIZE = 7.4;
 const SIGNPOST_SMALL_SIZE = 5;
 
@@ -86,11 +91,13 @@ function Signpost({ level, transform }: { level: 1 | 2 | 3; transform: string })
   return (
     <g data-asset-role="goal-preview" data-goal-kind="signpost" transform={transform}>
       <path d="M0 0V-54" stroke="#1e2126" strokeWidth="3.5" strokeLinecap="round" />
+      <g transform={`translate(0 ${SIGNPOST_ARM_DROP[level]})`}>
       <path d="M-58 -50h58l14 13l-14 13h-58z" fill="#df6930" stroke="#1e2126" strokeWidth="1.8" strokeLinejoin="round" />
       <text textAnchor="middle" fontWeight="700" fill="#1e2126">
         <tspan x="-29" y="-40" fontSize={SIGNPOST_SMALL_SIZE} textLength={fitLength(small, SIGNPOST_SMALL_SIZE)} lengthAdjust="spacingAndGlyphs">{small}</tspan>
         <tspan x="-29" y="-30.6" fontSize={SIGNPOST_BIG_SIZE} textLength={fitLength(big, SIGNPOST_BIG_SIZE)} lengthAdjust="spacingAndGlyphs">{big}</tspan>
       </text>
+      </g>
     </g>
   );
 }

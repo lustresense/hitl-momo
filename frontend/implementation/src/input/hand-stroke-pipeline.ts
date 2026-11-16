@@ -64,6 +64,10 @@ export interface HandPipelineOptions {
   /** Eraser radius shared with the surface: the fist, the Hapus tool and the two-hand sizer all use it. */
   eraser: EraserControl;
   onPose?(pose: HandPose, nowMs: number): void;
+  /** Owner NUI Lab only: opt-in landmark rules. Default game behavior stays unchanged. */
+  experimentalRobust?: boolean;
+  /** Owner NUI Lab only: prevent an action until the new hand released that gesture. */
+  canPerformAction?(rawPose: HandPose, fingerCount: number): boolean;
 }
 
 export class HandStrokePipeline {
@@ -84,6 +88,12 @@ export class HandStrokePipeline {
 
   constructor(private readonly options: HandPipelineOptions) {}
 
+  /** Switch lab experiment without changing the game-wide classifier. */
+  setExperimentalRobust(enabled: boolean, nowMs: number): void {
+    this.options.experimentalRobust = enabled;
+    this.reset(nowMs);
+  }
+
   /** One processed frame with a single hand. `landmarks` undefined (or short) means no hand in this frame. */
   feed(landmarks: Landmark[] | undefined, nowMs: number): HandFrame {
     return this.feedHands(landmarks ? [landmarks] : undefined, nowMs);
@@ -102,7 +112,7 @@ export class HandStrokePipeline {
     }
 
     const pinchHeld = this.prevRaw === "pinch";
-    const poses = visible.map((h) => classifyHandPose(h, { pinchHeld }));
+    const poses = visible.map((h) => classifyHandPose(h, { pinchHeld, experimentalRobust: this.options.experimentalRobust }));
     const primary = this.pickPrimary(visible, poses);
     const frame = this.tracked(visible[primary]!, poses[primary]!, nowMs);
 
@@ -184,7 +194,8 @@ export class HandStrokePipeline {
 
     this.prevRaw = raw;
     this.stable = this.vote(raw);
-    const drawing = raw === "pinch";
+    const actionAllowed = this.options.canPerformAction?.(raw, countExtendedFingers(lm)) ?? true;
+    const drawing = raw === "pinch" && actionAllowed;
     // With the Hapus tool on, any pose erases under the cursor except the commands: a thumbs-up
     // confirmation, undo or redo must never cut the drawing, and an open palm is no tool at all.
     // Only a full five-finger palm erases, regardless of the old game/tutorial distinction.
@@ -194,8 +205,8 @@ export class HandStrokePipeline {
     const command =
       raw === "thumb-up" || raw === "two-fingers" || raw === "one-finger" || raw === "three-fingers" || raw === "split-palm";
     // An explicit eraser tool may erase on pinch, but a fist is never an erase backdoor.
-    const erasing = (isErasePose && !drawing)
-      || (store.eraserMode && !command && raw !== "fist");
+    const erasing = actionAllowed && ((isErasePose && !drawing)
+      || (store.eraserMode && !command && raw !== "fist"));
 
     const ink = this.toCanvas(this.inkSmoother.smooth(indexTipNormalized(lm), nowMs));
     this.lastInk = ink;

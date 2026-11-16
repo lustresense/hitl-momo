@@ -126,11 +126,13 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
   const isCanvas = variant === "canvas";
   const isGesture = variant === "gesture";
   const [pointerTool, setPointerTool] = useState<"pen" | "eraser">("pen");
+  const [experimentalMode, setExperimentalMode] = useState(true);
   const pointerDown = useRef(false);
   const pointerCursor = useRef<HandCursor | null>(null);
   const analyzerRef = useRef(new LabAnalyzer({
     fullFrameLock: variant !== "diagnostics",
     enableInk: variant !== "gesture",
+    experimentalRobust: variant !== "diagnostics",
   }));
   const [supported, setSupported] = useState<boolean | null>(null);
   const [phase, setPhase] = useState<"off" | "starting" | "on">("off");
@@ -437,6 +439,13 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
     paintInk();
   };
 
+  const toggleExperimentMode = () => {
+    const next = !experimentalMode;
+    analyzerRef.current.setExperimentalMode(next, performance.now());
+    setExperimentalMode(next);
+    setReadout(prev => ({...prev, snapshot: analyzerRef.current.snapshot(performance.now())}));
+    paintInk();
+  };
   const chooseLowLight = (mode: LowLightMode) => {
     setLowLightEnhancement(mode);
     setLowLightState(mode);
@@ -486,7 +495,7 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
         {phase === "starting" && <span className="nui-lab__muted">Kamera dan pelacak sedang dibuka…</span>}
         {variant !== "diagnostics" && (
           <button type="button" className="nui-lab__button" onClick={relockHand} data-testid="lab-relock-hand">
-            Kunci ulang tangan
+            Pilih ulang tangan (opsional)
           </button>
         )}
         <p role="status" className="nui-lab__status">
@@ -504,11 +513,11 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
           </div>
           {variant !== "diagnostics" && (
             <p className="nui-lab__lock-banner" data-testid="lab-lock-status" aria-live="polite">
-              {snap?.lockStatus === "locked" ? "TANGAN TERKUNCI" :
-                snap?.lockStatus === "lost" ? "LOCK HILANG, kunci ulang jika tangan berpindah jauh" :
-                snap?.lockStatus === "ambiguous" ? "DUA TANGAN AMBIGU, tidak pindah otomatis" :
-                snap?.lockStatus === "locking" ? "Mengunci satu tangan…" :
-                "Tunjukkan hanya satu tangan untuk mengunci, bebas di seluruh area kamera"}
+              {snap?.lockStatus === "locked" ? "Tangan siap" :
+                snap?.lockStatus === "lost" ? "Mencari tangan aktif lagi… tinta dihentikan" :
+                snap?.lockStatus === "ambiguous" ? "Tunjukkan satu tangan. Aksi ditahan agar tidak salah." :
+                snap?.lockStatus === "locking" ? "Tangan sedang dipastikan…" :
+                "Tunjukkan satu tangan di mana saja dalam kamera. Penguncian otomatis."}
             </p>
           )}
           <p className="nui-lab__legend">
@@ -596,6 +605,26 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
             </section>
           )}
 
+          {variant !== "diagnostics" && (
+            <section className="nui-lab__debug" aria-label="Diagnostik gestur" data-testid="lab-gesture-diagnostics">
+              <h3>Kenapa gestur terbaca atau ditolak?</h3>
+              <p className="nui-lab__muted">Angka berasal dari landmark dan aturan, bukan confidence AI. Eksperimen hanya memengaruhi NUI Lab.</p>
+              <button type="button" className="nui-lab__button" onClick={toggleExperimentMode}
+                aria-pressed={experimentalMode} data-testid="lab-experiment-toggle">
+                {experimentalMode ? "Aturan eksperimen ON · bandingkan baseline" : "Aturan baseline ON · coba eksperimen"}
+              </button>
+              <dl className="nui-lab__numbers">
+                <Stat label="Sesi tangan (bukan identitas orang)" value={snap ? String(snap.acquisitionId) : "—"} />
+                <Stat label="Penyebab hand lock" value={snap?.lockReason ?? "—"} />
+                <Stat label="Rasio cubit jempol-telunjuk" value={snap?.pinchRatio === null || snap?.pinchRatio === undefined ? "—" : snap.pinchRatio.toFixed(3)} />
+                <Stat label="Ambang mulai / lepas pinch biasa" value={snap ? `${snap.pinchEnter.toFixed(2)} / ${snap.pinchExit.toFixed(2)}` : "—"} />
+                <Stat label="Ambang mulai / lepas pinch jari terlipat" value={snap ? `${snap.foldedPinchEnter.toFixed(2)} / ${snap.foldedPinchExit.toFixed(2)}` : "—"} />
+                <Stat label="Telunjuk / tengah / manis / kelingking" value={snap?.fingerStates ? snap.fingerStates.join(" / ") : "—"} />
+                <Stat label="Izin tindakan tangan ini" value={snap?.inkAllowed ? "siap" : "ditahan"} />
+                <Stat label="Alasan tindakan terakhir" value={snap?.rejectionReason ?? "—"} />
+              </dl>
+            </section>
+          )}
           <h2 id="nui-lab-numbers-title">Angka langsung</h2>
           <dl className="nui-lab__numbers">
             <Stat label="Resolusi kamera" value={info.width && info.height ? `${info.width} × ${info.height}` : "—"} />

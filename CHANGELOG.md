@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.22.0-alpha | 2026-11-16 | Fitur | `(0.22.0-alpha)` |
 | 0.21.0-alpha | 2026-11-16 | Fitur | `(0.21.0-alpha)` |
 | 0.19.1-alpha | 2026-11-16 | Dokumen | `(0.19.1-alpha)` |
 | 0.19.0-alpha | 2026-11-16 | Fitur | `(0.19.0-alpha)` |
@@ -117,6 +118,25 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.22.0-alpha — 2026-11-16 — Fitur
+
+**Sumber:** Owner 16 November 2026 memerintahkan eksekusi hasil R&D NUI Lab Auto-Lock & Gesture UX, setelah menyetujui arah P0 observabilitas, P1 auto-reacquire, P2 eksperimen pinch/tiga-jari. Dokumen sumber: `RND-DATASET-ROBUST-GESTURE-LOCK-2026-11-16-REVISI-UX.md` (konteks chat, bukan otomatis perubahan proposal).
+
+**Source implementasi:**
+- `FullFrameHandLock` laboratorium dapat melepas sesi lama setelah kamera benar-benar kosong pada lebih dari satu deteksi dan melewati interval eksperimen; satu tangan baru diakuisisi otomatis setelah konsisten. Jika background hand tetap terlihat, tangan lain tidak dipromosikan. Crossing ambigu menahan aksi. Wrist/ukuran bukan autentikasi identitas.
+- Setiap sesi akuisisi baru dan pemulihan track stale memperoleh epoch baru. Pipeline tinta dan command direset; tindakan Coret/Hapus/Undo/Redo butuh gestur yang dilepas lalu dilakukan lagi. Cursor tetap mengikuti tangan aktif.
+- NUI Lab menampilkan pinch ratio, ambang normal dan folded-index, status lock, alasan penolakan, fingerprint **tidak digunakan**, finger-states dan alasan action gate. Toggle membandingkan classifier baseline dan aturan eksperimen tanpa mengubah model `hand_landmarker.task`.
+- Opt-in eksperimen lab untuk tiga jari dengan ring hampir lurus (2D joint angle), folded-index pinch hysteresis. Default classifier game tidak berubah, mapping produk tetap pinch Coret, 5 jari Hapus, 1 jari Undo, 2 jari Redo; kepalan inert.
+- Unit/regression fixtures baru menargetkan empty camera, bystander, overlapping hands, stale ownership, fresh pinch, eksperimen classifier, dan readout diagnostik.
+
+**Batas bukti:** Pengujian JS V8 terisolasi terhadap logika lock (12 skenario sintetis PASS) bukan tes TypeScript/Vitest, lint, Next build atau webcam. GitHub connector tidak menjalankan npm maupun model MediaPipe asli. **STATIC_ONLY / NOT_TESTED** untuk integrasi browser, model dan deployment. Parameter 300 ms, 2 sampel kosong, 0.20/0.27 adalah parameter prototype, belum dikalibrasi.
+
+**Tidak termasuk:** Swipe Undo/Redo (belum dikunci), pengumpulan raw video/dataset tanpa opt-in, training classifier offline atau retraining Hand Landmarker.
+
+**Commit:** `feat(nui-lab): auto-reacquire and gesture observability (0.22.0-alpha)`.
 
 ---
 

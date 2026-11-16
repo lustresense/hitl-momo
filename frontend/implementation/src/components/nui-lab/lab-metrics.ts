@@ -139,7 +139,7 @@ export function poseLabel(pose: HandPose): string {
     case "pinch":
       return "Cubit (coret)";
     case "fist":
-      return "Kepal (hapus)";
+      return "Kepal (diagnostik, bukan Hapus)";
     case "two-fingers":
       return "Dua jari (mundur)";
     case "one-finger":

@@ -1,5 +1,11 @@
 # Working Context
 
+### 2026-11-16 — NUI Lab auto-reacquire & diagnostics eksperimen 0.22.0-alpha (STATIC_ONLY)
+- Source `main` diperluas: `lab-hand-lock.ts`, `lab-analyzer.ts`, NUI Lab UI, opsi `experimentalRobust` di classifier/pipeline tanpa mengubah default game. Prioritas adalah hand tracking kontinu, auto-release saat tidak ada tangan, dan rearm tindakan pasca-acquire baru.
+- Aturan lab baru menggunakan 2 sample kamera tanpa hand dan jeda 300ms sebelum melepaskan pemilik lama; jika background hand tetap terlihat, lock tidak dipromosikan. Parameter prototype; perlu tes kamera depan/crowd/distraksi.
+- V8 direct lock test source 12/12 PASS (tes sintetis saja). npm/Vitest/build/real webcam **BELUM-TERBUKTI**. Opsional A/B UI, no raw dataset recorded.
+
+
 ### 2026-11-16 — NUI lab experiment masuk `main` (source only)
 - Branch `nui-lab` sudah tidak ada di GitHub saat pengecekan. `ujang-monorepo` SHA 4d9ebb0 memiliki dua-ruang lab dan gesture 5-jari lebih baru dari `main` SHA 6e89a47. Integrasi terpilih pada `main` tidak menyentuh source gameplay baru.
 - Routes App Router `/nui-lab`, `/nui-lab/gesture`, `/nui-lab/canvas`, `/nui-lab/diagnostics`; satu pipeline MediaPipe dengan gesture HUD/hand cursor/Momo dan strict full-frame hand lock.

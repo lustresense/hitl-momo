@@ -46,6 +46,9 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 
 ## Keputusan Aktif
 
+> **REKONSILIASI 2026-11-16, TELAH DIIZINKAN OWNER UNTUK SINKRONISASI REPO:** Berkas ini berbasis **isi lengkap `contexts/can/DECISIONS.md` branch `main`** yang diunggah Owner, dengan Git blob SHA `61da12d46aad45faee74fc97ba91c358536a2e62`. Seluruh konten master asli dipertahankan; penambahan hasil audit NUI Lab berada di bagian paling atas **Entri Perubahan Terbaru**. Entri baru tetap **usulan / belum dikunci / bukan keputusan PA** sebagaimana ditandai. Owner mengizinkan penyimpanan dokumen ini ke branch kerja repo pada 2026-11-16; **Project Sources dan deployment tidak otomatis berubah**.
+
+
 | Area | Keputusan aktif | Status |
 |---|---|---|
 | Identitas proyek | Satu sistem PA terpadu untuk literasi kecerdasan buatan siswa SMP; bukan dua aplikasi terpisah. Nama internal/IP: **Sketchbook Universe**. | Aktif |
@@ -125,6 +128,101 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 | 2026-10-05 — Penegasan visual cover onboarding | Onboarding camera ditegaskan sebagai cover Sketchbook Universe sehingga dominasi hijau pada keseluruhan layar adalah treatment khusus cover, bukan aturan background global untuk page lain. | Aktif |
 
 ## Entri Perubahan Terbaru
+
+> **STATUS PENAMBAHAN (2026-11-16):** Audit tambahan terhadap tiga ZIP dengan urutan `NUI Lab` → `Cabang NUI Lab` → `Cabang Cabang NUI Lab`, lalu instruksi di chat yang sedang berlangsung. Nomor `D-20261116-02` sampai `-06` mengikuti dokumen review sebelumnya supaya tidak dibuat ID pengganti atau duplikasi. `D-20261116-07` adalah penegasan produk dari pernyataan eksplisit Owner yang sebelumnya tercampur dengan riset dataset. **Tidak ada perubahan status entri Aktif master yang disahkan hanya lewat audit ini.** Seluruh entri asli di bawah addendum ini dipertahankan.
+
+## Addendum rekonsiliasi NUI Lab, 2026-11-16 (review Owner)
+
+### A. Peta konflik dan keputusan berlaku
+
+| Area | Konflik/bukti sebelumnya | Hasil audit menurut bukti terbaru | Status |
+|---|---|---|---|
+| Wake Momo pada cover | D-20261105-19: kamera hidup; D-20261110-04: lambaian; D-20261115-03: stream playable | **D-20261115-03 menang:** kamera OFF pada awal; Momo bangun hanya setelah stream playable, bukan syarat waving. Eksperimen wave tracker di lab tidak membatalkan perubahan ini. | Aktif di master, tidak membuat ID ulang |
+| Jumlah dan istilah bab | D-20261110-01 menetapkan tiga level; D-20261116-01 mewajibkan kata `Bab` di UI siswa | Tepat tiga **Bab 1–3** dalam teks siswa, sementara istilah `Level` di dokumen teknis/histori tidak perlu dihapus. | Aktif di master |
+| Menang dan ringkasan | Tabel Keputusan Aktif lama masih merangkum D-20261105-04 (pop-up); D-20261105-12 kemudian merevisi kartu ke chat Momo dan kembali ke pemilihan bab | **D-20261105-12 yang lebih baru berlaku**. Jangan implementasi ulang kartu ringkasan 5 November dari baris ringkasan lama. D-20261110-10 mengatur penutup portal akhir Bab 3 secara berbeda dari ringkasan per-bab. | Direvisi oleh keputusan master terbaru |
+| Tutorial Kartu 2 | Baris ringkasan lama menyebut contoh pisau; D-20261105-24 menegaskan tanpa pisau | Tutorial memakai contoh aman/bahaya yang sesuai seperti duri; tidak menggunakan siswa menggambar pisau. | Aktif di master, koreksi ringkasan historis |
+| Card 1 | D-20261110-06 menyebut cubit-drag; source 0.17.x memakai sudut telunjuk; Owner 15 November meminta kembali ke baseline 17.1-alpha setelah koreksi yang salah | Konflik keputusan vs implementasi **tetap D-20261115-02 Belum dikunci**. Jangan menyimpulkan satu implementasi lama otomatis mengesahkan mapping baru di seluruh mode. | Belum dikunci |
+| Card 3 / kanvas Hapus | Mapping lama mengenal kepalan; Owner 16 Nov secara eksplisit mengatakan lab sesuai game dan **Hapus pakai lima jari**, bukan kepalan | Kebutuhan lab eksplisit dicatat pada D-20261116-02. Karena baseline kanvas game dan histori D-20261115-02 belum konsisten, klaim bahwa seluruh mode sudah sama masih perlu audit kode/runtime. | Usulan resmi lab, belum menyulap code menjadi PASS |
+| Undo dan Redo | Mapping lama mengandalkan pose statis; 16 Nov Owner membahas peace-sign lalu geser kiri untuk Undo | Ini arah riset D-20261116-03. Redo dan seluruh threshold arah belum terkonfirmasi sebagai mapping akhir. | Belum dikunci |
+| Posisi NUI Lab | Pernah dibahas sebagai branch sendiri; kemudian Owner meminta route lab berada di frontend monorepo yang ditunnel Ujang | Ini keputusan **tooling/workflow** untuk lingkungan percobaan, dicatat sebagai D-20261116-04 yang **tidak diajukan sebagai keputusan produk PA**. Status branch yang betul-betul dihapus belum terbukti dari chat. | Bukan keputusan PA; WORKING_STATE |
+| Tracking dan lock tangan | Owner mengeluh manual lock, tangan yang berpindah, lingkungan crowded, satu tangan aktif | D-20261116-05 mencatat kebutuhan interaksi single-hand + auto-reacquire saat kamera kosong; **bukan identifikasi biometrik/face tracking**. Keberhasilan fisik belum teruji. | Usulan produk / eksperimen |
+| Fondasi MediaPipe dan retraining | Alternatif OpenPose/RTMPose/WiLoR muncul dalam saran riset; Owner 16 Nov menegaskan MediaPipe harus tetap utama karena scope PA | D-20261116-07 merekam batas produk tersebut. D-20261116-06 membedakan dataset gesture/classifier dari retraining bobot MediaPipe; tidak ada hasil pelatihan tervalidasi. | Usulan pengesahan produk + riset belum dikunci |
+
+### B. Perlu disetujui sebagai perubahan/penegasan produk PA
+
+#### D-20261116-07 — [USULAN AKTIF / BELUM DISETUJUI] — MediaPipe tetap fondasi utama NUI produk
+- **Keputusan/arah:** Owner menetapkan penggunaan **MediaPipe sebagai teknologi utama hand/finger tracking** untuk NUI; kandidat model alternatif dari hasil eksplorasi AI tidak otomatis mengganti fondasi ini. Penambahan classifier gesture, smoothing, atau preprocessing di sekitar MediaPipe dapat diteliti, tetapi bukan klaim bahwa bobot internal MediaPipe sudah dilatih ulang.
+- **Entri lama terdampak:** baris `MediaPipe/camera`, D-20261026-08, D-20261027-05/06, serta D-20261116-06 (pertanyaan dataset, bukan migrasi stack).
+- **Bukti:** `ChatGPT_Cabang-NUI-Lab_20261116-1623.zip`, pesan Owner 2026-11-16 15:34 WIB: “pokoknya tetep based on mediapipe sebagai yang utama krn itu masuk ke judul pa gw”. Pernyataan ini lebih spesifik daripada opsi riset library pada 13–14 November.
+- **Dampak:** batas penggantian pipeline NUI, konsistensi proposal dengan prototipe, integrasi classifier gesture, audit runtime/low-light. Tidak mengubah model klasifikasi sketsa yang menjadi scope partner.
+- **Status bukti:** keputusan eksplisit Owner tentang arah teknologi produk; formalitas status `Aktif` di DECISIONS menunggu persetujuan ID. Tidak ada klaim benchmark perangkat SMP sudah PASS.
+- **Menunggu:** `SETUJUI D-20261116-07` / `TOLAK D-20261116-07`.
+
+#### D-20261116-05 — [USULAN AKTIF / BELUM DISETUJUI] — Satu tangan aktif dan recovery otomatis tanpa lock identitas
+- **Keputusan/arah:** NUI Lab mengutamakan satu track tangan aktif untuk input; kehilangan tangan menghentikan goresan/aksi aktif. Bila frame sempat tidak memiliki tangan lalu muncul satu tangan baru, track diambil kembali secara otomatis; tidak perlu klik lock berulang. Tangan lain atau latar ramai tidak boleh seenaknya memindahkan input. Lock bukan identifikasi biometrik orang, sidik jari, atau wajah.
+- **Entri lama terdampak:** D-20261027-06 (router mode dan kehilangan tracking), D-20261115-02 (ketidakselarasan gesture code).
+- **Bukti:** `ChatGPT_Cabang-NUI-Lab_20261116-1623.zip`, pesan Owner 15:13 dan klarifikasi 15:34 WIB; Owner menegaskan “kalo lagi gaada tangan sama sekali di cam, ya tangan yang baru itu yang dilock”.
+- **Dampak:** gesture FSM, reacquire, hand-ambiguity guard, cursor/tinta, fail-safe, uji multi-hand/occlusion, UI tanpa beban tombol lock manual.
+- **Status bukti:** kebutuhan UX/eksperimen eksplisit dari Owner; parameter waktu, aturan dua tangan bersamaan, dan keberhasilan webcam fisik **belum dikunci/teruji**.
+- **Menunggu:** `SETUJUI D-20261116-05` / `TOLAK D-20261116-05`.
+
+#### D-20261116-02 — [USULAN AKTIF / BELUM DISETUJUI] — Hapus lima jari dalam NUI Lab
+- **Keputusan/arah:** Owner berulang kali menegaskan bahwa **Hapus menggunakan telapak terbuka lima jari, bukan kepalan**, dan gerakan/ikon pada laboratorium harus konsisten dengan cara main yang dimaksud. Pada lab canvas, cursor terlihat ketika tangan terdeteksi, sedangkan tinta digambar hanya ketika pinch valid; petunjuk gesture dan status diagnostik harus bisa diperiksa. Satu tangan aktif dan pemulihan ketika lost dibahas terpisah pada D-20261116-05.
+- **Entri lama terdampak:** D-20261110-07, D-20261115-02, sejarah mapping kanvas utama; tidak mengubah tiga keputusan HITL.
+- **Bukti:** `ChatGPT_NUI-Lab_20261116-1948.zip` pesan Owner 10:34/10:35 WIB, diulang dalam `ChatGPT_Cabang-NUI-Lab_20261116-1623.zip` pada 13:35 WIB; pernyataan “hapusnya kan pake 5 jari”. Instruksi 14:38 WIB membedakan cursor tangan vs tinta pinch.
+- **Dampak:** mapping gesture lab, glyph SVG, diagnostics, canvas, regression per-mode dan kecocokan dengan main game.
+- **Status bukti:** instruksi eksplisit pengguna untuk NUI Lab. Tidak mengklaim seluruh mode game sudah memakai mapping ini atau webcam lapangan sudah sukses.
+- **Menunggu:** `SETUJUI D-20261116-02` / `TOLAK D-20261116-02`.
+
+### C. Belum dikunci, dicatat tanpa mengesahkan desain
+
+#### D-20261116-06 — [BELUM DIKUNCI] — Dataset robustness gesture dan batas retraining
+- **Arah eksplorasi:** Owner meminta riset/kemungkinan training dataset gesture berisi tangan dengan kontras rendah, backlight/low-light, latar penuh distraksi, variasi rotasi, tiga jari, pinch, dan kondisi tangan hilang. **Belum dipilih** apakah penambahan data dipakai untuk classifier gesture tersendiri, augmentasi, atau kalibrasi threshold/preprocessing. Dataset yang ditemukan tidak otomatis melatih ulang MediaPipe Hand Landmarker.
+- **Entri lama terdampak:** D-20261027-06 dan aspek NUI pada D-20261116-07. Bukan keputusan training model sketsa partner.
+- **Bukti:** `ChatGPT_Cabang-NUI-Lab_20261116-1623.zip` pesan Owner 14:38, 15:13, dan 15:34 WIB serta laporan percobaan lighting 13–15 Nov. Pertanyaan tentang IPN Hands belum membuktikan library atau dataset tersebut dipasang.
+- **Dampak:** rencana R&D, evaluasi gesture classifier, pembatasan ukuran unduhan dan kinerja, lisensi data, uji fisik low-light.
+- **Status bukti:** riset yang diminta, belum ada percobaan training/benchmark terverifikasi atau keputusan produk tentang model tambahan.
+- **Menunggu:** rancangan eksperimen dan hasil pengujian; `SETUJUI D-20261116-06` / `TOLAK D-20261116-06` hanya jika berubah menjadi keputusan produk.
+
+#### D-20261116-03 — [BELUM DIKUNCI] — Undo/Redo directional gesture
+- **Arah eksplorasi:** Owner mengusulkan Undo memakai peace sign yang **digeser ke kiri**, bukan hanya pose statis. Redo juga diinginkan memakai aksi geser tetapi gerakan, pose, threshold, dan prioritas antar-mode belum dijelaskan final.
+- **Entri lama terdampak:** D-20261110-07 dan D-20261115-02. Mapping 17.1-alpha tidak otomatis dihapus hanya karena opsi ini diteliti.
+- **Bukti:** `ChatGPT_Cabang-NUI-Lab_20261116-1623.zip`, pesan Owner 14:38 WIB: “undo dan redo itu pake geser. misal undo kan peace sign, nah itu peace signnya harus geser ke kiri”. Pada pesan yang sama Owner meminta **diskusi/audit tanpa mengubah kode terlebih dahulu**.
+- **Dampak:** state machine gesture dinamis, disambiguasi perubahan pose vs arah, feedback visual, reset/rearm, testing gerak dan false positive.
+- **Status bukti:** arah desain dan usulan eksperimen, bukan persetujuan mapping lengkap atau bukti implementasi.
+- **Menunggu:** pemilihan mapping final secara eksplisit; `SETUJUI D-20261116-03` / `TOLAK D-20261116-03`.
+
+### D. Tidak dipakai sebagai keputusan PA karena tooling atau interpretasi AI
+
+#### D-20261116-04 — [DIKLASIFIKASI ULANG / BUKAN KEPUTUSAN PA] — Penempatan NUI Lab di frontend monorepo
+- **Yang tercatat pada review terdahulu:** usulan `D-20261116-04` meminta sandbox dengan `/nui-lab`, `/nui-lab/gesture`, dan `/nui-lab/canvas` pada frontend monorepo, agar tunnel Ujang tidak perlu berganti branch. Review lama keliru mengusulkannya sebagai keputusan produk PA.
+- **Resolusi:** ini **cara mengerjakan dan mengekspos lingkungan pengujian**; bukan fitur yang ditetapkan untuk siswa dalam aplikasi/artefak PA. Jejak ID `D-20261116-04` dipertahankan untuk audit dan **tidak boleh dinaikkan menjadi Aktif produk**. Detail dan status teknisnya berada di `WORKING_STATE_REVIEW_NUI_2026-11-16.md` bagian 23. Bila lab kelak secara eksplisit ditetapkan sebagai fitur produk yang terlihat siswa, buka kandidat keputusan produk baru berdasarkan bukti tersebut.
+- **Bukti:** `ChatGPT_NUI-Lab_20261116-1948.zip` 09:00–09:39 WIB, `ChatGPT_Cabang-NUI-Lab_20261116-1623.zip` 13:35 WIB. Owner ingin lab bypass gameplay, satu frontend, area canvas+gesture. Status penghapusan branch lama dan perubahan deployment **tidak diverifikasi** dalam audit dokumen ini.
+- **Dampak:** hanya operasi dev, route lab, dukungan pengujian/pengembangan dan sinkronisasi state; bukan proposal atau core gameplay.
+- **Tindakan:** jangan gunakan `SETUJUI D-20261116-04` sebagai persetujuan fitur PA.
+
+- Laporan asisten di ZIP tentang alternatif model tangan, perbaikan P0–P2, commit dan versi `0.22.0-alpha` merupakan **KATA-TOOL** atau bahan inspeksi repo, bukan bukti webcam fisik atau keputusan desain.
+- Perintah rollback `17.1-alpha` adalah permintaan memulihkan baseline setelah koreksi salah, bukan persetujuan semua mapping yang pernah ada.
+- Usulan animasi Momo dalam jalur prototyping HTML adalah pekerjaan visual terpisah; ZIP berisi permintaan eksplisit, tetapi **bukan bukti bahwa source game utama telah menerima semua motion itu**. Keputusan aktif tentang camera playable dari D-20261115-03 tetap berlaku; detail adegan HTML membutuhkan tinjauan versi prototype dan keputusan eksplisit bila hendak diadopsi sebagai requirement final produk.
+- Tidak ada kesimpulan bahwa test mock browser, benchmark sintetis, atau dataset publik berhasil menyelesaikan kondisi low-light pada webcam siswa.
+
+### E. Integritas dan batas audit
+
+1. **Sumber master** adalah seluruh isi file Owner `DECISIONS.md` (blob SHA `61da12d46aad45faee74fc97ba91c358536a2e62`), bukan berkas Project Sources `v2026.11.05-audit.8` yang lebih lama. Section appendix dan histori lama dari repo tetap ada tanpa diubah.
+2. **Sumber kandidat** adalah `DECISIONS_REVIEW_NUI_2026-11-16.md`, dinilai ulang menggunakan tiga ZIP yang sudah dibaca; bagian 16 dari review lama tidak dicopy mentah-mentah karena beberapa penjelasannya merujuk pada keterbatasan yang sekarang sudah terselesaikan (master GitHub lengkap telah tersedia).
+3. **Keputusan yang tidak dibuat ulang:** D-20261110-01..10, D-20261111-01, D-20261115-01..03, D-20261116-01; maupun ID historis yang telah ada di repo. D-20261105-12 lebih baru daripada D-20261105-04, sehingga status ringkasan mengikuti yang terbaru. D-20261105-24 lebih spesifik daripada baris historis contoh benda tajam.
+4. **Tidak ada status Aktif baru** dari addendum ini. Jika Owner menyetujui kandidat ber-ID, update status dan ringkasan Aktif pada iterasi berikutnya. Perintah menggabungkan dua dokumen berarti meratifikasi **pencatatan audit**, bukan otomatis `SETUJUI` semua desain.
+5. Owner menyetujui penyimpanan dokumen rekonsiliasi ini ke branch kerja `ujang-monorepo` pada 2026-11-16. Persetujuan push **tidak** mengaktifkan usulan ber-ID, mengubah `main`, memperbarui Project Sources/VM, atau membuktikan runtime.
+
+---
+
+
+### D-20261116-01 — Aktif (keputusan eksplisit Owner 2026-11-16, M-036) — Objek siswa memakai kotak gambarnya sendiri; hanya tiga bab; satu kata "Bab"
+- **Keputusan:** (1) Collider objek siswa adalah kotak gambarnya sendiri: gambar dipertahankan proporsinya dan diperbesar sampai memenuhi kotak terbesar bab, sehingga yang dilihat siswa sama dengan yang diinjak Thinman. Owner memilih "opsi 1" dan menolak opsi gambar dipipihkan ke papan 130 x 20. (2) Objek tidak boleh menimpa titik awal Thinman atau bendera. (3) Objek bahaya (duri) melukai hanya di dalam gambarnya. (4) Papan petunjuk akhir bab hanya satu panah tanpa papan "Bab N selesai": Bab 1 dan 2 "Lanjut ke Bab 2/3", Bab 3 "Menuju Pusat Halaman". (5) Hanya tiga bab; pratinjau 01/03 sampai 03/03; semua teks siswa memakai kata **Bab**, bukan Level.
+- **Batas:** fisika (jalan 130, lompat 520, gravitasi 1600, badan 24 x 40), geometri tanah (terikat art), minimal 2 objek per bab dan "satu objek saja tidak pernah cukup" tidak berubah. Ukuran maksimal per bab ada di `frontend/implementation/src/game/object-limits.ts` dan boleh disetel bila tes keterselesaian menuntut.
+- **Mengubah:** ukuran hitbox objek pada praktik PRD 0.0.16 K2 (semua objek papan 80 x 12 satuan sumber) dan D-20261110-08 hanya pada ukuran hitbox. Alur stiker, "Lempar", "Taruh di sini" tidak berubah. Tidak mencabut D-20261115-03.
+- **Teknis:** `CHANGELOG.md` root 0.19.0-alpha; `frontend/implementation/docs/execution/gameplay/README.md`.
+- **Bukti:** browser (mock, mouse+keyboard) perjalanan Bab 1-3 PASS, recovery 16/16, finish 12/12, route 15/15; unit tsc bersih, tes game 371 lulus; kamera fisik NOT_TESTED. Rincian REVISIONS R16-01..R16-10.
 
 ### D-20261115-03 — Aktif (keputusan eksplisit Owner 2026-11-15) — Wake Momo dari kamera siap, bukan wave
 - **Keputusan:** pilihan B dari PRD REV-B04-004 diterapkan sebagai pengganti *wave-gated cover*. Siswa masuk ke cover dengan kamera OFF dan Momo tidur. Saat siswa menyalakan kamera, Momo baru bangun setelah browser memperoleh stream kamera dan playback video berhasil. Kemudian animasi kaget, kamera mengecil ke PIP, Momo ke tengah, dialog perkenalan bubble, dan konfirmasi jempol menuju penggaris tetap.

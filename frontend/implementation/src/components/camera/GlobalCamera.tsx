@@ -229,6 +229,8 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false }: Globa
   const [flying, setFlying] = useState(false);
   /** The camera card is in its bottom-left PIP box: the layout switches here (no jump, the box is the same). */
   const [pipReached, setPipReached] = useState(false);
+  /** The book has been started: the cover text and the thumb confirmation are gone. */
+  const [coverDone, setCoverDone] = useState(false);
   /** Momo has typed her last line: the thumb ring appears now, not after the reading pause. */
   const [coverLinesTyped, setCoverLinesTyped] = useState(false);
   /** Momo on the cover: on, fading (0.3 s after the midpoint), gone. */

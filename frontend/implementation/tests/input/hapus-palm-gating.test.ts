@@ -49,10 +49,10 @@ describe("Hapus tool on: 5 fingers (open palm) erases, command poses do not (REV
     expect(store.hasActiveStroke()).toBe(false);
   });
 
-  it("control: a fist over the same stroke still erases under the tool", () => {
+  it("control: a fist over the same stroke never erases under the tool", () => {
     const { feed, eraseSpy } = setup();
     for (let i = 0; i < 12; i++) feed(fistHand());
-    expect(eraseSpy).toHaveBeenCalled();
+    expect(eraseSpy).not.toHaveBeenCalled();
   });
 
   it("control: a pinch drag under the tool still erases (the tool own drag)", () => {

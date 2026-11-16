@@ -1,5 +1,11 @@
 # Working Context
 
+### 2026-11-16 — NUI lab experiment masuk `main` (source only)
+- Branch `nui-lab` sudah tidak ada di GitHub saat pengecekan. `ujang-monorepo` SHA 4d9ebb0 memiliki dua-ruang lab dan gesture 5-jari lebih baru dari `main` SHA 6e89a47. Integrasi terpilih pada `main` tidak menyentuh source gameplay baru.
+- Routes App Router `/nui-lab`, `/nui-lab/gesture`, `/nui-lab/canvas`, `/nui-lab/diagnostics`; satu pipeline MediaPipe dengan gesture HUD/hand cursor/Momo dan strict full-frame hand lock.
+- Koreksi `fist` inert, `countExtendedFingers === 5` Hapus. Test synthetic source tersedia, tetapi hasil build/webcam dan tunnel masih BELUM-TERBUKTI; Ujang pemilik QA/deploy.
+
+
 Last updated: 2026-11-05 (sesi eksekusi teknis; diperbarui oleh IT ORCHESTRATOR atas permintaan Owner)
 
 ## NOW (baca ini dulu)

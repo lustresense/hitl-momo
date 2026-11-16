@@ -331,8 +331,8 @@ describe("HandDrawingDriver", () => {
 
   it("stop() ends an open eraser pass, so the cut stays one undo step", async () => {
     const b = stream(); setSharedStream(b.s);
-    const fist = makeHand({ ratios: [0.5, 0.5, 0.5, 0.5] });
-    create.mockResolvedValue(lmk(() => ({ landmarks: [fist] })) as never);
+    const fiveFingers = makeHand({ ratios: [1.5, 1.5, 1.5, 1.5] });
+    create.mockResolvedValue(lmk(() => ({ landmarks: [fiveFingers] })) as never);
     const { driver, v, store } = setup();
     const clock = frameClock();
     await driver.start();

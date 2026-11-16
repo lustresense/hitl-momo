@@ -73,9 +73,11 @@ export type GestureAction =
   | "level-3";
 
 type ActionMap = Partial<Record<HandPose, GestureAction>>;
+// The drawing erasable palm still requires all five fingers at the landmark gate.
+// A closed fist is a classifiable pose, never an erase command in drawing/tutorial.
 
 const MAPS: Record<GestureMode, ActionMap> = {
-  [MODE_CANVAS_DRAWING]: { pinch: "draw", fist: "erase", "open-palm": "erase", "one-finger": "undo", "two-fingers": "redo" },
+  [MODE_CANVAS_DRAWING]: { pinch: "draw", "open-palm": "erase", "split-palm": "erase", "one-finger": "undo", "two-fingers": "redo" },
   [MODE_CANVAS_PREDICT_TRIGGER]: { "thumb-up": "request-prediction" },
   [MODE_CANVAS_STAMP_READY]: { "thumb-up": "throw", "open-palm": "redraw" },
   [MODE_GAMEPLAY_PLACEMENT]: { "thumb-up": "place", "open-palm": "redraw", pinch: "grab" },
@@ -84,7 +86,7 @@ const MAPS: Record<GestureMode, ActionMap> = {
   [MODE_TOP3_PANEL]: { "one-finger": "choose-1", "two-fingers": "choose-2", "three-fingers": "choose-3", "open-palm": "not-this", pinch: "redraw" },
   [MODE_TOP3_ALTERNATIVES]: { "one-finger": "choose-1", "two-fingers": "choose-2", "three-fingers": "choose-3" },
   [MODE_DIALOG_ACK]: { "thumb-up": "ack" },
-  [MODE_TUTORIAL]: { "thumb-up": "ack", pinch: "pinch", "open-palm": "erase", "split-palm": "erase", "one-finger": "undo", "two-fingers": "redo", fist: "erase" },
+  [MODE_TUTORIAL]: { "thumb-up": "ack", pinch: "pinch", "open-palm": "erase", "split-palm": "erase", "one-finger": "undo", "two-fingers": "redo" },
   [MODE_COVER_WAVE]: {},
   [MODE_LEVEL_SELECT]: { "one-finger": "level-1", "two-fingers": "level-2", "three-fingers": "level-3" },
   [MODE_FAIL]: { "one-finger": "retry", "two-fingers": "move-object", "three-fingers": "redraw" },

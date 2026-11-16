@@ -2,6 +2,7 @@ import type { HandInputStatus, Landmark, StrokeStore } from "./types";
 import {
   PINCH_EXIT,
   classifyHandPose,
+  countExtendedFingers,
   evaluateGesture,
   indexTipNormalized,
   mapToCanvas,
@@ -90,8 +91,8 @@ export class HandStrokePipeline {
 
   /**
    * One processed camera frame with every visible hand (MediaPipe reports up to two).
-   * The fist hand is the eraser; without a fist the pinching hand draws. A second hand never draws:
-   * while a fist erases, the second hand's thumb-index gap sets the eraser radius.
+   * A hand with five extended fingers is the eraser; without one a pinching hand draws.
+   * A second hand must not hijack ink or trigger a fist-erasure.
    */
   feedHands(hands: Landmark[][] | undefined, nowMs: number): HandFrame {
     const visible = (hands ?? []).filter((h) => h && h.length >= 21);
@@ -139,19 +140,10 @@ export class HandStrokePipeline {
 
   /** The fist hand; else a pinching hand (nearest the line being drawn when two pinch); else the first hand. */
   private pickPrimary(hands: Landmark[][], poses: HandPose[]): number {
-    const allowFist = this.options.eraser.allowFistErase?.() !== false;
-    if (allowFist) {
-      const fist = poses.indexOf("fist");
-      if (fist >= 0) return fist;
-    }
-    const palm = poses.indexOf("open-palm");
-    if (palm >= 0) return palm;
-    // The tutorial's five-finger open palm may classify as split-palm when the gap
-    // between middle and ring fingers is unusually wide. It is still FIVE fingers.
-    if (this.options.eraser.isFixed?.() === true) {
-      const split = poses.indexOf("split-palm");
-      if (split >= 0) return split;
-    }
+    // Five spread fingers are the eraser. A closed fist never steals the primary input.
+    const fivePalm = poses.findIndex((p,i) =>
+      (p === "open-palm" || p === "split-palm") && countExtendedFingers(hands[i]) === 5);
+    if (fivePalm >= 0) return fivePalm;
     const pinching = poses.flatMap((p, i) => (p === "pinch" ? [i] : []));
     if (pinching.length <= 1) return pinching[0] ?? 0;
     if (!this.lastInk) return pinching[0]!;
@@ -195,17 +187,15 @@ export class HandStrokePipeline {
     const drawing = raw === "pinch";
     // With the Hapus tool on, any pose erases under the cursor except the commands: a thumbs-up
     // confirmation, undo or redo must never cut the drawing, and an open palm is no tool at all.
-    const allowFist = this.options.eraser.allowFistErase?.() !== false;
-    const tutorial = this.options.eraser.isFixed?.() === true;
-    const isErasePose = (allowFist && this.stable === "fist")
-      || this.stable === "open-palm"
-      || (tutorial && this.stable === "split-palm");
+    // Only a full five-finger palm erases, regardless of the old game/tutorial distinction.
+    const isErasePose =
+      countExtendedFingers(lm) === 5 &&
+      (this.stable === "open-palm" || this.stable === "split-palm");
     const command =
       raw === "thumb-up" || raw === "two-fingers" || raw === "one-finger" || raw === "three-fingers" || raw === "split-palm";
-    // In Card 3, a fist must NEVER erase, even after the student clicked the Hapus tool.
-    // Otherwise the old gesture remains an undocumented backdoor despite the router change.
+    // An explicit eraser tool may erase on pinch, but a fist is never an erase backdoor.
     const erasing = (isErasePose && !drawing)
-      || (store.eraserMode && !command && !(tutorial && raw === "fist"));
+      || (store.eraserMode && !command && raw !== "fist");
 
     const ink = this.toCanvas(this.inkSmoother.smooth(indexTipNormalized(lm), nowMs));
     this.lastInk = ink;

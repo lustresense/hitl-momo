@@ -1,5 +1,11 @@
 # NOW
 
+## 2026-11-16 — NUI Lab berintegrasi `main` (0.21.0-alpha, STATIC_ONLY)
+- Source NUI 0.20.0-alpha dari `ujang-monorepo` diambil secara selektif ke `main` yang sudah memiliki perubahan gameplay 0.19.1-alpha, tanpa menimpa file gameplay yang menyimpang. Rute: `/nui-lab`, `/nui-lab/gesture`, `/nui-lab/canvas`, `/nui-lab/diagnostics`.
+- Hapus memakai lima jari, kepalan inert; pinch Coret, satu jari Undo, dua jari Redo; diselaraskan antara lab dan game. FullFrameHandLock dan indicator pointer lab memungkinkan area frame penuh tetapi tidak menjamin identitas atau deteksi saat tangan terpotong.
+- Ujang masih harus menjalankan test/build dan deploy; status `STATIC_ONLY / NOT_TESTED`. Handoff `NUILAB_MAIN_HANDOFF_2026-11-16.md`.
+
+
 ## 2026-11-16 — gameplay dari `main` (Owner M-036)
 - **Cabang:** `main` = `ujang-monorepo` (`a18a6e8`) + perbaikan build (`cd7978e`) + pekerjaan gameplay. Izin Owner untuk bekerja di `main` tercatat di M-036; aturan lama "main tidak boleh diubah tanpa perintah baru Owner" sudah dipenuhi oleh perintah itu.
 - **Gameplay:** objek siswa memakai kotak gambarnya sendiri (collider = yang terlihat), objek tidak boleh menimpa Thinman atau bendera, duri melukai hanya di dalam gambar, Bab 1-3 disetel ulang (`level-plans.json`), papan akhir bab satu panah, pratinjau 3 bab, satu kata "Bab". Rincian: `frontend/implementation/docs/execution/gameplay/README.md`, REVISIONS R16.

@@ -1,5 +1,12 @@
 # NOW.md — Status integrasi bersama
 
+## 2026-11-16 — NUI Lab di `main` (0.21.0-alpha, STATIC_ONLY)
+- Instruksi Owner memindahkan NUI Lab dari workflow branch ke URL monorepo aktif agar tunnel dev Ujang tetap menggunakan `main`. Routes `/nui-lab`, `/nui-lab/gesture`, `/nui-lab/canvas`, `/nui-lab/diagnostics` ada di frontend Next.js, tanpa alur game.
+- Pemetaan drawing game dan lab: pinch Coret, 5 jari Hapus, satu jari Undo, dua jari Redo; kepalan tidak menghapus. Canvas lab memakai cursor, stroke smoothing, Momo, dan alat fallback mouse/touch.
+- FullFrameHandLock lab memilih satu tangan dari semua lokasi frame tanpa face ROI; jika kehilangan/ambigu butuh relock eksplisit. Ini bukan verifikasi biometrik dan tidak mengatasi hilangnya landmark di pinggir frame secara ajaib.
+- Integrasi source ke `main` mempertahankan 13 commit gameplay yang ada di `main`; `ujang-monorepo` tidak ditimpa. Belum ada npm/CI/build/webcam/tunnel (`STATIC_ONLY / NOT_TESTED`). Lihat `frontend/implementation/docs/execution/NUILAB_MAIN_HANDOFF_2026-11-16.md`.
+
+
 ## Koreksi Can REV-B04-004 2026-11-15 — Global 0.18.1-alpha (STATIC_ONLY)
 - Owner memilih B04-004 opsi B setelah melihat 0.18.0-alpha salah mempertahankan lambaian. **Wake cover:** kamera OFF→user ON→stream playable→Momo bangun/animasi, tanpa kewajiban wave; fallback tanpa kamera masih ada.
 - Patch source/tests, keputusan D-20261115-03, M-035 dan handoff terbaru. B04-001..003 dari 0.18.0-alpha tidak diulang. Camera card Claude dan gesture 0.17.1-alpha dipertahankan.

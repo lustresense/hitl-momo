@@ -1,5 +1,14 @@
 # REVISIONS — daftar revisi Owner dan progresnya
 
+## R16-NUI 2026-11-16 — Integrasi lab ke `main` (Owner, STATIC_ONLY)
+| ID | Mandat | Status | Evidensi berikutnya |
+|---|---|---|---|
+| R16-NUI-01 | Route `/nui-lab`, `/nui-lab/gesture`, `/nui-lab/canvas` disajikan dari frontend `main` pada domain tunnel Ujang. | JALAN | Source static App Router; direct refresh HTTPS harus diuji Ujang. |
+| R16-NUI-02 | Gesture harus sama dengan game, Hapus 5 jari dan bukan kepalan. | JALAN | Shared gesture router/pipeline disalin dari ujang 0.20.0-alpha, unit/runtime belum dieksekusi. |
+| R16-NUI-03 | Canvas lab memakai hand cursor, pinch, stroke smoothing, delete/undo/redo, camera preview, Momo dan fallback pointer. | JALAN | Source UI + pipeline; tes webcam fisik dan pergerakan di tepi kamera belum dilakukan. |
+| R16-NUI-04 | Owner mengunci satu tangan di seluruh frame, jangan face-region cropping dalam lab. | JALAN | `FullFrameHandLock` tanpa face ROI dan manual relock; belum identitas biometrik atau anti-switch mutlak. |
+
+
 Berkas ini adalah **daftar tugas hidup** untuk revisi yang diminta Owner (CAN). Tujuannya: kalau satu sesi AI berhenti (limit, error), sesi atau agent lain bisa langsung melanjutkan dari sini.
 
 Pembagian peran berkas:

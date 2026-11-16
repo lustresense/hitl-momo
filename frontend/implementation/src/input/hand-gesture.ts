@@ -142,7 +142,8 @@ export function isThumbUp(landmarks: Landmark[] | undefined, minLift = 0.45): bo
 
 /**
  * PRD 0.0.16 R12 — drawing-gesture poses (provisional mapping, Owner to confirm):
- * pinch = Coret (draw), kepal = Hapus (erase), dua jari = Mundur (undo), telapak terbelah = Maju (redo).
+ * pinch = Coret, telapak lima jari = Hapus, satu jari = Undo, dua jari = Redo.
+ * Kepal tetap kelas diagnostik, tetapi tidak memicu penghapusan.
  * `classifyHandPose` returns exactly one pose per frame so the poses are mutually exclusive with
  * each other, with the thumbs-up confirmation and with the open palm used for the wave.
  * Priority: thumb-up, pinch, fist, two-fingers, split-palm, open-palm.
@@ -243,7 +244,7 @@ export function classifyHandPose(landmarks: Landmark[] | undefined, opts: { pinc
       : touch < (opts.pinchHeld ? PINCH_EXIT : PINCH_ENTER);
   if (pinched) return "pinch";
 
-  // Fist (Hapus): every finger folded and the thumb not raised.
+  // Fist is a diagnostic-only classification, never an eraser gesture.
   if (
     index === "curled" && middle === "curled" && ring === "curled" && pinky === "curled" &&
     thumbLift(landmarks, span) < FIST_MAX_THUMB_LIFT
@@ -300,7 +301,7 @@ export function palmCenterNormalized(landmarks: Landmark[]): { x: number; y: num
   return { x: clamp01(1 - x), y: clamp01(y) };
 }
 
-/** Kepal = Hapus (erase). */
+/** Diagnostic fist class only, not an erase action. */
 export const isFist = (lm: Landmark[] | undefined): boolean => classifyHandPose(lm) === "fist";
 /** Dua jari = Mundur (undo). */
 export const isTwoFingers = (lm: Landmark[] | undefined): boolean => classifyHandPose(lm) === "two-fingers";
@@ -309,7 +310,7 @@ export const isSplitPalm = (lm: Landmark[] | undefined): boolean => classifyHand
 
 /**
  * Drawing command for a pose under the R12 mapping; null = no command. Read from the gesture router (the canvas
- * map): pinch draws, open palm erases, one finger undoes, two fingers redoes. Main canvas retains fist erase.
+ * map): pinch draws, five-finger palm erases, one finger undoes, two fingers redoes. Fist is inert.
  */
 export type DrawingGestureCommand = "draw" | "erase" | "undo" | "redo";
 export function drawingCommandFor(pose: HandPose): DrawingGestureCommand | null {

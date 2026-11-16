@@ -77,28 +77,36 @@
       {
         "label": "papan",
         "behavior": "solid",
-        "x": 240,
-        "y": 330
+        "x": 220,
+        "y": 250,
+        "w": 130.6,
+        "h": 49.5
       },
       {
         "label": "papan",
         "behavior": "solid",
-        "x": 390,
-        "y": 280
+        "x": 480,
+        "y": 210,
+        "w": 80.5,
+        "h": 58.8
       }
     ],
     "steps": [
       {
-        "launchX": 134,
-        "hold": 40
+        "launchX": 126,
+        "hold": 30
       },
       {
-        "launchX": 332,
-        "hold": 22
+        "launchX": 248,
+        "hold": 26
       },
       {
-        "launchX": 513,
-        "hold": 29
+        "launchX": 384,
+        "hold": 36
+      },
+      {
+        "launchX": 490,
+        "hold": 36
       }
     ]
   }

@@ -3,6 +3,7 @@
  */
 import type { WorldCreation } from "../creation-store";
 import type { Rect, StageGeometry } from "../stage-geometry";
+import { PLAYER_HEIGHT, PLAYER_WIDTH } from "./constants";
 
 export function rectanglesOverlap(a: Rect, b: Rect): boolean {
   return (
@@ -13,7 +14,15 @@ export function rectanglesOverlap(a: Rect, b: Rect): boolean {
   );
 }
 
-/** A placement is legal inside the world, off every platform and off every other committed solid. */
+/** Thinman's body as he stands at the start (spawn is the foot anchor; the body is 24 x 40). */
+export function spawnBodyOf(g: StageGeometry): Rect {
+  return { x: g.spawn.x - PLAYER_WIDTH / 2, y: g.spawn.y - PLAYER_HEIGHT, w: PLAYER_WIDTH, h: PLAYER_HEIGHT };
+}
+
+/**
+ * A placement is legal inside the world, off every platform, off every other committed solid, and never on top of
+ * Thinman's start or the flag (a box there would pin him in or hide the goal).
+ */
 export function integratedPlacementAllowed(
   rect: Rect,
   g: StageGeometry,
@@ -29,6 +38,8 @@ export function integratedPlacementAllowed(
     rect.x + rect.w <= g.world.width &&
     rect.y + rect.h <= g.world.height &&
     !g.platforms.some((platform) => rectanglesOverlap(rect, platform)) &&
+    !rectanglesOverlap(rect, spawnBodyOf(g)) &&
+    !rectanglesOverlap(rect, g.goal) &&
     !items.some(
       (item) => item.id !== ignoreId && item.behavior === "solid" && rectanglesOverlap(rect, item),
     )

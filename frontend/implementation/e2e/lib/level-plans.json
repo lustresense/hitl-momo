@@ -9,28 +9,32 @@
       {
         "label": "balok",
         "behavior": "solid",
-        "x": 262,
-        "y": 262
+        "x": 303,
+        "y": 280,
+        "w": 97.9592,
+        "h": 37.9
       },
       {
         "label": "papan",
         "behavior": "solid",
-        "x": 410,
-        "y": 258
+        "x": 452,
+        "y": 280,
+        "w": 80.5,
+        "h": 58.7755
       }
     ],
     "steps": [
       {
-        "launchX": 176,
-        "hold": 34
+        "launchX": 240,
+        "hold": 36
       },
       {
-        "launchX": 325,
-        "hold": 37
+        "launchX": 388,
+        "hold": 36
       },
       {
-        "launchX": 488,
-        "hold": 38
+        "launchX": 520,
+        "hold": 36
       }
     ]
   },
@@ -39,36 +43,44 @@
       {
         "label": "balok",
         "behavior": "solid",
-        "x": 100,
-        "y": 220
+        "x": 148,
+        "y": 236,
+        "w": 81.6,
+        "h": 32
       },
       {
         "label": "papan",
         "behavior": "solid",
-        "x": 400,
-        "y": 172
+        "x": 375,
+        "y": 113,
+        "w": 80.5,
+        "h": 58.7755
       }
     ],
     "steps": [
       {
-        "launchX": 70,
-        "hold": 26
+        "launchX": 110,
+        "hold": 16
       },
       {
-        "launchX": 206,
+        "launchX": 177,
+        "hold": 30
+      },
+      {
+        "launchX": 233,
+        "hold": 22
+      },
+      {
+        "launchX": 304,
         "hold": 35
       },
       {
-        "launchX": 302,
-        "hold": 54
+        "launchX": 414,
+        "hold": 39
       },
       {
-        "launchX": 424,
-        "hold": 41
-      },
-      {
-        "launchX": 510,
-        "hold": 49
+        "launchX": 522,
+        "hold": 35
       }
     ]
   },

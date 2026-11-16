@@ -21,6 +21,8 @@ const hookCheck = [];
 
 const { server, base } = await startStaticServer();
 const { browser, context, page, errors } = await launch({ videoDir: process.env.NO_VIDEO ? undefined : OUT, deviceScaleFactor: Number(process.env.DSF || 1) });
+// UNLOCK_ALL=1 opens every level from the start (a tuning run of one level does not have to win the levels before it).
+if (process.env.UNLOCK_ALL) await context.addInitScript(() => { try { sessionStorage.setItem("sketchbook.unlockAll", "1"); } catch { /* storage blocked */ } });
 // 2026-11-11: the showcase pictures of the new flow (1280x720) go to their own folder, first picture per name.
 enableSnaps(page, process.env.SHOTS_OUT || path.join(OUT, "shots"));
 let result = "FAIL", failure = null;

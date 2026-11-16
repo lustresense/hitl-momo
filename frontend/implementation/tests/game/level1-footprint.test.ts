@@ -17,7 +17,7 @@ import type { DrawingInput } from "../../src/domain/types";
 
 const g = getStageGeometry(1);
 const plans = JSON.parse(readFileSync(new URL("../../e2e/lib/level-plans.json", import.meta.url), "utf8"));
-const [leftCliff, rightCliff] = g.platforms as [Rect, Rect];
+const [leftCliff, rightCliff] = g.platforms as unknown as [Rect, Rect];
 const L = leftCliff.x + leftCliff.w; // the left cliff edge
 const R = rightCliff.x; // the right cliff edge
 const spawnBody: Rect = { x: g.spawn.x - 12, y: g.spawn.y - 40, w: 24, h: 40 };

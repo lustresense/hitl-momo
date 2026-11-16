@@ -328,7 +328,7 @@ async function level(stage) {
     await page.waitForFunction(() => document.querySelector("[data-testid=game-canvas]")?.dataset.phase === "placing", null, { timeout: 15000 });
     if (stage === 1 && ci === 0) await shotBoth("13-penempatan");
     // Same drag as normal-journey (placeByDrag). The sticker was thrown above, so create:false (as recovery-paths does).
-    const placed = await placeByDrag(page, cycle.x + plans.objectSize.w / 2, cycle.y + plans.objectSize.h / 2, { create: false });
+    const placed = await placeByDrag(page, cycle.x + (cycle.w ?? plans.objectSize.w) / 2, cycle.y + (cycle.h ?? plans.objectSize.h) / 2, { create: false });
     log(`L${stage}c${ci + 1}: placed`, { objectX: +placed.after.objectX.toFixed(1), objectY: +placed.after.objectY.toFixed(1) });
     await confirmPlacement(page);
     await sleep(800);

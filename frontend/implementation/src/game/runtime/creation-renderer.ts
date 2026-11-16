@@ -6,6 +6,7 @@
 import type { KAPLAYCtx } from "kaplay";
 import type { WorldCreation } from "../creation-store";
 import { createArtPlanCache, footprintOf, INK_PIXEL_SCALE, LABEL_FONT_SIZE } from "./creations";
+import { hazardZone } from "./footprint";
 import { rectArea } from "./kaplay-helpers";
 import type { SceneObject } from "./types";
 
@@ -67,7 +68,13 @@ export function createCreationRenderer(k: KAPLAYCtx, labelFont: string, isDestro
       }
     });
 
-    if (committed && item.behavior !== "unresolved") art.use(rectArea(k, box.w, box.h));
+    if (committed && item.behavior === "danger") {
+      // Hurts only inside the drawing, not on the empty corners of its box.
+      const zone = hazardZone(box.w, box.h);
+      art.use(k.area({ shape: new k.Rect(k.vec2(zone.x, zone.y), zone.w, zone.h) }));
+    } else if (committed && item.behavior !== "unresolved") {
+      art.use(rectArea(k, box.w, box.h));
+    }
     if (committed && item.behavior === "solid") art.use(k.body({ isStatic: true }));
     if (committed && item.behavior === "danger") art.use("hazard");
     return art;

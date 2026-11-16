@@ -8,6 +8,8 @@ import { WALK_SPEED } from "../../src/game/runtime/constants";
 
 const plans = JSON.parse(readFileSync(new URL("../../e2e/lib/level-plans.json", import.meta.url), "utf8"));
 const size = plans.objectSize as { w: number; h: number };
+/** A plan cycle may carry its own box (the footprint of the drawing it was written for); else the shared default. */
+const boxOf = (c: { w?: number; h?: number }) => ({ w: c.w ?? size.w, h: c.h ?? size.h });
 
 describe("level solvability (kinematic model; browser E2E is the authority)", () => {
   for (const stage of [1, 2, 3] as const) {
@@ -15,7 +17,7 @@ describe("level solvability (kinematic model; browser E2E is the authority)", ()
       const g = getStageGeometry(stage);
       const placed: Array<{ id: string; label: string; behavior: "solid"; drawingInput: null; x: number; y: number; w: number; h: number }> = [];
       for (const [i, c] of plans[String(stage)].cycles.entries()) {
-        const rect = { x: c.x, y: c.y, w: size.w, h: size.h };
+        const rect = { x: c.x, y: c.y, ...boxOf(c) };
         expect(integratedPlacementAllowed(rect, g, placed), `cycle ${i + 1} placement legal`).toBe(true);
         placed.push({ id: `c${i}`, label: c.label, behavior: "solid", drawingInput: null, ...rect });
       }
@@ -30,7 +32,7 @@ describe("level solvability (kinematic model; browser E2E is the authority)", ()
   it("L2: a legal 2-object plan reaches the goal once the buildings are solid (balok at 100,220)", () => {
     const g = getStageGeometry(2);
     const balok = { x: 100, y: 220, w: size.w, h: size.h };
-    const papan = { x: plans["2"].cycles[1].x, y: plans["2"].cycles[1].y, w: size.w, h: size.h };
+    const papan = { x: plans["2"].cycles[1].x, y: plans["2"].cycles[1].y, ...boxOf(plans["2"].cycles[1]) };
     expect(integratedPlacementAllowed(balok, g, []), "balok placement legal").toBe(true);
     expect(integratedPlacementAllowed(papan, g, [{ id: "b", label: "balok", behavior: "solid", drawingInput: null, ...balok }]), "papan placement legal").toBe(true);
     const w = buildWorld(2, [{ ...balok, behavior: "solid" }, { ...papan, behavior: "solid" }]);
@@ -45,7 +47,7 @@ describe("level solvability (kinematic model; browser E2E is the authority)", ()
   });
   for (const level of LEVELS) {
     const stage = level.stage as 1 | 2 | 3;
-    const plan: Array<{ x: number; y: number }> = plans[String(stage)].cycles;
+    const plan: Array<{ x: number; y: number; w?: number; h?: number }> = plans[String(stage)].cycles;
     it(`L${stage}: documented plan uses exactly minDrawings (${level.minDrawings}) objects`, () => {
       expect(plan).toHaveLength(level.minDrawings);
     });
@@ -54,7 +56,7 @@ describe("level solvability (kinematic model; browser E2E is the authority)", ()
       for (let skip = 0; skip < plan.length; skip++) {
         const rest = plan
           .filter((_, i) => i !== skip)
-          .map((c) => ({ x: c.x, y: c.y, w: size.w, h: size.h, behavior: "solid" as const }));
+          .map((c) => ({ x: c.x, y: c.y, ...boxOf(c), behavior: "solid" as const }));
         expect(solve(buildWorld(stage, rest)).solvable, `without object ${skip + 1}`).toBe(false);
       }
     }, 300_000);
@@ -72,7 +74,7 @@ describe("level solvability (kinematic model; browser E2E is the authority)", ()
   }
   it("L3: a danger-behaviour object on the route fails the plan (hazard is real)", () => {
     const [c0, c1] = plans["3"].cycles;
-    const w = buildWorld(3, [{ x: c0.x, y: c0.y, w: size.w, h: size.h, behavior: "solid" }, { x: c1.x, y: c1.y, w: size.w, h: size.h, behavior: "danger" }]);
+    const w = buildWorld(3, [{ x: c0.x, y: c0.y, ...boxOf(c0), behavior: "solid" }, { x: c1.x, y: c1.y, ...boxOf(c1), behavior: "danger" }]);
     expect(runPlan(w, plans["3"].steps).outcome).toBe("dead");
   });
 });

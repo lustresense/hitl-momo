@@ -78,7 +78,7 @@ export function WorldMomo({
   if (phase === "placing") {
     const rect = canvasRef.current?.getBoundingClientRect();
     if (geometry && rect && rect.width > 0) {
-      const point = physicsToClient({ x: position + geometry.object.w / 2, y: placementY }, rect, geometry);
+      const point = physicsToClient({ x: position + (Number(canvasRef.current?.dataset.objectWidth) || geometry.object.w) / 2, y: placementY }, rect, geometry);
       style = {
         left: Math.max(8, Math.min(point.x - 150, window.innerWidth - 330)),
         top: Math.max(8, point.y - look.size - 16),

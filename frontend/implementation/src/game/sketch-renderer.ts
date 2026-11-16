@@ -55,6 +55,41 @@ function sanitizeStroke(stroke: StrokePoint[]): StrokePoint[] {
 /** One ink mark in box units: a polyline, or a single point that is drawn as a dot. */
 export type InkMark = StrokePoint[];
 
+/** Ink thickness for a box of this height (box units). */
+export function inkStrokeWidth(boxHeight: number): number {
+  return Math.min(MAX_INK_WIDTH, Math.max(MIN_INK_WIDTH, boxHeight * INK_WIDTH_RATIO));
+}
+
+/**
+ * Gap between the box edge and the ink's outer edge: half a stroke plus a little, capped at a quarter of the
+ * box so tiny boxes stay drawable. The collider of an object is sized with the same rule, so the box hugs the ink.
+ */
+export function inkInset(boxWidth: number, boxHeight: number): number {
+  return Math.min(inkStrokeWidth(boxHeight) / 2 + 0.5, Math.min(boxWidth, boxHeight) / 4);
+}
+
+/** Extent of the usable ink in normalised units (null without any usable ink). The same cleaning the drawing uses. */
+export function inkSpans(strokes: StrokePoint[][] | null | undefined): { spanX: number; spanY: number } | null {
+  const cleaned = (strokes ?? []).slice(0, MAX_STROKES).map(sanitizeStroke).filter((st) => st.length > 0);
+  if (cleaned.length === 0) return null;
+  let minX = Infinity;
+  let minY = Infinity;
+  let maxX = -Infinity;
+  let maxY = -Infinity;
+  for (const st of cleaned) {
+    for (const pt of st) {
+      minX = Math.min(minX, pt.x);
+      minY = Math.min(minY, pt.y);
+      maxX = Math.max(maxX, pt.x);
+      maxY = Math.max(maxY, pt.y);
+    }
+  }
+  return { spanX: maxX - minX, spanY: maxY - minY };
+}
+
+/** Extents below this count as "no extent" on that axis: a flat or vertical line, or a dot. */
+export const INK_MIN_SPAN = MIN_SPAN;
+
 /**
  * Fits the student's strokes into a box: one shared scale keeps the drawing's proportions and the
  * result is centred. Pure (no DOM, no KAPLAY), so the fit can be checked on exact numbers.
@@ -137,9 +172,9 @@ export function generateSketchSvg(
         ? "#c0392b"
         : "#7f8c8d";
 
-  const strokeWidth = Math.min(MAX_INK_WIDTH, Math.max(MIN_INK_WIDTH, safeH * INK_WIDTH_RATIO));
+  const strokeWidth = inkStrokeWidth(safeH);
   // Keep the ink's outer edge inside the box; capped at a quarter of the box so tiny boxes stay drawable.
-  const inset = Math.min(strokeWidth / 2 + 0.5, Math.min(safeW, safeH) / 4);
+  const inset = inkInset(safeW, safeH);
   const marks = fitInkToBox(input?.strokes, { w: safeW, h: safeH }, { inset });
 
   let strokesSvg: string;

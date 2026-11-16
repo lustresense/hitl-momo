@@ -304,7 +304,7 @@ export async function playTutorial(page, log = () => {}, { slow = false } = {}) 
   await snap("kartu3-alat");
   await waitThumbUnlocked(page, "tutorial-thumb-3");
   await holdThumb(page, "tutorial-thumb-3", { timeout: 15000 });
-  log("tutorial: card 3 thumb (2 s) confirmed, Mulai Level 1");
+  log("tutorial: card 3 thumb (2 s) confirmed, Mulai Bab 1");
 }
 
 /** Full onboarding: wave, ruler thumb, whole tutorial. */

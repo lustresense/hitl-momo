@@ -316,7 +316,7 @@ function Bookmark({ level, state, isNext, dims, unlocking, paused, camera, pose,
   const pageThumb = usePageThumb();
 
   const name = stageName(level);
-  const label = `Level ${level.stage}, ${name}${locked ? ", terkunci" : state === "done" ? ", sudah selesai" : ""}`;
+  const label = `Bab ${level.stage}, ${name}${locked ? ", terkunci" : state === "done" ? ", sudah selesai" : ""}`;
 
   return (
     <div ref={slotRef} className={`bm-slot bm-${state}${isNext ? " is-next" : ""}${unlocking ? " is-unlocking" : ""}`} data-stage={level.stage}>

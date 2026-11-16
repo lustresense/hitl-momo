@@ -54,7 +54,7 @@ describe("MissionBriefing: start and close are clicks", () => {
   });
 });
 
-describe("DrawingScreen corner: Petunjuk Misi and Keluar Level", () => {
+describe("DrawingScreen corner: Petunjuk Misi and Keluar Bab", () => {
   function renderCorner(extra: { missionOpen?: boolean; onExit?: () => void; onOpenMission?: () => void }) {
     render(
       <DrawingScreen
@@ -72,12 +72,12 @@ describe("DrawingScreen corner: Petunjuk Misi and Keluar Level", () => {
     );
   }
 
-  it("Keluar Level exits and Petunjuk Misi opens the hint on a click", () => {
+  it("Keluar Bab exits and Petunjuk Misi opens the hint on a click", () => {
     forceInputMode("fallback");
     const onExit = vi.fn();
     const onOpenMission = vi.fn();
     renderCorner({ onExit, onOpenMission });
-    fireEvent.click(screen.getByRole("button", { name: "Keluar Level" }));
+    fireEvent.click(screen.getByRole("button", { name: "Keluar Bab" }));
     fireEvent.click(screen.getByRole("button", { name: "Petunjuk Misi" }));
     expect(onExit).toHaveBeenCalledTimes(1);
     expect(onOpenMission).toHaveBeenCalledTimes(1);
@@ -86,7 +86,7 @@ describe("DrawingScreen corner: Petunjuk Misi and Keluar Level", () => {
   it("the corner buttons keep their names and tooltips", () => {
     forceInputMode("fallback");
     renderCorner({});
-    expect(screen.getByRole("button", { name: "Keluar Level" }).getAttribute("title")).toBe("Keluar level");
+    expect(screen.getByRole("button", { name: "Keluar Bab" }).getAttribute("title")).toBe("Keluar level");
     expect(screen.getByRole("button", { name: "Petunjuk Misi" }).getAttribute("title")).toBe("Petunjuk misi");
   });
 
@@ -94,7 +94,7 @@ describe("DrawingScreen corner: Petunjuk Misi and Keluar Level", () => {
     forceInputMode("fallback");
     const onExit = vi.fn();
     renderCorner({ missionOpen: true, onExit });
-    const exit = screen.getByRole("button", { name: "Keluar Level" });
+    const exit = screen.getByRole("button", { name: "Keluar Bab" });
     const hint = screen.getByRole("button", { name: "Petunjuk Misi" });
     expect(exit.hasAttribute("disabled")).toBe(true);
     expect(hint.hasAttribute("disabled")).toBe(true);

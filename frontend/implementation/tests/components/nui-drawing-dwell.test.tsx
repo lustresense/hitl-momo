@@ -92,7 +92,7 @@ function drawingScreen(extra: Partial<Parameters<typeof DrawingScreen>[0]> = {})
 describe("drawing screen corners pick by dwell, and still by click", () => {
   it("the exit button fires once after its 1.8 s dwell", () => {
     const { onExit } = drawingScreen();
-    restOn(screen.getByLabelText("Keluar Level"));
+    restOn(screen.getByLabelText("Keluar Bab"));
     advance(1700);
     expect(onExit).not.toHaveBeenCalled();
     advance(200);
@@ -108,13 +108,13 @@ describe("drawing screen corners pick by dwell, and still by click", () => {
 
   it("a click on the exit button exits at once", () => {
     const { onExit } = drawingScreen();
-    fireEvent.click(screen.getByLabelText("Keluar Level"));
+    fireEvent.click(screen.getByLabelText("Keluar Bab"));
     expect(onExit).toHaveBeenCalledTimes(1);
   });
 
   it("both corners are off while the mission hint is open, so a resting fingertip cannot reach them", () => {
     drawingScreen({ missionOpen: true });
-    expect((screen.getByLabelText("Keluar Level") as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByLabelText("Keluar Bab") as HTMLButtonElement).disabled).toBe(true);
     expect((screen.getByLabelText("Petunjuk Misi") as HTMLButtonElement).disabled).toBe(true);
   });
 });

@@ -67,9 +67,9 @@ export function tutorialStep(moment: TutorialMoment, characterName: string): Gui
     case "safety":
       return { mood: "Berpikir", lines: ["Benda padat jadi pijakan. Duri itu berbahaya.", "Sudah paham? Angkat jempolmu."] };
     case "gesture":
-      return { mood: "Semangat", lines: ["Sekarang coret kanvasnya, lalu coba mundur.", "Dua gestur itu yang membuka Level 1."] };
+      return { mood: "Semangat", lines: ["Sekarang coret kanvasnya, lalu coba mundur.", "Dua gestur itu yang membuka Bab 1."] };
     case "gesture-done":
-      return { mood: "Senang", lines: ["Kamu sudah siap! Tahan jempolmu buat mulai Level 1."] };
+      return { mood: "Senang", lines: ["Kamu sudah siap! Tahan jempolmu buat mulai Bab 1."] };
   }
 }
 

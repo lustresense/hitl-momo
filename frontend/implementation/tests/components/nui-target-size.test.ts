@@ -48,7 +48,7 @@ describe("NUI placements: targets of at least 56 px and gaps of at least 12 px",
     expect(px(dwell, ".dwell-btn", "min-width")).toBeGreaterThanOrEqual(56);
   });
 
-  it("the icon-only corner buttons (Petunjuk Misi, Keluar Level) are 60 px square", () => {
+  it("the icon-only corner buttons (Petunjuk Misi, Keluar Bab) are 60 px square", () => {
     expect(px(nui, ".drawing-corner .nb-iconbtn.nui-corner-btn", "width")).toBeGreaterThanOrEqual(56);
     expect(px(nui, ".drawing-corner .nb-iconbtn.nui-corner-btn", "height")).toBeGreaterThanOrEqual(56);
   });

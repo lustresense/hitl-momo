@@ -351,14 +351,14 @@ try {
   console.log("STAGE 2 CYCLE 3 OUTCOME:", t2Win);
 
   // Return to levels screen through UI
-  const exitBtn = page.locator("[data-testid=btn-back-to-levels], button.drawing-exit, button:has-text('Keluar Level'), [data-testid=btn-redraw-gameplay]").first();
+  const exitBtn = page.locator("[data-testid=btn-back-to-levels], button.drawing-exit, button:has-text('Keluar Bab'), [data-testid=btn-redraw-gameplay]").first();
   if (await exitBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
     await exitBtn.click();
   }
   await page.waitForTimeout(500);
 
   // If we are back on drawing canvas from redraw, click exit button
-  const exitCanvasBtn = page.locator("button.drawing-exit, button:has-text('Keluar Level')").first();
+  const exitCanvasBtn = page.locator("button.drawing-exit, button:has-text('Keluar Bab')").first();
   if (await exitCanvasBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
     await exitCanvasBtn.click();
   }
@@ -450,14 +450,14 @@ try {
 
   /* ---------- Keyboard smoke ---------- */
   await page.keyboard.press("Escape").catch(() => undefined);
-  const exitToLevels = page.locator("button.drawing-exit, button:has-text('Keluar Level'), [data-testid=btn-back-to-levels]").first();
+  const exitToLevels = page.locator("button.drawing-exit, button:has-text('Keluar Bab'), [data-testid=btn-back-to-levels]").first();
   if (await exitToLevels.isVisible({ timeout: 5000 }).catch(() => false)) await exitToLevels.click();
   await page.locator(".level-card").first().waitFor({ state: "visible", timeout: 10000 });
   await page.locator(".level-card").first().focus();
   await page.keyboard.press("Enter");
   await page.waitForTimeout(1000);
   const kbOk = await page.locator("[data-testid=draw-canvas]").isVisible();
-  const exitAgain = page.locator("button.drawing-exit, button:has-text('Keluar Level'), [data-testid=btn-back-to-levels]").first();
+  const exitAgain = page.locator("button.drawing-exit, button:has-text('Keluar Bab'), [data-testid=btn-back-to-levels]").first();
   if (await exitAgain.isVisible({ timeout: 5000 }).catch(() => false)) await exitAgain.click();
   check("18 keyboard smoke: focus + Enter opens level", kbOk);
 

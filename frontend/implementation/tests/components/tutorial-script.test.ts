@@ -27,10 +27,10 @@ describe("tutorial copy (R4)", () => {
     expect(hint).toMatch(/satu jari/i);
   });
 
-  it("buttons: Lanjut 1 s on cards 1-2, Mulai Level 1 2 s on card 3", () => {
+  it("buttons: Lanjut 1 s on cards 1-2, Mulai Bab 1 2 s on card 3", () => {
     expect(tutorialCardCopy(0, "Thinman")).toMatchObject({ cta: "Lanjut", holdMs: 1000 });
     expect(tutorialCardCopy(1, "Thinman")).toMatchObject({ cta: "Lanjut", holdMs: 1000 });
-    expect(tutorialCardCopy(2, "Thinman")).toMatchObject({ cta: "Mulai Level 1", holdMs: 2000 });
+    expect(tutorialCardCopy(2, "Thinman")).toMatchObject({ cta: "Mulai Bab 1", holdMs: 2000 });
   });
 
   it("card 2 names duri as the danger and never pisau, and no copy uses parentheses or emoji", () => {

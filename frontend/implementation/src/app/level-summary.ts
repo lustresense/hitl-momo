@@ -24,7 +24,7 @@ export function buildLevelSummary(
 ): LevelSummary {
   return {
     gameplay: formatCharacterText(
-      level.summary?.gameplay ?? "Kamu berhasil menyelesaikan level ini!",
+      level.summary?.gameplay ?? "Kamu berhasil menyelesaikan bab ini!",
       characterDisplayName,
     ),
     decision: `Keputusanmu: ${DECISION_SUMMARY_TEXT[decision.type] ?? "-"}, label ${decision.finalLabel ?? "-"}.`,

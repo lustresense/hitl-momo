@@ -5,6 +5,7 @@
 import type { CreationAngle, WorldCreation } from "../creation-store";
 import type { Rect, StageGeometry } from "../stage-geometry";
 import { generateSketchDataUri } from "../sketch-renderer";
+import { inkFootprint } from "./footprint";
 import type { KaplayGameOptions } from "./types";
 
 export function cloneCreation(item: WorldCreation): WorldCreation {
@@ -29,7 +30,10 @@ function newCreationId(): string {
   );
 }
 
-/** The object the student is about to place: starts just right of the spawn, resting on the spawn platform. */
+/**
+ * The object the student is about to place: starts just right of the spawn, resting on the spawn platform.
+ * Its box is the drawing's own footprint (see footprint.ts), not a fixed plank.
+ */
 export function createPendingCreation(
   options: Pick<KaplayGameOptions, "finalLabel" | "behavior" | "drawingInput">,
   geometry: StageGeometry,
@@ -40,17 +44,15 @@ export function createPendingCreation(
       geometry.spawn.x <= p.x + p.w &&
       Math.abs(p.y - geometry.spawn.y) < 1,
   );
+  const box = inkFootprint(options.drawingInput, geometry.objectLimits, geometry.object);
   return {
     id: newCreationId(),
     label: options.finalLabel,
     behavior: options.behavior,
     drawingInput: options.drawingInput,
-    x: Math.max(
-      0,
-      Math.min(geometry.world.width - geometry.object.w, geometry.spawn.x + PENDING_SPAWN_OFFSET_X),
-    ),
-    y: (spawnPlatform?.y ?? geometry.spawn.y) - geometry.object.h,
-    ...geometry.object,
+    x: Math.max(0, Math.min(geometry.world.width - box.w, geometry.spawn.x + PENDING_SPAWN_OFFSET_X)),
+    y: (spawnPlatform?.y ?? geometry.spawn.y) - box.h,
+    ...box,
   };
 }
 

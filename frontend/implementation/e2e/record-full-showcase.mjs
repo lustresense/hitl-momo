@@ -28,7 +28,7 @@ const { browser, context, page, errors } = await launch({
   permissions: ["camera"],
 });
 let ok = false;
-const toCentre = c => [c.x + plans.objectSize.w / 2, c.y + plans.objectSize.h / 2];
+const toCentre = c => [c.x + (c.w ?? plans.objectSize.w) / 2, c.y + (c.h ?? plans.objectSize.h) / 2];
 try {
   // 1. Cover: Momo sleeps, the wave wakes her, the book opens to the ruler (R1, R2).
   await wakeMomoOnCover(page, base, log);

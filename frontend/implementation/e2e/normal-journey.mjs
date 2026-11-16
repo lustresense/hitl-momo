@@ -110,7 +110,7 @@ async function runLevel(stage) {
     const { labels, decision } = await submitAndDecide(page, { prefer: cycle.label, submitVia, log: m => log(`L${stage}c${ci + 1}: ${m}`), shot: n => shot(`L${stage}-c${ci + 1}-00-${n}`) });
     decisions.push({ labels, decision });
     await shot(`L${stage}-c${ci + 1}-01-after-decision`);
-    const cx = cycle.x + plans.objectSize.w / 2, cy = cycle.y + plans.objectSize.h / 2;
+    const cx = cycle.x + (cycle.w ?? plans.objectSize.w) / 2, cy = cycle.y + (cycle.h ?? plans.objectSize.h) / 2;
     const placed = await placeByDrag(page, cx, cy);
     log(`L${stage}c${ci + 1}: placement via mouse drag`, { wantedTopLeft: [cycle.x, cycle.y], got: [+placed.after.objectX.toFixed(1), +placed.after.objectY.toFixed(1)] });
     await shot(`L${stage}-c${ci + 1}-01b-placing-dragged`);

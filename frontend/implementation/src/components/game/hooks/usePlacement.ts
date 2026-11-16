@@ -40,12 +40,23 @@ export function usePlacement({
   const dragging = useRef(false);
   // True while the student holds the object by a pinch (see usePlacementGrab). Only then does the hand move it.
   const grabbing = useRef(false);
-  const sideways = angle === 90 || angle === 270;
-  const boxW = geometry ? (sideways ? geometry.object.h : geometry.object.w) : level.scene.gapWidth + 24;
-  const boxH = geometry ? (sideways ? geometry.object.w : geometry.object.h) : 8;
+  // The box of the object being placed. Objects take the size of their drawing, so the live size comes from the
+  // scene's telemetry (already turned for a quarter turn); the level's plank is only the fallback before it exists.
+  const readBox = () => {
+    const data = canvasRef.current?.dataset;
+    const liveW = Number(data?.objectWidth);
+    const liveH = Number(data?.objectHeight);
+    if (geometry && Number.isFinite(liveW) && Number.isFinite(liveH) && liveW > 0 && liveH > 0) return { w: liveW, h: liveH };
+    const sideways = angle === 90 || angle === 270;
+    return {
+      w: geometry ? (sideways ? geometry.object.h : geometry.object.w) : level.scene.gapWidth + 24,
+      h: geometry ? (sideways ? geometry.object.w : geometry.object.h) : 8,
+    };
+  };
+  const { w: boxW, h: boxH } = readBox();
   // The hand reader keeps the callback it was given at its start: it reads the box and phase from here, not from a closure.
-  const latest = useRef({ geometry, boxW, boxH, phase });
-  latest.current = { geometry, boxW, boxH, phase };
+  const latest = useRef({ geometry, readBox, phase });
+  latest.current = { geometry, readBox, phase };
 
   function movePlacement(x: number, y: number = 320) {
     setPosition(x);
@@ -83,7 +94,8 @@ export function usePlacement({
    */
   function movePlacementToHandCursor(cursor: { x: number; y: number }) {
     if (!grabbing.current || latest.current.phase !== "placing") return;
-    const { geometry: geo, boxW: w, boxH: h } = latest.current;
+    const { geometry: geo, readBox: box } = latest.current;
+    const { w, h } = box();
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
     const x = cursor.x * rect.width;

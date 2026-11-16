@@ -1,4 +1,5 @@
 import { sourceToPhysics } from './stage-transform';
+import { OBJECT_LIMITS_SOURCE } from './object-limits';
 
 export interface Point { x: number; y: number }
 /** Top-left axis-aligned rectangle. */
@@ -13,7 +14,10 @@ export interface StageGeometry {
   /** Foot anchor; existing 24x40 physics body stays unchanged. */
   spawn: Point;
   goal: Rect;
+  /** The plank every object used to be (80 x 12 source units); still the box of a drawing without usable ink. */
   object: { w: number; h: number };
+  /** Largest and smallest box a drawing can fill in this level, in physics units (see object-limits.ts). */
+  objectLimits: { maxW: number; maxH: number; minW: number; minH: number };
   killY: number;
 }
 export const STAGE_SOURCE = { width: 490, height: 325 } as const;
@@ -34,7 +38,8 @@ export function getStageGeometry(stage: 1 | 2 | 3): StageGeometry {
   const g: StageGeometry = {
     stage, sceneIndex: stage, source: { ...STAGE_SOURCE }, world: { ...STAGE_WORLD },
     platforms: [], hazards: [], spawn: { x: 0, y: 0 },
-    goal: { x: 0, y: 0, w: 0, h: 0 }, object: { w: 0, h: 0 }, killY: 0,
+    goal: { x: 0, y: 0, w: 0, h: 0 }, object: { w: 0, h: 0 },
+    objectLimits: { maxW: 0, maxH: 0, minW: 0, minH: 0 }, killY: 0,
   };
   const scale = Math.max(g.world.width / g.source.width, g.world.height / g.source.height);
   const rect = (x: number, y: number, w: number, h: number): Rect => ({ ...sourceToPhysics({ x, y }, g), w: w * scale, h: h * scale });
@@ -85,6 +90,8 @@ export function getStageGeometry(stage: 1 | 2 | 3): StageGeometry {
       break;
   }
   g.object = { w: 80 * scale, h: 12 * scale };
+  const limits = OBJECT_LIMITS_SOURCE[stage];
+  g.objectLimits = { maxW: limits.maxW * scale, maxH: limits.maxH * scale, minW: limits.minW * scale, minH: limits.minH * scale };
   g.killY = sourceToPhysics({ x: 0, y: 350 }, g).y;
   return g;
 }

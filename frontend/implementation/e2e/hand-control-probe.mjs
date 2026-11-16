@@ -23,7 +23,7 @@ try {
   // minDrawings = 2: place every cycle of the plan.
   for (const [i, c] of plans["1"].cycles.entries()) {
     if (i > 0) { await page.locator("[data-testid=btn-draw-again]").click(); await drawScribble(page); await submitAndDecide(page, { prefer: c.label }); }
-    await placeByDrag(page, c.x + plans.objectSize.w / 2, c.y + plans.objectSize.h / 2);
+    await placeByDrag(page, c.x + (c.w ?? plans.objectSize.w) / 2, c.y + (c.h ?? plans.objectSize.h) / 2);
     await confirmPlacement(page);
   }
   const toggle = page.locator("[data-testid=btn-hand-control]");

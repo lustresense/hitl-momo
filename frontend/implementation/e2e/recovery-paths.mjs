@@ -42,7 +42,7 @@ async function playPlan(plan) {
   while (Date.now() < end) { const m = await readGame(page); if (m.outcome || m.settled) break; await sleep(20); }
   await page.keyboard.up("ArrowRight"); return readGame(page);
 }
-const toCentre = c => [c.x + plans.objectSize.w / 2, c.y + plans.objectSize.h / 2];
+const toCentre = c => [c.x + (c.w ?? plans.objectSize.w) / 2, c.y + (c.h ?? plans.objectSize.h) / 2];
 /** Second (and later) cycles of a level plan: draw again, decide, place. */
 async function placeSecond(stage, from = 1) {
   for (const cycle of plans[String(stage)].cycles.slice(from)) {

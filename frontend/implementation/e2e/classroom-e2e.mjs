@@ -78,7 +78,7 @@ try {
   if (stickerShown) {
     try {
       const cycle = plans["1"].cycles[0];
-      await placeByDrag(page, cycle.x + plans.objectSize.w / 2, cycle.y + plans.objectSize.h / 2); // presses btn-throw-sticker
+      await placeByDrag(page, cycle.x + (cycle.w ?? plans.objectSize.w) / 2, cycle.y + (cycle.h ?? plans.objectSize.h) / 2); // presses btn-throw-sticker
       await confirmPlacement(page);
       check("placement: Lempar (2 s) then placement reaches gameplay", true);
     } catch (err) {

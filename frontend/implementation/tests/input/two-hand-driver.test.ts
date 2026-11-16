@@ -66,17 +66,16 @@ describe("live driver: two hands", () => {
     expect((create.mock.calls[0]![1] as { numHands: number }).numHands).toBe(2);
   });
 
-  it("with a fist and a pinching hand in view, the pinch does not draw and the fist erases", async () => {
+  it("a bystander fist never erases or steals the pinching drawing hand", async () => {
     const store = new StrokeStore();
     store.beginStroke();
     for (let x = 0; x <= 400; x += 10) store.addPoint({ x, y: 210 });
     store.endStroke();
     await runDriver(store, [pinchHand(0.3), fistHand()], 6);
     expect(store.getStrokes().active).toBeNull();
-    // The fist removes the points around its knuckles (188, 210); the line is cut, nothing new is drawn.
-    const kept = store.getStrokes().completed.reduce((n, s) => n + s.length, 0);
-    expect(kept).toBeLessThan(41);
-    expect(kept).toBeGreaterThan(0);
+    const lines = store.getStrokes().completed;
+    expect(lines[0]).toHaveLength(41);
+    expect(lines.length).toBeGreaterThan(1);
   });
 
   it("with one pinching hand the driver draws as before", async () => {

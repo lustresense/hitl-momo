@@ -18,6 +18,16 @@ Aturan isi:
 - Jangan menghapus revisi. Revisi yang batal diberi status `BATAL` beserta alasannya.
 - Kamera fisik tidak ada di sandbox AI. Semua gestur diuji dengan landmark sintetis atau mouse. Uji kamera asli wajib dilakukan Owner sebelum pameran.
 
+## 2026-11-16 — NUI Lab parity gesture dan full-frame lock (0.20.0-alpha, STATIC_ONLY)
+
+| ID | Permintaan Owner | Status | Bukti / verifikasi berikutnya |
+|---|---|---|---|
+| NUI-LAB-05 | Semua gestur drawing lab dan game mengikuti pinch Coret, lima jari Hapus, satu jari Undo, dua jari Redo. Kepal bukan Hapus. | JALAN | Patch shared gesture router, pipeline dan unit test di branch `ujang-monorepo`. Belum typecheck/Vitest/webcam. Kandidat sinkron DECISIONS menunggu audit Owner, jangan diam-diam menandai approved. |
+| NUI-LAB-06 | Canvas Lab menampilkan cursor seperti game, ring penghapus, ikon gestur asli, HUD pose + finger count, garis resolusi tinggi dan indikator tangan terkunci. | JALAN | `NuiLabPage` + `lab-analyzer`, `GestureGlyph`, 1280×720. Browser screenshot dan webcam nyata belum diuji. |
+| NUI-LAB-07 | Tangan bisa berada di seluruh frame tetapi jangan takeover dari tangan lain. | JALAN | Full-frame strict lock **khusus lab**, solo two-frame capture, freeze saat ambigu/lost, tombol kunci ulang. Masih perlu uji wajah tertutup, tangan bersilangan, lowlight, jump cepat dan false-positive. |
+
+**Konflik diselesaikan secara source:** canvas utama dahulu memetakan `fist` Hapus sementara Card 3 melarangnya. Instruksi Owner 16 Nov memilih lima jari. Riwayat lama tetap disimpan; klaim runtime `NOT_TESTED`.
+
 ## Koreksi workflow 2026-11-16 (instruksi langsung Owner)
 - Tunnel dev selama ini mengikuti branch `ujang-monorepo`; Owner membatalkan penggunaan branch `nui-lab` khusus dan meminta semua route NUI Lab hidup langsung di monorepo frontend. `nui-lab` adalah riwayat staging, **bukan** sumber deploy.
 - Handoff aktif `frontend/implementation/docs/execution/NUILAB_MONOREPO_HANDOFF_2026-11-16.md`. Tidak perlu mengganti tunnel, source-level integration bukan bukti runtime.

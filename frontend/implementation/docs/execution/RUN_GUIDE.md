@@ -46,3 +46,11 @@ Use the existing deploy branch `ujang-monorepo`; do not switch the tunnel to `nu
 Open `/nui-lab`, `/nui-lab/gesture`, `/nui-lab/canvas`, `/nui-lab/diagnostics` directly and after refresh. Check camera is OFF until clicked, permission denial, timeout/off while permission prompt, permissions only after HTTPS/localhost, and tracks released on route change. Gesture route should show all supported classifier poses and the live hand overlay. Canvas route should draw using pinch and pointer, show Momo and small camera, and expose Undo/Redo/Clear controls. Run camera tests under ceiling light, backlight, lowlight, motion blur, hand-over-face, and multi-hand distractions; attach browser screenshots and FPS/inference metrics. No webcam physical PASS is presumed.
 
 Current state of GitHub source at time of writing: **STATIC_ONLY, tests and build not executed**. Ujang is responsible for deployment and smoke-test evidence; `main` must not be touched.
+
+## NUI Lab 0.20.0-alpha — gesture and cursor QA
+
+On `ujang-monorepo` run global `python3 scripts/bump_version.py --check`, then `npm ci`, `npm run typecheck`, `npm run lint`, `npm test`, and `NEXT_PUBLIC_TEST_HOOKS=0 npm run build` from `frontend/implementation` before deploying to existing dev tunnel. Run the new `lab-hand-lock`, `lab-analyzer`, `gesture-mode`, `hand-stroke-surface`, `two-hand-driver` and `nui-lab-page` tests. Do not turn failing old fist-erasure tests green by reintroducing fist action.
+
+In the live HTTPS tunnel, exercise `/nui-lab/gesture` and `/nui-lab/canvas` with 1 hand at every frame edge, second hand entering, hands crossing, temporary tracking loss, arm jumping, hands covering face, backlight and ceiling light. Verify no automatic transfer after lock loss, and `Kunci ulang tangan` recaptures deliberately. On canvas verify physical camera pinch draws with the yellow cursor, five spread fingers erase with a ring, one index Undo, two fingers Redo, fist does **not** erase, and Momo/HUD/gesture glyphs match actual state. Check pointer fallback and eraser pass undo, direct-refresh routes, camera release on navigation, and screenshot mobile/desktop. Compare currentTime-based FPS fallback vs decoded video frames on the actual browser.
+
+No physical-camera or browser gates are marked PASS by this GitHub source patch.

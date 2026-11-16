@@ -3,6 +3,11 @@
 Last updated: 2026-11-05 (sesi eksekusi teknis; diperbarui oleh IT ORCHESTRATOR atas permintaan Owner)
 
 ## NOW (baca ini dulu)
+### 2026-11-16 — Koreksi NUI Lab parity & strict hand lock (source only, 0.20.0-alpha)
+- Perintah langsung Owner setelah screenshot `/nui-lab/canvas` mengoreksi gesture Hapus dari kepal ke lima jari. Shared canvas dan tutorial source mempergunakan countExtendedFingers===5; 1 finger undo, 2 redo, pinch draw. Fist tidak erase, termasuk saat erase tool terpilih.
+- Lab gesture/canvas memiliki full-frame one-hand lock yang tidak otomatis berganti ke orang lain, status, relock; kamera tetap lewat MediaPipe asli. Lab drawing mengembalikan cursor dot dan ring penghapus seperti DrawingSurface game, resolusi 1280×720, gesture glyph resmi dan HUD live.
+- Bukti `STATIC_ONLY`; belum npm/Chrome/physical-camera. Hindari klaim anti-bystander sempurna karena landmark yang saling menutupi bisa ambigu. Revisi keputusan PA untuk sinkronisasi menunggu audit/approval manual.
+ 
 ### 2026-11-16 — NUI Lab disatukan ke `ujang-monorepo` (source only)
 - Instruksi Owner mengoreksi strategi sebelumnya. Tunnel dev Ujang tetap mengambil `ujang-monorepo`; semua path NUI Lab `app/nui-lab/**` dan `src/components/nui-lab/**` ditransfer ke branch tersebut tanpa merombak alur siswa.
 - Branch `nui-lab` adalah branch sementara; connector GitHub tidak mempunyai operasi delete branch, sehingga Ujang harus membersihkannya setelah memastikan HEAD deploy baru. Tidak boleh menghapus lebih dahulu.

@@ -1,5 +1,11 @@
 # NOW.md — Status integrasi bersama
 
+## 2026-11-16 — NUI Lab 0.20.0-alpha, game gesture parity (STATIC_ONLY)
+- Owner menegaskan `fist` bukan Hapus. Shared game canvas/Card 3/NUI Lab source sekarang memetakan pinch Coret, **5 jari** Hapus, 1 jari Undo, 2 jari Redo. Game runtime belum dites; jangan memperlakukan source edit sebagai QA PASS.
+- Lab `/nui-lab/canvas` memakai cursor dan erase ring semantik `DrawingSurface` yang sama, ikon `GestureGlyph`, status pinch/finger/lock, backing canvas 1280x720. `/nui-lab/gesture` tetap mode observasi. FPS media diberi prioritas total decoded frames jika tersedia.
+- FullFrameHandLock khusus eksperimen NUI Lab, bukan rewrite main game face gate. Capture satu tangan di semua area webcam, freeze saat multi-hand ambiguous/lost, kunci ulang manual. Keamanan identitas webcam nyata BELUM TERBUKTI.
+- `ujang-monorepo` untuk tunnel tetap, `main` tidak diubah. `STATIC_ONLY / NOT_TESTED` untuk typecheck, test, Next build, browser, multi-hand, physical-camera.
+
 ## 2026-11-16 — NUI Lab langsung di `ujang-monorepo` (0.19.0-alpha, STATIC_ONLY)
 - **Instruksi terbaru Owner mengoreksi strategi branch:** NUI Lab tidak terpisah sebagai branch untuk deployment. Seluruh route `/nui-lab`, `/nui-lab/gesture`, `/nui-lab/canvas`, dan `/nui-lab/diagnostics` sudah dimasukkan ke tree `ujang-monorepo` di `frontend/implementation/`.
 - Tunnel dev yang sudah menunjuk `ujang-monorepo` cukup rebuild/deploy seperti biasa, tanpa mengganti sumber branch. `main` tidak disentuh. Branch sementara `nui-lab` tersisa untuk cleanup Git ref oleh Ujang karena konektor belum menyediakan delete branch.

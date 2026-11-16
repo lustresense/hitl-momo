@@ -211,3 +211,44 @@ describe("LabAnalyzer: wave test with the new rule", () => {
   });
 });
 
+
+describe("LabAnalyzer experimental camera-wide lock and game cursor", () => {
+  it("accepts a player hand beside the face and does not take over a second hand", () => {
+    const lab = new LabAnalyzer({ fullFrameLock: true });
+    const beside = handAt(.14, .60, .18);
+    const bystander = handAt(.83, .65, .24);
+    lab.analyse({landmarks:[beside], inferMs:5, nowMs:0, face});
+    expect(lab.snapshot(0).lockStatus).toBe("locking");
+    lab.analyse({landmarks:[beside], inferMs:5, nowMs:33, face});
+    expect(lab.snapshot(33).primaryIndex).toBe(0);
+    lab.analyse({landmarks:[bystander,handAt(.16,.60,.18)], inferMs:5, nowMs:66, face});
+    expect(lab.snapshot(66).primaryIndex).toBe(1);
+    lab.analyse({landmarks:[bystander], inferMs:5, nowMs:1000, face});
+    expect(lab.snapshot(1000).lockStatus).toBe("lost");
+    expect(lab.snapshot(1000).primaryIndex).toBeNull();
+    lab.resetHandLock(1001);
+    lab.analyse({landmarks:[bystander], inferMs:5, nowMs:1100, face});
+    expect(lab.snapshot(1100).lockStatus).toBe("locking");
+  });
+  it("reports cursor coordinates from the same stroke pipeline as the game", () => {
+    const lab = new LabAnalyzer({fullFrameLock:true});
+    const hand = pinchHand(.5);
+    lab.analyse({landmarks:[hand], inferMs:5, nowMs:0});
+    lab.analyse({landmarks:[hand], inferMs:5, nowMs:33});
+    const snap = lab.snapshot(33);
+    expect(snap.primaryIndex).toBe(0);
+    expect(snap.cursor).not.toBeNull();
+    expect(snap.cursor!.x).toBeGreaterThanOrEqual(0);
+    expect(snap.cursor!.x).toBeLessThanOrEqual(1280);
+    expect(snap.cursor!.y).toBeGreaterThanOrEqual(0);
+    expect(snap.cursor!.y).toBeLessThanOrEqual(720);
+  });
+  it("gesture-only mode never draws ink even when the pose is pinch", () => {
+    const lab = new LabAnalyzer({fullFrameLock:true,enableInk:false});
+    const hand = pinchHand(.5);
+    for(let i=0;i<8;i++)lab.analyse({landmarks:[hand],inferMs:5,nowMs:i*33});
+    expect(lab.strokes().completed).toHaveLength(0);
+    expect(lab.strokes().active).toBeNull();
+    expect(lab.snapshot(231).cursor).toBeNull();
+  });
+});

@@ -8,6 +8,8 @@
 import type { HandLandmarker } from "@mediapipe/tasks-vision";
 import { useEffect, useRef, useState, type PointerEvent } from "react";
 import { MomoAvatar } from "@/src/components/momo/MomoAvatar";
+import { GestureGlyph } from "@/src/components/ui/GestureGlyph";
+import type { HandCursor } from "@/src/input/hand-stroke-pipeline";
 import { frameForDetection, getFrameSourceStats, setLowLightEnhancement, type LowLightMode } from "@/src/camera/frame-source";
 import { FaceAnchor, type FaceModelStatus } from "@/src/camera/face-anchor";
 import { createHandLandmarker, delegateLabel, getDelegateInfo } from "@/src/camera/hand-landmarker";
@@ -26,8 +28,8 @@ const WASM_ROOT = "/mediapipe/wasm";
 const MODEL_URL = "/models/hand_landmarker.task";
 /** Width of the overlay canvas; its height follows the camera's own aspect ratio. */
 const OVERLAY_WIDTH = 640;
-const INK_SIZE = { width: 400, height: 300 };
-const POSES = ["thumb-up", "pinch", "fist", "one-finger", "two-fingers", "three-fingers", "split-palm", "open-palm"] as const;
+const INK_SIZE = { width: 1280, height: 720 };
+const POSES = ["thumb-up", "pinch", "one-finger", "two-fingers", "three-fingers", "split-palm", "open-palm"] as const;
 /** How often the numbers on screen are refreshed (the loop itself runs every frame). */
 const REFRESH_MS = 250;
 /** Consecutive detector errors before the page stops and says so (as the game's trackers do). */
@@ -92,6 +94,7 @@ interface Session {
   /** Times of new video frames in the last second. */
   frameTimes: number[];
   lastVideoTime: number;
+  lastVideoFrameCount: number | null;
   failures: number;
 }
 
@@ -124,7 +127,11 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
   const isGesture = variant === "gesture";
   const [pointerTool, setPointerTool] = useState<"pen" | "eraser">("pen");
   const pointerDown = useRef(false);
-  const analyzerRef = useRef(new LabAnalyzer());
+  const pointerCursor = useRef<HandCursor | null>(null);
+  const analyzerRef = useRef(new LabAnalyzer({
+    fullFrameLock: variant !== "diagnostics",
+    enableInk: variant !== "gesture",
+  }));
   const [supported, setSupported] = useState<boolean | null>(null);
   const [phase, setPhase] = useState<"off" | "starting" | "on">("off");
   const [message, setMessage] = useState("");
@@ -172,23 +179,53 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
     paintInk();
   };
 
-  const paintInk = (_cur?: Session) => {
-      const ctx = inkRef.current?.getContext("2d");
-      if (!ctx) return;
-      ctx.clearRect(0, 0, INK_SIZE.width, INK_SIZE.height);
-      const { completed, active } = analyzerRef.current.strokes();
-      ctx.strokeStyle = "#0f172a";
-      ctx.lineWidth = 4;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-      for (const stroke of [...completed, ...(active ? [active] : [])]) {
-        if (stroke.length < 2) continue;
-        ctx.beginPath();
-        ctx.moveTo(stroke[0]!.x, stroke[0]!.y);
-        for (const p of stroke.slice(1)) ctx.lineTo(p.x, p.y);
-        ctx.stroke();
-      }
-    };
+  const paintInk = () => {
+    const canvas = inkRef.current;
+    const ctx = canvas?.getContext("2d");
+    if (!ctx || !canvas) return;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    const { completed, active } = analyzerRef.current.strokes();
+    // Same stroke material and cursor state as DrawingSurface.render().
+    ctx.strokeStyle = "#23211d";
+    ctx.lineWidth = Math.max(3, Math.round(canvas.width / 160));
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    for (const stroke of [...completed, ...(active ? [active] : [])]) {
+      if (!stroke.length) continue;
+      ctx.beginPath();
+      ctx.moveTo(stroke[0]!.x, stroke[0]!.y);
+      for (const point of stroke.slice(1)) ctx.lineTo(point.x, point.y);
+      if (stroke.length === 1) ctx.lineTo(stroke[0]!.x + .6, stroke[0]!.y);
+      ctx.stroke();
+    }
+    const handCursor = analyzerRef.current.cursor;
+    const cursor = handCursor?.state === "drawing"
+      ? handCursor
+      : (pointerDown.current ? pointerCursor.current : handCursor);
+    if (!cursor) return;
+    const scale = canvas.width / (canvas.clientWidth || canvas.width);
+    const { x, y, state } = cursor;
+    if (cursor.erasing) {
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(x, y, 32, 0, Math.PI * 2);
+      ctx.fillStyle = "rgba(255, 225, 105, 0.22)";
+      ctx.fill();
+      ctx.lineWidth = Math.max(2, Math.round(3 * scale));
+      ctx.strokeStyle = "#111111";
+      ctx.stroke();
+      ctx.restore();
+    }
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(x, y, 6.5 * scale, 0, Math.PI * 2);
+    ctx.fillStyle = state === "drawing" ? "#ffe169" : state === "near" ? "#f59e0b" : "#38bdf8";
+    ctx.fill();
+    ctx.lineWidth = Math.max(2, Math.round(2 * scale));
+    ctx.strokeStyle = "#111111";
+    ctx.stroke();
+    ctx.restore();
+  };
 
   const canvasPoint = (event: PointerEvent<HTMLCanvasElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
@@ -199,8 +236,11 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
   const onCanvasDown = (event: PointerEvent<HTMLCanvasElement>) => {
     if (!isCanvas) return;
     event.currentTarget.setPointerCapture?.(event.pointerId);
+    // Match DrawingSurface: camera drawing owns the active stroke, pointer cannot split it.
+    if (analyzerRef.current.cursor?.state === "drawing") return;
     pointerDown.current = true;
     const point = canvasPoint(event);
+    pointerCursor.current = { ...point, state: "drawing", erasing: pointerTool === "eraser" };
     if (pointerTool === "pen") analyzerRef.current.beginPointerStroke(point);
     else analyzerRef.current.erasePointer(point);
     paintInk();
@@ -208,6 +248,7 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
   const onCanvasMove = (event: PointerEvent<HTMLCanvasElement>) => {
     if (!isCanvas || !pointerDown.current) return;
     const point = canvasPoint(event);
+    pointerCursor.current = { ...point, state: "drawing", erasing: pointerTool === "eraser" };
     if (pointerTool === "pen") analyzerRef.current.movePointerStroke(point);
     else analyzerRef.current.erasePointer(point);
     paintInk();
@@ -215,7 +256,9 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
   const onCanvasUp = () => {
     if (!pointerDown.current) return;
     pointerDown.current = false;
-    analyzerRef.current.endPointerStroke();
+    if (pointerTool === "pen") analyzerRef.current.endPointerStroke();
+    else analyzerRef.current.endPointerErase();
+    pointerCursor.current = null;
     paintInk();
   };
   const runCanvasAction = (action: "undo" | "redo" | "clear") => {
@@ -252,6 +295,7 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
       timerId: null,
       frameTimes: [],
       lastVideoTime: -1,
+      lastVideoFrameCount: null,
       failures: 0,
     };
     session.current = s;
@@ -295,7 +339,15 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
     const runFrame = (cur: Session) => {
       const v = videoRef.current;
       if (!cur.landmarker || !v || document.hidden) return;
-      if (v.readyState < 2 || v.currentTime === cur.lastVideoTime) return;
+      if (v.readyState < 2) return;
+      // video.currentTime advances continuously and can fake 120+ FPS on a 30 FPS camera.
+      const decoded = v.getVideoPlaybackQuality?.().totalVideoFrames;
+      if (typeof decoded === "number" && decoded > 0) {
+        if (cur.lastVideoFrameCount === decoded) return;
+        cur.lastVideoFrameCount = decoded;
+      } else {
+        if (v.currentTime === cur.lastVideoTime) return;
+      }
       cur.lastVideoTime = v.currentTime;
       const t0 = performance.now();
       cur.frameTimes.push(t0);
@@ -328,7 +380,7 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
       if (landmarks === null) return;
       cur.analyzer.analyse({ landmarks, inferMs, nowMs: t0, face });
       paintOverlay(v, cur);
-      paintInk(cur);
+      paintInk();
     };
     const paintOverlay = (v: HTMLVideoElement, cur: Session) => {
       const canvas = overlayRef.current;
@@ -379,6 +431,12 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
     s.timerId = setInterval(refresh, REFRESH_MS);
   };
 
+  const relockHand = () => {
+    analyzerRef.current.resetHandLock(performance.now());
+    setReadout((prev) => ({ ...prev, snapshot: analyzerRef.current.snapshot(performance.now()) }));
+    paintInk();
+  };
+
   const chooseLowLight = (mode: LowLightMode) => {
     setLowLightEnhancement(mode);
     setLowLightState(mode);
@@ -389,6 +447,7 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
   const rejected = snap ? countHandRoles(snap.handRoles) : null;
   const running = phase === "on";
   const wave = snap?.wave;
+  const fiveFingerActive = (snap?.pose === "open-palm" || snap?.pose === "split-palm") && snap?.fingerCount === 5;
 
   return (
     <main className={`nui-lab nui-lab--${variant}`} data-testid={`nui-lab-${variant}`}>
@@ -425,6 +484,11 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
           </button>
         )}
         {phase === "starting" && <span className="nui-lab__muted">Kamera dan pelacak sedang dibuka…</span>}
+        {variant !== "diagnostics" && (
+          <button type="button" className="nui-lab__button" onClick={relockHand} data-testid="lab-relock-hand">
+            Kunci ulang tangan
+          </button>
+        )}
         <p role="status" className="nui-lab__status">
           {supported === false ? "Browser ini belum bisa pakai kamera." : message}
         </p>
@@ -438,6 +502,15 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
             <canvas ref={overlayRef} className="nui-lab__overlay" aria-label="Kerangka tangan" />
             {!running && <p className="nui-lab__placeholder">Kamera belum menyala.</p>}
           </div>
+          {variant !== "diagnostics" && (
+            <p className="nui-lab__lock-banner" data-testid="lab-lock-status" aria-live="polite">
+              {snap?.lockStatus === "locked" ? "TANGAN TERKUNCI" :
+                snap?.lockStatus === "lost" ? "LOCK HILANG, kunci ulang jika tangan berpindah jauh" :
+                snap?.lockStatus === "ambiguous" ? "DUA TANGAN AMBIGU, tidak pindah otomatis" :
+                snap?.lockStatus === "locking" ? "Mengunci satu tangan…" :
+                "Tunjukkan hanya satu tangan untuk mengunci, bebas di seluruh area kamera"}
+            </p>
+          )}
           <p className="nui-lab__legend">
             <span className="nui-lab__swatch nui-lab__swatch--primary" aria-hidden="true" /> Oranye = tangan utama (diikuti
             game) ·
@@ -449,7 +522,7 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
           {variant === "diagnostics" && (
             <>
               <h3>Coret uji</h3>
-              <p className="nui-lab__muted">Cubit telunjuk dan jempol untuk menulis, kepal untuk menghapus.</p>
+              <p className="nui-lab__muted">Cubit untuk coret, buka kelima jari untuk hapus. Kepal tidak menghapus.</p>
               <canvas ref={inkRef} className="nui-lab__ink" width={INK_SIZE.width} height={INK_SIZE.height} aria-label="Kanvas coret uji" />
             </>
           )}
@@ -458,7 +531,22 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
         {isCanvas && (
           <section className="nui-lab__panel nui-lab__canvas-workspace" aria-labelledby="nui-lab-canvas-title">
             <h2 id="nui-lab-canvas-title">Kanvas bebas</h2>
-            <p className="nui-lab__muted">Cubit jempol dan telunjuk untuk menggambar. Coba mouse atau sentuh langsung di kanvas sebagai pembanding.</p>
+            <p className="nui-lab__muted">Pinch coret · 5 jari hapus · 1 jari undo · 2 jari redo. Coba mouse dan sentuh sebagai pembanding.</p>
+            <div className="nui-lab__gesture-guide" aria-label="Gestur yang dipakai canvas game">
+              <span data-active={snap?.pose === "pinch" ? "true" : "false"}><GestureGlyph name="gesture-pinch" size={37} />Cubit <b>Coret</b></span>
+              <span data-active={fiveFingerActive ? "true" : "false"}><GestureGlyph name="gesture-five" size={37} />5 jari <b>Hapus</b></span>
+              <span data-active={snap?.pose === "one-finger" ? "true" : "false"}><GestureGlyph name="gesture-one" size={37} />1 jari <b>Undo</b></span>
+              <span data-active={snap?.pose === "two-fingers" ? "true" : "false"}><GestureGlyph name="gesture-two" size={37} />2 jari <b>Redo</b></span>
+            </div>
+            <div className="nui-lab__gesture-hud" data-testid="lab-gesture-hud" aria-live="polite">
+              <strong>{snap?.lockStatus === "locked" ? "Terkunci" : "Belum terkunci"}</strong>
+              <span>{snap?.pose === "fist" ? "Kepal tidak aktif" : snap ? poseLabel(snap.pose) : "Belum ada gestur"}</span>
+              <span>{snap ? `${snap.fingerCount} jari terbuka` : "— jari"}</span>
+              <span>{snap?.drawingAction === "draw" ? "PINCH · CORET" :
+                snap?.drawingAction === "erase" ? "5 JARI · HAPUS" :
+                snap?.drawingAction === "undo" ? "1 JARI · UNDO" :
+                snap?.drawingAction === "redo" ? "2 JARI · REDO" : "GERAKAN DIPANTAU"}</span>
+            </div>
             <canvas
               ref={inkRef}
               className="nui-lab__ink nui-lab__ink--large"
@@ -493,7 +581,9 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
           {isGesture && (
             <section aria-label="Katalog pose yang dapat dideteksi">
               <h2>Pose tangan</h2>
-              <p className="nui-lab__pose-now" aria-live="polite">{snap ? poseLabel(snap.pose) : "Nyalakan kamera untuk mendeteksi"}</p>
+              <p className="nui-lab__muted">Lihat pose aktif, jumlah jari, dan status lock. Halaman ini mengamati, bukan menjalankan perintah game.</p>
+              <p className="nui-lab__pose-now" aria-live="polite">{snap ? (snap.pose === "fist" ? "Kepal, tidak ada aksi" : poseLabel(snap.pose)) : "Nyalakan kamera untuk mendeteksi"}</p>
+              <p className="nui-lab__muted">Jumlah jari terbuka {snap?.fingerCount ?? "—"}. Hapus hanya saat kelima jari terdeteksi.</p>
               <div className="nui-lab__poses">
                 {POSES.map((pose) => (
                   <div key={pose} className="nui-lab__pose" data-active={snap?.pose === pose ? "true" : "false"}>
@@ -502,7 +592,7 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
                   </div>
                 ))}
               </div>
-              <p className="nui-lab__muted">Jempol, pinch, kepal, satu/dua/tiga jari, split palm, dan telapak. Setiap pose bisa dicoba satu per satu, tanpa mengeksekusi aksi game.</p>
+              <p className="nui-lab__muted">Jempol, pinch, satu/dua/tiga jari, dan telapak lima jari. Kepal bukan perintah gambar. Semua pose bisa dicoba tanpa aksi game.</p>
             </section>
           )}
 
@@ -521,6 +611,8 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
             <Stat label="Mesin (GPU/CPU)" value={readout.engine} />
             <Stat label="Alasan mesin" value={readout.reason} />
             <Stat label="Status pindah mesin" value={readout.switchText} />
+            {variant !== "diagnostics" && <Stat label="Status lock tangan" value={snap?.lockStatus ?? "waiting"} />}
+            <Stat label="Jari terbuka" value={snap ? String(snap.fingerCount) : "—"} />
             <Stat label="Tangan terlihat" value={snap ? `${snap.handCount} (jauh, diabaikan: ${snap.farHandCount})` : "—"} />
             <Stat
               label="Tangan utama"
@@ -538,7 +630,7 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
               label="Tangan ditolak"
               value={rejected ? `jauh ${rejected.far} · wajah ${rejected.face} · di luar area ${rejected.outside}` : "—"}
             />
-            <Stat label="Pose sekarang" value={snap ? poseLabel(snap.pose) : "—"} />
+            <Stat label="Pose sekarang" value={snap ? (snap.pose === "fist" ? "Kepal (tanpa aksi)" : poseLabel(snap.pose)) : "—"} />
           </dl>
 
           <h3>Jitter (tangan diam)</h3>

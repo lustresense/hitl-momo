@@ -56,3 +56,13 @@ Jangan checkout branch staging `nui-lab`. Setelah verifikasi commit di `ujang-mo
 
 ## Perubahan topologi branch (Owner 16 November 2026)
 Ujang sudah memiliki domain tunnel dev yang mengambil frontend dari `ujang-monorepo`. Maka `nui-lab` bukan branch deploy. Halaman NUI Lab adalah folder App Router dan src/components/nui-lab di frontend yang sama. Setelah verifikasi sumber, branch staging boleh dihapus melalui Git CLI; konektor yang digunakan sesi ini tidak mendukung penghapusan ref.
+
+## Delta 0.20.0-alpha — koreksi user 16 November 2026
+
+**Target branch:** tetap `ujang-monorepo` dengan frontend pada domain/tunnel yang sama. Tidak checkout branch `nui-lab`, jangan merge `main`.
+
+**Gesture canvas game + NUI Lab:** cubit telunjuk-jempol = Coret; kelima jari terbuka = Hapus; satu jari = Undo; dua jari = Redo. Pose kepal boleh muncul sebagai diagnostik tetapi tidak menghapus. `split-palm` pun baru boleh menghapus bila `countExtendedFingers` benar-benar 5. Jangan membuat classifier kedua atau mengecilkan aturan lima jari diam-diam. Mapping Top-3, dialog jempol dan gameplay exploration tidak diubah.
+
+**Perilaku eksperimen:** `/nui-lab/gesture` menunjukkan pose dan jari tanpa menggambar. `/nui-lab/canvas` menggambar di 1280×720, cursor hover/near/draw/ring penghapus mengikuti pipeline game, ikon `GestureGlyph` dan HUD status lock. Kamera tetap natural untuk user, preprocessing hanya pada inference source. `FullFrameHandLock` khusus lab menerima tangan dari area mana pun dalam frame dan berhenti saat identitas ambigu/lost sampai lock dipulihkan. Mode ini **bukan** penggantian face gate produk/game dan belum menjamin tidak pernah salah lock pada webcam nyata.
+
+**Bukti dibutuhkan Ujang sebelum deploy:** `python3 scripts/bump_version.py --check`, npm CI/typecheck/lint/Vitest/build, file statis deep-link, screenshot desktop/mobile, validasi kamera ON/OFF, 1/2 tangan, hand-over-face, crosshands, blur, backlight, lowlight, FPS dan p50/p95, scroll/gesture UI. Setiap FAIL diperbaiki berdasarkan log. Source sekarang `STATIC_ONLY / NOT_TESTED`.

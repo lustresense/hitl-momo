@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.20.0-alpha | 2026-11-16 | Fitur | `(0.20.0-alpha)` |
 | 0.19.0-alpha | 2026-11-16 | Fitur | `(0.19.0-alpha)` |
 | 0.18.1-alpha | 2026-11-15 | Perbaikan | `(0.18.1-alpha)` |
 | 0.18.0-alpha | 2026-11-15 | Fitur | `(0.18.0-alpha)` |
@@ -114,6 +115,24 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.20.0-alpha — 2026-11-16 — Fitur
+
+**Sumber:** Instruksi langsung Owner 16 November 2026 pada screenshot NUI Lab `/nui-lab/canvas`: NUI Lab harus sesuai gestur game, Hapus **lima jari** bukan kepal, cursor sama dengan canvas utama, seluruh area kamera dapat dipakai dengan satu tangan terkunci dan diagnostik pinch/gesture terlihat.
+
+**Perubahan:**
+- Koreksi kontrak **mode menggambar** bersama (game + NUI Lab + tutorial): pinch Coret, 5 jari telapak Hapus, satu jari Undo, dua jari Redo; `fist` hanya klasifikasi non-aksi. Aksi lain di dialog, pilihan Top-3, placement, gameplay tidak berubah. `countExtendedFingers` mengecek lima jari sebelum erase meskipun classifier menyebut palm/split-palm.
+- `HandStrokePipeline` tidak lagi memprioritaskan kepal sebagai eraser maupun menerima kepal saat tool Hapus aktif. Gesture commander dan tes mode/erase/surface diselaraskan.
+- Lab experimental `FullFrameHandLock` memberi penguncian satu tangan dari seluruh kamera tanpa membatasi area wajah. Kandidat awal memerlukan dua frame konsisten; dua tangan sebelum lock/ambiguitas tidak dipilih, kehilangan lock terlalu lama memerlukan tombol Kunci ulang. Ini policy **khusus lab** agar aturan game siswa tidak diam-diam berubah; tidak menjamin identitas biometrik saat dua tangan saling menutupi.
+- Canvas Lab memakai `HandStrokePipeline` game untuk cursor dot hover/near/drawing dan cincin penghapus; resolusi kanvas 1280x720 agar garis tidak kasar saat diperbesar. Gesture HUD, ikon tangan resmi `GestureGlyph`, lock status, finger count, prompt gerakan tersedia. `/nui-lab/gesture` mengamati pose tanpa menulis tinta.
+- Pengukuran frame video memakai `getVideoPlaybackQuality().totalVideoFrames` bila tersedia untuk mencegah angka kamera palsu yang mengikuti RAF pada panel statistik. Fallback browser lama tetap dilabeli terbatas.
+- Tes regresi lock, NUI Lab React, gesture mode, hand pose, hand surface, palm erase diselaraskan. Source/tests dibuat melalui GitHub tetapi **belum** dijalankan npm/Next/browser/MediaPipe real.
+
+**Bukti:** `STATIC_ONLY / NOT_TESTED`. Tidak ada klaim akurasi lowlight, anti-bystander mutlak, FPS perangkat, atau webcam PASS. Ujang wajib typecheck/Vitest/production build dan uji kamera sebelum deploy.
+
+**Branch:** `ujang-monorepo` saja; `main` tidak disentuh. Technical handoff `NUILAB_MONOREPO_HANDOFF_2026-11-16.md` diperbarui.
 
 ---
 

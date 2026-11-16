@@ -265,12 +265,12 @@
 .nui-lab__ink { background:var(--nb-paper,#fffaf0); border:2.5px solid var(--nb-ink,#111); }
 .nui-lab--gesture .nui-lab__layout { grid-template-columns: minmax(0,1.3fr) minmax(285px,0.7fr); }
 .nui-lab--gesture .nui-lab__stage { min-height: 320px; }
-.nui-lab--canvas .nui-lab__layout { grid-template-columns:minmax(185px,260px) minmax(360px,1fr) minmax(245px,305px); align-items:stretch; }
+.nui-lab--canvas .nui-lab__layout { grid-template-columns:minmax(215px,295px) minmax(400px,1fr) minmax(245px,305px); align-items:stretch; }
 .nui-lab--canvas .nui-lab__camera-panel { grid-column:1; grid-row:1; align-self:end; position:sticky; bottom:16px; }
 .nui-lab--canvas .nui-lab__canvas-workspace { grid-column:2; grid-row:1; }
 .nui-lab--canvas .nui-lab__tools-panel { grid-column:3; grid-row:1; max-height:calc(100dvh - 130px); overflow-y:auto; }
 .nui-lab--canvas .nui-lab__stage { aspect-ratio:5 / 4; min-height:175px; }
-.nui-lab__ink--large { max-width:none; width:100%; height:auto; aspect-ratio:4 / 3; touch-action:none; cursor:crosshair; border-radius:16px; }
+.nui-lab__ink--large { max-width:none; width:100%; height:auto; aspect-ratio:16 / 9; touch-action:none; cursor:crosshair; border-radius:16px; }
 .nui-lab--canvas .nui-lab__legend { font-size:12px; }
 .nui-lab--canvas .nui-lab__tools-panel .nui-lab__choices { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
 .nui-lab--canvas .nui-lab__tools-panel .nui-lab__button { padding:8px; font-size:13px; }
@@ -305,4 +305,66 @@
   .nui-lab--canvas .nui-lab__camera-panel { order:1; }
   .nui-lab--canvas .nui-lab__tools-panel { order:2; }
   .nui-lab--gesture .nui-lab__stage { min-height:220px; }
+}
+
+/* Live 5-finger, pinch and lock feedback; these chips describe the engine, not fake confidence. */
+.nui-lab__lock-banner {
+  margin: 10px 0;
+  padding: 9px 12px;
+  border: 2px solid var(--nb-ink,#111);
+  border-radius: 11px;
+  background: var(--nb-leaf-soft,#eff3db);
+  font-size: 13px;
+  font-weight: 800;
+}
+.nui-lab__gesture-hud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin: 10px 0 13px;
+  align-items: center;
+}
+.nui-lab__gesture-hud > * {
+  padding: 7px 10px;
+  border: 1.5px solid var(--nb-ink,#111);
+  border-radius: 9px;
+  color: var(--nb-ink,#111);
+  background: var(--nb-paper,#fffaf0);
+  font-size: 12px;
+  font-weight: 800;
+}
+.nui-lab__gesture-hud > :first-child {
+  background: var(--nb-leaf-soft,#eff3db);
+}
+.nui-lab__gesture-hud > :last-child {
+  background: var(--nb-orange,#ef7a37);
+}
+.nui-lab__ink--large { image-rendering: auto; }
+.nui-lab__ink--large:focus-visible { outline: 3px solid var(--nb-sky,#a8c8d8); outline-offset: 2px; }
+@media (max-width:720px) {
+  .nui-lab__gesture-hud > * { font-size:11px; }
+  .nui-lab--canvas .nui-lab__camera-panel { max-width:none; }
+}
+
+.nui-lab__gesture-guide {
+  display: grid;
+  grid-template-columns: repeat(4,minmax(0,1fr));
+  gap: 8px;
+  margin: 10px 0 13px;
+}
+.nui-lab__gesture-guide > span {
+  display:flex; flex-direction:column; justify-content:center; align-items:center;
+  gap:4px; min-width:0; padding:8px 4px;
+  border:2px solid var(--nb-ink,#111); border-radius:12px;
+  background:var(--nb-paper,#fffaf0); font-size:12px; font-weight:700; text-align:center;
+}
+.nui-lab__gesture-guide > span b {font-size:12px;}
+.nui-lab__gesture-guide > span[data-active="true"] {
+  background:var(--nb-leaf-soft,#eff3db);
+  box-shadow:3px 3px 0 var(--nb-ink,#111);
+  outline:2px solid var(--nb-orange,#ef7a37);
+  outline-offset:1px;
+}
+@media (max-width: 510px) {
+  .nui-lab__gesture-guide {grid-template-columns:repeat(2,minmax(0,1fr));}
 }

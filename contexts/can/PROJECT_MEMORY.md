@@ -6,6 +6,11 @@
 Keep this file small. It is the Hermes-inspired "hot durable memory" layer; detailed experience belongs in ECC memory.
 
 ## Product identity
+## 2026-11-16 — NUI Lab five-finger parity + safe lock (0.20.0-alpha, STATIC_ONLY)
+- User menolak `fist=erase` dan meminta NUI Lab mengikuti Card 3 dan drawing game. Patch pada game canvas juga diperlukan karena source lama berbeda dari tutorial. Source baru menggunakan palm **lima jari** untuk erase, pinch untuk draw, 1/2 jari untuk undo/redo.
+- NUI Lab memakai full-frame lock terpisah (hanya satu tangan awal, freeze jika lost/ambigu), cursor game termasuk ring erase, HUD/glyph, backing canvas 1280×720. Runtime/physical webcam belum tervalidasi.
+- Jangan merekomendasikan merge ke `main`, jangan memodifikasi cover. Handoff terbaru untuk Ujang ada di `NUILAB_MONOREPO_HANDOFF_2026-11-16.md`.
+
 ## 2026-11-16 — NUI Lab pada branch deploy `ujang-monorepo`
 - Owner mengoreksi branch workflow: tunnel dev tetap pada `ujang-monorepo`. Source/UI NUI Lab yang sebelumnya staged di `nui-lab` dibawa ke `frontend/implementation/` cabang deploy itu (version 0.19.0-alpha). `main` tetap, tidak ada deploy/QA terbukti.
 - `nui-lab` perlu dibersihkan sebagai ref sementara oleh Ujang karena konektor GitHub tidak menyediakan delete branch. Handoff aktif `NUILAB_MONOREPO_HANDOFF_2026-11-16.md`. Jangan menginstruksikan Ujang checkout ke branch lama.

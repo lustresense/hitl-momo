@@ -5,7 +5,10 @@
  */
 import type { FaceBox } from "@/src/camera/face-anchor";
 import { handSize, isLargeEnough, pickPrimaryHand, type PrimaryHandState } from "@/src/camera/primary-hand";
-import { classifyHandPose, indexTipNormalized, type HandPose } from "@/src/input/hand-gesture";
+import { classifyHandPose, countExtendedFingers, indexTipNormalized, type HandPose } from "@/src/input/hand-gesture";
+import { MODE_CANVAS_DRAWING, actionFor, type GestureAction } from "@/src/input/gesture-mode";
+import type { HandCursor } from "@/src/input/hand-stroke-pipeline";
+import { FullFrameHandLock, type LabLockStatus } from "./lab-hand-lock";
 import { createGestureCommander } from "@/src/components/drawing/gesture-commands";
 import { HandStrokePipeline } from "@/src/input/hand-stroke-pipeline";
 import type { EraserControl } from "@/src/input/eraser";
@@ -25,10 +28,10 @@ const JITTER_WINDOW_MS = 1500;
 const JITTER_MIN_SAMPLES = 10;
 /** Jitter is shown in px of a canvas this wide (the same scale the page draws at). */
 const JITTER_CANVAS_PX = 400;
-const INK_SIZE = { width: 400, height: 300 };
+const INK_SIZE = { width: 1280, height: 720 };
 /** Eraser radius for the scratch canvas only; the lab never erases on a real surface. */
 const INK_ERASER: EraserControl = {
-  radiusCanvasPx: () => 16,
+  radiusCanvasPx: () => 32,
   radiusCss: () => 16,
   setRadiusCss: () => undefined,
   isFixed: () => true,
@@ -69,6 +72,11 @@ export interface LabSnapshot {
   face: FaceBox | null;
   /** Why each hand was used or rejected, in the order MediaPipe reported them. */
   handRoles: HandRole[];
+  /** Live cursor uses the same coordinates and state as DrawingSurface. */
+  cursor: HandCursor | null;
+  fingerCount: number;
+  drawingAction: GestureAction | null;
+  lockStatus: LabLockStatus;
 }
 
 interface Timed<T> {
@@ -96,6 +104,11 @@ export class LabAnalyzer {
   private waveStatus: WaveStatus = "idle";
   private readonly store = new StrokeStore();
   private readonly gestureCommands = createGestureCommander();
+  private readonly fullLock = new FullFrameHandLock();
+  private liveCursor: HandCursor | null = null;
+  private fingerCountNow = 0;
+  private drawingActionNow: GestureAction | null = null;
+  constructor(private readonly options: { fullFrameLock?: boolean; enableInk?: boolean } = {}) {}
   private readonly ink = new HandStrokePipeline({
     store: this.store,
     size: () => INK_SIZE,
@@ -108,21 +121,28 @@ export class LabAnalyzer {
     this.hands = landmarks;
     this.face = face;
 
-    const pick = pickPrimaryHand(landmarks, this.primary, nowMs, face);
-    this.primary = pick.state;
+    const strict = this.options.fullFrameLock === true;
+    const pick = strict ? this.fullLock.pick(landmarks, nowMs) : pickPrimaryHand(landmarks, this.primary, nowMs, face);
+    if (!strict) this.primary = (pick as ReturnType<typeof pickPrimaryHand>).state;
     this.primaryIdx = pick.index;
-    this.roles = classifyHandRoles(landmarks, pick.index, face);
+    // The full-frame lab intentionally ignores the face-region gate. Other hands are never promoted automatically.
+    this.roles = strict
+      ? landmarks.map((h, i): HandRole => !isLargeEnough(h) ? "far" : i === pick.index ? "primary" : "other")
+      : classifyHandRoles(landmarks, pick.index, face);
     const lm = pick.index === null ? undefined : landmarks[pick.index];
 
     if (!lm) {
       this.primarySizeNow = null;
       this.pose = "none";
       // The lock expired: the next hand must not inherit this hand's filter state.
-      if (pick.state === null) {
+      if (strict || (pick as ReturnType<typeof pickPrimaryHand>).state === null) {
         this.rawTips = [];
         this.inkTips = [];
         this.inkSmoother.reset();
       }
+      this.liveCursor = null;
+      this.fingerCountNow = 0;
+      this.drawingActionNow = null;
       this.ink.feed(undefined, nowMs);
       this.gestureCommands.feed("none", nowMs);
       this.feedWave(null, nowMs);
@@ -131,13 +151,23 @@ export class LabAnalyzer {
 
     this.primarySizeNow = handSize(lm);
     this.pose = classifyHandPose(lm, { pinchHeld: this.pose === "pinch" });
+    this.fingerCountNow = countExtendedFingers(lm);
     const raw = indexTipNormalized(lm);
     this.rawTips.push({ t: nowMs, v: raw });
     this.inkTips.push({ t: nowMs, v: this.inkSmoother.smooth(raw, nowMs) });
-    const inkFrame = this.ink.feed(lm, nowMs);
-    const command = this.gestureCommands.feed(inkFrame.pose, nowMs);
-    if (command === "undo") this.store.undo();
-    if (command === "redo") this.store.redo();
+    if (this.options.enableInk !== false) {
+      const inkFrame = this.ink.feed(lm, nowMs);
+      this.liveCursor = inkFrame.cursor;
+      const mapped = actionFor(MODE_CANVAS_DRAWING, inkFrame.pose);
+      this.drawingActionNow = mapped === "erase" && this.fingerCountNow !== 5 ? null : mapped;
+      const command = this.gestureCommands.feed(inkFrame.pose, nowMs);
+      if (command === "undo") this.store.undo();
+      if (command === "redo") this.store.redo();
+    } else {
+      this.liveCursor = null;
+      this.drawingActionNow = null;
+      this.gestureCommands.feed("none", nowMs);
+    }
     // The wave rule scales its swing with the hand's own size, as the game does.
     this.feedWave(lm[0] ?? null, nowMs, this.primarySizeNow, face);
   }
@@ -156,7 +186,11 @@ export class LabAnalyzer {
   /** Forgets all hands, filters and the wave test (camera stopped). */
   reset(nowMs: number): void {
     this.ink.reset(nowMs);
+    this.fullLock.reset();
     this.gestureCommands.reset();
+    this.liveCursor = null;
+    this.fingerCountNow = 0;
+    this.drawingActionNow = null;
     this.inkSmoother.reset();
     this.inferSamples = [];
     this.detectTimes = [];
@@ -171,6 +205,21 @@ export class LabAnalyzer {
     this.inkTips = [];
     this.sampler.reset();
     this.waveStatus = "idle";
+  }
+
+  /** Explicitly recapture after an ambiguous/lost hand. Never auto-transfer to a bystander. */
+  resetHandLock(nowMs: number): void {
+    this.fullLock.reset();
+    this.ink.reset(nowMs);
+    this.gestureCommands.reset();
+    this.liveCursor = null;
+    this.fingerCountNow = 0;
+    this.drawingActionNow = null;
+    this.primaryIdx = null;
+    this.primary = null;
+    this.rawTips = [];
+    this.inkTips = [];
+    this.inkSmoother.reset();
   }
 
   /** Strokes of the scratch ink canvas (canvas px). */
@@ -190,9 +239,10 @@ export class LabAnalyzer {
     this.store.endStroke();
   }
   erasePointer(point: { x: number; y: number }): void {
-    this.store.eraseAt(point, 16);
-    this.store.endErase();
+    this.store.eraseAt(point, 32);
   }
+  endPointerErase(): void { this.store.endErase(); }
+  get cursor(): HandCursor | null { return this.liveCursor; }
   canvasAction(action: "undo" | "redo" | "clear"): void {
     this.ink.reset(performance.now());
     this.gestureCommands.reset();
@@ -235,6 +285,12 @@ export class LabAnalyzer {
       },
       face: this.face,
       handRoles: [...this.roles],
+      cursor: this.liveCursor ? { ...this.liveCursor } : null,
+      fingerCount: this.fingerCountNow,
+      drawingAction: this.drawingActionNow,
+      lockStatus: this.options.fullFrameLock
+        ? this.fullLock.status
+        : this.primaryIdx !== null ? "locked" : "waiting",
     };
   }
 

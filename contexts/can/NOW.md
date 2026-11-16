@@ -1,5 +1,11 @@
 # NOW
 
+## 2026-11-16 — NUI Lab gesture parity 0.20.0-alpha (STATIC_ONLY)
+- Owner menemukan ketidaksesuaian `fist` vs Hapus lima jari dan kanvas Lab tanpa cursor. Source `ujang-monorepo` diperbaiki sehingga mapping bersama drawing dan tutorial adalah pinch Coret, palm 5 jari Hapus, 1 jari Undo, 2 jari Redo. Kepal hanya pose diagnostik, tidak memicu erase.
+- `NuiLabPage` memakai ikon `GestureGlyph`, HUD gesture dan status lock, stroke/cursor render game pada backing canvas 1280×720, frame stats lebih jujur memakai total decoded frames bila tersedia.
+- `FullFrameHandLock` pada route gesture/canvas menerima tangan di seluruh area webcam, tidak melakukan auto-transfer saat lock hilang/ambigu; wajib tombol relock. **Eksperimen lab only**, jangan menyimpulkan default game face-region sudah diubah.
+- `STATIC_ONLY / NOT_TESTED` untuk npm, build, browser, webcam, multi-user. Ujang verifikasi melalui tunnel dev. Usulan perubahan dokumentasi keputusan PA tetap perlu review Owner.
+
 ## 2026-11-16 — NUI Lab digabung ke `ujang-monorepo` (0.19.0-alpha, STATIC_ONLY)
 - Owner membatalkan branch NUI terpisah karena tunnel deploy dari `ujang-monorepo`. Empat route NUI Lab dipasang pada tree frontend branch tersebut; game/cover dan `main` tetap.
 - Branch `nui-lab` hanya staging riwayat dan penghapusannya perlu CLI Git Ujang. Tidak ada alasan mengganti tunnel atau domain.

@@ -371,7 +371,7 @@ describe("NUI Lab isolated workspaces", () => {
     }
     expect(getUserMedia).not.toHaveBeenCalled();
     expect(screen.queryByLabelText("Kanvas gambar NUI")).toBeNull();
-    expect(screen.getAllByTestId("lab-relock-hand")).toHaveLength(1);
+    expect(screen.queryByTestId("lab-relock-hand")).toBeNull(); // recovery fallback, not a routine camera control
     expect(document.querySelectorAll(".nui-lab__pose")).toHaveLength(7);
   });
 
@@ -392,6 +392,21 @@ describe("NUI Lab isolated workspaces", () => {
     fireEvent.click(screen.getByRole("button", { name: "Undo" }));
     fireEvent.click(screen.getByRole("button", { name: "Redo" }));
     fireEvent.click(screen.getByRole("button", { name: "Bersihkan kanvas" }));
+    expect(getUserMedia).not.toHaveBeenCalled();
+  });
+
+  it("starts the gesture/canvas lab in the game baseline and requires explicit opt-in for experimental rules", () => {
+    const getUserMedia = vi.fn(async () => fakeStream().stream);
+    setMediaDevices({ getUserMedia });
+    render(<NuiLabPage variant="canvas" />);
+    const toggle = screen.getByTestId("lab-experiment-toggle");
+    expect(toggle.getAttribute("aria-pressed")).toBe("false");
+    expect(toggle.textContent).toMatch(/baseline ON/i);
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute("aria-pressed")).toBe("true");
+    expect(toggle.textContent).toMatch(/eksperimen ON/i);
+    fireEvent.click(toggle);
+    expect(toggle.getAttribute("aria-pressed")).toBe("false");
     expect(getUserMedia).not.toHaveBeenCalled();
   });
 

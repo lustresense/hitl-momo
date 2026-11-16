@@ -1,5 +1,11 @@
 # REVISIONS — daftar revisi Owner dan progresnya
 
+## R16-NUI 2026-11-16 — Koreksi audit UI & QA NUI Lab 0.22.1-alpha (STATIC_ONLY)
+| ID | Mandat / Scope | Status | Bukti / next step |
+|---|---|---|---|
+| R16-NUI-09 | Mode eksperimen NUI hanya aktif setelah pilihan Owner, baseline saat masuk lab; tampilkan fallback relock ketika lock betul-betul memerlukan bantuan; test batas waktu reacquire. | JALAN | Source patch+test review branch; belum npm/Playwright/webcam atau deploy. Game classifier dan R16-NUI-06 anti-takeover dipertahankan. |
+| R16-NUI-10 | Verifikasi integrasi R&D P0–P2 di tunnel dan perangkat Owner, sebelum dataset/training P3/P4. | BLOKIR | Belum ada bukti VM Ujang/build/test real camera; handoff QA menunggu eksekusi. |
+
 ## R16-NUI 2026-11-16 — Auto-Lock & Gesture UX Lab 0.22.0-alpha (STATIC_ONLY)
 | ID | Mandat / Scope | Status | Bukti / next step |
 |---|---|---|---|

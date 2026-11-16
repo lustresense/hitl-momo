@@ -1,5 +1,11 @@
 # NOW
 
+## 2026-11-16 — Koreksi audit NUI Lab 0.22.1-alpha (review branch, STATIC_ONLY)
+- Verifikasi ulang source 0.22.0-alpha menunjukkan auto-lock setelah benar-benar kosong dan penghalang takeover sudah tersedia; jangan mengganti ke auto-pilih tangan lain ketika crowd tetap terlihat.
+- Koreksi terarah di halaman lab: default classifier baseline, experiment toggle eksplisit; tombol pilih ulang hanya pada kondisi ambiguous / unmatched-hand saat kamera menyala dan penjelasan berbeda untuk kedua jenis dropout.
+- Tes regresi untuk mode baseline/experiment dan empty-gap reacquire ditambah sebagai SOURCE saja, belum dieksekusi. Target patch review branch; bukan test PASS atau deployed main.
+- Rute, MediaPipe, gesture game (pinch, 5 jari Hapus, 1 Undo, 2 Redo), training P3/P4 dan swipe belum berubah. Lihat NUILAB_BASELINE_REVIEW_2026-11-16.md.
+
 ## 2026-11-16 — NUI Lab Auto-Lock UX P0–P2 (0.22.0-alpha, STATIC_ONLY)
 - Mandat M-039 meneruskan audit R&D pengguna; mode NUI Lab pada main mendapat telemetri penyebab gagal, opsi classifier eksperimen versus baseline, hand lock otomatis setelah frame kosong berulang. Tidak memakai biometrik/fingerprint atau face ROI sebagai pemilik tangan.
 - Track lama tidak dipromosikan ke tangan background jika tetap ada kandidat lain. Setelah kehilangan terlalu lama, sesi akuisisi baru mereset perintah/tinta agar tidak menyambung stroke lama. Gesture dipertahankan pinch Coret, 5 jari Hapus, 1 jari Undo, 2 jari Redo; swipe belum diputuskan.

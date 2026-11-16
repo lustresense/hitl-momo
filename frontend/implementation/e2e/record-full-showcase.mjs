@@ -35,7 +35,7 @@ try {
   await sleep(600);
   // 2. Ruler: pick a number, Momo asks, 2 s thumb (R3, R4).
   await pickStudentNumber(page, { steps: 3, log });
-  // 3. Tutorial: walk Thinman, cards 1-2 (1 s thumbs), card 3 draw + Mundur, Mulai Level 1 (2 s thumb).
+  // 3. Tutorial: walk Thinman, cards 1-2 (1 s thumbs), card 3 draw + Mundur, Mulai Bab 1 (2 s thumb).
   await playTutorial(page, log, { slow: true });
   for (const stage of [1, 2, 3]) {
     const plan = plans[String(stage)];

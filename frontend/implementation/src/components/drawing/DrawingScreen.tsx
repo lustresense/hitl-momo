@@ -227,7 +227,7 @@ export function DrawingScreen({
           iconOnly
           dwellMs={1800}
           className="nb-iconbtn nui-corner-btn drawing-exit"
-          label="Keluar Level"
+          label="Keluar Bab"
           title="Keluar level"
           disabled={missionOpen}
           onActivate={onExit}

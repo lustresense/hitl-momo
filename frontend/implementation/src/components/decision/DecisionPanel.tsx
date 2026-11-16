@@ -117,7 +117,7 @@ export function DecisionPanel({ prediction, level, onAccept, onCorrect, onOverri
       />
 
       {pickerOpen && (
-        <div className="nui-choices" role="group" aria-label="Benda lain di level ini" data-testid="override-picker">
+        <div className="nui-choices" role="group" aria-label="Benda lain di bab ini" data-testid="override-picker">
           {overrideOptions.length > 0 ? (
             <div className="nui-choices__grid">
               {overrideOptions.map((v, i) => (
@@ -138,7 +138,7 @@ export function DecisionPanel({ prediction, level, onAccept, onCorrect, onOverri
               ))}
             </div>
           ) : (
-            <p className="nui-choices__empty">Tidak ada benda lain di level ini.</p>
+            <p className="nui-choices__empty">Tidak ada benda lain di bab ini.</p>
           )}
           {pickedLabel !== null && (
             <GestureRing

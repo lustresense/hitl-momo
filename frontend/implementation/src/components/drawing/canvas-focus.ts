@@ -23,12 +23,12 @@ export const FOCUS_TOOL_LINES_POINTER: string[] = [
 ];
 
 export const FOCUS_CATALOG_LINES_CAMERA: string[] = [
-  "Untuk level ini, kamu bisa menggambar benda-benda ini.",
+  "Untuk bab ini, kamu bisa menggambar benda-benda ini.",
   "Kalau sudah siap, acungkan jempol dan tahan.",
 ];
 
 export const FOCUS_CATALOG_LINES_POINTER: string[] = [
-  "Untuk level ini, kamu bisa menggambar benda-benda ini.",
+  "Untuk bab ini, kamu bisa menggambar benda-benda ini.",
   "Kalau sudah siap, tekan dan tahan tombol Mulai Menggambar.",
 ];
 

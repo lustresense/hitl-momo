@@ -406,7 +406,7 @@ try {
   const dismissMission = async () => { const d = page.locator("[role=dialog][aria-modal=true]"); if (await d.waitFor({ state: "visible", timeout: 2500 }).then(() => true, () => false)) { await d.getByRole("button", { name: /mulai|lewati/i }).first().click(); await d.waitFor({ state: "hidden", timeout: 5000 }).catch(() => {}); } };
   await dismissMission();
   await page.keyboard.press("Escape").catch(() => undefined);
-  const exitToLevels = page.locator("button.drawing-exit, button:has-text('Keluar Level'), [data-testid=btn-back-to-levels]").first();
+  const exitToLevels = page.locator("button.drawing-exit, button:has-text('Keluar Bab'), [data-testid=btn-back-to-levels]").first();
   if (await exitToLevels.isVisible({ timeout: 5000 }).catch(() => false)) await exitToLevels.click();
   await page.locator(".level-card").first().waitFor({ state: "visible", timeout: 10000 });
   await page.locator(".level-card").first().focus();
@@ -414,7 +414,7 @@ try {
   await page.waitForTimeout(1000);
   const kbOk = await page.locator("[data-testid=draw-canvas]").isVisible();
   await dismissMission();
-  const exitAgain = page.locator("button.drawing-exit, button:has-text('Keluar Level'), [data-testid=btn-back-to-levels]").first();
+  const exitAgain = page.locator("button.drawing-exit, button:has-text('Keluar Bab'), [data-testid=btn-back-to-levels]").first();
   if (await exitAgain.isVisible({ timeout: 5000 }).catch(() => false)) await exitAgain.click();
   check("18 keyboard smoke: focus + Enter opens level", kbOk);
 

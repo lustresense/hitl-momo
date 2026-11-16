@@ -27,7 +27,7 @@ export function tutorialCardCopy(index: 0 | 1 | 2, name: string): { title: strin
   return {
     title: "Coba gestur tanganmu",
     copy: "Coret di kanvas, lalu coba hapus, mundur, dan maju. Tiap gestur yang kamu coba akan tercentang.",
-    cta: "Mulai Level 1",
+    cta: "Mulai Bab 1",
     holdMs: 2000,
   };
 }
@@ -72,6 +72,6 @@ export function tutorialStep(moment: TutorialMoment, characterName: string, came
           : ["Coret kanvasnya pakai mouse.", "Coba hapus, mundur, dan maju lewat tombol di kanan."],
       };
     case "gesture-done":
-      return { mood: "Senang", lines: ["Kamu sudah siap!", camera ? "Tahan jempolmu buat mulai Level 1." : "Tahan tombolnya buat mulai Level 1."] };
+      return { mood: "Senang", lines: ["Kamu sudah siap!", camera ? "Tahan jempolmu buat mulai Bab 1." : "Tahan tombolnya buat mulai Bab 1."] };
   }
 }

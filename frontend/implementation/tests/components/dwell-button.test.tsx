@@ -375,12 +375,12 @@ describe("DwellButton shapes for the corner, the submit and the mission hint", (
 
   it("an icon-only button keeps its name for screen readers and hides the text", () => {
     render(
-      <DwellButton onActivate={vi.fn()} iconOnly label="Keluar Level" title="Keluar level" testId="corner">
+      <DwellButton onActivate={vi.fn()} iconOnly label="Keluar Bab" title="Keluar level" testId="corner">
         Keluar
       </DwellButton>,
     );
     const el = screen.getByTestId("corner");
-    expect(el.getAttribute("aria-label")).toBe("Keluar Level");
+    expect(el.getAttribute("aria-label")).toBe("Keluar Bab");
     expect(el.getAttribute("title")).toBe("Keluar level");
     expect(el.classList.contains("dwell-btn--icon-only")).toBe(true);
   });

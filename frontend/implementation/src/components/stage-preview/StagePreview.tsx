@@ -3,7 +3,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { TouchEvent } from "react";
 import { StageWorld } from "./StageWorld";
-import { STAGE_SCENES } from "./scene-metadata";
+import { STAGE_SCENES as ALL_SCENES } from "./scene-metadata";
+
+/** The preview shows the three chapters only (the tutorial flag scene is not a chapter): 01 / 03 ... 03 / 03. */
+const STAGE_SCENES = ALL_SCENES.filter((scene) => scene.level !== null);
 import styles from "./stage-preview.module.css";
 
 /** Isolated visual deck: no game runtime, camera, physics, or classifier. */
@@ -100,16 +103,16 @@ export function StagePreview() {
 
   return (
     <div ref={root} data-testid="stage-preview" className={`${styles.root}${controlsHidden ? ` ${styles.controlsHidden}` : ""}`}
-      role="region" aria-roledescription="carousel" aria-label="Sketchbook Universe empat slide fullscreen"
+      role="region" aria-roledescription="carousel" aria-label="Sketchbook Universe tiga bab fullscreen"
       tabIndex={-1} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
       onTouchCancel={() => { touch.current = null; }}>
-      {STAGE_SCENES.map(scene => (
-        <section key={scene.index} className={`${styles.slide} ${scene.index === index ? styles.active : ""}`}
-          data-slide={scene.index} data-active={scene.index === index} role="group" aria-roledescription="slide"
-          aria-label={`Slide ${scene.index + 1}: ${scene.level === null ? "" : `Level ${scene.level} - `}${scene.title}`}
-          aria-hidden={scene.index !== index}>
+      {STAGE_SCENES.map((scene, position) => (
+        <section key={scene.index} className={`${styles.slide} ${position === index ? styles.active : ""}`}
+          data-slide={position} data-active={position === index} role="group" aria-roledescription="slide"
+          aria-label={`Slide ${position + 1}: ${`Bab ${scene.level} - `}${scene.title}`}
+          aria-hidden={position !== index}>
           <StageWorld scene={scene.index} className={styles.world} />
-          {scene.level !== null && <div className={styles.ribbon} aria-hidden="true">Level {scene.level}</div>}
+          {scene.level !== null && <div className={styles.ribbon} aria-hidden="true">Bab {scene.level}</div>}
           {scene.level !== null && <div className={styles["paper-title"]}>{scene.title}</div>}
           {scene.caption !== null && <div className={styles["paper-caption"]}>{scene.caption}</div>}
         </section>

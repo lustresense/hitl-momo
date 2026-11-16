@@ -257,7 +257,7 @@ async function tutorial() {
   await shotBoth("06-kartu3");
   await waitThumbUnlocked("tutorial-thumb-3");
   await holdThumb(page, "tutorial-thumb-3", { timeout: 15000 });
-  log("tutorial: card 3 confirmed, Mulai Level 1");
+  log("tutorial: card 3 confirmed, Mulai Bab 1");
 }
 
 async function enterLevel(stage) {

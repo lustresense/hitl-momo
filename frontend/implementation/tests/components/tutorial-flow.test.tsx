@@ -25,7 +25,7 @@ const cardOpen = (n: number) => document.querySelector(`.tutorial-card-${n}.is-o
 const toolUsed = (id: string) => document.querySelector(`[data-tool=${id}]`)?.classList.contains("is-used") ?? false;
 
 describe("tutorial flow in fallback (R4): each card waits for Momo, the practice and the read time", () => {
-  it("three cards: walk, read, thumb; the drawing gestures, read, a 2 s hold starts Level 1", async () => {
+  it("three cards: walk, read, thumb; the drawing gestures, read, a 2 s hold starts Bab 1", async () => {
     forceInputMode("fallback");
     const onStart = vi.fn();
     await act(async () => {
@@ -70,9 +70,9 @@ describe("tutorial flow in fallback (R4): each card waits for Momo, the practice
     fireEvent.click(screen.getByRole("button", { name: "Maju satu goresan, gestur dua jari" }));
     await waitFor(() => expect(toolUsed("redo")).toBe(true));
 
-    // All four done: after Momo and the read time, the thumb offers "Mulai Level 1" and a 2 s hold starts Level 1.
-    await waitFor(() => expect(screen.getByRole("button", { name: "Mulai Level 1" })).toBeTruthy(), { timeout: 45000 });
-    const start = screen.getByRole("button", { name: "Mulai Level 1" });
+    // All four done: after Momo and the read time, the thumb offers "Mulai Bab 1" and a 2 s hold starts Bab 1.
+    await waitFor(() => expect(screen.getByRole("button", { name: "Mulai Bab 1" })).toBeTruthy(), { timeout: 45000 });
+    const start = screen.getByRole("button", { name: "Mulai Bab 1" });
     fireEvent.pointerDown(start);
     await waitFor(() => expect(onStart).toHaveBeenCalledTimes(1), { timeout: 15000 });
     fireEvent.pointerUp(start);

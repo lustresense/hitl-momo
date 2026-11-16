@@ -56,21 +56,41 @@ function ArtworkDefinitions({ prefix }: { prefix: string }) {
   );
 }
 
-/** R15 (PRD 0.0.16): next destination named on each level's end signpost. */
-const SIGNPOST_NEXT: Record<1 | 2 | 3, string> = { 1: 'Menara Lipatan', 2: 'Lorong Kabut', 3: 'Pusat Halaman' };
+/**
+ * Text on the arrow of each level's end signpost (Owner 2026-11-16): levels 1 and 2 say where the next step is, level 3
+ * leads to the closing (Pusat Halaman, the portal). `small` is the short lead-in, `big` the destination.
+ */
+const SIGNPOST_TEXT: Record<1 | 2 | 3, { small: string; big: string }> = {
+  1: { small: 'Lanjut ke', big: 'Bab 2' },
+  2: { small: 'Lanjut ke', big: 'Bab 3' },
+  3: { small: 'Menuju', big: 'Pusat Halaman' },
+};
+/** Widest text the arrow body can carry (source units); longer copy is squeezed to this, never cut off. */
+const SIGNPOST_TEXT_MAX = 54;
+const SIGNPOST_BIG_SIZE = 7.4;
+const SIGNPOST_SMALL_SIZE = 5;
+
+/** `textLength` only when the estimated width would not fit, so short words keep their natural spacing. */
+function fitLength(text: string, size: number): number | undefined {
+  const estimate = text.length * size * 0.56;
+  return estimate > SIGNPOST_TEXT_MAX ? SIGNPOST_TEXT_MAX : undefined;
+}
 
 /**
- * Sketch signpost replacing the level flag (R15). Foot at (0,0) like the flag, same footprint
- * (post 52 units high), so the physics goal rect in stage-geometry stays unchanged.
+ * Sketch signpost replacing the level flag (R15): the post and one arrow, no board (Owner 2026-11-16). The foot is at
+ * (0,0) like the flag, the post is 54 units high, so the physics goal rect in stage-geometry stays unchanged. The arrow
+ * hangs to the left of the post and points right, so it stays inside the art even on the right edge.
  */
 function Signpost({ level, transform }: { level: 1 | 2 | 3; transform: string }) {
+  const { small, big } = SIGNPOST_TEXT[level];
   return (
     <g data-asset-role="goal-preview" data-goal-kind="signpost" transform={transform}>
       <path d="M0 0V-54" stroke="#1e2126" strokeWidth="3.5" strokeLinecap="round" />
-      <path d="M-20 -54h40v13h-40z" fill="#f3ead2" stroke="#1e2126" strokeWidth="1.8" strokeLinejoin="round" />
-      <text x="0" y="-44.5" textAnchor="middle" fontSize="6.2" fontWeight="700" fill="#1e2126">{`Bab ${level} selesai`}</text>
-      <path d="M-14 -36h32l7 6l-7 6h-32z" fill="#df6930" stroke="#1e2126" strokeWidth="1.8" strokeLinejoin="round" />
-      <text x="3" y="-27.8" textAnchor="middle" fontSize="5" fontWeight="700" fill="#fffdf6">{SIGNPOST_NEXT[level]}</text>
+      <path d="M-58 -50h58l14 13l-14 13h-58z" fill="#df6930" stroke="#1e2126" strokeWidth="1.8" strokeLinejoin="round" />
+      <text textAnchor="middle" fontWeight="700" fill="#1e2126">
+        <tspan x="-29" y="-40" fontSize={SIGNPOST_SMALL_SIZE} textLength={fitLength(small, SIGNPOST_SMALL_SIZE)} lengthAdjust="spacingAndGlyphs">{small}</tspan>
+        <tspan x="-29" y="-30.6" fontSize={SIGNPOST_BIG_SIZE} textLength={fitLength(big, SIGNPOST_BIG_SIZE)} lengthAdjust="spacingAndGlyphs">{big}</tspan>
+      </text>
     </g>
   );
 }
@@ -150,7 +170,7 @@ function SceneLayers({ scene, prefix, gameplay }: { scene: SceneIndex; prefix: s
           <path d="M349 140V325M366 140V325M349 162h17M349 186h17M349 210h17M349 234h17M349 258h17M349 282h17M349 306h17" />
         </g>
         {!gameplay && <use data-asset-role="character-preview" href={`#${prefix}-man`} transform="translate(77 190) scale(1.1)" />}
-        <Signpost level={2} transform="translate(379 66) scale(.75)" />
+        <Signpost level={2} transform="translate(379 66)" />
         </>
       );
     case 3:

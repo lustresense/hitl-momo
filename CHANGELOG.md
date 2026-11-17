@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.23.1-alpha | 2026-11-17 | Dokumen | `(0.23.1-alpha)` |
 | 0.23.0-alpha | 2026-11-17 | Dokumen | `(0.23.0-alpha)` |
 | 0.22.0-alpha | 2026-11-16 | Fitur | `(0.22.0-alpha)` |
 | 0.21.0-alpha | 2026-11-16 | Fitur | `(0.21.0-alpha)` |
@@ -119,6 +120,19 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.23.1-alpha — 2026-11-17 — Dokumen
+
+**Sumber:** Perintah Owner 2026-11-17: masukkan semua HTML prototipe welcome-flow2 ke main di frontend/implementation/proto-html, dirapikan
+
+**Perubahan:**
+- Folder baru frontend/implementation/proto-html: welcome-flow2 V5 (terbaru) dan arsip V1-V4, ditambah sandbox R20/R21 sebagai referensi, plus README berisi alur, audit aset repo, bukti, batas dan sha256. Tidak ada perubahan di app, src, public maupun build.
+
+**Commit:** commit berjudul `(0.23.1-alpha)`
+
+**Bukti:** STATIC_ONLY untuk folder ini (HTML standalone, bukan bagian build). Prototipe dijalankan di Chromium headless: 1440x900, 1024x768, 390x844, 375x667, error konsol 0, gerak diukur per frame. NOT_TESTED: perangkat nyata, webcam fisik, Safari/Firefox, npm run build/lint/test (tidak berubah).
 
 ---
 

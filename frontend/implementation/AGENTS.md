@@ -1,20 +1,15 @@
-# Implementation scope (Sketchbook Universe app)
+# CAN frontend implementation SOP
 
-You are working on the app in this folder. Proposals, research, meetings and design folders at the repo root are context only; you do not need them to code.
+For Claude Code, Codex, Antigravity or any agent, start from **root `AGENTS.md`** and explicitly read `contexts/can/AGENTS.md`, including every mandatory bootstrap source it names. Do not assume nested files are loaded automatically.
 
-Read first: `../../contexts/can/AGENTS.md`, `../../contexts/can/SOUL.md`, `../../contexts/can/DECISIONS.md`, `../../contexts/can/NOW.md`, then `docs/execution/ARCHITECTURE_ACTUAL.md` and `docs/execution/RUN_GUIDE.md`.
+Then read the CAN-approved product decisions (`contexts/can/DECISIONS.md`), `contexts/can/NOW.md`, `contexts/can/REVISIONS.md`, `contexts/can/SESSION_HANDOFF.md`, `docs/execution/ARCHITECTURE_ACTUAL.md`, `docs/execution/RUN_GUIDE.md`, and task-relevant actual code/tests. Use repository-root-relative paths for CAN contexts.
 
-Rules that cannot be broken without the Owner (CAN):
-- The visual system (orange/green palette, dots background, outlines, shadows) is locked. Improve flow, placement and wording, never the system.
-- Prediction is MOCK until the partner delivers a model; never fabricate model output, endpoints, database or dashboard. Keep MOCK/REAL/PASS/FAIL/BLOCKED/NOT TESTED separate.
-- No push/merge/deploy to `can` without the Owner's approval. Ujang owns infrastructure and deployment.
-- E2E uses trusted mouse/keyboard only; `window.__skb*` hooks exist only with `NEXT_PUBLIC_TEST_HOOKS=1`. Keep every `data-testid`.
-- Gates before claiming done: `npx vitest run`, `npx tsc --noEmit`, `npx next lint`, `NEXT_PUBLIC_TEST_HOOKS=0 npx next build`, then the E2E suites in `e2e/` (see `docs/execution/RUN_GUIDE.md`).
-- Product decisions: `../../contexts/can/DECISIONS.md`. Owner instructions: `../../contexts/can/project/OWNER_MANDATES.md`. Revision tasks: `../../contexts/can/REVISIONS.md`. Current state: `../../contexts/can/NOW.md`. Technical changes: root `../../CHANGELOG.md` (one version per push). Game-local historical changelog is archived, NOT live.
+## Implementation invariants
 
-## Documentation gate for current ChatGPT branch (Owner M-033, 2026-11-15)
-- Work only on `ujang-monorepo` until Owner changes permission. Do not touch `main`, deploy or modify Dias code for a documentation-only sync.
-- For every change, reconcile the affected `DECISIONS.md`, `OWNER_MANDATES.md`, `REVISIONS.md`, Can `NOW.md`, technical `WORKING_CONTEXT.md`, short `PROJECT_MEMORY.md`, source/run guide and global `CHANGELOG.md`. Update only semantically applicable docs; preserve historical entries.
-- When source is only read/edited through GitHub, report `STATIC_ONLY`; tests and production are `NOT_TESTED`. A new unit-test file is not a passing test.
-- Version and changelog are required even for documentation-only pushes. From **repo root**, run `python3 scripts/bump_version.py --check` on Ujang's runtime; GitHub connector cannot execute it.
-- Frontend installation: `npm ci` from this folder using `package-lock.json`; the local `requirements.txt` is an explanatory handoff, not pip dependencies.
+- Visual system (orange/green, dots, outlines, shadows) remains Owner-governed. Do not redesign without the latest explicit Owner authorization.
+- Frontend displays model Top-3/confidence, HITL choices and gameplay. DIAS owns classifier/model, backend/database, admin and training. Never fabricate REAL prediction, API, logs, database or dashboard.
+- Keep the gesture-mode router, camera permissions/lifecycle, fallback pointer and guarded UI. NUI tests with synthetic landmarks are NOT proof of real webcam accuracy or robustness. Keep existing `data-testid` identifiers and only enable `NEXT_PUBLIC_TEST_HOOKS=1` for tests.
+- For relevant work run `npm ci`, `npm run typecheck`, `npm run lint`, `npm test`, `NEXT_PUBLIC_TEST_HOOKS=0 npm run build`, and relevant `e2e/` flows, then real camera tests when hardware is available. Report blocked gates instead of invented PASS.
+- Audit-only requests must not edit. Editing, commit, push, merge and deploy are separate permissions. Ujang owns installation/deployment unless the user explicitly changes this. A branch instruction from a historical session is not current permission.
+
+After changes reconcile task-relevant CAN mandates, REVISIONS, NOW/WORKING_CONTEXT, handoff, architecture/run guide, root VERSION/CHANGELOG per root SOP. Product `DECISIONS.md` only changes through explicit Owner approval.

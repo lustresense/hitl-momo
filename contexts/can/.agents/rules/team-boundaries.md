@@ -1,7 +1,8 @@
-# Team Boundaries
+---
+trigger: always_on
+description: "CAN team boundaries rule; root/CAN AGENTS remain authoritative"
+---
 
-CAN(USER) = final authority.
-Discussion AI = R&D.
-Dola = Visual R&D.
-Direct harness = possible IT Orchestrator.
-Explicitly delegated session = IT Worker.
+# Team Ownership
+
+CAN leads student UI/HCI/2D gameplay; DIAS owns models/backend/database/admin. Shared contracts need both owner routers and permission. A direct harness can orchestrate; workers are explicitly delegated. Follow `contexts/can/docs/team/TEAM_OPERATING_MODEL.md`.

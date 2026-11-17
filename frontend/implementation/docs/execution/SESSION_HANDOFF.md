@@ -1,3 +1,7 @@
+> **HISTORICAL 2026-11-05 HANDOFF.** Do not use this file's old branch or test snapshot as current instructions. For cross-account continuation read `contexts/can/SESSION_HANDOFF.md` and check live Git SHA. The original historical text below is retained unchanged.
+
+---
+
 # Session handoff (2026-11-05)
 
 Tujuan: sesi AI berikutnya tidak perlu mengandalkan ingatan. Baca `AGENTS.md` -> `WORKING_CONTEXT.md` -> file ini.

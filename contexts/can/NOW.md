@@ -1,5 +1,11 @@
 # NOW
 
+## 2026-11-17 — Universal CAN SOP routing (0.23.0-alpha, static documentation)
+- Root `AGENTS.md` is the universal entry for Claude Code, Antigravity and Codex. CAN instructions link SOUL A+B, governed DECISIONS, SOURCE_OF_TRUTH, NOW, REVISIONS, OWNER_MANDATES, WORKING_CONTEXT, PROJECT_MEMORY, team protocols, rules, skills and current code. The `contexts/` directory is the Owner Context Registry, not renamed.
+- Antigravity root rule added and six CAN modular rules now have valid `trigger: always_on` YAML. Fresh sessions must explicitly read nested CAN SOP; this is not proof that a particular agent complied.
+- New `contexts/can/SESSION_HANDOFF.md` tracks portable session status. Old 2026-11-05 execution handoff marked historical. NUI `0.22.0-alpha` source and draft PR #5 remain as before. `STATIC_ONLY / NOT_TESTED` for runtime and new agent behavior.
+
+
 ## 2026-11-16 — NUI Lab Auto-Lock UX P0–P2 (0.22.0-alpha, STATIC_ONLY)
 - Mandat M-039 meneruskan audit R&D pengguna; mode NUI Lab pada main mendapat telemetri penyebab gagal, opsi classifier eksperimen versus baseline, hand lock otomatis setelah frame kosong berulang. Tidak memakai biometrik/fingerprint atau face ROI sebagai pemilik tangan.
 - Track lama tidak dipromosikan ke tangan background jika tetap ada kandidat lain. Setelah kehilangan terlalu lama, sesi akuisisi baru mereset perintah/tinta agar tidak menyambung stroke lama. Gesture dipertahankan pinch Coret, 5 jari Hapus, 1 jari Undo, 2 jari Redo; swipe belum diputuskan.

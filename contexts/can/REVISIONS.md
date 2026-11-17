@@ -1,5 +1,14 @@
 # REVISIONS — daftar revisi Owner dan progresnya
 
+## R17-AGENT — 2026-11-17 — Universal cross-agent SOP (STATIC_ONLY)
+| ID | Pekerjaan | Status/bukti |
+|---|---|---|
+| R17-AGENT-01 | Root AGENTS route CAN/DIAS/shared; pastikan file SOP benar-benar dibaca dan izin Git per task | Source dokumentasi di main; verifikasi fresh-agent belum dilakukan |
+| R17-AGENT-02 | Perbaiki enam CAN rules Antigravity + root workspace rule dan sumber/path yang masih lama | Source diperbarui, harus diuji di Antigravity |
+| R17-AGENT-03 | Perbarui portable handoff lintas akun tanpa menjadikan chat memory sebagai source of truth | `contexts/can/SESSION_HANDOFF.md`; perlu disiplin update tiap sesi |
+| R17-AGENT-04 | Validasi routing Codex/Claude/Antigravity, checker, versioning dan tes aplikasi bila berubah | BLOKIR: belum ada runtime code-server/agent session; jangan klaim PASS |
+
+
 ## R16-NUI 2026-11-16 — Auto-Lock & Gesture UX Lab 0.22.0-alpha (STATIC_ONLY)
 | ID | Mandat / Scope | Status | Bukti / next step |
 |---|---|---|---|

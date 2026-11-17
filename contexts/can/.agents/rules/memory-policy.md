@@ -1,5 +1,8 @@
-# Memory Policy
+---
+trigger: always_on
+description: "CAN memory policy rule; root/CAN AGENTS remain authoritative"
+---
 
-Orchestrator may maintain hot context and promote durable memory.
-Delegated workers should return findings/results instead of rewriting shared project memory.
-Never store secrets. Memory never overrides governed decisions.
+# CAN Memory
+
+Current verified source/runtime and governed product decisions outrank AI memory/handoff. Orchestrators reconcile work state with evidence; delegated workers report results without changing product truth. No secrets, credentials or classroom personal data in memory.

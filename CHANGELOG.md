@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.23.0-alpha | 2026-11-17 | Dokumen | `(0.23.0-alpha)` |
 | 0.22.0-alpha | 2026-11-16 | Fitur | `(0.22.0-alpha)` |
 | 0.21.0-alpha | 2026-11-16 | Fitur | `(0.21.0-alpha)` |
 | 0.19.1-alpha | 2026-11-16 | Dokumen | `(0.19.1-alpha)` |
@@ -118,6 +119,20 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.23.0-alpha — 2026-11-17 — Dokumen / batch revisi Owner
+
+**Sumber:** mandat CAN 17 November 2026 tentang universal agent SOP, root owner routing dan portable cross-account handoff (M-041, R17-AGENT-01..04).
+
+**Perubahan:** Root/CAN/frontend AGENTS dan CAN SOURCE_OF_TRUTH menjadi routing tunggal lintas Codex, Antigravity dan Claude Code; struktur `contexts/` dipertahankan sebagai Owner Context Registry. Enam CAN rules diperbaiki frontmatter dan ditambah workspace root rule Antigravity. Handoff lintas akun baru, file lama ditandai historis. Status NOW/REVISIONS/OWNER_MANDATES diselaraskan. Izin branch dan auto-promotion lama tidak lagi dianggap izin permanen.
+
+**Versi:** Minor 0.22.0 → 0.23.0 karena batch revisi Owner. Nomor 0.22.1 pada draft PR #5 **belum merge** dan perlu di-rebase/re-version secara terpisah sebelum integrasi. Metadata FastAPI dan admin diperbarui hanya untuk konsistensi satu versi global; tidak ada perubahan logika DIAS.
+
+**Commit:** `docs(agents): universal CAN/DIAS routing (0.23.0-alpha)`.
+
+**Bukti:** GitHub source review dan dokumentasi resmi vendor; `STATIC_ONLY / NOT_TESTED` untuk code-server check, runtime agent adherence, npm/Next browser, webcam atau deployment.
 
 ---
 

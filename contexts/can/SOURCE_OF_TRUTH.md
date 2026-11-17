@@ -1,83 +1,21 @@
-# Source of Truth Map
+# CAN Source of Truth — monorepo path and authority map
 
-Dokumen ini menentukan **sumber mana yang authoritative untuk jenis pertanyaan tertentu**. Ini bukan pengganti `DECISIONS.md`.
+The folder `contexts/` is the **Owner Context Registry**. Do not rename it casually: all agents route via root `AGENTS.md` to `contexts/can/AGENTS.md` or `contexts/dias/AGENTS.md`. This file maps references and authority; **it is not a second decision ledger**.
 
-## 1. Cara AI harus bekerja
+| Need | Source, in priority order |
+|---|---|
+| Current user task / permission | Most recent direct user instruction; current Git branch, SHA and working tree. Historic branch directives cannot authorize future auto-merge |
+| CAN product decision | Current direct Owner instruction → `contexts/can/DECISIONS.md` (Aktif/Belum dikunci/Direvisi/Dicabut) → active formal proposal/direct lecturer or user transcript |
+| CAN working/TOV instructions | `contexts/can/SOUL.md` Part A+B; routed via root and CAN `AGENTS.md` |
+| Actual implementation | Current `frontend/implementation/` source/config/tests → verified current runtime; code presence alone is STATIC_ONLY |
+| Current CAN progress | `contexts/can/NOW.md`, `REVISIONS.md`, `WORKING_CONTEXT.md`, `PROJECT_MEMORY.md`, `project/OWNER_MANDATES.md` |
+| Portable session continuation | `contexts/can/SESSION_HANDOFF.md`; always compare with actual Git state |
+| Team/roles/rules | `contexts/can/docs/team/TEAM_OPERATING_MODEL.md`, `ROLE_PROTOCOL.md`, `contexts/can/.agents/rules/*.md` |
+| CAN coding details | `frontend/implementation/AGENTS.md`, `docs/execution/ARCHITECTURE_ACTUAL.md`, `RUN_GUIDE.md`, relevant handoffs |
+| Shared contracts | `contracts/README.md`, `contracts/API_INVENTORY.md` plus both owner routers |
+| Engineering versions | Root `VERSION` and root `CHANGELOG.md`. Legacy `implementation/CHANGELOG.md` is history only |
+| Research and academic | Current formal proposal, direct notulensi, actually available Dapus papers; AI meeting summaries do not count as lecturer approval |
 
-### Monorepo path correction and documentation responsibilities (2026-11-15)
-Historically, files inside Can referred to `implementation/CHANGELOG.md` and `implementation/` at the old project root. In the **current** monorepo, source is `frontend/implementation/` and the living technical changelog is **`CHANGELOG.md` at repo root**. The old game changelog is archived under `docs/history/can/`.
-Read `contexts/can/AGENTS.md` before modifying Can source. Owner mandates live at `contexts/can/project/OWNER_MANDATES.md`, tasks at `contexts/can/REVISIONS.md`, product truth at `contexts/can/DECISIONS.md`, Can state at `contexts/can/NOW.md`, and global integration state at root `NOW.md`. `WORKING_CONTEXT.md`/`PROJECT_MEMORY.md` are non-authoritative implementation context, not replacements for Product decisions.
-User's current working branch is `ujang-monorepo`; `main` is explicitly off-limits for ChatGPT until new permission. This specific 2026-11-15 instruction outranks the historical auto-promotion wording in the root release flow.
+Never interpret the ChatGPT Project `WORKING_STATE.md` as automatically imported into this repository. No agent account automatically retains another account's chat session, uncommitted changes or verification evidence. Unavailable file or unresolved conflict must be reported, not invented.
 
-
-Urutan:
-1. instruksi eksplisit pengguna terbaru;
-2. `SOUL.md`;
-3. `AGENTS.md` dan rules yang tidak bertentangan dengan dua sumber di atas.
-
-## 2. Keputusan produk / PA
-
-Urutan:
-1. instruksi eksplisit pengguna terbaru;
-2. `DECISIONS.md`;
-3. dokumen formal terbaru + direct transcript dosen/pengguna;
-4. `PROJECT_MEMORY.md` / ECC memory hanya sebagai konteks;
-5. `archive/ai-history/**` hanya sejarah.
-
-Jika satu hal berstatus **Belum Dikunci**, agent tidak boleh menguncinya sendiri.
-
-## 2b. Dokumen turunan (sejak 2026-11-05)
-
-- `SOUL.md`: aturan kerja dan tone of voice (dulu `INSTRUCTION.md`).
-- `DECISIONS.md`: keputusan produk/PA (dulu `CHANGELOG.md`); memuat riwayat keputusan dari project GPT di Lampiran.
-- `project/OWNER_MANDATES.md`: semua instruksi Owner, kata-kata Owner, berurutan. Konteks dan bukti; bukan pengganti `DECISIONS.md`.
-- `implementation/CHANGELOG.md`: perubahan teknis per versi.
-- `NOW.md`: keadaan paling baru (konteks, bukan otoritas).
-
-## 3. Apa yang benar-benar sudah diimplementasikan
-
-Urutan:
-1. `implementation/**` dan test/config aktual;
-2. kontrak yang hidup di `implementation/contracts/**`;
-3. `WORKING_CONTEXT.md`;
-4. docs teknis terbaru;
-5. ECC memory.
-
-Dokumen proposal dapat menjelaskan intent, tetapi bukan bukti bahwa suatu fitur sudah ada di codebase.
-
-## 4. Baseline akademik
-
-- Proposal formal terbaru berada di `academic/proposal/current/`.
-- Versi lama berada di `academic/proposal/history/` atau `archive/old-proposals/`.
-- `DECISIONS.md` dapat mengoreksi detail keputusan yang sudah berubah setelah proposal.
-
-## 5. Bimbingan / meeting
-
-Sumber berada di `meetings/`.
-
-Di dalam notulensi:
-- prioritaskan pernyataan langsung dosen/pengguna;
-- `Summary`, `Report`, `Task`, `Claude ver.`, `Gemini ver.`, analisis AI, dan master plan adalah interpretasi sekunder;
-- kata “approved/final/wajib” di summary AI bukan persetujuan dosen tanpa dukungan transcript.
-
-## 6. Research
-
-- `research/notes/` dan `research/evidence-map/` adalah lapisan kerja.
-- `research/library/raw-papers/` adalah bukti primer untuk verifikasi.
-- Jangan mengklaim paper mendukung sesuatu tanpa memeriksa paper yang relevan.
-
-## 7. Visual / design
-
-- `design/` berisi current design work dan eksplorasi.
-- Nama file seperti `final`, `option`, atau `preview` tidak otomatis berarti desain telah dikunci.
-- Status desain tetap mengikuti `DECISIONS.md` + keputusan pengguna.
-
-## 8. AI memory
-
-`PROJECT_MEMORY.md`, `WORKING_CONTEXT.md`, dan `.ecc/memory/**` mempercepat recall. Mereka **tidak pernah mengalahkan governed project truth**.
-
-## 9. Archive
-
-`archive/**` adalah cold storage. Isi archive:
-- boleh dipakai untuk forensik/riwayat;
-- tidak boleh dipakai untuk menghidupkan kembali keputusan lama tanpa verifikasi.
+Latest explicit CAN request on 2026-11-17 authorized a **single `main` documentation bootstrap repair**, not a standing right to push, deploy or merge. Old references to `ujang-monorepo` or `claude-monorepo` remain historical evidence.

@@ -1,5 +1,8 @@
-# Source Authority
+---
+trigger: always_on
+description: "CAN source authority rule; root/CAN AGENTS remain authoritative"
+---
 
-Product/PA decisions: latest user instruction → DECISIONS.md → current formal/direct human evidence.
-Implementation truth: actual source/tests/config → current engineering context.
-AI memory/handoffs are context. Archive is history.
+# CAN Source Authority
+
+Latest direct Owner instruction > `contexts/can/DECISIONS.md` by status > active formal/direct human evidence for product decisions. For actual code behavior, branch SHA, source/config/tests and runtime proof outrank docs. Read `contexts/can/SOURCE_OF_TRUTH.md`; AI interpretations do not authorize approval.

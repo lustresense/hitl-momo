@@ -1,5 +1,11 @@
 # NOW.md — Status integrasi bersama
 
+## 2026-11-17 — Agent bootstrap multi-harness (0.23.0-alpha, documentation-only)
+- Root AGENTS now routes any coding agent to CAN or DIAS owner contexts; `contexts/` is the Owner Context Registry. CAN SOP, source map and scoped frontend guide were consolidated. Antigravity rules gained valid frontmatter and a root workspace rule; portable checkpoint is `contexts/can/SESSION_HANDOFF.md`.
+- Historical auto-promotion and 15 Nov branch limits are not standing permission. Owner explicitly allowed this single docs repair on `main`, not future agent pushes/merges/deployments. No product decisions approved, NUI source changed or PR #5 merged.
+- Evidence `STATIC_ONLY / NOT_TESTED` for live model adherence, code-server checks and webcam. PR #5 `0.22.1-alpha` remains draft; its version must be reconciled after this `0.23.0-alpha` documentation batch.
+
+
 ## 2026-11-16 — NUI Lab P0–P2 auto-lock/gesture baseline-vs-experiment (0.22.0-alpha)
 - `main`: NUI Lab punya auto-reacquire saat kamera benar-benar kosong, safety untuk multi-hand ambiguitas, sesi aksi baru tanpa stale ink, finger-state diagnostics, pinch ratio dan A/B rules. Game siswa tetap memakai aturan default tanpa eksperimen.
 - Evidence: JS V8 synthetic lock 12/12 PASS, tes source baru ditulis namun belum dijalankan via Vitest, tidak ada webcam/browser/build/deploy. `STATIC_ONLY / NOT_TESTED`; Ujang perlu verifikasi.

@@ -5,6 +5,7 @@ import type { DelegateInfo } from "@/src/camera/hand-landmarker";
 import { getInferenceStats, resetInferenceSchedulerForTest } from "@/src/camera/inference-scheduler";
 import { resetFaceDetectorForTest } from "@/src/camera/face-anchor";
 import { FaceDetector } from "@mediapipe/tasks-vision";
+import { MEDIAN_SKELETONS, placeHand } from "../input/realistic-hands";
 
 const mocks = vi.hoisted(() => {
   const defaultDelegate: DelegateInfo = {
@@ -400,5 +401,137 @@ describe("NUI Lab isolated workspaces", () => {
     expect(screen.getByRole("heading", { name: "Uji Tangan NUI" })).toBeTruthy();
     expect(screen.getByLabelText("Kanvas coret uji")).toBeTruthy();
     expect(screen.getByRole("button", { name: "Mulai uji lambaian" })).toBeTruthy();
+  });
+});
+
+describe("NUI Lab R17 developer diagnostics (gesture route)", () => {
+  const ids = [
+    "aspect", "pose-raw", "fingers", "thumb-legacy", "thumb-lateral", "thumb-ip", "five-valid", "armed", "hand-status",
+    "pipeline", "erase-hit", "strokes", "command-mode", "last-command", "command-count",
+    "swipe-phase", "swipe-travel", "swipe-speed", "swipe-cancel",
+  ];
+  const cell = (id: string) => screen.getByTestId(`lab-diag-${id}`).querySelector("dd")?.textContent ?? "";
+
+  it("lists every row with a dash before any hand is seen, and says the swipe mapping is only a candidate", () => {
+    setMediaDevices({ getUserMedia: vi.fn(async () => fakeStream().stream) });
+    render(<NuiLabPage variant="gesture" />);
+    for (const id of ids) expect(screen.getByTestId(`lab-diag-${id}`)).toBeTruthy();
+    expect(cell("aspect")).toBe("—");
+    expect(cell("fingers")).toBe("—");
+    expect(cell("hand-status")).toBe("—");
+    expect(screen.getByTestId("lab-diag").textContent).toMatch(/kandidat uji, bukan keputusan produk/);
+  });
+
+  it("is not part of the legacy diagnostics screen", () => {
+    render(<NuiLabPage />);
+    expect(screen.queryByTestId("lab-diag")).toBeNull();
+  });
+
+  it("passes the real video aspect to the analyzer and shows the new count next to the legacy one for the same frame", async () => {
+    // A 4:3 stream (not the analyzer's 16:9 default), so the aspect row only reads 1.333 if the page passed it on.
+    // A four-finger hand with the thumb tucked: the legacy thumb rule counts five, the lab rule counts four.
+    const four = placeHand(MEDIAN_SKELETONS.four, { aspect: 4 / 3, cx: 0.5, cy: 0.7 });
+    mocks.landmarker.detectForVideo.mockImplementation(() => ({ landmarks: [four] as never[] }));
+    const { stream } = fakeStream();
+    setMediaDevices({ getUserMedia: vi.fn(async () => stream) });
+    const { container } = render(<NuiLabPage variant="gesture" />);
+    const video = container.querySelector("video") as HTMLVideoElement;
+    const clock = fakeVideo(video);
+    Object.defineProperty(video, "videoWidth", { configurable: true, get: () => 640 });
+    Object.defineProperty(video, "videoHeight", { configurable: true, get: () => 480 });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Nyalakan kamera" }));
+    });
+    await waitFor(
+      () => {
+        clock.nextFrame();
+        expect(cell("aspect")).toBe("1.333");
+      },
+      { timeout: 4000, interval: 25 },
+    );
+    await waitFor(
+      () => {
+        clock.nextFrame();
+        expect(cell("fingers")).toBe("4 / 5");
+      },
+      { timeout: 4000, interval: 25 },
+    );
+    expect(cell("thumb-legacy")).toMatch(/→ terbuka$/);
+    expect(cell("thumb-lateral")).toMatch(/→ tertutup$/);
+    expect(cell("five-valid")).toBe("tidak");
+    expect(cell("command-mode")).toBe("geser (uji)");
+  });
+});
+
+describe("NUI Lab local landmark recorder (RD-02)", () => {
+  const start = () => screen.getByTestId("lab-recorder-start") as HTMLButtonElement;
+
+  it("is absent from the legacy diagnostics screen and starts locked: no consent, no camera, no recording", () => {
+    render(<NuiLabPage />);
+    expect(screen.queryByTestId("lab-recorder")).toBeNull();
+    cleanup();
+    setMediaDevices({ getUserMedia: vi.fn(async () => fakeStream().stream) });
+    render(<NuiLabPage variant="gesture" />);
+    expect(start().disabled).toBe(true);
+    expect(screen.getByTestId("lab-recorder-status").textContent).toMatch(/^Tidak merekam · 0 frame/);
+    fireEvent.click(screen.getByTestId("lab-recorder-consent"));
+    expect(start().disabled).toBe(true); // consent alone is not enough: the camera is off
+    expect((screen.getByTestId("lab-recorder-download") as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it("records numbers only after consent + start, downloads a valid file by hand, and stops when the camera stops", async () => {
+    const hand = placeHand(MEDIAN_SKELETONS.palm, { aspect: 16 / 9, cx: 0.5, cy: 0.7 });
+    mocks.landmarker.detectForVideo.mockImplementation(() => ({ landmarks: [hand] as never[] }));
+    const { stream } = fakeStream();
+    setMediaDevices({ getUserMedia: vi.fn(async () => stream) });
+    const blobs: Blob[] = [];
+    const create = vi.fn((b: Blob) => { blobs.push(b); return "blob:test"; });
+    Object.defineProperty(URL, "createObjectURL", { configurable: true, value: create });
+    Object.defineProperty(URL, "revokeObjectURL", { configurable: true, value: vi.fn() });
+    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
+    const readBlob = (b: Blob) => new Promise<string>((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result)); r.onerror = () => rej(r.error); r.readAsText(b); });
+    const fetchSpy = vi.fn();
+    vi.stubGlobal("fetch", fetchSpy);
+
+    const { container } = render(<NuiLabPage variant="gesture" />);
+    const video = container.querySelector("video") as HTMLVideoElement;
+    const clock = fakeVideo(video);
+    Object.defineProperty(video, "videoWidth", { configurable: true, get: () => 1280 });
+    Object.defineProperty(video, "videoHeight", { configurable: true, get: () => 720 });
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: "Nyalakan kamera" }));
+    });
+    await waitFor(() => expect(start().disabled).toBe(true), { timeout: 2000 }); // consent still missing
+    fireEvent.click(screen.getByTestId("lab-recorder-consent"));
+    await waitFor(() => expect(start().disabled).toBe(false), { timeout: 4000 });
+    fireEvent.change(screen.getByTestId("lab-recorder-truth"), { target: { value: "FIVE" } });
+    fireEvent.click(start());
+
+    await waitFor(
+      () => {
+        clock.nextFrame();
+        expect(screen.getByTestId("lab-recorder-status").textContent).toMatch(/^Merekam · [1-9]/);
+      },
+      { timeout: 4000, interval: 25 },
+    );
+    await act(async () => {
+      fireEvent.click(screen.getByTestId("lab-recorder-stop"));
+    });
+    const status = screen.getByTestId("lab-recorder-status").textContent ?? "";
+    expect(status).toMatch(/^Tidak merekam · [1-9]/);
+    fireEvent.click(screen.getByTestId("lab-recorder-download"));
+    expect(create).toHaveBeenCalledTimes(1);
+    const file = JSON.parse(await readBlob(blobs[0]!));
+    expect(clickSpy).toHaveBeenCalledTimes(1);
+    expect(file.schema).toBe("nui-landmark-record/1");
+    expect(file.consent).toBe(true);
+    expect(file.frames.length).toBeGreaterThan(0);
+    expect(file.frames.every((f: { truth: string }) => f.truth === "FIVE")).toBe(true);
+    expect(file.frames[0].lm).toHaveLength(21);
+    expect(fetchSpy).not.toHaveBeenCalled();
+    vi.unstubAllGlobals();
+
+    fireEvent.click(screen.getByTestId("lab-recorder-discard"));
+    expect(screen.getByTestId("lab-recorder-status").textContent).toMatch(/· 0 frame/);
   });
 });

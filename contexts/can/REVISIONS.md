@@ -1,5 +1,16 @@
 # REVISIONS — daftar revisi Owner dan progresnya
 
+## R17-NUI — 2026-11-17 — REV4 NUI Lab lima/tiga jari, pinch, swipe, R&D (0.24.0-alpha, UNIT + DATASET)
+| ID | Pekerjaan | Status | Bukti / next step |
+|---|---|---|---|
+| R17-01 | Diagnostik pengembang di NUI Lab | SELESAI (lab) | `lab-diag-*` rows, tes page. Webcam NOT_TESTED |
+| R17-02 | Lima jari tidak terbaca lalu Hapus | SELESAI (lab) | jempol lateral beraspek + penghapus segmen; DATASET `palm` 54.7%→100%, `four` 84.4%→0.2% |
+| R17-03 | Undo/Redo geser (lab, kandidat) | SELESAI (lab) | FSM + 22 tes. Mapping belum dikunci Owner |
+| R17-04 | Tiga jari terbaca empat | SELESAI (lab) | `three` count-3 16.8%→98.3% |
+| R17-05 | Pinch prematur | SELESAI (lab) | 0 titik tinta pada jempol 0.4-0.6 span (baseline 34) |
+| RD-01..RD-05 | R&D dataset, perekam, heuristik, pilot, A/B | DATASET selesai; webcam NOT_TESTED; IPN landmark BLOCKED | `frontend/implementation/docs/nui-rd/` |
+| RD-06 | Switch A/B classifier di lab | TIDAK DIMULAI | butuh footage webcam lolos RD-05 |
+
 ## R17-AGENT — 2026-11-17 — Universal cross-agent SOP (STATIC_ONLY)
 | ID | Pekerjaan | Status/bukti |
 |---|---|---|

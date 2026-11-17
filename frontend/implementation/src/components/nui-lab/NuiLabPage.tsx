@@ -19,8 +19,9 @@ import { WAVE_MIN_REVERSALS } from "@/src/camera/wave-tracker";
 import type { Landmark } from "@/src/input/types";
 import { drawFaceArea, drawHands } from "./hand-overlay";
 import { startLabCamera } from "./lab-camera";
-import { LabAnalyzer, type LabSnapshot } from "./lab-analyzer";
+import { LabAnalyzer, type LabDiagnostics, type LabSnapshot } from "./lab-analyzer";
 import { delegateReasonText, faceAbsentText, modelReadoutText, poseLabel, switchStateText } from "./lab-metrics";
+import { LandmarkRecorder, TRUTH_LABELS, type TruthLabel } from "./lab-recorder";
 import { countHandRoles } from "./lab-roles";
 import "./NuiLabPage.css";
 
@@ -128,6 +129,9 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
   const [pointerTool, setPointerTool] = useState<"pen" | "eraser">("pen");
   const [experimentalMode, setExperimentalMode] = useState(true);
   const pointerDown = useRef(false);
+  // RD-02: numbers-only recorder, opt-in, local. It stays empty and idle until the tester consents and presses start.
+  const recorderRef = useRef(new LandmarkRecorder());
+  const truthRef = useRef<TruthLabel>("UNLABELLED");
   const pointerCursor = useRef<HandCursor | null>(null);
   const analyzerRef = useRef(new LabAnalyzer({
     fullFrameLock: variant !== "diagnostics",
@@ -173,6 +177,7 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
     const s = session.current;
     session.current = null;
     releaseSession(s);
+    recorderRef.current.stop();
     analyzerRef.current.reset(performance.now());
     if (videoRef.current) videoRef.current.srcObject = null;
     setPhase("off");
@@ -380,7 +385,13 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
         return;
       }
       if (landmarks === null) return;
-      cur.analyzer.analyse({ landmarks, inferMs, nowMs: t0, face });
+      // Geometry is measured in true image proportions: x/width and y/height are not the same unit on a 16:9 stream.
+      const aspect = v.videoWidth > 0 && v.videoHeight > 0 ? v.videoWidth / v.videoHeight : undefined;
+      cur.analyzer.analyse({ landmarks, inferMs, nowMs: t0, face, aspect });
+      if (recorderRef.current.isRecording) {
+        const a = cur.analyzer;
+        recorderRef.current.add(a.snapshot(t0), a.primaryLandmarks(), truthRef.current, t0, a.snapshot(t0).diag.lastCommand?.atMs ?? null);
+      }
       paintOverlay(v, cur);
       paintInk();
     };
@@ -623,6 +634,8 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
                 <Stat label="Izin tindakan tangan ini" value={snap?.inkAllowed ? "siap" : "ditahan"} />
                 <Stat label="Alasan tindakan terakhir" value={snap?.rejectionReason ?? "—"} />
               </dl>
+              <GestureDiagnostics diag={snap?.diag ?? null} />
+              <RecorderPanel recorder={recorderRef.current} truthRef={truthRef} cameraOn={running} />
             </section>
           )}
           <h2 id="nui-lab-numbers-title">Angka langsung</h2>
@@ -729,5 +742,108 @@ function Stat({ label, value }: { label: string; value: string }) {
       <dt>{label}</dt>
       <dd>{value}</dd>
     </div>
+  );
+}
+
+const yesNo = (v: boolean): string => (v ? "ya" : "tidak");
+const f2 = (v: number | null | undefined): string => (v === null || v === undefined ? "—" : v.toFixed(2));
+
+/**
+ * NUI-R17-01 (REV4): developer readout for one hand, in numbers the rules actually use.
+ * Everything here is a landmark measurement or a rule state, never an AI confidence, and nothing identifies a person.
+ * The row ids are stable so a test (or a screenshot) can point at them.
+ */
+function GestureDiagnostics({ diag }: { diag: LabDiagnostics | null }) {
+  const row = (id: string, label: string, value: string) => (
+    <div className="nui-lab__stat" data-testid={`lab-diag-${id}`} key={id}>
+      <dt>{label}</dt>
+      <dd>{value}</dd>
+    </div>
+  );
+  const d = diag;
+  const thumb = d?.thumb ?? null;
+  const swipe = d?.swipe ?? null;
+  const last = d?.lastCommand ?? null;
+  return (
+    <section className="nui-lab__debug-detail" aria-label="Diagnostik jari dan perintah" data-testid="lab-diag">
+      <h4>Jari, jempol, dan perintah (R17)</h4>
+      <dl className="nui-lab__numbers">
+        {row("aspect", "Rasio frame yang dipakai geometri", d ? d.aspect.toFixed(3) : "—")}
+        {row("pose-raw", "Pose mentah / stabil (vote 3 dari 5)", d ? `${d.rawPose} / ${d.stablePose}` : "—")}
+        {row("fingers", "Jari terbuka: aturan aktif / aturan lama", d ? `${d.rawFingerCount} / ${d.legacyFingerCount}` : "—")}
+        {row("thumb-legacy", "Jempol: rasio lama (terbuka bila > 1,3)", thumb ? `${f2(thumb.legacyRatio)} → ${thumb.legacyExtended ? "terbuka" : "tertutup"}` : "—")}
+        {row("thumb-lateral", "Jempol: posisi menyamping (terbuka bila > 1,3)", thumb ? `${f2(thumb.lateral)} → ${thumb.robustOpen ? "terbuka" : "tertutup"}` : "—")}
+        {row("thumb-ip", "Jempol: sudut sendi IP", thumb && thumb.ipAngleDeg !== null ? `${thumb.ipAngleDeg.toFixed(0)}°` : "—")}
+        {row("five-valid", "Lima jari valid untuk Hapus", d ? yesNo(d.fiveFingerValid) : "—")}
+        {row("armed", "Siap aksi (gambar / hapus / perintah)", d ? `${yesNo(d.armed.draw)} / ${yesNo(d.armed.erase)} / ${yesNo(d.armed.commands)}` : "—")}
+        {row("hand-status", "Status tangan (Hapus)", d?.handStatus ?? "—")}
+        {row("pipeline", "Gambar / hapus (frame beruntun)", d?.pipeline ? `${d.pipeline.drawing ? "gambar" : "-"} ${d.pipeline.drawStreak} / ${d.pipeline.erasing ? "hapus" : "-"} ${d.pipeline.eraseFrames}` : "—")}
+        {row("erase-hit", "Hapus terakhir kena stroke", d?.pipeline?.lastEraseHit === null || d?.pipeline?.lastEraseHit === undefined ? "—" : yesNo(d.pipeline.lastEraseHit))}
+        {row("strokes", "Stroke selesai / titik aktif", d ? `${d.strokes.completed} / ${d.strokes.activePoints}` : "—")}
+        {row("command-mode", "Mode Undo/Redo", d ? (d.commandMode === "swipe" ? "geser (uji)" : "tahan pose 300 ms (game)") : "—")}
+        {row("last-command", "Perintah terakhir (jawaban store)", last ? `${last.kind} · ${last.changed ? "mengubah canvas" : "tidak ada yang diubah"} · ${last.via}` : "—")}
+        {row("command-count", "Jumlah perintah dijalankan", d ? String(d.commandCount) : "—")}
+        {row("swipe-phase", "Geser: fase", swipe ? `${swipe.phase} (pose ${swipe.pose}, ${swipe.poseStreak} frame)` : "—")}
+        {row("swipe-travel", "Geser: jarak / vertikal (lebar telapak)", swipe ? `${f2(swipe.travelSpans)} / ${f2(swipe.verticalSpans)}` : "—")}
+        {row("swipe-speed", "Geser: kelurusan / kecepatan", swipe ? `${f2(swipe.straightness)} / ${f2(swipe.speedSpansPerS)} telapak/dtk` : "—")}
+        {row("swipe-cancel", "Geser: pembatalan terakhir", swipe?.lastCancel ?? "—")}
+      </dl>
+      <p className="nui-lab__muted">Pemetaan geser kiri/kanan masih kandidat uji, bukan keputusan produk.</p>
+    </section>
+  );
+}
+
+/**
+ * RD-02: opt-in local recorder of NUMBERS (21 landmarks and rule readings). No video, no image, no upload: the only way out
+ * is a file the tester downloads by hand. It never starts by itself and never without the consent box.
+ */
+function RecorderPanel({ recorder, truthRef, cameraOn }: { recorder: LandmarkRecorder; truthRef: { current: TruthLabel }; cameraOn: boolean }) {
+  const [consent, setConsent] = useState(false);
+  const [, bump] = useState(0);
+  const [truth, setTruth] = useState<TruthLabel>("UNLABELLED");
+  useEffect(() => {
+    const id = setInterval(() => bump((n) => n + 1), 500);
+    return () => clearInterval(id);
+  }, []);
+  const recording = recorder.isRecording;
+  const download = () => {
+    const blob = new Blob([recorder.toJSON()], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "nui-landmark-record.json";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  return (
+    <section className="nui-lab__debug-detail" aria-label="Rekam landmark lokal" data-testid="lab-recorder">
+      <h4>Rekam angka landmark (lokal, opsional)</h4>
+      <p className="nui-lab__muted">
+        Menyimpan 21 titik landmark dan pembacaan aturan saja. Tidak merekam video atau gambar, tidak mengunggah apa pun.
+        File hanya keluar bila kamu menekan Unduh. Data tanpa persetujuan tidak boleh dipakai untuk latihan model.
+      </p>
+      <label className="nui-lab__check">
+        <input type="checkbox" checked={consent} disabled={recording} onChange={(e) => setConsent(e.target.checked)} data-testid="lab-recorder-consent" />
+        Saya setuju angka landmark tangan saya direkam di perangkat ini
+      </label>
+      <label>
+        Label dari penguji{" "}
+        <select value={truth} onChange={(e) => { const v = e.target.value as TruthLabel; setTruth(v); truthRef.current = v; }} data-testid="lab-recorder-truth">
+          {TRUTH_LABELS.map((t) => <option key={t} value={t}>{t}</option>)}
+        </select>
+      </label>
+      <div className="nui-lab__row">
+        {!recording ? (
+          <button type="button" className="nui-lab__button" disabled={!consent || !cameraOn} onClick={() => { recorder.start(consent, performance.now()); bump((n) => n + 1); }} data-testid="lab-recorder-start">Mulai rekam</button>
+        ) : (
+          <button type="button" className="nui-lab__button" onClick={() => { recorder.stop(); bump((n) => n + 1); }} data-testid="lab-recorder-stop">Berhenti</button>
+        )}
+        <button type="button" className="nui-lab__button" disabled={recording || recorder.frameCount === 0} onClick={download} data-testid="lab-recorder-download">Unduh JSON</button>
+        <button type="button" className="nui-lab__button" disabled={recorder.frameCount === 0 && !recording} onClick={() => { recorder.discard(); bump((n) => n + 1); }} data-testid="lab-recorder-discard">Hapus rekaman</button>
+      </div>
+      <p className="nui-lab__muted" data-testid="lab-recorder-status" aria-live="polite">
+        {recording ? "Merekam" : "Tidak merekam"} · {recorder.frameCount} frame
+      </p>
+    </section>
   );
 }

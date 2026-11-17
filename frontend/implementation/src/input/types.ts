@@ -47,6 +47,12 @@ export class StrokeStore {
   private eraseBefore: RawStroke[] | null = null;
   /** Eraser tool on (DrawingSurface.setErasing): pointer drags and the hand cursor erase instead of drawing. */
   eraserMode = false;
+  /**
+   * NUI Lab only: the eraser also cuts the segment BETWEEN two points that passes through its circle. The default
+   * (false) only removes sample points inside the circle, so a fast stroke with sparse points can slip through
+   * the eraser while visibly crossing it. The game and the tutorials keep the default.
+   */
+  eraseSegments = false;
 
   beginStroke(): void {
     if (!this.active) this.active = [];
@@ -82,6 +88,15 @@ export class StrokeStore {
     const r2 = radius * radius;
     let changed = false;
     const next: RawStroke[] = [];
+    if (this.eraseSegments) {
+      for (const stroke of this.strokes) {
+        const pieces = cutStroke(stroke, p, radius);
+        if (pieces.cut) changed = true;
+        next.push(...pieces.runs);
+      }
+      if (changed) this.strokes = next.filter((s) => s.length > 0);
+      return changed;
+    }
     for (const stroke of this.strokes) {
       let run: RawStroke = [];
       let cut = false;
@@ -187,4 +202,92 @@ export class StrokeStore {
     this.ops = [];
     this.eraseBefore = null;
   }
+}
+
+
+/**
+ * Cuts a stroke with a circle, segment by segment: points inside the circle go, and a segment that only passes
+ * through it is trimmed at the circle edge (new end points are inserted on the edge). Returns the runs left over.
+ */
+function cutStroke(stroke: RawStroke, c: StrokePoint, radius: number): { runs: RawStroke[]; cut: boolean } {
+  const r2 = radius * radius;
+  const inside = (q: StrokePoint) => (q.x - c.x) ** 2 + (q.y - c.y) ** 2 <= r2;
+  const runs: RawStroke[] = [];
+  let run: RawStroke = [];
+  let cut = false;
+  const flush = () => {
+    if (run.length > 0) runs.push(run);
+    run = [];
+  };
+  for (let i = 0; i < stroke.length; i++) {
+    const q = stroke[i]!;
+    const qIn = inside(q);
+    if (i > 0) {
+      const a = stroke[i - 1]!;
+      const aIn = inside(a);
+      if (!aIn && !qIn) {
+        // Both ends outside: does the segment still cross the circle?
+        const dx = q.x - a.x;
+        const dy = q.y - a.y;
+        const len2 = dx * dx + dy * dy;
+        if (len2 > 1e-9) {
+          const t = Math.max(0, Math.min(1, ((c.x - a.x) * dx + (c.y - a.y) * dy) / len2));
+          const nx = a.x + t * dx;
+          const ny = a.y + t * dy;
+          if ((nx - c.x) ** 2 + (ny - c.y) ** 2 <= r2) {
+            // Entry and exit of the circle along the segment.
+            const fx = a.x - c.x;
+            const fy = a.y - c.y;
+            const A = len2;
+            const B = 2 * (fx * dx + fy * dy);
+            const C = fx * fx + fy * fy - r2;
+            const disc = B * B - 4 * A * C;
+            if (disc > 0) {
+              const root = Math.sqrt(disc);
+              const t0 = (-B - root) / (2 * A);
+              const t1 = (-B + root) / (2 * A);
+              cut = true;
+              if (t0 > 0) run.push({ x: a.x + t0 * dx, y: a.y + t0 * dy });
+              flush();
+              if (t1 < 1) run.push({ x: a.x + t1 * dx, y: a.y + t1 * dy });
+            }
+          }
+        }
+      } else if (!aIn && qIn) {
+        // Entering: keep the part up to the circle edge.
+        const dx = q.x - a.x;
+        const dy = q.y - a.y;
+        const fx = a.x - c.x;
+        const fy = a.y - c.y;
+        const A = dx * dx + dy * dy;
+        const B = 2 * (fx * dx + fy * dy);
+        const C = fx * fx + fy * fy - r2;
+        const disc = B * B - 4 * A * C;
+        if (A > 1e-9 && disc >= 0) {
+          const t0 = (-B - Math.sqrt(disc)) / (2 * A);
+          if (t0 > 0 && t0 < 1) run.push({ x: a.x + t0 * dx, y: a.y + t0 * dy });
+        }
+      } else if (aIn && !qIn) {
+        // Leaving: restart at the circle edge.
+        const dx = q.x - a.x;
+        const dy = q.y - a.y;
+        const fx = a.x - c.x;
+        const fy = a.y - c.y;
+        const A = dx * dx + dy * dy;
+        const B = 2 * (fx * dx + fy * dy);
+        const C = fx * fx + fy * fy - r2;
+        const disc = B * B - 4 * A * C;
+        if (A > 1e-9 && disc >= 0) {
+          const t1 = (-B + Math.sqrt(disc)) / (2 * A);
+          if (t1 > 0 && t1 < 1) run.push({ x: a.x + t1 * dx, y: a.y + t1 * dy });
+        }
+      }
+    }
+    if (qIn) {
+      cut = true;
+      flush();
+    } else run.push(q);
+  }
+  flush();
+  return { runs: runs.filter((r) => r.length > 0), cut };
 }

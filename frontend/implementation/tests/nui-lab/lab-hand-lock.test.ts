@@ -93,3 +93,21 @@ describe("stale track action isolation", () => {
     expect(lock.acquisitionId).toBeGreaterThan(before);
   });
 });
+
+describe("candidate order does not depend on the order MediaPipe lists the hands (sort comparator fix)", () => {
+  it("keeps the NEAREST compatible hand when a farther one is listed first, instead of reporting a false 'ambiguous'", () => {
+    // Bug: the comparator was `a.d - b` (NaN), so the list stayed unsorted and `candidates[1].d - candidates[0].d`
+    // went negative: a far hand listed first made the nearer one look ambiguous with it.
+    const lock = new FullFrameHandLock();
+    lock.pick([handAt(.45, .6, .18)], 0);
+    lock.pick([handAt(.45, .6, .18)], 33);
+    expect(lock.pick([handAt(.60, .6, .18), handAt(.46, .6, .18)], 66)).toEqual({ index: 1, status: "locked" });
+  });
+
+  it("is order independent: the same two hands listed the other way give the same owner", () => {
+    const lock = new FullFrameHandLock();
+    lock.pick([handAt(.45, .6, .18)], 0);
+    lock.pick([handAt(.45, .6, .18)], 33);
+    expect(lock.pick([handAt(.46, .6, .18), handAt(.60, .6, .18)], 66)).toEqual({ index: 0, status: "locked" });
+  });
+});

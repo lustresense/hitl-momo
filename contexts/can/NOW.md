@@ -1,5 +1,11 @@
 # NOW
 
+## 2026-11-17 — NUI R17-01 REV4: lima/tiga jari, pinch, swipe, R&D (0.24.0-alpha, UNIT + DATASET, WEBCAM NOT_TESTED)
+- Lab saja (`experimentalRobust`); game memakai aturan lama. Jempol dinilai di koordinat lateral terkoreksi aspek, pinch lab masuk 0.30 / lepas 0.42 pada geometri terkoreksi aspek, penghapus memotong segmen antar-titik, Undo/Redo lab lewat FSM geser (kandidat uji: satu jari kiri = Undo, dua jari kanan = Redo; **bukan keputusan**). Panel diagnostik R17 dan perekam angka landmark opt-in di `/nui-lab/gesture`.
+- Landmark publik nyata (HaGRIDv2, 50,607 baris uji, 3,707 subjek): `four` erase-eligible 84.4% → 0.2%, `three` terbaca 3 jari 16.8% → 98.3%, `palm` 54.7% → 100%. Sisa risiko: tangan alami 33.8%, `grabbing` naik ke 18%.
+- Pilot classifier landmark (LR/MLP kecil) lolos anggaran **hanya pada dataset**; webcam target NOT_TESTED, tidak dipasang ke gameplay atau lab. RD-06 tidak dimulai. IPN HandS landmark BLOCKED (Drive quota). Laporan: `frontend/implementation/docs/nui-rd/` dan `docs/execution/NUI_R17_REV4_HANDOFF_2026-11-17.md`.
+- Vitest: set 22 tes gagal pra-ada identik sebelum/sesudah. `DECISIONS.md` tidak disentuh, PR #5 tidak di-merge.
+
 ## 2026-11-17 — Universal CAN SOP routing (0.23.0-alpha, static documentation)
 - Root `AGENTS.md` is the universal entry for Claude Code, Antigravity and Codex. CAN instructions link SOUL A+B, governed DECISIONS, SOURCE_OF_TRUTH, NOW, REVISIONS, OWNER_MANDATES, WORKING_CONTEXT, PROJECT_MEMORY, team protocols, rules, skills and current code. The `contexts/` directory is the Owner Context Registry, not renamed.
 - Antigravity root rule added and six CAN modular rules now have valid `trigger: always_on` YAML. Fresh sessions must explicitly read nested CAN SOP; this is not proof that a particular agent complied.

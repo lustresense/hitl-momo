@@ -1,0 +1,27 @@
+{
+  "recorded_before_candidate_results": true,
+  "note": "Written before any pilot model was trained or scored. Heuristic baselines were already known from RD-03; candidate (model) numbers were not.",
+  "label_space": [
+    "FIVE",
+    "FOUR",
+    "THREE",
+    "TWO",
+    "ONE",
+    "FIST",
+    "THUMB_UP",
+    "PINCH_LIKE",
+    "OTHER"
+  ],
+  "decision_rule": {
+    "PROMISING": "ALL of: (a) false-Hapus rate (P(pred FIVE | true not FIVE)) on the held-out subject-disjoint test split <= the revised heuristic's; (b) FIVE recall >= revised heuristic's FIVE recall - 0.02; (c) macro-F1 over the 9 classes >= revised heuristic's + 0.03; (d) JS inference p95 <= 1.0 ms per hand in the Node runtime (budget: 33 ms frame at 30 fps, shared with MediaPipe).",
+    "REJECTED": "Any of (a) or (b) violated, or macro-F1 below the revised heuristic.",
+    "INSUFFICIENT_DATA": "A required class has fewer than 200 held-out rows, or the held-out split shares a subject with training.",
+    "BLOCKED": "Data, license or runtime prevents the measurement."
+  },
+  "selection": "Hyper-parameters and the epoch are chosen on the VALIDATION split only. The TEST split is scored once per model after selection.",
+  "no_install": "No model is installed into gameplay or the lab gesture path. Any lab A/B switch (RD-06) needs the Owner.",
+  "amendment_before_candidate_results": {
+    "reason": "RD-03 (heuristics only, no candidate model scored yet) showed the repo's thumb-up pose fires on 82% of HaGRID `fist` rows in BOTH rule sets, and the heuristics have no label for natural hands. FIST and THUMB_UP therefore measure a definition mismatch, not the model.",
+    "criterion_c_now": "macro-F1 over the 7 labels FIVE, FOUR, THREE, TWO, ONE, PINCH_LIKE, OTHER (FIST and THUMB_UP excluded). The 9-label macro-F1 is still reported next to it."
+  }
+}

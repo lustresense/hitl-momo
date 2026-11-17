@@ -285,10 +285,21 @@ describe("NUI Lab automated hand ownership and action safety", () => {
     lab.analyse({landmarks:[pinchHand(.5)],inferMs:5,nowMs:33});
     const s=lab.snapshot(33);
     expect(s.pinchRatio).not.toBeNull();
-    expect(s.pinchEnter).toBe(0.42);
-    expect(s.pinchExit).toBe(0.55);
+    // Experiment mode shows the lab pen-down gate it really applies (R17-05), not the baseline numbers.
+    expect(s.pinchEnter).toBe(0.3);
+    expect(s.pinchExit).toBe(0.42);
     expect(s.fingerStates).toHaveLength(4);
     expect(s.classifierMode).toBe("experiment");
     expect(s.lockReason).toBe("active");
+  });
+
+  it("baseline mode still publishes the baseline pinch thresholds 0.42 / 0.55", () => {
+    const lab = new LabAnalyzer({fullFrameLock:true,enableInk:false,experimentalRobust:false});
+    lab.analyse({landmarks:[pinchHand(.5)],inferMs:5,nowMs:0});
+    lab.analyse({landmarks:[pinchHand(.5)],inferMs:5,nowMs:33});
+    const s=lab.snapshot(33);
+    expect(s.pinchEnter).toBe(0.42);
+    expect(s.pinchExit).toBe(0.55);
+    expect(s.classifierMode).toBe("baseline");
   });
 });

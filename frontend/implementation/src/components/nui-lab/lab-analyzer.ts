@@ -5,12 +5,13 @@
  */
 import type { FaceBox } from "@/src/camera/face-anchor";
 import { handSize, isLargeEnough, pickPrimaryHand, type PrimaryHandState } from "@/src/camera/primary-hand";
-import { PINCH_ENTER, PINCH_EXIT, LAB_FOLDED_PINCH_ENTER, LAB_FOLDED_PINCH_EXIT, TOUCH_FOLDED_INDEX, TOUCH_FOLDED_INDEX_EXIT, classifyHandPose, countExtendedFingers, evaluateGesture, fingerDiagnosticStates, indexTipNormalized, type FingerState, type HandPose } from "@/src/input/hand-gesture";
+import { DEFAULT_LAB_ASPECT, LAB_PINCH_ENTER, LAB_PINCH_EXIT, PINCH_ENTER, PINCH_EXIT, LAB_FOLDED_PINCH_ENTER, LAB_FOLDED_PINCH_EXIT, TOUCH_FOLDED_INDEX, TOUCH_FOLDED_INDEX_EXIT, classifyHandPose, countExtendedFingers, evaluateGesture, fingerDiagnosticStates, indexTipNormalized, palmCenterNormalized, thumbDiagnostics, type FingerState, type HandPose, type ThumbDiagnostics } from "@/src/input/hand-gesture";
 import { MODE_CANVAS_DRAWING, actionFor, type GestureAction } from "@/src/input/gesture-mode";
 import type { HandCursor } from "@/src/input/hand-stroke-pipeline";
 import { FullFrameHandLock, type LabLockStatus, type LabLockReason } from "./lab-hand-lock";
 import { createGestureCommander } from "@/src/components/drawing/gesture-commands";
-import { HandStrokePipeline } from "@/src/input/hand-stroke-pipeline";
+import { HandStrokePipeline, type PipelineDebug } from "@/src/input/hand-stroke-pipeline";
+import { SwipeCommander, type SwipeDebug } from "./lab-swipe";
 import type { EraserControl } from "@/src/input/eraser";
 import { DRAWING_ONE_EURO, PointSmoother } from "@/src/input/smoothing";
 import { StrokeStore, type Landmark, type RawStroke } from "@/src/input/types";
@@ -46,6 +47,17 @@ export interface LabDetection {
   nowMs: number;
   /** The player's face in this frame, if one is in view. Without it the plain hand rule applies. */
   face?: FaceBox | null;
+  /** Video width / height. The lab measures pinch gaps and the thumb in true image proportions with it. */
+  aspect?: number;
+}
+
+/** Last Undo/Redo that really ran in the lab, with what the store said. HUD mapping alone proves nothing. */
+export interface LabCommandResult {
+  kind: "undo" | "redo";
+  /** What store.undo() / store.redo() returned: false = nothing to undo/redo (a no-op, not a success). */
+  changed: boolean;
+  atMs: number;
+  via: "pose-hold" | "swipe";
 }
 
 export type WaveStatus = "idle" | "running" | "done";
@@ -88,6 +100,34 @@ export interface LabSnapshot {
   inkAllowed: boolean;
   rejectionReason: string;
   classifierMode: "baseline" | "experiment";
+  /** NUI-R17-01 developer diagnostics. Numbers only: no camera frames, no identity. */
+  diag: LabDiagnostics;
+}
+
+export interface LabDiagnostics {
+  /** Aspect the lab used for geometry (video width / height). */
+  aspect: number;
+  /** Pose of the primary hand this frame, before voting. */
+  rawPose: HandPose;
+  /** Pose after the 3-of-5 vote in the ink pipeline: what the actions follow. */
+  stablePose: HandPose;
+  /** Extended fingers 0..5 under the rule set in force (thumb included). */
+  rawFingerCount: number;
+  /** Count under the legacy thumb ratio, for the same frame. Equal to rawFingerCount in baseline mode. */
+  legacyFingerCount: number;
+  thumb: ThumbDiagnostics | null;
+  armed: { draw: boolean; erase: boolean; commands: boolean };
+  fiveFingerValid: boolean;
+  /** Short honest status for the Hapus path, or null when no palm is involved. */
+  handStatus: string | null;
+  pipeline: PipelineDebug | null;
+  strokes: { completed: number; activePoints: number };
+  /** Undo/Redo that ran, with the store's answer. */
+  lastCommand: LabCommandResult | null;
+  commandCount: number;
+  /** "swipe" in experiment mode, "pose-hold" (300 ms, the game rule) in baseline. */
+  commandMode: "swipe" | "pose-hold";
+  swipe: SwipeDebug | null;
 }
 
 interface Timed<T> {
@@ -113,7 +153,7 @@ export class LabAnalyzer {
   private readonly inkSmoother = new PointSmoother(undefined, DRAWING_ONE_EURO);
   private readonly sampler = new WaveLabSampler();
   private waveStatus: WaveStatus = "idle";
-  private readonly store = new StrokeStore();
+  private readonly store = Object.assign(new StrokeStore(), { eraseSegments: true });
   private readonly gestureCommands = createGestureCommander();
   private readonly fullLock = new FullFrameHandLock();
   private liveCursor: HandCursor | null = null;
@@ -126,6 +166,13 @@ export class LabAnalyzer {
   private lastAcquisition = 0;
   private experimental = false;
   private armed = { draw: false, erase: false, commands: false };
+  private aspect = DEFAULT_LAB_ASPECT;
+  private readonly swipe = new SwipeCommander();
+  private lastCommand: LabCommandResult | null = null;
+  private commandCount = 0;
+  private thumbNow: ThumbDiagnostics | null = null;
+  private legacyCountNow = 0;
+  private handStatusNow: string | null = null;
   constructor(private readonly options: { fullFrameLock?: boolean; enableInk?: boolean; experimentalRobust?: boolean } = {}) {
     if (options.experimentalRobust) this.setExperimentalMode(true, 0);
   }
@@ -143,6 +190,7 @@ export class LabAnalyzer {
     this.ink.setExperimentalRobust(enabled, nowMs);
     this.gestureCommands.reset();
     this.armed = { draw: false, erase: false, commands: false };
+    this.swipe.reset();
     this.liveCursor = null;
     this.pinchRatioNow = null;
     this.fingerStatesNow = null;
@@ -154,10 +202,12 @@ export class LabAnalyzer {
     store: this.store,
     size: () => INK_SIZE,
     eraser: INK_ERASER,
+    aspect: () => this.aspect,
     canPerformAction: (pose, fingers) => this.canExecute(pose, fingers),
   });
 
-  analyse({ landmarks, inferMs, nowMs, face = null }: LabDetection): void {
+  analyse({ landmarks, inferMs, nowMs, face = null, aspect }: LabDetection): void {
+    if (typeof aspect === "number" && Number.isFinite(aspect) && aspect > 0) this.aspect = aspect;
     this.inferSamples.push({ t: nowMs, v: inferMs });
     this.detectTimes.push(nowMs);
     this.hands = landmarks;
@@ -184,6 +234,10 @@ export class LabAnalyzer {
       }
       this.liveCursor = null;
       this.fingerCountNow = 0;
+      this.legacyCountNow = 0;
+      this.thumbNow = null;
+      this.handStatusNow = null;
+      this.swipe.cancel("no-hand");
       this.drawingActionNow = null;
       this.pinchRatioNow = null;
       this.fingerStatesNow = null;
@@ -200,14 +254,17 @@ export class LabAnalyzer {
       this.lastAcquisition = this.fullLock.acquisitionId;
       this.ink.reset(nowMs);
       this.gestureCommands.reset();
+      this.swipe.cancel("new-acquisition");
       this.armed = { draw: false, erase: false, commands: false };
       this.rawTips = [];
       this.inkTips = [];
       this.inkSmoother.reset();
     }
-    this.pose = classifyHandPose(lm, { pinchHeld: this.pose === "pinch", experimentalRobust: this.experimental });
-    this.fingerCountNow = countExtendedFingers(lm);
-    const diag = evaluateGesture(lm);
+    this.pose = classifyHandPose(lm, { pinchHeld: this.pose === "pinch", experimentalRobust: this.experimental, aspect: this.aspect });
+    this.fingerCountNow = countExtendedFingers(lm, { robustThumb: this.experimental, aspect: this.aspect });
+    this.legacyCountNow = countExtendedFingers(lm);
+    this.thumbNow = thumbDiagnostics(lm, this.aspect);
+    const diag = evaluateGesture(lm, this.experimental ? this.aspect : 1);
     this.pinchRatioNow = diag.state === "tracking" ? diag.pinchRatio : null;
     this.fingerStatesNow = fingerDiagnosticStates(lm);
     if (this.pose !== "pinch") this.armed.draw = true;
@@ -224,24 +281,64 @@ export class LabAnalyzer {
       const inkFrame = this.ink.feed(lm, nowMs);
       this.liveCursor = inkFrame.cursor;
       const mapped = actionFor(MODE_CANVAS_DRAWING, inkFrame.pose);
-      this.drawingActionNow = !this.inkPermitted || (mapped === "erase" && this.fingerCountNow !== 5) ? null : mapped;
+      const swipeMode = this.experimental;
+      // In swipe mode a still undo/redo pose is only a ready state, never an action.
+      this.drawingActionNow = !this.inkPermitted || (mapped === "erase" && this.fingerCountNow !== 5) || (swipeMode && (mapped === "undo" || mapped === "redo")) ? null : mapped;
       if (this.pose === "pinch" && this.store.hasActiveStroke()) this.rejectNow = "Tinta aktif";
-      const command = this.gestureCommands.feed(this.canExecute(inkFrame.pose, this.fingerCountNow) ? inkFrame.pose : "none", nowMs);
-      if (command === "undo") this.store.undo();
-      if (command === "redo") this.store.redo();
+      const allowed = this.canExecute(inkFrame.pose, this.fingerCountNow);
+      let command: "undo" | "redo" | null = null;
+      if (swipeMode) {
+        const c = palmCenterNormalized(lm);
+        const m = lm[9]!;
+        const w = lm[0]!;
+        command = this.swipe.feed({
+          pose: inkFrame.pose,
+          x: c.x * this.aspect,
+          y: c.y,
+          spanPx: Math.hypot((m.x - w.x) * this.aspect, m.y - w.y),
+          nowMs,
+          permitted: allowed && (!strict || this.fullLock.status === "locked"),
+        });
+      } else {
+        command = this.gestureCommands.feed(allowed ? inkFrame.pose : "none", nowMs);
+      }
+      if (command) {
+        const changed = command === "undo" ? this.store.undo() : this.store.redo();
+        this.lastCommand = { kind: command, changed, atMs: nowMs, via: swipeMode ? "swipe" : "pose-hold" };
+        this.commandCount += 1;
+      }
     } else {
       this.liveCursor = null;
       this.drawingActionNow = null;
       this.gestureCommands.feed("none", nowMs);
     }
+    this.handStatusNow = this.computeHandStatus();
     // The wave rule scales its swing with the hand's own size, as the game does.
     this.feedWave(lm[0] ?? null, nowMs, this.primarySizeNow, face);
+  }
+
+  /** Honest Hapus-path status (NUI-R17-02 step 6): says what is actually true this frame, never a made-up success. */
+  private computeHandStatus(): string | null {
+    const palm = this.pose === "open-palm" || this.pose === "split-palm";
+    const dbg = this.ink.debugState();
+    if (dbg.erasing) return dbg.lastEraseHit === false ? "TIDAK ADA STROKE DI AREA" : "HAPUS AKTIF";
+    if (!palm) return null;
+    if (this.fingerCountNow !== 5) return "LANDMARK ADA / 5 JARI BELUM TERBACA";
+    const stablePalm = dbg.stable === "open-palm" || dbg.stable === "split-palm";
+    if (!stablePalm) return "5 JARI TERBACA / STABILISASI";
+    if (!this.armed.erase && this.options.fullFrameLock === true) return "TELAPAK TERBACA / TUNGGU REARM";
+    return "5 JARI TERBACA / SIAP HAPUS";
   }
 
   /** Starts (or restarts) the wave test on the primary wrist. */
   startWaveTest(): void {
     this.sampler.reset();
     this.waveStatus = "running";
+  }
+
+  /** The 21 landmarks of the locked hand in the last analysed frame, or null. Numbers only (RD-02 recorder). */
+  primaryLandmarks(): Landmark[] | null {
+    return this.primaryIdx === null ? null : (this.hands[this.primaryIdx] ?? null);
   }
 
   /** The player's face in the last analysed frame, or null. For the overlay. */
@@ -254,6 +351,12 @@ export class LabAnalyzer {
     this.ink.reset(nowMs);
     this.fullLock.reset();
     this.gestureCommands.reset();
+    this.swipe.reset();
+    this.lastCommand = null;
+    this.commandCount = 0;
+    this.thumbNow = null;
+    this.handStatusNow = null;
+    this.legacyCountNow = 0;
     this.liveCursor = null;
     this.fingerCountNow = 0;
     this.drawingActionNow = null;
@@ -286,6 +389,7 @@ export class LabAnalyzer {
     this.armed = { draw: false, erase: false, commands: false };
     this.ink.reset(nowMs);
     this.gestureCommands.reset();
+    this.swipe.reset();
     this.liveCursor = null;
     this.fingerCountNow = 0;
     this.drawingActionNow = null;
@@ -324,6 +428,7 @@ export class LabAnalyzer {
   canvasAction(action: "undo" | "redo" | "clear"): void {
     this.ink.reset(performance.now());
     this.gestureCommands.reset();
+    this.swipe.cancel("manual-canvas-action");
     if (action === "undo") this.store.undo();
     if (action === "redo") this.store.redo();
     if (action === "clear") this.store.clear();
@@ -372,14 +477,37 @@ export class LabAnalyzer {
       lockReason: this.options.fullFrameLock ? this.fullLock.reason : null,
       acquisitionId: this.options.fullFrameLock ? this.fullLock.acquisitionId : 0,
       pinchRatio: this.pinchRatioNow,
-      pinchEnter: PINCH_ENTER,
-      pinchExit: PINCH_EXIT,
+      pinchEnter: this.experimental ? LAB_PINCH_ENTER : PINCH_ENTER,
+      pinchExit: this.experimental ? LAB_PINCH_EXIT : PINCH_EXIT,
       foldedPinchEnter: this.experimental ? LAB_FOLDED_PINCH_ENTER : TOUCH_FOLDED_INDEX,
       foldedPinchExit: this.experimental ? LAB_FOLDED_PINCH_EXIT : TOUCH_FOLDED_INDEX_EXIT,
       fingerStates: this.fingerStatesNow ? [...this.fingerStatesNow] : null,
       inkAllowed: this.inkPermitted && this.options.enableInk !== false,
       rejectionReason: this.rejectNow,
       classifierMode: this.experimental ? "experiment" : "baseline",
+      diag: this.buildDiagnostics(),
+    };
+  }
+
+  private buildDiagnostics(): LabDiagnostics {
+    const dbg = this.primaryIdx === null ? null : this.ink.debugState();
+    const strokes = this.store.getStrokes();
+    return {
+      aspect: this.aspect,
+      rawPose: this.primaryIdx === null ? "none" : this.pose,
+      stablePose: dbg?.stable ?? "none",
+      rawFingerCount: this.fingerCountNow,
+      legacyFingerCount: this.legacyCountNow,
+      thumb: this.thumbNow,
+      armed: { ...this.armed },
+      fiveFingerValid: this.fingerCountNow === 5 && (this.pose === "open-palm" || this.pose === "split-palm"),
+      handStatus: this.handStatusNow,
+      pipeline: dbg,
+      strokes: { completed: strokes.completed.length, activePoints: strokes.active?.length ?? 0 },
+      lastCommand: this.lastCommand ? { ...this.lastCommand } : null,
+      commandCount: this.commandCount,
+      commandMode: this.experimental ? "swipe" : "pose-hold",
+      swipe: this.experimental ? this.swipe.debug() : null,
     };
   }
 

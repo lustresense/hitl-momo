@@ -97,7 +97,7 @@ export class FullFrameHandLock {
     const candidates = valid.filter(h =>
       distance(h.wrist,this.locked!.wrist) <= MAX_JUMP
       && compatibleSize(h.size,this.locked!.size)
-    ).map(h => ({...h, d:distance(h.wrist,this.locked!.wrist)})).sort((a,b)=>a.d-b);
+    ).map(h => ({...h, d:distance(h.wrist,this.locked!.wrist)})).sort((a,b)=>a.d-b.d);
     if (candidates.length > 1 && candidates[1]!.d - candidates[0]!.d < AMBIGUITY_GAP) {
       this.recovering = null; this.statusNow = "ambiguous"; this.reasonNow = "crossing";
       return {index:null,status:this.statusNow};

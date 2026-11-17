@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.24.0-alpha | 2026-11-17 | Fitur | `(0.24.0-alpha)` |
 | 0.23.1-alpha | 2026-11-17 | Dokumen | `(0.23.1-alpha)` |
 | 0.23.0-alpha | 2026-11-17 | Dokumen | `(0.23.0-alpha)` |
 | 0.22.0-alpha | 2026-11-16 | Fitur | `(0.22.0-alpha)` |
@@ -120,6 +121,22 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.24.0-alpha — 2026-11-17 — Fitur
+
+**Sumber:** NUI-REVISION 0.23.0-alpha R17-01 REV4 / Owner 2026-11-17
+
+**Perubahan:**
+- NUI Lab: jempol dinilai di koordinat lateral terkoreksi aspek (four 84.4% -> 0.2% erase-eligible, three terbaca 3 jari 16.8% -> 98.3% pada landmark nyata); game tidak berubah.
+- NUI Lab: gerbang pinch 0.30/0.42 pada geometri terkoreksi aspek, penghapus memotong segmen antar titik, status Hapus jujur, Undo/Redo lab lewat FSM geser (kandidat uji, bukan keputusan).
+- NUI Lab: panel diagnostik R17 dan perekam angka landmark opt-in lokal (tanpa video, tanpa unggah). Perbaikan komparator hand-lock (TS2363).
+- R&D: skrip RD-01..RD-05 di scripts/nui-rd, pilot classifier landmark (LR/MLP kecil) PROMISING hanya pada dataset, tidak dipasang; weights tidak di Git; IPN HandS landmark BLOCKED (Drive quota); docs/nui-rd.
+
+**Commit:** commit berjudul `(0.24.0-alpha)`
+
+**Bukti:** tsc 0, next lint 0, vitest 2261/2283 (22 gagal pra-ada, himpunan identik dengan baseline bersih), next build 0; DATASET HaGRIDv2 50,607 baris uji / 3,707 subjek; webcam NOT_TESTED
 
 ---
 

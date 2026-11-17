@@ -73,10 +73,13 @@ export type GestureFrame =
 
 export function evaluateGesture(
   landmarks: Landmark[] | undefined,
+  aspect = 1,
 ): GestureFrame {
   if (!landmarks || landmarks.length < MIDDLE_MCP + 1) {
     return { state: "lost" };
   }
+  // Lab only: with the video aspect (width / height) the gap is measured in true image proportions.
+  if (aspect !== 1 && Number.isFinite(aspect) && aspect > 0) landmarks = withAspect(landmarks, aspect);
   const thumb = landmarks[THUMB_TIP];
   const index = landmarks[INDEX_TIP];
   const wrist = landmarks[WRIST];
@@ -167,14 +170,64 @@ export type HandPose =
 export const THUMB_EXTENDED_RATIO = 1.3;
 
 /**
- * Extended fingers in one hand, 0..5 (thumb included by the rule above). A finger is extended when its tip is
- * beyond the same 1.1x PIP distance the pose classifier uses, so the count and the poses agree.
- * Pure: no landmarks or a short list gives 0.
+ * MediaPipe reports x as a share of the frame width and y as a share of its height, so on a 16:9 stream a
+ * horizontal distance is drawn 0.5625 as long as the same vertical one. Every ratio in this file was measured in
+ * that raw space. NUI Lab (experimentalRobust) can scale x by width / height first, so a gap is the same length
+ * whichever way the hand is turned. The game keeps the raw geometry (no aspect given).
  */
-export function countExtendedFingers(landmarks: Landmark[] | undefined): number {
+export function withAspect(landmarks: Landmark[], aspect: number): Landmark[] {
+  if (!Number.isFinite(aspect) || aspect <= 0 || aspect === 1) return landmarks;
+  return landmarks.map((p) => (p ? { x: p.x * aspect, y: p.y, z: p.z } : p));
+}
+
+/** What the lab assumes when the video size is unknown: it asks the camera for 1280 x 720. */
+export const DEFAULT_LAB_ASPECT = 16 / 9;
+
+/**
+ * Lab thumb rule. The legacy ratio (thumb tip / IP distance to the index knuckle) reads a thumb tucked across the
+ * palm as "extended" (four fingers: 92 %, three: 96 % on HaGRIDv2 landmarks) and a relaxed open palm as "not
+ * extended". This rule asks where the tip lies along the knuckle line: 0 = pinky knuckle, 1 = index knuckle.
+ * An open thumb sits well past the index knuckle (median 2.0 on an open palm); a tucked one stays between the
+ * knuckles (0.2 to 0.5). Rotation and mirror free. Call with aspect-corrected landmarks.
+ */
+export const THUMB_OPEN_LATERAL = 1.3;
+export const THUMB_PINKY_MCP = 17;
+
+export function thumbLateral(lm: Landmark[]): number | null {
+  const tip = lm[THUMB_TIP];
+  const index = lm[5];
+  const pinky = lm[THUMB_PINKY_MCP];
+  if (!tip || !index || !pinky) return null;
+  const ax = index.x - pinky.x;
+  const ay = index.y - pinky.y;
+  const len2 = ax * ax + ay * ay;
+  if (len2 <= 1e-12) return null;
+  return ((tip.x - pinky.x) * ax + (tip.y - pinky.y) * ay) / len2;
+}
+
+export interface CountOptions {
+  /** NUI Lab: use the knuckle-line thumb rule instead of the legacy ratio. */
+  robustThumb?: boolean;
+  /** Video width / height; only read when robustThumb is on. */
+  aspect?: number;
+}
+
+/**
+ * Extended fingers in one hand, 0..5 (thumb included). A finger is extended when its tip is beyond the same 1.1x PIP
+ * distance the pose classifier uses, so the count and the poses agree. The thumb follows the legacy ratio rule
+ * unless `robustThumb` (lab). Pure: no landmarks or a short list gives 0.
+ */
+export function countExtendedFingers(landmarks: Landmark[] | undefined, opts: CountOptions = {}): number {
   if (!landmarks || landmarks.length < 21 || landmarks.some((p) => !p)) return 0;
   const count = fingerStates(landmarks).filter((s) => s === "extended").length;
-  return count + (thumbExtended(landmarks) ? 1 : 0);
+  const geo = opts.robustThumb ? withAspect(landmarks, opts.aspect ?? DEFAULT_LAB_ASPECT) : landmarks;
+  return count + (thumbIsOpen(geo, !!opts.robustThumb) ? 1 : 0);
+}
+
+function thumbIsOpen(lm: Landmark[], robust: boolean): boolean {
+  if (!robust) return thumbExtended(lm);
+  const u = thumbLateral(lm);
+  return u !== null && u >= THUMB_OPEN_LATERAL;
 }
 
 /** Thumb extended by the ratio rule (see THUMB_EXTENDED_RATIO). Landmarks 2 (MCP), 3 (IP), 4 (tip), 5 (index MCP). */
@@ -185,6 +238,32 @@ function thumbExtended(lm: Landmark[]): boolean {
   const tipGap = dist(tip, indexMcp);
   const ipGap = dist(ip, indexMcp);
   return tipGap > ipGap * THUMB_EXTENDED_RATIO;
+}
+
+export interface ThumbDiagnostics {
+  /** Tip gap / IP gap to the index knuckle, as the legacy rule reads it (raw geometry). */
+  legacyRatio: number;
+  legacyExtended: boolean;
+  /** Tip position along the pinky-to-index knuckle line (aspect-corrected): 1 = index knuckle. */
+  lateral: number | null;
+  robustOpen: boolean;
+  /** Interior angle at the thumb IP joint (degrees, aspect-corrected); small = the tip is folded in. */
+  ipAngleDeg: number;
+}
+
+/** Observable thumb facts for owner-only NUI Lab. No confidence is invented. */
+export function thumbDiagnostics(landmarks: Landmark[] | undefined, aspect = DEFAULT_LAB_ASPECT): ThumbDiagnostics | null {
+  if (!landmarks || landmarks.length < 21 || landmarks.some((p) => !p || !Number.isFinite(p.x) || !Number.isFinite(p.y))) return null;
+  const corrected = withAspect(landmarks, aspect);
+  const u = thumbLateral(corrected);
+  const ipGap = dist(landmarks[3]!, landmarks[5]!);
+  return {
+    legacyRatio: ipGap <= 1e-9 ? 0 : dist(landmarks[THUMB_TIP]!, landmarks[5]!) / ipGap,
+    legacyExtended: thumbExtended(landmarks),
+    lateral: u,
+    robustOpen: u !== null && u >= THUMB_OPEN_LATERAL,
+    ipAngleDeg: jointAngle(corrected[2]!, corrected[3]!, corrected[THUMB_TIP]!),
+  };
 }
 
 /** Pinch enters below PINCH_ENTER and, once held, stays until PINCH_EXIT (thumb-index gap / hand span). */
@@ -247,23 +326,40 @@ function dist(a: Landmark, b: Landmark): number {
   return Math.hypot(a.x - b.x, a.y - b.y);
 }
 
-/**
- * `opts.pinchHeld`: the previous frame was a pinch, so the looser exit ratio applies (hysteresis).
- */
-export function classifyHandPose(landmarks: Landmark[] | undefined, opts: { pinchHeld?: boolean; experimentalRobust?: boolean } = {}): HandPose {
+/** Lab-only pinch candidate (aspect-corrected thumb-index gap / hand span), tighter than the baseline 0.42 / 0.55. */
+export const LAB_PINCH_ENTER = 0.3;
+export const LAB_PINCH_EXIT = 0.42;
+
+export interface PoseOptions {
+  /** The previous frame was a pinch, so the looser exit ratio applies (hysteresis). */
+  pinchHeld?: boolean;
+  /** NUI Lab only: opt-in rules (robust thumb, aspect-corrected geometry, tighter pinch gate, bent-ring three). */
+  experimentalRobust?: boolean;
+  /** Video width / height for the lab geometry. Ignored unless experimentalRobust. */
+  aspect?: number;
+}
+
+export function classifyHandPose(landmarks: Landmark[] | undefined, opts: PoseOptions = {}): HandPose {
   if (!landmarks || landmarks.length < 21 || landmarks.some((p) => !p)) return "none";
+  const robust = opts.experimentalRobust === true;
+  // Lab: the pinch gap, the thumb rule and the bent-ring angle are measured in true image proportions (geo).
+  // Everything else keeps the raw MediaPipe frame it was tuned on (thumbs-up, finger ratios, split palm): on
+  // HaGRIDv2 landmarks, correcting those too dropped a real thumbs-up from 60 % to 13 %.
+  const geo = robust ? withAspect(landmarks, opts.aspect ?? DEFAULT_LAB_ASPECT) : landmarks;
   const wrist = landmarks[WRIST]!;
   const span = dist(wrist, landmarks[MIDDLE_MCP]!);
   if (span <= 1e-6) return "none";
   if (isThumbUp(landmarks)) return "thumb-up";
 
   // Pinch is read before fist: a thumb on the index tip is ink whatever the other fingers do.
-  const touch = dist(landmarks[THUMB_TIP]!, landmarks[INDEX_TIP]!) / span;
+  const geoSpan = dist(geo[WRIST]!, geo[MIDDLE_MCP]!);
+  const touch = geoSpan <= 1e-6 ? 1 : dist(geo[THUMB_TIP]!, geo[INDEX_TIP]!) / geoSpan;
   const [index, middle, ring, pinky] = fingerStates(landmarks);
+  const held = opts.pinchHeld === true;
   const pinched =
     index === "curled"
-      ? touch < (opts.pinchHeld ? (opts.experimentalRobust ? LAB_FOLDED_PINCH_EXIT : TOUCH_FOLDED_INDEX_EXIT) : (opts.experimentalRobust ? LAB_FOLDED_PINCH_ENTER : TOUCH_FOLDED_INDEX))
-      : touch < (opts.pinchHeld ? PINCH_EXIT : PINCH_ENTER);
+      ? touch < (held ? (robust ? LAB_FOLDED_PINCH_EXIT : TOUCH_FOLDED_INDEX_EXIT) : (robust ? LAB_FOLDED_PINCH_ENTER : TOUCH_FOLDED_INDEX))
+      : touch < (robust ? (held ? LAB_PINCH_EXIT : LAB_PINCH_ENTER) : (held ? PINCH_EXIT : PINCH_ENTER));
   if (pinched) return "pinch";
 
   // Fist is a diagnostic-only classification, never an eraser gesture.
@@ -274,11 +370,13 @@ export function classifyHandPose(landmarks: Landmark[] | undefined, opts: { pinc
     return "fist";
   }
 
+  const thumbOut = thumbIsOpen(geo, robust);
+
   // Lab-only alternate: tolerate a moderately bent ring finger in a 3-finger pose.
   // Palm-local joint angle guards the two-finger pose against false promotion.
-  if (opts.experimentalRobust && !thumbExtended(landmarks) && pinky === "curled"
+  if (robust && !thumbOut && pinky === "curled"
       && index === "extended" && middle === "extended"
-      && (ring === "extended" || (ring === "between" && isNearlyStraightRing(landmarks)))) {
+      && (ring === "extended" || (ring === "between" && isNearlyStraightRing(geo)))) {
     return "three-fingers";
   }
 
@@ -291,7 +389,7 @@ export function classifyHandPose(landmarks: Landmark[] | undefined, opts: { pinc
   }
 
   // One finger (Satu jari): only the index straight, the thumb not raised. Excludes two-fingers by middle !== curled.
-  if (index === "extended" && middle === "curled" && ring === "curled" && pinky === "curled" && !thumbExtended(landmarks)) {
+  if (index === "extended" && middle === "curled" && ring === "curled" && pinky === "curled" && !thumbOut) {
     return "one-finger";
   }
 
@@ -299,7 +397,7 @@ export function classifyHandPose(landmarks: Landmark[] | undefined, opts: { pinc
   // Excludes two-fingers (ring extended) and the palms (pinky folded).
   if (
     index === "extended" && middle === "extended" && ring === "extended" && pinky === "curled" &&
-    !thumbExtended(landmarks)
+    !thumbOut
   ) {
     return "three-fingers";
   }

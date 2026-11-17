@@ -1,5 +1,7 @@
 import type { HandInputStatus, Landmark, StrokeStore } from "./types";
 import {
+  DEFAULT_LAB_ASPECT,
+  LAB_PINCH_EXIT,
   PINCH_EXIT,
   classifyHandPose,
   countExtendedFingers,
@@ -66,12 +68,29 @@ export interface HandPipelineOptions {
   onPose?(pose: HandPose, nowMs: number): void;
   /** Owner NUI Lab only: opt-in landmark rules. Default game behavior stays unchanged. */
   experimentalRobust?: boolean;
+  /** Owner NUI Lab only: video width / height, read every frame. Only used with experimentalRobust. */
+  aspect?(): number;
   /** Owner NUI Lab only: prevent an action until the new hand released that gesture. */
   canPerformAction?(rawPose: HandPose, fingerCount: number): boolean;
 }
 
+/** What the last tracked frame decided, for the owner-only lab diagnostics. Not used by any game screen. */
+export interface PipelineDebug {
+  raw: HandPose;
+  stable: HandPose;
+  fingerCount: number;
+  actionAllowed: boolean;
+  drawing: boolean;
+  drawStreak: number;
+  erasing: boolean;
+  /** Result of the last eraseAt call: true = some ink was cut. null until the first erase frame. */
+  lastEraseHit: boolean | null;
+  eraseFrames: number;
+}
+
 export class HandStrokePipeline {
   private readonly votes: HandPose[] = [];
+  private debug: PipelineDebug = { raw: "none", stable: "none", fingerCount: 0, actionAllowed: true, drawing: false, drawStreak: 0, erasing: false, lastEraseHit: null, eraseFrames: 0 };
   private stable: HandPose = "none";
   private drawVotes: boolean[] = [];
   private drawStreak = 0;
@@ -87,6 +106,22 @@ export class HandStrokePipeline {
   private readonly palmSmoother = new PointSmoother(undefined, DRAWING_ONE_EURO);
 
   constructor(private readonly options: HandPipelineOptions) {}
+
+  /** Lab diagnostics of the last tracked frame (a copy). */
+  debugState(): PipelineDebug {
+    return { ...this.debug };
+  }
+
+  private aspect(): number {
+    const a = this.options.aspect?.();
+    return typeof a === "number" && Number.isFinite(a) && a > 0 ? a : DEFAULT_LAB_ASPECT;
+  }
+
+  /** Finger count under the rule set in force: the lab's robust thumb + aspect, or the game's legacy rule. */
+  private fingers(lm: Landmark[]): number {
+    const robust = this.options.experimentalRobust === true;
+    return countExtendedFingers(lm, { robustThumb: robust, aspect: robust ? this.aspect() : undefined });
+  }
 
   /** Switch lab experiment without changing the game-wide classifier. */
   setExperimentalRobust(enabled: boolean, nowMs: number): void {
@@ -112,7 +147,8 @@ export class HandStrokePipeline {
     }
 
     const pinchHeld = this.prevRaw === "pinch";
-    const poses = visible.map((h) => classifyHandPose(h, { pinchHeld, experimentalRobust: this.options.experimentalRobust }));
+    const robust = this.options.experimentalRobust === true;
+    const poses = visible.map((h) => classifyHandPose(h, { pinchHeld, experimentalRobust: robust, aspect: robust ? this.aspect() : undefined }));
     const primary = this.pickPrimary(visible, poses);
     const frame = this.tracked(visible[primary]!, poses[primary]!, nowMs);
 
@@ -152,7 +188,7 @@ export class HandStrokePipeline {
   private pickPrimary(hands: Landmark[][], poses: HandPose[]): number {
     // Five spread fingers are the eraser. A closed fist never steals the primary input.
     const fivePalm = poses.findIndex((p,i) =>
-      (p === "open-palm" || p === "split-palm") && countExtendedFingers(hands[i]) === 5);
+      (p === "open-palm" || p === "split-palm") && this.fingers(hands[i]!) === 5);
     if (fivePalm >= 0) return fivePalm;
     const pinching = poses.flatMap((p, i) => (p === "pinch" ? [i] : []));
     if (pinching.length <= 1) return pinching[0] ?? 0;
@@ -194,13 +230,14 @@ export class HandStrokePipeline {
 
     this.prevRaw = raw;
     this.stable = this.vote(raw);
-    const actionAllowed = this.options.canPerformAction?.(raw, countExtendedFingers(lm)) ?? true;
+    const fingerCount = this.fingers(lm);
+    const actionAllowed = this.options.canPerformAction?.(raw, fingerCount) ?? true;
     const drawing = raw === "pinch" && actionAllowed;
     // With the Hapus tool on, any pose erases under the cursor except the commands: a thumbs-up
     // confirmation, undo or redo must never cut the drawing, and an open palm is no tool at all.
     // Only a full five-finger palm erases, regardless of the old game/tutorial distinction.
     const isErasePose =
-      countExtendedFingers(lm) === 5 &&
+      fingerCount === 5 &&
       (this.stable === "open-palm" || this.stable === "split-palm");
     const command =
       raw === "thumb-up" || raw === "two-fingers" || raw === "one-finger" || raw === "three-fingers" || raw === "split-palm";
@@ -219,16 +256,28 @@ export class HandStrokePipeline {
       if (isErasePose) {
         cursor = this.toCanvas(this.palmSmoother.smooth(palmCenterNormalized(lm), nowMs));
       }
-      store.eraseAt(cursor, this.options.eraser.radiusCanvasPx());
+      this.debug.lastEraseHit = store.eraseAt(cursor, this.options.eraser.radiusCanvasPx());
+      this.debug.eraseFrames++;
     } else {
       this.palmSmoother.reset();
       if (store.isErasing()) store.endErase();
       this.updateStroke(drawing, ink, resumed);
     }
 
-    const gesture = evaluateGesture(lm);
+    const robustGeometry = this.options.experimentalRobust === true;
+    const gesture = evaluateGesture(lm, robustGeometry ? this.aspect() : 1);
     const ratio = gesture.state === "tracking" ? gesture.pinchRatio : 1;
-    const state: CursorState = drawing ? "drawing" : ratio < PINCH_EXIT ? "near" : "hover";
+    const state: CursorState = drawing ? "drawing" : ratio < (robustGeometry ? LAB_PINCH_EXIT : PINCH_EXIT) ? "near" : "hover";
+    this.debug = {
+      ...this.debug,
+      raw,
+      stable: this.stable,
+      fingerCount,
+      actionAllowed,
+      drawing,
+      drawStreak: this.drawStreak,
+      erasing,
+    };
     const status: HandInputStatus = drawing ? { kind: "drawing" } : { kind: "ready" };
     this.cursorVisible = true;
     return {

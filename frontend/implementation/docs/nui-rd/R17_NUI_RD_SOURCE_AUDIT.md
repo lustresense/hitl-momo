@@ -13,6 +13,25 @@ Tidak ada baris WEBCAM yang dijalankan di sesi ini: semua klaim "gagal di webcam
 | Auto-lock (`FullFrameHandLock`) | tidak ditulis ulang. Satu bug pengurutan diperbaiki (lihat G-lock) |
 | Smoothing & cursor mapping | tidak diubah. Tes A/B membuktikan titik tinta pinch identik baseline vs lab (`tests/input/pinch-gate.test.ts`) |
 
+## Sumber dan path fungsi
+
+Base: `origin/main` `584cbb6` (0.23.1-alpha). Hasil kerja: `db68039` (0.24.0-alpha), cabang kerja lokal `gameplay-lead`, didorong ke `main`.
+
+| Fungsi / modul | Path | Perubahan |
+|---|---|---|
+| `evaluateGesture`, `classifyHandPose`, `countExtendedFingers`, `thumbLateral`, `thumbDiagnostics`, `withAspect` | `src/input/hand-gesture.ts` | opsi `experimentalRobust` + `aspect`; tanpa opsi = perilaku lama |
+| `HandStrokePipeline` (`debugState`, `aspect`) | `src/input/hand-stroke-pipeline.ts` | geometri beraspek hanya mode lab |
+| `StrokeStore.eraseAt` + `cutStroke` | `src/input/types.ts` | `eraseSegments` opt-in, default `false` |
+| `LabAnalyzer` (`diag`, `LabCommandResult`, `computeHandStatus`, `primaryLandmarks`) | `src/components/nui-lab/lab-analyzer.ts` | diagnostik, swipe, status Hapus |
+| `SwipeCommander` | `src/components/nui-lab/lab-swipe.ts` (baru) | FSM idle→pose-armed→tracking-motion→fired→cooldown |
+| `LandmarkRecorder`, `validateRecord` | `src/components/nui-lab/lab-recorder.ts` (baru) | RD-02 |
+| `FullFrameHandLock.pick` | `src/components/nui-lab/lab-hand-lock.ts:100` | hanya komparator `a.d-b` → `a.d-b.d` |
+| panel R17 + perekam | `src/components/nui-lab/NuiLabPage.tsx` | `GestureDiagnostics`, `RecorderPanel`, `aspect` dari `videoWidth/videoHeight` |
+
+## Beda dengan draft PR #5
+
+PR #5 (`nui-lab-qa-0.22.1`, `424e077`, 0.22.1-alpha, **belum di-merge**) hanya mengubah UX opt-in eksperimen dan relock yang jujur: `NuiLabPage.tsx` (14 baris), `lab-hand-lock.test.ts` (+11), `nui-lab-page.test.tsx` (+17), dokumen, versi. Ia **tidak** menyentuh pengenalan jempol, pinch, penghapus, atau swipe, jadi tidak ada patch PR #5 yang diulang di sini. **Akan konflik saat PR #5 di-merge** pada `NuiLabPage.tsx`, `lab-hand-lock.test.ts`, `nui-lab-page.test.tsx` dan semua berkas versi (0.22.1 vs 0.24.x); rekonsiliasi manual oleh Owner/IT, tidak ditimpa diam-diam.
+
 ## Matriks: ada di source / pernah diuji / belum diuji / gagal di webcam
 
 | ID | Temuan | Source | Diuji sebelum | Diuji sekarang | Webcam |

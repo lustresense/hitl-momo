@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.24.1-alpha | 2026-11-17 | Dokumen | `(0.24.1-alpha)` |
 | 0.24.0-alpha | 2026-11-17 | Fitur | `(0.24.0-alpha)` |
 | 0.23.1-alpha | 2026-11-17 | Dokumen | `(0.23.1-alpha)` |
 | 0.23.0-alpha | 2026-11-17 | Dokumen | `(0.23.0-alpha)` |
@@ -121,6 +122,19 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.24.1-alpha — 2026-11-17 — Dokumen
+
+**Sumber:** NUI-REVISION R17-01 REV4 10.6 deliverables / Owner 2026-11-17
+
+**Perubahan:**
+- docs/nui-rd: jalur fungsi dan beda PR #5, penilaian IPN HandS training+audit, provenance label, rekomendasi (a)(b)(c) terpisah.
+
+**Commit:** commit berjudul `(0.24.1-alpha)`
+
+**Bukti:** dokumen saja; gate kode tidak berubah dari 0.24.0-alpha (tsc 0, lint 0, build 0, vitest set gagal identik baseline)
 
 ---
 

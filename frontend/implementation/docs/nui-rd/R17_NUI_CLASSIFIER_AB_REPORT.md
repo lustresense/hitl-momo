@@ -111,6 +111,14 @@ Latensi (Node v22.23.4, Intel Xeon 2.30 GHz, 4 core, kontainer cloud; **bukan la
 
 Syarat tiket: pilot harus lolos RD-05 **termasuk footage webcam target**. Bagian webcam belum ada, jadi RD-06 tidak dimulai. Tidak ada switch A/B classifier di NUI Lab. Promosi ke gameplay: **STOP**, butuh review dan izin Owner terpisah dan keputusan mapping gestur yang belum dikunci.
 
+## Rekomendasi akhir (terpisah, untuk review Owner; tidak ada yang di-merge otomatis)
+
+**(a) Patch recognition / ink gating minimal** (sudah ada di lab, bukan game): koordinat jempol lateral beraspek, gerbang pinch 0.30/0.42 beraspek, penghapus segmen, perbaikan komparator lock. Sebelum dipromosikan ke game: Owner uji webcam dengan panel diagnostik, putuskan nasib `grabbing`/`no_gesture` (false Hapus 18% / 33.8% per gambar) dan tambahkan syarat durasi/gerak untuk Hapus bila perlu.
+
+**(b) Eksperimen ML yang relevan:** (1) rekam webcam target lewat perekam RD-02 dan jalankan ulang `rd05_ab.ts`; (2) tambahkan baris `no_gesture` dan near-pinch nyata (kelas yang paling kurang); (3) bila landmark IPN HandS tersedia, uji fitur jendela temporal untuk swipe sebelum model berat; (4) baca `license/en_us.pdf` HaGRID sebelum membagikan weights.
+
+**(c) Butuh persetujuan Owner:** mapping swipe (kiri/kanan, satu/dua jari) belum dikunci; memasang classifier mana pun ke lab atau game; pose `thumb-up` yang membaca `fist` (konfirmasi jempol); versi 0.22.1 PR #5 vs 0.24.x.
+
 ## Reproduksi
 
 ```

@@ -27,6 +27,12 @@ NOG 2592 · P1F 1217 · P2F 1189 · C1F 204 · C2F 186 · TUP 201 · TDN 200 · 
 
 Cocok untuk R17-03 (geser): TLT/TRT sebagai kandidat swipe, P1F/P2F sebagai pose satu/dua jari, NOG sebagai negatif. **Tidak bisa dipakai tanpa landmark**, dan videonya tidak diunduh. Evaluasi temporal swipe pada IPN karena itu **BLOCKED**.
 
+## IPN HandS: penilaian sebagai training + audit
+
+- **Training:** kandidat utama untuk model **temporal** (swipe, throw-left/right, pose satu/dua jari dengan transisi) karena landmark GT hasil koreksi manual dan label segmen temporal. Dengan landmark yang BLOCKED, tidak ada baris latih yang bisa dibuat. Untuk pose **statis** HaGRIDv2 dipakai karena tersedia (kelas per-gambar, `user_id`).
+- **Audit:** 200 video, 148 train / 52 test resmi (pemisahan per video, bukan per subjek: **subjek tidak tercatat di anotasi**, jadi klaim "subjek-terpisah" tidak bisa dibuat dari berkas ini; sesi direkam berulang oleh orang yang sama bisa terdistribusi lintas split). Kelas 15, termasuk NOG sebagai negatif, tetapi **tidak ada kelas near-pinch/touch**, tidak ada lima jari statis, dan kelas pointing berbeda definisi dari "satu jari = Undo" di game.
+- **Keputusan:** BLOCKED untuk training sampai landmark terunduh; layak sebagai uji swipe temporal begitu landmark ada.
+
 ## HaGRIDv2 → label PA (ditinjau manual dari lembar kelas)
 
 | Kelas HaGRID | Label | Keputusan |

@@ -30,6 +30,21 @@ Tes dan fixture: `tests/nui-lab/lab-recorder.test.ts` (19 tes), skenario skrip m
 | `reject` | alasan aksi ditahan/ditolak |
 | `action` | aksi yang benar-benar berjalan: `draw erase undo redo none` |
 
+## Provenance dan pembagian (kontrak label, tiket 10.4)
+
+| Bidang | HaGRIDv2 (di `rd_extract.py` / fitur) | Rekaman lokal RD-02 |
+|---|---|---|
+| `dataset` | `hagridv2` (implisit di nama berkas) | `nui-landmark-record/1` |
+| `source_asset` | kunci anotasi (id gambar pseudonim `k`) | tidak ada (tanpa gambar) |
+| `subject_group` | `user_id` HaGRID (`u`), dipakai untuk split dan diperiksa tidak bocor | `session` = akuisisi lock, **bukan** orang; penguji harus memberi label subjek sendiri di luar berkas |
+| `original_label` / `mapped_label` | kelas HaGRID `c` / 9 label (`rd_lib.ts` `CLASS_TO_LABEL`) | `truth` dari penguji |
+| `annotation_source` | `mediapipe_auto` | `owner_labeled` |
+| `mediapipe_version/model_hash` | tidak diketahui dari arsip | tidak dicatat (belum ada) |
+| `consent_scope` | data publik | `consent: true` wajib |
+| `split`, `license_ref` | train/val/test; CC BY-SA 4.0 varian | tidak ada, data milik penguji |
+
+`NO_LANDMARK` bukan kelas pose: frame tanpa tangan tidak boleh menghasilkan aksi dan tidak boleh dilatih sebagai `no-gesture`. Split rekaman lokal harus per sesi/penguji, bukan acak antar-frame.
+
 ## Fixture (skenario skrip pada median kelas HaGRID, UNIT_ONLY)
 
 | Kasus | Skenario | Yang ditegaskan |

@@ -7,6 +7,18 @@
 
 ---
 
+## R18-PILOT-20261118-02 — NUI Lab live UX3 candidate PR prepared
+
+- **Date:** 2026-11-18 WIB.
+- **Status:** `OBSERVED_REMOTE` PR source present, `STATIC_ONLY / NOT_TESTED` in target build, browser and physical webcam.
+- **Source:** R18 UX3 model and candidate TypeScript at `research-can@664de0382b5164818a5c22fe79029c8e3c8ba4a1`.
+- **Candidate promotion:** selective copy to `nui-r18-ux3-live-lab` and [draft PR #6](https://github.com/lustresense/hitl-momo/pull/6) targeting `main`; orphan histories were NOT merged. New route `/nui-lab/r18`, same-frame heuristics vs UX3 model predictions, and **shadow-only** hypothetical actions.
+- **Main:** not changed by this PR, and no tunnel deployment or real webcam test has occurred.
+- **DimHand:** NOT_DOWNLOADED / NOT_USED; official project site requires manual academic-use request and disallows commercial use and redistribution. UX3 was trained on IPN HandS, not DimHand.
+- **Caution:** UX2 RAW-first M3 fallback is NOT ported; pilot low-light buttons use existing RAW/AUTO/CLAHE modes only. R18 known false swipe/erase edge cases and CPU long tasks remain open.
+- **Next action:** Ujang run typecheck, lint, tests, build, then show a verified browser URL and perform physical-webcam testing. Do NOT merge/deploy or wire R18 actions into student gameplay without explicit Owner approval and QA.
+- **References:** [pilot handoff](https://github.com/lustresense/hitl-momo/blob/nui-r18-ux3-live-lab/frontend/implementation/docs/execution/NUI_R18_UX3_LIVE_LAB_HANDOFF_2026-11-18.md), [R18 report](r18/results/R18_MASTER_REPORT.md), [model](r18/models/MODEL_CARD.md).
+
 ## R18-DOC-20261118-01 — R&D log discipline and NUI Lab integration-readiness audit
 
 - **Date:** 2026-11-18 WIB.

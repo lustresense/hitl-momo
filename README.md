@@ -10,7 +10,8 @@
 - **Active plan:** [R18-01 v0.3.0, WIP](docs/plan-rev/%5BWIP%5D%20NUI_R18-01_v0.3.0_UX_First_Worst_Case_Research.md).
 - **Evidence:** UX0–UX3 offline work, UX4 dataset access/license BLOCKED, UX5 180s simulated-camera browser run reported by Agy. Physical webcam: **NOT_TESTED**.
 - **Best trial candidate, not adopted product:** [UX3 MLP + hybrid safety](r18/candidates/ux3_integrated.ts), [model](r18/models/ux3_model_mlp.json), [model card](r18/models/MODEL_CARD.md). MediaPipe remains the primary hand landmark detector.
-- **Pending:** eliminate false swipe/erase edge cases, build an **isolated NUI Lab A/B pilot** with fresh authorization, let Ujang run web gates and tunnel, then Owner test on actual camera/devices. No production/gameplay integration approved.
+- **Pilot source prepared:** [draft PR #6](https://github.com/lustresense/hitl-momo/pull/6) adds a separate `/nui-lab/r18` shadow camera test of trained UX3 model. **NOT BUILT, NOT DEPLOYED, webcam NOT_TESTED.** No DimHand data used.
+- **Pending:** Ujang verifies typecheck/tests/build/browser, then Owner tests actual webcam; close false swipe/erase cases. No production/gameplay integration approved.
 - **Latest activity, measurements, evidence and blockers:** **[LOG.md](LOG.md)**, newest first. Updated in the SAME commit as README after **every** R&D publication.
 
 This README is the short front page. **LOG.md is the sole active chronology**. Do not create `NOW.md`, a separate `VERSION`, duplicate `AGENTS.md`, or nested README files. R&D versions follow actual revision IDs and immutable Git commits; they do not bump product SemVer.

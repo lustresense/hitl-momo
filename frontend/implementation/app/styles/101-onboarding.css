@@ -1,0 +1,79 @@
+/* PRD 0.0.16 styles, owner: see task list. */
+
+/* ---- Cover wave ring (R3): fills with the student's wave, drawn over the camera picture ---- */
+.camera-prototype-root.mode-cover .video-wrap { position: relative; }
+.cover-wave-ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 6;
+  width: 84px;
+  height: 84px;
+  pointer-events: none;
+  display: grid;
+  place-items: center;
+  color: var(--nb-ink, #111);
+  background: rgba(255, 250, 240, 0.92);
+  border: 3px solid var(--nb-ink, #111);
+  border-radius: 999px;
+  box-shadow: 4px 4px 0 var(--nb-ink, #111);
+}
+
+.cover-wave-ring[data-progress="0"] {
+  animation: cover-wave-dissolve 4s ease-in-out infinite;
+}
+@keyframes cover-wave-dissolve {
+  0% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+  20% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  70% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  90% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+  100% { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
+}
+
+.cover-wave-ring__svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.cover-wave-ring__track { fill: none; stroke: rgba(17, 17, 17, 0.18); stroke-width: 6; }
+.cover-wave-ring__fill { fill: none; stroke: var(--nb-green, #2f9e44); stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 0.25s linear; }
+.cover-wave-ring__hand {
+  position: relative;
+  transform-box: fill-box;
+  transform-origin: 50% 90%;
+  animation: cover-wave-bye 1.2s ease-in-out infinite;
+}
+@keyframes cover-wave-bye {
+  0% { transform: rotate(0deg); }
+  15% { transform: rotate(-25deg); }
+  30% { transform: rotate(20deg); }
+  45% { transform: rotate(-22deg); }
+  60% { transform: rotate(15deg); }
+  75% { transform: rotate(-6deg); }
+  100% { transform: rotate(0deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .cover-wave-ring__hand { animation: none; }
+}
+/* Cover text fades once Momo wakes: the story hands over to her dialog (R3). */
+.camera-prototype-root.mode-cover.has-momo-awake .eyebrow { opacity: 0; transition: opacity 0.4s ease; }
+.cover-fallback { display: grid; gap: 10px; justify-items: start; margin-top: 20px; }
+.cover-fallback__note { margin: 0; font-weight: 700; }
+
+
+/* V1: the PIP has no room for the cover's status line. Pin it to the top of the small card so it reads at 11 px,
+   and move the placeholder icon to the lower part so the two never sit on each other. */
+.global-camera-host.mode-floating .camera-status {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  z-index: 5;
+  max-width: none;
+  margin: 0;
+  padding: 2px 5px;
+  font-size: 11px;
+  line-height: 1.25;
+  pointer-events: none;
+}
+.global-camera-host.mode-floating .video-inner {
+  justify-content: flex-end !important;
+  padding-bottom: 10px !important;
+}

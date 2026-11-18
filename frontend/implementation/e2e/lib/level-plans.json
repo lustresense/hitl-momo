@@ -1,0 +1,125 @@
+{
+  "_note": "Student-style plans, PRD 0.0.16: every level needs minDrawings = 2 objects at WALK_SPEED 130. launchX = player left-edge world x where the student stops, then presses Right+Space; hold = fixed 50Hz steps Right stays held (999 = until landing). Validated by tests/game/level-solvability.test.ts (kinematic model) and by browser E2E (authority).",
+  "objectSize": {
+    "w": 130.6122,
+    "h": 19.5918
+  },
+  "1": {
+    "cycles": [
+      {
+        "label": "balok",
+        "behavior": "solid",
+        "x": 303,
+        "y": 280,
+        "w": 97.9592,
+        "h": 37.9
+      },
+      {
+        "label": "papan",
+        "behavior": "solid",
+        "x": 452,
+        "y": 280,
+        "w": 80.5,
+        "h": 58.7755
+      }
+    ],
+    "steps": [
+      {
+        "launchX": 240,
+        "hold": 36
+      },
+      {
+        "launchX": 388,
+        "hold": 36
+      },
+      {
+        "launchX": 520,
+        "hold": 36
+      }
+    ]
+  },
+  "2": {
+    "cycles": [
+      {
+        "label": "balok",
+        "behavior": "solid",
+        "x": 148,
+        "y": 236,
+        "w": 81.6,
+        "h": 32
+      },
+      {
+        "label": "papan",
+        "behavior": "solid",
+        "x": 375,
+        "y": 113,
+        "w": 80.5,
+        "h": 58.7755
+      }
+    ],
+    "steps": [
+      {
+        "launchX": 110,
+        "hold": 16
+      },
+      {
+        "launchX": 177,
+        "hold": 30
+      },
+      {
+        "launchX": 233,
+        "hold": 22
+      },
+      {
+        "launchX": 304,
+        "hold": 35
+      },
+      {
+        "launchX": 414,
+        "hold": 39
+      },
+      {
+        "launchX": 522,
+        "hold": 35
+      }
+    ]
+  },
+  "3": {
+    "cycles": [
+      {
+        "label": "papan",
+        "behavior": "solid",
+        "x": 220,
+        "y": 250,
+        "w": 130.6,
+        "h": 49.5
+      },
+      {
+        "label": "papan",
+        "behavior": "solid",
+        "x": 480,
+        "y": 210,
+        "w": 80.5,
+        "h": 58.8
+      }
+    ],
+    "steps": [
+      {
+        "launchX": 126,
+        "hold": 30
+      },
+      {
+        "launchX": 248,
+        "hold": 26
+      },
+      {
+        "launchX": 384,
+        "hold": 36
+      },
+      {
+        "launchX": 490,
+        "hold": 36
+      }
+    ]
+  }
+}

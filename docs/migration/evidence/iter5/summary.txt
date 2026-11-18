@@ -1,0 +1,12 @@
+FINISH=0
+PASS  no console/page errors []
+RESULT PASS checks=12/12 out=/tmp/claude-0/-home-user-hitl-momo/70f1ddc5-ed67-5bfc-8173-b01b43d2907b/scratchpad/run7/finish
+JOURNEY=0
+[22:26:06.887] ending: back to cover
+[22:26:06.951] final screen text (truncated) "Mode demo: tebakan masih simulasi\nJarimu Adalah Kuas Ajaibnya!\nREC\nNyalakan Kamera\nKamera tidak ditemukan. Pakai mouse atau keyboard."
+RESULT PASS  attempts=[{"stage":1,"attempt":1,"outcome":"success","overlay":"Selamat, berhasil!","reason":null,"ms":21703},{"stage":2,"attempt":1,"outcome":"success","overlay":"Selamat, berhasil!","reason":null,"ms":22542},{"stage":3,"attem
+RECOVERY=1
+FAIL  B: after Redraw with a solid label the level can be WON {"outcome":"fail","leftoverDangerObjects":1}
+PASS  no console/page errors []
+RESULT FAIL checks=14/16 out=/tmp/claude-0/-home-user-hitl-momo/70f1ddc5-ed67-5bfc-8173-b01b43d2907b/scratchpad/run7/recovery
+ALLDONE

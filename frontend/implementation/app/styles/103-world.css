@@ -1,0 +1,7 @@
+/* PRD 0.0.16 styles, owner: see task list. */
+
+/* PRD 0.0.16 R10: things that can come alive here, shown as small cards under Momo's bubble. */
+.intro-cards { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; max-width: 360px; }
+.intro-card { display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 70px; padding: 8px 10px; font: inherit; font-size: 13px; font-weight: 800; color: var(--nb-ink); background: var(--nb-paper); border: 2px solid var(--nb-ink); border-radius: 14px; box-shadow: var(--nb-shadow-sm); cursor: pointer; }
+.intro-card.is-picked { background: var(--nb-leaf-soft, #dff0c8); transform: translateY(-2px); }
+.intro-thumb { margin-top: 12px; }

@@ -1,0 +1,99 @@
+/* GestureRing: a big NUI target with a progress ring around its icon. No cursor is needed to use it.
+   Colours are the NUI tokens of app/styles/96-kit-base.css and 102-gesture.css, with fallbacks. Text is 4.5:1 or better
+   on its face, the ring is 3:1 or better against the face (non-text contrast). Target height is 56 px or more. */
+.gesture-ring {
+  position: relative;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 64px;
+  min-width: 56px;
+  padding: 8px 16px 8px 8px;
+  margin: 0;
+  background: var(--nb-paper, #fffaf0);
+  color: var(--nb-ink, #111111);
+  border: var(--nb-border, 2.5px) solid var(--nb-ink, #111111);
+  border-radius: 16px;
+  box-shadow: 3px 3px 0 var(--nb-ink, #111111);
+  font: inherit;
+  font-weight: 800;
+  font-size: 16px;
+  line-height: 1.25;
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.15s var(--nb-ease-pop, ease), box-shadow 0.15s ease, background-color 0.2s ease;
+}
+.gesture-ring:hover { transform: translateY(-1px); }
+.gesture-ring:focus-visible { outline: 3px solid var(--nb-ring-focus, #111111); outline-offset: 3px; }
+
+/* The dial: a 56 px disc with the track and the fill drawn over it. */
+.gesture-ring__dial {
+  position: relative;
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #ffffff;
+}
+.gesture-ring__svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.gesture-ring__track { fill: none; stroke: var(--nb-ring-track, #2b2822); stroke-width: 5; opacity: 0.22; }
+.gesture-ring__fill { fill: none; stroke: var(--nb-ring-fill, #3f7a17); stroke-width: 6; stroke-linecap: round; }
+.gesture-ring__icon { position: relative; display: grid; place-items: center; color: var(--nb-ink, #111111); }
+
+/* Filling: the same yellow halo as a held ThumbConfirm, so the fill is seen without reading the ring. */
+.gesture-ring.is-filling { box-shadow: 0 0 0 4px var(--nb-ring-halo, #f0d487), 3px 3px 0 var(--nb-ink, #111111); }
+.gesture-ring.is-confirmed { animation: gesture-ring-pulse 0.45s ease-out; }
+@keyframes gesture-ring-pulse {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.03); }
+  100% { transform: scale(1); }
+}
+
+/* Locked: grey face, grey ring, grey text and a padlock badge. The text contrast stays 4.5:1. */
+.gesture-ring.gesture-ring--locked {
+  background: #ece9e2;
+  color: #4f4b44;
+  border-color: #6b665d;
+  box-shadow: 3px 3px 0 #6b665d;
+  cursor: default;
+  transform: none;
+}
+.gesture-ring--locked .gesture-ring__dial { background: #e0dcd3; }
+.gesture-ring--locked .gesture-ring__track { opacity: 0.35; }
+.gesture-ring__fill--locked { stroke: #7a7469; }
+.gesture-ring--locked .gesture-ring__icon { color: #4f4b44; opacity: 0.55; }
+.gesture-ring__lock {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 2px solid #4f4b44;
+  border-radius: 50%;
+  background: #ece9e2;
+  color: #4f4b44;
+}
+
+.gesture-ring--disabled { opacity: 0.55; cursor: default; transform: none; }
+
+.gesture-ring__body { position: relative; display: block; flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; }
+.gesture-ring__caption { display: block; font-size: 16px; font-weight: 800; }
+
+.finger-glyph { display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gesture-ring, .gesture-ring:hover { transition: none; transform: none; }
+  .gesture-ring.is-confirmed { animation: none; }
+}
+
+/* Primary ring: the orange kit face, for the one action a student should take first. */
+.gesture-ring--primary { background: var(--nb-orange, #ef7a37); }

@@ -1,0 +1,108 @@
+# Byte‑compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+# Python packaging dirs, anchored to the repo root ("/") so they don't hide
+# source folders such as frontend/admin/lib/ (which broke the admin build).
+/build/
+/develop-eggs/
+/dist/
+/downloads/
+/eggs/
+/.eggs/
+/lib/
+/lib64/
+/parts/
+/sdist/
+/var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# pyenv
+.python-version
+
+# Virtual environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+
+# VS Code
+.vscode/
+.vscode/*
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Logs
+logs/
+*.log
+
+# Data files (keep raw data out of VCS)
+data/
+*.csv
+*.tsv
+*.json
+*.sqlite
+# ...except frontend config (package.json, tsconfig.json, etc.)
+!frontend/**/*.json
+
+# Model checkpoints / artifacts
+checkpoints/
+models/
+# ...except the MediaPipe hand model the game serves to the browser
+!frontend/implementation/public/models/
+*.pth
+*.pt
+# Model backups made before retraining (see DEPLOY.md)
+weights/backup/
+
+# Local tools / binaries (download cloudflared separately, see backend/README.md)
+cloudflared.exe
+cloudflared
+
+# Browser test recordings from the frontend's E2E runs (kept in the hitl-momo repo)
+frontend/implementation/docs/evidence/videos/
+frontend/implementation/docs/**/*.webm
+frontend/implementation/docs/**/*.mp4
+
+# Temporary files
+*.tmp
+*.swp
+*~

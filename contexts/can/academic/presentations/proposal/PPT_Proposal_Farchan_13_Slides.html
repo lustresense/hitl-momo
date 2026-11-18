@@ -1,0 +1,1318 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Proposal Defense Deck - Farchan Deano Muhammad</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --surface: #131313;
+      --surface-low: #1c1b1b;
+      --surface-mid: #201f1f;
+      --surface-high: #2a2a2a;
+      --surface-top: #353534;
+      --text: #e5e2e1;
+      --muted: #c1c9b6;
+      --line: #42493b;
+      --lime: #97d86d;
+      --lime-bright: #b2f586;
+      --white: #f9ffed;
+      --black: #0e0e0e;
+      --warn: #ffb4ab;
+      --radius: 18px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      background: var(--black);
+      color: var(--text);
+      font-family: "Manrope", Arial, sans-serif;
+    }
+
+    body {
+      padding: 32px 0;
+    }
+
+    .deck {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+
+    .slide {
+      position: relative;
+      width: 1280px;
+      height: 720px;
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, rgba(151, 216, 109, 0.05) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(151, 216, 109, 0.04) 1px, transparent 1px),
+        var(--surface);
+      background-size: 64px 64px;
+      border: 1px solid rgba(151, 216, 109, 0.22);
+      border-radius: 24px;
+      box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+      padding: 52px 60px;
+    }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      border: 10px solid rgba(249, 255, 237, 0.02);
+    }
+
+    .slide-no {
+      position: absolute;
+      right: 38px;
+      bottom: 28px;
+      color: rgba(229, 226, 225, 0.48);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 14px;
+      color: var(--lime-bright);
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .kicker::before {
+      content: "";
+      width: 30px;
+      height: 3px;
+      background: var(--lime);
+      border-radius: 999px;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      color: var(--white);
+      font-size: 56px;
+      line-height: 1.06;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    h2 {
+      color: var(--white);
+      font-size: 44px;
+      line-height: 1.08;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    h3 {
+      color: var(--white);
+      font-size: 23px;
+      line-height: 1.18;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin-top: 14px;
+      max-width: 900px;
+      color: var(--muted);
+      font-size: 22px;
+      line-height: 1.35;
+      font-weight: 500;
+    }
+
+    .body {
+      color: var(--text);
+      font-size: 18px;
+      line-height: 1.45;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.35;
+    }
+
+    .cover-grid {
+      height: 100%;
+      display: grid;
+      grid-template-columns: 1fr 230px;
+      gap: 42px;
+      align-items: center;
+    }
+
+    .logo-box {
+      width: 152px;
+      height: 152px;
+      border-radius: 28px;
+      display: grid;
+      place-items: center;
+      background: var(--white);
+      padding: 20px;
+    }
+
+    .logo-box img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .cover-meta {
+      margin-top: 26px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      max-width: 860px;
+    }
+
+    .meta-card,
+    .card {
+      border-radius: var(--radius);
+      border: 1px solid rgba(151, 216, 109, 0.20);
+      background: rgba(32, 31, 31, 0.92);
+      padding: 18px 20px;
+    }
+
+    .meta-label,
+    .label {
+      color: var(--lime-bright);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .meta-value {
+      margin-top: 7px;
+      color: var(--white);
+      font-size: 17px;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+
+    .two-col {
+      display: grid;
+      grid-template-columns: 1.02fr 0.98fr;
+      gap: 34px;
+      align-items: stretch;
+      margin-top: 26px;
+      height: 492px;
+    }
+
+    .two-col.compact {
+      height: 470px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 26px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 22px;
+    }
+
+    .bullet-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 2px;
+    }
+
+    .bullet {
+      position: relative;
+      padding-left: 24px;
+      color: var(--text);
+      font-size: 18px;
+      line-height: 1.38;
+    }
+
+    .bullet::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 10px;
+      width: 9px;
+      height: 9px;
+      border-radius: 999px;
+      background: var(--lime);
+      box-shadow: 0 0 18px rgba(151, 216, 109, 0.65);
+    }
+
+    .image-frame {
+      width: 100%;
+      height: 100%;
+      border-radius: var(--radius);
+      background: var(--surface-low);
+      border: 1px solid rgba(229, 226, 225, 0.16);
+      padding: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .image-frame img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      border-radius: 10px;
+    }
+
+    .caption {
+      margin-top: 10px;
+      color: rgba(193, 201, 182, 0.86);
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      overflow: hidden;
+      border-radius: 16px;
+      background: var(--surface-low);
+      border: 1px solid rgba(151, 216, 109, 0.22);
+    }
+
+    th,
+    td {
+      padding: 12px 14px;
+      vertical-align: top;
+      text-align: left;
+      border-bottom: 1px solid rgba(229, 226, 225, 0.08);
+      border-right: 1px solid rgba(229, 226, 225, 0.08);
+    }
+
+    th:last-child,
+    td:last-child {
+      border-right: 0;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    th {
+      color: var(--lime-bright);
+      background: rgba(151, 216, 109, 0.08);
+      font-size: 13px;
+      line-height: 1.25;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    td {
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.34;
+      font-weight: 500;
+    }
+
+    .table-lg td {
+      font-size: 15px;
+      line-height: 1.36;
+    }
+
+    .flow-row {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 12px;
+      align-items: center;
+      margin-top: 28px;
+    }
+
+    .flow-row.six {
+      grid-template-columns: repeat(6, 1fr);
+    }
+
+    .flow-node {
+      min-height: 94px;
+      border-radius: 18px;
+      border: 1px solid rgba(151, 216, 109, 0.28);
+      background: var(--surface-mid);
+      padding: 18px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      color: var(--white);
+      font-size: 17px;
+      line-height: 1.22;
+      font-weight: 800;
+    }
+
+    .flow-node.accent {
+      background: var(--lime-bright);
+      color: #0a2100;
+    }
+
+    .mini-flow {
+      display: grid;
+      grid-template-columns: 1fr 32px 1fr 32px 1fr;
+      gap: 10px;
+      align-items: center;
+      margin-top: 16px;
+    }
+
+    .arrow {
+      color: var(--lime-bright);
+      font-size: 24px;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .stat-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .stat {
+      min-height: 118px;
+      border-radius: 18px;
+      background: var(--surface-mid);
+      border: 1px solid rgba(229, 226, 225, 0.11);
+      padding: 20px;
+    }
+
+    .stat strong {
+      display: block;
+      color: var(--lime-bright);
+      font-size: 34px;
+      line-height: 1;
+      font-weight: 800;
+    }
+
+    .stat span {
+      display: block;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.35;
+      font-weight: 600;
+    }
+
+    .context-note {
+      margin-top: 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(151, 216, 109, 0.22);
+      background: rgba(151, 216, 109, 0.08);
+      padding: 12px 14px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.34;
+      font-weight: 700;
+    }
+
+    .arch-img {
+      height: 342px;
+      margin-top: 20px;
+    }
+
+    .callout-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .callout {
+      border-radius: 16px;
+      background: rgba(151, 216, 109, 0.08);
+      border: 1px solid rgba(151, 216, 109, 0.24);
+      padding: 15px 16px;
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.35;
+      font-weight: 600;
+    }
+
+    .callout b {
+      display: block;
+      color: var(--lime-bright);
+      margin-bottom: 5px;
+    }
+
+    .decision-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 28px;
+      align-items: start;
+      margin-top: 24px;
+    }
+
+    .decision-tree {
+      display: grid;
+      gap: 10px;
+    }
+
+    .tree-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .tree-node {
+      border-radius: 16px;
+      border: 1px solid rgba(151, 216, 109, 0.22);
+      background: var(--surface-mid);
+      padding: 14px 16px;
+      color: var(--white);
+      font-size: 15px;
+      line-height: 1.25;
+      font-weight: 800;
+      text-align: center;
+    }
+
+    .tree-node.full {
+      grid-column: 1 / -1;
+      background: rgba(151, 216, 109, 0.10);
+    }
+
+    .tree-node.hot {
+      background: var(--lime-bright);
+      color: #0a2100;
+    }
+
+    .image-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 18px;
+      height: 260px;
+    }
+
+    .mini-img {
+      border-radius: 14px;
+      border: 1px solid rgba(229, 226, 225, 0.14);
+      background: var(--surface-low);
+      padding: 8px;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+    }
+
+    .mini-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .wire-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      height: 210px;
+      margin-top: 18px;
+    }
+
+    .phase-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 22px;
+    }
+
+    .phase {
+      min-height: 212px;
+      border-radius: 18px;
+      background: var(--surface-mid);
+      border: 1px solid rgba(151, 216, 109, 0.20);
+      padding: 20px;
+    }
+
+    .phase-num {
+      width: 42px;
+      height: 42px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      background: var(--lime-bright);
+      color: #0a2100;
+      font-size: 17px;
+      font-weight: 800;
+      margin-bottom: 16px;
+    }
+
+    .phase p {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.35;
+      font-weight: 500;
+    }
+
+    .schedule {
+      margin-top: 24px;
+    }
+
+    .schedule td,
+    .schedule th {
+      padding: 9px 8px;
+      text-align: center;
+      font-size: 12px;
+    }
+
+    .schedule td:first-child,
+    .schedule th:first-child {
+      text-align: left;
+      width: 210px;
+    }
+
+    .bar {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border-radius: 5px;
+      background: var(--lime-bright);
+      box-shadow: 0 0 12px rgba(151, 216, 109, 0.34);
+    }
+
+    .closing-grid {
+      display: grid;
+      grid-template-columns: 0.92fr 1.08fr;
+      gap: 32px;
+      align-items: center;
+      margin-top: 26px;
+    }
+
+    .hierarchy-grid {
+      display: grid;
+      grid-template-columns: 0.92fr 0.78fr 1.3fr;
+      gap: 24px;
+      align-items: center;
+      margin-top: 26px;
+      height: 468px;
+    }
+
+    .hierarchy-stack {
+      display: grid;
+      gap: 22px;
+    }
+
+    .hierarchy-item {
+      position: relative;
+      border-radius: 20px;
+      border: 1px solid rgba(151, 216, 109, 0.30);
+      background: var(--surface-mid);
+      padding: 20px 22px;
+      min-height: 112px;
+    }
+
+    .hierarchy-item::after {
+      content: "";
+      position: absolute;
+      left: 40px;
+      bottom: -24px;
+      width: 3px;
+      height: 24px;
+      background: rgba(151, 216, 109, 0.44);
+    }
+
+    .hierarchy-item:last-child::after {
+      display: none;
+    }
+
+    .hierarchy-item.education {
+      background: rgba(151, 216, 109, 0.12);
+    }
+
+    .hierarchy-item h3 {
+      font-size: 22px;
+    }
+
+    .hierarchy-item p {
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.38;
+      font-weight: 600;
+    }
+
+    .mascot-bridge {
+      min-height: 418px;
+      border-radius: 28px;
+      border: 1px solid rgba(151, 216, 109, 0.34);
+      background:
+        radial-gradient(circle at 50% 30%, rgba(178, 245, 134, 0.20), transparent 34%),
+        var(--surface-low);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+      text-align: center;
+    }
+
+    .mascot-icon {
+      width: 118px;
+      height: 118px;
+      border-radius: 36px 36px 44px 44px;
+      background: var(--lime-bright);
+      border: 6px solid rgba(249, 255, 237, 0.18);
+      position: relative;
+      box-shadow: 0 0 34px rgba(151, 216, 109, 0.28);
+    }
+
+    .mascot-icon::before,
+    .mascot-icon::after {
+      content: "";
+      position: absolute;
+      top: 42px;
+      width: 14px;
+      height: 14px;
+      border-radius: 999px;
+      background: #0a2100;
+    }
+
+    .mascot-icon::before {
+      left: 30px;
+    }
+
+    .mascot-icon::after {
+      right: 30px;
+    }
+
+    .mascot-mouth {
+      position: absolute;
+      left: 39px;
+      bottom: 32px;
+      width: 34px;
+      height: 16px;
+      border-bottom: 5px solid #0a2100;
+      border-radius: 0 0 999px 999px;
+    }
+
+    .bridge-title {
+      margin-top: 22px;
+      color: var(--white);
+      font-size: 24px;
+      line-height: 1.14;
+      font-weight: 800;
+    }
+
+    .bridge-copy {
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.42;
+      font-weight: 600;
+    }
+
+    .principle {
+      border-radius: 20px;
+      border: 1px solid rgba(249, 255, 237, 0.12);
+      background: rgba(249, 255, 237, 0.04);
+      padding: 20px 22px;
+      margin-bottom: 16px;
+    }
+
+    .principle strong {
+      display: block;
+      color: var(--lime-bright);
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 9px;
+    }
+
+    .principle p {
+      color: var(--white);
+      font-size: 22px;
+      line-height: 1.25;
+      font-weight: 800;
+    }
+
+    .inspiration-callout {
+      margin-top: 16px;
+      border-radius: 18px;
+      border: 1px solid rgba(178, 245, 134, 0.28);
+      background: rgba(151, 216, 109, 0.09);
+      padding: 15px 16px;
+    }
+
+    .inspiration-callout .label {
+      margin-bottom: 7px;
+    }
+
+    .inspiration-callout p {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.34;
+      font-weight: 600;
+    }
+
+    .thanks-slide {
+      display: grid;
+      place-items: center;
+      text-align: center;
+    }
+
+    .thanks-panel {
+      max-width: 850px;
+    }
+
+    .thanks-big {
+      color: var(--white);
+      font-size: 82px;
+      line-height: 0.98;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .thanks-sub {
+      margin-top: 20px;
+      color: var(--muted);
+      font-size: 24px;
+      line-height: 1.34;
+      font-weight: 600;
+    }
+
+    .thanks-line {
+      width: 180px;
+      height: 5px;
+      background: var(--lime-bright);
+      border-radius: 999px;
+      margin: 30px auto 0;
+      box-shadow: 0 0 24px rgba(151, 216, 109, 0.52);
+    }
+
+    .footer-note {
+      position: absolute;
+      left: 60px;
+      bottom: 28px;
+      color: rgba(193, 201, 182, 0.72);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .thanks {
+      margin-top: 14px;
+      color: var(--lime-bright);
+      font-size: 30px;
+      line-height: 1;
+      font-weight: 800;
+    }
+
+    @page {
+      size: 16in 9in;
+      margin: 0;
+    }
+
+    @media print {
+      html,
+      body {
+        width: 16in;
+        height: 9in;
+        padding: 0;
+        background: var(--surface);
+      }
+
+      .deck {
+        display: block;
+      }
+
+      .slide {
+        width: 16in;
+        height: 9in;
+        border-radius: 0;
+        border: 0;
+        page-break-after: always;
+        break-after: page;
+        box-shadow: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="deck">
+    <section class="slide" id="slide-1">
+      <div class="cover-grid">
+        <div>
+          <div class="kicker">Proposal Defense</div>
+          <h1>Interactive AI Literacy Simulation for Junior High School Students</h1>
+          <p class="subtitle">Frontend interaction design, Top-3 UI, and game-based Human-in-the-Loop experience.</p>
+          <div class="cover-meta">
+            <div class="meta-card">
+              <div class="meta-label">Author</div>
+              <div class="meta-value">Farchan Deano Muhammad<br />NRP. 5323600012</div>
+            </div>
+            <div class="meta-card">
+              <div class="meta-label">Supervisors</div>
+              <div class="meta-value">Dr. Tri Budi Santoso, S.T., M.T.<br />Dr. Ing. Hestiasari Rante, S.T., M.Sc.</div>
+            </div>
+            <div class="meta-card">
+              <div class="meta-label">Program</div>
+              <div class="meta-value">Applied Bachelor of Multimedia Engineering Technology</div>
+            </div>
+            <div class="meta-card">
+              <div class="meta-label">Institution</div>
+              <div class="meta-value">Politeknik Elektronika Negeri Surabaya<br />2026</div>
+            </div>
+          </div>
+        </div>
+        <div class="logo-box">
+          <img src="image/ppt_12_slides/slide_01_cover_logo.png" alt="Institution logo" />
+        </div>
+      </div>
+      <div class="slide-no">01 / 13</div>
+    </section>
+
+    <section class="slide" id="slide-2">
+      <div class="kicker">Project Context</div>
+      <h2>Why This Project Is Needed</h2>
+      <p class="subtitle">AI literacy should not only teach students how to use AI, but also how to evaluate AI output.</p>
+      <div class="two-col compact">
+        <div>
+          <table class="table-lg">
+            <thead>
+              <tr>
+                <th>Problem</th>
+                <th>Impact on Students</th>
+                <th>Proposed Direction</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>AI output is often treated as a final answer.</td>
+                <td>Students may accept AI without evaluation.</td>
+                <td>Show AI prediction as uncertain output.</td>
+              </tr>
+              <tr>
+                <td>AI concepts are abstract for younger learners.</td>
+                <td>Students may not understand confidence and error.</td>
+                <td>Use drawing-based interactive simulation.</td>
+              </tr>
+              <tr>
+                <td>Learning media often lacks decision consequence.</td>
+                <td>Students only observe, not decide.</td>
+                <td>Add a Human-in-the-Loop decision moment.</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="stat-strip">
+            <div class="stat"><strong>AI</strong><span>is introduced as a probabilistic system.</span></div>
+          <div class="stat"><strong>HITL</strong><span>keeps students as active evaluators.</span></div>
+          <div class="stat"><strong>Game</strong><span>turns decisions into visible consequences.</span></div>
+          <div class="stat"><strong>Log</strong><span>records interaction patterns for review.</span></div>
+        </div>
+          <div class="context-note">Inspired by exploratory AI literacy approaches for younger learners, but implemented through visual classification and gameplay decisions.</div>
+        </div>
+        <div>
+          <div class="image-frame">
+            <img src="image/ppt_12_slides/slide_02_ai_literacy_framework.png" alt="AI literacy framework" />
+          </div>
+          <div class="caption">AI literacy dimensions used as the educational foundation.</div>
+        </div>
+      </div>
+      <div class="slide-no">02 / 13</div>
+    </section>
+
+    <section class="slide" id="slide-3">
+      <div class="kicker">Proposed Solution</div>
+      <h2>Sketch, Predict, Decide, and See the Consequence</h2>
+      <p class="subtitle">A web-based interactive simulation where students draw objects, inspect AI predictions, and decide the final object behavior.</p>
+      <div class="flow-row six">
+        <div class="flow-node">Student Drawing</div>
+        <div class="flow-node">AI Prediction</div>
+        <div class="flow-node accent">Top-3 UI</div>
+        <div class="flow-node">Human Decision</div>
+        <div class="flow-node">2D Gameplay Consequence</div>
+        <div class="flow-node">Interaction Log</div>
+      </div>
+      <div class="two-col" style="height: 305px; margin-top: 30px;">
+        <div class="card">
+          <div class="label">Main Points</div>
+          <div class="bullet-list" style="margin-top: 16px;">
+            <div class="bullet">Students draw objects through a canvas-based interaction.</div>
+            <div class="bullet">The system displays AI prediction through a Top-3 UI.</div>
+            <div class="bullet">Students choose to accept, correct, override, or redraw.</div>
+            <div class="bullet">The decision affects object behavior inside the 2D game.</div>
+          </div>
+        </div>
+        <div class="image-frame">
+          <img src="image/ppt_12_slides/slide_03_mediapipe_hands.png" alt="MediaPipe hand tracking" />
+        </div>
+      </div>
+      <div class="slide-no">03 / 13</div>
+    </section>
+
+    <section class="slide" id="slide-4">
+      <div class="kicker">System Design Overview</div>
+      <h2>One Integrated Global System</h2>
+      <p class="subtitle">The system connects finger tracking input, AI prediction, Human-in-the-Loop validation, gameplay behavior, and interaction data.</p>
+      <div class="image-frame arch-img">
+        <img src="image/ppt_12_slides/slide_05_06_system_architecture.png" alt="Global system architecture" />
+      </div>
+      <div class="callout-row">
+        <div class="callout"><b>Input</b>Camera stream, finger tracking, canvas drawing, and student decision.</div>
+        <div class="callout"><b>Process</b>Interaction layer, AI classification, decision resolver, and log handling.</div>
+        <div class="callout"><b>Output</b>Prediction UI, gameplay outcome, learning feedback, and decision pattern data.</div>
+      </div>
+      <div class="slide-no">04 / 13</div>
+    </section>
+
+    <section class="slide" id="slide-5">
+      <div class="kicker">Development Scope</div>
+      <h2>Author Scope Within the Team Project</h2>
+      <p class="subtitle">This proposal focuses on frontend interaction, UI/UX, Top-3 decision flow, gameplay, and the student-facing learning experience.</p>
+      <table class="table-lg" style="margin-top: 26px;">
+        <thead>
+          <tr>
+            <th>Area</th>
+            <th>Author Scope</th>
+            <th>Partner Relation</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>User Interface</td>
+            <td>Main screens, game HUD, Top-3 UI, and feedback display.</td>
+            <td>Receives prediction data and log structure.</td>
+          </tr>
+          <tr>
+            <td>Interaction</td>
+            <td>Finger tracking, canvas drawing, navigation, and decision input.</td>
+            <td>Uses interaction output as recorded data.</td>
+          </tr>
+          <tr>
+            <td>Gameplay</td>
+            <td>2D level flow, object behavior, fail state, and retry condition.</td>
+            <td>Uses the AI prediction result as gameplay input.</td>
+          </tr>
+          <tr>
+            <td>Feedback</td>
+            <td>Mascot response, level result, and decision summary.</td>
+            <td>Supports data analysis after interaction.</td>
+          </tr>
+          <tr>
+            <td>Documentation</td>
+            <td>User flow, interaction matrix, wireframe, and level interaction design.</td>
+            <td>Integrated into the global system proposal.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="slide-no">05 / 13</div>
+    </section>
+
+    <section class="slide" id="slide-6">
+      <div class="kicker">Interaction Matrix</div>
+      <h2>Mapping Input, Response, and Simulation Context</h2>
+      <p class="subtitle">The interaction matrix explains how each student action creates a clear system response.</p>
+      <table style="margin-top: 20px;">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Interaction Type</th>
+            <th>User Input</th>
+            <th>System Response</th>
+            <th>Used In</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>I-01</td><td>Presence</td><td>Wave hand</td><td>System starts and companion greets.</td><td>Onboarding</td></tr>
+          <tr><td>I-02</td><td>Navigation</td><td>Click, tap, or gesture</td><td>Start, continue, or next screen.</td><td>Menu and tutorial</td></tr>
+          <tr><td>I-03</td><td>Drawing</td><td>Canvas drawing</td><td>Drawing is captured.</td><td>Core loop</td></tr>
+          <tr><td>I-04</td><td>AI Request</td><td>Submit drawing</td><td>Top-3 prediction appears.</td><td>Top-3 UI</td></tr>
+          <tr><td>I-05</td><td>AI Decision</td><td>Accept, correct, override, or redraw</td><td>Final label is selected.</td><td>HITL moment</td></tr>
+          <tr><td>I-06</td><td>Movement</td><td>Keyboard, touch, or gesture</td><td>Main character moves.</td><td>Main gameplay</td></tr>
+          <tr><td>I-07</td><td>Feedback</td><td>User action result</td><td>Feedback and consequence appear.</td><td>Result state</td></tr>
+          <tr><td>I-08</td><td>Recovery</td><td>Retry or redraw</td><td>User revises action.</td><td>Fail state</td></tr>
+          <tr><td>I-09</td><td>Reflection</td><td>View summary</td><td>Decision summary appears.</td><td>End level</td></tr>
+        </tbody>
+      </table>
+      <div class="slide-no">06 / 13</div>
+    </section>
+
+    <section class="slide" id="slide-7">
+      <div class="kicker">Top-3 UI and Human Decision</div>
+      <h2>The Main Human-in-the-Loop Checkpoint</h2>
+      <p class="subtitle">The student does not directly accept AI output. The Top-3 UI creates a decision point before the object enters gameplay.</p>
+      <div class="decision-grid">
+        <div class="decision-tree">
+          <div class="tree-node full">Drawing Submitted</div>
+          <div class="tree-node full">AI Shows Top-3 Prediction + Confidence Score</div>
+          <div class="tree-row">
+            <div class="tree-node hot">Accept<br />Use Top-1</div>
+            <div class="tree-node">Correct<br />Choose Top-2 or Top-3</div>
+          </div>
+          <div class="tree-row">
+            <div class="tree-node">Override<br />Input Own Label</div>
+            <div class="tree-node">Redraw<br />Return to Canvas</div>
+          </div>
+          <div class="tree-node full">Final Object Label</div>
+          <div class="tree-node full">Object Enters Gameplay</div>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Decision</th>
+              <th>Learning Role</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Accept</td><td>Tests student trust toward AI output.</td></tr>
+            <tr><td>Correct</td><td>Tests comparison of alternative predictions.</td></tr>
+            <tr><td>Override</td><td>Tests human agency over AI suggestions.</td></tr>
+            <tr><td>Redraw</td><td>Tests recovery behavior when input is unclear.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="slide-no">07 / 13</div>
+    </section>
+
+    <section class="slide" id="slide-8">
+      <div class="kicker">Object Behavior Mapping</div>
+      <h2>Student Decisions Become Gameplay Behavior</h2>
+      <p class="subtitle">The final label is translated into object behavior inside the simulation world.</p>
+      <div class="two-col" style="height: 430px;">
+        <table class="table-lg">
+          <thead>
+            <tr>
+              <th>Final Label Result</th>
+              <th>Gameplay Category</th>
+              <th>Behavior in Simulation</th>
+              <th>Example</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Safe support object</td>
+              <td>Solid</td>
+              <td>Can be used as a platform or helper object.</td>
+              <td>Ladder, bridge, stairs</td>
+            </tr>
+            <tr>
+              <td>Harmful object</td>
+              <td>Danger</td>
+              <td>Causes fail condition or blocks progress.</td>
+              <td>Fire, lightning, knife</td>
+            </tr>
+            <tr>
+              <td>Invalid or unclear object</td>
+              <td>Redraw or correction</td>
+              <td>Student must revise the drawing or label.</td>
+              <td>Unclear sketch</td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="card">
+          <div class="label">Behavior Flow</div>
+          <div class="mini-flow">
+            <div class="flow-node">Final Object Label</div>
+            <div class="arrow">&rarr;</div>
+            <div class="flow-node accent">Behavior Mapping</div>
+            <div class="arrow">&rarr;</div>
+            <div class="flow-node">Gameplay Result</div>
+          </div>
+          <div class="bullet-list" style="margin-top: 26px;">
+            <div class="bullet">Solid objects help the student progress.</div>
+            <div class="bullet">Danger objects create visible consequences.</div>
+            <div class="bullet">Unclear objects guide the student back to correction.</div>
+          </div>
+        </div>
+      </div>
+      <div class="slide-no">08 / 13</div>
+    </section>
+
+    <section class="slide" id="slide-9">
+      <div class="kicker">Level Interaction Design</div>
+      <h2>Progressive AI Uncertainty Across Levels</h2>
+      <p class="subtitle">Each level introduces a different intensity of AI uncertainty and student decision-making.</p>
+      <table class="table-lg" style="margin-top: 26px;">
+        <thead>
+          <tr>
+            <th>Level</th>
+            <th>Interaction Focus</th>
+            <th>AI Display</th>
+            <th>Student Task</th>
+            <th>Main Learning Moment</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Level 1</td>
+            <td>Guided recognition</td>
+            <td>Top-1 only</td>
+            <td>Draw and accept a simple object.</td>
+            <td>Understand that AI can classify sketches.</td>
+          </tr>
+          <tr>
+            <td>Level 2</td>
+            <td>Ambiguous prediction</td>
+            <td>Top-3 + confidence</td>
+            <td>Compare prediction alternatives.</td>
+            <td>Learn that AI output has uncertainty.</td>
+          </tr>
+          <tr>
+            <td>Level 3</td>
+            <td>Critical decision</td>
+            <td>Confident but wrong prediction</td>
+            <td>Override or redraw.</td>
+            <td>Learn that humans must validate AI.</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="phase-grid">
+        <div class="phase"><div class="phase-num">1</div><h3>Guided</h3><p>Students learn the basic loop with low ambiguity and simple feedback.</p></div>
+        <div class="phase"><div class="phase-num">2</div><h3>Ambiguous</h3><p>Students compare alternatives and interpret confidence values.</p></div>
+        <div class="phase"><div class="phase-num">3</div><h3>Critical</h3><p>Students challenge AI output when the prediction does not match their intention.</p></div>
+      </div>
+      <div class="slide-no">09 / 13</div>
+    </section>
+
+    <section class="slide" id="slide-10">
+      <div class="kicker">User Flow and Use Case Summary</div>
+      <h2>Create, Decide, and See the Consequence</h2>
+      <p class="subtitle">The experience is organized into three student-facing phases and supported by admin roles.</p>
+      <div class="two-col" style="height: 448px;">
+        <div>
+          <div class="phase-grid" style="grid-template-columns: 1fr; gap: 12px; margin-top: 0;">
+            <div class="phase" style="min-height: 120px;"><div class="phase-num">1</div><h3>Create</h3><p>Student enters the level, draws an object, and submits the sketch.</p></div>
+            <div class="phase" style="min-height: 120px;"><div class="phase-num">2</div><h3>Decide</h3><p>Top-3 UI appears and the student chooses Accept, Correct, Override, or Redraw.</p></div>
+            <div class="phase" style="min-height: 120px;"><div class="phase-num">3</div><h3>Consequence</h3><p>Object behavior is applied and the student receives feedback through gameplay.</p></div>
+          </div>
+        </div>
+        <div>
+          <div class="image-frame">
+            <img src="image/ppt_12_slides/slide_07_use_case_diagram.png" alt="Use case diagram" />
+          </div>
+          <div class="caption">Use case overview: student, admin, and super admin roles.</div>
+        </div>
+      </div>
+      <div class="slide-no">10 / 13</div>
+    </section>
+
+    <section class="slide" id="slide-11">
+      <div class="kicker">System Hierarchy</div>
+      <h2>Interaction First, Education Through Play</h2>
+      <p class="subtitle">The mascot bridges the system hierarchy so students learn from the experience, not from a lecture.</p>
+      <div class="hierarchy-grid">
+        <div class="hierarchy-stack">
+          <div class="hierarchy-item">
+            <h3>Interaction</h3>
+            <p>Natural entry point through camera, gesture, drawing canvas, and simple UI.</p>
+          </div>
+          <div class="hierarchy-item">
+            <h3>Gameplay &amp; Storyline</h3>
+            <p>A simple puzzle-platformer context turns drawing and prediction into a playable goal.</p>
+          </div>
+          <div class="hierarchy-item education">
+            <h3>Education</h3>
+            <p>AI literacy appears through reflection on prediction, confidence, correction, and consequence.</p>
+          </div>
+        </div>
+        <div class="mascot-bridge">
+          <div class="mascot-icon"><div class="mascot-mouth"></div></div>
+          <div class="bridge-title">Mascot as Bridge</div>
+          <p class="bridge-copy">A visual companion that softens instruction, signals uncertainty, and connects game feedback to AI literacy.</p>
+        </div>
+        <div>
+          <div class="principle">
+            <strong>Design Principle</strong>
+            <p>Teach without making students feel lectured.</p>
+          </div>
+          <div class="bullet-list">
+            <div class="bullet">Interaction lowers friction so students can start playing before facing theory.</div>
+            <div class="bullet">Gameplay gives students a reason to care about their AI decision.</div>
+            <div class="bullet">The mascot turns prediction moments into short cues, warnings, and reflections.</div>
+            <div class="bullet">Education is placed at the end of the loop, after students experience the consequence.</div>
+          </div>
+          <div class="inspiration-callout">
+            <div class="label">Design Inspiration</div>
+            <p>MIT Little Language Models / CoCo shows how AI concepts can be introduced to younger learners through playful exploration. This project adapts the interaction-first idea into a visual classification context: students draw, inspect Top-3 predictions, decide, and see gameplay consequences.</p>
+          </div>
+        </div>
+      </div>
+      <div class="slide-no">11 / 13</div>
+    </section>
+
+    <section class="slide" id="slide-12">
+      <div class="kicker">Schedule and Closing</div>
+      <h2>Research Schedule and Main Contribution</h2>
+      <p class="subtitle">The project plan follows the development phases while keeping the main contribution focused on interactive AI literacy.</p>
+      <table class="schedule">
+        <thead>
+          <tr>
+            <th>Activity</th>
+            <th>M1</th><th>M2</th><th>M3</th><th>M4</th><th>M5</th><th>M6</th><th>M7</th><th>M8</th><th>M9</th><th>M10</th><th>M11</th><th>M12</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Concept</td><td><span class="bar"></span></td><td><span class="bar"></span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Design</td><td></td><td><span class="bar"></span></td><td><span class="bar"></span></td><td><span class="bar"></span></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Material Collecting</td><td></td><td></td><td></td><td><span class="bar"></span></td><td><span class="bar"></span></td><td><span class="bar"></span></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>Assembly</td><td></td><td></td><td></td><td></td><td><span class="bar"></span></td><td><span class="bar"></span></td><td><span class="bar"></span></td><td><span class="bar"></span></td><td></td><td></td><td></td><td></td></tr>
+          <tr><td>User Testing</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td><span class="bar"></span></td><td><span class="bar"></span></td><td><span class="bar"></span></td><td></td><td></td></tr>
+          <tr><td>Distribution</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td><span class="bar"></span></td><td><span class="bar"></span></td><td><span class="bar"></span></td></tr>
+        </tbody>
+      </table>
+      <div class="closing-grid">
+        <div class="mini-flow">
+          <div class="flow-node">Draw</div>
+          <div class="arrow">&rarr;</div>
+          <div class="flow-node">Predict</div>
+          <div class="arrow">&rarr;</div>
+          <div class="flow-node accent">Decide</div>
+        </div>
+        <div class="card">
+          <div class="label">Main Contribution</div>
+          <div class="bullet-list" style="margin-top: 16px;">
+            <div class="bullet">The system introduces AI literacy through interactive sketch-based gameplay.</div>
+            <div class="bullet">The Top-3 UI creates the main Human-in-the-Loop moment.</div>
+            <div class="bullet">Student decisions affect gameplay consequences and make AI uncertainty visible.</div>
+          </div>
+        </div>
+      </div>
+      <div class="footer-note">Main contribution: an interactive experience that makes AI uncertainty visible and actionable.</div>
+      <div class="slide-no">12 / 13</div>
+    </section>
+
+    <section class="slide thanks-slide" id="slide-13">
+      <div class="thanks-panel">
+        <div class="kicker" style="justify-content: center;">Closing</div>
+        <div class="thanks-big">Thank You</div>
+        <p class="thanks-sub">I am open to questions, feedback, and suggestions.</p>
+        <div class="thanks-line"></div>
+      </div>
+      <div class="footer-note">Interactive AI Literacy Simulation for Junior High School Students</div>
+      <div class="slide-no">13 / 13</div>
+    </section>
+  </main>
+</body>
+</html>

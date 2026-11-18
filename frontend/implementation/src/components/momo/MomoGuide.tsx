@@ -1,0 +1,97 @@
+"use client";
+/**
+ * Momo as the guide of a page: docked in the bottom-right corner, one speech bubble at a time (MomoChat), pointing at
+ * the next thing to do. The wrapper never blocks the page; only the bubble extras (a gesture cue) take clicks.
+ * Display only: Momo never takes input, decides, or creates objects (lore invariant).
+ */
+import { useEffect, useState, type ReactNode, type Ref } from "react";
+import type { GuideStep } from "@/src/domain/guide-script";
+import { MomoChat } from "./MomoChat";
+import { getCameraAssistState, subscribeCameraAssistState } from "@/src/camera/camera-assist-state";
+
+export interface MomoGuideProps {
+  step: GuideStep | null;
+  /** Rendered Momo height in px. */
+  height?: number;
+  sleeping?: boolean;
+  flapKey?: number;
+  waveKey?: number;
+  startDelay?: number;
+  /** A cue (button) that appears under the bubble once Momo has said her first line. */
+  children?: ReactNode;
+  /** Layout hook for the screen she is on (cover is bigger, the level list lifts her above the demo tape). */
+  placement?: "cover" | "page";
+  /** Show the cue from her first line (`first`) or once she has said everything (`last`). */
+  extrasFrom?: "first" | "last";
+  testId?: string;
+  onDone?: () => void;
+  /** Fires once per set of lines, after the last line and its reading pause (see MomoChat). */
+  onAllShown?: () => void;
+  /** Extra classes on the wrapper, for a screen that moves or fades her (cover choreography). */
+  className?: string;
+  /** The wrapper element, so a screen can animate Momo as one box (FLIP). */
+  rootRef?: Ref<HTMLDivElement>;
+  /** Keep the full height on phones too (the cover's centre stage). Default: phones cap her at 104 px. */
+  fullSize?: boolean;
+  /** Speech speed multiplier (see MomoChat). Default 1; only the cover sets less. */
+  pace?: number;
+}
+
+/** Phone width: Momo is smaller so the page stays usable. */
+function useCompact(): boolean {
+  const [compact, setCompact] = useState(false);
+  useEffect(() => {
+    if (typeof window === "undefined" || typeof window.matchMedia !== "function") return;
+    const mq = window.matchMedia("(max-width: 640px)");
+    const sync = () => setCompact(mq.matches);
+    sync();
+    mq.addEventListener?.("change", sync);
+    return () => mq.removeEventListener?.("change", sync);
+  }, []);
+  return compact;
+}
+
+export function MomoGuide({ step, height = 150, sleeping = false, flapKey, waveKey, startDelay = 0, children, placement = "page", extrasFrom = "first", testId = "momo-guide", onDone, onAllShown, className, rootRef, fullSize = false, pace = 1 }: MomoGuideProps) {
+  const compact = useCompact();
+  const [cameraAssist, setCameraAssist] = useState(getCameraAssistState);
+  useEffect(() => subscribeCameraAssistState(setCameraAssist), []);
+  // Promote the existing page Momo, not a second mascot. The story callbacks remain untouched.
+  const recoveringCamera = placement === "page" && cameraAssist === "failed";
+  const normalSize = compact && !fullSize ? Math.min(height, 104) : height;
+  const shown = recoveringCamera ? Math.max(normalSize, compact ? 124 : 184) : normalSize;
+  const classes = [`momo-guide`, `momo-guide--${placement}`, sleeping ? "is-asleep" : "", recoveringCamera ? "is-camera-assist" : "", className ?? ""].filter(Boolean).join(" ");
+  return (
+    <div ref={rootRef} className={classes} data-testid={testId} data-asleep={sleeping ? "true" : "false"} style={{ ["--mg-h" as string]: `${shown}px` }}>
+      {sleeping && (
+        <span className="momo-guide__zzz" aria-hidden="true">
+          <i>z</i>
+          <i>z</i>
+          <i>Z</i>
+        </span>
+      )}
+      <MomoChat
+        side="right"
+        lines={step?.lines ?? []}
+        mood={step?.mood ?? "Ngantuk"}
+        avatarHeight={shown}
+        sleeping={sleeping}
+        flapKey={flapKey}
+        waveKey={waveKey}
+        startDelay={startDelay}
+        extrasFrom={extrasFrom}
+        onDone={onDone}
+        onAllShown={onAllShown}
+        pace={pace}
+        testId={`${testId}-chat`}
+      >
+        {children}
+      </MomoChat>
+      {recoveringCamera && (
+        <p className="momo-guide__camera-recovery" role="status">
+          Kamera belum siap melihat tanganmu. Kamu tetap bisa pakai mouse atau keyboard.
+          Coba nyalakan kamera lagi kalau sudah siap.
+        </p>
+      )}
+    </div>
+  );
+}

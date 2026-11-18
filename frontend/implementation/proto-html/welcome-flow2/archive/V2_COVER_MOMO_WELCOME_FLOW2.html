@@ -1,0 +1,778 @@
+<!doctype html><html lang="id"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/><title>Sketchbook Universe · Welcome Flow 2 V2 | Momo ngelindur + brief R21</title><meta name="theme-color" content="#eff3db"/><style>/* SOURCE: frontend/implementation/app/styles/00-tokens-base.css,
+   96-kit-base.css, app/prototype-camera.css and 60-global-camera.css.
+   Kept as a portable snapshot of repo tokens, not independent visual inventions. */
+:root {
+ --paper:#f7f5ea; --paper-light:#f7f5ea; --ink:#23211d; --ink-strong:#111111;
+ --green-strong:#4a8c1f; --orange:#df6930; --orange-deep:#ba4c10;
+ --nb-ink:#111111; --nb-paper:#fffaf0; --nb-bg:#f7f5ea;
+ --nb-orange:#ef7a37; --nb-orange-press:#df6930; --nb-orange-deep:#ba4c10;
+ --nb-leaf:#c8d9a4; --nb-leaf-soft:#eff3db; --nb-green:#4a8c1f;
+ --nb-green-press:#3e771a; --nb-yellow:#f0d487; --nb-sky:#a8c8d8;
+ --nb-border:2.5px; --nb-shadow:4px 4px 0 var(--nb-ink);
+ --nb-shadow-sm:3px 3px 0 var(--nb-ink); --nb-radius:16px;
+ --nb-ease-pop:cubic-bezier(.34,1.56,.64,1);
+ --shadow:0 2px 2px rgba(55,31,13,.10),0 8px 18px rgba(55,31,13,.12),0 24px 46px rgba(55,31,13,.10);
+}
+* {box-sizing:border-box}
+html,body {margin:0;width:100%;height:100%;overflow:hidden;font-family:Inter,ui-sans-serif,system-ui,-apple-system,'Segoe UI',sans-serif;color:var(--nb-ink);background:var(--nb-leaf-soft)}
+button,select {font:inherit}button {cursor:pointer} button:focus-visible,select:focus-visible{outline:3px solid var(--nb-sky);outline-offset:3px}
+#stage{position:fixed;inset:0;overflow:hidden;isolation:isolate; background:var(--nb-leaf-soft);touch-action:manipulation}
+#stage::before{position:absolute;inset:0;content:"";z-index:0;pointer-events:none;background:radial-gradient(ellipse 66% 80% at 50% -22%,var(--nb-leaf),transparent 90%),radial-gradient(ellipse 63% 70% at 50% 122%,var(--nb-leaf),transparent 95%)}
+#stage::after{position:absolute;inset:0;content:"";z-index:0;pointer-events:none;opacity:.3;background-image:radial-gradient(circle at 1px 1px,rgba(49,45,38,.16) 1px,transparent 1.2px);background-size:22px 22px}
+/* BENTUK CARD DARI ujang-monorepo/frontend/implementation/app/prototype-camera.css.
+   Prototype visual only: no webcam permission, no video stream, toggle runs choreography. */
+.camera-prototype-root .camera-widget-card.toggle-card{position:absolute;z-index:4;display:flex;flex-direction:column;gap:10px;overflow:hidden;width:290px;padding:14px;user-select:none;color:var(--nb-paper);background:linear-gradient(160deg,var(--orange),var(--orange-deep));border:2px solid var(--ink-strong);border-radius:22px;box-shadow:inset 0 0 0 6px rgba(255,255,255,.15),4px 4px 0 var(--ink-strong),var(--shadow);will-change:top,left,width,height}
+.camera-prototype-root .toggle-card::before{content:"";position:absolute;inset:14px;border:1.5px dashed rgba(255,250,240,.34);border-radius:15px;pointer-events:none;z-index:0}
+.camera-prototype-root .toggle-card::after{content:"";position:absolute;inset:20px;border-radius:18px;pointer-events:none;z-index:0;opacity:.8;background:radial-gradient(circle at 28% 26%,rgba(255,255,255,.16) 0 12px,transparent 13px),radial-gradient(circle at 72% 32%,rgba(255,255,255,.11) 0 18px,transparent 19px),linear-gradient(130deg,rgba(255,255,255,.10),transparent 36%)}
+.camera-prototype-root .video-wrap,.camera-prototype-root .toggle-row,.camera-prototype-root .camera-select-wrap{position:relative;z-index:2}
+.camera-prototype-root .video-wrap{display:block;width:100%;height:0;aspect-ratio:5/4;overflow:hidden;border-radius:14px;border:0 solid var(--ink-strong);background:transparent;opacity:0;pointer-events:none;transition:height .76s cubic-bezier(.16,1,.3,1),border-width .16s ease,opacity .4s ease}
+.camera-prototype-root .toggle-card.on .video-wrap{height:calc((100% - 67px));min-height:0;opacity:1;border-width:2px;background:var(--nb-ink);pointer-events:auto}
+/* Placeholder bukan rekaman/video; sengaja memakai frame kamera dan material #1e2126 repo. */
+.camera-prototype-root .camera-video{position:absolute;inset:0;width:100%;height:100%;display:grid;place-items:center;opacity:1;background:radial-gradient(circle at 50% 38%,#292d31,#1e2126 73%);color:var(--nb-paper)}
+.camera-prototype-root .camera-video::before{content:"";position:absolute;inset:11px;border:1px dashed rgba(255,250,240,.13);border-radius:12px}
+.camera-prototype-root .camera-video::after{content:"";position:absolute;width:40%;height:28%;border:2px solid rgba(255,250,240,.17);border-radius:14px;transform:rotate(-3deg)}
+.camera-prototype-root .camera-video .mock-legend{position:absolute;bottom:14px;font-size:10px;font-weight:800;letter-spacing:.03em;color:rgba(255,250,240,.62);text-align:center}
+.camera-prototype-root .toggle-card.on .video-inner{opacity:0;pointer-events:none}
+.camera-prototype-root .toggle-card.on .camera-video{opacity:1}
+.camera-prototype-root .video-inner{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:8px;color:rgba(255,255,255,.58);background:radial-gradient(circle at 1px 1px,rgba(255,255,255,.07) 1px,transparent 1.2px) 0 0/18px 18px,#1e2126;opacity:1;transition:opacity .3s ease}
+.camera-prototype-root .toggle-card.on .video-inner{opacity:0;pointer-events:none}
+.camera-prototype-root .video-inner svg{width:38px;height:38px;opacity:.72}
+.camera-prototype-root .video-inner .label{color:#fff;font-size:11px;font-weight:800;padding:4px 10px;background:rgba(0,0,0,.4);border-radius:6px}
+.camera-prototype-root .rec-dot{position:absolute;top:10px;right:12px;display:flex;align-items:center;gap:5px;color:var(--nb-yellow);font-size:8px;font-weight:800;letter-spacing:.14em;opacity:0}
+.camera-prototype-root .toggle-card.on .rec-dot{opacity:1}
+.camera-prototype-root .rec-dot::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--nb-yellow)}
+.camera-prototype-root .toggle-row{display:flex;justify-content:space-between;align-items:center;gap:14px;min-height:34px;padding:2px 2px 0}
+.camera-prototype-root .toggle-label{font-size:15px;font-weight:800;color:var(--nb-paper);letter-spacing:-.01em}
+.camera-prototype-root .toggle-switch{position:relative;width:46px;height:26px;flex:none;padding:0;border:0;border-radius:99px;background:var(--ink);appearance:none;transition:background .22s ease}
+.camera-prototype-root .toggle-switch::after{content:"";position:absolute;top:4px;left:4px;width:18px;height:18px;background:var(--nb-paper);border-radius:50%;transition:transform .25s cubic-bezier(.16,1,.3,1)}
+.camera-prototype-root .toggle-card.on .toggle-switch{background:var(--green-strong)}
+.camera-prototype-root .toggle-card.on .toggle-switch::after{transform:translateX(20px)}
+.camera-prototype-root .camera-select-wrap{width:100%}
+.camera-prototype-root .camera-select{width:100%;appearance:none;padding:8px 34px 8px 10px;border:2.5px solid var(--ink-strong);border-radius:8px;background:var(--paper-light);color:var(--green-strong);font-size:11px;font-weight:800;text-align:center;box-shadow:2px 2px 0 var(--ink-strong)}
+.camera-prototype-root .camera-select:disabled{opacity:1;-webkit-text-fill-color:var(--green-strong);cursor:default}
+.camera-prototype-root .camera-select-wrap::after{content:"⌄";position:absolute;right:11px;top:50%;transform:translateY(-56%);color:var(--nb-ink);font-size:14px;font-weight:900;pointer-events:none}
+/* Exact PIP material dimensions from 60-global-camera.css. Only the prototype layout is standalone. */
+.camera-prototype-root .toggle-card.pip,.camera-prototype-root .toggle-card.pip.on{display:block;padding:0;gap:0;overflow:hidden;background:#1e2126;border:3px solid #d0622a;border-radius:14px;box-shadow:4px 4px 0 #111}
+.camera-prototype-root .toggle-card.pip::before,.camera-prototype-root .toggle-card.pip::after,.camera-prototype-root .toggle-card.pip .camera-select-wrap{display:none}
+.camera-prototype-root .toggle-card.pip .rec-dot,.camera-prototype-root .toggle-card.pip .mock-legend{display:none}
+.camera-prototype-root .toggle-card.pip .video-wrap{position:absolute;inset:0;display:block;width:100%;height:100%;border:0;border-radius:11px;aspect-ratio:5/4}
+#camera .video-inner{background:radial-gradient(circle at 1px 1px,rgba(255,255,255,.06) 1px,transparent 1.2px) 0 0/18px 18px,#1e2126}
+/* Logo kaki/sayap bukan komponen baru: hanya bagian dari SVG Momo di belakang card. */
+#perch-shadow{position:absolute;width:120px;height:10px;border-radius:50%;background:var(--nb-ink);filter:blur(8px);z-index:2;pointer-events:none;opacity:.12}
+/* Momo deliberately behind the card, fully upright: 45-55% of the lower body is occluded. */
+#momo{position:absolute;width:165px;height:244px;transform-origin:50% 48%;z-index:3;pointer-events:none;will-change:transform,top,left,filter;filter:drop-shadow(3px 5px 0 rgba(17,17,17,.15))}
+#momo svg{width:100%;height:100%;display:block;overflow:visible}
+#momo #eyes-open{opacity:0;transition:opacity .24s}#momo #eyes-closed{opacity:1;transition:opacity .24s}
+#momo.awake #eyes-open{opacity:1}#momo.awake #eyes-closed{opacity:0}
+
+
+
+
+#momo .sleep-breath{transform-origin:50% 40%;animation:breathe 4.2s ease-in-out infinite}#momo.awake .sleep-breath{animation:none}
+@keyframes breathe{0%,100%{transform:scale(1)}50%{transform:scale(1.016,.99)}}@keyframes tailSway{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(3deg)}}
+@keyframes wingHello{to{transform:rotate(-24deg)}}@keyframes wingFly{to{transform:rotate(20deg)}}
+#shade{position:absolute;inset:0;z-index:5;pointer-events:none;opacity:0;background:rgba(17,17,17,.70);will-change:opacity}
+#spot{position:absolute;left:50%;top:37%;width:min(620px,98vw);aspect-ratio:1;transform:translate(-50%,-50%);z-index:6;opacity:0;pointer-events:none;background:radial-gradient(circle,rgba(255,250,240,.24),rgba(255,250,240,.07) 40%,transparent 72%)}
+/* Existing repo's MomoChat bubble skin, not a floating white marketing panel. */
+#bubble{position:absolute;z-index:9;width:min(340px,calc(100vw - 32px));opacity:0;pointer-events:none;padding:12px 15px;border:var(--nb-border) solid var(--nb-ink);border-radius:6px 18px 18px 18px;background:var(--nb-leaf-soft);color:var(--nb-ink);box-shadow:var(--nb-shadow-sm);line-height:1.4}
+#bubble .speaker{font-size:12px;font-weight:900;color:var(--nb-ink);margin-bottom:6px}
+#bubble #dialog{font-size:16px;min-height:52px;font-weight:700;overflow-wrap:break-word}
+#bubble #dialog strong{font-weight:900}
+#bubble #caret{display:inline-block;width:7px;height:16px;margin-left:3px;background:var(--nb-orange);vertical-align:-3px;animation:blink .85s step-end infinite}
+@keyframes blink{50%{opacity:0}}
+.nb-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:46px;padding:10px 18px;font-weight:800;font-size:15px;line-height:1.1;color:var(--nb-ink);background:var(--nb-paper);border:var(--nb-border) solid var(--nb-ink);border-radius:14px;box-shadow:var(--nb-shadow-sm);transition:transform .12s ease,box-shadow .12s ease}
+.nb-btn:active:not(:disabled){transform:translate(3px,3px);box-shadow:0 0 0 var(--nb-ink)}
+#confirm{position:absolute;z-index:11;display:none;width:124px;opacity:0;color:var(--nb-ink)}
+
+#replay{position:fixed;bottom:16px;left:auto;right:16px;z-index:40;font-size:12px;min-height:41px;padding:8px 13px}
+#replay{display:none}
+#status{position:fixed;bottom:16px;left:16px;z-index:40;max-width:min(280px,65vw);font-size:12px;font-weight:750;color:var(--nb-ink);background:var(--nb-paper);border:2px solid var(--nb-ink);border-radius:10px;box-shadow:var(--nb-shadow-sm);padding:6px 10px;opacity:0;pointer-events:none}
+#book{position:fixed;inset:0;z-index:30;display:none;background:var(--nb-paper)}#book svg{width:100%;height:100%;display:block;overflow:visible}#book .inside-pattern{opacity:.32}
+@media(max-width:640px){#bubble{font-size:15px;padding:10px 12px}#bubble #dialog{font-size:14px;min-height:30px}#replay{font-size:11px;min-height:38px;padding:7px 10px;bottom:10px;right:10px;left:auto}}
+@media(prefers-reduced-motion:reduce){#momo .sleep-breath,#momo .tail-twirl{animation:none}}
+
+/* Repo wing shear, persistent springs, two-stage world-space exit/entry.
+   All expressions share one RAF phase clock.
+   No CSS animation or class-based transforms may reset a wing, face or idle cycle. */
+#momo .sleep-breath,#momo .tail-twirl,#momo .wing-left,#momo .wing-right {animation:none!important;transition:none!important;will-change:transform}
+#momo #eyes-open,#momo #eyes-closed,#momo #sleep-mouth,#momo #yawn-mouth,#momo #surprised-mouth,#momo #thoughtful-mouth,#momo #smile {transition:none!important;will-change:opacity}
+#momo {transform-origin:0 0!important;transform-style:preserve-3d}
+/* Preserve original artwork stroke proportions at every zoom level. Do NOT use non-scaling-stroke:
+   the sleeping eyelids have stroke-width=25 in the 1389x2058 art viewBox, and fixing that
+   width in screen pixels creates the two solid black ovals reported in R7. */
+#momo svg,#momo path,#momo g,#momo ellipse,#momo circle{shape-rendering:geometricPrecision;text-rendering:geometricPrecision}
+#momo #eyes-closed path{vector-effect:none;stroke-linecap:round}
+#sleep-zzz {position:absolute;top:0;left:72%;width:75px;height:72px;pointer-events:none;z-index:1;filter:drop-shadow(1px 2px 0 var(--nb-paper));transform:rotate(-8deg)}
+#sleep-zzz .snore {position:absolute;font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:var(--nb-ink);font-weight:900;letter-spacing:-.03em;animation:snoreFloat 3.4s ease-in-out infinite}
+#sleep-zzz .snore:nth-child(1){left:0;bottom:1px;font-size:19px;animation-delay:0s}
+#sleep-zzz .snore:nth-child(2){left:24px;bottom:19px;font-size:24px;animation-delay:.28s}
+#sleep-zzz .snore:nth-child(3){left:50px;bottom:43px;font-size:29px;animation-delay:.56s}
+@keyframes snoreFloat{0%,100%{transform:translateY(4px) rotate(-7deg);opacity:.45}50%{transform:translateY(-7px) rotate(7deg);opacity:1}}
+#book > #momo{z-index:8;pointer-events:none;filter:drop-shadow(1px 2px 0 rgba(17,17,17,.14))}
+#cover-hero{position:absolute;z-index:4;left:50%;top:clamp(30px,7vh,68px);transform:translateX(-50%);width:min(760px,calc(100vw - 34px));text-align:center;color:var(--nb-ink);pointer-events:none;transition:opacity .35s ease, transform .35s ease}
+#cover-hero .cover-kicker{display:inline-flex;align-items:center;justify-content:center;min-height:40px;padding:8px 16px;border:var(--nb-border) solid var(--nb-ink);border-radius:999px;background:rgba(255,255,255,.7);box-shadow:var(--nb-shadow-sm);font-size:12px;font-weight:1000;letter-spacing:.14em}
+#cover-hero h1{margin:16px 0 10px;font-size:clamp(38px,6.2vw,72px);line-height:.92;font-weight:1000;letter-spacing:-.06em}
+#cover-hero p{margin:0 auto;max-width:min(560px,92vw);font-size:clamp(15px,2vw,22px);line-height:1.35;font-weight:800}
+#stage[data-phase="push"] #cover-hero,#stage[data-phase="launch"] #cover-hero,#stage[data-phase="yawn"] #cover-hero,#stage[data-phase="notice"] #cover-hero,#stage[data-phase="chat"] #cover-hero,#stage[data-phase="ready"] #cover-hero,#stage[data-phase="exit"] #cover-hero{opacity:0;transform:translateX(-50%) translateY(-14px)}
+/* LOCAL REFINEMENT: uses ujang-monorepo leaf, orange, ink, paper and shadow tokens above. */
+#book{background:var(--nb-leaf-soft);overflow:hidden}
+#page-stage{position:absolute;inset:0;z-index:3;pointer-events:none}
+#book > #momo{z-index:8;pointer-events:none;transform-origin:0 0}
+#ruler-page{position:absolute;inset:0;z-index:4;clip-path:inset(100%);display:flex;align-items:center;justify-content:center;flex-direction:column;overflow:hidden;background:var(--nb-paper);background-image:radial-gradient(circle at 1px 1px,rgba(49,45,38,.16) 1px,transparent 1.2px);background-size:22px 22px;color:var(--nb-ink);padding:clamp(12px,4vw,40px)}
+#ruler-page .ruler-heading{font-weight:900;letter-spacing:-.045em;font-size:clamp(25px,5vw,55px);max-width:620px;text-align:center;line-height:1.06;margin:0 0 17px}
+#ruler-page .ruler-sub{font-weight:650;font-size:clamp(12px,2.7vw,16px);text-align:center;line-height:1.4;margin:0 0 clamp(22px,7vh,62px)}
+#ruler-readout{font-size:clamp(65px,19vw,150px);line-height:1;font-weight:900;letter-spacing:-.065em;min-height:1em;filter:drop-shadow(3px 3px 0 var(--nb-leaf));margin-bottom:24px}
+#ruler-body{height:104px;width:min(850px,95vw);background:linear-gradient(175deg,var(--nb-orange),var(--nb-orange-deep));border:3px solid var(--nb-ink);border-radius:19px;box-shadow:inset 0 0 0 6px rgba(255,255,255,.12),6px 7px 0 var(--nb-ink);position:relative;overflow:hidden;touch-action:pan-y;cursor:grab;user-select:none}
+#ruler-body:active{cursor:grabbing}
+#ruler-track{position:absolute;inset:0;will-change:transform;pointer-events:none}
+.ruler-tick{position:absolute;bottom:0;width:2px;height:30px;background:var(--nb-ink);opacity:.8}
+.ruler-tick.major{height:56px;width:3px}
+.ruler-tick span{position:absolute;bottom:60px;left:50%;transform:translateX(-50%);font-weight:900;font-size:15px;color:var(--nb-ink)}
+#ruler-needle{position:absolute;left:50%;top:0;bottom:0;width:5px;transform:translateX(-50%);background:var(--nb-paper);box-shadow:0 0 0 2px var(--nb-ink);border-radius:2px;pointer-events:none;z-index:2}
+#ruler-hint{font-weight:800;font-size:13px;line-height:1.5;text-align:center;margin-top:20px}
+#book-inside-bubble{position:absolute;z-index:9;top:clamp(22px,9vh,75px);left:max(18px,calc((100vw - 1000px)/2));max-width:min(330px,36vw);border:var(--nb-border) solid var(--nb-ink);background:var(--nb-leaf-soft);box-shadow:var(--nb-shadow-sm);border-radius:6px 18px 18px 18px;padding:12px 16px;font-size:15px;font-weight:800;opacity:0;pointer-events:none}
+#book-inside-bubble strong{display:block;font-size:12px;margin-bottom:5px}
+#book[data-arrived=true] #book-inside-bubble{opacity:1;transition:opacity .4s ease}
+#replay{z-index:50}
+@media(max-width:640px){#ruler-page{padding:12px 12px 140px}#ruler-body{height:82px}#ruler-readout{margin-bottom:16px}#ruler-page .ruler-sub{margin-bottom:28px}#book-inside-bubble{font-size:12px;max-width:44vw;top:26px;left:15px;padding:9px 11px}.ruler-tick span{bottom:44px}.ruler-tick.major{height:42px}}
+
+/* R10: crisp vector at REST. The Momo host is never a permanently scaled GPU texture.
+   Flight uses compositor transforms only while it actually flies. */
+#momo,#book > #momo {filter:none!important;will-change:auto!important;backface-visibility:visible!important}
+#momo svg {shape-rendering:geometricPrecision;image-rendering:auto;overflow:visible}
+#momo .sleep-breath,#momo .tail-twirl,#momo .wing-left,#momo .wing-right {will-change:auto!important}
+#momo #eyes-open,#momo #eyes-closed,#momo #sleep-mouth,#momo #yawn-mouth,#momo #surprised-mouth,#momo #thoughtful-mouth,#momo #smile {will-change:auto!important}
+#book-inside-bubble {position:absolute!important;right:auto!important;left:0;top:0;width:clamp(175px,24vw,302px);max-width:calc(100vw - 36px);padding:13px 16px;line-height:1.4;transform:none!important;border-radius:18px 6px 18px 18px;background:var(--nb-leaf-soft);opacity:0;transition:none!important}
+#book[data-arrived=true] #book-inside-bubble{opacity:1!important;transition:none!important}
+#book[data-arrived=true] #ruler-hint{visibility:hidden}
+@media(max-width:640px){#book-inside-bubble{width:min(185px,47vw);max-width:none;padding:10px 12px;font-size:13px;line-height:1.3}}
+
+/* Short phones: reserve a dedicated Momo and speech zone before the ruler starts. */
+@media (max-width:640px) and (max-height:730px) {
+ #ruler-page{justify-content:flex-start!important;padding-top:195px!important;padding-bottom:132px!important}
+ #ruler-page .ruler-heading{font-size:clamp(23px,7vw,28px)!important;margin-bottom:12px!important}
+ #ruler-page .ruler-sub{font-size:12px!important;margin-bottom:20px!important}
+ #ruler-readout{font-size:clamp(65px,17vw,82px)!important;margin-bottom:12px!important}
+ #ruler-body{height:76px!important}
+}
+
+/* Tail attaches at any x along the actual bottom border; source idea is the DeepSeek shared morph. */
+#bubble,#book-inside-bubble{--tail-x:70%;--tail-side:bottom;isolation:isolate;overflow:visible!important}
+#bubble::after,#book-inside-bubble::after{content:"";position:absolute;bottom:-10px;left:clamp(17px,var(--tail-x),calc(100% - 24px));width:15px;height:15px;background:var(--nb-leaf-soft);border-right:var(--nb-border) solid var(--nb-ink);border-bottom:var(--nb-border) solid var(--nb-ink);transform:translateX(-50%) rotate(45deg);border-radius:0 0 3px 0;pointer-events:none}
+#bubble .speaker{display:block}
+#book-inside-bubble strong{display:block}
+#bubble #dialog{min-height:0}
+#stage[data-phase=chat] #bubble,#stage[data-phase=ready] #bubble{pointer-events:none}
+/* Compact-height optical budget: heading + instruction must never sit under sleep bubble. */
+@media (max-width: 350px) and (max-height: 625px){
+ #cover-hero{top:9px!important}
+ #cover-hero .cover-kicker{font-size:9px;min-height:28px;padding:4px 10px}
+ #cover-hero h1{font-size:clamp(29px,9vw,34px);margin:8px 0 6px;letter-spacing:-.055em}
+ #cover-hero p{font-size:11px;line-height:1.2;max-width:300px;margin:0 auto}
+}
+
+/* R16 cover chat: preserve repo bubble, always complete lines, and anchor its tail to Momo. */
+#bubble {border-radius:18px 18px 18px 7px;box-shadow:4px 4px 0 var(--nb-ink);width:min(338px,calc(100vw - 28px));padding:14px 17px}
+#bubble .speaker{display:block;font-size:11px;font-weight:900;letter-spacing:.02em;margin:0 0 5px}
+#bubble #dialog{min-height:38px;font-size:clamp(13px,1.4vw,16px);font-weight:800;line-height:1.34}
+#bubble::after{background:var(--nb-leaf-soft)}
+#book-inside-bubble{line-height:1.35}
+#stage[data-phase='sleep'] #bubble,#stage[data-phase='push'] #bubble,#stage[data-phase='launch'] #bubble{visibility:hidden!important}
+
+/* R17: character-relative speech tails. One connected silhouette, responsive placement. */
+#bubble::after{left:-10px!important;right:auto!important;top:var(--tail-y,42%)!important;bottom:auto!important;transform:translateY(-50%) rotate(45deg)!important;border:0!important;border-left:var(--nb-border) solid var(--nb-ink)!important;border-bottom:var(--nb-border) solid var(--nb-ink)!important;box-sizing:border-box;}
+#book-inside-bubble::after{left:auto!important;right:-10px!important;bottom:auto!important;top:var(--tail-y,43%)!important;transform:translateY(-50%) rotate(45deg)!important;border:0!important;border-right:var(--nb-border) solid var(--nb-ink)!important;border-top:var(--nb-border) solid var(--nb-ink)!important;box-sizing:border-box;}
+@media(max-width:699px){#bubble::after{left:clamp(22px,var(--tail-x),calc(100% - 24px))!important;right:auto!important;top:-10px!important;bottom:auto!important;transform:translateX(-50%) rotate(45deg)!important;border:0!important;border-left:var(--nb-border) solid var(--nb-ink)!important;border-top:var(--nb-border) solid var(--nb-ink)!important;}}
+
+/* R20: short-screen optical constraint. Never shrink the functional ruler to a 22px strip. */
+@media(max-width:380px) and (max-height:650px){
+ #ruler-page{justify-content:flex-start!important;padding:182px 8px 105px!important;gap:0!important}
+ #ruler-page .ruler-heading{font-size:clamp(20px,6.5vw,24px)!important;line-height:1.02!important;margin:0 0 8px!important}
+ #ruler-page .ruler-sub{font-size:11px!important;line-height:1.2!important;margin:0 0 10px!important}
+ #ruler-readout{font-size:58px!important;line-height:1!important;min-height:58px!important;margin:0 0 8px!important;flex:0 0 auto!important}
+ #ruler-body{height:64px!important;min-height:64px!important;flex:0 0 64px!important;width:calc(100vw - 16px)!important}
+ .ruler-tick.major{height:41px!important}.ruler-tick span{bottom:44px!important}
+}
+
+/* ===== WELCOME FLOW 2: Momo ngelindur + gerbang kamera (prototype visual, tanpa izin kamera asli) ===== */
+.camera-prototype-root .toggle-card.locked .toggle-row{opacity:.78}
+.camera-prototype-root .toggle-card.locked .toggle-switch{background:#6b665b;cursor:not-allowed}
+.camera-prototype-root .toggle-card.locked .toggle-switch::after{background:var(--nb-paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23111' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='9' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E") center/12px no-repeat}
+.camera-prototype-root .toggle-card.nudge .toggle-switch{animation:nudge 1.15s ease-out 3}
+@keyframes nudge{0%{box-shadow:0 0 0 0 rgba(240,212,135,.95)}100%{box-shadow:0 0 0 13px rgba(240,212,135,0)}}
+#gate{position:absolute;z-index:9;left:0;top:0;width:min(338px,calc(100vw - 28px));padding:14px 16px;border:var(--nb-border) solid var(--nb-ink);border-radius:18px 18px 18px 7px;background:var(--nb-leaf-soft);color:var(--nb-ink);box-shadow:4px 4px 0 var(--nb-ink);line-height:1.34;opacity:0;pointer-events:none;transition:opacity .4s ease;isolation:isolate}
+#gate.show{opacity:1;pointer-events:auto}
+#stage:not([data-phase="sleep"]) #gate{opacity:0;pointer-events:none}
+#gate::after{content:"";position:absolute;width:15px;height:15px;background:var(--nb-leaf-soft);box-sizing:border-box;pointer-events:none}
+#gate[data-side="right"]::after{left:-10px;top:var(--tail-y,40px);transform:translateY(-50%) rotate(45deg);border-left:var(--nb-border) solid var(--nb-ink);border-bottom:var(--nb-border) solid var(--nb-ink);border-radius:0 0 0 3px}
+#gate[data-side="above"]::after{left:var(--tail-x,50%);bottom:-10px;transform:translateX(-50%) rotate(45deg);border-right:var(--nb-border) solid var(--nb-ink);border-bottom:var(--nb-border) solid var(--nb-ink);border-radius:0 0 3px 0}
+#gate .speaker{font-size:11px;font-weight:900;letter-spacing:.02em;margin:0 0 5px}
+#gate-mumble{min-height:2.68em;margin-bottom:9px;font-size:clamp(13px,1.4vw,16px);font-weight:800;transition:opacity .13s ease}
+.gate-note{display:flex;gap:9px;margin-bottom:10px;padding:9px 11px;border:1.5px dashed rgba(17,17,17,.45);border-radius:11px;background:rgba(255,250,240,.82);font-size:13px;font-weight:650;line-height:1.36}
+.gate-note p{margin:0}.gate-note p+p{margin-top:3px}
+.gate-note svg{flex:none;width:20px;height:20px;margin-top:1px;opacity:.72}
+.gate-check{position:relative;display:flex;align-items:center;gap:10px;min-height:34px;margin-bottom:10px;font-size:13px;font-weight:800;cursor:pointer;user-select:none}
+.gate-check input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
+.gate-check .box{flex:none;display:grid;place-items:center;width:24px;height:24px;border:var(--nb-border) solid var(--nb-ink);border-radius:7px;background:var(--nb-paper);box-shadow:2px 2px 0 var(--nb-ink);transition:background .15s ease}
+.gate-check .box svg{width:15px;height:15px;opacity:0;transform:scale(.4);transition:opacity .15s ease,transform .22s var(--nb-ease-pop)}
+.gate-check input:checked+.box{background:var(--nb-orange)}
+.gate-check input:checked+.box svg{opacity:1;transform:scale(1)}
+.gate-check input:disabled+.box{opacity:.8}
+.gate-check input:focus-visible+.box{outline:3px solid var(--nb-sky);outline-offset:3px}
+.gate-go{width:100%;min-height:42px;font-size:14px}
+.gate-go:disabled{opacity:.5;cursor:not-allowed}
+#gate[data-state="1"] .gate-go:not(:disabled){background:var(--nb-orange)}
+#gate[data-state="2"] .gate-go{background:var(--nb-leaf);opacity:1}
+#dock{position:fixed;z-index:60;left:50%;bottom:10px;transform:translateX(-50%);display:flex;align-items:center;gap:12px;max-width:calc(100vw - 16px);overflow-x:auto;padding:6px 10px;border:2px solid var(--nb-ink);border-radius:14px;background:var(--nb-paper);box-shadow:var(--nb-shadow-sm);white-space:nowrap;scrollbar-width:none}
+#dock::-webkit-scrollbar{display:none}
+#dock .dock-group{display:flex;align-items:center;gap:5px}
+#dock .dock-group+.dock-group{padding-left:12px;border-left:2px dashed rgba(17,17,17,.3)}
+#dock .dock-label{margin-right:3px;font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:rgba(17,17,17,.62)}
+#dock button{min-height:34px;padding:5px 11px;border:2px solid var(--nb-ink);border-radius:10px;background:#fff;color:var(--nb-ink);font-size:12px;font-weight:800;box-shadow:2px 2px 0 var(--nb-ink)}
+#dock button:active{transform:translate(2px,2px);box-shadow:none}
+#dock button[aria-pressed="true"]{background:var(--nb-orange)}
+html[data-phase="exit"] #dock,html[data-phase="book"] #dock,html[data-phase="entry"] #dock,html[data-phase="inside"] #dock{display:none}
+#cover-hero h1{font-size:clamp(34px,5.4vw,64px);font-weight:900;letter-spacing:-.02em;text-wrap:balance;text-shadow:3px 3px 0 var(--nb-orange),6px 6px 0 var(--nb-ink)}
+#cover-hero.tight-k .cover-kicker{display:none}
+#cover-hero.tight-k h1{margin-top:0}
+#cover-hero.tight-all{visibility:hidden}
+@media(max-width:699px){#gate{padding:11px 13px}#gate .speaker{margin-bottom:3px}#gate-mumble{margin-bottom:7px;font-size:14px}.gate-note{padding:7px 9px;margin-bottom:8px;font-size:12px}.gate-check{min-height:30px;margin-bottom:7px;font-size:12.5px}.gate-go{min-height:38px}}
+@media(prefers-reduced-motion:reduce){.camera-prototype-root .toggle-card.nudge .toggle-switch{animation:none}}
+
+/* Ring tokens and ThumbConfirm skin copied from app/styles/102-gesture.css (repo). Hold 2000 ms, drain at half speed. */
+:root{--nb-ring-track:#2b2822;--nb-ring-fill:#4a8c1f;--nb-ring-halo:#f0d487;--nb-ring-focus:#111111}
+.thumb-confirm{display:inline-flex;flex-direction:column;align-items:center;gap:6px;background:none;border:0;padding:0;font:inherit;color:var(--nb-ink);user-select:none;-webkit-user-select:none;touch-action:none;cursor:pointer}
+.thumb-confirm:focus-visible{outline:3px solid var(--nb-ring-focus);outline-offset:4px;border-radius:12px}
+.thumb-confirm__face{position:relative;display:grid;place-items:center;width:72px;height:72px;border-radius:50%;background:var(--nb-paper);border:var(--nb-border) solid var(--nb-ink);box-shadow:var(--nb-shadow-sm);transition:transform .15s var(--nb-ease-pop)}
+.thumb-confirm__ring{position:absolute;inset:-2px;width:calc(100% + 4px);height:calc(100% + 4px)}
+.thumb-confirm__track{fill:none;stroke:var(--nb-ring-track);stroke-width:6}
+.thumb-confirm__fill{fill:none;stroke:var(--nb-ring-fill);stroke-width:6;stroke-linecap:round}
+.thumb-confirm__thumb{position:relative;display:grid;place-items:center}
+.thumb-confirm__label{font-weight:800;font-size:14px;line-height:1.2;text-align:center;padding:4px 12px;border:var(--nb-border) solid var(--nb-ink);border-radius:999px;background:var(--nb-paper);color:var(--nb-ink)}
+.thumb-confirm.is-holding .thumb-confirm__face{transform:scale(1.06);box-shadow:0 0 0 6px var(--nb-ring-halo),var(--nb-shadow-sm)}
+.thumb-confirm.is-holding .thumb-confirm__label{background:var(--nb-ink);color:var(--nb-paper)}
+.thumb-confirm.is-confirmed .thumb-confirm__face{animation:thumb-confirm-pulse .45s var(--nb-ease-pop)}
+@keyframes thumb-confirm-pulse{0%{transform:scale(1);box-shadow:0 0 0 0 var(--nb-ring-fill)}50%{transform:scale(1.18);box-shadow:0 0 0 10px transparent}100%{transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.thumb-confirm__face,.thumb-confirm.is-confirmed .thumb-confirm__face{transition:none;animation:none}}
+/* PIP: the toggle stays (repo 60-global-camera.css: docked bottom-right, switch scaled .72, label sr-only). */
+.camera-prototype-root .toggle-card.pip .toggle-row{display:flex;position:absolute;right:4px;bottom:4px;z-index:10;min-height:0;padding:0;gap:0}
+.camera-prototype-root .toggle-card.pip .toggle-label{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap;border:0}
+.camera-prototype-root .toggle-card.pip .toggle-switch{transform:scale(.72);transform-origin:bottom right}
+.camera-prototype-root .toggle-card.pip .video-inner .label{font-size:10px;padding:3px 7px}
+#cam-nudge{position:fixed;z-index:45;display:none;max-width:min(260px,calc(100vw - 24px));padding:8px 14px;border:2.5px solid var(--nb-ink);border-radius:16px;background:var(--nb-paper);box-shadow:0 4px 12px rgba(0,0,0,.12);font-size:13px;font-weight:700;line-height:1.35;color:var(--nb-ink)}
+#cam-nudge.show{display:block}
+@media(max-width:699px){html[data-phase="notice"] #dock,html[data-phase="chat"] #dock,html[data-phase="ready"] #dock{left:auto;right:8px;transform:none;max-width:calc(100vw - 156px)}}
+</style></head><body>
+<main id="stage" class="camera-prototype-root" aria-label="Prototype cover Sketchbook Universe">
+<div id="camera" class="camera-widget-card toggle-card locked" data-testid="camera-card" aria-label="Camera card Sketchbook Universe">
+ <div class="video-wrap"><div id="camera-video" class="camera-video" aria-hidden="true"><span class="mock-legend">SIMULASI PRATINJAU</span></div>
+  <div class="video-inner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="12" cy="12" r="3.5"/><path d="m4 4 16 16"/></svg><span class="label">Pratinjau kamera</span></div><span class="rec-dot">DEMO</span>
+ </div>
+ <div class="toggle-row"><span class="toggle-label">Kamera</span><button type="button" class="toggle-switch" id="cam-action" aria-disabled="true" aria-label="Nyalakan kamera" title="Centang dan pencet Lanjut dulu"></button></div>
+ <div class="camera-select-wrap"><select class="camera-select" id="camera-select" aria-label="Pilihan kamera dekoratif pada prototype" disabled><option> Kamera depan </option></select></div>
+</div>
+<div id="cam-nudge" role="status" aria-live="polite">Aku belum bisa lihat kamu nih. Coba nyalakan kameranya, ya.</div>
+<div id="perch-shadow"></div><div id="shade"></div><div id="spot"></div>
+<div id="cover-hero" aria-hidden="true"><div class="cover-kicker">SKETCHBOOK UNIVERSE</div><h1>Momo ketiduran</h1><p>Nyalain kamera biar dia bangun. Videonya nggak direkam.</p></div>
+<div id="momo" class="sleeping" role="img" aria-label="Momo tidur tegak dengan bagian bawah di belakang camera card">
+  <svg viewBox="0 0 1389 2058" xmlns="http://www.w3.org/2000/svg" aria-hidden="true"><g class="sleep-breath">
+<defs>
+    <clipPath id="lid-clip"><rect id="lid-rect" x="0" y="626" width="1400" height="0.01"/></clipPath>
+    <clipPath id="tailcutA"><rect x="-50" y="0" width="1500" height="1600"/></clipPath>
+    <clipPath id="tailcutB"><rect x="-50" y="1600" width="1500" height="230"/></clipPath>
+    <clipPath id="tailcutC"><rect x="-50" y="1830" width="1500" height="370"/></clipPath>
+   </defs>
+   <g class="tail-twirl"><path d="M717.5 1386C722 1486.5 752.6 1580.3 802.9 1647.2C829.1 1681.6 858.2 1710.5 889 1738.9C953.6 1798.3 1046.8 1861 1055.7 1990C1057.9 2021.3 1048.3 2057.6 1024.1 2058C1013.7 2058.1 1006.4 2052.4 1002.2 2037.5C1010 2000.3 1010.5 1974.6 997.7 1939.7C975 1877.6 927.6 1836.3 888.6 1801.9C814.2 1736.4 740 1672.1 702.7 1550C684.6 1490.8 678 1457.6 676.3 1391.1Z" clip-path="url(#tailcutA)" fill="#2e0d06"/>
+    <circle cx="747.4" cy="1600" r="22" fill="#2e0d06"/>
+    <g class="tail-segment-b"><path d="M717.5 1386C722 1486.5 752.6 1580.3 802.9 1647.2C829.1 1681.6 858.2 1710.5 889 1738.9C953.6 1798.3 1046.8 1861 1055.7 1990C1057.9 2021.3 1048.3 2057.6 1024.1 2058C1013.7 2058.1 1006.4 2052.4 1002.2 2037.5C1010 2000.3 1010.5 1974.6 997.7 1939.7C975 1877.6 927.6 1836.3 888.6 1801.9C814.2 1736.4 740 1672.1 702.7 1550C684.6 1490.8 678 1457.6 676.3 1391.1Z" clip-path="url(#tailcutB)" fill="#2e0d06"/>
+     <circle cx="952.4" cy="1830" r="22" fill="#2e0d06"/>
+     <g class="tail-segment-c"><path d="M717.5 1386C722 1486.5 752.6 1580.3 802.9 1647.2C829.1 1681.6 858.2 1710.5 889 1738.9C953.6 1798.3 1046.8 1861 1055.7 1990C1057.9 2021.3 1048.3 2057.6 1024.1 2058C1013.7 2058.1 1006.4 2052.4 1002.2 2037.5C1010 2000.3 1010.5 1974.6 997.7 1939.7C975 1877.6 927.6 1836.3 888.6 1801.9C814.2 1736.4 740 1672.1 702.7 1550C684.6 1490.8 678 1457.6 676.3 1391.1Z" clip-path="url(#tailcutC)" fill="#2e0d06"/></g>
+    </g>
+   </g>
+   <g class="momo-bow"><path d="M725.8 1316.1C768.2 1296 814.9 1282.1 858.5 1311.8C867.4 1318 876.3 1331.5 879.1 1346.1C881.2 1357.6 880.1 1369.9 876 1380C868.1 1399.9 850.5 1411.9 836.1 1416.6C794.4 1430.2 754.8 1412 717.5 1386L676.3 1391.1C638.8 1428.8 587.8 1466.4 543.2 1427.1C536.5 1421.2 530.9 1411.4 528.1 1400.5C526.1 1390.5 526.4 1385.9 527.7 1376C527.7 1376 527.7 1375.9 527.7 1375.9C527.7 1375.8 527.7 1375.8 527.7 1375.7C527.7 1375.7 527.8 1375.7 527.8 1375.8C545.7 1315.9 605.8 1310.6 643.8 1312.6ZM653.3 1351.7C645.5 1351.3 632.7 1351 625 1352.3C613.8 1353.9 569.3 1360.7 569.7 1384.4C573.5 1398.8 588.8 1398.4 597.4 1396.2C615.5 1389.1 639.3 1369.9 653.3 1351.7ZM788.6 1374.5C851.6 1387.9 848.7 1332.5 791.8 1338.7C772.8 1340.7 758.1 1344.4 739.4 1350.1C758.1 1361.8 768.6 1367.9 788.6 1374.5Z" fill-rule="evenodd" fill="#2e0d06"/></g>
+   <path d="M151.7 599.3L224.1 521.5C327.4 408.6 429.7 293.9 531.2 177.6C568.6 134.7 606.4 92.5 644.4 50.9C661.8 31.8 694.3 -14.9 716.6 4.7C733 19.1 752.5 44.3 767.9 62.5C809.9 112.3 851.8 162.4 893.4 213L1254.9 646.8L1196.4 775.4C1154.7 816.8 1113.7 864.7 1089.1 931.5C1083.4 947 1078.8 972.4 1070.5 984.8C1068 988.5 1058 991 1054.6 992.3C1029.5 999.8 1001.5 1017.6 978.5 1035C911.1 1086 847.4 1156.9 789.6 1229.8C769.3 1255.3 744.3 1288.2 725.8 1316.1L643.8 1312.6C562.5 1192.8 467.9 1064 359.5 1006.4C343.1 997.8 324.5 998 309.2 986.5C305.9 983.7 301.1 946.9 298.5 936.5C295.8 925.7 292.5 915.3 288.6 905.3C269.6 855.9 217.1 797.2 184.4 767.4L151.7 599.3Z" fill="#2e0d06"/>
+   <path d="M701.2 63.3C706.6 66.1 793.3 172.2 804.1 185.3L1083.1 520.9L1152.9 605.3C1164.1 619 1180 637.1 1190.2 651.1C1185.5 654.5 1180.5 657.4 1175.7 660.5C1076.2 725.6 970.4 816.4 926.2 973.6C921 992.2 916.2 1011.4 914 1031.3C852.4 1078.7 790.9 1148.1 738.8 1216.9C727.9 1231.5 717.3 1246.4 706.8 1261.7C701.1 1270.1 693.4 1282.1 687.3 1289.2C684.7 1289.7 686 1290 683.4 1287C678.9 1281.5 672.9 1272.1 668.6 1265.7C659.9 1252.7 651.1 1239.9 642.1 1227.2C598.3 1165.7 524.4 1067.3 469.9 1030.3C472.9 1009.9 463.4 969 457.9 949.1C413.5 788.3 291 697.3 190.8 633.8C203.6 621.7 224.1 597.8 236.8 583.9L330.9 480.3C397.8 406.4 464.4 331.8 530.6 256.4C587.7 191.3 642.9 126.2 701.2 63.3Z" fill="#b5da93"/>
+   <path d="M172.2 661.8C178.6 665.1 185.1 669.3 191.3 673.3C286.5 734.7 408.5 832.7 433.2 998.2C401 977.7 378.2 962.3 342.4 955.2C341 934.3 330.9 906.1 323 889.1C288.9 816.2 235.1 778.7 186.3 733.5C186 702.5 182.2 688.2 172.2 661.8Z" fill="#e4551b"/>
+   <path d="M1204.4 682.5C1205.4 682.4 1204.7 682.4 1206.3 683C1200.5 699.1 1197.8 710.2 1195.7 727.9C1135.4 782.3 1069.5 856.8 1041.1 956.2C1014.8 965.7 981.9 984.6 957.3 1000.6L955.8 1000C956.5 993.8 960.2 980.2 961.8 974.3C1001.2 831.7 1113.7 737.9 1204.4 682.5Z" fill="#e4551b"/>
+   <path d="M694.9 993.6C718.3 1023.8 741.2 1052.8 764.4 1083.8C742.2 1114.1 715.1 1145.9 692 1176.2C691.6 1176.7 691.9 1176.4 690.5 1177.1C687.6 1174.5 674.8 1155.5 671.4 1150.6C655.2 1128.1 639.2 1105.3 623.4 1082.3C647.1 1052.8 671.5 1023.3 694.9 993.6Z" fill="#e4551b"/>
+   <path d="M696.2 158.8C700 160.1 758.4 237.1 766.7 247.9C743.9 273.3 715.8 307.1 693.7 334.3C690.2 332.6 630.9 257.6 623.1 247.9C647.3 217.9 671.7 188.2 696.2 158.8Z" fill="#e4551b"/>
+
+   <g class="wing-left"><path d="M184.4 767.4C178.1 815.3 162.5 856.8 141.5 893.8C131.8 910.8 115 943.1 98 937.5C92.1 935.4 86.1 925.1 81.9 918.9C69 898.3 55.3 879.5 41.1 861C28.4 844.4 12.5 831.7 1.2 813.2C-0.2 810.8 -0.2 807.6 0.3 804.7C4.3 797.1 21.8 782.9 29 775.7C56.5 748.2 99.6 704 119.2 664.1C116.4 658.6 116 656 114.5 649.5C115.5 645.1 117.2 637.6 119.5 634.8C129.5 622.6 141.3 610.4 151.7 599.3Z" fill="#2e0d06"/><path d="M143.7 692.3C147.1 698.6 149.8 722.8 150 731.1C151.5 792.2 129.8 843.8 103.8 887.2C94.6 871.8 87.6 862.5 77.2 849.2C68 836.9 53.4 822.5 43 812.7C75.1 784.8 119.8 734.5 143.7 692.3Z" fill="#e4551b"/></g>
+   <g class="wing-right"><path d="M1254.9 646.8C1263.3 657.1 1265.3 661.2 1260.9 676.6C1285.3 717.5 1310.8 744.2 1341.8 773.9C1355.5 786.9 1374.1 800.3 1387.4 814.4C1388.8 815.9 1389 820.1 1388.9 822.1C1388.7 826.2 1379.5 835.6 1377.4 837.8C1357.1 858.6 1337.4 878.8 1318.2 901.9C1306.7 915.7 1296.1 932.2 1284.5 945.2C1281.3 948.7 1275.9 950.3 1272.1 949.1C1254.9 943.7 1234.4 899.2 1224.4 878.5C1211.6 852.1 1198.3 807.6 1196.4 775.4Z" fill="#2e0d06"/><path d="M1236.7 704.2C1239.3 708 1241.9 712.2 1244.4 716.2C1273 762.2 1308.5 791.6 1343.6 824.2C1330.9 835.5 1321.2 844.7 1309.1 857.5C1297.1 870.5 1286.2 883.7 1275.8 899.6C1242.6 845.6 1221 777.5 1236.7 704.2Z" fill="#e4551b"/></g>
+   <g id="eyes-open" clip-path="url(#lid-clip)"><path d="M514.2 516.3C529.1 514.4 543.9 517.5 556.8 529.5C570 541.9 577.3 565.8 566.8 586.3C557.7 604.1 543.9 610.4 529.7 613.7C465 622.5 447 529.6 514.2 516.3Z" fill="#380c02"/><path d="M531.4 536.4C548.6 536 556.4 557.3 536 565.8C517 565.7 510.6 543.1 531.4 536.4Z" fill="white"/><path d="M859.8 516.3C874.4 514.4 889 517.7 901.7 529.6C915 541.9 922.2 565.3 912 586C903.2 603.8 889.1 610.4 875 613.6C810 623.2 792.3 528.2 859.8 516.3Z" fill="#380c02"/><path d="M875.6 536.3C892.9 535.6 902.1 556 882.1 565.3C863.5 566.8 855.3 545.2 875.6 536.3Z" fill="white"/></g>
+   <g id="eyes-closed"><path d="M470 566Q522 600 574 566" fill="none" stroke="#380C02" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/><path d="M815 566Q867 600 919 566" fill="none" stroke="#380C02" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/></g>
+   <ellipse id="sleep-mouth" cx="695" cy="716" rx="18" ry="22.5" fill="#380C02"/>
+   <g id="yawn-mouth"><path fill="#380C02" d="M585 662Q695 650 805 662Q800 775 695 775Q590 775 585 662Z"/><ellipse cx="695" cy="754" rx="42" ry="19" fill="#E4551B"/></g>
+   <ellipse id="surprised-mouth" cx="695" cy="716" rx="40" ry="50" fill="#380C02"/>
+    <path id="brow-l" d="M472 480Q522 446 572 480" fill="none" stroke="#2E0D06" stroke-width="26" stroke-linecap="round" opacity="0"/><path id="brow-r" d="M817 480Q867 446 917 480" fill="none" stroke="#2E0D06" stroke-width="26" stroke-linecap="round" opacity="0"/>
+   <path id="thoughtful-mouth" d="M620 712H770" fill="none" stroke="#380C02" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+   <path id="smile" d="M839.7 643.3C855.3 641.6 871.1 656.4 857.1 677.4C783 789.7 622.9 796.8 544 696.4C535.1 684 515.1 655.6 538.4 645.5C556.2 637.7 563.4 653.4 574.1 670.7C578.3 677.5 584.8 684.1 590.2 688.9C651.1 740.8 736.1 737.9 796.9 687.4C807.3 678.8 815.5 668.7 823.9 656.6C829.1 649.3 831.7 646.2 838.7 643.7L839.7 643.3Z" fill="#380c02"/>
+  </g></svg><div id="sleep-zzz" aria-hidden="true"><span class="snore">Z</span><span class="snore">z</span><span class="snore">z</span></div>
+ </div>
+
+<div id="bubble" aria-live="polite" role="status"><div class="speaker">Momo</div><div id="dialog"></div></div>
+<div id="gate" role="group" aria-label="Izin kamera" data-state="0" data-side="right">
+ <div class="speaker">Momo</div>
+ <div id="gate-mumble" aria-live="polite"></div>
+ <div class="gate-note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><circle cx="12" cy="12" r="3.5"/></svg><div><p>Kamera dipakai buat baca gerakan tanganmu.</p><p>Videonya nggak direkam, dan diprosesnya di browser.</p></div></div>
+ <label class="gate-check"><input type="checkbox" id="gate-ok"><span class="box" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="#111" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></span><span>Aku ngerti, kameranya boleh nyala.</span></label>
+ <button type="button" id="gate-go" class="nb-btn gate-go" disabled>Lanjut</button>
+</div>
+<div id="confirm" class="thumb-confirm" role="progressbar" tabindex="0" aria-label="Tahan jempol" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" data-hold-ms="2000"><span class="thumb-confirm__face"><svg class="thumb-confirm__ring" viewBox="0 0 72 72" aria-hidden="true"><circle class="thumb-confirm__track" cx="36" cy="36" r="30"/><circle id="ring-fill" class="thumb-confirm__fill" cx="36" cy="36" r="30" stroke-dasharray="188.4956" stroke-dashoffset="188.4956" transform="rotate(-90 36 36)"/></svg><span class="thumb-confirm__thumb"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 11v8a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1v-7a1 1 0 0 1 1 -1h3a4 4 0 0 0 4 -4v-1a2 2 0 0 1 4 0v5h3a2 2 0 0 1 2 2l-1 5a2 3 0 0 1 -2 2h-7a3 3 0 0 1 -3 -3"/></svg></span></span><span class="thumb-confirm__label">Tahan jempol</span></div>
+
+</main><section id="book" class="camera-prototype-root" aria-label="Transisi buka buku dari cover ke halaman dalam">
+<div id="ruler-page" aria-label="Halaman penggaris nomor absen">
+  <h1 class="ruler-heading">PILIH NOMOR ABSENMU</h1>
+  <p class="ruler-sub">Sebelum kita masuk, pilih nomor absenmu dulu, ya.</p>
+  <div id="ruler-readout" aria-live="polite">1</div>
+  <div id="ruler-body" role="slider" aria-label="Nomor absen" aria-valuemin="1" aria-valuemax="30" aria-valuenow="1" tabindex="0"><div id="ruler-track"></div><div id="ruler-needle"></div></div>
+  <p id="ruler-hint">Geser penggarisnya sampai pas.</p>
+</div>
+<div id="book-inside-bubble">Geser penggarisnya sampai pas.</div>
+ <svg id="page-stage" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+   <clipPath id="card-outer-clip"><rect id="outer-rect" x="0" y="0"/></clipPath>
+   <clipPath id="front-unpeeled-clip"><path id="front-clip-path" d=""/></clipPath>
+   <linearGradient id="curl-back-grad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="0"><stop offset="0%" stop-color="#c8d9a4"/><stop offset="10%" stop-color="#eff3db"/><stop offset="26%" stop-color="#fffaf0"/><stop offset="48%" stop-color="#f7f5ea"/><stop offset="78%" stop-color="#f0d487"/><stop offset="100%" stop-color="#c8d9a4"/></linearGradient>
+   <linearGradient id="green-bend-grad" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="0"><stop offset="0%" stop-color="#000" stop-opacity=".6"/><stop offset="30%" stop-color="#000" stop-opacity=".2"/><stop offset="100%" stop-color="#000" stop-opacity="0"/></linearGradient>
+   <filter id="flap-drop-shadow" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur in="SourceAlpha" stdDeviation="18"/><feOffset dx="-12" dy="-12" result="shadowOffset"/><feComponentTransfer><feFuncA type="linear" slope=".34"/></feComponentTransfer><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+  </defs>
+  <g clip-path="url(#card-outer-clip)"><g id="revealed-page"><rect id="revealed-page-bg" fill="var(--nb-paper)"/><g class="inside-pattern" id="inside-dots"><defs><pattern id="page-grid" width="25" height="25" patternUnits="userSpaceOnUse"><circle cx="2" cy="2" r="1.2" fill="var(--nb-ink)" opacity=".36"/></pattern></defs><rect width="100%" height="100%" fill="url(#page-grid)"/></g><path d="M 28 0 V 2000" stroke="var(--nb-orange)" stroke-width="4" opacity=".54"/>
+  <path d="M 55 0 V 2000" stroke="var(--nb-ink)" stroke-width="1.5" stroke-dasharray="2 14" opacity=".12"/></g><g id="front-cover-group" clip-path="url(#front-unpeeled-clip)"><rect id="front-bg" fill="var(--nb-leaf)"/>
+  <rect id="cover-grid" x="0" y="0" width="100%" height="100%" fill="url(#page-grid)" opacity=".15"/><rect id="green-bend-overlay" fill="url(#green-bend-grad)" opacity="0"/></g><path id="flap-shadow-path" d="" fill="#000" opacity="0" filter="url(#flap-drop-shadow)"/><path id="curl-flap-path" d="" fill="url(#curl-back-grad)" stroke="var(--nb-ink)" stroke-width="1.5" stroke-linejoin="round" opacity="0"/></g>
+ </svg>
+</section>
+<nav id="dock" aria-label="Kontrol prototype">
+ <div class="dock-group"><span class="dock-label">Alur 2</span><button type="button" data-state="0">Tidur</button><button type="button" data-state="1">Centang</button><button type="button" data-state="2">Lanjut</button><button type="button" data-state="3">Kamera ON</button><button type="button" data-state="4">Ring</button></div>
+ <div class="dock-group"><span class="dock-label">Judul</span><button type="button" data-head="0">A</button><button type="button" data-head="1">B</button><button type="button" data-head="2">C</button><button type="button" data-head="3">D</button><button type="button" data-head="4">E</button><button type="button" data-head="5">Lama</button></div>
+</nav>
+<button id="replay" class="nb-btn" type="button" aria-label="Ulangi cover">Ulangi cover</button>
+<script>
+(()=>{'use strict';
+const Q=id=>document.getElementById(id);
+const stage=Q('stage'),camera=Q('camera'),camButton=Q('cam-action'),momo=Q('momo'),shadow=Q('perch-shadow'),bubble=Q('bubble'),dialog=Q('dialog'),shade=Q('shade'),spot=Q('spot'),replay=Q('replay'),confirm=Q('confirm'),book=Q('book');
+const gate=Q('gate'),gateOk=Q('gate-ok'),gateGo=Q('gate-go'),mumble=Q('gate-mumble'),hero=Q('cover-hero'),dock=Q('dock'),lidRect=Q('lid-rect');
+let gateState=0,mumbleT=0,flashT=0;
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),mix=(a,b,t)=>a+(b-a)*t,smooth=t=>t*t*(3-2*t),sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const E={soft:'cubic-bezier(.45,0,.16,1)',camera:'cubic-bezier(.2,.7,.18,1)',pop:'cubic-bezier(.21,.9,.32,1)'};
+let phase='sleep',epoch=0,l=null,flight=null,pipPromise=null,bookOpening=false;
+const pose={x:0,y:0,s:1,r:3};
+function setPhase(v){phase=v;stage.dataset.phase=v;document.documentElement.dataset.phase=v;syncDock();}
+function animateStyle(el,frames,ms,ease=E.soft,delay=0){
+ const fx=el.animate(frames,{duration:ms,easing:ease,fill:'forwards',delay});
+ return fx.finished.catch(()=>{}).then(()=>{if(fx.playState==='idle')return;const last=frames.at(-1);Object.entries(last).forEach(([k,v])=>{if(k!=='offset')el.style[k]=v});fx.cancel()});
+}
+function rect(el,x,y,w,h){el.style.left=x+'px';el.style.top=y+'px';el.style.width=w+'px';el.style.height=h+'px';}
+function layout(){
+ const w=innerWidth,h=innerHeight,mobile=w<700,cardW=Math.min(290,Math.max(236,w-48));
+ const smallH=123,largeH=Math.round(cardW*.8+108),cardBottom=Math.round(mobile?Math.max(430,h-74):clamp(h*.785,430,h-70));
+ const smallY=cardBottom-smallH,bigY=cardBottom-largeH,cX=Math.round((w-cardW)/2);
+ const mW=Math.round(mobile?Math.min(164,w*.405):176),mH=Math.round(mW*2058/1389);
+ const mX=Math.round(w/2-mW/2),mY=Math.round(smallY-mH*.515),mCX=mX+mW/2,mCY=mY+mH/2;
+ const pipW=mobile?125:150,pipH=mobile?100:120,pipX=mobile?13:22,pipY=Math.round(h-pipH-(mobile?20:26));
+ const finalScale=mobile?1.11:1.34;
+ const endCX=mobile?w*.40:w*.435,endCY=mobile?Math.max(98,h*.218):Math.max(145,h*.278);
+ const dialogLeft=mobile?Math.round((w-Math.min(335,w-26))/2):Math.min(w-352,Math.round(w*.56));
+ const dialogTop=mobile?Math.min(h-250,Math.round(endCY+mH*finalScale*.44+16)):Math.round(endCY-44);
+ l={w,h,mobile,cardW,smallH,largeH,smallY,bigY,cX,cardBottom,mW,mH,mCX,mCY,pipX,pipY,pipW,pipH,endCX,endCY,finalScale,dialogLeft,dialogTop};
+ momo.style.left='0px';momo.style.top='0px';momo.style.width=mW+'px';momo.style.height=mH+'px';
+ if(phase==='sleep'){rect(camera,cX,smallY,cardW,smallH);Object.assign(pose,{x:mCX,y:mCY,s:1,r:3});}
+ else if(['chat','ready','inside'].includes(phase)){rect(camera,pipX,pipY,pipW,pipH);}
+ shadow.style.left=(w/2-60)+'px';shadow.style.top=(smallY-6)+'px';
+ bubble.style.left=dialogLeft+'px';bubble.style.top=dialogTop+'px';bubble.style.setProperty('--tail-x',mobile?'45%':'24%');bubble.style.setProperty('--tail-y','42%');
+ confirm.style.left=Math.round(dialogLeft+Math.min(338,w-28)/2-62)+'px';
+ confirm.style.top=Math.min(h-(mobile?110:120),dialogTop+(mobile?151:175))+'px';
+ placeGate();if(book.style.display==='block')resizeCurl();
+}
+/* PERSISTENT ANIMATION CLOCK. No CSS-keyframe restart, and no pose snap when a new expression arrives. */
+const parts={body:momo.querySelector('.sleep-breath'),left:momo.querySelector('.wing-left'),right:momo.querySelector('.wing-right'),tail:momo.querySelector('.tail-twirl'),
+ eyesOpen:Q('eyes-open'),eyesClosed:Q('eyes-closed'),sleepM:Q('sleep-mouth'),yawnM:Q('yawn-mouth'),shockM:Q('surprised-mouth'),thinkM:Q('thoughtful-mouth'),smile:Q('smile'),zzz:Q('sleep-zzz'),browL:Q('brow-l'),browR:Q('brow-r')};
+const faceNames=['eyesOpen','eyesClosed','sleepM','yawnM','shockM','thinkM','smile','zzz','lid','brA','bLy','bRy','bLr','bRr'];
+/* Port of src/components/momo/momo-wing.ts (ujang-monorepo):
+   fixed cloth attachment A-B, free tips flex by shear. DO NOT rotate the entire wing.
+   Source art viewBox is 1389x2058. Everything between A and B is invariant. */
+const WING_GEOMETRY={
+ L:{a:[151.7,599.3],b:[184.4,767.4],tip:[110,940]},
+ R:{a:[1254.9,646.8],b:[1196.4,775.4],tip:[1306,917]}
+};
+const WING_MAX_SHIFT=56,WING_FULL_ANGLE=32,WING_LIMIT_ANGLE=50;
+function wingTransform(side,angleDeg){
+ const {a,b,tip}=WING_GEOMETRY[side];
+ const len=Math.hypot(b[0]-a[0],b[1]-a[1]);
+ const ux=(b[0]-a[0])/len,uy=(b[1]-a[1])/len;
+ let nx=-uy,ny=ux;
+ if(nx*(tip[0]-a[0])+ny*(tip[1]-a[1])<0){nx=-nx;ny=-ny;}
+ const dTip=nx*(tip[0]-a[0])+ny*(tip[1]-a[1]);
+ const k=(clamp(angleDeg,-WING_LIMIT_ANGLE,WING_LIMIT_ANGLE)/WING_FULL_ANGLE*WING_MAX_SHIFT)/dTip;
+ const aa=1+k*ux*nx,cc=k*ux*ny,bb=k*uy*nx,dd=1+k*uy*ny;
+ const e=a[0]-aa*a[0]-cc*a[1],g=a[1]-bb*a[0]-dd*a[1];
+ return `matrix(${aa.toFixed(8)} ${bb.toFixed(8)} ${cc.toFixed(8)} ${dd.toFixed(8)} ${e.toFixed(8)} ${g.toFixed(8)})`;
+}
+const wingSpring={L:{a:8,v:0},R:{a:8,v:0}};
+const tailSegments=[momo.querySelector('.tail-twirl'),momo.querySelector('.tail-segment-b'),momo.querySelector('.tail-segment-c'),momo.querySelector('.momo-bow')];
+function followWing(s,target,dt){
+ const h=Math.min(dt,.05)/2;
+ for(let i=0;i<2;i++){s.v+=(70*(target-s.a)-6.2*s.v)*h;s.a+=s.v*h;}
+}
+let previousMotion={x:0,y:0},idleBlend=1;
+let faceTarget={eyesOpen:0,eyesClosed:1,sleepM:1,yawnM:0,shockM:0,thinkM:0,smile:0,zzz:1,lid:.3,brA:0,bLy:0,bRy:0,bLr:0,bRr:0};
+let faceCurrent={...faceTarget};
+let rigTarget={freq:.48,wing:7,bob:2,tilt:2,stretch:0,bias:0},rigCurrent={...rigTarget};
+let wingPhase=0,idlePhase=0,lastTime=performance.now(),blinkAt=performance.now()+3100;
+const faces={Ngantuk:[0,1,1,0,0,0,0,1,.3],Ngelindur:[1,0,1,0,0,0,0,.55,.34],SetengahBangun:[1,0,0,0,0,1,0,.2,.7,1,2,-8,0,-6],Kaget:[1,0,0,0,1,0,0,0,1,1,-44,-44,0,0],Menguap:[0,1,0,1,0,0,0,0],Penasaran:[1,0,0,0,0,0,1,0,1,1,-4,-30,0,-8],Berpikir:[1,0,0,0,0,.10,1,0,1,1,-6,-6,10,-10],Senang:[1,0,0,0,0,0,1,0],Semangat:[1,0,0,0,0,0,1,0]};
+const rigs={Ngantuk:[.48,7,2,2,0],Kaget:[2.9,30,2.8,5.5,0],Menguap:[.82,24,5.5,3,1],Penasaran:[2.2,22,8,3.4,0],Berpikir:[1.65,16,7,4.2,0],Senang:[2.5,27,9,3.2,0],Semangat:[5.9,44,4.8,4.8,0],Ngelindur:[.72,11,2.8,2.8,0,0],SetengahBangun:[1.1,15,4.2,3.2,0,-5]};
+let expression='Ngantuk';
+function express(name){if(!faces[name])return;expression=name;momo.dataset.expression=name;
+ faceNames.forEach((k,i)=>faceTarget[k]=faces[name][i]??(k==='lid'?1:0));
+ ['freq','wing','bob','tilt','stretch','bias'].forEach((k,i)=>rigTarget[k]=rigs[name][i]??0);
+ if(name!=='Ngantuk'&&name!=='Menguap')blinkAt=performance.now()+1400+Math.random()*900;
+}
+function frame(now){
+ const dt=clamp((now-lastTime)/1000,0,.05);lastTime=now;
+ if(flight){const t=clamp((now-flight.start)/flight.duration,0,1);const sampled=samplePath(flight.points,t);Object.assign(pose,sampled);if(t>=1){const done=flight.resolve;flight=null;done();}}
+ idlePhase+=dt;rigCurrent.freq=mix(rigCurrent.freq,rigTarget.freq,1-Math.exp(-dt*2.9));wingPhase+=dt*rigCurrent.freq*Math.PI*2;
+ for(const k of Object.keys(rigCurrent)){if(k==='freq')continue;rigCurrent[k]=mix(rigCurrent[k],rigTarget[k],1-Math.exp(-dt*3.4));}
+ for(const k of faceNames)faceCurrent[k]=mix(faceCurrent[k],faceTarget[k],1-Math.exp(-dt*6.8));
+ let blink=0;
+ if(phase!=='sleep'&&expression!=='Menguap'){const diff=now-blinkAt;if(diff>0&&diff<215)blink=Math.sin(Math.PI*diff/215);if(diff>=215)blinkAt=now+3300+Math.random()*1900;}
+ const eyeO=clamp(faceCurrent.eyesOpen*faceCurrent.lid*(1-blink*.96),0,1);
+ parts.eyesOpen.style.opacity='1';
+ parts.eyesClosed.style.opacity=clamp((.35-eyeO)/.2,0,1).toFixed(3);
+ lidRect.setAttribute('y',(626-120*eyeO).toFixed(2));lidRect.setAttribute('height',Math.max(.01,120*eyeO).toFixed(2));
+ parts.browL.setAttribute('opacity',faceCurrent.brA.toFixed(3));parts.browR.setAttribute('opacity',faceCurrent.brA.toFixed(3));
+ parts.browL.setAttribute('transform',`translate(0 ${faceCurrent.bLy.toFixed(1)}) rotate(${faceCurrent.bLr.toFixed(2)} 522 470)`);parts.browR.setAttribute('transform',`translate(0 ${faceCurrent.bRy.toFixed(1)}) rotate(${faceCurrent.bRr.toFixed(2)} 867 470)`);
+ for(const [key,el] of [['sleepM',parts.sleepM],['yawnM',parts.yawnM],['shockM',parts.shockM],['thinkM',parts.thinkM],['smile',parts.smile]])el.style.opacity=faceCurrent[key];
+ parts.zzz.style.opacity=faceCurrent.zzz;
+ const active=flight!==null;
+ idleBlend=mix(idleBlend,active?.34:1,1-Math.exp(-dt*4.6));
+ const motionMix=idleBlend;
+ const motionVX=(pose.x-previousMotion.x)/Math.max(.006,dt);
+ const motionVY=(pose.y-previousMotion.y)/Math.max(.006,dt);
+ previousMotion={x:pose.x,y:pose.y};
+ const bob=Math.sin(idlePhase*2.25)*rigCurrent.bob*motionMix;
+ const lean=Math.sin(idlePhase*1.24)*rigCurrent.tilt*motionMix+rigCurrent.bias;
+ const breath=Math.sin(idlePhase*1.42)*.012;
+ const yawn=rigCurrent.stretch;
+ // Transform SVG geometry in artwork units; don't texture-scale the whole character.
+ const bobArt=(bob-4*yawn)*2058/Math.max(60,l.mH*Math.max(.25,pose.s));
+ parts.body.setAttribute('transform',`translate(695 640) translate(0 ${bobArt.toFixed(2)}) rotate(${lean.toFixed(2)}) scale(${(1+breath*.55+yawn*.028).toFixed(5)} ${(1-breath*.35+yawn*.035).toFixed(5)}) translate(-695 -640)`);
+ const wave=Math.sin(wingPhase),swing=rigCurrent.wing;
+ // Same tip-only shear as the repo engine, with independently sprung motion.
+ // Vertical velocity modulates trailing wings, never the fixed A-B attachment.
+ const travel=Math.hypot(motionVX,motionVY);
+ const speedBoost=clamp(travel/260,0,4);
+ const airDrag=clamp(-motionVY*.009,-7,7);
+ const rest=({Ngantuk:10,Ngelindur:8,SetengahBangun:4})[expression]??0;
+ const flapAmp=clamp(swing*(active?.90:.69)+speedBoost,3,26);
+ followWing(wingSpring.L,rest+airDrag+flapAmp*wave,dt);
+ followWing(wingSpring.R,rest+airDrag+flapAmp*Math.sin(wingPhase-.05),dt);
+ parts.left.setAttribute('transform',wingTransform('L',clamp(wingSpring.L.a,-50,50)));
+ parts.right.setAttribute('transform',wingTransform('R',clamp(wingSpring.R.a,-50,50)));
+ // Tail pivots at its actual art attachment, never at an approximate bounding-box centre.
+ const tailLag=Math.sin(idlePhase*.75+wingPhase*.10)*5.4+clamp(-motionVX*.017,-7,7);
+ tailSegments[0].setAttribute('transform',`rotate(${tailLag.toFixed(2)} 696 1388)`);
+ tailSegments[1].setAttribute('transform',`rotate(${(-tailLag*.66).toFixed(2)} 747.4 1600)`);
+ tailSegments[2].setAttribute('transform',`rotate(${(tailLag*.58).toFixed(2)} 952.4 1830)`);
+ tailSegments[3].setAttribute('transform',`rotate(${(tailLag*.11).toFixed(2)} 696 1350)`);
+ const rootBob=active?Math.sin(idlePhase*3.5)*1:0;
+ // The upper edge of the expanding real camera card physically carries Momo upward.
+ // Constraint is continuous in world-space, released naturally once the flight path rises above it.
+ const visualY=pose.y; // world-space trajectory owns contact; no frame-to-frame positional clamp
+ const settled=!active && ['sleep','yawn','notice','chat','ready','inside'].includes(phase);
+ if(settled){
+  // Promote the SVG from moving transform to native-size vector painting.
+  // Keep its centre fixed at the exact flight end so there's no visual jump.
+  const vw=l.mW*pose.s, vh=l.mH*pose.s;
+  momo.style.transform='none';
+  momo.style.left=Math.round(pose.x-vw/2)+'px';
+  momo.style.top=Math.round(pose.y-vh/2)+'px';
+  momo.style.width=vw.toFixed(2)+'px';
+  momo.style.height=vh.toFixed(2)+'px';
+ }else{
+  momo.style.left='0px';momo.style.top='0px';
+  momo.style.width=l.mW+'px';momo.style.height=l.mH+'px';
+  momo.style.transform=`translate3d(${pose.x.toFixed(2)}px,${(visualY+rootBob).toFixed(2)}px,0) translate(-50%,-50%) rotate(${pose.r.toFixed(2)}deg) scale(${Math.max(.015,pose.s).toFixed(4)})`;
+ }
+ // Optical occlusion invariant: promote only after Momo's entire painted bounds clear the camera edge.
+ // A z-index switch while partly behind the card would make the lower half pop into existence.
+ if((phase==='push'||phase==='launch') && momo.style.zIndex!=='8' &&
+    momo.getBoundingClientRect().bottom <= camera.getBoundingClientRect().top-4){momo.style.zIndex='8';}
+ if(phase==='inside' || (phase==='entry' && curl.progress>.88)){
+  // A speech bubble belongs to Momo, not a detached corner of the viewport.
+  const b=Q('book-inside-bubble'), head=momo.getBoundingClientRect();
+  const bw=b.getBoundingClientRect().width;
+  const left=Math.max(12,head.left-bw-18);
+  const top=Math.max(16,Math.min(l.h-b.offsetHeight-16,head.top-15));
+  b.style.left=Math.round(left)+'px';b.style.top=Math.round(top)+'px'; b.style.setProperty('--tail-y',Math.round(clamp(head.top+head.height*.35-top,18,b.offsetHeight-18))+'px');
+ }
+ requestAnimationFrame(frame);
+}
+/* Cubic Hermite, C1-continuous across knots. All five body properties interpolate on the same clock. */
+function samplePath(points,t){let j=0;while(j<points.length-2&&t>points[j+1].t)j++;
+ const a=points[j],b=points[j+1],d=b.t-a.t,u=clamp((t-a.t)/d,0,1),u2=u*u,u3=u2*u;
+ const h00=2*u3-3*u2+1,h10=u3-2*u2+u,h01=-2*u3+3*u2,h11=u3-u2,out={};
+ for(const k of ['x','y','s','r']){
+  const prev=points[Math.max(0,j-1)],next=points[Math.min(points.length-1,j+2)];
+  const slopeA=j===0?0:(b[k]-prev[k])/(b.t-prev.t),slopeB=j===points.length-2?0:(next[k]-a[k])/(next.t-a.t);
+  out[k]=h00*a[k]+h10*d*slopeA+h01*b[k]+h11*d*slopeB;
+ }
+ return out;
+}
+function move(points,duration){if(flight)flight.resolve();return new Promise(resolve=>{flight={start:performance.now(),duration,points,resolve};});}
+function pathFrom(items){return [{t:0,...pose},...items]}
+function quickMood(name){express(name);}
+function clearTimedAnimations(){for(const el of [camera,bubble,shade,spot,shadow,confirm])el.getAnimations().forEach(a=>a.cancel());}
+function cameraMorph(from,to,ms,delay=0){return animateStyle(camera,[{left:from.x+'px',top:from.y+'px',width:from.w+'px',height:from.h+'px'}, {left:to.x+'px',top:to.y+'px',width:to.w+'px',height:to.h+'px'}],ms,E.camera,delay);}
+const OUT_MS=3000,YAWN_MS=1700;
+async function startCover(){if(phase!=='sleep'||gateState<2)return;gate.classList.remove('show');const token=++epoch;setPhase('push');camButton.disabled=true;camButton.setAttribute('aria-checked','true');camera.classList.add('on');camera.classList.remove('nudge');
+ const a=l,rise=a.smallY-a.bigY,dx=a.endCX,dy=a.endCY;
+ // 1. CONTACT: the card's top edge hits Momo and throws her straight up, out of the viewport.
+ const expand=cameraMorph({x:a.cX,y:a.smallY,w:a.cardW,h:a.smallH},
+   {x:a.cX,y:a.bigY,w:a.cardW,h:a.largeH},700,0);
+ const launch=move(pathFrom([
+  {t:.13,x:a.mCX,y:a.mCY+12,s:.96,r:-4},
+  {t:.32,x:a.mCX-5,y:a.mCY-rise*.38-26,s:1.13,r:-20},
+  {t:.69,x:a.mCX-29,y:a.mCY-rise-170,s:1.12,r:-30},
+  {t:1,x:a.mCX-42,y:-a.mH*1.5,s:1.08,r:13}
+ ]),640);
+ await sleep(76);if(token!==epoch)return;express('Kaget');
+ await sleep(374);if(token!==epoch)return;setPhase('launch');
+ await Promise.all([expand,launch]);if(token!==epoch)return;
+ // 2. Momo stays out of the page for about 3 s. The big card (the preview) stays on screen.
+ await sleep(OUT_MS);if(token!==epoch)return;
+ // 3. She falls back in: gravity, brake, overshoot.
+ const descend=move(pathFrom([
+  {t:.21,x:a.mCX+a.w*.048,y:-a.mH*.41,s:1.09,r:48},
+  {t:.5,x:a.mCX+a.w*.09,y:a.h*.30,s:a.finalScale*1.03,r:25},
+  {t:.71,x:dx+24,y:dy+40,s:a.finalScale*.95,r:-13},
+  {t:.89,x:dx-9,y:dy-11,s:a.finalScale*1.02,r:5},
+  {t:1,x:dx,y:dy,s:a.finalScale,r:0}
+ ]),1300);
+ await descend;if(token!==epoch)return;
+ // 4. She yawns. The card does NOT move until the yawn is finished.
+ setPhase('yawn');express('Menguap');
+ await sleep(YAWN_MS);if(token!==epoch)return;
+ // 5. Same DOM card morphs straight into the dark PIP (bottom left). Momo notices the camera.
+ const from={x:a.cX,y:a.bigY,w:a.cardW,h:a.largeH},to={x:a.pipX,y:a.pipY,w:a.pipW,h:a.pipH};
+ setPhase('notice');express('Penasaran');
+ const pipTask=cameraMorph(from,to,1150,0).then(()=>{if(token===epoch){camera.classList.add('pip');camButton.disabled=false;}});
+ pipPromise=pipTask;
+ await sleep(900);if(token!==epoch)return;
+ await pipTask;if(token!==epoch)return;
+ express('Senang');setDialog(lines[0]);setPhase('chat');
+ void animateStyle(shade,[{opacity:0},{opacity:.92}],1400,E.soft);
+ void animateStyle(spot,[{opacity:0},{opacity:1}],1450,E.soft);
+ const intro=animateStyle(bubble,[{opacity:0,transform:'translateY(9px) scale(.98)'},{opacity:1,transform:'translateY(0px) scale(1)'}],550,E.soft);
+ await intro;if(token!==epoch)return;
+ await presentDialogue(token);
+}
+const lines=[
+ 'Aku Momo, gambar satu-satunya yang hidup di dunia Sketchbook Universe.',
+ 'Aku barusan menemukan **Thinman**.',
+ 'Kayaknya dia butuh bantuanmu supaya bisa hidup juga sepertiku.',
+ 'Yuk, antar dia ke tempat yang tepat.'
+];
+function setDialog(text){dialog.replaceChildren(...text.split('**').map((part,i)=>{if(i%2===0)return document.createTextNode(part);const s=document.createElement('strong');s.textContent=part;return s}));}
+async function presentDialogue(token){
+ const moods=['Senang','Penasaran','Berpikir','Semangat'];
+ for(let i=0;i<lines.length;i++){
+  if(token!==epoch||phase!=='chat')return;
+  express(moods[i]);setDialog(lines[i]);
+  await sleep(Math.max(1700,Math.min(3450,lines[i].length*53)));
+ }
+ if(token!==epoch||phase!=='chat')return;
+ setPhase('ready');express('Senang');{const bb=bubble.getBoundingClientRect();confirm.style.top=Math.min(l.h-124,Math.round(bb.bottom+20))+'px';}confirm.style.display='flex';
+ await animateStyle(confirm,[{opacity:0,transform:'translateY(8px) scale(.9)'},{opacity:1,transform:'translateY(0px) scale(1)'}],580,E.pop);
+}
+
+/* ===== Welcome Flow 2: gerbang kamera di bubble Momo ===== */
+const GATE_LINES=['Zzz... kamera... zzz...','Zzz... kok kayak ada orang ya...','Eh... beneran ada orang... bangunin aku dong, pakai kameranya.'];
+const GATE_FACE=['Ngantuk','Ngelindur','SetengahBangun'];
+const HEADS=[
+ ['Momo ketiduran','Nyalain kamera biar dia bangun. Videonya nggak direkam.'],
+ ['Gambar pakai tangan di udara','Momo lagi tidur. Nyalain kamera, dia bangun.'],
+ ['Kenalan sama Momo','Dia lagi tidur. Nyalain kamera, nanti dia bangun.'],
+ ['Kamera ini baca tanganmu','Videonya nggak direkam. Habis itu Momo bangun.'],
+ ['Nyalain kamera dulu, ya','Momo lagi tidur. Dia bangun kalau kameramu nyala.'],
+ ['Bangunin Momo','Nyalain cam buat bikin Momo bangun dan mulai petualangan.']
+];
+let headIdx=0;
+function applyHead(i){headIdx=i;hero.querySelector('h1').textContent=HEADS[i][0];hero.querySelector('p').textContent=HEADS[i][1];syncDock();requestAnimationFrame(placeGate);}
+function syncDock(){
+ if(!dock)return;
+ dock.querySelectorAll('[data-state]').forEach(b=>{const n=+b.dataset.state;const on=n===3?['push','launch','yawn','notice','chat'].includes(phase):n===4?phase==='ready':phase==='sleep'&&n===gateState;b.setAttribute('aria-pressed',String(on));});
+ dock.querySelectorAll('[data-head]').forEach(b=>b.setAttribute('aria-pressed',String(+b.dataset.head===headIdx)));
+}
+function setMumble(text){clearTimeout(mumbleT);if(!mumble.textContent){mumble.textContent=text;return}mumble.style.opacity='0';mumbleT=setTimeout(()=>{mumble.textContent=text;mumble.style.opacity='1'},130);}
+function flashMumble(text){clearTimeout(flashT);setMumble(text);flashT=setTimeout(()=>setMumble(GATE_LINES[gateState]),2600);}
+function shakeGate(){
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ const f=[{transform:'translateX(0)'},{transform:'translateX(-8px)'},{transform:'translateX(7px)'},{transform:'translateX(-5px)'},{transform:'translateX(3px)'},{transform:'translateX(0)'}];
+ gate.animate(f,{duration:420,easing:'ease-out'});camButton.animate(f,{duration:420,easing:'ease-out'});
+}
+function setGateState(n){
+ gateState=n;clearTimeout(flashT);gate.dataset.state=String(n);
+ gateOk.checked=n>=1;gateOk.disabled=n>=2;gateGo.disabled=n!==1;gateGo.textContent=n>=2?'Sudah':'Lanjut';
+ const open=n>=2;camera.classList.toggle('locked',!open);camera.classList.toggle('nudge',open);
+ camButton.setAttribute('aria-disabled',String(!open));camButton.title=open?'Nyalakan kamera':'Centang dan pencet Lanjut dulu';
+ express(GATE_FACE[n]);setMumble(GATE_LINES[n]);syncDock();
+}
+function jumpState(n){
+ if(n===4){void jumpRing();return}
+ if(n===3){if(phase!=='sleep')reset();setGateState(2);void startCover();return}
+ if(phase!=='sleep')reset();else gate.classList.add('show');
+ setGateState(n);
+}
+async function jumpRing(){jumpState(3);const t=epoch;for(let i=0;i<140&&epoch===t&&phase!=='chat';i++)await sleep(150);if(epoch===t&&phase==='chat')window.__coverPreview.skipDialogue();}
+function placeGate(){
+ if(!l||!gate)return;
+ const leftSide=Math.round(l.w/2+l.cardW/2+14),gwSide=Math.min(338,l.w-leftSide-12),side=gwSide>=296&&l.w>=900;
+ const gw=side?gwSide:Math.min(338,l.w-28);
+ gate.dataset.side=side?'right':'above';gate.style.width=gw+'px';
+ hero.classList.remove('tight-k','tight-all');
+ const gh=gate.offsetHeight,mY=l.mCY-l.mH/2,faceY=mY+l.mH*.28;
+ let heroB=hero.getBoundingClientRect().bottom,left,top;
+ if(side){
+  left=leftSide;
+  top=Math.round(Math.max(heroB+10,Math.min(l.cardBottom-gh,l.h-gh-64)));
+  gate.style.setProperty('--tail-y',Math.round(clamp(faceY-top,24,gh-30))+'px');
+ }else{
+  left=Math.round((l.w-gw)/2);
+  top=Math.round(mY-14-gh);
+  if(top<heroB+8){hero.classList.add('tight-k');heroB=hero.getBoundingClientRect().bottom;}
+  if(top<heroB+8)hero.classList.add('tight-all');
+  top=Math.max(8,top);
+  gate.style.setProperty('--tail-x','50%');
+ }
+ gate.style.left=left+'px';gate.style.top=top+'px';
+}
+gateOk.addEventListener('change',()=>{if(phase!=='sleep')return;if(gateOk.checked&&gateState===0)setGateState(1);else if(!gateOk.checked&&gateState===1)setGateState(0);});
+gateGo.addEventListener('click',()=>{if(phase==='sleep'&&gateState===1)setGateState(2);});
+dock.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;if(b.dataset.state!==undefined)jumpState(+b.dataset.state);else if(b.dataset.head!==undefined)applyHead(+b.dataset.head);});
+
+
+/* ===== ThumbConfirm (repo ui/ThumbConfirm.tsx): hold 2000 ms by mouse/touch/Enter/Space, drain at half speed, latch ===== */
+const ringFill=Q('ring-fill'),RING_C=2*Math.PI*30,RING_MS=2000,RING_DRAIN=.5;
+let ringP=0,ringHold=false,ringLatched=true,ringLast=null;
+function ringSet(p){ringP=p;ringFill.style.strokeDashoffset=(RING_C*(1-p)).toFixed(2);confirm.setAttribute('aria-valuenow',String(Math.round(p*100)));}
+function ringHolding(v){ringHold=v;confirm.classList.toggle('is-holding',v);}
+function ringReset(){ringHolding(false);ringLatched=true;ringSet(0);confirm.classList.remove('is-confirmed');}
+function ringTick(now){
+ const dt=ringLast===null?0:clamp(now-ringLast,0,100);ringLast=now;
+ if(phase==='ready'&&!bookOpening){
+  if(ringLatched){if(!ringHold){ringLatched=false;ringSet(0);}}
+  else{
+   const next=ringHold?Math.min(1,ringP+dt/RING_MS):Math.max(0,ringP-dt/RING_MS*RING_DRAIN);
+   if(next!==ringP)ringSet(next);
+   if(next>=1){ringLatched=true;confirm.classList.add('is-confirmed');setTimeout(()=>confirm.classList.remove('is-confirmed'),450);void openBook();}
+  }
+ }
+ requestAnimationFrame(ringTick);
+}
+confirm.addEventListener('pointerdown',e=>{e.preventDefault();ringHolding(true)});
+for(const ev of ['pointerup','pointerleave','pointercancel','blur'])confirm.addEventListener(ev,()=>ringHolding(false));
+confirm.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();ringHolding(true)}});
+confirm.addEventListener('keyup',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();ringHolding(false)}});
+confirm.addEventListener('contextmenu',e=>e.preventDefault());
+requestAnimationFrame(ringTick);
+function showCamNudge(show){const n=Q('cam-nudge');if(!show){n.classList.remove('show');return}const r=camera.getBoundingClientRect();n.style.left=Math.max(10,Math.round(r.left))+'px';n.style.bottom=Math.round(innerHeight-r.top+12)+'px';n.classList.add('show');}
+function R(n){return Math.round(n*100)/100}
+let W=0,H=0;
+const frontClipPath=Q('front-clip-path'),greenBendOverlay=Q('green-bend-overlay'),greenBendGrad=Q('green-bend-grad'),curlBackGrad=Q('curl-back-grad'),flapShadowPath=Q('flap-shadow-path'),curlFlapPath=Q('curl-flap-path');
+let curl={progress:0};
+function resizeCurl(){W=innerWidth;H=innerHeight;Q('page-stage').setAttribute('viewBox',`0 0 ${W} ${H}`);for(const id of ['outer-rect','revealed-page-bg','front-bg','green-bend-overlay']){Q(id).setAttribute('width',W);Q(id).setAttribute('height',H)}renderCurl(curl.progress)}
+function clipPolygon(poly,distFn,keepNegative){const out=[],inside=d=>keepNegative?d<=1e-4:d>=-1e-4;for(let i=0;i<poly.length;i++){const A=poly[i],B=poly[(i+1)%poly.length],dA=distFn(A),dB=distFn(B),inA=inside(dA),inB=inside(dB);if(inA&&inB)out.push(B);else if(inA&&!inB){const t=dA/(dA-dB);out.push({x:A.x+t*(B.x-A.x),y:A.y+t*(B.y-A.y),onCrease:true})}else if(!inA&&inB){const t=dA/(dA-dB);out.push({x:A.x+t*(B.x-A.x),y:A.y+t*(B.y-A.y),onCrease:true});out.push(B)}}return out}
+function buildSmoothFlapPath(pts,nx,ny,rollRadius,baseRadius){if(pts.length<3)return '';const tx=-ny,ty=nx;let cx=0,cy=0;for(const p of pts){cx+=p.x;cy+=p.y}cx/=pts.length;cy/=pts.length;let dStr='';for(let i=0;i<pts.length;i++){const P=pts[i],Q=pts[(i+1)%pts.length];if(i===0)dStr+=`M ${R(P.x)} ${R(P.y)} `;const mx=(P.x+Q.x)*.5,my=(P.y+Q.y)*.5,segLen=Math.hypot(Q.x-P.x,Q.y-P.y);if(P.onCrease&&Q.onCrease){const bulge=rollRadius*.85;dStr+=`Q ${R(mx+nx*bulge)} ${R(my+ny*bulge)} ${R(Q.x)} ${R(Q.y)} `}else{const flex=Math.min(26,segLen*.055)*(rollRadius/baseRadius);const sign=(mx-cx)*tx+(my-cy)*ty>=0?1:-1;dStr+=`Q ${R(mx+(nx*.45+tx*sign*.55)*flex)} ${R(my+(ny*.45+ty*sign*.55)*flex)} ${R(Q.x)} ${R(Q.y)} `}}return dStr+'Z'}
+function renderCurl(p){const clamped=clamp(p,0,1);if(clamped<=.0005){Q('ruler-page').style.clipPath='inset(100%)';frontClipPath.setAttribute('d',`M0,0 L${W},0 L${W},${H} L0,${H} Z`);greenBendOverlay.setAttribute('opacity','0');flapShadowPath.setAttribute('opacity','0');curlFlapPath.setAttribute('opacity','0');return}if(clamped>=.9995){Q('ruler-page').style.clipPath='none';frontClipPath.setAttribute('d','M0,0 L0,0 L0,0 Z');greenBendOverlay.setAttribute('opacity','0');flapShadowPath.setAttribute('opacity','0');curlFlapPath.setAttribute('opacity','0');return}
+ const minDim=Math.min(W,H),baseRadius=minDim*.07,angle=(1-clamped)*(Math.PI/4),nx=Math.sin(angle),ny=Math.cos(angle),maxDist=W*Math.sin(Math.PI/4)+H*Math.cos(Math.PI/4),dist=maxDist*(1-clamped),midX=dist*nx,midY=dist*ny,distFn=pt=>pt.x*nx+pt.y*ny-dist;
+ const corners=[{x:0,y:0},{x:W,y:0},{x:W,y:H},{x:0,y:H}],frontPoly=clipPolygon(corners,distFn,true);
+ if(frontPoly.length>=3){let frontD='',rollR=baseRadius*Math.sin(clamped*Math.PI);for(let i=0;i<frontPoly.length;i++){const A=frontPoly[i],B=frontPoly[(i+1)%frontPoly.length];if(i===0)frontD+=`M ${R(A.x)} ${R(A.y)} `;if(A.onCrease&&B.onCrease){const ctrlX=(A.x+B.x)*.5+nx*(rollR*.85),ctrlY=(A.y+B.y)*.5+ny*(rollR*.85);frontD+=`Q ${R(ctrlX)} ${R(ctrlY)} ${R(B.x)} ${R(B.y)} `}else frontD+=`L ${R(B.x)} ${R(B.y)} `}frontClipPath.setAttribute('d',frontD+'Z')}else frontClipPath.setAttribute('d','M0,0 L0,0 L0,0 Z');
+ const peeledPoly=clipPolygon(corners,distFn,false);Q('ruler-page').style.clipPath=peeledPoly.length>=3?'polygon('+peeledPoly.map(pt=>R(pt.x)+'px '+R(pt.y)+'px').join(',')+')':'inset(100%)';if(peeledPoly.length<3){flapShadowPath.setAttribute('opacity','0');curlFlapPath.setAttribute('opacity','0');return}
+ const rollRadius=baseRadius*Math.sin(clamped*Math.PI);let maxD=0;const reflectedPoly=peeledPoly.map(pt=>{const d=Math.max(0,distFn(pt));if(d>maxD)maxD=d;return{x:pt.x-2*d*nx+nx*(rollRadius*.65),y:pt.y-2*d*ny+ny*(rollRadius*.65),onCrease:!!pt.onCrease}});const flapD=buildSmoothFlapPath(reflectedPoly,nx,ny,rollRadius,baseRadius);const fade=clamped<.06?clamped/.06:clamped>.92?(1-clamped)/.08:1;
+ curlFlapPath.setAttribute('d',flapD);curlFlapPath.setAttribute('opacity',R(fade));flapShadowPath.setAttribute('d',flapD);flapShadowPath.setAttribute('opacity',R(fade*.85));
+ const gradSpan=Math.max(140,Math.min(maxD*1.45,560)),startX=midX+nx*(rollRadius*.85),startY=midY+ny*(rollRadius*.85);curlBackGrad.setAttribute('x1',R(startX));curlBackGrad.setAttribute('y1',R(startY));curlBackGrad.setAttribute('x2',R(startX-nx*gradSpan));curlBackGrad.setAttribute('y2',R(startY-ny*gradSpan));greenBendGrad.setAttribute('x1',R(midX+nx*12));greenBendGrad.setAttribute('y1',R(midY+ny*12));greenBendGrad.setAttribute('x2',R(midX-nx*240));greenBendGrad.setAttribute('y2',R(midY-ny*240));greenBendOverlay.setAttribute('opacity',R(fade*.9));}
+
+
+/* Momo enters the *implied* space in the paper: no drawn hole, no portal object.
+   The body remains a single DOM/SVG from cover to ruler; scale and forward motion never reset. */
+const ruler=Q('ruler-body'),rulerTrack=Q('ruler-track'),rulerValue=Q('ruler-readout');
+let rulerSlot=0,dragOrigin=null,dragSlot=0;
+const tickEls=[];
+for(let n=-22;n<=42;n++){const tick=document.createElement('div');tick.className='ruler-tick'+((n+30)%5===0?' major':'');const label=document.createElement('span');label.textContent=n>=0&&n<30&&n%5===0?String(n+1):'';tick.append(label);rulerTrack.append(tick);tickEls.push({tick,n});}
+function setRuler(slot){rulerSlot=clamp(Math.round(slot),0,29);rulerValue.textContent=String(rulerSlot+1);ruler.setAttribute('aria-valuenow',rulerSlot+1);const center=ruler.clientWidth/2;for(const {tick,n} of tickEls)tick.style.left=center+(n-rulerSlot)*44+'px';}
+ruler.addEventListener('pointerdown',e=>{if(phase!=='inside')return;dragOrigin=e.clientX;dragSlot=rulerSlot;ruler.setPointerCapture(e.pointerId)});
+ruler.addEventListener('pointermove',e=>{if(dragOrigin!==null)setRuler(dragSlot-(e.clientX-dragOrigin)/44)});
+ruler.addEventListener('pointerup',()=>dragOrigin=null);ruler.addEventListener('pointercancel',()=>dragOrigin=null);
+ruler.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='ArrowUp'){setRuler(rulerSlot+1);e.preventDefault()}else if(e.key==='ArrowLeft'||e.key==='ArrowDown'){setRuler(rulerSlot-1);e.preventDefault()}});
+function animateCurl(token,duration){return new Promise(resolve=>{const start=performance.now();function frame(now){if(token!==epoch){resolve();return}const p=clamp((now-start)/duration,0,1);curl.progress=smooth(p);renderCurl(curl.progress);if(p<1)requestAnimationFrame(frame);else resolve()}requestAnimationFrame(frame)})}
+async function openBook(){
+ if(phase!=='ready'||bookOpening)return;
+ bookOpening=true;
+ if(pipPromise)await pipPromise;
+ if(!camera.classList.contains('pip')){
+  const r=camera.getBoundingClientRect();
+  await cameraMorph({x:r.left,y:r.top,w:r.width,h:r.height},{x:l.pipX,y:l.pipY,w:l.pipW,h:l.pipH},860);
+  camera.classList.add('pip');
+ }
+ if(phase!=='ready'){bookOpening=false;return;}
+ const token=++epoch,a=l,w=a.w,h=a.h;
+ setPhase('exit');confirm.style.pointerEvents='none';bubble.style.pointerEvents='none';
+ void animateStyle(bubble,[{opacity:1,transform:'translateY(0px) scale(1)'},{opacity:0,transform:'translateY(6px) scale(.98)'}],220,E.soft);
+ express('Semangat');
+ const exitX=w+Math.max(132,a.mW*.84),exitY=h+Math.max(110,a.mH*.44);
+ await move(pathFrom([
+  {t:.05,x:a.endCX+6,y:a.endCY-8,s:a.finalScale*1.02,r:6},
+  {t:.14,x:a.endCX+32,y:a.endCY+16,s:a.finalScale*1.01,r:34},
+  {t:.27,x:w*.70,y:h*.44,s:a.finalScale*.95,r:66},
+  {t:.48,x:w*.88,y:h*.74,s:a.finalScale*.67,r:70},
+  {t:.70,x:w*1.03,y:h*.97,s:a.finalScale*.23,r:54},
+  {t:1,x:exitX,y:exitY,s:.04,r:34}
+ ]),1050);
+ if(token!==epoch)return;
+ book.style.display='block';book.dataset.arrived='false';
+ book.appendChild(camera);book.appendChild(momo);resizeCurl();setRuler(0);
+ setPhase('book');
+ const curlTask=animateCurl(token,1700);
+ await sleep(650);if(token!==epoch)return;
+ setPhase('entry');
+ const destX=w*(a.mobile?.81:.86),destY=a.mobile?Math.max(100,h*.12):Math.max(152,h*.238);
+ const entrance=move(pathFrom([
+  {t:.10,x:exitX+88,y:exitY+62,s:a.mobile?.82:.96,r:-62},
+  {t:.22,x:w+40,y:h+26,s:a.mobile?.82:.96,r:-66},
+  {t:.40,x:w*.935,y:h*.55,s:a.mobile?.82:.96,r:-48},
+  {t:.58,x:w*.855,y:h*.24,s:a.mobile?.80:.94,r:-23},
+  {t:.78,x:destX-w*.04,y:destY-h*.03,s:a.mobile?.75:.92,r:12},
+  {t:.92,x:destX+w*.012,y:destY+h*.008,s:a.mobile?.715:.90,r:4},
+  {t:1,x:destX,y:destY,s:a.mobile?.69:.88,r:0}
+ ]),900);
+ await sleep(170);if(token!==epoch)return;express('Senang');
+ await Promise.all([curlTask,entrance]);if(token!==epoch)return;
+ blinkAt=performance.now()+1800;setPhase('inside');bookOpening=false;book.dataset.arrived='true';
+ replay.style.display='inline-flex';ruler.focus({preventScroll:true});
+}
+function reset(){
+ epoch++;pipPromise=null;bookOpening=false;if(flight){flight.resolve();flight=null;}clearTimedAnimations();
+ if(momo.parentNode!==stage)stage.appendChild(momo);if(camera.parentNode!==stage)stage.appendChild(camera);
+ setPhase('sleep');camera.classList.remove('on','pip','has-stream','simulated','nudge');
+ camButton.disabled=false;camButton.setAttribute('aria-checked','false');replay.style.display='none';
+ confirm.style.display='none';confirm.disabled=false;confirm.style.pointerEvents='auto';confirm.style.opacity='0';
+ shade.style.opacity='0';spot.style.opacity='0';bubble.style.opacity='0';bubble.style.pointerEvents='none';
+ dialog.replaceChildren();book.style.display='none';book.dataset.arrived='false';curl.progress=0;
+ shadow.style.opacity='.12';momo.style.zIndex='3';express('Ngantuk');Object.assign(faceCurrent,faceTarget);parts.eyesOpen.style.opacity='0';parts.eyesClosed.style.opacity='1';layout();previousMotion={x:pose.x,y:pose.y};
+ ringReset();showCamNudge(false);camButton.setAttribute('aria-label','Nyalakan kamera');setGateState(0);gate.classList.add('show');
+}
+camButton.setAttribute('role','switch');camButton.setAttribute('aria-checked','false');camButton.addEventListener('click',()=>{
+ if(camera.classList.contains('pip')){const on=!camera.classList.contains('on');camera.classList.toggle('on',on);camButton.setAttribute('aria-checked',String(on));camButton.setAttribute('aria-label',on?'Matikan kamera':'Nyalakan kamera');showCamNudge(!on);return}
+ if(phase!=='sleep')return;
+ if(gateState<2){shakeGate();flashMumble(gateState===0?'Zzz... centang dulu, ya...':'Zzz... pencet Lanjut dulu...');return}
+ void startCover();
+});
+replay.addEventListener('click',reset);
+window.addEventListener('resize',()=>{if(['sleep','inside','chat','ready'].includes(phase)){layout();if(phase==='chat'||phase==='ready'){pose.x=l.endCX;pose.y=l.endCY;pose.s=l.finalScale;pose.r=0;}}});
+window.__coverPreview={getPhase:()=>phase,getExpression:()=>expression,getMomoLayer:()=>momo.parentNode.id,getBookProgress:()=>curl.progress,getRulerNumber:()=>rulerSlot+1,
+ getMotion:()=>({...pose}),getWingTransforms:()=>({L:parts.left.getAttribute("transform"),R:parts.right.getAttribute("transform")}),getMomoPaint:()=>({hostTransform:getComputedStyle(momo).transform,hostWidth:momo.getBoundingClientRect().width,svgWidth:momo.querySelector('svg').getBoundingClientRect().width}),getGateState:()=>gateState,setGateState:n=>jumpState(n),startDemo:()=>void startCover(),skipDialogue:()=>{if(phase==='chat'){setPhase('ready');express('Senang');setDialog(lines.at(-1));{const bb=bubble.getBoundingClientRect();confirm.style.top=Math.min(l.h-124,Math.round(bb.bottom+20))+'px';}confirm.style.display='flex';confirm.style.opacity='1';confirm.style.transform='translateY(0) scale(1)';}},openBook,reset};
+stage.dataset.phase=phase;document.documentElement.dataset.phase=phase;express('Ngantuk');layout();previousMotion={x:pose.x,y:pose.y};resizeCurl();setRuler(0);
+applyHead(0);setGateState(0);setTimeout(()=>{placeGate();gate.classList.add('show')},450);
+requestAnimationFrame(frame);
+})();
+</script></body></html>

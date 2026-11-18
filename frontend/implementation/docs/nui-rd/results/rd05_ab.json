@@ -1,0 +1,1223 @@
+{
+ "rows": 50607,
+ "users": 3707,
+ "parity": {
+  "lr_max_abs_diff": 2.6437581901461726e-7,
+  "mlp_max_abs_diff": 1.7327949763945583e-7
+ },
+ "summary": {
+  "baseline": {
+   "macroF1_9": 0.406,
+   "macroF1_7": 0.448,
+   "accuracy": 0.501,
+   "five": {
+    "precision": 0.483,
+    "recall": 0.463,
+    "f1": 0.473
+   },
+   "erase": {
+    "falseHapusPct": 5.43,
+    "fiveRecallPct": 46.32,
+    "nonFive": 45607,
+    "five_n": 5000
+   },
+   "bySource": {
+    "call": {
+     "n": 2500,
+     "erasePct": 0.4
+    },
+    "dislike": {
+     "n": 2500,
+     "erasePct": 0.2
+    },
+    "fist": {
+     "n": 2500,
+     "erasePct": 0.1
+    },
+    "four": {
+     "n": 2500,
+     "erasePct": 84.4
+    },
+    "grabbing": {
+     "n": 2500,
+     "erasePct": 1.6
+    },
+    "grip": {
+     "n": 2500,
+     "erasePct": 0.6
+    },
+    "like": {
+     "n": 2500,
+     "erasePct": 0.1
+    },
+    "mute": {
+     "n": 2500,
+     "erasePct": 0.3
+    },
+    "no_gesture": {
+     "n": 607,
+     "erasePct": 35.9
+    },
+    "ok": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "one": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "palm": {
+     "n": 2500,
+     "erasePct": 54.7
+    },
+    "peace": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "point": {
+     "n": 2500,
+     "erasePct": 1.4
+    },
+    "rock": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "stop": {
+     "n": 2500,
+     "erasePct": 37.9
+    },
+    "three": {
+     "n": 2500,
+     "erasePct": 0.6
+    },
+    "three2": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "three3": {
+     "n": 2500,
+     "erasePct": 0.2
+    },
+    "thumb_index": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "two_up": {
+     "n": 2500,
+     "erasePct": 0.3
+    }
+   },
+   "perClass": [
+    {
+     "label": "FIVE",
+     "support": 5000,
+     "precision": 0.483,
+     "recall": 0.463,
+     "f1": 0.473
+    },
+    {
+     "label": "FOUR",
+     "support": 2500,
+     "precision": 0.098,
+     "recall": 0.154,
+     "f1": 0.12
+    },
+    {
+     "label": "THREE",
+     "support": 2500,
+     "precision": 0.883,
+     "recall": 0.163,
+     "f1": 0.275
+    },
+    {
+     "label": "TWO",
+     "support": 5000,
+     "precision": 0.613,
+     "recall": 0.991,
+     "f1": 0.757
+    },
+    {
+     "label": "ONE",
+     "support": 2500,
+     "precision": 0.319,
+     "recall": 0.514,
+     "f1": 0.394
+    },
+    {
+     "label": "FIST",
+     "support": 2500,
+     "precision": 0.016,
+     "recall": 0.023,
+     "f1": 0.019
+    },
+    {
+     "label": "THUMB_UP",
+     "support": 2500,
+     "precision": 0.42,
+     "recall": 0.615,
+     "f1": 0.499
+    },
+    {
+     "label": "PINCH_LIKE",
+     "support": 2500,
+     "precision": 0.422,
+     "recall": 0.727,
+     "f1": 0.534
+    },
+    {
+     "label": "OTHER",
+     "support": 25607,
+     "precision": 0.711,
+     "recall": 0.492,
+     "f1": 0.582
+    }
+   ],
+   "confusion": {
+    "FIVE": {
+     "FIVE": 2316,
+     "FOUR": 2682,
+     "THREE": 0,
+     "TWO": 1,
+     "ONE": 0,
+     "FIST": 0,
+     "THUMB_UP": 0,
+     "PINCH_LIKE": 1,
+     "OTHER": 0
+    },
+    "FOUR": {
+     "FIVE": 2109,
+     "FOUR": 386,
+     "THREE": 0,
+     "TWO": 2,
+     "ONE": 0,
+     "FIST": 0,
+     "THUMB_UP": 0,
+     "PINCH_LIKE": 0,
+     "OTHER": 3
+    },
+    "THREE": {
+     "FIVE": 16,
+     "FOUR": 9,
+     "THREE": 407,
+     "TWO": 11,
+     "ONE": 1,
+     "FIST": 0,
+     "THUMB_UP": 0,
+     "PINCH_LIKE": 5,
+     "OTHER": 2051
+    },
+    "TWO": {
+     "FIVE": 8,
+     "FOUR": 1,
+     "THREE": 0,
+     "TWO": 4954,
+     "ONE": 2,
+     "FIST": 0,
+     "THUMB_UP": 2,
+     "PINCH_LIKE": 5,
+     "OTHER": 28
+    },
+    "ONE": {
+     "FIVE": 0,
+     "FOUR": 0,
+     "THREE": 0,
+     "TWO": 13,
+     "ONE": 1286,
+     "FIST": 1,
+     "THUMB_UP": 9,
+     "PINCH_LIKE": 7,
+     "OTHER": 1184
+    },
+    "FIST": {
+     "FIVE": 2,
+     "FOUR": 1,
+     "THREE": 0,
+     "TWO": 0,
+     "ONE": 0,
+     "FIST": 58,
+     "THUMB_UP": 2050,
+     "PINCH_LIKE": 48,
+     "OTHER": 341
+    },
+    "THUMB_UP": {
+     "FIVE": 2,
+     "FOUR": 1,
+     "THREE": 0,
+     "TWO": 2,
+     "ONE": 0,
+     "FIST": 103,
+     "THUMB_UP": 1538,
+     "PINCH_LIKE": 0,
+     "OTHER": 854
+    },
+    "PINCH_LIKE": {
+     "FIVE": 1,
+     "FOUR": 6,
+     "THREE": 0,
+     "TWO": 0,
+     "ONE": 0,
+     "FIST": 1,
+     "THUMB_UP": 0,
+     "PINCH_LIKE": 1818,
+     "OTHER": 674
+    },
+    "OTHER": {
+     "FIVE": 339,
+     "FOUR": 837,
+     "THREE": 54,
+     "TWO": 3103,
+     "ONE": 2742,
+     "FIST": 3434,
+     "THUMB_UP": 64,
+     "PINCH_LIKE": 2429,
+     "OTHER": 12605
+    }
+   },
+   "ci95": {
+    "macroF1_7": [
+     0.438,
+     0.458
+    ],
+    "falseHapusPct": [
+     5.17,
+     5.727
+    ],
+    "fiveRecallPct": [
+     44.207,
+     48.934
+    ],
+    "bootstrap": "200 resamples of 3707 subjects"
+   }
+  },
+  "revised": {
+   "macroF1_9": 0.666,
+   "macroF1_7": 0.782,
+   "accuracy": 0.683,
+   "five": {
+    "precision": 0.841,
+    "recall": 0.973,
+    "f1": 0.902
+   },
+   "erase": {
+    "falseHapusPct": 2.01,
+    "fiveRecallPct": 97.3,
+    "nonFive": 45607,
+    "five_n": 5000
+   },
+   "bySource": {
+    "call": {
+     "n": 2500,
+     "erasePct": 0.5
+    },
+    "dislike": {
+     "n": 2500,
+     "erasePct": 0.2
+    },
+    "fist": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "four": {
+     "n": 2500,
+     "erasePct": 0.2
+    },
+    "grabbing": {
+     "n": 2500,
+     "erasePct": 18
+    },
+    "grip": {
+     "n": 2500,
+     "erasePct": 4.4
+    },
+    "like": {
+     "n": 2500,
+     "erasePct": 0.1
+    },
+    "mute": {
+     "n": 2500,
+     "erasePct": 0.4
+    },
+    "no_gesture": {
+     "n": 607,
+     "erasePct": 33.8
+    },
+    "ok": {
+     "n": 2500,
+     "erasePct": 3.2
+    },
+    "one": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "palm": {
+     "n": 2500,
+     "erasePct": 100
+    },
+    "peace": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "point": {
+     "n": 2500,
+     "erasePct": 1.2
+    },
+    "rock": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "stop": {
+     "n": 2500,
+     "erasePct": 94.6
+    },
+    "three": {
+     "n": 2500,
+     "erasePct": 0.1
+    },
+    "three2": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "three3": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "thumb_index": {
+     "n": 2500,
+     "erasePct": 0.1
+    },
+    "two_up": {
+     "n": 2500,
+     "erasePct": 0.1
+    }
+   },
+   "perClass": [
+    {
+     "label": "FIVE",
+     "support": 5000,
+     "precision": 0.841,
+     "recall": 0.973,
+     "f1": 0.902
+    },
+    {
+     "label": "FOUR",
+     "support": 2500,
+     "precision": 0.797,
+     "recall": 0.996,
+     "f1": 0.885
+    },
+    {
+     "label": "THREE",
+     "support": 2500,
+     "precision": 0.988,
+     "recall": 0.973,
+     "f1": 0.98
+    },
+    {
+     "label": "TWO",
+     "support": 5000,
+     "precision": 0.604,
+     "recall": 0.991,
+     "f1": 0.751
+    },
+    {
+     "label": "ONE",
+     "support": 2500,
+     "precision": 0.612,
+     "recall": 0.879,
+     "f1": 0.722
+    },
+    {
+     "label": "FIST",
+     "support": 2500,
+     "precision": 0.016,
+     "recall": 0.023,
+     "f1": 0.019
+    },
+    {
+     "label": "THUMB_UP",
+     "support": 2500,
+     "precision": 0.42,
+     "recall": 0.615,
+     "f1": 0.499
+    },
+    {
+     "label": "PINCH_LIKE",
+     "support": 2500,
+     "precision": 0.465,
+     "recall": 0.687,
+     "f1": 0.554
+    },
+    {
+     "label": "OTHER",
+     "support": 25607,
+     "precision": 0.867,
+     "recall": 0.56,
+     "f1": 0.68
+    }
+   ],
+   "confusion": {
+    "FIVE": {
+     "FIVE": 4865,
+     "FOUR": 133,
+     "THREE": 0,
+     "TWO": 1,
+     "ONE": 0,
+     "FIST": 0,
+     "THUMB_UP": 0,
+     "PINCH_LIKE": 1,
+     "OTHER": 0
+    },
+    "FOUR": {
+     "FIVE": 5,
+     "FOUR": 2490,
+     "THREE": 0,
+     "TWO": 2,
+     "ONE": 0,
+     "FIST": 0,
+     "THUMB_UP": 0,
+     "PINCH_LIKE": 0,
+     "OTHER": 3
+    },
+    "THREE": {
+     "FIVE": 2,
+     "FOUR": 25,
+     "THREE": 2432,
+     "TWO": 10,
+     "ONE": 2,
+     "FIST": 0,
+     "THUMB_UP": 0,
+     "PINCH_LIKE": 2,
+     "OTHER": 27
+    },
+    "TWO": {
+     "FIVE": 2,
+     "FOUR": 9,
+     "THREE": 2,
+     "TWO": 4954,
+     "ONE": 10,
+     "FIST": 0,
+     "THUMB_UP": 2,
+     "PINCH_LIKE": 3,
+     "OTHER": 18
+    },
+    "ONE": {
+     "FIVE": 0,
+     "FOUR": 0,
+     "THREE": 0,
+     "TWO": 13,
+     "ONE": 2197,
+     "FIST": 1,
+     "THUMB_UP": 9,
+     "PINCH_LIKE": 4,
+     "OTHER": 276
+    },
+    "FIST": {
+     "FIVE": 1,
+     "FOUR": 2,
+     "THREE": 0,
+     "TWO": 1,
+     "ONE": 3,
+     "FIST": 58,
+     "THUMB_UP": 2050,
+     "PINCH_LIKE": 54,
+     "OTHER": 331
+    },
+    "THUMB_UP": {
+     "FIVE": 3,
+     "FOUR": 0,
+     "THREE": 0,
+     "TWO": 2,
+     "ONE": 1,
+     "FIST": 100,
+     "THUMB_UP": 1538,
+     "PINCH_LIKE": 3,
+     "OTHER": 853
+    },
+    "PINCH_LIKE": {
+     "FIVE": 81,
+     "FOUR": 1,
+     "THREE": 0,
+     "TWO": 0,
+     "ONE": 0,
+     "FIST": 1,
+     "THUMB_UP": 0,
+     "PINCH_LIKE": 1717,
+     "OTHER": 700
+    },
+    "OTHER": {
+     "FIVE": 824,
+     "FOUR": 465,
+     "THREE": 27,
+     "TWO": 3213,
+     "ONE": 1376,
+     "FIST": 3395,
+     "THUMB_UP": 64,
+     "PINCH_LIKE": 1911,
+     "OTHER": 14332
+    }
+   },
+   "ci95": {
+    "macroF1_7": [
+     0.774,
+     0.79
+    ],
+    "falseHapusPct": [
+     1.846,
+     2.205
+    ],
+    "fiveRecallPct": [
+     96.68,
+     97.861
+    ],
+    "bootstrap": "200 resamples of 3707 subjects"
+   }
+  },
+  "pilot_lr": {
+   "macroF1_9": 0.971,
+   "macroF1_7": 0.976,
+   "accuracy": 0.974,
+   "five": {
+    "precision": 0.955,
+    "recall": 0.996,
+    "f1": 0.975
+   },
+   "erase": {
+    "falseHapusPct": 0.51,
+    "fiveRecallPct": 99.62,
+    "nonFive": 45607,
+    "five_n": 5000
+   },
+   "bySource": {
+    "call": {
+     "n": 2500,
+     "erasePct": 0.3
+    },
+    "dislike": {
+     "n": 2500,
+     "erasePct": 0.2
+    },
+    "fist": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "four": {
+     "n": 2500,
+     "erasePct": 0.2
+    },
+    "grabbing": {
+     "n": 2500,
+     "erasePct": 3
+    },
+    "grip": {
+     "n": 2500,
+     "erasePct": 0.8
+    },
+    "like": {
+     "n": 2500,
+     "erasePct": 0.2
+    },
+    "mute": {
+     "n": 2500,
+     "erasePct": 0.2
+    },
+    "no_gesture": {
+     "n": 607,
+     "erasePct": 15.5
+    },
+    "ok": {
+     "n": 2500,
+     "erasePct": 0.1
+    },
+    "one": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "palm": {
+     "n": 2500,
+     "erasePct": 99.5
+    },
+    "peace": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "point": {
+     "n": 2500,
+     "erasePct": 0.2
+    },
+    "rock": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "stop": {
+     "n": 2500,
+     "erasePct": 99.7
+    },
+    "three": {
+     "n": 2500,
+     "erasePct": 0.1
+    },
+    "three2": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "three3": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "thumb_index": {
+     "n": 2500,
+     "erasePct": 0.2
+    },
+    "two_up": {
+     "n": 2500,
+     "erasePct": 0
+    }
+   },
+   "perClass": [
+    {
+     "label": "FIVE",
+     "support": 5000,
+     "precision": 0.955,
+     "recall": 0.996,
+     "f1": 0.975
+    },
+    {
+     "label": "FOUR",
+     "support": 2500,
+     "precision": 0.954,
+     "recall": 0.995,
+     "f1": 0.974
+    },
+    {
+     "label": "THREE",
+     "support": 2500,
+     "precision": 0.989,
+     "recall": 0.986,
+     "f1": 0.987
+    },
+    {
+     "label": "TWO",
+     "support": 5000,
+     "precision": 0.988,
+     "recall": 0.992,
+     "f1": 0.99
+    },
+    {
+     "label": "ONE",
+     "support": 2500,
+     "precision": 0.925,
+     "recall": 0.94,
+     "f1": 0.933
+    },
+    {
+     "label": "FIST",
+     "support": 2500,
+     "precision": 0.973,
+     "recall": 0.992,
+     "f1": 0.982
+    },
+    {
+     "label": "THUMB_UP",
+     "support": 2500,
+     "precision": 0.897,
+     "recall": 0.954,
+     "f1": 0.925
+    },
+    {
+     "label": "PINCH_LIKE",
+     "support": 2500,
+     "precision": 0.991,
+     "recall": 0.997,
+     "f1": 0.994
+    },
+    {
+     "label": "OTHER",
+     "support": 25607,
+     "precision": 0.988,
+     "recall": 0.965,
+     "f1": 0.976
+    }
+   ],
+   "confusion": {
+    "FIVE": {
+     "FIVE": 4981,
+     "FOUR": 5,
+     "THREE": 0,
+     "TWO": 0,
+     "ONE": 0,
+     "FIST": 1,
+     "THUMB_UP": 1,
+     "PINCH_LIKE": 0,
+     "OTHER": 12
+    },
+    "FOUR": {
+     "FIVE": 6,
+     "FOUR": 2488,
+     "THREE": 1,
+     "TWO": 2,
+     "ONE": 0,
+     "FIST": 0,
+     "THUMB_UP": 0,
+     "PINCH_LIKE": 0,
+     "OTHER": 3
+    },
+    "THREE": {
+     "FIVE": 2,
+     "FOUR": 17,
+     "THREE": 2464,
+     "TWO": 8,
+     "ONE": 1,
+     "FIST": 0,
+     "THUMB_UP": 0,
+     "PINCH_LIKE": 3,
+     "OTHER": 5
+    },
+    "TWO": {
+     "FIVE": 1,
+     "FOUR": 3,
+     "THREE": 2,
+     "TWO": 4958,
+     "ONE": 10,
+     "FIST": 1,
+     "THUMB_UP": 0,
+     "PINCH_LIKE": 1,
+     "OTHER": 24
+    },
+    "ONE": {
+     "FIVE": 0,
+     "FOUR": 0,
+     "THREE": 0,
+     "TWO": 8,
+     "ONE": 2351,
+     "FIST": 12,
+     "THUMB_UP": 0,
+     "PINCH_LIKE": 0,
+     "OTHER": 129
+    },
+    "FIST": {
+     "FIVE": 0,
+     "FOUR": 1,
+     "THREE": 0,
+     "TWO": 1,
+     "ONE": 2,
+     "FIST": 2479,
+     "THUMB_UP": 1,
+     "PINCH_LIKE": 0,
+     "OTHER": 16
+    },
+    "THUMB_UP": {
+     "FIVE": 5,
+     "FOUR": 0,
+     "THREE": 0,
+     "TWO": 1,
+     "ONE": 0,
+     "FIST": 0,
+     "THUMB_UP": 2385,
+     "PINCH_LIKE": 0,
+     "OTHER": 109
+    },
+    "PINCH_LIKE": {
+     "FIVE": 2,
+     "FOUR": 0,
+     "THREE": 0,
+     "TWO": 0,
+     "ONE": 0,
+     "FIST": 0,
+     "THUMB_UP": 0,
+     "PINCH_LIKE": 2492,
+     "OTHER": 6
+    },
+    "OTHER": {
+     "FIVE": 218,
+     "FOUR": 94,
+     "THREE": 25,
+     "TWO": 38,
+     "ONE": 178,
+     "FIST": 54,
+     "THUMB_UP": 271,
+     "PINCH_LIKE": 18,
+     "OTHER": 24711
+    }
+   },
+   "ci95": {
+    "macroF1_7": [
+     0.973,
+     0.978
+    ],
+    "falseHapusPct": [
+     0.438,
+     0.582
+    ],
+    "fiveRecallPct": [
+     99.464,
+     99.791
+    ],
+    "bootstrap": "200 resamples of 3707 subjects"
+   }
+  },
+  "pilot_mlp": {
+   "macroF1_9": 0.987,
+   "macroF1_7": 0.987,
+   "accuracy": 0.99,
+   "five": {
+    "precision": 0.997,
+    "recall": 0.997,
+    "f1": 0.997
+   },
+   "erase": {
+    "falseHapusPct": 0.04,
+    "fiveRecallPct": 99.68,
+    "nonFive": 45607,
+    "five_n": 5000
+   },
+   "bySource": {
+    "call": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "dislike": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "fist": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "four": {
+     "n": 2500,
+     "erasePct": 0.1
+    },
+    "grabbing": {
+     "n": 2500,
+     "erasePct": 0.2
+    },
+    "grip": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "like": {
+     "n": 2500,
+     "erasePct": 0.1
+    },
+    "mute": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "no_gesture": {
+     "n": 607,
+     "erasePct": 0.8
+    },
+    "ok": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "one": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "palm": {
+     "n": 2500,
+     "erasePct": 99.7
+    },
+    "peace": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "point": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "rock": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "stop": {
+     "n": 2500,
+     "erasePct": 99.7
+    },
+    "three": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "three2": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "three3": {
+     "n": 2500,
+     "erasePct": 0
+    },
+    "thumb_index": {
+     "n": 2500,
+     "erasePct": 0.1
+    },
+    "two_up": {
+     "n": 2500,
+     "erasePct": 0
+    }
+   },
+   "perClass": [
+    {
+     "label": "FIVE",
+     "support": 5000,
+     "precision": 0.997,
+     "recall": 0.997,
+     "f1": 0.997
+    },
+    {
+     "label": "FOUR",
+     "support": 2500,
+     "precision": 0.983,
+     "recall": 0.995,
+     "f1": 0.989
+    },
+    {
+     "label": "THREE",
+     "support": 2500,
+     "precision": 0.984,
+     "recall": 0.989,
+     "f1": 0.986
+    },
+    {
+     "label": "TWO",
+     "support": 5000,
+     "precision": 0.994,
+     "recall": 0.991,
+     "f1": 0.993
+    },
+    {
+     "label": "ONE",
+     "support": 2500,
+     "precision": 0.96,
+     "recall": 0.954,
+     "f1": 0.957
+    },
+    {
+     "label": "FIST",
+     "support": 2500,
+     "precision": 0.988,
+     "recall": 0.992,
+     "f1": 0.99
+    },
+    {
+     "label": "THUMB_UP",
+     "support": 2500,
+     "precision": 0.97,
+     "recall": 0.99,
+     "f1": 0.98
+    },
+    {
+     "label": "PINCH_LIKE",
+     "support": 2500,
+     "precision": 0.995,
+     "recall": 0.999,
+     "f1": 0.997
+    },
+    {
+     "label": "OTHER",
+     "support": 25607,
+     "precision": 0.993,
+     "recall": 0.99,
+     "f1": 0.992
+    }
+   ],
+   "confusion": {
+    "FIVE": {
+     "FIVE": 4984,
+     "FOUR": 7,
+     "THREE": 0,
+     "TWO": 0,
+     "ONE": 0,
+     "FIST": 0,
+     "THUMB_UP": 0,
+     "PINCH_LIKE": 0,
+     "OTHER": 9
+    },
+    "FOUR": {
+     "FIVE": 2,
+     "FOUR": 2487,
+     "THREE": 7,
+     "TWO": 2,
+     "ONE": 0,
+     "FIST": 0,
+     "THUMB_UP": 0,
+     "PINCH_LIKE": 0,
+     "OTHER": 2
+    },
+    "THREE": {
+     "FIVE": 0,
+     "FOUR": 10,
+     "THREE": 2472,
+     "TWO": 7,
+     "ONE": 1,
+     "FIST": 0,
+     "THUMB_UP": 0,
+     "PINCH_LIKE": 4,
+     "OTHER": 6
+    },
+    "TWO": {
+     "FIVE": 0,
+     "FOUR": 0,
+     "THREE": 14,
+     "TWO": 4955,
+     "ONE": 11,
+     "FIST": 2,
+     "THUMB_UP": 0,
+     "PINCH_LIKE": 1,
+     "OTHER": 17
+    },
+    "ONE": {
+     "FIVE": 0,
+     "FOUR": 0,
+     "THREE": 0,
+     "TWO": 7,
+     "ONE": 2385,
+     "FIST": 10,
+     "THUMB_UP": 0,
+     "PINCH_LIKE": 0,
+     "OTHER": 98
+    },
+    "FIST": {
+     "FIVE": 0,
+     "FOUR": 1,
+     "THREE": 0,
+     "TWO": 0,
+     "ONE": 3,
+     "FIST": 2481,
+     "THUMB_UP": 0,
+     "PINCH_LIKE": 0,
+     "OTHER": 15
+    },
+    "THUMB_UP": {
+     "FIVE": 2,
+     "FOUR": 0,
+     "THREE": 0,
+     "TWO": 1,
+     "ONE": 0,
+     "FIST": 0,
+     "THUMB_UP": 2476,
+     "PINCH_LIKE": 0,
+     "OTHER": 21
+    },
+    "PINCH_LIKE": {
+     "FIVE": 0,
+     "FOUR": 0,
+     "THREE": 0,
+     "TWO": 0,
+     "ONE": 0,
+     "FIST": 0,
+     "THUMB_UP": 0,
+     "PINCH_LIKE": 2497,
+     "OTHER": 3
+    },
+    "OTHER": {
+     "FIVE": 13,
+     "FOUR": 25,
+     "THREE": 19,
+     "TWO": 12,
+     "ONE": 84,
+     "FIST": 17,
+     "THUMB_UP": 76,
+     "PINCH_LIKE": 7,
+     "OTHER": 25354
+    }
+   },
+   "ci95": {
+    "macroF1_7": [
+     0.985,
+     0.989
+    ],
+    "falseHapusPct": [
+     0.02,
+     0.056
+    ],
+    "fiveRecallPct": [
+     99.488,
+     99.835
+    ],
+    "bootstrap": "200 resamples of 3707 subjects"
+   }
+  }
+ },
+ "bootstrapDiffVsRevised": {
+  "pilot_lr": {
+   "macroF1_7_minus_revised": [
+    0.187,
+    0.2
+   ],
+   "falseHapusPct_minus_revised": [
+    -1.665,
+    -1.343
+   ]
+  },
+  "pilot_mlp": {
+   "macroF1_7_minus_revised": [
+    0.198,
+    0.213
+   ],
+   "falseHapusPct_minus_revised": [
+    -2.168,
+    -1.797
+   ]
+  }
+ },
+ "latency": {
+  "runtime": "node v22.23.4",
+  "cpu": "Intel(R) Xeon(R) Processor @ 2.30GHz",
+  "cores": 4,
+  "note": "Node V8 in a cloud container. NOT a student laptop, NOT a browser, NOT under MediaPipe load.",
+  "heuristic_baseline": {
+   "n": 10000,
+   "p50_ms": 0.0014,
+   "p95_ms": 0.0024,
+   "p99_ms": 0.0038
+  },
+  "heuristic_revised": {
+   "n": 10000,
+   "p50_ms": 0.0019,
+   "p95_ms": 0.0028,
+   "p99_ms": 0.004
+  },
+  "features_only": {
+   "n": 10000,
+   "p50_ms": 0.0034,
+   "p95_ms": 0.0066,
+   "p99_ms": 0.0089
+  },
+  "features_plus_lr": {
+   "n": 10000,
+   "p50_ms": 0.0046,
+   "p95_ms": 0.0057,
+   "p99_ms": 0.008
+  },
+  "features_plus_mlp": {
+   "n": 10000,
+   "p50_ms": 0.0109,
+   "p95_ms": 0.0123,
+   "p99_ms": 0.0268
+  }
+ },
+ "decision": {
+  "budget_file": "scripts/nui-rd/rd05_budget.json",
+  "pilot_lr": {
+   "a_falseHapus_le_revised": true,
+   "b_fiveRecall_within_2pt": true,
+   "c_macroF1_7_plus_0_03": true,
+   "d_p95_le_1ms": true,
+   "verdict": "PROMISING"
+  },
+  "pilot_mlp": {
+   "a_falseHapus_le_revised": true,
+   "b_fiveRecall_within_2pt": true,
+   "c_macroF1_7_plus_0_03": true,
+   "d_p95_le_1ms": true,
+   "verdict": "PROMISING"
+  },
+  "not_covered": {
+   "pinch_near_vs_touch": "INSUFFICIENT_DATA (no HaGRID class separates near from touching; `ok` is a different pose)",
+   "swipe_temporal": "BLOCKED (IPN HandS landmark archives: Drive quota exceeded)",
+   "webcam": "NOT_TESTED",
+   "mapping_risk": "stop=FIVE is UNCERTAIN; fist read as thumb-up by the repo pose in both rule sets"
+  }
+ }
+}

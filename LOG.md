@@ -7,6 +7,17 @@
 
 ---
 
+## R20-PLAN-20261119-02 — Owner execution amendment: single-agent only, CPU end-goal and iterate-until-gates (2026-11-19 WIB; OBSERVED_REMOTE / NOT_TESTED)
+
+- **Scope:** Added **§19 owner addendum** to existing R20 v0.2.0 plan, preserving its original content and filename to avoid broken history links. Owner forbids Agy AI subagents and delegation, but GPU technical parallelism and deterministic DataLoader workers remain allowed.
+- **Goals:** GPU teacher/student/retraining; tiny student + MediaPipe CPU inference; responsive anti-lag CPU browser; cold-first-use <25,000,000 B across applicable journeys; night low-light/anti-distraction superiority over frozen R19 with no safety regression. All are unproven gates, not achieved metrics.
+- **Modified exactly 3 files:** [R20 plan](docs/plan-rev/NUI_R20-01_v0.2.0_GPU_Teacher_Student_CPU_Only_LowLight_Execution_Plan.md) (new Git blob c93ba562101490fc77de87295b4087d5a69ac362), root README.md and root LOG.md. No training, no new model, no r20/ experiment, no raw data, no main edits.
+- **Evidence:** source-level plan/addendum verification, no executed runtime test. **NOT_TESTED** GPU availability on Agy host, CPU performance, user download trace, physical webcam. Plan remains NOT_STARTED until Agy starts.
+- **Workflow:** Owner wants measured iterations and root-cause fixes until all gates pass; if blocked by hardware/access/license/safety, preserve WIP/BLOCKED with concrete evidence, not DONE. No authorization to push gameplay or production main.
+- **Publication:** this entry + README + plan in one atomic commit. See branch history for final commit SHA.
+
+---
+
 ## R20-PLAN-20261118-01 — Owner R20-01 v0.2.0 Plan Publication (WIB 2026-11-18; `OBSERVED_REMOTE` / `NOT_TESTED`)
 
 - **Task/scope:** Publish Owner-requested full R20 GPU teacher–student training / CPU-only low-light / anti-distraction execution plan as a **not-yet-started R&D plan**, not a trained model or gameplay implementation. Research baseline `research-can@5a3eb290464fa74ae4b1ee709e241980bd1c79c9` (R19 G4); read-only product baseline `main@8969502df4e106d8428055c2ca6f80f4f59250ee` (R19 NUI Lab).

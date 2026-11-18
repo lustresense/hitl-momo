@@ -7,6 +7,16 @@
 
 ---
 
+## R18-PILOT-20261118-03 — Corrected pilot to existing NUI Lab routes
+
+- **Date:** 2026-11-18 WIB.
+- **Change:** Owner rejected the added `/nui-lab/r18` URL. The prior pilot plan in `R18-PILOT-20261118-02` is superseded for routing only.
+- **Observed remote:** draft [PR #6](https://github.com/lustresense/hitl-momo/pull/6), branch `nui-r18-ux3-live-lab@558b297729c5445aa307545adb41d3f361994d33`. Now extends **existing** `/nui-lab/gesture` and `/nui-lab/canvas` through shared `NuiLabPage` and `LabAnalyzer`. The candidate R18 MLP and weights remain the original IPN HandS trained files.
+- **Candidate behavior:** Gesture Lab displays R18 predictions and guards, Canvas Lab applies R18 pinch/erase/swipe guards for experiment modes. Main student/gameplay untouched. Extra pilot route and page removed.
+- **Evidence:** `SOURCE_ONLY`; TypeScript/typecheck, test, build, live browser and physical webcam all `NOT_TESTED`. Do not merge/deploy before Ujang validates and reports proof.
+- **Next:** Ujang check PR #6, test two **original NUI Lab URLs** and ship via existing tunnel after QA and scoped merge. No new route/tunnel.
+- **DimHand:** NOT_USED, ACCESS_NOT_GRANTED. Training source IPN HandS.
+
 ## R18-PILOT-20261118-02 — NUI Lab live UX3 candidate PR prepared
 
 - **Date:** 2026-11-18 WIB.

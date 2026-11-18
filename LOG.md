@@ -7,6 +7,17 @@
 
 ---
 
+## R19-PLAN-20261118-01 — Pistol PRESS dataset/training/runtime research plan
+
+- **Date:** 2026-11-18 sekitar 16:35 WIB (timestamp sesi Owner).
+- **Source baseline:** `research-can@86b3e8577b64c8db1009666f8bdae0dbca4b9958`, `main@c14b1d0502634cd63cc1a7be7c1e02270b15abc1`, R18 model card/manifest. Proposed R19 candidate `POINT_READY`/`POINT_PRESS`/virtual-key FSM; training and physical webcam `NOT_TESTED`.
+- **Changed files:** added [R19-01 plan](docs/plan-rev/NUI_R19-01_v0.1.0_Pistol_Press_Dataset_Training_Runtime_Research.md), updated root LOG.md and README.md. No source/model code or PA decisions changed.
+- **Evidence/checks:** `PASS SOURCE` inspected GitHub R18/gesture sources and research AGENTS/README/LOG; `PASS PUBLIC_WEB` primary Mendeley HandGesture-5G, Natural RGB, Ego/Exocentric and Exocentric Interaction dataset pages; `NOT_TESTED` R19 data download, model training, typecheck, browser and webcam physical.
+- **Correction:** earlier R18 pilot entry saying PR #6 draft is historical; [PR #6](https://github.com/lustresense/hitl-momo/pull/6) was merged to main at `c14b1d0`. This is not a tunnel/Webcam PASS.
+- **Publication scope:** one Markdown plan and ledger updates. No raw datasets, personal webcam footage, binaries, artifacts or secrets added. Git tree records file sizes.
+- **Next:** Owner sends plan link to R&D agent; agent checks branch, renames [WIP] on actual start, audits datasets/licensing/storage, trains and measures only what is accessible, updates root LOG+README every push. Product adoption, main merge and deployment require separate permissions.
+- **Publication:** this commit batch, see branch history for exact SHA.
+
 ## R18-PILOT-20261118-03 — Corrected pilot to existing NUI Lab routes
 
 - **Date:** 2026-11-18 WIB.

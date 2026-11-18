@@ -7,14 +7,11 @@
 
 ## Current status
 
-- **Active plan:** [R18-01 v0.3.0, WIP](docs/plan-rev/%5BWIP%5D%20NUI_R18-01_v0.3.0_UX_First_Worst_Case_Research.md).
-- **Evidence:** UX0–UX3 offline work, UX4 dataset access/license BLOCKED, UX5 180s simulated-camera browser run reported by Agy. Physical webcam: **NOT_TESTED**.
-- **Best trial candidate, not adopted product:** [UX3 MLP + hybrid safety](r18/candidates/ux3_integrated.ts), [model](r18/models/ux3_model_mlp.json), [model card](r18/models/MODEL_CARD.md). MediaPipe remains the primary hand landmark detector.
-- **Pilot source prepared:** [draft PR #6](https://github.com/lustresense/hitl-momo/pull/6) adds the trained UX3 MLP to existing `/nui-lab/gesture` and `/nui-lab/canvas` modes, without creating a separate URL. **NOT BUILT, NOT DEPLOYED, webcam NOT_TESTED.** No DimHand data used.
-- **Pending:** Ujang verifies typecheck/tests/build/browser, then Owner tests actual webcam; close false swipe/erase cases. No production/gameplay integration approved.
-- **Latest activity, measurements, evidence and blockers:** **[LOG.md](LOG.md)**, newest first. Updated in the SAME commit as README after **every** R&D publication.
-
-This README is the short front page. **LOG.md is the sole active chronology**. Do not create `NOW.md`, a separate `VERSION`, duplicate `AGENTS.md`, or nested README files. R&D versions follow actual revision IDs and immutable Git commits; they do not bump product SemVer.
+- **R19 plan, NOT STARTED:** [R19-01 Pistol PRESS, dataset, training and runtime](docs/plan-rev/NUI_R19-01_v0.1.0_Pistol_Press_Dataset_Training_Runtime_Research.md). Agent renames to [WIP] only after actual authorized execution. R19 model, training and webcam tests do not yet exist.
+- **R18 existing plan:** [R18-01 v0.3.0 WIP](docs/plan-rev/%5BWIP%5D%20NUI_R18-01_v0.3.0_UX_First_Worst_Case_Research.md), [model card](r18/models/MODEL_CARD.md) and [manifest](r18/manifests/dataset_manifest.json) continue to provide reference evidence.
+- **Product source:** [PR #6](https://github.com/lustresense/hitl-momo/pull/6) merged to `main@c14b1d0` for NUI Lab routes; runtime tunnel/physical webcam NOT_VERIFIED here; R19 remains research-only.
+- **Next:** verify legal/dataset/space, test Pistol geometry and hard negatives, LR/MLP training with subject-disjoint validation, runtime budget and physical-webcam validation. No student-game integration approved.
+- **Latest record:** [LOG.md](LOG.md), `R19-PLAN-20261118-01`. Every research commit updates README+LOG atomically.
 
 ## Workspace and files
 

@@ -1,0 +1,340 @@
+{
+  "branch": "research-can",
+  "source_sandbox": "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox",
+  "source_main_baseline_commit": "3ef4cc3685fc64bce729c5ae54bc29689f6d3446",
+  "published_count_excluding_self_manifests": 51,
+  "published_bytes_excluding_self_manifests": 1360259,
+  "published_files": [
+    {
+      "published_path": "docs/attachments/DIMHAND_AUDIT_SUMMARY.md",
+      "bytes": 2600,
+      "sha256": "b07b3ef38ef9992c1d6dc5bf5aa01ed1d11f70073808865fcb0409b80522a6ca"
+    },
+    {
+      "published_path": "docs/attachments/OWNER_PHYSICAL_WEBCAM_TEST_PROTOCOL.md",
+      "bytes": 4252,
+      "sha256": "77489cf0e72973865d6f6ac50812b517c2109a179b869404fab351123602214e"
+    },
+    {
+      "published_path": "docs/plan-rev/[WIP] NUI_R18-01_v0.3.0_UX_First_Worst_Case_Research.md",
+      "bytes": 90360,
+      "sha256": "edf61f1e15283d909e00307a442e87c92433aa83a8455a268ebd7b48d62aed6e"
+    },
+    {
+      "published_path": "r18/candidates/browser_harness/harness.ts",
+      "bytes": 11508,
+      "sha256": "3ceba62ec70bf4352faaae029883b41b7d39bd37cf27215c702f38e21f96240c"
+    },
+    {
+      "published_path": "r18/candidates/browser_harness/index.html",
+      "bytes": 384,
+      "sha256": "f9e7aadbc989e9739799740034eac758a144d09b066415545cfeb963c8e12eb4"
+    },
+    {
+      "published_path": "r18/candidates/ux1_candidates.ts",
+      "bytes": 18855,
+      "sha256": "5e90041c5876c10d2bbabfbe06744fb849e8ecc83e08cedc4703e7488532c4b5"
+    },
+    {
+      "published_path": "r18/candidates/ux3_features.ts",
+      "bytes": 7196,
+      "sha256": "a98a36ff93d6bd43220991f12c947ceeeb0fa8ae7f5412f09a5503e866c46f4d"
+    },
+    {
+      "published_path": "r18/candidates/ux3_integrated.ts",
+      "bytes": 8923,
+      "sha256": "05dcb48f987ce9a5a969113b7657487fea227121180943b7c1cd8d8b9194c88b"
+    },
+    {
+      "published_path": "r18/candidates/ux3_model.ts",
+      "bytes": 3352,
+      "sha256": "4833469aa1b08e108bc149f55813789302c416319c80d7de2ea443c809f80a31"
+    },
+    {
+      "published_path": "r18/experiments/exp_r18_ux0_baseline.md",
+      "bytes": 2866,
+      "sha256": "40ec65f28a938e559d759cdaf193e5839462ce07132e6aff7b64edf6e7dd860a"
+    },
+    {
+      "published_path": "r18/experiments/exp_r18_ux1_geometry_fsm.md",
+      "bytes": 2984,
+      "sha256": "783161c7c150c9439ffd02446e08ee59a4d4eee1348fba40a9916b8a09ce735c"
+    },
+    {
+      "published_path": "r18/experiments/exp_r18_ux2_adaptive_clahe.md",
+      "bytes": 2070,
+      "sha256": "512eded8920590225d008fb2dd0175a98992478146fe5783f8b9e4b8b8eea804"
+    },
+    {
+      "published_path": "r18/experiments/exp_r18_ux3_ipn_classifier.md",
+      "bytes": 3302,
+      "sha256": "37d9b58945ea9b6e6c0fe17c1a8b754252ddaa9ca75b6edc79b161c9f17870a7"
+    },
+    {
+      "published_path": "r18/experiments/exp_r18_ux4_dimhand_audit.md",
+      "bytes": 1328,
+      "sha256": "ec2be584fed8eceede5d99d5c14c126cf3b6c7dc859a9ab7bdd6d98b0715ded8"
+    },
+    {
+      "published_path": "r18/experiments/exp_r18_ux5_browser_sim_harness.md",
+      "bytes": 2654,
+      "sha256": "e3a28ed6ce119ea055b10e93704286329f31bf64015eba05d9bad84040a70b72"
+    },
+    {
+      "published_path": "r18/manifests/dataset_manifest.json",
+      "bytes": 4696,
+      "sha256": "e4c39dfb1e04f43cfe4b463ec4fff0fa8d437eaa82332c105877f5f3a907c848"
+    },
+    {
+      "published_path": "r18/manifests/ipn_person_split.json",
+      "bytes": 5402,
+      "sha256": "24590205954fdf6eb8d6d07a131fa2d083ca9ddb452994bc52ad6643cc4e4431"
+    },
+    {
+      "published_path": "r18/models/MODEL_CARD.md",
+      "bytes": 4006,
+      "sha256": "ee5637eb200db0f2eb6a3da0e13d3298494affcb8addae9be86387ddeb64d1a2"
+    },
+    {
+      "published_path": "r18/models/ux3_model_lr.json",
+      "bytes": 6791,
+      "sha256": "45ebb7206d5df770bf542ff17079027dc3e22446625b2eb29b7bef1179c3dda2"
+    },
+    {
+      "published_path": "r18/models/ux3_model_mlp.json",
+      "bytes": 123141,
+      "sha256": "518c0ec4df9f34009125abf01225e1d3d8d5f33aba797a159accce4b7aa41d3f"
+    },
+    {
+      "published_path": "r18/results/R18_MASTER_REPORT.md",
+      "bytes": 5478,
+      "sha256": "6974aeb8956205ca56941cdf2d88fe7f9c87bf9d8d4e45b965ae810c069f003e"
+    },
+    {
+      "published_path": "r18/results/r18_ux0_a_bundle.json",
+      "bytes": 5488,
+      "sha256": "c3b71518c509e3074e4dfc208837539dcce3953d7344a5b5a0253f9372fb0033"
+    },
+    {
+      "published_path": "r18/results/r18_ux0_b_ipn_detection.json",
+      "bytes": 10398,
+      "sha256": "9290505eb98faae4b5e3d849b08023f3b502ac47ece72f87563a7c2ca933fa94"
+    },
+    {
+      "published_path": "r18/results/r18_ux0_b_ipn_rules.json",
+      "bytes": 17014,
+      "sha256": "8d6440693303f05ca4af228a158da28ef498c3dccae08b5a5dbdfc69a79b8799"
+    },
+    {
+      "published_path": "r18/results/r18_ux0_c_mendeley.json",
+      "bytes": 5711,
+      "sha256": "dd5f22178d577b46efac7eb3d94e7c023265cc645e6a109e43a8cd39fc89d3eb"
+    },
+    {
+      "published_path": "r18/results/r18_ux0_c_negatives.json",
+      "bytes": 799,
+      "sha256": "ae72db0218b7dce4348b65c536393954adc20febee8ea0d5fd6db839a50345cd"
+    },
+    {
+      "published_path": "r18/results/r18_ux0_d_geometry.json",
+      "bytes": 25525,
+      "sha256": "0b4cba078f24bd736d5b84244c1a98fb875e459d6f4d39e2e0343b5b942c863e"
+    },
+    {
+      "published_path": "r18/results/r18_ux0_e_n0_n1.json",
+      "bytes": 9679,
+      "sha256": "3e16a8d8a7b14b8042640148ed7b954830341dfb5790a1e0f051d360f075a1a8"
+    },
+    {
+      "published_path": "r18/results/r18_ux1_ab.json",
+      "bytes": 39860,
+      "sha256": "9564d392ee0dabe8488a22c9bf32f9b75593c8e21748c6d157291a455026cb12"
+    },
+    {
+      "published_path": "r18/results/r18_ux2_adaptive.json",
+      "bytes": 3319,
+      "sha256": "ce9fd96f5d9a6b13ef2a403aa6866026f0c6004e6afd78655250a20a8254e15d"
+    },
+    {
+      "published_path": "r18/results/r18_ux3_exported_eval.json",
+      "bytes": 24762,
+      "sha256": "c25a5f2c8e183f75c5aaa047a4cbe5c3bb1ebb1ea877ec07d74cf0e70d1ca943"
+    },
+    {
+      "published_path": "r18/results/r18_ux4_browser_runtime.json",
+      "bytes": 13402,
+      "sha256": "2da0121198e2373923c4fcdd3a7d25ab3ab7daefb2abac232c5f6bc9a040d21f"
+    },
+    {
+      "published_path": "r18/results/ux3_mendeley_distractor_landmarks.json",
+      "bytes": 559266,
+      "sha256": "e617e9233c44fb48ecb7388d2e5ab91a4aa7df1c753508951fce49bbdae1c88e"
+    },
+    {
+      "published_path": "r18/results/ux3_parity_rows.json",
+      "bytes": 181264,
+      "sha256": "f66d191333673c6a7f800af61a22b8bd61dcc8814a1e41d84d2dbde3e14ab1a7"
+    },
+    {
+      "published_path": "r18/results/ux3_training_metrics.json",
+      "bytes": 10409,
+      "sha256": "fd968d23226a62dcaa48823dbc3325b5214d881af46e9ce055fa8144b0dd7183"
+    },
+    {
+      "published_path": "r18/scripts/make_sim_camera_y4m.py",
+      "bytes": 2092,
+      "sha256": "fcd14203c249f49b4614593e37b9046e2d9f05caccde3e20d5645daabc187b5a"
+    },
+    {
+      "published_path": "r18/scripts/r18_ux0_a_bundle.py",
+      "bytes": 8442,
+      "sha256": "8d10a5c01c21048636a33e7aee0ef5f762e591965c4fdf997fab094f949dc020"
+    },
+    {
+      "published_path": "r18/scripts/r18_ux0_b_eval.ts",
+      "bytes": 6073,
+      "sha256": "3f0662a97b5c2a30cc71076f3a3908cdeeb803be75e28fc58f25fbef9012bc81"
+    },
+    {
+      "published_path": "r18/scripts/r18_ux0_b_ipn.py",
+      "bytes": 9395,
+      "sha256": "be48fd1da22bb91cf02b917181ff6f850cbb2b5099f910b296951b765c60cc10"
+    },
+    {
+      "published_path": "r18/scripts/r18_ux0_c_mendeley.py",
+      "bytes": 11225,
+      "sha256": "d45453717d2a062227dbb44aeab184aea0d3ab363b4ad773c9e839a8cb9a8c33"
+    },
+    {
+      "published_path": "r18/scripts/r18_ux0_c_negatives.py",
+      "bytes": 5498,
+      "sha256": "4914e8156a9d99d2581a98cdd7808d2d24bbabfdec87ef9bab9c52fa9ebe87ec"
+    },
+    {
+      "published_path": "r18/scripts/r18_ux0_d_geometry.ts",
+      "bytes": 7833,
+      "sha256": "8f6fb0230aab50a12e55295b80ea0b8fc60a4ca5e134fb8fa5df61ca14e3fe5c"
+    },
+    {
+      "published_path": "r18/scripts/r18_ux0_e_n0_negatives.py",
+      "bytes": 5273,
+      "sha256": "8057d425e2a1a48c35c63d1006c9bac6f2479a1d911834e1d664bf17480b2ef1"
+    },
+    {
+      "published_path": "r18/scripts/r18_ux1_ab.ts",
+      "bytes": 18286,
+      "sha256": "51b44768da0cd62f99abc8273e3782ad240fe5dcffac71f50ac9ff7dca240b6f"
+    },
+    {
+      "published_path": "r18/scripts/r18_ux2_adaptive.py",
+      "bytes": 11916,
+      "sha256": "23be792d18b79d6570dbc450c8409bfd02a5f03b45d5a38bd5f442683fe06b4e"
+    },
+    {
+      "published_path": "r18/scripts/run_browser_harness.mjs",
+      "bytes": 9939,
+      "sha256": "0a7a027a836d6a5d97def3653bfab2aa461270e9540cd822a597d7a5fb4eb439"
+    },
+    {
+      "published_path": "r18/scripts/ux3_eval_exported.ts",
+      "bytes": 21390,
+      "sha256": "b43960d3fce04ce3f2c55b0fd0d69da973ba6c69e6454433911ec2bb50432547"
+    },
+    {
+      "published_path": "r18/scripts/ux3_export_mendeley_lms.py",
+      "bytes": 4211,
+      "sha256": "35c014693fe12dc9f0d40c797394aaa4733a902040d9cdc69838809aa9cf6dd1"
+    },
+    {
+      "published_path": "r18/scripts/ux3_extract_ts.ts",
+      "bytes": 4302,
+      "sha256": "7943f0a498a340ed59946e97ed98640eef464e0e01732abcf5338470389e07bb"
+    },
+    {
+      "published_path": "r18/scripts/ux3_stream_train.py",
+      "bytes": 2729,
+      "sha256": "06518c07f8537aeef091abbbd5a624f5681c4ab89097d3ec7af9410964ec73bb"
+    },
+    {
+      "published_path": "r18/scripts/ux3_train.py",
+      "bytes": 12611,
+      "sha256": "28f6f21c9b21f55a8e57416c6dfe7925fa89e17b4f767b688738df39fa555797"
+    }
+  ],
+  "excluded_count": 12,
+  "excluded_total_bytes": 3771622767,
+  "excluded_items": [
+    {
+      "local_path": "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/datasets/ipn_hands",
+      "bytes": 1049697730,
+      "reason": "Raw third-party dataset archives (>1 GiB total, CC BY 4.0); URLs and ZIP SHA-256 tracked in dataset_manifest.json",
+      "retained_locally": true
+    },
+    {
+      "local_path": "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/datasets/mendeley_bxr7kx84y6",
+      "bytes": 456578207,
+      "reason": "Raw 720p third-party RGB image ZIPs (436 MiB total, CC BY 4.0); checksums tracked in dataset_manifest.json",
+      "retained_locally": true
+    },
+    {
+      "local_path": "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/datasets/derived",
+      "bytes": 126735517,
+      "reason": "Derived float32 feature matrices (~121 MiB); deterministic reproduction via ux3_stream_train.py + ux3_extract_ts.ts",
+      "retained_locally": true
+    },
+    {
+      "local_path": "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/results/ipn_val_person_seq.json",
+      "bytes": 99818865,
+      "reason": "Large full-frame sequence landmark JSON (~95.2 MiB); regenerable from IPN ZIPs + ipn_person_split.json",
+      "retained_locally": true
+    },
+    {
+      "local_path": "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/results/ipn_test_person_seq.json",
+      "bytes": 95078682,
+      "reason": "Large full-frame sequence landmark JSON (~90.7 MiB); regenerable from IPN ZIPs + ipn_person_split.json",
+      "retained_locally": true
+    },
+    {
+      "local_path": "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/harness-dist/sim_cam.y4m",
+      "bytes": 51840978,
+      "reason": "Generated uncompressed Y4M simulated camera loop (~49.4 MiB); regenerable via make_sim_camera_y4m.py",
+      "retained_locally": true
+    },
+    {
+      "local_path": "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/harness-dist/harness.bundle.js",
+      "bytes": 170536,
+      "reason": "Compiled esbuild artifact (166.5 KiB); excluded per AGENTS.md Sec. 5, rebuildable from r18/candidates/browser_harness/harness.ts",
+      "retained_locally": true
+    },
+    {
+      "local_path": "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/repo",
+      "bytes": 737264221,
+      "reason": "Isolated sparse main checkout + node_modules + .next + static out/ (~754 MiB); never replicated into orphan branch",
+      "retained_locally": true
+    },
+    {
+      "local_path": "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/.venv",
+      "bytes": 598770223,
+      "reason": "Local Python virtual environment (~559 MiB); environment cache excluded",
+      "retained_locally": true
+    },
+    {
+      "local_path": "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/.pw-browsers",
+      "bytes": 290381700,
+      "reason": "Local Playwright headless shell & ffmpeg binaries (~278 MiB); cache excluded",
+      "retained_locally": true
+    },
+    {
+      "local_path": "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/tools",
+      "bytes": 265258140,
+      "reason": "Local Node/uv/github-mcp-server runtime binaries (~269 MiB); toolchain excluded",
+      "retained_locally": true
+    },
+    {
+      "local_path": "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/scripts/__pycache__",
+      "bytes": 27968,
+      "reason": "Python bytecode cache (~28 KiB)",
+      "retained_locally": true
+    }
+  ]
+}

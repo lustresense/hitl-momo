@@ -1,0 +1,47 @@
+{
+  "total_n0_frames": 102,
+  "by_category": {
+    "dark_noise_8": {
+      "n": 10,
+      "fp_raw": 0,
+      "fp_scaled": 0,
+      "fp_clahe": 0
+    },
+    "dark_noise_20": {
+      "n": 10,
+      "fp_raw": 0,
+      "fp_scaled": 0,
+      "fp_clahe": 0
+    },
+    "dark_noise_40": {
+      "n": 10,
+      "fp_raw": 0,
+      "fp_scaled": 0,
+      "fp_clahe": 0
+    },
+    "skin_blob_no_fingers": {
+      "n": 32,
+      "fp_raw": 0,
+      "fp_scaled": 0,
+      "fp_clahe": 0
+    },
+    "five_prong_object": {
+      "n": 20,
+      "fp_raw": 0,
+      "fp_scaled": 0,
+      "fp_clahe": 0
+    },
+    "backlight_clutter": {
+      "n": 20,
+      "fp_raw": 0,
+      "fp_scaled": 0,
+      "fp_clahe": 0
+    }
+  },
+  "totals": {
+    "fp_raw": 0,
+    "fp_scaled": 0,
+    "fp_clahe": 0
+  },
+  "false_examples": []
+}

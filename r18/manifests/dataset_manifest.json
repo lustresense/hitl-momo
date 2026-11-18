@@ -1,0 +1,91 @@
+{
+  "generated_at": "2026-11-17T21:40:00+07:00",
+  "sandbox_root": "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox",
+  "datasets": [
+    {
+      "id": "ipn_hands",
+      "name": "IPN HandS (annotations + GT landmarks + MPHands landmarks)",
+      "status": "DOWNLOADED_AND_VERIFIED",
+      "license": "CC BY 4.0 (annotations/GT); MediaPipe predictions Apache 2.0",
+      "commercial_product_fit": "OK with attribution",
+      "local_paths": [
+        "datasets/ipn_hands/IPN_HandS_annotations.zip",
+        "datasets/ipn_hands/IPN_HandS_landmarks_GT.zip",
+        "datasets/ipn_hands/IPN_HandS_landmarks_MPHands.zip"
+      ],
+      "sizes_bytes": {
+        "IPN_HandS_annotations.zip": 82274,
+        "IPN_HandS_landmarks_GT.zip": 674282839,
+        "IPN_HandS_landmarks_MPHands.zip": 375332617
+      },
+      "sha256": {
+        "IPN_HandS_annotations.zip": "520dfbf3d52ecab6535d8841bba55e94d6b512596ed1cff4505d2c1345bcbaec",
+        "IPN_HandS_landmarks_GT.zip": "493bf53638d5b1477e28f05c41884f0cabdcb7b84f20d68f3d5d94e0b46fad4d",
+        "IPN_HandS_landmarks_MPHands.zip": "e511bb2b902207b82a296190daadc30a057f3abc16f628579542d2b1274ce598"
+      },
+      "audit_notes": "200 videos (801,476 frames, 640x480 @ 30fps), 15 classes. Official 148/52 split has 0 scene+person overlap (37/13) but overlaps 8 person_ids (1,2,3,12,13,15,18,21). Custom person_id-disjoint split required for training to prevent leakage."
+    },
+    {
+      "id": "mendeley_bxr7kx84y6_subset",
+      "name": "A dataset of egocentric and exocentric view hands in interactive senses (2024, v2) - 2 slice zips",
+      "status": "DOWNLOADED_AND_VERIFIED",
+      "license": "CC BY 4.0",
+      "commercial_product_fit": "OK with attribution",
+      "local_paths": [
+        "datasets/mendeley_bxr7kx84y6/dim_light_1.zip",
+        "datasets/mendeley_bxr7kx84y6/natural_light_1.zip"
+      ],
+      "sizes_bytes": {
+        "dim_light_1.zip": 202816317,
+        "natural_light_1.zip": 253761890
+      },
+      "sha256": {
+        "dim_light_1.zip": "2f91746c3622ace4792ecec54d9284eb56066a652811b88dfca761d27827a266",
+        "natural_light_1.zip": "4655f7e42a6edac6f26686fa6573da777dc042ab12286e4a9d12959685ee86a4"
+      },
+      "audit_notes": "Raw 1280x720 RGB frames only (no MediaPipe or Sketchbook gesture ground truth). Full dataset has 24 zips (8.78 GB); only 2 slices kept due to 4.8 GiB free disk."
+    },
+    {
+      "id": "dimhand_acmmm2026",
+      "name": "DimHand: A Large-Scale Benchmark for Hand Pose Estimation under Dynamic Low-Light Conditions (ACM MM 2026)",
+      "status": "BLOCKED",
+      "url": "https://hanlingzhan.github.io/DimHand/",
+      "repo": "https://github.com/HanlingZhan/DimHand",
+      "license": "Non-commercial academic research only; application modal forbids redistribution or commercial use; supp.pdf D.4/D.5 restricts external distribution & commercial use; supp.pdf footer CC BY-NC-ND 4.0",
+      "commercial_product_fit": "PROHIBITED for product training/weights distribution; RGB-only evaluation feasible ONLY if Owner applies and obtains academic approval + sufficient storage",
+      "size_notes": "745,280 RGB+Depth frames (5 RealSense D415i views, 15 subjects, 15 sequential actions, 0.1-10 lux). Exact GB size unpublished; full archive exceeds 4.8 GiB disk."
+    },
+    {
+      "id": "hagridv2_annotations",
+      "name": "HaGRIDv2 Landmark Annotations (annotations_with_landmarks/annotations.zip)",
+      "status": "NOT_DOWNLOADED_YET_AVAILABLE",
+      "url": "https://rndml-team-cv.obs.ru-moscow-1.hc.sbercloud.ru/datasets/hagrid_v2/annotations_with_landmarks/annotations.zip",
+      "sizes_bytes": {
+        "annotations.zip": 719041314
+      },
+      "license": "Custom Russian-law Public License with attribution and conditions reserved (reworked CC BY-SA 4.0, ShareAlike Section 3b/4 on Adapted Material, no -NC clause)",
+      "commercial_product_fit": "REQUIRES_OWNER_LEGAL_SIGN_OFF on ShareAlike obligations for derived weights"
+    },
+    {
+      "id": "anyhand_2026",
+      "name": "AnyHand Synthetic Dataset (NeurIPS 2026)",
+      "status": "REJECTED_BY_LICENSE",
+      "license": "CC-BY-NC-ND-4.0",
+      "commercial_product_fit": "PROHIBITED (Non-Commercial + No-Derivatives)"
+    },
+    {
+      "id": "palm_3dv2026",
+      "name": "PALM (3DV 2026)",
+      "status": "REJECTED_BY_LICENSE_AND_ACCESS",
+      "license": "CC BY-NC 4.0 + registration",
+      "commercial_product_fit": "PROHIBITED (Non-Commercial)"
+    },
+    {
+      "id": "ego2hands_dexycb",
+      "name": "Ego2Hands / DexYCB",
+      "status": "INFEASIBLE_ON_VM_DISK_AND_LICENSE",
+      "license": "Unspecified / CC BY-NC 4.0",
+      "size_notes": "~90 GB / 119 GB >> 4.8 GiB free disk"
+    }
+  ]
+}

@@ -1,0 +1,207 @@
+{
+  "task_model": "hand_landmarker.task",
+  "results": [
+    {
+      "label": "Mendeley_bxr7kx84y6_DimLight",
+      "zip_path": "dim_light_1.zip",
+      "total_images_in_zip": 1560,
+      "sampled_frames": 300,
+      "native_resolution": "1280x720",
+      "luma_stats": {
+        "mean_luma_p10": 0.1888,
+        "mean_luma_p50": 0.2124,
+        "mean_luma_p90": 0.2528,
+        "pct_triggering_auto_dark_lt_0_28_or_backlight": 96.67,
+        "pct_triggering_backlight": 0.0
+      },
+      "modes": {
+        "raw": {
+          "frames": 300,
+          "pct_ge_1_hand": 47.0,
+          "pct_ge_2_hands": 8.33,
+          "pct_ge_1_large_hand": 47.0,
+          "infer_p50_ms": 20.11,
+          "infer_p95_ms": 32.63
+        },
+        "scaled_320": {
+          "frames": 300,
+          "pct_ge_1_hand": 48.67,
+          "pct_ge_2_hands": 9.33,
+          "pct_ge_1_large_hand": 48.67,
+          "infer_p50_ms": 20.98,
+          "infer_p95_ms": 32.75
+        },
+        "clahe_320": {
+          "frames": 300,
+          "pct_ge_1_hand": 62.0,
+          "pct_ge_2_hands": 14.67,
+          "pct_ge_1_large_hand": 62.0,
+          "infer_p50_ms": 21.88,
+          "infer_p95_ms": 32.55
+        }
+      },
+      "paired_raw_vs_clahe": {
+        "both_detect": 132,
+        "raw_only": 9,
+        "clahe_only": 54,
+        "neither": 105,
+        "scaled_only_vs_raw": 12,
+        "raw_only_vs_scaled": 7
+      },
+      "clahe_cpu_p50_ms_numpy": 6.356,
+      "sample_disagreements": [
+        {
+          "frame": "Dim Light/Chinese Chess/00000001.jpg",
+          "luma": 0.298,
+          "type": "clahe_only"
+        },
+        {
+          "frame": "Dim Light/Chinese Chess/00000501.jpg",
+          "luma": 0.202,
+          "type": "clahe_only"
+        },
+        {
+          "frame": "Dim Light/Chinese Chess/00000751.jpg",
+          "luma": 0.184,
+          "type": "clahe_only"
+        },
+        {
+          "frame": "Dim Light/Chinese Chess/00000801.jpg",
+          "luma": 0.213,
+          "type": "clahe_only"
+        },
+        {
+          "frame": "Dim Light/Chinese Chess/00001201.jpg",
+          "luma": 0.226,
+          "type": "clahe_only"
+        },
+        {
+          "frame": "Dim Light/Chinese Chess/00001401.jpg",
+          "luma": 0.229,
+          "type": "clahe_only"
+        },
+        {
+          "frame": "Dim Light/Chinese Chess/00001451.jpg",
+          "luma": 0.193,
+          "type": "clahe_only"
+        },
+        {
+          "frame": "Dim Light/Chinese Chess/00001651.jpg",
+          "luma": 0.173,
+          "type": "clahe_only"
+        },
+        {
+          "frame": "Dim Light/Chinese Chess/00002351.jpg",
+          "luma": 0.258,
+          "type": "clahe_only"
+        },
+        {
+          "frame": "Dim Light/Chinese Chess/00002541.jpg",
+          "luma": 0.285,
+          "type": "raw_only"
+        }
+      ]
+    },
+    {
+      "label": "Mendeley_bxr7kx84y6_NaturalLight",
+      "zip_path": "natural_light_1.zip",
+      "total_images_in_zip": 2152,
+      "sampled_frames": 300,
+      "native_resolution": "1280x720",
+      "luma_stats": {
+        "mean_luma_p10": 0.1102,
+        "mean_luma_p50": 0.1432,
+        "mean_luma_p90": 0.1727,
+        "pct_triggering_auto_dark_lt_0_28_or_backlight": 100.0,
+        "pct_triggering_backlight": 0.0
+      },
+      "modes": {
+        "raw": {
+          "frames": 300,
+          "pct_ge_1_hand": 40.33,
+          "pct_ge_2_hands": 3.0,
+          "pct_ge_1_large_hand": 40.33,
+          "infer_p50_ms": 15.86,
+          "infer_p95_ms": 36.1
+        },
+        "scaled_320": {
+          "frames": 300,
+          "pct_ge_1_hand": 45.67,
+          "pct_ge_2_hands": 3.0,
+          "pct_ge_1_large_hand": 45.67,
+          "infer_p50_ms": 17.15,
+          "infer_p95_ms": 33.02
+        },
+        "clahe_320": {
+          "frames": 300,
+          "pct_ge_1_hand": 58.67,
+          "pct_ge_2_hands": 9.67,
+          "pct_ge_1_large_hand": 58.67,
+          "infer_p50_ms": 22.29,
+          "infer_p95_ms": 36.03
+        }
+      },
+      "paired_raw_vs_clahe": {
+        "both_detect": 110,
+        "raw_only": 11,
+        "clahe_only": 66,
+        "neither": 113,
+        "scaled_only_vs_raw": 24,
+        "raw_only_vs_scaled": 8
+      },
+      "clahe_cpu_p50_ms_numpy": 6.426,
+      "sample_disagreements": [
+        {
+          "frame": "Natural Light/Aeroplane Chess/00000211.jpg",
+          "luma": 0.171,
+          "type": "clahe_only"
+        },
+        {
+          "frame": "Natural Light/Aeroplane Chess/00000821.jpg",
+          "luma": 0.16,
+          "type": "clahe_only"
+        },
+        {
+          "frame": "Natural Light/Aeroplane Chess/00001041.jpg",
+          "luma": 0.155,
+          "type": "clahe_only"
+        },
+        {
+          "frame": "Natural Light/Aeroplane Chess/00001271.jpg",
+          "luma": 0.166,
+          "type": "clahe_only"
+        },
+        {
+          "frame": "Natural Light/Aeroplane Chess/00001741.jpg",
+          "luma": 0.174,
+          "type": "clahe_only"
+        },
+        {
+          "frame": "Natural Light/Aeroplane Chess/00002661.jpg",
+          "luma": 0.166,
+          "type": "clahe_only"
+        },
+        {
+          "frame": "Natural Light/Aeroplane Chess/00003801.jpg",
+          "luma": 0.153,
+          "type": "clahe_only"
+        },
+        {
+          "frame": "Natural Light/Aeroplane Chess/00004031.jpg",
+          "luma": 0.154,
+          "type": "clahe_only"
+        },
+        {
+          "frame": "Natural Light/Aeroplane Chess/00004281.jpg",
+          "luma": 0.142,
+          "type": "clahe_only"
+        },
+        {
+          "frame": "Natural Light/Aeroplane Chess/00004671.jpg",
+          "luma": 0.148,
+          "type": "clahe_only"
+        }
+      ]
+    }
+  ]
+}

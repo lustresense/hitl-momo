@@ -1,0 +1,279 @@
+{
+  "out_dir": "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/repo/frontend/implementation/out",
+  "total_out_all_files": {
+    "count": 97,
+    "raw": 29335167,
+    "gzip": 12506404,
+    "zstd": 12352387
+  },
+  "by_extension": {
+    ".html": {
+      "count": 21,
+      "raw": 350290,
+      "gzip": 110423,
+      "zstd": 117139
+    },
+    ".js": {
+      "count": 42,
+      "raw": 1948779,
+      "gzip": 601027,
+      "zstd": 627793
+    },
+    ".css": {
+      "count": 7,
+      "raw": 166139,
+      "gzip": 35500,
+      "zstd": 40481
+    },
+    ".svg": {
+      "count": 3,
+      "raw": 4435,
+      "gzip": 1610,
+      "zstd": 1696
+    },
+    ".txt": {
+      "count": 20,
+      "raw": 98440,
+      "gzip": 33876,
+      "zstd": 35623
+    },
+    ".tflite": {
+      "count": 1,
+      "raw": 229746,
+      "gzip": 198741,
+      "zstd": 200875
+    },
+    ".wasm": {
+      "count": 2,
+      "raw": 18718233,
+      "gzip": 5711432,
+      "zstd": 5452815
+    },
+    ".task": {
+      "count": 1,
+      "raw": 7819105,
+      "gzip": 5813795,
+      "zstd": 5875965
+    }
+  },
+  "nui_simd_assets": {
+    "/mediapipe/blaze_face_short_range.tflite": {
+      "raw": 229746,
+      "gzip": 198741,
+      "zstd": 200875
+    },
+    "/mediapipe/wasm/vision_wasm_internal.js": {
+      "raw": 209826,
+      "gzip": 52301,
+      "zstd": 55066
+    },
+    "/mediapipe/wasm/vision_wasm_internal.wasm": {
+      "raw": 9423986,
+      "gzip": 2857519,
+      "zstd": 2727835
+    },
+    "/models/hand_landmarker.task": {
+      "raw": 7819105,
+      "gzip": 5813795,
+      "zstd": 5875965
+    }
+  },
+  "nui_simd_sum": {
+    "count": 4,
+    "raw": 17682663,
+    "gzip": 8922356,
+    "zstd": 8859741
+  },
+  "nui_nosimd_sum": {
+    "count": 4,
+    "raw": 17552833,
+    "gzip": 8918704,
+    "zstd": 8856871
+  },
+  "hand_landmarker_task_members": [
+    {
+      "name": "hand_detector.tflite",
+      "compress_type": 0,
+      "file_size": 2339878,
+      "compress_size": 2339878
+    },
+    {
+      "name": "hand_landmarks_detector.tflite",
+      "compress_type": 0,
+      "file_size": 5478949,
+      "compress_size": 5478949
+    }
+  ],
+  "app_journey_html_plus_parsed_static": {
+    "count": 38,
+    "raw": 1328501,
+    "gzip": 417737,
+    "zstd": 440949
+  },
+  "app_all_next_static_chunks_upper_bound": {
+    "count": 60,
+    "raw": 1884891,
+    "gzip": 601778,
+    "zstd": 632058
+  },
+  "b_user_parsed_plus_nui_simd_sum": {
+    "count": 43,
+    "raw": 19014656,
+    "gzip": 9341146,
+    "zstd": 9301816
+  },
+  "b_user_upper_bound_all_chunks_plus_nui_simd": {
+    "count": 64,
+    "raw": 19567554,
+    "gzip": 9524134,
+    "zstd": 9491799
+  },
+  "caddy_default_no_task_tflite_compress": {
+    "parsed_plus_nui_simd": {
+      "gzip_bytes": 11377461,
+      "zstd_bytes": 11273827
+    },
+    "upper_bound_plus_nui_simd": {
+      "gzip_bytes": 11560449,
+      "zstd_bytes": 11463810
+    }
+  },
+  "caddy_with_all_compressed": {
+    "parsed_plus_nui_simd": {
+      "gzip_bytes": 9341146,
+      "zstd_bytes": 9301816
+    },
+    "upper_bound_plus_nui_simd": {
+      "gzip_bytes": 9524134,
+      "zstd_bytes": 9491799
+    }
+  },
+  "largest_next_chunks": [
+    [
+      "/_next/static/chunks/788-2d5e9d1fc1c689b8.js",
+      {
+        "raw": 292557,
+        "gzip": 95557,
+        "zstd": 98359
+      }
+    ],
+    [
+      "/_next/static/chunks/6f3672ce.89050b5a12d7e88d.js",
+      {
+        "raw": 189424,
+        "gzip": 68882,
+        "zstd": 70093
+      }
+    ],
+    [
+      "/_next/static/chunks/fd9d1056-52b97c009c25bc25.js",
+      {
+        "raw": 172834,
+        "gzip": 53658,
+        "zstd": 55805
+      }
+    ],
+    [
+      "/_next/static/chunks/287-10e5af40b64f3a1e.js",
+      {
+        "raw": 154071,
+        "gzip": 47133,
+        "zstd": 49627
+      }
+    ],
+    [
+      "/_next/static/chunks/framework-f66176bb897dc684.js",
+      {
+        "raw": 139978,
+        "gzip": 44859,
+        "zstd": 46855
+      }
+    ],
+    [
+      "/_next/static/chunks/966-a8fed9ded89e4fa0.js",
+      {
+        "raw": 124578,
+        "gzip": 31834,
+        "zstd": 33423
+      }
+    ],
+    [
+      "/_next/static/chunks/main-a382c957ef6f8fb7.js",
+      {
+        "raw": 117052,
+        "gzip": 34059,
+        "zstd": 35695
+      }
+    ],
+    [
+      "/_next/static/chunks/polyfills-42372ed130431b0a.js",
+      {
+        "raw": 112594,
+        "gzip": 39373,
+        "zstd": 41630
+      }
+    ],
+    [
+      "/_next/static/css/16c2024a37ababb2.css",
+      {
+        "raw": 77293,
+        "gzip": 14411,
+        "zstd": 16806
+      }
+    ],
+    [
+      "/_next/static/chunks/318-08a4d3fcd01eb73a.js",
+      {
+        "raw": 61656,
+        "gzip": 22456,
+        "zstd": 24196
+      }
+    ],
+    [
+      "/_next/static/chunks/702-81500040bae1033e.js",
+      {
+        "raw": 54496,
+        "gzip": 16725,
+        "zstd": 17889
+      }
+    ],
+    [
+      "/_next/static/chunks/c15bf2b0-7971b3d333b0cf68.js",
+      {
+        "raw": 52050,
+        "gzip": 19705,
+        "zstd": 21025
+      }
+    ],
+    [
+      "/_next/static/css/d0431ab6c14c121a.css",
+      {
+        "raw": 43787,
+        "gzip": 9559,
+        "zstd": 10880
+      }
+    ],
+    [
+      "/_next/static/css/cbee9783c240c2e2.css",
+      {
+        "raw": 28079,
+        "gzip": 6575,
+        "zstd": 7458
+      }
+    ],
+    [
+      "/_next/static/chunks/582.8bca5d6599668e64.js",
+      {
+        "raw": 20815,
+        "gzip": 7134,
+        "zstd": 7592
+      }
+    ]
+  ],
+  "lab_only_html_static": {
+    "count": 20,
+    "raw": 913624,
+    "gzip": 273908,
+    "zstd": 291099
+  }
+}

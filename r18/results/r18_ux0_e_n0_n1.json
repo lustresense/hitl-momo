@@ -1,0 +1,580 @@
+{
+  "stats": {
+    "N0": {
+      "raw": {
+        "total": 35,
+        "false_hand": 4,
+        "false_large": 4
+      },
+      "scaled_320": {
+        "total": 35,
+        "false_hand": 10,
+        "false_large": 10
+      },
+      "clahe_320": {
+        "total": 35,
+        "false_hand": 10,
+        "false_large": 10
+      }
+    },
+    "N1": {
+      "raw": {
+        "total": 5,
+        "false_hand": 3,
+        "false_large": 3
+      },
+      "scaled_320": {
+        "total": 5,
+        "false_hand": 3,
+        "false_large": 3
+      },
+      "clahe_320": {
+        "total": 5,
+        "false_hand": 3,
+        "false_large": 3
+      }
+    }
+  },
+  "false_positives": [
+    {
+      "scene": "N0_fan_sticks_0",
+      "strata": "N0",
+      "mode": "scaled_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4591
+      ],
+      "first_tip8": [
+        0.5392,
+        0.5146
+      ],
+      "first_wrist": [
+        0.5066,
+        0.9298
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_0",
+      "strata": "N0",
+      "mode": "clahe_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4407
+      ],
+      "first_tip8": [
+        0.5771,
+        0.5168
+      ],
+      "first_wrist": [
+        0.4907,
+        0.9163
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_1",
+      "strata": "N0",
+      "mode": "raw",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4181
+      ],
+      "first_tip8": [
+        0.5163,
+        0.5259
+      ],
+      "first_wrist": [
+        0.5015,
+        0.8968
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_1",
+      "strata": "N0",
+      "mode": "scaled_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4583
+      ],
+      "first_tip8": [
+        0.5283,
+        0.5196
+      ],
+      "first_wrist": [
+        0.505,
+        0.9304
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_1",
+      "strata": "N0",
+      "mode": "clahe_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4365
+      ],
+      "first_tip8": [
+        0.5869,
+        0.5259
+      ],
+      "first_wrist": [
+        0.4847,
+        0.9117
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_2",
+      "strata": "N0",
+      "mode": "raw",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4286
+      ],
+      "first_tip8": [
+        0.5753,
+        0.5382
+      ],
+      "first_wrist": [
+        0.4993,
+        0.9072
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_2",
+      "strata": "N0",
+      "mode": "scaled_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4581
+      ],
+      "first_tip8": [
+        0.5683,
+        0.5287
+      ],
+      "first_wrist": [
+        0.4984,
+        0.9306
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_2",
+      "strata": "N0",
+      "mode": "clahe_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4499
+      ],
+      "first_tip8": [
+        0.5918,
+        0.5331
+      ],
+      "first_wrist": [
+        0.4876,
+        0.9208
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_3",
+      "strata": "N0",
+      "mode": "raw",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4188
+      ],
+      "first_tip8": [
+        0.5616,
+        0.5394
+      ],
+      "first_wrist": [
+        0.4992,
+        0.9015
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_3",
+      "strata": "N0",
+      "mode": "scaled_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4588
+      ],
+      "first_tip8": [
+        0.5924,
+        0.5387
+      ],
+      "first_wrist": [
+        0.4944,
+        0.9299
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_3",
+      "strata": "N0",
+      "mode": "clahe_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4368
+      ],
+      "first_tip8": [
+        0.5976,
+        0.5415
+      ],
+      "first_wrist": [
+        0.4822,
+        0.9085
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_4",
+      "strata": "N0",
+      "mode": "scaled_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4439
+      ],
+      "first_tip8": [
+        0.5467,
+        0.5256
+      ],
+      "first_wrist": [
+        0.4991,
+        0.9239
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_4",
+      "strata": "N0",
+      "mode": "clahe_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.444
+      ],
+      "first_tip8": [
+        0.5979,
+        0.5518
+      ],
+      "first_wrist": [
+        0.4851,
+        0.9105
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_5",
+      "strata": "N0",
+      "mode": "raw",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4129
+      ],
+      "first_tip8": [
+        0.5368,
+        0.5381
+      ],
+      "first_wrist": [
+        0.499,
+        0.8951
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_5",
+      "strata": "N0",
+      "mode": "scaled_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.435
+      ],
+      "first_tip8": [
+        0.491,
+        0.5214
+      ],
+      "first_wrist": [
+        0.4996,
+        0.9196
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_5",
+      "strata": "N0",
+      "mode": "clahe_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4379
+      ],
+      "first_tip8": [
+        0.5696,
+        0.5534
+      ],
+      "first_wrist": [
+        0.4778,
+        0.8955
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_6",
+      "strata": "N0",
+      "mode": "scaled_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4375
+      ],
+      "first_tip8": [
+        0.5888,
+        0.5553
+      ],
+      "first_wrist": [
+        0.4893,
+        0.9123
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_6",
+      "strata": "N0",
+      "mode": "clahe_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.432
+      ],
+      "first_tip8": [
+        0.6148,
+        0.5728
+      ],
+      "first_wrist": [
+        0.4671,
+        0.889
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_7",
+      "strata": "N0",
+      "mode": "scaled_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.439
+      ],
+      "first_tip8": [
+        0.601,
+        0.5646
+      ],
+      "first_wrist": [
+        0.4859,
+        0.9125
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_7",
+      "strata": "N0",
+      "mode": "clahe_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4386
+      ],
+      "first_tip8": [
+        0.6243,
+        0.5867
+      ],
+      "first_wrist": [
+        0.467,
+        0.8954
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_8",
+      "strata": "N0",
+      "mode": "scaled_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4398
+      ],
+      "first_tip8": [
+        0.6107,
+        0.5772
+      ],
+      "first_wrist": [
+        0.4841,
+        0.9183
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_8",
+      "strata": "N0",
+      "mode": "clahe_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4298
+      ],
+      "first_tip8": [
+        0.6276,
+        0.5965
+      ],
+      "first_wrist": [
+        0.4632,
+        0.8872
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_9",
+      "strata": "N0",
+      "mode": "scaled_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4268
+      ],
+      "first_tip8": [
+        0.5658,
+        0.5475
+      ],
+      "first_wrist": [
+        0.4885,
+        0.9213
+      ]
+    },
+    {
+      "scene": "N0_fan_sticks_9",
+      "strata": "N0",
+      "mode": "clahe_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4368
+      ],
+      "first_tip8": [
+        0.6303,
+        0.6091
+      ],
+      "first_wrist": [
+        0.4649,
+        0.8962
+      ]
+    },
+    {
+      "scene": "N1_poster_hand_0",
+      "strata": "N1",
+      "mode": "raw",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4555
+      ],
+      "first_tip8": [
+        0.4538,
+        0.2988
+      ],
+      "first_wrist": [
+        0.5284,
+        0.7183
+      ]
+    },
+    {
+      "scene": "N1_poster_hand_0",
+      "strata": "N1",
+      "mode": "scaled_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4416
+      ],
+      "first_tip8": [
+        0.4532,
+        0.2976
+      ],
+      "first_wrist": [
+        0.5202,
+        0.7007
+      ]
+    },
+    {
+      "scene": "N1_poster_hand_0",
+      "strata": "N1",
+      "mode": "clahe_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4324
+      ],
+      "first_tip8": [
+        0.4525,
+        0.2997
+      ],
+      "first_wrist": [
+        0.5166,
+        0.6896
+      ]
+    },
+    {
+      "scene": "N1_poster_hand_2",
+      "strata": "N1",
+      "mode": "raw",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4218
+      ],
+      "first_tip8": [
+        0.4574,
+        0.318
+      ],
+      "first_wrist": [
+        0.526,
+        0.7108
+      ]
+    },
+    {
+      "scene": "N1_poster_hand_2",
+      "strata": "N1",
+      "mode": "scaled_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4294
+      ],
+      "first_tip8": [
+        0.4521,
+        0.3083
+      ],
+      "first_wrist": [
+        0.5213,
+        0.7034
+      ]
+    },
+    {
+      "scene": "N1_poster_hand_2",
+      "strata": "N1",
+      "mode": "clahe_320",
+      "n_hands": 1,
+      "n_large": 1,
+      "sizes": [
+        0.4305
+      ],
+      "first_tip8": [
+        0.4522,
+        0.2987
+      ],
+      "first_wrist": [
+        0.5235,
+        0.6896
+      ]
+    }
+  ]
+}

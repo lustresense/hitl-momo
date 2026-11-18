@@ -1,0 +1,1152 @@
+{
+  "commit": "3ef4cc3685fc64bce729c5ae54bc29689f6d3446",
+  "aspect_ratio_steering_audit": {
+    "1:1": {
+      "aspect": 1,
+      "maxErrDeg": 0,
+      "zoneMismatches": 3,
+      "totalTested": 24,
+      "mismatchesAndLargeErrors": [
+        {
+          "physicalDeg": 30,
+          "rawReadDeg": 30,
+          "errDeg": 0,
+          "expectedZone": "stop",
+          "actualZone": "walk-right"
+        },
+        {
+          "physicalDeg": 150,
+          "rawReadDeg": 150,
+          "errDeg": 0,
+          "expectedZone": "stop",
+          "actualZone": "walk-left"
+        },
+        {
+          "physicalDeg": -30,
+          "rawReadDeg": -30,
+          "errDeg": 0,
+          "expectedZone": "stop",
+          "actualZone": "walk-right"
+        }
+      ]
+    },
+    "5:4 (600x480)": {
+      "aspect": 1.25,
+      "maxErrDeg": 6.37,
+      "zoneMismatches": 2,
+      "totalTested": 24,
+      "mismatchesAndLargeErrors": [
+        {
+          "physicalDeg": 15,
+          "rawReadDeg": 18.52,
+          "errDeg": 3.52,
+          "expectedZone": "walk-right",
+          "actualZone": "walk-right"
+        },
+        {
+          "physicalDeg": 25,
+          "rawReadDeg": 30.24,
+          "errDeg": 5.24,
+          "expectedZone": "walk-right",
+          "actualZone": "stop"
+        },
+        {
+          "physicalDeg": 30,
+          "rawReadDeg": 35.82,
+          "errDeg": 5.82,
+          "expectedZone": "stop",
+          "actualZone": "stop"
+        },
+        {
+          "physicalDeg": 35,
+          "rawReadDeg": 41.19,
+          "errDeg": 6.19,
+          "expectedZone": "stop",
+          "actualZone": "stop"
+        },
+        {
+          "physicalDeg": 40,
+          "rawReadDeg": 46.37,
+          "errDeg": 6.37,
+          "expectedZone": "stop",
+          "actualZone": "jump-right"
+        },
+        {
+          "physicalDeg": 45,
+          "rawReadDeg": 51.34,
+          "errDeg": 6.34,
+          "expectedZone": "jump-right",
+          "actualZone": "jump-right"
+        },
+        {
+          "physicalDeg": 55,
+          "rawReadDeg": 60.74,
+          "errDeg": 5.74,
+          "expectedZone": "jump-right",
+          "actualZone": "jump-right"
+        },
+        {
+          "physicalDeg": 60,
+          "rawReadDeg": 65.21,
+          "errDeg": 5.21,
+          "expectedZone": "jump-right",
+          "actualZone": "jump-right"
+        },
+        {
+          "physicalDeg": 70,
+          "rawReadDeg": 73.77,
+          "errDeg": 3.77,
+          "expectedZone": "jump-right",
+          "actualZone": "jump-right"
+        },
+        {
+          "physicalDeg": 75,
+          "rawReadDeg": 77.9,
+          "errDeg": 2.9,
+          "expectedZone": "jump",
+          "actualZone": "jump"
+        },
+        {
+          "physicalDeg": 105,
+          "rawReadDeg": 102.1,
+          "errDeg": 2.9,
+          "expectedZone": "jump",
+          "actualZone": "jump"
+        },
+        {
+          "physicalDeg": 115,
+          "rawReadDeg": 110.46,
+          "errDeg": 4.54,
+          "expectedZone": "jump-left",
+          "actualZone": "jump-left"
+        },
+        {
+          "physicalDeg": 125,
+          "rawReadDeg": 119.26,
+          "errDeg": 5.74,
+          "expectedZone": "jump-left",
+          "actualZone": "jump-left"
+        },
+        {
+          "physicalDeg": 135,
+          "rawReadDeg": 128.66,
+          "errDeg": 6.34,
+          "expectedZone": "jump-left",
+          "actualZone": "jump-left"
+        },
+        {
+          "physicalDeg": 145,
+          "rawReadDeg": 138.81,
+          "errDeg": 6.19,
+          "expectedZone": "stop",
+          "actualZone": "stop"
+        },
+        {
+          "physicalDeg": 150,
+          "rawReadDeg": 144.18,
+          "errDeg": 5.82,
+          "expectedZone": "stop",
+          "actualZone": "stop"
+        },
+        {
+          "physicalDeg": 165,
+          "rawReadDeg": 161.48,
+          "errDeg": 3.52,
+          "expectedZone": "walk-left",
+          "actualZone": "walk-left"
+        },
+        {
+          "physicalDeg": -30,
+          "rawReadDeg": -35.82,
+          "errDeg": 5.82,
+          "expectedZone": "stop",
+          "actualZone": "stop"
+        }
+      ]
+    },
+    "4:3 (640x480)": {
+      "aspect": 1.333,
+      "maxErrDeg": 8.21,
+      "zoneMismatches": 2,
+      "totalTested": 24,
+      "mismatchesAndLargeErrors": [
+        {
+          "physicalDeg": 15,
+          "rawReadDeg": 19.66,
+          "errDeg": 4.66,
+          "expectedZone": "walk-right",
+          "actualZone": "walk-right"
+        },
+        {
+          "physicalDeg": 25,
+          "rawReadDeg": 31.87,
+          "errDeg": 6.87,
+          "expectedZone": "walk-right",
+          "actualZone": "stop"
+        },
+        {
+          "physicalDeg": 30,
+          "rawReadDeg": 37.59,
+          "errDeg": 7.59,
+          "expectedZone": "stop",
+          "actualZone": "stop"
+        },
+        {
+          "physicalDeg": 35,
+          "rawReadDeg": 43.03,
+          "errDeg": 8.03,
+          "expectedZone": "stop",
+          "actualZone": "stop"
+        },
+        {
+          "physicalDeg": 40,
+          "rawReadDeg": 48.21,
+          "errDeg": 8.21,
+          "expectedZone": "stop",
+          "actualZone": "jump-right"
+        },
+        {
+          "physicalDeg": 45,
+          "rawReadDeg": 53.13,
+          "errDeg": 8.13,
+          "expectedZone": "jump-right",
+          "actualZone": "jump-right"
+        },
+        {
+          "physicalDeg": 55,
+          "rawReadDeg": 62.29,
+          "errDeg": 7.29,
+          "expectedZone": "jump-right",
+          "actualZone": "jump-right"
+        },
+        {
+          "physicalDeg": 60,
+          "rawReadDeg": 66.59,
+          "errDeg": 6.59,
+          "expectedZone": "jump-right",
+          "actualZone": "jump-right"
+        },
+        {
+          "physicalDeg": 70,
+          "rawReadDeg": 74.73,
+          "errDeg": 4.73,
+          "expectedZone": "jump-right",
+          "actualZone": "jump-right"
+        },
+        {
+          "physicalDeg": 75,
+          "rawReadDeg": 78.64,
+          "errDeg": 3.64,
+          "expectedZone": "jump",
+          "actualZone": "jump"
+        },
+        {
+          "physicalDeg": 85,
+          "rawReadDeg": 86.25,
+          "errDeg": 1.25,
+          "expectedZone": "jump",
+          "actualZone": "jump"
+        },
+        {
+          "physicalDeg": 95,
+          "rawReadDeg": 93.75,
+          "errDeg": 1.25,
+          "expectedZone": "jump",
+          "actualZone": "jump"
+        },
+        {
+          "physicalDeg": 105,
+          "rawReadDeg": 101.36,
+          "errDeg": 3.64,
+          "expectedZone": "jump",
+          "actualZone": "jump"
+        },
+        {
+          "physicalDeg": 115,
+          "rawReadDeg": 109.28,
+          "errDeg": 5.72,
+          "expectedZone": "jump-left",
+          "actualZone": "jump-left"
+        },
+        {
+          "physicalDeg": 125,
+          "rawReadDeg": 117.71,
+          "errDeg": 7.29,
+          "expectedZone": "jump-left",
+          "actualZone": "jump-left"
+        },
+        {
+          "physicalDeg": 135,
+          "rawReadDeg": 126.87,
+          "errDeg": 8.13,
+          "expectedZone": "jump-left",
+          "actualZone": "jump-left"
+        },
+        {
+          "physicalDeg": 145,
+          "rawReadDeg": 136.97,
+          "errDeg": 8.03,
+          "expectedZone": "stop",
+          "actualZone": "stop"
+        },
+        {
+          "physicalDeg": 150,
+          "rawReadDeg": 142.41,
+          "errDeg": 7.59,
+          "expectedZone": "stop",
+          "actualZone": "stop"
+        },
+        {
+          "physicalDeg": 165,
+          "rawReadDeg": 160.34,
+          "errDeg": 4.66,
+          "expectedZone": "walk-left",
+          "actualZone": "walk-left"
+        },
+        {
+          "physicalDeg": -30,
+          "rawReadDeg": -37.59,
+          "errDeg": 7.59,
+          "expectedZone": "stop",
+          "actualZone": "stop"
+        }
+      ]
+    },
+    "16:9 (1280x720)": {
+      "aspect": 1.778,
+      "maxErrDeg": 16.22,
+      "zoneMismatches": 8,
+      "totalTested": 24,
+      "mismatchesAndLargeErrors": [
+        {
+          "physicalDeg": 15,
+          "rawReadDeg": 25.47,
+          "errDeg": 10.47,
+          "expectedZone": "walk-right",
+          "actualZone": "walk-right"
+        },
+        {
+          "physicalDeg": 25,
+          "rawReadDeg": 39.66,
+          "errDeg": 14.66,
+          "expectedZone": "walk-right",
+          "actualZone": "stop"
+        },
+        {
+          "physicalDeg": 30,
+          "rawReadDeg": 45.75,
+          "errDeg": 15.75,
+          "expectedZone": "stop",
+          "actualZone": "jump-right"
+        },
+        {
+          "physicalDeg": 35,
+          "rawReadDeg": 51.22,
+          "errDeg": 16.22,
+          "expectedZone": "stop",
+          "actualZone": "jump-right"
+        },
+        {
+          "physicalDeg": 40,
+          "rawReadDeg": 56.16,
+          "errDeg": 16.16,
+          "expectedZone": "stop",
+          "actualZone": "jump-right"
+        },
+        {
+          "physicalDeg": 45,
+          "rawReadDeg": 60.64,
+          "errDeg": 15.64,
+          "expectedZone": "jump-right",
+          "actualZone": "jump-right"
+        },
+        {
+          "physicalDeg": 55,
+          "rawReadDeg": 68.5,
+          "errDeg": 13.5,
+          "expectedZone": "jump-right",
+          "actualZone": "jump-right"
+        },
+        {
+          "physicalDeg": 60,
+          "rawReadDeg": 72.01,
+          "errDeg": 12.01,
+          "expectedZone": "jump-right",
+          "actualZone": "jump-right"
+        },
+        {
+          "physicalDeg": 70,
+          "rawReadDeg": 78.43,
+          "errDeg": 8.43,
+          "expectedZone": "jump-right",
+          "actualZone": "jump"
+        },
+        {
+          "physicalDeg": 75,
+          "rawReadDeg": 81.43,
+          "errDeg": 6.43,
+          "expectedZone": "jump",
+          "actualZone": "jump"
+        },
+        {
+          "physicalDeg": 85,
+          "rawReadDeg": 87.18,
+          "errDeg": 2.18,
+          "expectedZone": "jump",
+          "actualZone": "jump"
+        },
+        {
+          "physicalDeg": 95,
+          "rawReadDeg": 92.82,
+          "errDeg": 2.18,
+          "expectedZone": "jump",
+          "actualZone": "jump"
+        },
+        {
+          "physicalDeg": 105,
+          "rawReadDeg": 98.57,
+          "errDeg": 6.43,
+          "expectedZone": "jump",
+          "actualZone": "jump"
+        },
+        {
+          "physicalDeg": 115,
+          "rawReadDeg": 104.7,
+          "errDeg": 10.3,
+          "expectedZone": "jump-left",
+          "actualZone": "jump"
+        },
+        {
+          "physicalDeg": 125,
+          "rawReadDeg": 111.5,
+          "errDeg": 13.5,
+          "expectedZone": "jump-left",
+          "actualZone": "jump-left"
+        },
+        {
+          "physicalDeg": 135,
+          "rawReadDeg": 119.36,
+          "errDeg": 15.64,
+          "expectedZone": "jump-left",
+          "actualZone": "jump-left"
+        },
+        {
+          "physicalDeg": 145,
+          "rawReadDeg": 128.78,
+          "errDeg": 16.22,
+          "expectedZone": "stop",
+          "actualZone": "jump-left"
+        },
+        {
+          "physicalDeg": 150,
+          "rawReadDeg": 134.25,
+          "errDeg": 15.75,
+          "expectedZone": "stop",
+          "actualZone": "jump-left"
+        },
+        {
+          "physicalDeg": 165,
+          "rawReadDeg": 154.53,
+          "errDeg": 10.47,
+          "expectedZone": "walk-left",
+          "actualZone": "walk-left"
+        },
+        {
+          "physicalDeg": -30,
+          "rawReadDeg": -45.75,
+          "errDeg": 15.75,
+          "expectedZone": "stop",
+          "actualZone": "stop"
+        }
+      ]
+    },
+    "9:16 portrait": {
+      "aspect": 0.563,
+      "maxErrDeg": 16.22,
+      "zoneMismatches": 13,
+      "totalTested": 24,
+      "mismatchesAndLargeErrors": [
+        {
+          "physicalDeg": 15,
+          "rawReadDeg": 8.57,
+          "errDeg": 6.43,
+          "expectedZone": "walk-right",
+          "actualZone": "walk-right"
+        },
+        {
+          "physicalDeg": 25,
+          "rawReadDeg": 14.7,
+          "errDeg": 10.3,
+          "expectedZone": "walk-right",
+          "actualZone": "walk-right"
+        },
+        {
+          "physicalDeg": 30,
+          "rawReadDeg": 17.99,
+          "errDeg": 12.01,
+          "expectedZone": "stop",
+          "actualZone": "walk-right"
+        },
+        {
+          "physicalDeg": 35,
+          "rawReadDeg": 21.5,
+          "errDeg": 13.5,
+          "expectedZone": "stop",
+          "actualZone": "walk-right"
+        },
+        {
+          "physicalDeg": 40,
+          "rawReadDeg": 25.27,
+          "errDeg": 14.73,
+          "expectedZone": "stop",
+          "actualZone": "walk-right"
+        },
+        {
+          "physicalDeg": 45,
+          "rawReadDeg": 29.36,
+          "errDeg": 15.64,
+          "expectedZone": "jump-right",
+          "actualZone": "walk-right"
+        },
+        {
+          "physicalDeg": 55,
+          "rawReadDeg": 38.78,
+          "errDeg": 16.22,
+          "expectedZone": "jump-right",
+          "actualZone": "stop"
+        },
+        {
+          "physicalDeg": 60,
+          "rawReadDeg": 44.25,
+          "errDeg": 15.75,
+          "expectedZone": "jump-right",
+          "actualZone": "stop"
+        },
+        {
+          "physicalDeg": 70,
+          "rawReadDeg": 57.09,
+          "errDeg": 12.91,
+          "expectedZone": "jump-right",
+          "actualZone": "jump-right"
+        },
+        {
+          "physicalDeg": 75,
+          "rawReadDeg": 64.53,
+          "errDeg": 10.47,
+          "expectedZone": "jump",
+          "actualZone": "jump-right"
+        },
+        {
+          "physicalDeg": 85,
+          "rawReadDeg": 81.16,
+          "errDeg": 3.84,
+          "expectedZone": "jump",
+          "actualZone": "jump"
+        },
+        {
+          "physicalDeg": 95,
+          "rawReadDeg": 98.84,
+          "errDeg": 3.84,
+          "expectedZone": "jump",
+          "actualZone": "jump"
+        },
+        {
+          "physicalDeg": 105,
+          "rawReadDeg": 115.47,
+          "errDeg": 10.47,
+          "expectedZone": "jump",
+          "actualZone": "jump-left"
+        },
+        {
+          "physicalDeg": 115,
+          "rawReadDeg": 129.66,
+          "errDeg": 14.66,
+          "expectedZone": "jump-left",
+          "actualZone": "jump-left"
+        },
+        {
+          "physicalDeg": 125,
+          "rawReadDeg": 141.22,
+          "errDeg": 16.22,
+          "expectedZone": "jump-left",
+          "actualZone": "stop"
+        },
+        {
+          "physicalDeg": 135,
+          "rawReadDeg": 150.64,
+          "errDeg": 15.64,
+          "expectedZone": "jump-left",
+          "actualZone": "walk-left"
+        },
+        {
+          "physicalDeg": 145,
+          "rawReadDeg": 158.5,
+          "errDeg": 13.5,
+          "expectedZone": "stop",
+          "actualZone": "walk-left"
+        },
+        {
+          "physicalDeg": 150,
+          "rawReadDeg": 162.01,
+          "errDeg": 12.01,
+          "expectedZone": "stop",
+          "actualZone": "walk-left"
+        },
+        {
+          "physicalDeg": 165,
+          "rawReadDeg": 171.43,
+          "errDeg": 6.43,
+          "expectedZone": "walk-left",
+          "actualZone": "walk-left"
+        },
+        {
+          "physicalDeg": -30,
+          "rawReadDeg": -17.99,
+          "errDeg": 12.01,
+          "expectedZone": "stop",
+          "actualZone": "walk-right"
+        }
+      ]
+    }
+  },
+  "unintentional_pointing_f8": [
+    {
+      "case": "fist_curled_tilted_right",
+      "classifiedPose": "pinch",
+      "gameplayTracked": true,
+      "rawAngleDeg": -130.16,
+      "emittedInput": {
+        "left": false,
+        "right": false,
+        "jump": false
+      },
+      "unintentionalAction": false
+    },
+    {
+      "case": "open_palm_vertical",
+      "classifiedPose": "open-palm",
+      "gameplayTracked": true,
+      "rawAngleDeg": 90,
+      "emittedInput": {
+        "left": false,
+        "right": false,
+        "jump": true
+      },
+      "unintentionalAction": true
+    },
+    {
+      "case": "relaxed_natural_hand_30deg",
+      "classifiedPose": "open-palm",
+      "gameplayTracked": true,
+      "rawAngleDeg": 71.35,
+      "emittedInput": {
+        "left": false,
+        "right": true,
+        "jump": true
+      },
+      "unintentionalAction": true
+    },
+    {
+      "case": "pinch_grab_horizontal",
+      "classifiedPose": "pinch",
+      "gameplayTracked": true,
+      "rawAngleDeg": -6.76,
+      "emittedInput": {
+        "left": false,
+        "right": true,
+        "jump": false
+      },
+      "unintentionalAction": true
+    }
+  ],
+  "jump_assist_held_repeat_2_4s": {
+    "jumpsFiredWhileHeld": 70,
+    "events": [
+      {
+        "step": 0,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 1,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 2,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 3,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 4,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 30,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 31,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 32,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 33,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 34,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 35,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 36,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 37,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 38,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 39,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 40,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 41,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 42,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 43,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 44,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 45,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 46,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 47,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 48,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 49,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 50,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 51,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 52,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 53,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 54,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 55,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 56,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 57,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 58,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 59,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 85,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 86,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 87,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 88,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 89,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 90,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 91,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 92,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 93,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 94,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 95,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 96,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 97,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 98,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 99,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 100,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 101,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 102,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 103,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 104,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 105,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 106,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 107,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 108,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 109,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 110,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 111,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 112,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 113,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 114,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 115,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 116,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 117,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 118,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      },
+      {
+        "step": 119,
+        "grounded": true,
+        "jumpHeld": true,
+        "fired": true
+      }
+    ]
+  },
+  "gameplay_filter_boundary_trace": [
+    {
+      "frame": 3,
+      "deg": 28,
+      "input": {
+        "left": false,
+        "right": true,
+        "jump": false
+      }
+    },
+    {
+      "frame": 4,
+      "deg": 32,
+      "input": {
+        "left": false,
+        "right": true,
+        "jump": false
+      }
+    },
+    {
+      "frame": 5,
+      "deg": 34,
+      "input": {
+        "left": false,
+        "right": true,
+        "jump": false
+      }
+    },
+    {
+      "frame": 6,
+      "deg": 36,
+      "input": {
+        "left": false,
+        "right": false,
+        "jump": false
+      }
+    },
+    {
+      "frame": 7,
+      "deg": 32,
+      "input": {
+        "left": false,
+        "right": false,
+        "jump": false
+      }
+    },
+    {
+      "frame": 8,
+      "deg": 28,
+      "input": {
+        "left": false,
+        "right": true,
+        "jump": false
+      }
+    },
+    {
+      "frame": 9,
+      "deg": -45,
+      "input": {
+        "left": false,
+        "right": false,
+        "jump": false
+      }
+    }
+  ]
+}

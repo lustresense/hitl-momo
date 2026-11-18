@@ -3,122 +3,82 @@
 **Repository:** [lustresense/hitl-momo](https://github.com/lustresense/hitl-momo)  
 **Branch:** `research-can` (independent **orphan**, no `main` history)  
 **Owner:** CAN · **Executor:** authorized terminal agent / Agy  
+**Baseline Product Target (`main`):** `3ef4cc3685fc64bce729c5ae54bc29689f6d3446` (`0.24.1-alpha`, read-only comparison)  
 **Purpose:** R&D for Sketchbook Universe's NUI / MediaPipe finger tracking, low-light robustness, gesture recognition, hand lock, and adjacent interaction experiments.
 
-This is **NOT** a second product, official PA decision record, `main` checkout, or deployment branch. The product and authoritative CAN decisions remain on `main`. A standalone orphan branch keeps the checkout lean but **does not reduce the repository's total Git object storage by itself**. File selection and artifact hygiene matter.
+This is **NOT** a second product, official PA decision record, `main` checkout, or deployment branch. The product and authoritative CAN decisions remain on `main`. File selection and artifact hygiene apply strictly to keep raw datasets, secrets, caches, and compiled bundles out of Git.
 
-> **Current state:** branch scaffold only. No experiment, training, physical webcam result, or candidate has been imported or validated by this bootstrap. Agy owns subsequent organization and publication after inspecting the **real** local workspace.
+---
 
 ## Navigate
 
 - [AGENTS.md](AGENTS.md) — mandatory operational contract, permissions, publication whitelist, evidence and reporting.
-- [docs/plan-rev/](docs/plan-rev/) — revision plans; filename states are described below.
-- [docs/attachments/](docs/attachments/) — safe context documents and attachments, **not** a second plan queue.
-- `r18/`, `r19/`, `rNN/` — revision-specific experiment artifacts, **created by Agy only when actual work exists**. No empty revision folders are pre-created.
+- [docs/plan-rev/](docs/plan-rev/) — revision plans using filename status markers (`[WIP]` / `[DONE]` / unmarked):
+  - [`[WIP] NUI_R18-01_v0.3.0_UX_First_Worst_Case_Research.md`](docs/plan-rev/%5BWIP%5D%20NUI_R18-01_v0.3.0_UX_First_Worst_Case_Research.md)
+- [docs/attachments/](docs/attachments/) — vetted Owner references and checklists (**not** a plan queue):
+  - [`OWNER_PHYSICAL_WEBCAM_TEST_PROTOCOL.md`](docs/attachments/OWNER_PHYSICAL_WEBCAM_TEST_PROTOCOL.md)
+  - [`DIMHAND_AUDIT_SUMMARY.md`](docs/attachments/DIMHAND_AUDIT_SUMMARY.md)
+- [r18/](r18/) — curated R18 experiments, candidate TypeScript/browser implementations, models, manifests, scripts, and JSON/Markdown evidence:
+  - [`r18/experiments/`](r18/experiments/) (`exp_r18_ux0_baseline.md` .. `exp_r18_ux5_browser_sim_harness.md`)
+  - [`r18/candidates/`](r18/candidates/) (`ux1_candidates.ts`, `ux3_features.ts`, `ux3_model.ts`, `ux3_integrated.ts`, `browser_harness/`)
+  - [`r18/models/`](r18/models/) (`ux3_model_mlp.json`, `ux3_model_lr.json`, [`MODEL_CARD.md`](r18/models/MODEL_CARD.md))
+  - [`r18/results/`](r18/results/) ([`R18_MASTER_REPORT.md`](r18/results/R18_MASTER_REPORT.md) + `r18_ux*.json`, `ux3_*.json`)
+  - [`r18/scripts/`](r18/scripts/) (`r18_ux0_*`, `r18_ux1_ab.ts`, `r18_ux2_adaptive.py`, `ux3_*`, `make_sim_camera_y4m.py`, `run_browser_harness.mjs`)
+  - [`r18/manifests/`](r18/manifests/) (`dataset_manifest.json`, `ipn_person_split.json`, `published_vs_excluded_manifest.json`, `SHA256SUMS.txt`)
 
-```text
-research-can (orphan branch)
-├── AGENTS.md
-├── README.md
-├── .gitignore
-├── .gitattributes
-├── docs/
-│   ├── plan-rev/
-│   └── attachments/
-└── rNN/                        # not created until Agy has real revision artifacts
-    ├── experiments/            # actual experiments
-    ├── candidates/             # candidate source/config/patch
-    ├── results/                # sanitized evidence, metrics & summaries
-    ├── scripts/                # reproducible test/training/eval scripts
-    ├── models/                 # only reviewed publishable small models
-    └── manifests/              # provenance, exclusions and SHA-256
-```
+**Only one root `AGENTS.md` and one root `README.md`.**
 
-**Only one root AGENTS and one root README.** Within a revision, use meaningful file names and link all key artifacts here. Do not create nested README/AGENTS policy duplicates. Revision numbers are controlled by actual plans, not this diagram.
+---
 
-## Local-to-branch mapping for Agy
+## Local-to-branch mapping preserved
 
-| Existing local source (verify first) | Destination on this branch | Treatment |
+| Verified local source (`/srv/sketchbook/mediapipe-optimize/`) | Destination on `research-can` | Treatment |
 | --- | --- | --- |
-| `/srv/sketchbook/mediapipe-optimize/docs/plan-rev/` | `docs/plan-rev/` | Curate and preserve plan names/status |
-| Approved context images/notes/reference files | `docs/attachments/` | Check privacy, licensing and relevance |
-| `/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/` | `r18/` | **Curate**, not full-folder copy; preserve originals |
-| Later genuine revision sandbox | `rNN/` | Agy creates directories and updates index |
+| `docs/plan-rev/NUI_R18-01_v0.3.0_UX_First_Worst_Case_Research.md` | [`docs/plan-rev/[WIP] NUI_R18-01_v0.3.0_UX_First_Worst_Case_Research.md`](docs/plan-rev/%5BWIP%5D%20NUI_R18-01_v0.3.0_UX_First_Worst_Case_Research.md) | Retained verbatim + appended execution tracker; local original untouched |
+| Vetted Owner protocols & dataset notes | `docs/attachments/` | [`OWNER_PHYSICAL_WEBCAM_TEST_PROTOCOL.md`](docs/attachments/OWNER_PHYSICAL_WEBCAM_TEST_PROTOCOL.md), [`DIMHAND_AUDIT_SUMMARY.md`](docs/attachments/DIMHAND_AUDIT_SUMMARY.md) |
+| `r18-ux0-sandbox/{candidates,scripts,harness-src,results}` (curated ~1.3 MiB) | `r18/` | Curated allowlist only; raw datasets (`1.6G`), `.venv` (`559M`), `repo` (`754M`), `.pw-browsers` (`278M`), tools (`269M`), `ipn_*_seq.json` (`187M`), `sim_cam.y4m` (`50M`), compiled JS excluded |
 
-Agy must inventory current local files, sizes, actual version, scripts and evidence before deciding what maps where. Do not assume the historical `r18-ux0-sandbox` exists or that R18/UX1–UX4 results are reproducible without checking.
+---
 
-## Plan lifecycle (filenames, not generic progress claims)
+## Plan lifecycle
 
-| Filename in `docs/plan-rev/` | Meaning |
-| --- | --- |
-| `Rencana.md` | Not yet discussed/started |
-| `[WIP] Rencana.md` | In progress, including blocked/failed tests |
-| `[DONE] Rencana.md` | Plan deliverables evidenced and completed; **not** product adoption |
+| Filename in `docs/plan-rev/` | Meaning | Current Document |
+| --- | --- | --- |
+| `Rencana.md` | Not yet discussed/started | — |
+| `[WIP] Rencana.md` | In progress, including blocked/failed tests | [`[WIP] NUI_R18-01_v0.3.0_UX_First_Worst_Case_Research.md`](docs/plan-rev/%5BWIP%5D%20NUI_R18-01_v0.3.0_UX_First_Worst_Case_Research.md) |
+| `[DONE] Rencana.md` | All deliverables & acceptance gates evidenced | Not yet reached (`UX4 DimHand` `BLOCKED`; physical webcam `NOT_TESTED`) |
 
-Agy renames the **existing exact plan filename** when the work begins, documents progress and reports actual evidence. A failed or incomplete experiment remains `[WIP]`; a document marked `[DONE]` still may have untested real camera behavior, which must be disclosed. The Owner's reference materials in `docs/attachments/` do not become product decisions or plans automatically.
+---
 
-## Current progress register
+## Current progress register (newest-first)
 
-| Revision | Plan | Work/result | Evidence | Status |
+| Revision / Stage | Plan | Work & Verification Type | Linked Evidence | Status |
 | --- | --- | --- | --- | --- |
-| R18 (expected from prior discussion) | Awaiting inventory from Agy | No contents imported | No GitHub/physical-camera evidence in this branch | **NOT_TESTED / NOT_IMPORTED** |
-| Later revisions | Not created | — | — | Not started |
+| **R18-UX5 (Sim Pre-Check)** | `[WIP] NUI_R18-01 v0.3.0` | Headless Chromium WASM (`180.43s`, `2,271` frames Mendeley+N0 `.y4m`) + cold `zstd` wire transfer (`10.811 MB < 25 MB`) (`BROWSER_SIMULATED_VIDEO`) | [`exp_r18_ux5_browser_sim_harness.md`](r18/experiments/exp_r18_ux5_browser_sim_harness.md), [`r18_ux4_browser_runtime.json`](r18/results/r18_ux4_browser_runtime.json) | **PASS** *(Sim-Video; CPU XNNPACK `2,057` Long Tasks; physical webcam **NOT_TESTED**)* |
+| **R18-UX5 (Physical)** | `[WIP] NUI_R18-01 v0.3.0` | Live 480p low-light / ceiling / backlight / skin-bg / classroom hardware validation | [`OWNER_PHYSICAL_WEBCAM_TEST_PROTOCOL.md`](docs/attachments/OWNER_PHYSICAL_WEBCAM_TEST_PROTOCOL.md) | **NOT_TESTED** *(No `/dev/video*` on VM)* |
+| **R18-UX4** | `[WIP] NUI_R18-01 v0.3.0` | DimHand ACM MM 2026 project/repo/`supp.pdf` audit | [`exp_r18_ux4_dimhand_audit.md`](r18/experiments/exp_r18_ux4_dimhand_audit.md), [`DIMHAND_AUDIT_SUMMARY.md`](docs/attachments/DIMHAND_AUDIT_SUMMARY.md) | **BLOCKED** *(Manual approval form, `NC-ND` license, >4 GiB size)* |
+| **R18-UX3** | `[WIP] NUI_R18-01 v0.3.0` | Person-disjoint IPN `CC BY 4.0` `[68->96->48->6]` MLP (`123 KB`), TS parity (`7.24e-6`), locked TEST + Mendeley 600f + static `FIVE/FOUR/Pinch` (`REAL_MODEL` + `OFFLINE_DATASET`) | [`exp_r18_ux3_ipn_classifier.md`](r18/experiments/exp_r18_ux3_ipn_classifier.md), [`ux3_training_metrics.json`](r18/results/ux3_training_metrics.json), [`r18_ux3_exported_eval.json`](r18/results/r18_ux3_exported_eval.json) | **PASS** *(Partial residual: `1/35 N0_raw` false erase if static `5x`, `21/15` P1F/P2F false swipe)* |
+| **R18-UX2** | `[WIP] NUI_R18-01 v0.3.0` | `RAW-first` sticky `CLAHE-320` recovery vs `auto_320` on 240f DimLight/NaturalLight + 40 `N0/N1` (`OFFLINE_DATASET` + `SYNTHETIC`) | [`exp_r18_ux2_adaptive_clahe.md`](r18/experiments/exp_r18_ux2_adaptive_clahe.md), [`r18_ux2_adaptive.json`](r18/results/r18_ux2_adaptive.json) | **PASS** *(Det `64.58%` DimLight, `59.17%` NaturalLight)* |
+| **R18-UX1** | `[WIP] NUI_R18-01 v0.3.0` | Aspect angle (`0°`), skeleton gate v2 (`99.6–99.8%`), `P2_balanced`, `VirtualKeySteeringFSM`, `F10`, `J2_edge`, `FaceAnchor` (`UNIT_ONLY` + `OFFLINE_DATASET`) | [`exp_r18_ux1_geometry_fsm.md`](r18/experiments/exp_r18_ux1_geometry_fsm.md), [`r18_ux1_ab.json`](r18/results/r18_ux1_ab.json) | **PASS** *(Residual `P1F`/`P2F` false swipes -> motivated UX3)* |
+| **R18-UX0** | `[WIP] NUI_R18-01 v0.3.0` | Audit of `main` (`3ef4cc3685fc`) build, scoped Vitest, IPN/Mendeley/N0/geometry errors | [`exp_r18_ux0_baseline.md`](r18/experiments/exp_r18_ux0_baseline.md), [`r18_ux0_b_ipn_rules.json`](r18/results/r18_ux0_b_ipn_rules.json) | **PASS** *(Baseline audit complete; R17 `.json` weights absent on VM)* |
 
-**Agy updates this table newest-first after each verified publication.** Link exact plan, candidate and result paths, commit SHA, baseline SHA and measurable acceptance evidence. Do not claim a PASS based only on source files or a worker summary.
+---
 
 ## Candidate index
 
-| Candidate ID | Base SHA | Hypothesis / change | Evaluation evidence | Limitations | Recommendation |
+| Candidate ID | Base SHA | Hypothesis / Change | Evaluation Evidence | Limitations | Recommendation |
 | --- | --- | --- | --- | --- | --- |
-| — | — | No candidate published yet | — | — | Await Agy inventory |
+| `ux1-geom-fsm-v2` ([`ux1_candidates.ts`](r18/candidates/ux1_candidates.ts)) | `3ef4cc3685fc` | Aspect-corrected `indexPointAngleAspect`, inclusive `palmScale` skeleton gate, `P2_balanced` intent, `VirtualKeySteeringFSM` (`F10`, `J2_edge` sustained re-arm `>=130ms`), `SafeSwipeGuard`, `isSafeEraseFrame` | `0°` multi-aspect error (`r18_ux1_ab.json`); `99.60%` TEST real hands kept; `NOG` steer `57.99% -> 2.57%`, `dirFlip = 0/min`, `P2F` steer `74.04% -> 1.42%`, held jump `26 -> 1` | Rule-only Erase still fires on dynamic `GRB` (`7.71%`), `OP2` (`11.09%`), `TUP` (`19.85%`); `SafeSwipeGuard` fires `21/15` on continuous `P1F/P2F` | Foundation candidate for steering/geometry/FSM; pair with UX3 vetoes & physical test |
+| `ux2-raw-first-m3` ([`r18_ux2_adaptive.py`](r18/scripts/r18_ux2_adaptive.py)) | `3ef4cc3685fc` | Run `RAW` first; invoke `CLAHE-320` + 5-frame sticky recovery only on dark/backlit RAW misses | DimLight det `52.08% (RAW) -> 60.83% (M0) -> 64.58% (M3)`; NaturalLight `37.50% -> 50.00% -> 59.17%`; avoids `10/35` CLAHE `N0_fan_sticks` hits in bright scenes | Fallback dual-pass increases worst-case `p95` frame latency (`42.8 ms` Python, `99.6 ms` WASM CPU) | Candidate preprocessing replacement for `auto_320`, pending physical low-light webcam check |
+| `ux3-ipn-mlp-hybrid` ([`ux3_integrated.ts`](r18/candidates/ux3_integrated.ts), [`ux3_model_mlp.json`](r18/models/ux3_model_mlp.json)) | `3ef4cc3685fc` | Person-disjoint IPN `CC BY 4.0` `[68->96->48->6]` MLP (`123 KB`, `T=1.2325`) + UX1 geometry/FSM + `FIVE`-safe Erase veto (`NOG/THROW`/jitter) | Locked TEST: `macroF1=0.6156`, `POINT_1F F1=0.8898`, TS parity `max_diff=7.24e-6` (`20.8 µs`); `NOG` steer `0.27%`, `NOG` erase `0.76%`, `TUP` erase `0.84%`; Mendeley 600f false steer/erase `0.00%`; `FIVE` `3/3`, `FOUR` `0/3`, Pinch `10/10` (`<=0.25`) vs `0/10` (`>=0.35`); Browser 180s sim-video `10.811 MB` wire, `[0, 0]` false steer/erase | IPN lacks static `FIVE/FOUR` class; `N0_raw` `1/35` false erase if identical frame `5x`; `P1F`/`P2F` continuous sweeps still emit `21`/`15` swipes; physical webcam `NOT_TESTED` | Top candidate for Owner physical-webcam acceptance trial (`OWNER_PHYSICAL_WEBCAM_TEST_PROTOCOL.md`); **do not merge to `main` yet** |
 
-For candidate evidence store code/config (and any patch), exact reproduction commands, dataset source/license, controlled baseline comparison, actual captured metrics, counterexamples and status. Never write invented accuracy, FPS, latency, light level, thresholds or model downloads. Dataset/model improvement, low-light safety, and gameplay feel require relevant real tests.
+---
 
-### NUI R&D issues to keep visible
+## Mandatory batch report (`R18 UX0–UX4 + Browser Sim-Video` — 2026-11-18 WIB)
 
-R18 discussions covered robustness in low-light and ceiling/back lighting, distractors including **non-hand objects**, backgrounds and different skin tones, hand ownership/reacquisition and edge-of-frame tracking, pinch/draw, five-finger eraser (not a closed fist), unreliable 3-finger gestures, and Thinman directional control feel. They are **research tasks and observations**, not blanket assertions that solutions are implemented or proven. MediaPipe remains the primary base. Compare against actual game and lab code on `main` **read-only** when authorized.
+Full structured report: [`r18/results/R18_MASTER_REPORT.md`](r18/results/R18_MASTER_REPORT.md) (summary below; inspect [`r18/manifests/published_vs_excluded_manifest.json`](r18/manifests/published_vs_excluded_manifest.json) and [`r18/manifests/SHA256SUMS.txt`](r18/manifests/SHA256SUMS.txt) for per-file audit).
 
-## What gets pushed
-
-**Include:** plans, safe Owner references, source of all meaningful experiments, configs and scripts, sanitized metrics/result summaries, all relevant auditable candidates, model cards, small permission-cleared model files, provenance/retained-vs-excluded file map, SHA-256 manifest and this index. Include failed candidates too if their results are instructive.
-
-**Exclude:** unfiltered full sandbox, large/raw datasets, raw camera captures, biometric/student data, private chat exports, databases, secrets/credentials, bulky caches, `.venv`, `node_modules`, generated builds and repeated checkpoints. Default **prototype 10 MiB individual binary review limit** is a conservative publish guard, **not a measured product budget**. Large artifacts can stay local/external with manifest, checksum and explicit non-published status.
-
-For each published candidate, Agy should create only the folders with real contents, generally `rNN/{candidates,results,experiments,scripts,models,manifests}/` as needed. Agy must never stage blindly from the local R18 sandbox.
-
-## Agy step-by-step workflow
-
-1. **Read [AGENTS.md](AGENTS.md) fully first.** Establish branch, permissions, baseline and exact task. On this orphan branch, do not import `main` sources or read `.context-notforagent/`.
-2. Verify Git remote and authentication. Use an isolated checkout/worktree. Inspect the local `mediapipe-optimize` folders **read-only** and build a file/size/provenance inventory.
-3. Select the first actual plan and mark `[WIP]` only when starting work. Register planned experiments, baseline, quality gates, and what constitutes measurable success.
-4. Preserve all relevant experiment versions and publish **curated** code/config/result/report. Separate candidates from results and clearly mark FAIL/BLOCKED/NOT_TESTED.
-5. Inspect staged files for secrets/private/large material, generate SHA-256 manifest, verify relative links, then update **this README** in the same commit.
-6. Commit and push only to `origin research-can` under Owner-approved task scope. Verify remote commit and artifact paths. Never push to `main`, force, merge, deploy or delete local original.
-7. Report using the mandatory contract below. Repeat for next revision; Agy creates `r19/`, etc. **only when work actually starts**.
-
-If the branch exists on remote but not locally, prefer `git fetch origin research-can` and use an isolated worktree from the correct ref. Confirm the existing source checkout and avoid destructive `git switch --orphan` in the live product or training directory.
-
-## Mandatory report from Agy to CAN after each batch
-
-```md
-### R&D <revision / candidate> — <date/time WIB>
-- Status: PASS / FAIL / PARTIAL / BLOCKED / NOT_TESTED
-- Scope performed:
-- Baseline and candidate SHA / configuration:
-- Real tests run (commands, environment, camera, lighting, dataset):
-- Quantitative metrics and evidence links (or NOT_MEASURED):
-- Changed / new candidate files and why:
-- Regressions, failures, ambiguous cases:
-- Published URL, remote SHA, number of files, total bytes, checksum manifest:
-- Excluded items and why (size/privacy/cache/licensing), retained local paths:
-- Blockers / proposed next action:
-- Owner approval needed (if any):
-```
-
-Status should name the exact test type: synthetic landmarks, unit tests, offline dataset evaluation, physical webcam, or runtime product deployment. A report without physical-camera proof **must not claim real-world robustness**. If R&D ends with a promising but unselected candidate, report it as a **candidate**, not a product decision.
-
-## Promoting research into `main`
-
-Promotion is **separate, explicit and selective**. ChatGPT Web/Owner reviews the candidate/evidence first. Then, only with fresh authorization, transfer approved safe research files into `main:contexts/can/research/` through an appropriately scoped commit/PR. A product-code change needs another explicit scope and product regression checks. **Do not merge unrelated orphan histories** (`--allow-unrelated-histories` is not the process). Do not copy all of `research-can`, this branch's root governance, large results or restricted archives into `main`.
-
-This repository is public. Instructions to avoid a path do not stop external readers or Git history access. Restrict access for true confidentiality.
+- **Status:** `UX0–UX3` **PASS** *(offline/unit/synth/exported TS)*; `UX5 Pre-Check` **PASS (BROWSER_SIMULATED_VIDEO only)**; `UX4 DimHand` **BLOCKED**; `UX5 Physical Webcam` **NOT_TESTED**.
+- **Regressions / failures / ambiguities:** Continuous pointing sweeps still overlap 1/2-finger swipe (`21` on `P1F`, `15` on `P2F` over 23+ min each); `1/35` `N0_raw` false erase under `5x` repeated identical frames; headless CPU WASM produced `2,057` Long Tasks (`detect p95 = 99.6 ms`); baseline `main` scoped Vitest had `14/852` pre-existing/gate-leak test failures (`r18_ux0_a_bundle.json`).
+- **Decisions NOT made:** No changes to `main`, deployment, backend, DB, or product NUI runtime; no approval of `ux3_model_mlp.json` for shipping; no HaGRIDv2 ShareAlike clearance; no claim of real physical-webcam pass.
+- **Owner action needed:** Review `research-can` results & run [`OWNER_PHYSICAL_WEBCAM_TEST_PROTOCOL.md`](docs/attachments/OWNER_PHYSICAL_WEBCAM_TEST_PROTOCOL.md) on real student cameras before authorizing any scoped product integration PR to `main`.

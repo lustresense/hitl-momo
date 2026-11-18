@@ -1,0 +1,509 @@
+{
+  "split_disjoint_check": {
+    "train_persons": 19,
+    "val_persons": 5,
+    "test_persons": 5,
+    "overlap": 0,
+    "train_rows": 221715,
+    "val_rows": 120020,
+    "test_rows": 110881,
+    "train_class_counts": {
+      "NOG": 44454,
+      "POINT_1F": 71203,
+      "POINT_2F": 69917,
+      "GRAB_FIST": 7138,
+      "THROW_SWIPE": 13177,
+      "OPEN_ZOOM": 15826
+    }
+  },
+  "val_sweep": [
+    {
+      "name": "lr_l2_1e4",
+      "hidden": [],
+      "l2": 0.0001,
+      "lr": 0.005,
+      "epochs": 24,
+      "noise": 0.0,
+      "val_macroF1": 0.6427,
+      "val_acc": 0.8159,
+      "best_epoch": 16,
+      "seconds": 2.17,
+      "temp": 0.96,
+      "val_nll_before_after": [
+        0.54655,
+        0.54607
+      ],
+      "val_ece_before_after": [
+        0.02184,
+        0.01395
+      ],
+      "val_perClass": [
+        {
+          "label": "NOG",
+          "support": 26428,
+          "precision": 0.7903,
+          "recall": 0.7012,
+          "f1": 0.7431
+        },
+        {
+          "label": "POINT_1F",
+          "support": 41944,
+          "precision": 0.8876,
+          "recall": 0.9005,
+          "f1": 0.894
+        },
+        {
+          "label": "POINT_2F",
+          "support": 41193,
+          "precision": 0.8952,
+          "recall": 0.8719,
+          "f1": 0.8834
+        },
+        {
+          "label": "GRAB_FIST",
+          "support": 1741,
+          "precision": 0.2996,
+          "recall": 0.3992,
+          "f1": 0.3423
+        },
+        {
+          "label": "THROW_SWIPE",
+          "support": 3959,
+          "precision": 0.3387,
+          "recall": 0.5585,
+          "f1": 0.4217
+        },
+        {
+          "label": "OPEN_ZOOM",
+          "support": 4755,
+          "precision": 0.555,
+          "recall": 0.5897,
+          "f1": 0.5718
+        }
+      ]
+    },
+    {
+      "name": "mlp_64_32_n01",
+      "hidden": [
+        64,
+        32
+      ],
+      "l2": 0.0002,
+      "lr": 0.003,
+      "epochs": 26,
+      "noise": 0.02,
+      "val_macroF1": 0.6939,
+      "val_acc": 0.8368,
+      "best_epoch": 4,
+      "seconds": 13.81,
+      "temp": 1.0775,
+      "val_nll_before_after": [
+        0.46344,
+        0.46199
+      ],
+      "val_ece_before_after": [
+        0.01017,
+        0.00453
+      ],
+      "val_perClass": [
+        {
+          "label": "NOG",
+          "support": 26428,
+          "precision": 0.8331,
+          "recall": 0.7404,
+          "f1": 0.784
+        },
+        {
+          "label": "POINT_1F",
+          "support": 41944,
+          "precision": 0.8673,
+          "recall": 0.9173,
+          "f1": 0.8916
+        },
+        {
+          "label": "POINT_2F",
+          "support": 41193,
+          "precision": 0.9208,
+          "recall": 0.8679,
+          "f1": 0.8936
+        },
+        {
+          "label": "GRAB_FIST",
+          "support": 1741,
+          "precision": 0.4282,
+          "recall": 0.4417,
+          "f1": 0.4348
+        },
+        {
+          "label": "THROW_SWIPE",
+          "support": 3959,
+          "precision": 0.4223,
+          "recall": 0.6704,
+          "f1": 0.5182
+        },
+        {
+          "label": "OPEN_ZOOM",
+          "support": 4755,
+          "precision": 0.6105,
+          "recall": 0.6757,
+          "f1": 0.6414
+        }
+      ]
+    },
+    {
+      "name": "mlp_96_48_n02",
+      "hidden": [
+        96,
+        48
+      ],
+      "l2": 0.0003,
+      "lr": 0.0025,
+      "epochs": 28,
+      "noise": 0.03,
+      "val_macroF1": 0.7006,
+      "val_acc": 0.8431,
+      "best_epoch": 26,
+      "seconds": 30.16,
+      "temp": 1.2325,
+      "val_nll_before_after": [
+        0.45015,
+        0.43898
+      ],
+      "val_ece_before_after": [
+        0.03032,
+        0.0036
+      ],
+      "val_perClass": [
+        {
+          "label": "NOG",
+          "support": 26428,
+          "precision": 0.8408,
+          "recall": 0.748,
+          "f1": 0.7917
+        },
+        {
+          "label": "POINT_1F",
+          "support": 41944,
+          "precision": 0.8874,
+          "recall": 0.9103,
+          "f1": 0.8987
+        },
+        {
+          "label": "POINT_2F",
+          "support": 41193,
+          "precision": 0.9112,
+          "recall": 0.8854,
+          "f1": 0.8981
+        },
+        {
+          "label": "GRAB_FIST",
+          "support": 1741,
+          "precision": 0.4244,
+          "recall": 0.4647,
+          "f1": 0.4437
+        },
+        {
+          "label": "THROW_SWIPE",
+          "support": 3959,
+          "precision": 0.4472,
+          "recall": 0.6557,
+          "f1": 0.5317
+        },
+        {
+          "label": "OPEN_ZOOM",
+          "support": 4755,
+          "precision": 0.5846,
+          "recall": 0.706,
+          "f1": 0.6396
+        }
+      ]
+    },
+    {
+      "name": "mlp_96_48_l2_1e3",
+      "hidden": [
+        96,
+        48
+      ],
+      "l2": 0.001,
+      "lr": 0.0025,
+      "epochs": 28,
+      "noise": 0.03,
+      "val_macroF1": 0.7004,
+      "val_acc": 0.8426,
+      "best_epoch": 28,
+      "seconds": 25.2,
+      "temp": 1.115,
+      "val_nll_before_after": [
+        0.43737,
+        0.43443
+      ],
+      "val_ece_before_after": [
+        0.0175,
+        0.00761
+      ],
+      "val_perClass": [
+        {
+          "label": "NOG",
+          "support": 26428,
+          "precision": 0.8447,
+          "recall": 0.7428,
+          "f1": 0.7905
+        },
+        {
+          "label": "POINT_1F",
+          "support": 41944,
+          "precision": 0.8885,
+          "recall": 0.9105,
+          "f1": 0.8994
+        },
+        {
+          "label": "POINT_2F",
+          "support": 41193,
+          "precision": 0.9102,
+          "recall": 0.8855,
+          "f1": 0.8977
+        },
+        {
+          "label": "GRAB_FIST",
+          "support": 1741,
+          "precision": 0.4524,
+          "recall": 0.4446,
+          "f1": 0.4484
+        },
+        {
+          "label": "THROW_SWIPE",
+          "support": 3959,
+          "precision": 0.4416,
+          "recall": 0.6709,
+          "f1": 0.5326
+        },
+        {
+          "label": "OPEN_ZOOM",
+          "support": 4755,
+          "precision": 0.5681,
+          "recall": 0.7165,
+          "f1": 0.6337
+        }
+      ]
+    }
+  ],
+  "selected_mlp": "mlp_96_48_n02",
+  "exported_artifacts": {
+    "lr": {
+      "path": "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/results/ux3_model_lr.json",
+      "bytes": 6791,
+      "sha256": "45ebb7206d5df770bf542ff17079027dc3e22446625b2eb29b7bef1179c3dda2"
+    },
+    "mlp": {
+      "path": "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/results/ux3_model_mlp.json",
+      "bytes": 123141,
+      "sha256": "518c0ec4df9f34009125abf01225e1d3d8d5f33aba797a159accce4b7aa41d3f"
+    }
+  },
+  "test_locked": {
+    "lr": {
+      "acc": 0.7869,
+      "macroF1": 0.5765,
+      "perClass": [
+        {
+          "label": "NOG",
+          "support": 22795,
+          "precision": 0.6917,
+          "recall": 0.7205,
+          "f1": 0.7058
+        },
+        {
+          "label": "POINT_1F",
+          "support": 39636,
+          "precision": 0.8939,
+          "recall": 0.8767,
+          "f1": 0.8852
+        },
+        {
+          "label": "POINT_2F",
+          "support": 38501,
+          "precision": 0.8853,
+          "recall": 0.8311,
+          "f1": 0.8574
+        },
+        {
+          "label": "GRAB_FIST",
+          "support": 1180,
+          "precision": 0.1903,
+          "recall": 0.2958,
+          "f1": 0.2316
+        },
+        {
+          "label": "THROW_SWIPE",
+          "support": 4155,
+          "precision": 0.2796,
+          "recall": 0.3425,
+          "f1": 0.3078
+        },
+        {
+          "label": "OPEN_ZOOM",
+          "support": 4614,
+          "precision": 0.4449,
+          "recall": 0.5013,
+          "f1": 0.4714
+        }
+      ],
+      "confusion": [
+        [
+          16423,
+          1002,
+          1112,
+          469,
+          2416,
+          1373
+        ],
+        [
+          2466,
+          34750,
+          2011,
+          149,
+          157,
+          103
+        ],
+        [
+          2142,
+          2894,
+          31998,
+          186,
+          574,
+          707
+        ],
+        [
+          167,
+          28,
+          30,
+          349,
+          271,
+          335
+        ],
+        [
+          1580,
+          105,
+          451,
+          228,
+          1423,
+          368
+        ],
+        [
+          964,
+          95,
+          540,
+          453,
+          249,
+          2313
+        ]
+      ],
+      "nll_uncal": 0.64456,
+      "nll_cal": 0.64816,
+      "ece_uncal": 0.01252,
+      "ece_cal": 0.0162
+    },
+    "mlp": {
+      "acc": 0.8045,
+      "macroF1": 0.6156,
+      "perClass": [
+        {
+          "label": "NOG",
+          "support": 22795,
+          "precision": 0.7454,
+          "recall": 0.7359,
+          "f1": 0.7406
+        },
+        {
+          "label": "POINT_1F",
+          "support": 39636,
+          "precision": 0.9034,
+          "recall": 0.8766,
+          "f1": 0.8898
+        },
+        {
+          "label": "POINT_2F",
+          "support": 38501,
+          "precision": 0.8859,
+          "recall": 0.8449,
+          "f1": 0.8649
+        },
+        {
+          "label": "GRAB_FIST",
+          "support": 1180,
+          "precision": 0.2449,
+          "recall": 0.2949,
+          "f1": 0.2676
+        },
+        {
+          "label": "THROW_SWIPE",
+          "support": 4155,
+          "precision": 0.3465,
+          "recall": 0.4715,
+          "f1": 0.3995
+        },
+        {
+          "label": "OPEN_ZOOM",
+          "support": 4614,
+          "precision": 0.4657,
+          "recall": 0.6186,
+          "f1": 0.5314
+        }
+      ],
+      "confusion": [
+        [
+          16774,
+          840,
+          1120,
+          302,
+          2443,
+          1316
+        ],
+        [
+          2266,
+          34745,
+          2275,
+          69,
+          157,
+          124
+        ],
+        [
+          1590,
+          2670,
+          32528,
+          110,
+          484,
+          1119
+        ],
+        [
+          113,
+          27,
+          61,
+          348,
+          299,
+          332
+        ],
+        [
+          1077,
+          104,
+          448,
+          184,
+          1959,
+          383
+        ],
+        [
+          682,
+          74,
+          285,
+          408,
+          311,
+          2854
+        ]
+      ],
+      "nll_uncal": 0.5697,
+      "nll_cal": 0.54665,
+      "ece_uncal": 0.04886,
+      "ece_cal": 0.01671
+    }
+  }
+}

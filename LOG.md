@@ -7,6 +7,18 @@
 
 ---
 
+## R20-PLAN-20261118-01 — Owner R20-01 v0.2.0 Plan Publication (WIB 2026-11-18; `OBSERVED_REMOTE` / `NOT_TESTED`)
+
+- **Task/scope:** Publish Owner-requested full R20 GPU teacher–student training / CPU-only low-light / anti-distraction execution plan as a **not-yet-started R&D plan**, not a trained model or gameplay implementation. Research baseline `research-can@5a3eb290464fa74ae4b1ee709e241980bd1c79c9` (R19 G4); read-only product baseline `main@8969502df4e106d8428055c2ca6f80f4f59250ee` (R19 NUI Lab).
+- **Files added/changed/removed:** **Added 1:** [`docs/plan-rev/NUI_R20-01_v0.2.0_GPU_Teacher_Student_CPU_Only_LowLight_Execution_Plan.md`](docs/plan-rev/NUI_R20-01_v0.2.0_GPU_Teacher_Student_CPU_Only_LowLight_Execution_Plan.md) (**58,083 bytes**, SHA-256 `af57896202a0e02e8e6cdade8886d17c7e03d531285b9e924989da1e665b818e`; Git blob `6687a22fbc60691ab430da120fd95829c4948d4d`). **Changed 2:** root `README.md` and root `LOG.md` in the same commit. **Removed 0.** No `r20/` directory created because R20 execution has not begun.
+- **Evidence/checks:** `PASS (SOURCE / DOC_BYTES)`: local 58,083-byte Markdown source hash and remote Git blob match exactly (6 verified Git blobs recombined); root AGENTS publishing/naming discipline and HEAD inspected; Markdown plan has 19 sections (0–18) and is correctly **unmarked** (not `[WIP]`). `NOT_TESTED`: GPU server training, new data labeling, teacher/student distillation, model accuracy, CPU-only browser runtime, <25 MB measured transfer, NUI Lab staging, and Owner physical low-light webcam.
+- **Risks and limits:** R19 model report's historical browser transfer/CPU metrics are only prior Agy evidence, not R20 measurements. Plan contains **prototype targets**, not proven performance. R20 dataset candidates may not be used for training without proper labels, license/provenance and split controls. Source `main` / gameplay / deployment not touched.
+- **Included/excluded:** Published only vetted plan text (**58,083 bytes**) and branch index/log changes. Excluded raw datasets, personal webcam footage, generated cache/checkpoints, additional binaries and any sensitive source (**0 bytes committed for these**). No new artifacts outside plan/README/LOG.
+- **Next step:** Agy reads R20 plan and root governance; only after starting authorized execution rename same plan `[WIP]`, build isolated `r20/` evidenced experiments with GPU server, then test CPU-only browser + physical webcam. R20 model must not be claimed ready until independently benchmarked.
+- **Owner permission:** This chat explicitly authorizes adding the plan to `research-can` only; no authorization to push `main` or change gameplay. Commit/push takes place atomically; see branch history for final publish SHA.
+
+---
+
 ## R19-EXEC-20261118-03 — R19 Batch 3: Out-of-Domain `HANDS RGB-D` (`Subject1..5`) Matched-BBox Evaluation, Curation Scripts Archive & VM Hygiene (`KATA-TOOL` / `OFFLINE_DATASET`)
 
 - **Trigger:** Completion of `HANDS RGB-D` (`10.17632/ndrczc35bt.2`, `CC BY 4.0`, `EVAL_ONLY`) HTTP Range streaming (`Subject1..Subject5`) and final Stage P1–P4 publication hygiene under [`[WIP] NUI_R19-01 v0.1.0`](docs/plan-rev/%5BWIP%5D%20NUI_R19-01_v0.1.0_Pistol_Press_Dataset_Training_Runtime_Research.md).

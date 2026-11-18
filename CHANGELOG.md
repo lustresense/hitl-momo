@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.25.0-alpha | 2026-11-18 | Fitur | `(0.25.0-alpha)` |
 | 0.24.1-alpha | 2026-11-17 | Dokumen | `(0.24.1-alpha)` |
 | 0.24.0-alpha | 2026-11-17 | Fitur | `(0.24.0-alpha)` |
 | 0.23.1-alpha | 2026-11-17 | Dokumen | `(0.23.1-alpha)` |
@@ -122,6 +123,21 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.25.0-alpha — 2026-11-18 — Fitur
+
+**Sumber:** instruksi CAN 2026-11-18, integrasi R18 UX3 ke route existing NUI Lab (PR #6)
+
+**Perubahan:**
+- Menambahkan mode eksperimen R18 UX3 dengan bobot MLP terlatih IPN HandS pada `/nui-lab/gesture` dan `/nui-lab/canvas`, memakai kamera dan hand lock existing; tidak ada route R18 baru.
+- Mengintegrasikan kandidat UX3 feature tracker, klasifikasi, dan action guard ke `LabAnalyzer` serta antarmuka pengujian. Tidak mengubah gameplay siswa atau model MediaPipe.
+- Memperbaiki union mode recorder agar mendukung `r18`, yang sebelumnya menyebabkan TypeScript typecheck gagal.
+
+**Commit:** commit berjudul `(0.25.0-alpha)`
+
+**Bukti:** KATA-TOOL Ujang: setelah perbaikan recorder lokal typecheck PASS, build PASS, lint PASS dengan satu warning, tes NUI 172 PASS dan tes model sintetis 1 PASS. Full Vitest belum selesai (timeout exit 124); pengujian inference browser, webcam fisik, dampak canvas, dan deployment masih NOT_TESTED. Perbaikan recorder kini dicatat ke branch PR; tidak ada verifikasi ulang runner oleh editor GitHub.
 
 ---
 

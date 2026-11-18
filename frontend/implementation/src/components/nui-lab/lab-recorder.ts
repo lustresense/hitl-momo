@@ -43,7 +43,7 @@ export interface RecordFile {
   schema: typeof RECORD_SCHEMA;
   consent: true;
   /** Rules in force while recording, so the readings can be reproduced. */
-  mode: "baseline" | "experiment";
+  mode: "baseline" | "experiment" | "r18";
   contains: "numeric landmarks and rule readings only; no video, no images, no identity";
   frameCount: number;
   truncated: boolean;
@@ -58,7 +58,7 @@ export class LandmarkRecorder {
   private startMs = 0;
   private active = false;
   private truncated = false;
-  private mode: "baseline" | "experiment" = "baseline";
+  private mode: "baseline" | "experiment" | "r18" = "baseline";
 
   get isRecording(): boolean {
     return this.active;

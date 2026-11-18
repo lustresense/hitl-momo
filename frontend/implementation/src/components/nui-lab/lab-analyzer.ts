@@ -17,6 +17,8 @@ import { DRAWING_ONE_EURO, PointSmoother } from "@/src/input/smoothing";
 import { StrokeStore, type Landmark, type RawStroke } from "@/src/input/types";
 import { LAB_STILL_SPAN, WaveLabSampler, isStill, jitterStdDevPx, percentile } from "./lab-metrics";
 import { classifyHandRoles, type HandRole } from "./lab-roles";
+import { Ux3RuntimePipeline } from "./r18/ux3_integrated";
+import type { Ux3ExportedModel } from "./r18/ux3_model";
 
 const INFER_WINDOW_MS = 2000;
 const FPS_WINDOW_MS = 1000;
@@ -99,7 +101,8 @@ export interface LabSnapshot {
   fingerStates: FingerState[] | null;
   inkAllowed: boolean;
   rejectionReason: string;
-  classifierMode: "baseline" | "experiment";
+  classifierMode: "baseline" | "experiment" | "r18";
+  r18?: { label: string; conf: number | null; pinch: boolean; erase: boolean; swipe: string | null; pointing: boolean; direction: string; ms: number } | null;
   /** NUI-R17-01 developer diagnostics. Numbers only: no camera frames, no identity. */
   diag: LabDiagnostics;
 }
@@ -165,6 +168,12 @@ export class LabAnalyzer {
   private inkPermitted = false;
   private lastAcquisition = 0;
   private experimental = false;
+  private r18Active = false;
+  private r18Model: Ux3ExportedModel | null = null;
+  private r18Pipeline: Ux3RuntimePipeline | null = null;
+  private r18Aspect = 0;
+  private r18Last: ReturnType<Ux3RuntimePipeline["step"]> | null = null;
+  private r18Ms = 0;
   private armed = { draw: false, erase: false, commands: false };
   private aspect = DEFAULT_LAB_ASPECT;
   private readonly swipe = new SwipeCommander();
@@ -179,6 +188,10 @@ export class LabAnalyzer {
   /** A candidate may control the cursor before it can execute its first gesture. */
   private canExecute(raw: HandPose, fingerCount: number): boolean {
     if (this.options.fullFrameLock !== true) return true;
+    if (this.r18Active) {
+      if (raw === "pinch" && !this.r18Last?.pinchActive) return false;
+      if (fingerCount === 5 && (raw === "open-palm" || raw === "split-palm") && !this.r18Last?.eraseActive) return false;
+    }
     if (raw === "pinch") return this.armed.draw;
     if (fingerCount === 5 && (raw === "open-palm" || raw === "split-palm")) return this.armed.erase;
     if (raw === "one-finger" || raw === "two-fingers") return this.armed.commands;
@@ -196,6 +209,25 @@ export class LabAnalyzer {
     this.fingerStatesNow = null;
     this.inkPermitted = false;
     this.rejectNow = "Mode berubah, tunggu gestur baru";
+    this.r18Pipeline?.reset();
+    this.r18Last = null;
+  }
+
+  /** R18 candidate is limited to NUI Lab, never game controls. */
+  enableR18(model: Ux3ExportedModel, nowMs: number): void {
+    this.r18Pipeline = new Ux3RuntimePipeline(model, this.aspect);
+    this.r18Model = model;
+    this.r18Aspect = this.aspect;
+    this.r18Active = true;
+    this.setExperimentalMode(true, nowMs);
+  }
+
+  disableR18(nowMs: number): void {
+    this.r18Active = false;
+    this.r18Pipeline?.reset();
+    this.r18Last = null;
+    this.r18Ms = 0;
+    this.setExperimentalMode(this.experimental, nowMs);
   }
 
   private readonly ink = new HandStrokePipeline({
@@ -243,6 +275,9 @@ export class LabAnalyzer {
       this.fingerStatesNow = null;
       this.inkPermitted = false;
       this.rejectNow = strict ? this.fullLock.reason : "Tangan tidak ditemukan";
+      this.r18Pipeline?.reset();
+      this.r18Last = null;
+      this.r18Ms = 0;
       this.ink.feed(undefined, nowMs);
       this.gestureCommands.feed("none", nowMs);
       this.feedWave(null, nowMs);
@@ -255,6 +290,8 @@ export class LabAnalyzer {
       this.ink.reset(nowMs);
       this.gestureCommands.reset();
       this.swipe.cancel("new-acquisition");
+      this.r18Pipeline?.reset();
+      this.r18Last = null;
       this.armed = { draw: false, erase: false, commands: false };
       this.rawTips = [];
       this.inkTips = [];
@@ -267,6 +304,21 @@ export class LabAnalyzer {
     const diag = evaluateGesture(lm, this.experimental ? this.aspect : 1);
     this.pinchRatioNow = diag.state === "tracking" ? diag.pinchRatio : null;
     this.fingerStatesNow = fingerDiagnosticStates(lm);
+    if (this.r18Active && this.r18Model) {
+      if (!this.r18Pipeline || Math.abs(this.r18Aspect - this.aspect) > 0.01) {
+        this.r18Pipeline = new Ux3RuntimePipeline(this.r18Model, this.aspect);
+        this.r18Aspect = this.aspect;
+      }
+      const c = palmCenterNormalized(lm);
+      const w = lm[0]!;
+      const scale = Math.max(
+        Math.hypot((lm[9]!.x - w.x) * this.aspect, lm[9]!.y - w.y),
+        Math.hypot((lm[17]!.x - lm[5]!.x) * this.aspect, lm[17]!.y - lm[5]!.y),
+      );
+      const t = performance.now();
+      this.r18Last = this.r18Pipeline.step(lm, nowMs, this.pose, c.x, c.y, scale);
+      this.r18Ms = performance.now() - t;
+    }
     if (this.pose !== "pinch") this.armed.draw = true;
     if (!(this.fingerCountNow === 5 && (this.pose === "open-palm" || this.pose === "split-palm"))) this.armed.erase = true;
     if (this.pose !== "one-finger" && this.pose !== "two-fingers") this.armed.commands = true;
@@ -287,7 +339,9 @@ export class LabAnalyzer {
       if (this.pose === "pinch" && this.store.hasActiveStroke()) this.rejectNow = "Tinta aktif";
       const allowed = this.canExecute(inkFrame.pose, this.fingerCountNow);
       let command: "undo" | "redo" | null = null;
-      if (swipeMode) {
+      if (this.r18Active) {
+        command = allowed && (!strict || this.fullLock.status === "locked") ? this.r18Last?.swipeAction ?? null : null;
+      } else if (swipeMode) {
         const c = palmCenterNormalized(lm);
         const m = lm[9]!;
         const w = lm[0]!;
@@ -380,6 +434,9 @@ export class LabAnalyzer {
     this.inkTips = [];
     this.sampler.reset();
     this.waveStatus = "idle";
+    this.r18Pipeline?.reset();
+    this.r18Last = null;
+    this.r18Ms = 0;
   }
 
   /** Manual recovery remains an escape hatch. Normal reacquisition is automatic after empty frames. */
@@ -402,6 +459,9 @@ export class LabAnalyzer {
     this.rawTips = [];
     this.inkTips = [];
     this.inkSmoother.reset();
+    this.r18Pipeline?.reset();
+    this.r18Last = null;
+    this.r18Ms = 0;
   }
 
   /** Strokes of the scratch ink canvas (canvas px). */
@@ -484,7 +544,17 @@ export class LabAnalyzer {
       fingerStates: this.fingerStatesNow ? [...this.fingerStatesNow] : null,
       inkAllowed: this.inkPermitted && this.options.enableInk !== false,
       rejectionReason: this.rejectNow,
-      classifierMode: this.experimental ? "experiment" : "baseline",
+      classifierMode: this.r18Active ? "r18" : this.experimental ? "experiment" : "baseline",
+      r18: this.r18Active && this.r18Last ? {
+        label: this.r18Last.topLabel,
+        conf: this.r18Last.probs ? Math.max(...this.r18Last.probs) : null,
+        pinch: this.r18Last.pinchActive,
+        erase: this.r18Last.eraseActive,
+        swipe: this.r18Last.swipeAction,
+        pointing: this.r18Last.steer.pointingOk,
+        direction: this.r18Last.steer.input.left ? "Kiri" : this.r18Last.steer.input.right ? "Kanan" : this.r18Last.steer.input.jump ? "Lompat" : "Netral",
+        ms: this.r18Ms,
+      } : null,
       diag: this.buildDiagnostics(),
     };
   }

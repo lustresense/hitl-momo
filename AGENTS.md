@@ -117,6 +117,21 @@ Use this compact, concrete report in the terminal session and link it from root 
 
 Send an interim report whenever a work session ends or a blocker changes. No background promises. Reports must distinguish `KATA-TOOL` (agent conclusion) from observed source/runtime evidence. If a candidate looks promising but has not passed physical-camera tests, say so explicitly.
 
+
+## 7A. Mandatory LOG.md and README synchronization on EVERY research push
+
+**LOG.md is the sole active R&D activity/evidence ledger. Do not create NOW.md, VERSION, another CHANGELOG, or per-revision logs.** It is not `main`'s product `VERSION`/`CHANGELOG.md` and does not approve PA decisions. R&D identifies stages by R18/R19, experiment/candidate IDs, date and immutable Git SHA; there is no artificial SemVer bump for every R&D commit.
+
+**Non-negotiable commit/push gate, including docs-only fixes and failed experiments:**
+1. Read `LOG.md` and the current root `README.md` before the task. Check the latest entry against the real branch HEAD, artifact state and test evidence. If `LOG.md` is absent or stale, fix it first.
+2. Add **one newest-first append-only record for each publish batch** to `LOG.md`, preserving earlier entries verbatim. Do not silently rewrite previously observed measurements; add a correction entry naming what changed and why.
+3. Each record MUST include local time (WIB), record ID, task/revision, source baseline and candidate IDs, files added/changed/removed, exact checks with `PASS/FAIL/BLOCKED/NOT_TESTED` evidence type, unresolved failures, public links, retained/excluded artifacts and sizes if applicable, and next action/Owner approval. Clearly tag claims as `OBSERVED_REMOTE`, `KATA-TOOL`, or `NOT_TESTED`; do not confuse the agent's own measurements with independent replication.
+4. Refresh the short **Current status** block in root README in the SAME commit, so the branch front page points to the latest LOG entry, active WIP plan, candidate, pending camera gate and next action. Detailed chronology and metrics go to LOG and result reports, **not a second NOW.md**.
+5. In the staging review ensure `git diff --cached --name-only` includes BOTH `LOG.md` and `README.md`; if either is missing, **do not push** until both are updated. Run basic link/filename checks. Commit atomically, then verify remote branch SHA and report that exact SHA to the Owner after push. Do not put the SHA of a not-yet-created commit in that same commit's log entry (self-reference is impossible); record the previous baseline SHA and state "published in this commit, see branch history". The next entry may point to the previous published SHA.
+6. If forced to abandon a task with no commit/push, report the blocker in chat and save evidence locally if authorized; don't claim remote LOG or README changed.
+
+**Important:** An AGENTS.md instruction is behavioral, not a server-side GitHub enforcement gate. Additional GitHub rules/CI would be needed to reject pushes from noncompliant agents automatically; do not falsely claim that this file enforces server permissions.
+
 ## 8. Promotion to the product branch
 
 `research-can` is intentionally unrelated to `main`: **never `git merge research-can` or use `--allow-unrelated-histories`**. Owner/ChatGPT first reviews candidate, licenses, tests, and intended impact. With **separate explicit CAN authorization**, promote **only selected vetted paths** into `main:contexts/can/research/` via a new scoped product-branch PR/commit; product code changes are a different review. Do not copy `AGENTS.md`, this R&D root README, unrelated experiments, raw datasets, or sensitive context into `main` automatically. Approved PA decisions require the `DECISIONS.md` approval process, not "successful" R&D.

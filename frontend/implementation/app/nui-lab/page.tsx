@@ -25,12 +25,6 @@ export default function NuiLabLanding() {
             <span>Uji jempol, pinch, kepal, jumlah jari, telapak, hand lock, serta metrik kamera.</span>
             <span className="nui-lab__landing-open">Buka Gesture Lab</span>
           </a>
-          <a className="nui-lab__landing-card" href="/nui-lab/r18">
-            <span className="nui-lab__landing-count">R18 / LIVE PILOT</span>
-            <strong>R18 UX3 · Model terlatih</strong>
-            <span>Bandingkan heuristik R17 dan MLP UX3 langsung lewat webcam. Mode observasi, bukan aksi gameplay.</span>
-            <span className="nui-lab__landing-open">Buka R18 Pilot</span>
-          </a>
           <a className="nui-lab__landing-card" href="/nui-lab/canvas">
             <span className="nui-lab__landing-count">02 / GAMBAR</span>
             <strong>Canvas Lab</strong>

@@ -23,6 +23,7 @@ import { LabAnalyzer, type LabDiagnostics, type LabSnapshot } from "./lab-analyz
 import { delegateReasonText, faceAbsentText, modelReadoutText, poseLabel, switchStateText } from "./lab-metrics";
 import { LandmarkRecorder, TRUTH_LABELS, type TruthLabel } from "./lab-recorder";
 import { countHandRoles } from "./lab-roles";
+import type { Ux3ExportedModel } from "./r18/ux3_model";
 import "./NuiLabPage.css";
 
 const WASM_ROOT = "/mediapipe/wasm";
@@ -128,6 +129,10 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
   const isGesture = variant === "gesture";
   const [pointerTool, setPointerTool] = useState<"pen" | "eraser">("pen");
   const [experimentalMode, setExperimentalMode] = useState(true);
+  const [r18Active, setR18Active] = useState(false);
+  const [r18Loading, setR18Loading] = useState(false);
+  const [r18Error, setR18Error] = useState("");
+  const r18ModelCache = useRef<Ux3ExportedModel | null>(null);
   const pointerDown = useRef(false);
   // RD-02: numbers-only recorder, opt-in, local. It stays empty and idle until the tester consents and presses start.
   const recorderRef = useRef(new LandmarkRecorder());
@@ -452,10 +457,45 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
 
   const toggleExperimentMode = () => {
     const next = !experimentalMode;
+    analyzerRef.current.disableR18(performance.now());
     analyzerRef.current.setExperimentalMode(next, performance.now());
+    setR18Active(false);
     setExperimentalMode(next);
-    setReadout(prev => ({...prev, snapshot: analyzerRef.current.snapshot(performance.now())}));
+    setR18Error("");
+    setReadout(prev => ({ ...prev, snapshot: analyzerRef.current.snapshot(performance.now()) }));
     paintInk();
+  };
+
+  const toggleR18Mode = async () => {
+    if (r18Active) {
+      analyzerRef.current.disableR18(performance.now());
+      setR18Active(false);
+      setReadout(prev => ({ ...prev, snapshot: analyzerRef.current.snapshot(performance.now()) }));
+      paintInk();
+      return;
+    }
+    if (r18Loading) return;
+    setR18Loading(true);
+    setR18Error("");
+    try {
+      let model = r18ModelCache.current;
+      if (!model) {
+        const response = await fetch("/models/r18-ux3-model.json");
+        if (!response.ok) throw new Error("Bobot MLP UX3 gagal dimuat");
+        model = await response.json() as Ux3ExportedModel;
+      }
+      if (!mounted.current) return;
+      analyzerRef.current.enableR18(model, performance.now());
+      r18ModelCache.current = model;
+      setExperimentalMode(true);
+      setR18Active(true);
+      setReadout(prev => ({ ...prev, snapshot: analyzerRef.current.snapshot(performance.now()) }));
+      paintInk();
+    } catch (err) {
+      if (mounted.current) setR18Error(err instanceof Error ? err.message : "Gagal mengaktifkan UX3");
+    } finally {
+      if (mounted.current) setR18Loading(false);
+    }
   };
   const chooseLowLight = (mode: LowLightMode) => {
     setLowLightEnhancement(mode);
@@ -619,11 +659,28 @@ export function NuiLabPage({ variant = "diagnostics" }: { variant?: "diagnostics
           {variant !== "diagnostics" && (
             <section className="nui-lab__debug" aria-label="Diagnostik gestur" data-testid="lab-gesture-diagnostics">
               <h3>Kenapa gestur terbaca atau ditolak?</h3>
-              <p className="nui-lab__muted">Angka berasal dari landmark dan aturan, bukan confidence AI. Eksperimen hanya memengaruhi NUI Lab.</p>
+              <p className="nui-lab__muted">Baseline dan R17 memakai heuristik. R18 menjalankan MLP terlatih untuk menyaring aksi dalam NUI Lab. Probabilitas MLP bukan confidence MediaPipe.</p>
               <button type="button" className="nui-lab__button" onClick={toggleExperimentMode}
                 aria-pressed={experimentalMode} data-testid="lab-experiment-toggle">
-                {experimentalMode ? "Aturan eksperimen ON · bandingkan baseline" : "Aturan baseline ON · coba eksperimen"}
+                {r18Active ? "Beralih ke baseline" : experimentalMode ? "R17 aktif · bandingkan baseline" : "Baseline aktif · coba R17"}
               </button>
+              <button type="button" className="nui-lab__button" onClick={() => { void toggleR18Mode(); }}
+                disabled={r18Loading} aria-pressed={r18Active} data-testid="lab-r18-toggle">
+                {r18Loading ? "Memuat UX3..." : r18Active ? "R18 UX3 aktif · kembali R17" : "Coba R18 UX3 (model terlatih)"}
+              </button>
+              {r18Error && <p role="alert">{r18Error}</p>}
+              {r18Active && (
+                <dl className="nui-lab__numbers" data-testid="lab-r18-metrics">
+                  <dt>Prediksi MLP</dt><dd>{snap?.r18?.label ?? "Menunggu tangan terkunci"}</dd>
+                  <dt>Probabilitas MLP</dt><dd>{snap?.r18?.conf == null ? "—" : (snap.r18.conf * 100).toFixed(1) + "%"}</dd>
+                  <dt>Pinch diizinkan</dt><dd>{snap?.r18?.pinch ? "Ya" : "Tidak"}</dd>
+                  <dt>Hapus diizinkan</dt><dd>{snap?.r18?.erase ? "Ya" : "Tidak"}</dd>
+                  <dt>Swipe aman</dt><dd>{snap?.r18?.swipe ?? "—"}</dd>
+                  <dt>Pointing valid</dt><dd>{snap?.r18?.pointing ? "Ya" : "Tidak"}</dd>
+                  <dt>Arah Thinman (diagnostik)</dt><dd>{snap?.r18?.direction ?? "Netral"}</dd>
+                  <dt>Waktu UX3</dt><dd>{snap?.r18 ? snap.r18.ms.toFixed(2) + " ms" : "—"}</dd>
+                </dl>
+              )}
               <dl className="nui-lab__numbers">
                 <Stat label="Sesi tangan (bukan identitas orang)" value={snap ? String(snap.acquisitionId) : "—"} />
                 <Stat label="Penyebab hand lock" value={snap?.lockReason ?? "—"} />

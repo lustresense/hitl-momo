@@ -1,0 +1,70 @@
+# research-can: publish curated small R&D evidence, never full sandbox.
+# Credential & local configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.token
+*.secret
+credentials*
+.netrc
+.ssh/
+secrets/
+**/secrets/
+*.sqlite
+*.sqlite3
+*.db
+# Raw datasets, personal captures, model training bulk
+**/raw/
+**/raw-data/
+**/datasets/
+**/recordings/
+**/captures/
+**/checkpoints/
+**/wandb/
+**/tensorboard/
+**/runs/
+*.mp4
+*.mov
+*.webm
+*.avi
+*.mkv
+*.zip
+*.tar
+*.tar.gz
+*.7z
+# Model binaries default to exclude; vetted small ones require Owner review
+*.pt
+*.pth
+*.ckpt
+*.keras
+*.h5
+*.onnx
+*.tflite
+*.task
+# Generated caches/build environments
+node_modules/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.next/
+dist/
+build/
+coverage/
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+# Private conversation exports must never be replicated in research branch
+.context-notforagent/
+**/.context-notforagent/

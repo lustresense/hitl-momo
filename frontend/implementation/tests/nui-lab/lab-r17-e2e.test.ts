@@ -103,8 +103,10 @@ describe("high-five (five fingers, thumb out) erases locally and the store reall
     parkPalm(r, "four", b.midX, b.maxY + 150);
     sweepPalm(r, "four", b.midX, b.maxY + 150, b.midX, b.minY - 150);
     const d = diag(r);
+    const s = r.lab.snapshot(r.now());
     expect(strokePoints(r.lab)).toBe(before);
     expect(d.pipeline?.erasing).toBeFalsy();
+    expect(s.r19.guards.eraseActive).toBe(false);
     expect(d.rawFingerCount).toBe(4);
     expect(d.legacyFingerCount).toBe(5); // the legacy rule would have said five: the false Hapus this removes
     expect(d.handStatus).toBe("LANDMARK ADA / 5 JARI BELUM TERBACA");
@@ -118,16 +120,6 @@ describe("high-five (five fingers, thumb out) erases locally and the store reall
     parkPalm(r, "fist", b.midX, b.maxY + 150);
     sweepPalm(r, "fist", b.midX, b.maxY + 150, b.midX, b.minY - 150);
     expect(strokePoints(r.lab)).toBe(before);
-  });
-
-  it("legacy rule on the same frames: the four-finger hand DOES erase (the false Hapus this ticket removes)", () => {
-    const r = rig({ experimental: false });
-    drawStroke(r, 0.62, 0.38, 0.5);
-    const before = strokePoints(r.lab);
-    const b = strokeBox(r.lab);
-    parkPalm(r, "four", b.midX, b.maxY + 150);
-    sweepPalm(r, "four", b.midX, b.maxY + 150, b.midX, b.minY - 150);
-    expect(strokePoints(r.lab)).not.toBe(before);
   });
 
   it("a palm shown the moment a hand is first acquired does nothing; once released and shown again it erases", () => {
@@ -154,29 +146,29 @@ describe("high-five (five fingers, thumb out) erases locally and the store reall
 });
 
 describe("Undo / Redo by swipe in the lab: motion, the store's own answer, no ghost actions", () => {
-  /** Park a command pose at (x, y), hold it still, then swipe by `dx` raw units over `frames` frames. */
-  const swipe = (r: Rig, c: RealisticClass, x: number, y: number, dx: number, frames = 12) => {
+  /** Park a command pose at (x, y), hold it still to arm SafeSwipeGuard (>= 220 ms), then swipe >= 2 palm-scales. */
+  const swipe = (r: Rig, c: RealisticClass, x: number, y: number, dx: number, frames = 8) => {
     r.glide(NEUTRAL, x, y);
     r.hold(NEUTRAL, 3);
     r.hold(cls(c), 8);
     for (let i = 1; i <= frames; i++) r.put(cls(c), x + (dx * i) / frames, y);
   };
-  // Raw x increasing = the hand moves to the user's LEFT on the mirrored preview.
-  const LEFT = 0.2;
-  const RIGHT = -0.2;
+  // Raw x increasing = hand moves to user's LEFT on mirrored preview (palmCenterNormalized.x decreases -> dx < 0 = undo).
+  const UNDO_LEFT_DX = 0.42;
+  const REDO_RIGHT_DX = -0.42;
 
   it("one-finger swipe left undoes the last stroke, two-finger swipe right redoes it, and the HUD shows the store's answer", () => {
     const r = rig();
     drawStroke(r, 0.62, 0.38, 0.5);
     expect(diag(r).strokes.completed).toBe(1);
 
-    swipe(r, "one", 0.4, 0.6, LEFT);
+    swipe(r, "one", 0.3, 0.6, UNDO_LEFT_DX);
     let d = diag(r);
     expect(d.lastCommand).toMatchObject({ kind: "undo", changed: true, via: "swipe" });
     expect(d.strokes.completed).toBe(0);
 
-    r.hold(NEUTRAL, 30); // wait out the cooldown in a neutral hand
-    swipe(r, "two_up", 0.6, 0.6, RIGHT);
+    r.hold(NEUTRAL, 32); // wait out the 900 ms cooldown in a neutral hand
+    swipe(r, "two_up", 0.7, 0.6, REDO_RIGHT_DX);
     d = diag(r);
     expect(d.lastCommand).toMatchObject({ kind: "redo", changed: true, via: "swipe" });
     expect(d.strokes.completed).toBe(1);
@@ -185,7 +177,7 @@ describe("Undo / Redo by swipe in the lab: motion, the store's own answer, no gh
 
   it("Undo with nothing to undo is reported as a no-op (changed=false), not as a success", () => {
     const r = rig();
-    swipe(r, "one", 0.4, 0.6, LEFT);
+    swipe(r, "one", 0.3, 0.6, UNDO_LEFT_DX);
     expect(diag(r).lastCommand).toMatchObject({ kind: "undo", changed: false });
   });
 
@@ -197,48 +189,48 @@ describe("Undo / Redo by swipe in the lab: motion, the store's own answer, no gh
     r.hold(NEUTRAL, 4);
     r.hold(cls("two_up"), 60);
     const d = diag(r);
+    expect(d.commandMode).toBe("swipe");
     expect(d.commandCount).toBe(0);
     expect(d.strokes.completed).toBe(1);
   });
 
-  it("baseline mode keeps the game rule: the same still hold fires Undo after 300 ms (pose-hold)", () => {
-    const r = rig({ experimental: false });
-    drawStroke(r, 0.62, 0.38, 0.5);
-    r.glide(NEUTRAL, 0.5, 0.6);
-    r.hold(NEUTRAL, 3);
-    r.hold(cls("one"), 20);
-    const d = diag(r);
-    expect(d.commandMode).toBe("pose-hold");
-    expect(d.lastCommand).toMatchObject({ kind: "undo", via: "pose-hold" });
+  it("fail-closed mode (unloaded R19 model) blocks swipe undo/redo and ink completely", () => {
+    const r = rig({ enableModel: false });
+    r.lab.beginPointerStroke({ x: 100, y: 100 });
+    r.lab.movePointerStroke({ x: 200, y: 100 });
+    r.lab.endPointerStroke();
+    expect(diag(r).strokes.completed).toBe(1);
+
+    swipe(r, "one", 0.3, 0.6, UNDO_LEFT_DX);
+    expect(diag(r).lastCommand).toBeNull();
+    expect(diag(r).commandCount).toBe(0);
+    expect(diag(r).strokes.completed).toBe(1);
   });
 
   it("a swipe never draws, erases or moves ink", () => {
     const r = rig();
     drawStroke(r, 0.62, 0.38, 0.3);
     const before = strokePoints(r.lab);
-    swipe(r, "two_up", 0.6, 0.75, RIGHT);
+    swipe(r, "two_up", 0.7, 0.75, REDO_RIGHT_DX);
     expect(strokePoints(r.lab)).toBe(before);
     expect(r.lab.strokes().active).toBeNull();
   });
 });
 
 describe("near pinch through the analyzer", () => {
-  const nearRun = (experimental: boolean) => {
-    const r = rig({ experimental });
+  it("a thumb hovering 0.5 span from the index tip draws nothing in R19 G4 Hybrid mode", () => {
+    const r = rig();
     r.hold(NEUTRAL, 3);
     r.glide(NEUTRAL, 0.4, 0.5);
     r.hold(NEUTRAL, 3);
     const near = skel(pinchSkeleton(0.5));
     for (let i = 0; i < 30; i++) r.put(near, 0.4 + i * 0.004, 0.5);
-    return r;
-  };
-  it("a thumb hovering 0.5 span from the index tip draws nothing in the experiment mode", () => {
-    const r = nearRun(true);
+    const s = r.lab.snapshot(r.now());
+    expect(s.classifierMode).toBe("r19-g4-hybrid");
+    expect(s.modelState).toBe("ready");
+    expect(s.r19.guards.pinchActive).toBe(false);
+    expect(s.drawingAction).toBeNull();
     expect(strokePoints(r.lab)).toBe(0);
     expect(r.lab.strokes().active).toBeNull();
-  });
-  it("the same frames in baseline mode draw (the reproduced false start)", () => {
-    const r = nearRun(false);
-    expect(strokePoints(r.lab) + (r.lab.strokes().active?.length ?? 0)).toBeGreaterThan(0);
   });
 });

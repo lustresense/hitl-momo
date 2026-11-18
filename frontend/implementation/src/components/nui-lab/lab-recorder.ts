@@ -1,20 +1,36 @@
 /**
- * NUI Lab only (R17 REV4, RD-02): an opt-in, local recorder of NUMBERS, never pictures.
+ * NUI Lab only (R17 REV4, RD-02, expanded for R19 G4 Hybrid): an opt-in, local recorder of NUMBERS, never pictures.
  *
  * What it keeps per frame: the 21 landmarks (x, y), a relative frame time, the hand-session counter, raw and stable pose,
- * finger and thumb readings, the pinch ratio, the tester's own label, the reject reason and the action that really ran.
+ * finger and thumb readings, the pinch ratio, R19 state/subclass/virtual-key event/probabilities, the tester's own label,
+ * the reject reason and the action that really ran.
  * What it never keeps or does: video, images, face data, names, wall-clock dates, a network call. The only way out is a
  * file the tester downloads by hand. Nothing starts without an explicit consent flag, and stop() drops the buffer on demand.
  * Data recorded without consent cannot exist: `start(false)` throws.
  */
 import type { Landmark } from "@/src/input/types";
-import type { LabSnapshot } from "./lab-analyzer";
+import type { LabSnapshot, R19VirtualKeyEvent } from "./lab-analyzer";
+import type { R19TelemetryState } from "./lab-metrics";
 
 export const RECORD_SCHEMA = "nui-landmark-record/1" as const;
 export const MAX_RECORD_FRAMES = 20_000;
 
 /** Ground truth the TESTER says is happening. UNLABELLED frames are kept but must not be used to train. */
-export const TRUTH_LABELS = ["THREE", "FIVE", "PINCH_NEAR", "PINCH_TOUCH", "NO_GESTURE", "TRANSITION", "NO_LANDMARK", "UNLABELLED"] as const;
+export const TRUTH_LABELS = [
+  "POINT_READY",
+  "POINT_PRESS",
+  "OTHER",
+  "POINT_RELEASE",
+  "DORSAL_RIGHT_LEFT",
+  "THREE",
+  "FIVE",
+  "PINCH_NEAR",
+  "PINCH_TOUCH",
+  "NO_GESTURE",
+  "TRANSITION",
+  "NO_LANDMARK",
+  "UNLABELLED",
+] as const;
 export type TruthLabel = (typeof TRUTH_LABELS)[number];
 export type FinalAction = "draw" | "erase" | "undo" | "redo" | "none";
 
@@ -34,6 +50,10 @@ export interface RecordFrame {
   fingerStates: string[] | null;
   thumb: { legacyRatio: number; lateral: number | null; ipAngleDeg: number | null; open: boolean } | null;
   pinchRatio: number | null;
+  r19State: R19TelemetryState;
+  r19SubClass: string;
+  vkeyEvent: R19VirtualKeyEvent;
+  r19Probs: { ready: number; press: number; other: number } | null;
   truth: TruthLabel;
   reject: string;
   action: FinalAction;
@@ -42,8 +62,8 @@ export interface RecordFrame {
 export interface RecordFile {
   schema: typeof RECORD_SCHEMA;
   consent: true;
-  /** Rules in force while recording, so the readings can be reproduced. */
-  mode: "baseline" | "experiment" | "r18";
+  /** Classifier engine in force while recording, so the readings can be reproduced. */
+  mode: "r19-g4-hybrid";
   contains: "numeric landmarks and rule readings only; no video, no images, no identity";
   frameCount: number;
   truncated: boolean;
@@ -52,13 +72,15 @@ export interface RecordFile {
 
 const r4 = (v: number): number => Math.round(v * 1e4) / 1e4;
 const ACTIONS: ReadonlySet<string> = new Set(["draw", "erase", "undo", "redo"]);
+const R19_STATES: ReadonlySet<string> = new Set(["POINT_READY", "POINT_PRESS", "OTHER", "NO_HAND"]);
+const VKEY_EVENTS: ReadonlySet<string> = new Set(["KEYDOWN", "HELD", "KEYUP", "RELEASE_ALL", "NONE"]);
 
 export class LandmarkRecorder {
   private frames: RecordFrame[] = [];
   private startMs = 0;
   private active = false;
   private truncated = false;
-  private mode: "baseline" | "experiment" | "r18" = "baseline";
+  private mode: "r19-g4-hybrid" = "r19-g4-hybrid";
 
   get isRecording(): boolean {
     return this.active;
@@ -113,8 +135,25 @@ export class LandmarkRecorder {
       fingers: d.rawFingerCount,
       fingersLegacy: d.legacyFingerCount,
       fingerStates: snap.fingerStates ? [...snap.fingerStates] : null,
-      thumb: d.thumb ? { legacyRatio: r4(d.thumb.legacyRatio), lateral: d.thumb.lateral === null ? null : r4(d.thumb.lateral), ipAngleDeg: d.thumb.ipAngleDeg === null ? null : Math.round(d.thumb.ipAngleDeg), open: d.thumb.robustOpen } : null,
+      thumb: d.thumb
+        ? {
+            legacyRatio: r4(d.thumb.legacyRatio),
+            lateral: d.thumb.lateral === null ? null : r4(d.thumb.lateral),
+            ipAngleDeg: d.thumb.ipAngleDeg === null ? null : Math.round(d.thumb.ipAngleDeg),
+            open: d.thumb.robustOpen,
+          }
+        : null,
       pinchRatio: snap.pinchRatio === null ? null : r4(snap.pinchRatio),
+      r19State: snap.r19.state,
+      r19SubClass: snap.r19.subClass,
+      vkeyEvent: snap.r19.virtualKey.event,
+      r19Probs: snap.r19.probs
+        ? {
+            ready: r4(snap.r19.probs.ready),
+            press: r4(snap.r19.probs.press),
+            other: r4(snap.r19.probs.other),
+          }
+        : null,
       truth,
       reject: snap.rejectionReason,
       action,
@@ -153,9 +192,23 @@ export function validateRecord(file: unknown): string[] {
   f.frames.forEach((fr, i) => {
     if (fr.t < last) problems.push(`frame ${i}: time goes backwards`);
     last = fr.t;
-    if (fr.lm !== null && (fr.lm.length !== 21 || fr.lm.some((p) => p.length !== 2 || !Number.isFinite(p[0]) || !Number.isFinite(p[1])))) problems.push(`frame ${i}: landmarks`);
+    if (fr.lm !== null && (fr.lm.length !== 21 || fr.lm.some((p) => p.length !== 2 || !Number.isFinite(p[0]) || !Number.isFinite(p[1])))) {
+      problems.push(`frame ${i}: landmarks`);
+    }
     if (!TRUTH_LABELS.includes(fr.truth)) problems.push(`frame ${i}: truth label`);
     if (fr.lm === null && fr.action !== "none") problems.push(`frame ${i}: action without a hand`);
+    if (fr.r19State !== undefined && !R19_STATES.has(fr.r19State)) problems.push(`frame ${i}: r19State`);
+    if (fr.vkeyEvent !== undefined && !VKEY_EVENTS.has(fr.vkeyEvent)) problems.push(`frame ${i}: vkeyEvent`);
+    if (
+      fr.r19Probs !== undefined &&
+      fr.r19Probs !== null &&
+      (typeof fr.r19Probs !== "object" ||
+        !Number.isFinite(fr.r19Probs.ready) ||
+        !Number.isFinite(fr.r19Probs.press) ||
+        !Number.isFinite(fr.r19Probs.other))
+    ) {
+      problems.push(`frame ${i}: r19Probs`);
+    }
   });
   if (f.frameCount !== f.frames.length) problems.push("frameCount");
   return problems;

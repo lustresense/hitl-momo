@@ -86,3 +86,9 @@ Without a new explicit decision, do not restore:
 - `.ecc/memory/` = long-term unreviewed context/handoffs/lessons.
 - `.agents/skills/` = procedural memory.
 - native Antigravity/Kilo memories = auxiliary accelerators, not canonical backup.
+
+## R19 — 2026-11-18 — Classifier history update
+- **R18 UX3** (0.25.0-alpha): MLP + heuristik pinch/erase/swipe. Dihapus dari NUI Lab UI oleh R19.
+- **R19 G4 Hybrid** (0.26.0-alpha): G1 Geometry (pure geometry pistol detector, threshold-based, WASM-free) + G3 MLP (multilayer perceptron [82→96→48→3], softmax output 3 kelas: POINT_READY/POINT_PRESS/OTHER, beban JSON 122,768 B) + PistolVirtualKeyFSM (finite state machine mapping pose ke virtual key: LEFT/JUMP/RIGHT/UP_RIGHT/UP_LEFT/DOWN). Sumber: `research-can/r19/candidates/`. Tidak ada classifier lama (Baseline/R17/R18) di UI NUI Lab.
+- **Physical webcam:** selalu `NOT_TESTED` sampai Owner eksekusi di perangkat nyata.
+- **Model file:** `frontend/implementation/public/models/r19-pistol-model.json` (122,768 B, sha256 `c6130bd56850534889372a7295d45e7704083cbf60115626cd08b57c6e000293`).

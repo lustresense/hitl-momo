@@ -81,3 +81,12 @@ Gunakan `project/OPEN_QUESTIONS.md`. Jangan menyimpulkan stack final, penggunaan
 ## Backup
 
 Backup bersifat copy-only (rclone `copy`, `--dry-run` dulu, jangan `rclone sync`). Lihat `docs/backup/BACKUP_POLICY.md`.
+
+### 2026-11-18 — R19 G4 Hybrid sebagai satu-satunya engine NUI Lab (0.26.0-alpha)
+- Engine: `G1 Geometry + G3 MLP [82→96→48→3] + PistolVirtualKeyFSM`. R18 UX3, R17, Baseline toggle dihapus dari NUI Lab UI. Model `/models/r19-pistol-model.json` (122,768 B, sha256 `c6130bd5…`).
+- Fail-closed: jika model gagal dimuat, error eksplisit + retry. Tidak ada silent fallback ke engine lama.
+- Lifecycle: `visibilitychange` → `releaseAll("browser-hidden")`, track `ended` → `releaseAll("stream-ended")`. Route change → state reset.
+- Pistol: telunjuk arah, jempol lipat=POINT_READY, buka=POINT_PRESS. RIGHT/LEFT/UP/UP_RIGHT/UP_LEFT/DOWN. Hand lost → release all.
+- Virtual keyboard diagnostik Left/Jump/Right visible di /nui-lab/gesture. Tidak menggerakkan Thinman produksi.
+- Tests: 195/195 (14 file nui-lab), build 24/24, tsc 0, lint 0 new. 13 tes camera legacy pra-ada (bukan regresi R19).
+- Webcam fisik: `NOT_TESTED`. Game siswa, backend, contracts tidak disentuh.

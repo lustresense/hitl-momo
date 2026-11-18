@@ -57,3 +57,11 @@ Tidak mengubah HTML card Claude, CSS cover, gesture Card1/3, Top-3 HITL, model p
 
 ## NUI Lab owner-hand recovery & gesture A/B (0.22.0-alpha, 2026-11-16)
 `FullFrameHandLock` tracks wrist and bounding-box size without face ROI; a short lost period suspends input. After multiple sampled empty frames and a prototype 300 ms gap, the owner is released, and the next single stable hand acquires automatically. If an unmatched bystander remains, the original session is not transferred. An epoch counter ensures a stale old gesture cannot be inherited by a new hand. This **does not authenticate identity** and cannot see landmarks outside frame. `LabAnalyzer` surfaces pinch thresholds/ratios/finger states and action-gate rejection, and allows comparing baseline and experimental classifier in the NUI Lab only. The main game's default `classifyHandPose` and `HandStrokePipeline` mapping stays unchanged. No model training or runtime webcam proof is available.
+
+## Addendum R19 G4 Hybrid NUI Lab 2026-11-18 (0.26.0-alpha)
+- **NUI Lab engine:** `R19 G4 Hybrid = G1 Geometry + G3 MLP [82→96→48→3] + PistolVirtualKeyFSM`. R18 UX3, Baseline, R17 toggle dihapus dari UI. File engine: `src/components/nui-lab/r19/`.
+- **Model:** `public/models/r19-pistol-model.json` (122,768 B, sha256 `c6130bd5…`). Load on-demand, fail-closed. No WASM dependency di luar MediaPipe yang sudah ada.
+- **Pistol contract:** index finger = arah, thumb folded = POINT_READY, thumb open = POINT_PRESS. FSM output: LEFT/JUMP/RIGHT/UP_RIGHT/UP_LEFT/DOWN. Hand lost = release all.
+- **NUI Lab routes:** `/nui-lab` (landing, passive camera), `/nui-lab/gesture` (R19 diagnostics + virtual keyboard), `/nui-lab/canvas` (R19 pinch/erase/swipe, pistol read-only), `/nui-lab/diagnostics` (alias gesture, static export).
+- **Lifecycle:** `visibilitychange` → `releaseAll`, track `ended` → `releaseAll`, route unmount → state reset. Zero ghost PRESS.
+- **Invariant:** R19 engine tidak menyentuh KAPLAY game runtime, gameplay routes, `arbiter.ts`, `mediapipe-input.ts`, atau kontrak partner. Single MediaPipe instance shared dengan pipeline kamera existing.

@@ -176,3 +176,18 @@ Aturan isi:
 - Kamera fisik + MediaPipe: lambaian, jempol, cubit, kepalan, dua jari, telapak, putar lima jari, sudut telunjuk.
 - Ruang pameran: cahaya redup, banyak orang di belakang pemain, tangan anak, tangan kiri.
 - Alur kelas penuh (backend + Caddy + dashboard) dengan kode terbaru.
+
+## R19-NUI 2026-11-18 — R19 G4 Hybrid sebagai satu-satunya engine NUI Lab (0.26.0-alpha)
+| ID | Pekerjaan | Status | Bukti / next step |
+|---|---|---|---|
+| R19-01 | G4 Hybrid = G1 Geometry + G3 MLP [82→96→48→3] + PistolVirtualKeyFSM sebagai engine tunggal NUI Lab | SELESAI (UNIT + BUILD; WEBCAM NOT_TESTED) | `tests/nui-lab` 195/195, build 24/24, tsc 0 errors |
+| R19-02 | Hapus semua toggle Baseline/R17/R18 dari UI NUI Lab | SELESAI | NuiLabPage.tsx, tidak ada `mode diagnostik lama`, tidak ada silent fallback |
+| R19-03 | Fail-closed model load dengan error bahasa Indonesia + retry | SELESAI | `role="alert" data-testid="r19-model-error"`, `data-testid="r19-retry-model"` |
+| R19-04 | Lifecycle guards: visibilitychange → releaseAll, track ended → releaseAll | SELESAI | 8 tes r19-loader, 25 tes nui-lab-page |
+| R19-05 | Virtual keyboard diagnostik Left/Jump/Right (tidak menggerakkan Thinman) | SELESAI | testid `vk-left`, `vk-jump`, `vk-right`, data-active |
+| R19-06 | /nui-lab landing: passive camera API, zero getUserMedia on mount | SELESAI | data-testid="nui-lab-landing", tes nui-lab-page |
+| R19-07 | /nui-lab/diagnostics: render NuiLabPage gesture bersih (no server redirect) | SELESAI | static export compatible, page.tsx langsung render |
+| R19-08 | Pistol geometry R19: telunjuk arah, jempol lipat=READY, buka=PRESS, RIGHT/LEFT/UP/DIAGONAL/DOWN | SELESAI | pistol_geometry.ts, pistol_fsm.ts, 12 tes r19-pistol-e2e |
+| R19-09 | Canvas Lab R19: pinch draw, 5-finger erase, swipe undo/redo, pistol read-only | SELESAI | lab-analyzer.ts 1050 baris, 25 tes lab-analyzer |
+| R19-10 | Model card R19 → lihat research-can/r19/models/MODEL_CARD.md | SELESAI (research-can) | sha256 c6130bd5…, 122,768 B |
+| R19-11 | Webcam fisik | NOT_TESTED | Harus diuji Owner di perangkat nyata sebelum pameran |

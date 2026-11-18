@@ -204,3 +204,40 @@ export function switchStateText(state: SwitchState, error: string | null): strin
       return `gagal pindah ke CPU, tetap pakai GPU${error ? ` (${error})` : ""}`;
   }
 }
+
+export type R19TelemetryState = "POINT_READY" | "POINT_PRESS" | "OTHER" | "NO_HAND";
+export type R19DirectionLabel = "RIGHT" | "LEFT" | "UP" | "UP_RIGHT" | "UP_LEFT" | "DOWN" | "NEUTRAL";
+
+/** Short Indonesian label for the R19 G4 Hybrid classifier state. */
+export function r19StateLabel(state: R19TelemetryState): string {
+  switch (state) {
+    case "POINT_READY":
+      return "Siaga Tunjuk (Keys OFF)";
+    case "POINT_PRESS":
+      return "Pistol Aktif (Steer/Lompat)";
+    case "OTHER":
+      return "Gestur Lain (Kanvas/Aman)";
+    case "NO_HAND":
+      return "Belum Ada Tangan";
+  }
+}
+
+/** Short Indonesian display text for the R19 steering/aim direction. */
+export function r19DirectionText(direction: R19DirectionLabel): string {
+  switch (direction) {
+    case "RIGHT":
+      return "Kanan";
+    case "LEFT":
+      return "Kiri";
+    case "UP":
+      return "Atas (Lompat)";
+    case "UP_RIGHT":
+      return "Atas-Kanan (Lompat + Kanan)";
+    case "UP_LEFT":
+      return "Atas-Kiri (Lompat + Kiri)";
+    case "DOWN":
+      return "Bawah (Netral)";
+    case "NEUTRAL":
+      return "Netral";
+  }
+}

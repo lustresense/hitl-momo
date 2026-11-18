@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.26.0-alpha | 2026-11-18 | Fitur | `(0.26.0-alpha)` |
 | 0.25.0-alpha | 2026-11-18 | Fitur | `(0.25.0-alpha)` |
 | 0.24.1-alpha | 2026-11-17 | Dokumen | `(0.24.1-alpha)` |
 | 0.24.0-alpha | 2026-11-17 | Fitur | `(0.24.0-alpha)` |
@@ -123,6 +124,19 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.26.0-alpha — 2026-11-18 — Fitur
+
+**Sumber:** research-can/r19/candidates + research-can/r19/models/r19_model_mlp.json
+
+**Perubahan:**
+- Integrasi R19 G4 Hybrid (G1 Geometry + G3 MLP [82-96-48-3] + PistolVirtualKeyFSM) sebagai satu-satunya engine NUI Lab; hapus R18 UX3 dan toggle Baseline/R17/R18; fail-closed model load; lifecycle guards visibilitychange+track-ended; virtual keyboard diagnostik Left/Jump/Right
+
+**Commit:** commit berjudul `(0.26.0-alpha)`
+
+**Bukti:** tests/nui-lab 195/195 passed; next build 24/24 pages; tsc exit 0; lint exit 0
 
 ---
 

@@ -1,16 +1,15 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { LandmarkRecorder, MAX_RECORD_FRAMES, RECORD_SCHEMA, TRUTH_LABELS, validateRecord, type RecordFile, type TruthLabel } from "@/src/components/nui-lab/lab-recorder";
 import { MEDIAN_SKELETONS, pinchSkeleton } from "../input/realistic-hands";
-import { NEUTRAL, cls, rig, skel } from "./lab-rig";
+import { NEUTRAL, cls, pistolBuild, rig, skel, type LabSessionOptions } from "./lab-rig";
 
 /**
- * RD-02 (REV4): opt-in, local, numbers-only recorder. The scripted sequences below double as the fixtures for the cases the
- * ticket names: THREE, FIVE, PINCH-NEAR, PINCH-TOUCH, NO-GESTURE, a transition, NO-LANDMARK, and near-miss negatives.
- * Evidence class: UNIT_ONLY (synthetic motion on real class-median hands). No webcam, no person, no consent needed for these.
+ * RD-02 (REV4 + R19 G4 Hybrid): opt-in, local, numbers-only recorder.
+ * Evidence class: UNIT_ONLY (synthetic motion on real class-median hands and R19 Pistol skeletons).
  */
 afterEach(() => vi.unstubAllGlobals());
 
-function session(script: (r: ReturnType<typeof rig>, label: (t: TruthLabel) => void) => void, opts = { experimental: true }) {
+function session(script: (r: ReturnType<typeof rig>, label: (t: TruthLabel) => void) => void, opts: LabSessionOptions = {}) {
   const rec = new LandmarkRecorder();
   let truth: TruthLabel = "UNLABELLED";
   const r = rig(opts, (lab, lm, t) => rec.add(lab.snapshot(t), lm, truth, t, lab.snapshot(t).diag.lastCommand?.atMs ?? null));
@@ -31,7 +30,7 @@ describe("consent and privacy", () => {
 
   it("does nothing before start and after stop", () => {
     const rec = new LandmarkRecorder();
-    const r = rig({ experimental: true }, (lab, lm, t) => rec.add(lab.snapshot(t), lm, "FIVE", t));
+    const r = rig({}, (lab, lm, t) => rec.add(lab.snapshot(t), lm, "FIVE", t));
     r.hold(NEUTRAL, 5);
     expect(rec.frameCount).toBe(0);
     rec.start(true, r.now());
@@ -67,19 +66,38 @@ describe("consent and privacy", () => {
     expect(store.setItem).not.toHaveBeenCalled();
   });
 
-  it("a frame carries exactly the documented numeric keys: no image, video, face, name or date field", () => {
+  it("a frame carries exactly the documented numeric keys including R19 telemetry: no image, video, face, name or date field", () => {
     const f = session((r) => r.hold(cls("palm"), 3));
-    expect(Object.keys(f.frames[0]!).sort()).toEqual(
-      ["action", "aspect", "fingerStates", "fingers", "fingersLegacy", "lm", "lock", "pinchRatio", "rawPose", "reject", "session", "stablePose", "t", "thumb", "truth"],
-    );
+    expect(Object.keys(f.frames[0]!).sort()).toEqual([
+      "action",
+      "aspect",
+      "fingerStates",
+      "fingers",
+      "fingersLegacy",
+      "lm",
+      "lock",
+      "pinchRatio",
+      "r19Probs",
+      "r19State",
+      "r19SubClass",
+      "rawPose",
+      "reject",
+      "session",
+      "stablePose",
+      "t",
+      "thumb",
+      "truth",
+      "vkeyEvent",
+    ]);
     expect(Object.keys(f).sort()).toEqual(["consent", "contains", "frameCount", "frames", "mode", "schema", "truncated"]);
+    expect(f.mode).toBe("r19-g4-hybrid");
     const text = JSON.stringify(f.frames);
     expect(text).not.toMatch(/image|video|blob|dataurl|face|name|email|date|userAgent/i);
   });
 
   it("caps memory: past MAX_RECORD_FRAMES frames it stops adding and says truncated", () => {
     const rec = new LandmarkRecorder();
-    const r = rig({ experimental: true }, (lab, lm, t) => rec.add(lab.snapshot(t), lm, "NO_GESTURE", t));
+    const r = rig({}, (lab, lm, t) => rec.add(lab.snapshot(t), lm, "NO_GESTURE", t));
     rec.start(true, 0);
     // Fill via the public path with cheap no-hand frames.
     for (let i = 0; i < MAX_RECORD_FRAMES + 5; i++) r.feedLm(null);
@@ -149,12 +167,15 @@ describe("scripted cases from the ticket (fixtures)", () => {
     expect(Math.min(...touch.map((x) => x.pinchRatio ?? 9))).toBeLessThan(0.3);
   });
 
-  it("NO-GESTURE: a relaxed L-shaped hand produces no action at all", () => {
+  it("NO-GESTURE: a neutral non-pistol hand produces no action at all", () => {
     const f = session((r, label) => {
       label("NO_GESTURE");
       r.hold(NEUTRAL, 30);
     });
-    expect(of(f, "NO_GESTURE").every((x) => x.action === "none")).toBe(true);
+    const rows = of(f, "NO_GESTURE");
+    expect(rows.every((x) => x.action === "none")).toBe(true);
+    expect(rows.at(-1)!.r19State).toBe("OTHER");
+    expect(rows.at(-1)!.vkeyEvent).toBe("NONE");
   });
 
   it("TRANSITION: pinch, open, palm is recorded in order with the labels the tester gave", () => {
@@ -179,15 +200,58 @@ describe("scripted cases from the ticket (fixtures)", () => {
     expect(none.length).toBe(15);
     expect(none.every((x) => x.lm === null && x.action === "none")).toBe(true);
     expect(none.at(-1)!.lock).toBe("waiting");
+    expect(none.at(-1)!.r19State).toBe("NO_HAND");
+    expect(none.at(-1)!.r19Probs).toBeNull();
   });
 
-  it("baseline mode is recorded as baseline, with the legacy count equal to the active count", () => {
+  it("R19 Pistol telemetry (POINT_READY, POINT_PRESS, POINT_RELEASE, DORSAL_RIGHT_LEFT) is recorded with probabilities and virtual-key events", () => {
     const f = session((r, label) => {
-      label("FIVE");
-      r.hold(cls("four"), 6);
-    }, { experimental: false });
-    expect(f.mode).toBe("baseline");
-    expect(f.frames.at(-1)!.fingers).toBe(f.frames.at(-1)!.fingersLegacy);
+      // Lock on POINT_READY pointing RIGHT (2 frames for FullFrameHandLock)
+      r.hold(pistolBuild(0, false), 2);
+      label("POINT_READY");
+      r.hold(pistolBuild(0, false), 4);
+      label("POINT_PRESS");
+      r.hold(pistolBuild(0, true), 5);
+      label("POINT_RELEASE");
+      r.hold(pistolBuild(0, false), 3);
+      // Clear hand lock (> 300 ms empty camera) before re-acquiring dorsal right-hand pointing LEFT
+      label("NO_LANDMARK");
+      for (let i = 0; i < 12; i++) r.feedLm(null);
+      r.hold(pistolBuild(180, true, { dorsal: true, mirror: true }), 2);
+      label("DORSAL_RIGHT_LEFT");
+      r.hold(pistolBuild(180, true, { dorsal: true, mirror: true }), 5);
+    });
+    expect(f.mode).toBe("r19-g4-hybrid");
+
+    const readyFrames = of(f, "POINT_READY");
+    expect(readyFrames.every((x) => x.r19State === "POINT_READY" && x.vkeyEvent === "NONE")).toBe(true);
+    expect(readyFrames.at(-1)!.r19SubClass).toBe("ready");
+    expect(readyFrames.at(-1)!.r19Probs).not.toBeNull();
+
+    const pressFrames = of(f, "POINT_PRESS");
+    expect(pressFrames.some((x) => x.vkeyEvent === "KEYDOWN")).toBe(true);
+    expect(pressFrames.at(-1)!.r19State).toBe("POINT_PRESS");
+    expect(pressFrames.at(-1)!.r19SubClass).toBe("pistol");
+    expect(pressFrames.at(-1)!.vkeyEvent).toBe("HELD");
+    expect(pressFrames.at(-1)!.r19Probs!.press).toBeGreaterThan(0.5);
+
+    const releaseFrames = of(f, "POINT_RELEASE");
+    expect(releaseFrames[0]!.vkeyEvent).toBe("KEYUP");
+    expect(releaseFrames[0]!.r19State).toBe("POINT_READY");
+
+    const dorsalFrames = of(f, "DORSAL_RIGHT_LEFT");
+    expect(dorsalFrames.at(-1)!.r19State).toBe("POINT_PRESS");
+    expect(["KEYDOWN", "HELD"]).toContain(dorsalFrames.at(-1)!.vkeyEvent);
+    expect(dorsalFrames.every((x) => x.action === "none")).toBe(true);
+  });
+
+  it("fail-closed mode (unloaded model) records NONE events and null probabilities", () => {
+    const f = session((r, label) => {
+      label("POINT_PRESS");
+      r.hold(pistolBuild(0, true), 4);
+    }, { enableModel: false });
+    const rows = of(f, "POINT_PRESS");
+    expect(rows.every((x) => x.r19State === "NO_HAND" && x.vkeyEvent === "NONE" && x.r19Probs === null && x.action === "none")).toBe(true);
   });
 });
 
@@ -204,21 +268,46 @@ describe("file format", () => {
     expect(validateRecord(JSON.parse(text))).toEqual([]);
   });
 
-  it("every truth label in the schema is one of the documented ones", () => {
-    expect([...TRUTH_LABELS]).toEqual(["THREE", "FIVE", "PINCH_NEAR", "PINCH_TOUCH", "NO_GESTURE", "TRANSITION", "NO_LANDMARK", "UNLABELLED"]);
+  it("every truth label in the schema is one of the documented ones including R19 Pistol labels", () => {
+    expect([...TRUTH_LABELS]).toEqual([
+      "POINT_READY",
+      "POINT_PRESS",
+      "OTHER",
+      "POINT_RELEASE",
+      "DORSAL_RIGHT_LEFT",
+      "THREE",
+      "FIVE",
+      "PINCH_NEAR",
+      "PINCH_TOUCH",
+      "NO_GESTURE",
+      "TRANSITION",
+      "NO_LANDMARK",
+      "UNLABELLED",
+    ]);
   });
 
-  it("validateRecord rejects missing consent, bad landmarks, unknown labels, time going backwards, and an action without a hand", () => {
+  it("validateRecord rejects missing consent, bad landmarks, unknown labels, bad R19 telemetry, time going backwards, and an action without a hand", () => {
     const f = sample();
     const bad = JSON.parse(JSON.stringify(f)) as RecordFile;
     expect(validateRecord({ ...bad, consent: false })).toContain("consent flag missing: this data must not be used");
     bad.frames[1]!.lm = bad.frames[1]!.lm!.slice(0, 20);
     bad.frames[2]!.truth = "SELFIE" as never;
+    bad.frames[3]!.r19State = "BOGUS_STATE" as never;
+    bad.frames[3]!.vkeyEvent = "BOGUS_KEY" as never;
     bad.frames[4]!.t = -5;
     const last = bad.frames.at(-1)!;
     last.action = "erase";
     const p = validateRecord(bad);
-    expect(p).toEqual(expect.arrayContaining(["frame 1: landmarks", "frame 2: truth label", "frame 4: time goes backwards", `frame ${bad.frames.length - 1}: action without a hand`]));
+    expect(p).toEqual(
+      expect.arrayContaining([
+        "frame 1: landmarks",
+        "frame 2: truth label",
+        "frame 3: r19State",
+        "frame 3: vkeyEvent",
+        "frame 4: time goes backwards",
+        `frame ${bad.frames.length - 1}: action without a hand`,
+      ]),
+    );
   });
 
   it("rounds landmarks to 4 decimals and times to whole ms (no false precision)", () => {

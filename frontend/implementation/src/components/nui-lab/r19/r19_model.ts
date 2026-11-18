@@ -1,10 +1,11 @@
 /**
- * R18-UX3 Exported Candidate Classifier Inference (pure TypeScript, browser-ready, no deps).
- * Loads dense ReLU MLP exported by ux3_train.py, applies z-score standardization + temperature-calibrated softmax.
+ * R19 Lightweight Exported Classifier Inference (pure TypeScript, browser-ready, zero deps).
+ * Supports both linear Logistic Regression (`layers.length === 1`) and dense ReLU MLPs
+ * with z-score standardization + temperature-calibrated softmax.
  */
-import { UX3_FEATURE_COUNT, UX3_LABELS, type Ux3Label } from "./ux3_features";
+import { R19_FEATURE_COUNT, R19_LABELS, type R19Label } from "./r19_features";
 
-export interface Ux3ExportedModel {
+export interface R19ExportedModel {
   name: string;
   version: string;
   license_provenance: string;
@@ -16,21 +17,23 @@ export interface Ux3ExportedModel {
   layers: Array<{ W: number[][]; b: number[] }>;
 }
 
-export class Ux3Classifier {
+export class R19Classifier {
   private readonly W: Float64Array[];
   private readonly b: Float64Array[];
   private readonly dims: number[];
   private readonly bufs: Float64Array[];
   private readonly z: Float64Array;
   private readonly temp: number;
+  readonly labels: string[];
 
-  constructor(readonly model: Ux3ExportedModel) {
-    if (model.labels.join() !== UX3_LABELS.join()) {
-      throw new Error(`UX3 label mismatch: got ${model.labels.join()}`);
+  constructor(readonly model: R19ExportedModel) {
+    if (model.mean.length !== model.std.length) {
+      throw new Error(`R19 std dim mismatch: ${model.mean.length} vs ${model.std.length}`);
     }
-    if (model.mean.length !== UX3_FEATURE_COUNT || model.std.length !== UX3_FEATURE_COUNT) {
-      throw new Error(`UX3 feature dim mismatch: expected ${UX3_FEATURE_COUNT}, got ${model.mean.length}`);
+    if (model.feature_names.length > 0 && model.feature_names.length !== model.mean.length) {
+      throw new Error(`R19 feature_names mismatch: ${model.feature_names.length} vs ${model.mean.length}`);
     }
+    this.labels = model.labels.length > 0 ? [...model.labels] : [...R19_LABELS];
     this.dims = [model.mean.length, ...model.layers.map((l) => l.b.length)];
     this.W = model.layers.map((l) => Float64Array.from(l.W.flat()));
     this.b = model.layers.map((l) => Float64Array.from(l.b));
@@ -39,7 +42,12 @@ export class Ux3Classifier {
     this.temp = Number.isFinite(model.temperature) && model.temperature > 0 ? model.temperature : 1.0;
   }
 
-  /** Temperature-calibrated class probabilities matching UX3_LABELS order. */
+  /** Expected input feature count (`R19_FEATURE_COUNT` for R19 models, `68` for G5 R18 transfer). */
+  get inputDim(): number {
+    return this.dims[0]!;
+  }
+
+  /** Temperature-calibrated class probabilities matching `model.labels`. */
   proba(x: ArrayLike<number>): number[] {
     const { dims, W, b, bufs, z, model, temp } = this;
     for (let i = 0; i < dims[0]!; i++) {
@@ -79,7 +87,7 @@ export class Ux3Classifier {
     return exps;
   }
 
-  predict(x: ArrayLike<number>, unknownThreshold = 0): { label: Ux3Label | "UNKNOWN"; conf: number; probs: number[] } {
+  predict(x: ArrayLike<number>, unknownThreshold = 0): { label: R19Label | string; conf: number; probs: number[] } {
     const probs = this.proba(x);
     let best = 0;
     for (let i = 1; i < probs.length; i++) {
@@ -87,9 +95,11 @@ export class Ux3Classifier {
     }
     const conf = probs[best]!;
     return {
-      label: conf >= unknownThreshold ? UX3_LABELS[best]! : "UNKNOWN",
+      label: conf >= unknownThreshold ? this.labels[best]! : "UNKNOWN",
       conf,
       probs,
     };
   }
 }
+
+export { R19_FEATURE_COUNT };

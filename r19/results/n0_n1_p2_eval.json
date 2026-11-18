@@ -1,0 +1,113 @@
+{
+  "evidence_tier": "SYNTHETIC",
+  "total_scenes": 55,
+  "detector_stats": {
+    "N0": {
+      "raw": {
+        "total": 45,
+        "false_hand": 4,
+        "false_large": 4
+      },
+      "scaled_320": {
+        "total": 45,
+        "false_hand": 10,
+        "false_large": 10
+      },
+      "clahe_320": {
+        "total": 45,
+        "false_hand": 10,
+        "false_large": 10
+      }
+    },
+    "N1": {
+      "raw": {
+        "total": 10,
+        "false_hand": 3,
+        "false_large": 3
+      },
+      "scaled_320": {
+        "total": 10,
+        "false_hand": 3,
+        "false_large": 3
+      },
+      "clahe_320": {
+        "total": 10,
+        "false_hand": 3,
+        "false_large": 3
+      }
+    }
+  },
+  "by_family": {
+    "N0_dark_room": {
+      "n": 10,
+      "raw_fp": 0,
+      "scaled_fp": 0,
+      "clahe_fp": 0
+    },
+    "N0_skin_blobs": {
+      "n": 10,
+      "raw_fp": 0,
+      "scaled_fp": 0,
+      "clahe_fp": 0
+    },
+    "N0_fan_sticks": {
+      "n": 10,
+      "raw_fp": 4,
+      "scaled_fp": 10,
+      "clahe_fp": 10
+    },
+    "N0_stripes": {
+      "n": 5,
+      "raw_fp": 0,
+      "scaled_fp": 0,
+      "clahe_fp": 0
+    },
+    "N1_poster_hand": {
+      "n": 5,
+      "raw_fp": 3,
+      "scaled_fp": 3,
+      "clahe_fp": 3
+    },
+    "N0_l_sticks": {
+      "n": 10,
+      "raw_fp": 0,
+      "scaled_fp": 0,
+      "clahe_fp": 0
+    },
+    "N1_poster_pistol": {
+      "n": 5,
+      "raw_fp": 0,
+      "scaled_fp": 0,
+      "clahe_fp": 0
+    }
+  },
+  "downstream_on_hallucinated_hands": {
+    "raw": {
+      "total_hands": 7,
+      "g0_eval_steer": 7,
+      "ux1_point": 0,
+      "g1_ready": 0,
+      "g1_press": 0,
+      "g1_other": 7,
+      "g1_fsm_active_5x": 0
+    },
+    "scaled_320": {
+      "total_hands": 13,
+      "g0_eval_steer": 13,
+      "ux1_point": 0,
+      "g1_ready": 0,
+      "g1_press": 0,
+      "g1_other": 13,
+      "g1_fsm_active_5x": 0
+    },
+    "clahe_320": {
+      "total_hands": 13,
+      "g0_eval_steer": 13,
+      "ux1_point": 0,
+      "g1_ready": 0,
+      "g1_press": 0,
+      "g1_other": 13,
+      "g1_fsm_active_5x": 0
+    }
+  }
+}

@@ -1,0 +1,1249 @@
+{
+  "generated_at": "2026-11-18T10:45:01.590Z",
+  "scope": "R19 Stage P2: G0_main vs R18_UX1 (P2_balanced) vs G1_pistol (pure geometry + PistolVirtualKeyFSM)",
+  "aspect_sweep": {
+    "1:1": {
+      "samples": 100,
+      "G0_main": {
+        "max_angle_err_deg": 0,
+        "zone_mismatches": 0,
+        "raw_fingerStates_bug_errors": 0,
+        "pose_not_one_finger_count": 100
+      },
+      "R18_UX1": {
+        "max_angle_err_deg": 0,
+        "zone_mismatches": 0,
+        "pointing_rejected": 0
+      },
+      "G1_pistol": {
+        "max_angle_err_deg": 0,
+        "zone_mismatches": 0,
+        "aspect_fingerStates_errors": 0,
+        "point_press_recall_pct": 100
+      }
+    },
+    "5:4": {
+      "samples": 100,
+      "G0_main": {
+        "max_angle_err_deg": 6.36,
+        "zone_mismatches": 12,
+        "raw_fingerStates_bug_errors": 1,
+        "pose_not_one_finger_count": 100
+      },
+      "R18_UX1": {
+        "max_angle_err_deg": 0,
+        "zone_mismatches": 0,
+        "pointing_rejected": 0
+      },
+      "G1_pistol": {
+        "max_angle_err_deg": 0,
+        "zone_mismatches": 0,
+        "aspect_fingerStates_errors": 0,
+        "point_press_recall_pct": 100
+      }
+    },
+    "4:3": {
+      "samples": 100,
+      "G0_main": {
+        "max_angle_err_deg": 8.17,
+        "zone_mismatches": 12,
+        "raw_fingerStates_bug_errors": 1,
+        "pose_not_one_finger_count": 100
+      },
+      "R18_UX1": {
+        "max_angle_err_deg": 0,
+        "zone_mismatches": 0,
+        "pointing_rejected": 0
+      },
+      "G1_pistol": {
+        "max_angle_err_deg": 0,
+        "zone_mismatches": 0,
+        "aspect_fingerStates_errors": 0,
+        "point_press_recall_pct": 100
+      }
+    },
+    "16:9": {
+      "samples": 100,
+      "G0_main": {
+        "max_angle_err_deg": 16.17,
+        "zone_mismatches": 28,
+        "raw_fingerStates_bug_errors": 1,
+        "pose_not_one_finger_count": 78
+      },
+      "R18_UX1": {
+        "max_angle_err_deg": 0,
+        "zone_mismatches": 0,
+        "pointing_rejected": 0
+      },
+      "G1_pistol": {
+        "max_angle_err_deg": 0,
+        "zone_mismatches": 0,
+        "aspect_fingerStates_errors": 0,
+        "point_press_recall_pct": 100
+      }
+    },
+    "9:16": {
+      "samples": 100,
+      "G0_main": {
+        "max_angle_err_deg": 16.22,
+        "zone_mismatches": 44,
+        "raw_fingerStates_bug_errors": 0,
+        "pose_not_one_finger_count": 86
+      },
+      "R18_UX1": {
+        "max_angle_err_deg": 0,
+        "zone_mismatches": 0,
+        "pointing_rejected": 0
+      },
+      "G1_pistol": {
+        "max_angle_err_deg": 0,
+        "zone_mismatches": 0,
+        "aspect_fingerStates_errors": 0,
+        "point_press_recall_pct": 100
+      }
+    }
+  },
+  "synthetic_3d_pose_suite": {
+    "evidence_tier": "SYNTHETIC",
+    "total_samples": 10500,
+    "overall": {
+      "G1_3class_accuracy_pct": 99.11,
+      "G1_subclass_family_accuracy_pct": 96.62,
+      "POINT_READY_recall_pct": 100,
+      "POINT_READY_false_press_pct": 0,
+      "POINT_PRESS_recall_pct": 95.93,
+      "OTHER_false_press_G1_pct": 0,
+      "OTHER_false_steer_R18_UX1_pct": 16.22,
+      "OTHER_false_steer_G0_main_pct": 77.29
+    },
+    "dorsal_right_pointing_left_O0_O1": {
+      "n_press_std": 50,
+      "g0_press_std_one_finger": 0,
+      "g0_press_std_two_fingers_redo": 0,
+      "g0_press_std_thumb_lateral_ok": 50,
+      "ux1_press_std_ok": 50,
+      "g1_press_std_ok": 50,
+      "n_press_short": 50,
+      "g0_press_short_one_finger": 3,
+      "g0_press_short_pinch_false": 0,
+      "g1_press_short_ok": 46,
+      "g1_press_short_pinch_false": 0,
+      "n_ready": 100,
+      "g0_ready_steer_false": 50,
+      "ux1_ready_steer_false": 100,
+      "g1_ready_exact": 100,
+      "g1_ready_false_press": 0,
+      "g1_press_std_pct": 100,
+      "g1_press_short_pct": 92,
+      "g1_ready_exact_pct": 100,
+      "g0_thumb_lateral_std_pct": 100,
+      "overlap_edge_cases": {
+        "tip4_over_5_dorsal_left": {
+          "g0_pose": "one-finger",
+          "g1_state": "POINT_READY",
+          "g1_subClass": "ready",
+          "d4_5": 0.13,
+          "d4_8": 0.838,
+          "false_pinch": false
+        },
+        "tip4_over_6_dorsal_left": {
+          "g0_pose": "none",
+          "g1_state": "POINT_READY",
+          "g1_subClass": "ready",
+          "d4_5": 0.365,
+          "d4_8": 0.588,
+          "false_pinch": false
+        }
+      }
+    },
+    "per_pose": {
+      "POINT_READY_across": {
+        "samples": 700,
+        "expected_state": "POINT_READY",
+        "expected_family": "POINT_READY",
+        "G0_steer_pct": 71.43,
+        "G0_cnt2_collision_pct": 71.57,
+        "G0_pose_counts": {
+          "none": 501,
+          "one-finger": 199
+        },
+        "R18_UX1_pointing_pct": 100,
+        "G1_ready_pct": 100,
+        "G1_press_pct": 0,
+        "G1_other_pct": 0,
+        "G1_exact_state_pct": 100,
+        "G1_exact_family_pct": 100,
+        "G1_subClass_counts": {
+          "ready": 700
+        },
+        "G1_fail_samples": []
+      },
+      "POINT_READY_along": {
+        "samples": 700,
+        "expected_state": "POINT_READY",
+        "expected_family": "POINT_READY",
+        "G0_steer_pct": 71.43,
+        "G0_cnt2_collision_pct": 49.29,
+        "G0_pose_counts": {
+          "one-finger": 355,
+          "none": 345
+        },
+        "R18_UX1_pointing_pct": 100,
+        "G1_ready_pct": 100,
+        "G1_press_pct": 0,
+        "G1_other_pct": 0,
+        "G1_exact_state_pct": 100,
+        "G1_exact_family_pct": 100,
+        "G1_subClass_counts": {
+          "ready": 700
+        },
+        "G1_fail_samples": []
+      },
+      "POINT_PRESS_std": {
+        "samples": 700,
+        "expected_state": "POINT_PRESS",
+        "expected_family": "POINT_PRESS",
+        "G0_steer_pct": 71.43,
+        "G0_cnt2_collision_pct": 85.86,
+        "G0_pose_counts": {
+          "none": 601,
+          "one-finger": 99
+        },
+        "R18_UX1_pointing_pct": 100,
+        "G1_ready_pct": 0,
+        "G1_press_pct": 100,
+        "G1_other_pct": 0,
+        "G1_exact_state_pct": 100,
+        "G1_exact_family_pct": 100,
+        "G1_subClass_counts": {
+          "pistol": 700
+        },
+        "G1_fail_samples": []
+      },
+      "POINT_PRESS_dorsal_short": {
+        "samples": 700,
+        "expected_state": "POINT_PRESS",
+        "expected_family": "POINT_PRESS",
+        "G0_steer_pct": 71.43,
+        "G0_cnt2_collision_pct": 66,
+        "G0_pose_counts": {
+          "one-finger": 238,
+          "none": 462
+        },
+        "R18_UX1_pointing_pct": 100,
+        "G1_ready_pct": 8.14,
+        "G1_press_pct": 91.86,
+        "G1_other_pct": 0,
+        "G1_exact_state_pct": 91.86,
+        "G1_exact_family_pct": 91.86,
+        "G1_subClass_counts": {
+          "ready": 57,
+          "pistol": 643
+        },
+        "G1_fail_samples": [
+          {
+            "view": "palmar",
+            "handedness": "left",
+            "thetaDeg": 0,
+            "rollDeg": -35,
+            "pitchDeg": -40,
+            "gotState": "POINT_READY",
+            "gotSubClass": "ready",
+            "reason": "index-straight-3-curled-thumb-folded",
+            "d4_5": 0.641,
+            "d4_9": 1.02,
+            "d4_8": 1.508,
+            "perp": 0.369,
+            "a854": 144.9,
+            "a524": 143.6,
+            "a234": 101.1
+          },
+          {
+            "view": "palmar",
+            "handedness": "left",
+            "thetaDeg": 0,
+            "rollDeg": -35,
+            "pitchDeg": -20,
+            "gotState": "POINT_READY",
+            "gotSubClass": "ready",
+            "reason": "index-straight-3-curled-thumb-folded",
+            "d4_5": 0.415,
+            "d4_9": 0.705,
+            "d4_8": 1.259,
+            "perp": 0.313,
+            "a854": 131.1,
+            "a524": 68.1,
+            "a234": 156.2
+          },
+          {
+            "view": "palmar",
+            "handedness": "left",
+            "thetaDeg": 20,
+            "rollDeg": -35,
+            "pitchDeg": -40,
+            "gotState": "POINT_READY",
+            "gotSubClass": "ready",
+            "reason": "index-straight-3-curled-thumb-folded",
+            "d4_5": 0.639,
+            "d4_9": 1.011,
+            "d4_8": 1.509,
+            "perp": 0.379,
+            "a854": 143.6,
+            "a524": 146.1,
+            "a234": 103.6
+          },
+          {
+            "view": "palmar",
+            "handedness": "left",
+            "thetaDeg": 20,
+            "rollDeg": -35,
+            "pitchDeg": -20,
+            "gotState": "POINT_READY",
+            "gotSubClass": "ready",
+            "reason": "index-straight-3-curled-thumb-folded",
+            "d4_5": 0.411,
+            "d4_9": 0.705,
+            "d4_8": 1.231,
+            "perp": 0.308,
+            "a854": 131.4,
+            "a524": 68.9,
+            "a234": 150.9
+          },
+          {
+            "view": "palmar",
+            "handedness": "left",
+            "thetaDeg": 55,
+            "rollDeg": -35,
+            "pitchDeg": -40,
+            "gotState": "POINT_READY",
+            "gotSubClass": "ready",
+            "reason": "index-straight-3-curled-thumb-folded",
+            "d4_5": 0.649,
+            "d4_9": 1.02,
+            "d4_8": 1.502,
+            "perp": 0.381,
+            "a854": 144,
+            "a524": 143.9,
+            "a234": 103.2
+          }
+        ]
+      },
+      "PinchTouch_ok": {
+        "samples": 700,
+        "expected_state": "OTHER",
+        "expected_family": "pinch",
+        "G0_steer_pct": 80.57,
+        "G0_cnt2_collision_pct": 0,
+        "G0_pose_counts": {
+          "pinch": 675,
+          "none": 25
+        },
+        "R18_UX1_pointing_pct": 0,
+        "G1_ready_pct": 0,
+        "G1_press_pct": 0,
+        "G1_other_pct": 100,
+        "G1_exact_state_pct": 100,
+        "G1_exact_family_pct": 100,
+        "G1_subClass_counts": {
+          "pinch": 700
+        },
+        "G1_fail_samples": []
+      },
+      "PinchTouch_closed": {
+        "samples": 700,
+        "expected_state": "OTHER",
+        "expected_family": "pinch",
+        "G0_steer_pct": 80.29,
+        "G0_cnt2_collision_pct": 47.86,
+        "G0_pose_counts": {
+          "pinch": 680,
+          "fist": 6,
+          "none": 14
+        },
+        "R18_UX1_pointing_pct": 0,
+        "G1_ready_pct": 0,
+        "G1_press_pct": 0,
+        "G1_other_pct": 100,
+        "G1_exact_state_pct": 100,
+        "G1_exact_family_pct": 100,
+        "G1_subClass_counts": {
+          "pinch": 700
+        },
+        "G1_fail_samples": []
+      },
+      "PinchNear_straight": {
+        "samples": 700,
+        "expected_state": "OTHER",
+        "expected_family": "pinch",
+        "G0_steer_pct": 87.43,
+        "G0_cnt2_collision_pct": 84.29,
+        "G0_pose_counts": {
+          "one-finger": 79,
+          "pinch": 526,
+          "none": 95
+        },
+        "R18_UX1_pointing_pct": 81.71,
+        "G1_ready_pct": 5.14,
+        "G1_press_pct": 0,
+        "G1_other_pct": 94.86,
+        "G1_exact_state_pct": 94.86,
+        "G1_exact_family_pct": 94.86,
+        "G1_subClass_counts": {
+          "pinch": 664,
+          "ready": 36
+        },
+        "G1_fail_samples": [
+          {
+            "view": "palmar",
+            "handedness": "left",
+            "thetaDeg": 0,
+            "rollDeg": 35,
+            "pitchDeg": 40,
+            "gotState": "POINT_READY",
+            "gotSubClass": "ready",
+            "reason": "index-straight-3-curled-thumb-folded",
+            "d4_5": 0.282,
+            "d4_9": 0.387,
+            "d4_8": 0.414,
+            "perp": 0.099,
+            "a854": 20.7,
+            "a524": 8.5,
+            "a234": 166.7
+          },
+          {
+            "view": "palmar",
+            "handedness": "left",
+            "thetaDeg": 20,
+            "rollDeg": 18,
+            "pitchDeg": 40,
+            "gotState": "POINT_READY",
+            "gotSubClass": "ready",
+            "reason": "index-straight-3-curled-thumb-folded",
+            "d4_5": 0.334,
+            "d4_9": 0.587,
+            "d4_8": 0.417,
+            "perp": 0.18,
+            "a854": 32.6,
+            "a524": 18.6,
+            "a234": 163.2
+          },
+          {
+            "view": "palmar",
+            "handedness": "left",
+            "thetaDeg": 20,
+            "rollDeg": 35,
+            "pitchDeg": 40,
+            "gotState": "POINT_READY",
+            "gotSubClass": "ready",
+            "reason": "index-straight-3-curled-thumb-folded",
+            "d4_5": 0.283,
+            "d4_9": 0.393,
+            "d4_8": 0.403,
+            "perp": 0.103,
+            "a854": 21.3,
+            "a524": 8.9,
+            "a234": 172.2
+          },
+          {
+            "view": "palmar",
+            "handedness": "left",
+            "thetaDeg": 55,
+            "rollDeg": 35,
+            "pitchDeg": 40,
+            "gotState": "POINT_READY",
+            "gotSubClass": "ready",
+            "reason": "index-straight-3-curled-thumb-folded",
+            "d4_5": 0.265,
+            "d4_9": 0.388,
+            "d4_8": 0.413,
+            "perp": 0.098,
+            "a854": 21.7,
+            "a524": 8.8,
+            "a234": 169.6
+          },
+          {
+            "view": "palmar",
+            "handedness": "left",
+            "thetaDeg": 90,
+            "rollDeg": 35,
+            "pitchDeg": 40,
+            "gotState": "POINT_READY",
+            "gotSubClass": "ready",
+            "reason": "index-straight-3-curled-thumb-folded",
+            "d4_5": 0.27,
+            "d4_9": 0.394,
+            "d4_8": 0.411,
+            "perp": 0.093,
+            "a854": 20.2,
+            "a524": 8.5,
+            "a234": 168.1
+          }
+        ]
+      },
+      "PinchNear_arched": {
+        "samples": 700,
+        "expected_state": "OTHER",
+        "expected_family": "pinch",
+        "G0_steer_pct": 81.71,
+        "G0_cnt2_collision_pct": 54.29,
+        "G0_pose_counts": {
+          "pinch": 639,
+          "one-finger": 42,
+          "none": 19
+        },
+        "R18_UX1_pointing_pct": 96.71,
+        "G1_ready_pct": 0,
+        "G1_press_pct": 0,
+        "G1_other_pct": 100,
+        "G1_exact_state_pct": 100,
+        "G1_exact_family_pct": 100,
+        "G1_subClass_counts": {
+          "pinch": 700
+        },
+        "G1_fail_samples": []
+      },
+      "ThumbUp": {
+        "samples": 700,
+        "expected_state": "OTHER",
+        "expected_family": "thumb-up",
+        "G0_steer_pct": 50,
+        "G0_cnt2_collision_pct": 0,
+        "G0_pose_counts": {
+          "thumb-up": 688,
+          "none": 12
+        },
+        "R18_UX1_pointing_pct": 0,
+        "G1_ready_pct": 0,
+        "G1_press_pct": 0,
+        "G1_other_pct": 100,
+        "G1_exact_state_pct": 100,
+        "G1_exact_family_pct": 97.29,
+        "G1_subClass_counts": {
+          "thumb-up": 681,
+          "fist": 19
+        },
+        "G1_fail_samples": []
+      },
+      "VSign_tucked": {
+        "samples": 700,
+        "expected_state": "OTHER",
+        "expected_family": "two-fingers",
+        "G0_steer_pct": 87.14,
+        "G0_cnt2_collision_pct": 27.57,
+        "G0_pose_counts": {
+          "two-fingers": 700
+        },
+        "R18_UX1_pointing_pct": 0,
+        "G1_ready_pct": 0,
+        "G1_press_pct": 0,
+        "G1_other_pct": 100,
+        "G1_exact_state_pct": 100,
+        "G1_exact_family_pct": 100,
+        "G1_subClass_counts": {
+          "two-fingers": 700
+        },
+        "G1_fail_samples": []
+      },
+      "VSign_thumb_open": {
+        "samples": 700,
+        "expected_state": "OTHER",
+        "expected_family": "two-fingers",
+        "G0_steer_pct": 86.57,
+        "G0_cnt2_collision_pct": 13.86,
+        "G0_pose_counts": {
+          "two-fingers": 700
+        },
+        "R18_UX1_pointing_pct": 0,
+        "G1_ready_pct": 0,
+        "G1_press_pct": 0,
+        "G1_other_pct": 100,
+        "G1_exact_state_pct": 100,
+        "G1_exact_family_pct": 100,
+        "G1_subClass_counts": {
+          "two-fingers": 700
+        },
+        "G1_fail_samples": []
+      },
+      "Three": {
+        "samples": 700,
+        "expected_state": "OTHER",
+        "expected_family": "three",
+        "G0_steer_pct": 86.86,
+        "G0_cnt2_collision_pct": 0,
+        "G0_pose_counts": {
+          "none": 505,
+          "three-fingers": 195
+        },
+        "R18_UX1_pointing_pct": 0,
+        "G1_ready_pct": 0,
+        "G1_press_pct": 0,
+        "G1_other_pct": 100,
+        "G1_exact_state_pct": 100,
+        "G1_exact_family_pct": 100,
+        "G1_subClass_counts": {
+          "three": 700
+        },
+        "G1_fail_samples": []
+      },
+      "Four": {
+        "samples": 700,
+        "expected_state": "OTHER",
+        "expected_family": "four",
+        "G0_steer_pct": 86.43,
+        "G0_cnt2_collision_pct": 0,
+        "G0_pose_counts": {
+          "open-palm": 700
+        },
+        "R18_UX1_pointing_pct": 0,
+        "G1_ready_pct": 0,
+        "G1_press_pct": 0,
+        "G1_other_pct": 100,
+        "G1_exact_state_pct": 100,
+        "G1_exact_family_pct": 100,
+        "G1_subClass_counts": {
+          "four": 700
+        },
+        "G1_fail_samples": []
+      },
+      "OpenPalm": {
+        "samples": 700,
+        "expected_state": "OTHER",
+        "expected_family": "five",
+        "G0_steer_pct": 89.57,
+        "G0_cnt2_collision_pct": 0,
+        "G0_pose_counts": {
+          "open-palm": 700
+        },
+        "R18_UX1_pointing_pct": 0,
+        "G1_ready_pct": 0,
+        "G1_press_pct": 0,
+        "G1_other_pct": 100,
+        "G1_exact_state_pct": 100,
+        "G1_exact_family_pct": 100,
+        "G1_subClass_counts": {
+          "five": 700
+        },
+        "G1_fail_samples": []
+      },
+      "Fist": {
+        "samples": 700,
+        "expected_state": "OTHER",
+        "expected_family": "fist",
+        "G0_steer_pct": 33.57,
+        "G0_cnt2_collision_pct": 0,
+        "G0_pose_counts": {
+          "none": 316,
+          "fist": 308,
+          "thumb-up": 28,
+          "pinch": 48
+        },
+        "R18_UX1_pointing_pct": 0,
+        "G1_ready_pct": 0,
+        "G1_press_pct": 0,
+        "G1_other_pct": 100,
+        "G1_exact_state_pct": 100,
+        "G1_exact_family_pct": 65.29,
+        "G1_subClass_counts": {
+          "fist": 457,
+          "pinch": 243
+        },
+        "G1_fail_samples": []
+      }
+    }
+  },
+  "dynamic_fsm_and_jump_assist_suite": {
+    "evidence_tier": "SYNTHETIC",
+    "ready_press_hold_release": {
+      "ready_false_keys": 0,
+      "press_keydown_frame_delay": 1,
+      "held_right_frames": 14,
+      "release_cases": {
+        "READY": {
+          "immediateKeyup": true,
+          "stuckFrames": 0
+        },
+        "OTHER": {
+          "immediateKeyup": true,
+          "stuckFrames": 0
+        },
+        "NO_HAND": {
+          "immediateKeyup": true,
+          "stuckFrames": 0
+        }
+      }
+    },
+    "right_jump_right_continuity_and_jump_assist": {
+      "G0_main": {
+        "single_held_sweep": [
+          {
+            "fps": 75,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 97.8,
+            "right_drop_steps": 2,
+            "jumps_executed": 3
+          },
+          {
+            "fps": 60,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 96.7,
+            "right_drop_steps": 3,
+            "jumps_executed": 3
+          },
+          {
+            "fps": 30,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 95.6,
+            "right_drop_steps": 4,
+            "jumps_executed": 3
+          },
+          {
+            "fps": 15,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 95.6,
+            "right_drop_steps": 4,
+            "jumps_executed": 3
+          }
+        ],
+        "double_repress_30fps": {
+          "fps": 30,
+          "total_phys_steps": 73,
+          "right_continuity_pct": 100,
+          "right_drop_steps": 0,
+          "jumps_executed": 2
+        }
+      },
+      "R18_UX1_J1": {
+        "single_held_sweep": [
+          {
+            "fps": 75,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 92.31,
+            "right_drop_steps": 7,
+            "jumps_executed": 2
+          },
+          {
+            "fps": 60,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 93.41,
+            "right_drop_steps": 6,
+            "jumps_executed": 2
+          },
+          {
+            "fps": 30,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 93.41,
+            "right_drop_steps": 6,
+            "jumps_executed": 2
+          },
+          {
+            "fps": 15,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 100,
+            "right_drop_steps": 0,
+            "jumps_executed": 3
+          }
+        ],
+        "double_repress_30fps": {
+          "fps": 30,
+          "total_phys_steps": 73,
+          "right_continuity_pct": 100,
+          "right_drop_steps": 0,
+          "jumps_executed": 2
+        }
+      },
+      "R18_UX1_J2": {
+        "single_held_sweep": [
+          {
+            "fps": 75,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 92.31,
+            "right_drop_steps": 7,
+            "jumps_executed": 0
+          },
+          {
+            "fps": 60,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 93.41,
+            "right_drop_steps": 6,
+            "jumps_executed": 1
+          },
+          {
+            "fps": 30,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 93.41,
+            "right_drop_steps": 6,
+            "jumps_executed": 1
+          },
+          {
+            "fps": 15,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 100,
+            "right_drop_steps": 0,
+            "jumps_executed": 2
+          }
+        ],
+        "double_repress_30fps": {
+          "fps": 30,
+          "total_phys_steps": 73,
+          "right_continuity_pct": 100,
+          "right_drop_steps": 0,
+          "jumps_executed": 3
+        }
+      },
+      "G1_J1": {
+        "single_held_sweep": [
+          {
+            "fps": 75,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 100,
+            "right_drop_steps": 0,
+            "jumps_executed": 2
+          },
+          {
+            "fps": 60,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 100,
+            "right_drop_steps": 0,
+            "jumps_executed": 2
+          },
+          {
+            "fps": 30,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 100,
+            "right_drop_steps": 0,
+            "jumps_executed": 2
+          },
+          {
+            "fps": 15,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 100,
+            "right_drop_steps": 0,
+            "jumps_executed": 2
+          }
+        ],
+        "double_repress_30fps": {
+          "fps": 30,
+          "total_phys_steps": 73,
+          "right_continuity_pct": 100,
+          "right_drop_steps": 0,
+          "jumps_executed": 2
+        }
+      },
+      "G1_J2": {
+        "single_held_sweep": [
+          {
+            "fps": 75,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 100,
+            "right_drop_steps": 0,
+            "jumps_executed": 0
+          },
+          {
+            "fps": 60,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 100,
+            "right_drop_steps": 0,
+            "jumps_executed": 1
+          },
+          {
+            "fps": 30,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 100,
+            "right_drop_steps": 0,
+            "jumps_executed": 1
+          },
+          {
+            "fps": 15,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 100,
+            "right_drop_steps": 0,
+            "jumps_executed": 1
+          }
+        ],
+        "double_repress_30fps": {
+          "fps": 30,
+          "total_phys_steps": 73,
+          "right_continuity_pct": 100,
+          "right_drop_steps": 0,
+          "jumps_executed": 2
+        }
+      },
+      "G1_J3": {
+        "single_held_sweep": [
+          {
+            "fps": 75,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 100,
+            "right_drop_steps": 0,
+            "jumps_executed": 1
+          },
+          {
+            "fps": 60,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 100,
+            "right_drop_steps": 0,
+            "jumps_executed": 1
+          },
+          {
+            "fps": 30,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 100,
+            "right_drop_steps": 0,
+            "jumps_executed": 1
+          },
+          {
+            "fps": 15,
+            "total_phys_steps": 91,
+            "right_continuity_pct": 100,
+            "right_drop_steps": 0,
+            "jumps_executed": 1
+          }
+        ],
+        "double_repress_30fps": {
+          "fps": 30,
+          "total_phys_steps": 73,
+          "right_continuity_pct": 100,
+          "right_drop_steps": 0,
+          "jumps_executed": 2
+        }
+      }
+    },
+    "coyote_and_buffer_check": {
+      "coyoteJumped": true,
+      "bufferedJumpedOnLand": true
+    },
+    "opposite_flip_safety": {
+      "simultaneous_left_right_frames": 0,
+      "neutral_dwell_frames": 2,
+      "left_activated_after_ms": 66
+    },
+    "one_frame_dropout_flicker": {
+      "immediate_keyup_on_drop": true,
+      "total_jump_triggers_across_1frame_drop": 1
+    },
+    "phase_barrier_placing_to_gameplay": {
+      "carryover_right_frames": 0,
+      "rearmed_after_ready_release": true
+    },
+    "noisy_non_pistol_jitter_120frames": {
+      "POINT_READY_across": {
+        "frames": 120,
+        "g0Steer": 115,
+        "ux1Steer": 58,
+        "g1FalseKeydown": 0
+      },
+      "POINT_READY_along": {
+        "frames": 120,
+        "g0Steer": 116,
+        "ux1Steer": 56,
+        "g1FalseKeydown": 0
+      },
+      "PinchNear_straight": {
+        "frames": 120,
+        "g0Steer": 106,
+        "ux1Steer": 39,
+        "g1FalseKeydown": 0
+      },
+      "ThumbUp": {
+        "frames": 120,
+        "g0Steer": 45,
+        "ux1Steer": 0,
+        "g1FalseKeydown": 0
+      },
+      "VSign_tucked": {
+        "frames": 120,
+        "g0Steer": 98,
+        "ux1Steer": 0,
+        "g1FalseKeydown": 0
+      },
+      "Fist": {
+        "frames": 120,
+        "g0Steer": 19,
+        "ux1Steer": 0,
+        "g1FalseKeydown": 0
+      },
+      "OpenPalm": {
+        "frames": 120,
+        "g0Steer": 98,
+        "ux1Steer": 0,
+        "g1FalseKeydown": 0
+      }
+    }
+  },
+  "offline_mendeley_distractors": {
+    "evidence_tier": "OFFLINE_DATASET",
+    "source": "/srv/sketchbook/mediapipe-optimize/research-can/r18/results/ux3_mendeley_distractor_landmarks.json",
+    "total_detected_hands": 1133,
+    "G0_false_steer_cnt": 333,
+    "G0_false_steer_pct": 29.39,
+    "R18_UX1_false_point_cnt": 85,
+    "R18_UX1_false_point_pct": 7.5,
+    "G1_point_ready_cnt": 13,
+    "G1_point_ready_pct": 1.15,
+    "G1_false_press_cnt": 13,
+    "G1_false_press_pct": 1.15,
+    "G1_other_cnt": 1107,
+    "G1_subClass_counts": {
+      "fist": 47,
+      "pinch": 364,
+      "four": 392,
+      "unknown": 205,
+      "three": 5,
+      "five": 76,
+      "ready": 13,
+      "pistol": 13,
+      "thumb-up": 2,
+      "two-fingers": 16
+    },
+    "G1_fsm_sequential_false_active_frames": 0,
+    "by_section": {
+      "dim_light": {
+        "hands": 590,
+        "G0_false_steer_cnt": 160,
+        "G0_false_steer_pct": 27.12,
+        "R18_UX1_false_point_cnt": 43,
+        "R18_UX1_false_point_pct": 7.29,
+        "G1_point_ready_cnt": 5,
+        "G1_point_ready_pct": 0.85,
+        "G1_false_press_cnt": 9,
+        "G1_false_press_pct": 1.53,
+        "by_mode": {
+          "raw": {
+            "hands": 166,
+            "g0Steer": 49,
+            "ux1Pt": 12,
+            "g1Ready": 2,
+            "g1Press": 1
+          },
+          "clahe320": {
+            "hands": 215,
+            "g0Steer": 55,
+            "ux1Pt": 14,
+            "g1Ready": 1,
+            "g1Press": 4
+          },
+          "adaptive_m3": {
+            "hands": 209,
+            "g0Steer": 56,
+            "ux1Pt": 17,
+            "g1Ready": 2,
+            "g1Press": 4
+          }
+        }
+      },
+      "natural_light": {
+        "hands": 523,
+        "G0_false_steer_cnt": 153,
+        "G0_false_steer_pct": 29.25,
+        "R18_UX1_false_point_cnt": 42,
+        "R18_UX1_false_point_pct": 8.03,
+        "G1_point_ready_cnt": 8,
+        "G1_point_ready_pct": 1.53,
+        "G1_false_press_cnt": 4,
+        "G1_false_press_pct": 0.76,
+        "by_mode": {
+          "raw": {
+            "hands": 137,
+            "g0Steer": 51,
+            "ux1Pt": 10,
+            "g1Ready": 2,
+            "g1Press": 2
+          },
+          "clahe320": {
+            "hands": 176,
+            "g0Steer": 41,
+            "ux1Pt": 16,
+            "g1Ready": 3,
+            "g1Press": 0
+          },
+          "adaptive_m3": {
+            "hands": 210,
+            "g0Steer": 61,
+            "ux1Pt": 16,
+            "g1Ready": 3,
+            "g1Press": 2
+          }
+        }
+      },
+      "negatives": {
+        "hands": 20,
+        "G0_false_steer_cnt": 20,
+        "G0_false_steer_pct": 100,
+        "R18_UX1_false_point_cnt": 0,
+        "R18_UX1_false_point_pct": 0,
+        "G1_point_ready_cnt": 0,
+        "G1_point_ready_pct": 0,
+        "G1_false_press_cnt": 0,
+        "G1_false_press_pct": 0,
+        "by_mode": {
+          "raw": {
+            "hands": 7,
+            "g0Steer": 7,
+            "ux1Pt": 0,
+            "g1Ready": 0,
+            "g1Press": 0
+          },
+          "clahe320": {
+            "hands": 13,
+            "g0Steer": 13,
+            "ux1Pt": 0,
+            "g1Ready": 0,
+            "g1Press": 0
+          }
+        }
+      }
+    },
+    "false_press_examples": [
+      {
+        "section": "dim_light",
+        "mode": "raw",
+        "name": "Dim Light/Dice/00001241.jpg",
+        "handIndex": 0,
+        "angle": -46,
+        "d4_5": 0.608,
+        "d4_9": 0.883,
+        "d4_8": 1.03,
+        "perp": 0.516,
+        "a854": 58.1,
+        "a234": 155.4,
+        "midPipAngle": 29.7,
+        "midMcpTip": 0.415
+      },
+      {
+        "section": "dim_light",
+        "mode": "clahe320",
+        "name": "Dim Light/Dice/00000671.jpg",
+        "handIndex": 1,
+        "angle": 16.9,
+        "d4_5": 0.745,
+        "d4_9": 1.017,
+        "d4_8": 0.632,
+        "perp": 0.583,
+        "a854": 51.4,
+        "a234": 165.9,
+        "midPipAngle": 119.5,
+        "midMcpTip": 0.59
+      },
+      {
+        "section": "dim_light",
+        "mode": "clahe320",
+        "name": "Dim Light/Dice/00000841.jpg",
+        "handIndex": 0,
+        "angle": 27.1,
+        "d4_5": 0.717,
+        "d4_9": 0.973,
+        "d4_8": 0.66,
+        "perp": 0.613,
+        "a854": 58.7,
+        "a234": 158.2,
+        "midPipAngle": 89.8,
+        "midMcpTip": 0.439
+      },
+      {
+        "section": "dim_light",
+        "mode": "clahe320",
+        "name": "Dim Light/Dice/00000981.jpg",
+        "handIndex": 0,
+        "angle": 15.1,
+        "d4_5": 0.87,
+        "d4_9": 1.128,
+        "d4_8": 0.641,
+        "perp": 0.64,
+        "a854": 47.4,
+        "a234": 178.4,
+        "midPipAngle": 119.9,
+        "midMcpTip": 0.528
+      },
+      {
+        "section": "dim_light",
+        "mode": "clahe320",
+        "name": "Dim Light/Dice/00001151.jpg",
+        "handIndex": 0,
+        "angle": 24.3,
+        "d4_5": 0.759,
+        "d4_9": 1.019,
+        "d4_8": 0.843,
+        "perp": 0.722,
+        "a854": 72,
+        "a234": 167.4,
+        "midPipAngle": 98.1,
+        "midMcpTip": 0.478
+      },
+      {
+        "section": "dim_light",
+        "mode": "adaptive_m3",
+        "name": "Dim Light/Dice/00000841.jpg",
+        "handIndex": 0,
+        "angle": 27.1,
+        "d4_5": 0.717,
+        "d4_9": 0.973,
+        "d4_8": 0.66,
+        "perp": 0.613,
+        "a854": 58.7,
+        "a234": 158.2,
+        "midPipAngle": 89.8,
+        "midMcpTip": 0.439
+      },
+      {
+        "section": "dim_light",
+        "mode": "adaptive_m3",
+        "name": "Dim Light/Dice/00000981.jpg",
+        "handIndex": 0,
+        "angle": 15.1,
+        "d4_5": 0.87,
+        "d4_9": 1.128,
+        "d4_8": 0.641,
+        "perp": 0.64,
+        "a854": 47.4,
+        "a234": 178.4,
+        "midPipAngle": 119.9,
+        "midMcpTip": 0.528
+      },
+      {
+        "section": "dim_light",
+        "mode": "adaptive_m3",
+        "name": "Dim Light/Dice/00001151.jpg",
+        "handIndex": 0,
+        "angle": 24.3,
+        "d4_5": 0.759,
+        "d4_9": 1.019,
+        "d4_8": 0.843,
+        "perp": 0.722,
+        "a854": 72,
+        "a234": 167.4,
+        "midPipAngle": 98.1,
+        "midMcpTip": 0.478
+      },
+      {
+        "section": "dim_light",
+        "mode": "adaptive_m3",
+        "name": "Dim Light/Dice/00001241.jpg",
+        "handIndex": 0,
+        "angle": -46,
+        "d4_5": 0.608,
+        "d4_9": 0.883,
+        "d4_8": 1.03,
+        "perp": 0.516,
+        "a854": 58.1,
+        "a234": 155.4,
+        "midPipAngle": 29.7,
+        "midMcpTip": 0.415
+      },
+      {
+        "section": "natural_light",
+        "mode": "raw",
+        "name": "Natural Light/Checkers/00000551.jpg",
+        "handIndex": 0,
+        "angle": 125.9,
+        "d4_5": 0.635,
+        "d4_9": 0.919,
+        "d4_8": 0.535,
+        "perp": 0.494,
+        "a854": 51,
+        "a234": 173.6,
+        "midPipAngle": 110.2,
+        "midMcpTip": 0.45
+      }
+    ]
+  }
+}

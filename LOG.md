@@ -7,6 +7,29 @@
 
 ---
 
+## R19-EXEC-20261118-01 — R19 Stage P0/P1 Dataset Audit & Stage P2 Pistol Geometry + Virtual-Key FSM (`G0` vs `R18_UX1` vs `G1`)
+
+- **Date:** 2026-11-18 ~17:46 WIB.
+- **Source baseline:** `research-can@00c18235338ee46031703e1dd16bc9318b4ab4d7`, `main@c14b1d0502634cd63cc1a7be7c1e02270b15abc1` (`0.25.0-alpha`), [R19-01 WIP plan](docs/plan-rev/%5BWIP%5D%20NUI_R19-01_v0.1.0_Pistol_Press_Dataset_Training_Runtime_Research.md).
+- **Changed files (Batch 1):**
+  - Renamed plan `docs/plan-rev/NUI_R19-01_v0.1.0_Pistol_Press_Dataset_Training_Runtime_Research.md` -> `[WIP] NUI_R19-01_v0.1.0_Pistol_Press_Dataset_Training_Runtime_Research.md` per SOP on execution start.
+  - Added [R19 Dataset Audit](r19/results/R19_DATASET_AUDIT.md) (all 22 sources in `NUI_R19-01` Sec. 3: `3 SELECT`, `2 EVAL_ONLY`, `1 HOLD_LICENSE` HaGRIDv2, `3 BLOCKED` incl. DimHand, `13 REJECT`; discovered `846` exact CRC32 duplicates inside `HandGesture-5G` `4.82 GiB` zip via HTTP Range leaving `1,807` unique entries, and `HANDS RGB-D` `CC BY 4.0` `Horiz_HBL` dorsal right-hand-pointing-left `EVAL_ONLY` Range slice).
+  - Added standalone `G1_pistol` candidates: [pistol_types.ts](r19/candidates/pistol_types.ts), [pistol_geometry.ts](r19/candidates/pistol_geometry.ts), [pistol_fsm.ts](r19/candidates/pistol_fsm.ts) (`tsc --strict`: exit `0`).
+  - Added reproducible Stage P2 evaluation scripts and metrics: [exp_r19_p2_pistol_geometry_fsm.md](r19/experiments/exp_r19_p2_pistol_geometry_fsm.md), [g0_g1_eval.json](r19/results/g0_g1_eval.json), [ipn_test_g0_g1_baseline.json](r19/results/ipn_test_g0_g1_baseline.json), [n0_n1_distractor_landmarks.json](r19/results/n0_n1_distractor_landmarks.json), [n0_n1_p2_eval.json](r19/results/n0_n1_p2_eval.json), [published_vs_excluded_manifest.json](r19/manifests/published_vs_excluded_manifest.json), [SHA256SUMS.txt](r19/manifests/SHA256SUMS.txt).
+  - Updated root `LOG.md` and `README.md`. Zero edits to `main`, deployment, or student gameplay.
+- **Evidence & Measured Checks (with explicit tiers):**
+  - `UNIT_ONLY` / TypeScript `--strict` check on `r19/candidates/*.ts`: **PASS** (`0` errors, exit `0`).
+  - `SYNTHETIC` Multi-aspect sweep (`5` aspects × `100`): `G0_main` max error `16.22°` (`9:16`) / `44` zone mismatches -> `G1_pistol` **`0.00°` max error, `0` zone mismatches, `0` `fingerStates` aspect errors, `100%` PRESS recall** (command `vite-node r19/scripts/run_g0_g1_eval.ts`, exit `0`).
+  - `SYNTHETIC` 3D->2D Rotated/Pitched/Rolled (`10,500` hands across `15` poses, rolls `±35°`, pitches `±40°`): `G1_pistol` 3-class acc **`99.11%`** (`POINT_READY` `100%` / `0%` false PRESS, `POINT_PRESS` `95.93%` [`100%` std, `91.86%` dorsal-short], `OTHER` `0.00%` false PRESS vs `G0` `77.29%` steer / `UX1` `16.22%`). Dorsal Right-Hand Pointing Left (`O0/O1`): `G1` `50/50 (100%)` std & `46/50 (92%)` dorsal-short with `0` false pinch; explicit `tip4`-over-`5/6` overlap `false_pinch = false`.
+  - `SYNTHETIC` Dynamic `RIGHT -> RIGHT+JUMP -> RIGHT` + 50 Hz `JumpAssist` + 100 ms `InputArbiter`: `G1_J3` achieves **`100%` horizontal continuity across `75/60/30/15 Hz`** (`0` drop steps), exact **`1` jump** per raise (`75 Hz J2` single-edge missed with `0`), `0` bunny-hops, `0` carried-over keys after `onPhaseChange()`, `0` stuck keys on `READY`/`OTHER`/`NO_HAND`, and `0/840` noisy non-pistol false keys (`G0=597/840`, `UX1=153/840`).
+  - `OFFLINE_DATASET` Cached IPN HandS locked `person_id`-disjoint test (`36` videos, `5` unseen subjects): `NOG` `G1` `OTHER = 96.32%` (`0.24%` FSM steer, `1.11 KEYDOWN/min` vs `G0` `57.98%`), `P2F` `96.60%` (`0.10%` FSM steer), `TUP/OP2` `0.00/min` false `KEYDOWN`; casual 1-finger `P1F` triggers `55.34% POINT_READY`, `5.59% POINT_PRESS` (`2.35%` FSM active, `8.50/min`), `39.07% OTHER` (straight-at-camera curl).
+  - `OFFLINE_DATASET` Cached Mendeley `1,133` distractor hands: `G0` steer `29.39%`, `UX1` point `7.50%`, `G1` static `PRESS` `1.15%` (`0` sequential FSM active frames).
+  - `SYNTHETIC` Adversarial `N0/N1` (`55` scenes, `eval_p2_n0_n1.ts` exit `0`): `0` MediaPipe FPs on `10 N0_l_sticks` & `5 N1_poster_pistol`; on hallucinated `N0_fan_sticks`/`N1_poster_hand` skeletons, `G0_eval_steer` `7/7` raw & `13/13` scaled/CLAHE vs **`G1` `0/7` & `0/13` PRESS/FSM**.
+  - `NOT_TESTED` in Batch 1: Stage P1 data curation completion (actively streaming in VM sandbox), `G2..G5` classifier training, `L0..L2` image dataset runs, browser WASM runtime, physical webcam.
+- **Open issues / blockers:** Hard-rule `G1` still fires `5.59%` relaxed-thumb `PRESS` on casual `IPN P1F` and falls back to `READY` on `8.14%` extreme corner-rolled dorsal-short `PRESS`; `DimHand` remains `BLOCKED` (`NC-ND`), `HaGRIDv2` remains `HOLD_LICENSE` (`ShareAlike`).
+- **Next:** Complete Stage P1 `CC BY 4.0` dataset extraction (`Natural RGB v3`, `HandGesture-5G` Range stream, `HANDS RGB-D` `Horiz_H*`), visually verify `point_left/point_right` thumb states, train/calibrate `G2..G5` models (<= 200 KB) & run `L0..L2` + browser WASM benchmark (Stages P3–P5).
+- **Publication:** this commit batch, see branch history for exact SHA.
+
 ## R19-PLAN-20261118-01 — Pistol PRESS dataset/training/runtime research plan
 
 - **Date:** 2026-11-18 sekitar 16:35 WIB (timestamp sesi Owner).

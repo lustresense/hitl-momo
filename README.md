@@ -7,11 +7,12 @@
 
 ## Current status
 
-- **R19 plan, NOT STARTED:** [R19-01 Pistol PRESS, dataset, training and runtime](docs/plan-rev/NUI_R19-01_v0.1.0_Pistol_Press_Dataset_Training_Runtime_Research.md). Agent renames to [WIP] only after actual authorized execution. R19 model, training and webcam tests do not yet exist.
-- **R18 existing plan:** [R18-01 v0.3.0 WIP](docs/plan-rev/%5BWIP%5D%20NUI_R18-01_v0.3.0_UX_First_Worst_Case_Research.md), [model card](r18/models/MODEL_CARD.md) and [manifest](r18/manifests/dataset_manifest.json) continue to provide reference evidence.
-- **Product source:** [PR #6](https://github.com/lustresense/hitl-momo/pull/6) merged to `main@c14b1d0` for NUI Lab routes; runtime tunnel/physical webcam NOT_VERIFIED here; R19 remains research-only.
-- **Next:** verify legal/dataset/space, test Pistol geometry and hard negatives, LR/MLP training with subject-disjoint validation, runtime budget and physical-webcam validation. No student-game integration approved.
-- **Latest record:** [LOG.md](LOG.md), `R19-PLAN-20261118-01`. Every research commit updates README+LOG atomically.
+- **R19 execution (`[WIP]`, Batch 1 — Stages P0/P1 Audit + P2 Geometry/FSM COMPLETE):** [R19-01 WIP plan](docs/plan-rev/%5BWIP%5D%20NUI_R19-01_v0.1.0_Pistol_Press_Dataset_Training_Runtime_Research.md), [22-Dataset Provenance & License Audit](r19/results/R19_DATASET_AUDIT.md), [Stage P2 Geometry & FSM Experiment](r19/experiments/exp_r19_p2_pistol_geometry_fsm.md), and standalone `G1_pistol` code ([pistol_geometry.ts](r19/candidates/pistol_geometry.ts), [pistol_fsm.ts](r19/candidates/pistol_fsm.ts)).
+  - **Measured P2 highlights:** `0.00°` multi-aspect error (`0` mismatches vs `G0` `44` on `9:16`), `99.11%` 3-class acc on `10,500` synthetic 3D palmar/dorsal poses (`100%` std & `92%` dorsal-short Dorsal Right Pointing Left, `0%` false pinch/PRESS on `OTHER`), `100%` horizontal `RIGHT -> RIGHT+JUMP -> RIGHT` continuity across `75/60/30/15 Hz` with exact `1` jump (`J3_pulse_consumed`), and `0.24%` (`1.11/min`) FSM false activation on unseen `IPN NOG` vs `57.98%` `G0` (`IPN P1F` still sees `5.59%` relaxed-thumb `PRESS`).
+  - **Active in VM sandbox (Batch 2 pending):** `Natural RGB v3` (`n66hhk695h.3`), `HandGesture-5G` Range stream (`1,807` CRC32-unique entries), `HANDS RGB-D Horiz_H*` Range slice, followed by `G2..G5` training/calibration, `L0..L2`, and isolated browser WASM harness. Physical webcam remains **`NOT_TESTED`**.
+- **R18 existing plan:** [R18-01 v0.3.0 WIP](docs/plan-rev/%5BWIP%5D%20NUI_R18-01_v0.3.0_UX_First_Worst_Case_Research.md), [model card](r18/models/MODEL_CARD.md) and [manifest](r18/manifests/dataset_manifest.json) remain baseline reference evidence.
+- **Product source:** [PR #6](https://github.com/lustresense/hitl-momo/pull/6) merged to `main@c14b1d0` for existing `/nui-lab/gesture` and `/nui-lab/canvas` only; student gameplay and deployment untouched.
+- **Latest record:** [LOG.md](LOG.md), `R19-EXEC-20261118-01`. Every research commit updates README+LOG atomically.
 
 ## Workspace and files
 
@@ -34,7 +35,7 @@ research-can (orphan)
     └── manifests/           # dataset provenance, exclusions and checksums
 ```
 
-Current artifacts: [R18](r18/), [consolidated report](r18/results/R18_MASTER_REPORT.md), [R18 experiments](r18/experiments/), [candidates](r18/candidates/), [scripts](r18/scripts/), [results](r18/results/), [models](r18/models/), [manifests](r18/manifests/).
+Current artifacts: [R19](r19/), [R19 Dataset Audit](r19/results/R19_DATASET_AUDIT.md), [R19 Stage P2](r19/experiments/exp_r19_p2_pistol_geometry_fsm.md), [R19 manifests](r19/manifests/), | Baseline: [R18](r18/), [consolidated report](r18/results/R18_MASTER_REPORT.md), [R18 experiments](r18/experiments/), [candidates](r18/candidates/), [scripts](r18/scripts/), [results](r18/results/), [models](r18/models/), [manifests](r18/manifests/).
 
 ## Local source mapping for Agy
 

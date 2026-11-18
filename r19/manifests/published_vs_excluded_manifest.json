@@ -1,0 +1,115 @@
+{
+  "branch": "research-can",
+  "batch": "R19 Batch 1 (Stages P0 + P1 Audit + P2 Geometry/FSM Baseline)",
+  "source_sandbox": "/srv/sketchbook/mediapipe-optimize/r19-sandbox",
+  "source_main_baseline_commit": "c14b1d0502634cd63cc1a7be7c1e02270b15abc1",
+  "published_count_excluding_manifests": 15,
+  "published_bytes_excluding_manifests": 226017,
+  "published_files": [
+    {
+      "published_path": "docs/plan-rev/[WIP] NUI_R19-01_v0.1.0_Pistol_Press_Dataset_Training_Runtime_Research.md",
+      "bytes": 21974,
+      "sha256": "c8a27aae060ffee327e28ed85aaad66f1ed4e6cccab206b79a8b0f5fd3a5a43a"
+    },
+    {
+      "published_path": "r19/candidates/pistol_fsm.ts",
+      "bytes": 15152,
+      "sha256": "8eed54680287dffcb994cac0cbce6899d4d5560362d2fa1265e43eeb3db4f031"
+    },
+    {
+      "published_path": "r19/candidates/pistol_geometry.ts",
+      "bytes": 20037,
+      "sha256": "41a5a88f572345c6b43ec33f3fc0f99e07ab2be74c9fc2f226cda1a805039178"
+    },
+    {
+      "published_path": "r19/candidates/pistol_types.ts",
+      "bytes": 2126,
+      "sha256": "b18ead684acb5df8d7117d91456acd01c494318298f46ff6e03a3f89b32f17a5"
+    },
+    {
+      "published_path": "r19/experiments/exp_r19_p2_pistol_geometry_fsm.md",
+      "bytes": 9821,
+      "sha256": "9eb9889f68d0c7b625afd6da217e514a0457b8749fc6974df33de4f9f220eff7"
+    },
+    {
+      "published_path": "r19/results/R19_DATASET_AUDIT.md",
+      "bytes": 12077,
+      "sha256": "d9ec3020dbef8e13151b844c5018288fa639b3abfd887bdb81f6b6d63d38a2f5"
+    },
+    {
+      "published_path": "r19/results/g0_g1_eval.json",
+      "bytes": 33419,
+      "sha256": "c6acd48166abeecba0fd2fe3f25a56dc796f9c4816bb7870409214b037bc388e"
+    },
+    {
+      "published_path": "r19/results/ipn_test_g0_g1_baseline.json",
+      "bytes": 9065,
+      "sha256": "c82f0113783a6e014306224bd3d91d215df71e26e46557f39cb9ae643b10512f"
+    },
+    {
+      "published_path": "r19/results/n0_n1_distractor_landmarks.json",
+      "bytes": 23861,
+      "sha256": "91cc2605fd7676293b06c3bdd7dd70dd59e34d07512d402a507c34bba129bcea"
+    },
+    {
+      "published_path": "r19/results/n0_n1_p2_eval.json",
+      "bytes": 2090,
+      "sha256": "b4ee39ee8d2410e62906d7bade8efca868e8cc742d94222f01ebd98befe01b01"
+    },
+    {
+      "published_path": "r19/scripts/eval_g1_on_ipn_test.ts",
+      "bytes": 5342,
+      "sha256": "c4d4921f2bb669ae9bb6cbd9b78b894014f8239b01fc7f20541f93dea9fea081"
+    },
+    {
+      "published_path": "r19/scripts/eval_p2_n0_n1.ts",
+      "bytes": 2452,
+      "sha256": "882a3af300a0d46c04d5154d7eee51867ff532a2c437be86c59d93a871c19de1"
+    },
+    {
+      "published_path": "r19/scripts/n0_n1_pistol_distractors.py",
+      "bytes": 5284,
+      "sha256": "a5d64ce5cefc1e94598a9acbd97d71e58c4e0969e7fcf45c6a5654e8ec4e0d2d"
+    },
+    {
+      "published_path": "r19/scripts/run_g0_g1_eval.ts",
+      "bytes": 60657,
+      "sha256": "718e5724c95b32be5d0590285e4b9ae1677b09d2edcad7953e46c1d7e7b66003"
+    },
+    {
+      "published_path": "r19/scripts/stream_ipn_split.py",
+      "bytes": 2660,
+      "sha256": "5388568b3d84c6786ee745e6a5c0f7dca241965beba182b37184bfa88ac03f74"
+    }
+  ],
+  "excluded_artifacts": [
+    {
+      "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/data/n66hhk695h_v3/Root.zip",
+      "reason": "Raw upstream CC BY 4.0 dataset archive (~364.5 MiB); never push raw datasets to Git"
+    },
+    {
+      "path": "HandGesture-5G GESTURE DATASET JU.zip (remote Mendeley 4.82 GiB)",
+      "reason": "Monolithic zip skipped completely; streamed deduplicated entries in RAM via HTTP Range"
+    },
+    {
+      "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/data/handgesture_5g_derived/",
+      "reason": "Local curated landmark JSONL & audit contact sheets; derived landmark buffers exceed lightweight Git curation threshold"
+    },
+    {
+      "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/work/",
+      "reason": "Active download/streaming scratch scripts until Batch 2 curation summary/manifests finalize"
+    },
+    {
+      "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/train/",
+      "reason": "In-progress Stage P3 feature extraction & MLP training workspace reserved for Batch 2 after real curation completes"
+    },
+    {
+      "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/results/worker_{a,b}*",
+      "reason": "Intermediate subagent audit dumps consolidated cleanly into r19/results/R19_DATASET_AUDIT.md and r19/experiments/"
+    },
+    {
+      "path": "main:contexts/can/research/.context-notforagent/",
+      "reason": "Strictly off-limits private context boundary per AGENTS.md Sec. 1"
+    }
+  ]
+}

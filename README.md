@@ -7,12 +7,16 @@
 
 ## Current status
 
-- **R19 execution (`[WIP]`, Batch 1 — Stages P0/P1 Audit + P2 Geometry/FSM COMPLETE):** [R19-01 WIP plan](docs/plan-rev/%5BWIP%5D%20NUI_R19-01_v0.1.0_Pistol_Press_Dataset_Training_Runtime_Research.md), [22-Dataset Provenance & License Audit](r19/results/R19_DATASET_AUDIT.md), [Stage P2 Geometry & FSM Experiment](r19/experiments/exp_r19_p2_pistol_geometry_fsm.md), and standalone `G1_pistol` code ([pistol_geometry.ts](r19/candidates/pistol_geometry.ts), [pistol_fsm.ts](r19/candidates/pistol_fsm.ts)).
-  - **Measured P2 highlights:** `0.00°` multi-aspect error (`0` mismatches vs `G0` `44` on `9:16`), `99.11%` 3-class acc on `10,500` synthetic 3D palmar/dorsal poses (`100%` std & `92%` dorsal-short Dorsal Right Pointing Left, `0%` false pinch/PRESS on `OTHER`), `100%` horizontal `RIGHT -> RIGHT+JUMP -> RIGHT` continuity across `75/60/30/15 Hz` with exact `1` jump (`J3_pulse_consumed`), and `0.24%` (`1.11/min`) FSM false activation on unseen `IPN NOG` vs `57.98%` `G0` (`IPN P1F` still sees `5.59%` relaxed-thumb `PRESS`).
-  - **Active in VM sandbox (Batch 2 pending):** `Natural RGB v3` (`n66hhk695h.3`), `HandGesture-5G` Range stream (`1,807` CRC32-unique entries), `HANDS RGB-D Horiz_H*` Range slice, followed by `G2..G5` training/calibration, `L0..L2`, and isolated browser WASM harness. Physical webcam remains **`NOT_TESTED`**.
+- **R19 execution (`[WIP]`, Batch 2 — Data Curation, Scale-Invariant `G3` MLP, `G4` Hybrid, Ablations & `180 s` Chromium WASM COMPLETE; `HANDS RGB-D` eval Batch 3 pending):** [R19-01 WIP plan](docs/plan-rev/%5BWIP%5D%20NUI_R19-01_v0.1.0_Pistol_Press_Dataset_Training_Runtime_Research.md), [Model Card (`122,768 B`)](r19/models/MODEL_CARD.md), [Training & Eval Report](r19/results/R19_TRAINING_REPORT.md), [Stage P3 Ablation](r19/experiments/exp_r19_p3_training_ablation.md), [180 s Browser Benchmark](r19/results/R19_RUNTIME_BENCHMARK.md), [Main NUI Lab Handoff](r19/results/R19_MAIN_INTEGRATION_HANDOFF.md), and standalone code ([r19_features.ts](r19/candidates/r19_features.ts), [r19_integrated.ts](r19/candidates/r19_integrated.ts), [pistol_geometry.ts](r19/candidates/pistol_geometry.ts), [pistol_fsm.ts](r19/candidates/pistol_fsm.ts)).
+  - **Measured P3/P4 highlights (`OFFLINE_DATASET` / `SYNTHETIC` / `BROWSER_SIMULATED_VIDEO`):**
+    - Replacing raw `hand_size` fixed the `x0.22` webcam-scale collapse (`G5_r18feat = 2/33` -> `G3_82dim = 33/33`, `max_aspect_invariant_diff = 1.577e-14` across `82/82` features); pure JS `G3` `p50/p95 = 22.29/27.44 µs` (`G4` `55.60/87.12 µs`).
+    - Locked `CC BY 4.0` test (`17,086 / 5,067 / 4,720`): `G3_MLP` (`[82->96->48->3]`, `T = 1.27`, `47,288 B` HTTP wire) **`Acc = 0.9985` / `Macro-F1 = 0.9567`** (`ECE = 0.00137`, vs `G2_LR 0.9786 / 0.6748`).
+    - `G4_Hybrid` (`G1 + G3 + FSM`): `HG5G test` (`n = 230`) `0.9826` (`97.14%` `L-Sign` recall, `0%` `READY->PRESS`), `Natural RGB v3 test` (`888` hands) **`0.00%` FSM active** (`G0 = 61.60%`), `IPN test` (`36` vid) **`0.00 / 0.04 / 0.09` `KD/min`** on `NOG/P2F/P1F` (`G1 = 1.11/0.64/8.50`, `G0 NOG = 57.98%`), `Mendeley (599)` & `N0/N1 (33)` = `0%`, `JumpAssist 50 Hz` = `100%` horizontal continuity at `75/60/30/15 Hz`.
+    - `180 s` Chromium WASM (`r19_sim_cam.y4m`): **`10.83 MiB` < `25 MB`** total wire, `14.18` MP FPS (`81.88%` adaptive det w/ CLAHE), `r19Ms p95 = 0.2 ms`, **`50/50/50` `KeyDown/KeyUp/Jump` (`0` stuck)**, `0` page errors, `stoppedCleanly = true`.
+  - **Active in VM sandbox (Batch 3 pending) & Gate:** `HANDS RGB-D` (`ndrczc35bt.2`, `EVAL_ONLY`) selective Range curation across `Subject1..5` is running for out-of-domain `Horiz_HBL` evaluation; physical webcam remains **`NOT_TESTED`**.
 - **R18 existing plan:** [R18-01 v0.3.0 WIP](docs/plan-rev/%5BWIP%5D%20NUI_R18-01_v0.3.0_UX_First_Worst_Case_Research.md), [model card](r18/models/MODEL_CARD.md) and [manifest](r18/manifests/dataset_manifest.json) remain baseline reference evidence.
 - **Product source:** [PR #6](https://github.com/lustresense/hitl-momo/pull/6) merged to `main@c14b1d0` for existing `/nui-lab/gesture` and `/nui-lab/canvas` only; student gameplay and deployment untouched.
-- **Latest record:** [LOG.md](LOG.md), `R19-EXEC-20261118-01`. Every research commit updates README+LOG atomically.
+- **Latest record:** [LOG.md](LOG.md), `R19-EXEC-20261118-02`. Every research commit updates README+LOG atomically.
 
 ## Workspace and files
 
@@ -35,7 +39,7 @@ research-can (orphan)
     └── manifests/           # dataset provenance, exclusions and checksums
 ```
 
-Current artifacts: [R19](r19/), [R19 Dataset Audit](r19/results/R19_DATASET_AUDIT.md), [R19 Stage P2](r19/experiments/exp_r19_p2_pistol_geometry_fsm.md), [R19 manifests](r19/manifests/), | Baseline: [R18](r18/), [consolidated report](r18/results/R18_MASTER_REPORT.md), [R18 experiments](r18/experiments/), [candidates](r18/candidates/), [scripts](r18/scripts/), [results](r18/results/), [models](r18/models/), [manifests](r18/manifests/).
+Current artifacts: [R19](r19/), [R19 Model Card](r19/models/MODEL_CARD.md), [R19 Training Report](r19/results/R19_TRAINING_REPORT.md), [R19 Runtime Benchmark](r19/results/R19_RUNTIME_BENCHMARK.md), [R19 Main Handoff](r19/results/R19_MAIN_INTEGRATION_HANDOFF.md), [R19 Dataset Audit](r19/results/R19_DATASET_AUDIT.md), [R19 Stage P2](r19/experiments/exp_r19_p2_pistol_geometry_fsm.md), [R19 Stage P3](r19/experiments/exp_r19_p3_training_ablation.md), [R19 manifests](r19/manifests/) | Baseline: [R18](r18/), [consolidated report](r18/results/R18_MASTER_REPORT.md), [R18 experiments](r18/experiments/), [candidates](r18/candidates/), [scripts](r18/scripts/), [results](r18/results/), [models](r18/models/), [manifests](r18/manifests/).
 
 ## Local source mapping for Agy
 

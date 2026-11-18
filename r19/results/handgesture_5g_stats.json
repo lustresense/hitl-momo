@@ -1,0 +1,361 @@
+{
+  "dataset": "HandGesture-5G (10.17632/wj25crzdbm.1)",
+  "license": "CC BY 4.0",
+  "streaming_mode": "HTTP Range 206 in-memory only (0 B zip saved)",
+  "zip_total_bytes": 5176227373,
+  "zip_total_entries": 2659,
+  "zip_image_entries": 2653,
+  "crc32_duplicates_skipped": 846,
+  "unique_crc32_entries": 1807,
+  "decoded_images": 1797,
+  "heic_decode_attempts": 10,
+  "heic_skips": [
+    {
+      "ok": false,
+      "filename": "GESTURE DATASET JU/V-Sign/IMG_8553.HEIC",
+      "bytes": 1112473,
+      "errors": [
+        "PIL:UnidentifiedImageError:cannot identify image file <_io.BytesIO object at 0x7d6f5593f510>",
+        "cv2:imdecode_returned_None",
+        "ffmpeg:rc=183:[mov,mp4,m4a,3gp,3g2,mj2 @ 0x5d9cc96cbe80] moov atom not found\n[in#0 @ 0x5d9cc96cbd80] Error opening input: Invalid data found when processing input\nError opening input file /dev/s"
+      ]
+    },
+    {
+      "ok": false,
+      "filename": "GESTURE DATASET JU/V-Sign/IMG_8554.HEIC",
+      "bytes": 1127727,
+      "errors": [
+        "PIL:UnidentifiedImageError:cannot identify image file <_io.BytesIO object at 0x7d6f03b19670>",
+        "cv2:imdecode_returned_None",
+        "ffmpeg:rc=183:[mov,mp4,m4a,3gp,3g2,mj2 @ 0x65524d4c5e80] moov atom not found\n[in#0 @ 0x65524d4c5d80] Error opening input: Invalid data found when processing input\nError opening input file /dev/s"
+      ]
+    },
+    {
+      "ok": false,
+      "filename": "GESTURE DATASET JU/V-Sign/IMG_8555.HEIC",
+      "bytes": 968432,
+      "errors": [
+        "PIL:UnidentifiedImageError:cannot identify image file <_io.BytesIO object at 0x7d6f03b18040>",
+        "cv2:imdecode_returned_None",
+        "ffmpeg:rc=183:[mov,mp4,m4a,3gp,3g2,mj2 @ 0x60106905be80] moov atom not found\n[in#0 @ 0x60106905bd80] Error opening input: Invalid data found when processing input\nError opening input file /dev/s"
+      ]
+    },
+    {
+      "ok": false,
+      "filename": "GESTURE DATASET JU/V-Sign/IMG_8556.HEIC",
+      "bytes": 1115862,
+      "errors": [
+        "PIL:UnidentifiedImageError:cannot identify image file <_io.BytesIO object at 0x7d6f03b1a110>",
+        "cv2:imdecode_returned_None",
+        "ffmpeg:rc=183:[mov,mp4,m4a,3gp,3g2,mj2 @ 0x5a42f48b7e80] moov atom not found\n[in#0 @ 0x5a42f48b7d80] Error opening input: Invalid data found when processing input\nError opening input file /dev/s"
+      ]
+    },
+    {
+      "ok": false,
+      "filename": "GESTURE DATASET JU/V-Sign/IMG_8557.HEIC",
+      "bytes": 952038,
+      "errors": [
+        "PIL:UnidentifiedImageError:cannot identify image file <_io.BytesIO object at 0x7d6f03b18040>",
+        "cv2:imdecode_returned_None",
+        "ffmpeg:rc=183:[mov,mp4,m4a,3gp,3g2,mj2 @ 0x60ecb2c99e80] moov atom not found\n[in#0 @ 0x60ecb2c99d80] Error opening input: Invalid data found when processing input\nError opening input file /dev/s"
+      ]
+    },
+    {
+      "ok": false,
+      "filename": "GESTURE DATASET JU/V-Sign/IMG_E8553.HEIC",
+      "bytes": 848507,
+      "errors": [
+        "PIL:UnidentifiedImageError:cannot identify image file <_io.BytesIO object at 0x7d6f03bbea70>",
+        "cv2:imdecode_returned_None",
+        "ffmpeg:rc=183:[mov,mp4,m4a,3gp,3g2,mj2 @ 0x5f7913f2ee80] moov atom not found\n[in#0 @ 0x5f7913f2ed80] Error opening input: Invalid data found when processing input\nError opening input file /dev/s"
+      ]
+    },
+    {
+      "ok": false,
+      "filename": "GESTURE DATASET JU/V-Sign/IMG_E8554.HEIC",
+      "bytes": 864908,
+      "errors": [
+        "PIL:UnidentifiedImageError:cannot identify image file <_io.BytesIO object at 0x7d6f03c3dd00>",
+        "cv2:imdecode_returned_None",
+        "ffmpeg:rc=183:[mov,mp4,m4a,3gp,3g2,mj2 @ 0x5ef3ae479e80] moov atom not found\n[in#0 @ 0x5ef3ae479d80] Error opening input: Invalid data found when processing input\nError opening input file /dev/s"
+      ]
+    },
+    {
+      "ok": false,
+      "filename": "GESTURE DATASET JU/V-Sign/IMG_E8555.HEIC",
+      "bytes": 708926,
+      "errors": [
+        "PIL:UnidentifiedImageError:cannot identify image file <_io.BytesIO object at 0x7d6f03bbfce0>",
+        "cv2:imdecode_returned_None",
+        "ffmpeg:rc=183:[mov,mp4,m4a,3gp,3g2,mj2 @ 0x60e1a31bfe80] moov atom not found\n[in#0 @ 0x60e1a31bfd80] Error opening input: Invalid data found when processing input\nError opening input file /dev/s"
+      ]
+    },
+    {
+      "ok": false,
+      "filename": "GESTURE DATASET JU/V-Sign/IMG_E8556.HEIC",
+      "bytes": 852774,
+      "errors": [
+        "PIL:UnidentifiedImageError:cannot identify image file <_io.BytesIO object at 0x7d6f0399aca0>",
+        "cv2:imdecode_returned_None",
+        "ffmpeg:rc=183:[mov,mp4,m4a,3gp,3g2,mj2 @ 0x5bb96e468e80] moov atom not found\n[in#0 @ 0x5bb96e468d80] Error opening input: Invalid data found when processing input\nError opening input file /dev/s"
+      ]
+    },
+    {
+      "ok": false,
+      "filename": "GESTURE DATASET JU/V-Sign/IMG_E8557.HEIC",
+      "bytes": 691494,
+      "errors": [
+        "PIL:UnidentifiedImageError:cannot identify image file <_io.BytesIO object at 0x7d6f0399a340>",
+        "cv2:imdecode_returned_None",
+        "ffmpeg:rc=183:[mov,mp4,m4a,3gp,3g2,mj2 @ 0x5ab472049e80] moov atom not found\n[in#0 @ 0x5ab472049d80] Error opening input: Invalid data found when processing input\nError opening input file /dev/s"
+      ]
+    }
+  ],
+  "other_decode_errors": [],
+  "exif_orientations": {
+    "1": 1797
+  },
+  "camera_models": {
+    "iPhone 15 Pro Max": 1446,
+    "iPhone 14 Pro Max": 351
+  },
+  "overall": {
+    "total": 1797,
+    "l0_detected": 1281,
+    "l0_recall_pct": 71.29,
+    "l0_miss": 516,
+    "l1_clahe320_detected": 989,
+    "l1_recall_pct": 55.04,
+    "m3_detected": 1281,
+    "m3_recall_pct": 71.29,
+    "both_miss": 497
+  },
+  "by_class": {
+    "Fist": {
+      "total": 338,
+      "l0_detected": 297,
+      "l0_recall_pct": 87.87,
+      "l0_miss": 41,
+      "l1_clahe320_detected": 290,
+      "l1_recall_pct": 85.8,
+      "m3_detected": 297,
+      "m3_recall_pct": 87.87,
+      "both_miss": 36,
+      "l0_miss_l1_recovered": 5,
+      "l0_det_l1_missed": 12,
+      "facing_pos_count": 1,
+      "facing_neg_count": 296,
+      "thumb_lateral_p10_p50_p90": [
+        1.109,
+        1.257,
+        1.347
+      ],
+      "legacy_thumb_ratio_p10_p50_p90": [
+        0.887,
+        1.187,
+        1.634
+      ]
+    },
+    "L-Sign": {
+      "total": 365,
+      "l0_detected": 229,
+      "l0_recall_pct": 62.74,
+      "l0_miss": 136,
+      "l1_clahe320_detected": 127,
+      "l1_recall_pct": 34.79,
+      "m3_detected": 229,
+      "m3_recall_pct": 62.74,
+      "both_miss": 131,
+      "l0_miss_l1_recovered": 5,
+      "l0_det_l1_missed": 107,
+      "facing_pos_count": 132,
+      "facing_neg_count": 97,
+      "thumb_lateral_p10_p50_p90": [
+        1.851,
+        2.095,
+        2.369
+      ],
+      "legacy_thumb_ratio_p10_p50_p90": [
+        1.213,
+        1.289,
+        1.451
+      ]
+    },
+    "Open Palm_Open Hand": {
+      "total": 439,
+      "l0_detected": 423,
+      "l0_recall_pct": 96.36,
+      "l0_miss": 16,
+      "l1_clahe320_detected": 380,
+      "l1_recall_pct": 86.56,
+      "m3_detected": 423,
+      "m3_recall_pct": 96.36,
+      "both_miss": 15,
+      "l0_miss_l1_recovered": 1,
+      "l0_det_l1_missed": 44,
+      "facing_pos_count": 203,
+      "facing_neg_count": 220,
+      "thumb_lateral_p10_p50_p90": [
+        1.451,
+        1.847,
+        2.077
+      ],
+      "legacy_thumb_ratio_p10_p50_p90": [
+        0.968,
+        1.223,
+        1.412
+      ]
+    },
+    "Pointing Up": {
+      "total": 284,
+      "l0_detected": 144,
+      "l0_recall_pct": 50.7,
+      "l0_miss": 140,
+      "l1_clahe320_detected": 116,
+      "l1_recall_pct": 40.85,
+      "m3_detected": 144,
+      "m3_recall_pct": 50.7,
+      "both_miss": 137,
+      "l0_miss_l1_recovered": 3,
+      "l0_det_l1_missed": 31,
+      "facing_pos_count": 60,
+      "facing_neg_count": 84,
+      "thumb_lateral_p10_p50_p90": [
+        0.498,
+        0.681,
+        0.889
+      ],
+      "legacy_thumb_ratio_p10_p50_p90": [
+        0.586,
+        1.187,
+        2.122
+      ]
+    },
+    "V-Sign": {
+      "total": 371,
+      "l0_detected": 188,
+      "l0_recall_pct": 50.67,
+      "l0_miss": 183,
+      "l1_clahe320_detected": 76,
+      "l1_recall_pct": 20.49,
+      "m3_detected": 188,
+      "m3_recall_pct": 50.67,
+      "both_miss": 178,
+      "l0_miss_l1_recovered": 5,
+      "l0_det_l1_missed": 117,
+      "facing_pos_count": 76,
+      "facing_neg_count": 112,
+      "thumb_lateral_p10_p50_p90": [
+        0.323,
+        0.696,
+        0.883
+      ],
+      "legacy_thumb_ratio_p10_p50_p90": [
+        0.582,
+        1.788,
+        3.171
+      ]
+    }
+  },
+  "by_exposure_bucket": {
+    "correct_eb": {
+      "total": 1262,
+      "l0_detected": 945,
+      "l0_recall_pct": 74.88,
+      "l0_miss": 317,
+      "l1_clahe320_detected": 700,
+      "l1_recall_pct": 55.47,
+      "m3_detected": 945,
+      "m3_recall_pct": 74.88,
+      "both_miss": 308
+    },
+    "high_eb": {
+      "total": 245,
+      "l0_detected": 172,
+      "l0_recall_pct": 70.2,
+      "l0_miss": 73,
+      "l1_clahe320_detected": 140,
+      "l1_recall_pct": 57.14,
+      "m3_detected": 172,
+      "m3_recall_pct": 70.2,
+      "both_miss": 70
+    },
+    "low_eb": {
+      "total": 290,
+      "l0_detected": 164,
+      "l0_recall_pct": 56.55,
+      "l0_miss": 126,
+      "l1_clahe320_detected": 149,
+      "l1_recall_pct": 51.38,
+      "m3_detected": 164,
+      "m3_recall_pct": 56.55,
+      "both_miss": 119
+    }
+  },
+  "cluster_stats": {
+    "num_clusters": 38,
+    "dhash_same_day_model_cls_le8_union_edges": 1373,
+    "burst_15s_union_edges": 386,
+    "max_cluster_size": 194,
+    "median_cluster_size": 34.5,
+    "singleton_clusters": 0
+  },
+  "splits": {
+    "split_counts": {
+      "train": {
+        "total": 1095,
+        "clusters": 21,
+        "by_class": {
+          "Fist": 238,
+          "L-Sign": 173,
+          "Open Palm_Open Hand": 292,
+          "Pointing Up": 198,
+          "V-Sign": 194
+        }
+      },
+      "val": {
+        "total": 445,
+        "clusters": 8,
+        "by_class": {
+          "Fist": 47,
+          "L-Sign": 157,
+          "Open Palm_Open Hand": 72,
+          "Pointing Up": 42,
+          "V-Sign": 127
+        }
+      },
+      "test": {
+        "total": 257,
+        "clusters": 9,
+        "by_class": {
+          "Fist": 53,
+          "L-Sign": 35,
+          "Open Palm_Open Hand": 75,
+          "Pointing Up": 44,
+          "V-Sign": 50
+        }
+      }
+    },
+    "leakage_audit": {
+      "cross_split_shared_clusters": 0,
+      "cross_split_same_cls_day_model_dhash_le_8": 0,
+      "cross_split_same_cls_le_4_any_day": 2,
+      "cross_split_same_cls_le_8_diff_day_model": 199,
+      "cross_split_burst_le_15s": 0,
+      "min_cross_split_same_model_class_dt_s": 24.0
+    }
+  },
+  "artifacts": {
+    "jsonl_path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/data/handgesture_5g_derived/handgesture_5g_landmarks.jsonl",
+    "jsonl_bytes": 6507749,
+    "contact_sheet": {
+      "saved": true,
+      "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/data/handgesture_5g_derived/hg5g_samples_audit.jpg",
+      "tiles": 56,
+      "bytes": 438769
+    },
+    "total_dir_bytes_before_summary": 6946518
+  },
+  "elapsed_s": 1788.59,
+  "disk_free_bytes_after": 3013230592
+}

@@ -7,6 +7,33 @@
 
 ---
 
+## R19-EXEC-20261118-02 — R19 Batch 2: `CC BY 4.0` Data Curation, Scale-Invariant `G3` MLP + `G4` Hybrid, Ablations & `180 s` Chromium WASM Benchmark (`KATA-TOOL` / `OFFLINE_DATASET` / `BROWSER_SIMULATED_VIDEO`)
+
+- **Trigger:** R&D mandate [`[WIP] NUI_R19-01 v0.1.0`](docs/plan-rev/%5BWIP%5D%20NUI_R19-01_v0.1.0_Pistol_Press_Dataset_Training_Runtime_Research.md) Stages P1 (curated real datasets), P3 (feature invariance, lightweight model training/calibration, end-to-end eval & main NUI Lab handoff), and P4 (isolated `180 s` Chromium WASM benchmark).
+- **Published Deliverables (`research-can/r19/` — 44 total files under `r19/`, ~600 KB total):**
+  - **Candidates (strict TypeScript pass, 214/214 sandbox parity, standalone):** [`r19_features.ts`](r19/candidates/r19_features.ts) (`82`-dim scale/aspect/rotation-invariant features), [`r19_model.ts`](r19/candidates/r19_model.ts), [`r19_safety_guards.ts`](r19/candidates/r19_safety_guards.ts), [`r19_integrated.ts`](r19/candidates/r19_integrated.ts) (`G4_Hybrid` + `PistolVirtualKeyFSM`), and [`browser_harness/{harness.ts,index.html}`](r19/candidates/browser_harness/harness.ts).
+  - **Models (`CC BY 4.0` only, zero `HaGRIDv2`/`DimHand`):** Primary [`r19_model_mlp.json`](r19/models/r19_model_mlp.json) (`122,768 B` raw / `47,288 B` HTTP wire, `[82 -> 96 -> 48 -> 3]`, `T = 1.27`, SHA-256 `c6130bd56850534889372a7295d45e7704083cbf60115626cd08b57c6e000293`), linear baseline [`r19_model_lr.json`](r19/models/r19_model_lr.json) (`5,092 B`, SHA-256 `64821aa20b1cc3b959a0d6b3dbe984ed9f190249be01ad757cfaaed321842737`), and [`MODEL_CARD.md`](r19/models/MODEL_CARD.md).
+  - **Reports, Ablations & Manifests:** [`exp_r19_p3_training_ablation.md`](r19/experiments/exp_r19_p3_training_ablation.md), [`R19_TRAINING_REPORT.md`](r19/results/R19_TRAINING_REPORT.md), [`R19_RUNTIME_BENCHMARK.md`](r19/results/R19_RUNTIME_BENCHMARK.md), [`R19_GESTURE_LABEL_SCHEMA.md`](r19/results/R19_GESTURE_LABEL_SCHEMA.md), [`R19_MAIN_INTEGRATION_HANDOFF.md`](r19/results/R19_MAIN_INTEGRATION_HANDOFF.md), [`r19_eval_all.json`](r19/results/r19_eval_all.json), [`r19_browser_runtime.json`](r19/results/r19_browser_runtime.json), [`dataset_manifest.json`](r19/manifests/dataset_manifest.json), [`published_vs_excluded_manifest.json`](r19/manifests/published_vs_excluded_manifest.json), and [`SHA256SUMS.txt`](r19/manifests/SHA256SUMS.txt).
+- **Commands & Verified Results (`exit 0`):**
+  1. **Curated `CC BY 4.0` Real Datasets (`handgesture_5g_stats.json`, `n66hhk695h_v3_stats.json`):**
+     - `HandGesture-5G` (`wj25crzdbm.1`, HTTP Range in-memory, `0 B` zip saved): `2,659` entries -> `846` CRC32 dups removed -> `1,807` unique -> `1,797` decoded (`10` `.HEIC` skipped), `38` session/dHash-disjoint clusters (`train 1,095 / val 445 / test 257`, `min dt = 24.0 s`); visual audit verified `L-Sign` open-thumb Pistol across palmar/dorsal vs `Pointing Up` thumb-folded `POINT_READY`.
+     - `Natural RGB Hand Gestures v3` (`n66hhk695h.3`): `1,352` clips (`10,816` frames), participant-disjoint `19 / 4 / 3` (`test = p02,p05,p15`); paired `VIDEO + M3 CLAHE` vs `IMAGE L0` (`60` clips, `4,285` frames): detection `48.12% -> 56.62%` (`dim 40.44% -> 59.33%`, `green_led 15.44% -> 31.05%`); conversational `point_left`/`point_right` (`76.1%`/`81.16%` `thumb_lateral >= 1.3`) held out cleanly.
+  2. **Scale-Shortcut Fix & Exact Invariants (`test_r19_invariants_and_latency.ts`):**
+     - Replaced raw screen `hand_size` (`hs`) with `thumb_over_index_reach` after discovering `hs` shortcut collapsed `G5_r18feat` (`68`-dim) to **`2/33 (6.06%)`** on `x0.22` webcam-scale `L-Sign`.
+     - New `82`-dim vector achieves **`max_aspect_invariant_diff = 1.577e-14`** across all `82/82` features (`5` aspects × `3` scales `0.22..0.85`) and **`33/33 (100%)`** across `x1.0..x0.22` scales & `0°..180°/-135°` 16:9 projected rotations; pure JS `p50/p95 = 22.29 / 27.44 µs`, full `G4` `55.60 / 87.12 µs`.
+  3. **Training, Calibration & End-to-End Evaluation (`train_r19_models.py`, `eval_r19_all.ts`):**
+     - Clean splits: `train = 17,086`, `val = 5,067`, `test = 4,720`. `G3_MLP` (`mlp_96_48_n03`, `T = 1.27`): locked `test Acc = 0.9985`, **`Macro-F1 = 0.9567`**, `ECE = 0.00137` (`G2_LR = 0.9786 / 0.6748`). Python-vs-TS parity (`150` rows): `max_abs_diff = 2.494e-6`, `0` argmax mismatches.
+     - `G4_Hybrid` (`tauPress = 0.38`, `tauPressRescue = 0.60`, `otherVetoTau = 0.72` tuned on `VAL`): `HG5G test` (`n = 230` M3) `0.9826` acc (`97.14%` `L-Sign` recall, `0%` `READY->PRESS`, `0%` `OTHER->PRESS`); `Natural RGB v3 test` (`11` OTHER cls, `888` hands) **`0.00%` FSM active / `0` `KEYDOWN`** vs `G0 = 61.60%`; `IPN test` (`36` videos) `NOG = 0.00 KD/min` (`G1 = 1.11`, `G0 = 57.98%`), `P2F = 0.04/min`, `P1F = 0.09/min` (`G1 = 8.50/min`), `C1F/2C1/GRB/TUP/OP2/ZOT = 0.00/min`; Mendeley (`599`) & `N0/N1` (`33`) = `0.00%` / `0/33`; synthetic `JumpAssist 50 Hz` = `100%` horizontal continuity & `1` jump at `75/60/30/15 Hz`.
+     - Ablation `G5_p1f_trap` (`P1F==PRESS`) proved conflation failure: `HG5G Pointing Up -> PRESS` `0% -> 19.05%`, `IPN NOG` `0.04% -> 27.40%`, `P2F` `0.09% -> 25.26%`.
+  4. **Isolated `180 s` Chromium WASM Benchmark (`run_r19_browser_harness.mjs`, `BROWSER_SIMULATED_VIDEO`):**
+     - Cold wire transfer (`B-USER` across `11` routes + harness): **`11,356,084 B` (`10.83 MiB` < `25 MB` PASS)**; `r19_model_mlp.json` HTTP wire **`47,288 B`** (`<= 200 KB` PASS).
+     - `180.53 s` playback of held-out `r19_sim_cam.y4m` (`640x360@10fps`, `396f`): `2,560` frames (`14.18` MP FPS), `adaptiveDetRate = 81.88%` (`+79/309` CLAHE hits, `claheMs p95 = 2.1 ms`), `r19Ms p50/p95/max = 0.1 / 0.2 / 3.0 ms`, `e2eMs p50/p95 = 68.9 / 101.8 ms`, `jsHeapUsed = 7.01 -> 7.89 MB`, **`50/50/50` matched `KeyDown/KeyUp/Jump` (`0` stuck keys)**, `0` page errors, `stoppedCleanly = true`.
+- **Open Work / Unresolved Blockers:**
+  - `HANDS RGB-D` (`10.17632/ndrczc35bt.2`, `EVAL_ONLY`) selective `Horiz_H*` HTTP Range curation across `Subject1..Subject5` is active on VM and will be evaluated out-of-domain in Batch 3.
+  - Physical webcam runtime (`Scenario 1..10`) remains **`NOT_TESTED`**; `[WIP]` retained on `NUI_R19-01` and `main` gameplay/deployment remain untouched (handoff scoped strictly to `/nui-lab/gesture` & `/nui-lab/canvas`).
+
+---
+
 ## R19-EXEC-20261118-01 — R19 Stage P0/P1 Dataset Audit & Stage P2 Pistol Geometry + Virtual-Key FSM (`G0` vs `R18_UX1` vs `G1`)
 
 - **Date:** 2026-11-18 ~17:46 WIB.

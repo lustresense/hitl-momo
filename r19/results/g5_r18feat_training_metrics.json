@@ -1,0 +1,450 @@
+{
+  "model_tag": "g5_r18feat",
+  "feature_prefix": "r18_ablation_feat",
+  "feature_count": 68,
+  "labels": [
+    "POINT_READY",
+    "POINT_PRESS",
+    "OTHER"
+  ],
+  "split_rows": {
+    "train": 17086,
+    "val": 5067,
+    "test": 4720
+  },
+  "train_class_counts": {
+    "POINT_READY": 302,
+    "POINT_PRESS": 196,
+    "OTHER": 16588
+  },
+  "val_sweep": [
+    {
+      "name": "lr_l2_3e4",
+      "hidden": [],
+      "l2": 0.0003,
+      "lr": 0.006,
+      "epochs": 35,
+      "noise": 0.0,
+      "val_macroF1": 0.6973,
+      "val_acc": 0.9779,
+      "best_epoch": 34,
+      "seconds": 0.22,
+      "temp": 0.58,
+      "val_nll_before_after": [
+        0.10422,
+        0.07167
+      ],
+      "val_ece_before_after": [
+        0.04867,
+        0.00235
+      ],
+      "val_perClass": [
+        {
+          "label": "POINT_READY",
+          "support": 22,
+          "precision": 0.25,
+          "recall": 1.0,
+          "f1": 0.4
+        },
+        {
+          "label": "POINT_PRESS",
+          "support": 111,
+          "precision": 0.6667,
+          "recall": 0.7387,
+          "f1": 0.7009
+        },
+        {
+          "label": "OTHER",
+          "support": 4934,
+          "precision": 0.999,
+          "recall": 0.9832,
+          "f1": 0.991
+        }
+      ],
+      "val_confusion": [
+        [
+          22,
+          0,
+          0
+        ],
+        [
+          24,
+          82,
+          5
+        ],
+        [
+          42,
+          41,
+          4851
+        ]
+      ]
+    },
+    {
+      "name": "mlp_48_24_n02",
+      "hidden": [
+        48,
+        24
+      ],
+      "l2": 0.0003,
+      "lr": 0.003,
+      "epochs": 40,
+      "noise": 0.02,
+      "val_macroF1": 0.7132,
+      "val_acc": 0.9886,
+      "best_epoch": 38,
+      "seconds": 2.31,
+      "temp": 1.4225,
+      "val_nll_before_after": [
+        0.03202,
+        0.02852
+      ],
+      "val_ece_before_after": [
+        0.00581,
+        0.00511
+      ],
+      "val_perClass": [
+        {
+          "label": "POINT_READY",
+          "support": 22,
+          "precision": 0.2973,
+          "recall": 1.0,
+          "f1": 0.4583
+        },
+        {
+          "label": "POINT_PRESS",
+          "support": 111,
+          "precision": 0.9831,
+          "recall": 0.5225,
+          "f1": 0.6824
+        },
+        {
+          "label": "OTHER",
+          "support": 4934,
+          "precision": 0.999,
+          "recall": 0.999,
+          "f1": 0.999
+        }
+      ],
+      "val_confusion": [
+        [
+          22,
+          0,
+          0
+        ],
+        [
+          48,
+          58,
+          5
+        ],
+        [
+          4,
+          1,
+          4929
+        ]
+      ]
+    },
+    {
+      "name": "mlp_64_32_n02",
+      "hidden": [
+        64,
+        32
+      ],
+      "l2": 0.0003,
+      "lr": 0.003,
+      "epochs": 42,
+      "noise": 0.025,
+      "val_macroF1": 0.9224,
+      "val_acc": 0.9972,
+      "best_epoch": 17,
+      "seconds": 2.26,
+      "temp": 1.16,
+      "val_nll_before_after": [
+        0.0163,
+        0.01598
+      ],
+      "val_ece_before_after": [
+        0.0033,
+        0.00295
+      ],
+      "val_perClass": [
+        {
+          "label": "POINT_READY",
+          "support": 22,
+          "precision": 0.6875,
+          "recall": 1.0,
+          "f1": 0.8148
+        },
+        {
+          "label": "POINT_PRESS",
+          "support": 111,
+          "precision": 0.9903,
+          "recall": 0.9189,
+          "f1": 0.9533
+        },
+        {
+          "label": "OTHER",
+          "support": 4934,
+          "precision": 0.9994,
+          "recall": 0.999,
+          "f1": 0.9992
+        }
+      ],
+      "val_confusion": [
+        [
+          22,
+          0,
+          0
+        ],
+        [
+          6,
+          102,
+          3
+        ],
+        [
+          4,
+          1,
+          4929
+        ]
+      ]
+    },
+    {
+      "name": "mlp_96_48_n03",
+      "hidden": [
+        96,
+        48
+      ],
+      "l2": 0.0004,
+      "lr": 0.0025,
+      "epochs": 45,
+      "noise": 0.03,
+      "val_macroF1": 0.9366,
+      "val_acc": 0.9974,
+      "best_epoch": 13,
+      "seconds": 3.13,
+      "temp": 1.12,
+      "val_nll_before_after": [
+        0.01592,
+        0.01571
+      ],
+      "val_ece_before_after": [
+        0.00271,
+        0.00258
+      ],
+      "val_perClass": [
+        {
+          "label": "POINT_READY",
+          "support": 22,
+          "precision": 0.7586,
+          "recall": 1.0,
+          "f1": 0.8627
+        },
+        {
+          "label": "POINT_PRESS",
+          "support": 111,
+          "precision": 1.0,
+          "recall": 0.9009,
+          "f1": 0.9479
+        },
+        {
+          "label": "OTHER",
+          "support": 4934,
+          "precision": 0.9988,
+          "recall": 0.9996,
+          "f1": 0.9992
+        }
+      ],
+      "val_confusion": [
+        [
+          22,
+          0,
+          0
+        ],
+        [
+          5,
+          100,
+          6
+        ],
+        [
+          2,
+          0,
+          4932
+        ]
+      ]
+    },
+    {
+      "name": "mlp_96_48_l2_1e3",
+      "hidden": [
+        96,
+        48
+      ],
+      "l2": 0.001,
+      "lr": 0.0025,
+      "epochs": 45,
+      "noise": 0.035,
+      "val_macroF1": 0.9174,
+      "val_acc": 0.9968,
+      "best_epoch": 22,
+      "seconds": 2.49,
+      "temp": 1.01,
+      "val_nll_before_after": [
+        0.01697,
+        0.01697
+      ],
+      "val_ece_before_after": [
+        0.00207,
+        0.00222
+      ],
+      "val_perClass": [
+        {
+          "label": "POINT_READY",
+          "support": 22,
+          "precision": 0.6875,
+          "recall": 1.0,
+          "f1": 0.8148
+        },
+        {
+          "label": "POINT_PRESS",
+          "support": 111,
+          "precision": 0.99,
+          "recall": 0.8919,
+          "f1": 0.9384
+        },
+        {
+          "label": "OTHER",
+          "support": 4934,
+          "precision": 0.999,
+          "recall": 0.9992,
+          "f1": 0.9991
+        }
+      ],
+      "val_confusion": [
+        [
+          22,
+          0,
+          0
+        ],
+        [
+          7,
+          99,
+          5
+        ],
+        [
+          3,
+          1,
+          4930
+        ]
+      ]
+    }
+  ],
+  "selected_mlp": "mlp_96_48_n03",
+  "exported_artifacts": {
+    "lr": {
+      "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/models_v1/g5_r18feat_model_lr.json",
+      "bytes": 4230,
+      "sha256": "28d11aa155d71efd3b7361f296d27c9b0d5864f76a0675b8845d10f1f798506f"
+    },
+    "mlp": {
+      "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/models_v1/g5_r18feat_model_mlp.json",
+      "bytes": 109884,
+      "sha256": "a68104c775d8c5ebccba1c3f233e5c9d5a0edb25a40d7320df0fd9384be96896"
+    }
+  },
+  "test_locked": {
+    "lr": {
+      "acc": 0.9845,
+      "macroF1": 0.736,
+      "perClass": [
+        {
+          "label": "POINT_READY",
+          "support": 21,
+          "precision": 0.4468,
+          "recall": 1.0,
+          "f1": 0.6176
+        },
+        {
+          "label": "POINT_PRESS",
+          "support": 35,
+          "precision": 0.4268,
+          "recall": 1.0,
+          "f1": 0.5983
+        },
+        {
+          "label": "OTHER",
+          "support": 4664,
+          "precision": 1.0,
+          "recall": 0.9843,
+          "f1": 0.9921
+        }
+      ],
+      "confusion": [
+        [
+          21,
+          0,
+          0
+        ],
+        [
+          0,
+          35,
+          0
+        ],
+        [
+          26,
+          47,
+          4591
+        ]
+      ],
+      "nll_uncal": 0.09472,
+      "nll_cal": 0.0565,
+      "ece_uncal": 0.05219,
+      "ece_cal": 0.00739
+    },
+    "mlp": {
+      "acc": 0.9998,
+      "macroF1": 0.9951,
+      "perClass": [
+        {
+          "label": "POINT_READY",
+          "support": 21,
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0
+        },
+        {
+          "label": "POINT_PRESS",
+          "support": 35,
+          "precision": 1.0,
+          "recall": 0.9714,
+          "f1": 0.9855
+        },
+        {
+          "label": "OTHER",
+          "support": 4664,
+          "precision": 0.9998,
+          "recall": 1.0,
+          "f1": 0.9999
+        }
+      ],
+      "confusion": [
+        [
+          21,
+          0,
+          0
+        ],
+        [
+          0,
+          34,
+          1
+        ],
+        [
+          0,
+          0,
+          4664
+        ]
+      ],
+      "nll_uncal": 0.00332,
+      "nll_cal": 0.00352,
+      "ece_uncal": 0.00064,
+      "ece_cal": 0.00109
+    }
+  }
+}

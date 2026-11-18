@@ -1,0 +1,577 @@
+{
+  "evidence_class": "BROWSER_SIMULATED_VIDEO",
+  "physical_webcam_status": "NOT_TESTED",
+  "video_input": {
+    "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/browser/r19_sim_cam.y4m",
+    "composition": "640x360@10fps 39.6s loop (396f): HandGesture-5G test (L-Sign=112f, PointingUp=80f, V-Sign=32f, Fist=32f) + NaturalRGBv3 p02/p05 test (dim, green_led, backlit, thumbs_up, peace_sign, point_left/right=70f) + Mendeley Dim/Nat(50f) + N0_l_sticks/N0_dark_room(20f)"
+  },
+  "transfer_budget_b_user": {
+    "limit_bytes": 26214400,
+    "app_routes_visited": [
+      {
+        "route": "/",
+        "loadMs": 592,
+        "title": "Sketchbook Universe — DEV BUILD (author-side)"
+      },
+      {
+        "route": "/onboarding/card",
+        "loadMs": 523,
+        "title": "Sketchbook Universe — DEV BUILD (author-side)"
+      },
+      {
+        "route": "/onboarding/number",
+        "loadMs": 520,
+        "title": "Sketchbook Universe — DEV BUILD (author-side)"
+      },
+      {
+        "route": "/onboarding/cam",
+        "loadMs": 521,
+        "title": "Sketchbook Universe — DEV BUILD (author-side)"
+      },
+      {
+        "route": "/levels",
+        "loadMs": 516,
+        "title": "Sketchbook Universe — DEV BUILD (author-side)"
+      },
+      {
+        "route": "/canvas1",
+        "loadMs": 1017,
+        "title": "Sketchbook Universe — DEV BUILD (author-side)"
+      },
+      {
+        "route": "/level1",
+        "loadMs": 899,
+        "title": "Sketchbook Universe — DEV BUILD (author-side)"
+      },
+      {
+        "route": "/canvas2",
+        "loadMs": 517,
+        "title": "Sketchbook Universe — DEV BUILD (author-side)"
+      },
+      {
+        "route": "/level2",
+        "loadMs": 520,
+        "title": "Sketchbook Universe — DEV BUILD (author-side)"
+      },
+      {
+        "route": "/canvas3",
+        "loadMs": 517,
+        "title": "Sketchbook Universe — DEV BUILD (author-side)"
+      },
+      {
+        "route": "/level3",
+        "loadMs": 521,
+        "title": "Sketchbook Universe — DEV BUILD (author-side)"
+      }
+    ],
+    "app_routes_unique_wire_bytes": 11006521,
+    "r19_model_wire_bytes": 47288,
+    "total_first_use_plus_nui_wire_bytes": 11356084,
+    "total_first_use_plus_nui_wire_mb": 10.83,
+    "under_25mb_pass": true,
+    "top_15_wire_assets": [
+      {
+        "path": "/models/hand_landmarker.task",
+        "mime": "application/octet-stream",
+        "encoding": "none",
+        "wire": 7819351
+      },
+      {
+        "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+        "mime": "application/wasm",
+        "encoding": "none",
+        "wire": 2723473
+      },
+      {
+        "path": "/mediapipe/blaze_face_short_range.tflite",
+        "mime": "application/octet-stream",
+        "encoding": "none",
+        "wire": 229991
+      },
+      {
+        "path": "/_next/static/chunks/788-2d5e9d1fc1c689b8.js",
+        "mime": "application/javascript",
+        "encoding": "none",
+        "wire": 98490
+      },
+      {
+        "path": "/r19-harness/harness.bundle.js",
+        "mime": "application/javascript",
+        "encoding": "none",
+        "wire": 71733
+      },
+      {
+        "path": "/_next/static/chunks/fd9d1056-52b97c009c25bc25.js",
+        "mime": "application/javascript",
+        "encoding": "none",
+        "wire": 56028
+      },
+      {
+        "path": "/mediapipe/wasm/vision_wasm_internal.js",
+        "mime": "application/javascript",
+        "encoding": "none",
+        "wire": 55256
+      },
+      {
+        "path": "/_next/static/chunks/287-10e5af40b64f3a1e.js",
+        "mime": "application/javascript",
+        "encoding": "none",
+        "wire": 49879
+      },
+      {
+        "path": "/r19-harness/r19_model_mlp.json",
+        "mime": "application/json",
+        "encoding": "none",
+        "wire": 47288
+      },
+      {
+        "path": "/_next/static/chunks/966-a8fed9ded89e4fa0.js",
+        "mime": "application/javascript",
+        "encoding": "none",
+        "wire": 33628
+      },
+      {
+        "path": "/_next/static/chunks/318-08a4d3fcd01eb73a.js",
+        "mime": "application/javascript",
+        "encoding": "none",
+        "wire": 24462
+      },
+      {
+        "path": "/_next/static/chunks/c15bf2b0-7971b3d333b0cf68.js",
+        "mime": "application/javascript",
+        "encoding": "none",
+        "wire": 21288
+      },
+      {
+        "path": "/_next/static/css/16c2024a37ababb2.css",
+        "mime": "text/css",
+        "encoding": "none",
+        "wire": 17032
+      },
+      {
+        "path": "/_next/static/css/d0431ab6c14c121a.css",
+        "mime": "text/css",
+        "encoding": "none",
+        "wire": 11130
+      },
+      {
+        "path": "/_next/static/css/cbee9783c240c2e2.css",
+        "mime": "text/css",
+        "encoding": "none",
+        "wire": 7709
+      }
+    ]
+  },
+  "sustained_checkpoints": [
+    {
+      "targetSec": 20,
+      "ready": true,
+      "bootMs": 333,
+      "elapsedSec": 20.23,
+      "delegateInfo": {
+        "delegate": "CPU",
+        "reason": "software-renderer",
+        "fellBack": false,
+        "runtime": {
+          "delegate": "CPU",
+          "reason": "software-renderer",
+          "switchState": "none",
+          "gpuAvgMs": null,
+          "slowStreak": 0,
+          "switchError": null
+        }
+      },
+      "videoSize": "640x360",
+      "framesTotal": 249,
+      "mpFramesProcessed": 249,
+      "effectiveMpFps": 12.31,
+      "rafFps": 12.31,
+      "rawHits": 240,
+      "adaptiveTotalHits": 240,
+      "adaptiveDetRatePct": 96.39,
+      "claheFallbackCalls": 0,
+      "claheFallbackHits": 0,
+      "counts": {
+        "g0SteerFrames": 224,
+        "g1ReadyFrames": 61,
+        "g1PressFrames": 136,
+        "g1ActiveFrames": 10,
+        "r19ReadyFrames": 56,
+        "r19PressFrames": 134,
+        "r19OtherFrames": 50,
+        "r19ActiveFrames": 10,
+        "r19KeyDownCount": 10,
+        "r19KeyUpCount": 10,
+        "r19JumpCount": 10,
+        "r19EraseFrames": 0,
+        "r19PinchFrames": 17,
+        "r19SwipeFires": 0
+      },
+      "detectMs": {
+        "p50": 68.3,
+        "p95": 120.1,
+        "max": 179.3
+      },
+      "claheMs": {
+        "p50": null,
+        "p95": null
+      },
+      "r19Ms": {
+        "p50": 0.1,
+        "p95": 0.2,
+        "max": 2.8
+      },
+      "e2eMs": {
+        "p50": 69.5,
+        "p95": 121.7,
+        "max": 182.5
+      },
+      "rafIntervalMs": {
+        "p50": 66.7,
+        "p95": 133.3,
+        "max": 183.3
+      },
+      "longTasksCount": 243,
+      "longTasksMaxMs": 184,
+      "jsHeapUsedMB": 16.31,
+      "jsHeapTotalMB": 20.69,
+      "stoppedCleanly": false,
+      "tracksEndedCount": 0,
+      "tracksTotalCount": 0,
+      "cdpPerf": {
+        "jsHeapUsedMB": 7.01,
+        "jsHeapTotalMB": 9.97,
+        "nodes": 189
+      }
+    },
+    {
+      "targetSec": 60,
+      "ready": true,
+      "bootMs": 333,
+      "elapsedSec": 60.31,
+      "delegateInfo": {
+        "delegate": "CPU",
+        "reason": "software-renderer",
+        "fellBack": false,
+        "runtime": {
+          "delegate": "CPU",
+          "reason": "software-renderer",
+          "switchState": "none",
+          "gpuAvgMs": null,
+          "slowStreak": 0,
+          "switchError": null
+        }
+      },
+      "videoSize": "640x360",
+      "framesTotal": 822,
+      "mpFramesProcessed": 822,
+      "effectiveMpFps": 13.63,
+      "rafFps": 13.63,
+      "rawHits": 680,
+      "adaptiveTotalHits": 701,
+      "adaptiveDetRatePct": 85.28,
+      "claheFallbackCalls": 74,
+      "claheFallbackHits": 21,
+      "counts": {
+        "g0SteerFrames": 555,
+        "g1ReadyFrames": 136,
+        "g1PressFrames": 295,
+        "g1ActiveFrames": 20,
+        "r19ReadyFrames": 122,
+        "r19PressFrames": 291,
+        "r19OtherFrames": 288,
+        "r19ActiveFrames": 20,
+        "r19KeyDownCount": 20,
+        "r19KeyUpCount": 20,
+        "r19JumpCount": 20,
+        "r19EraseFrames": 7,
+        "r19PinchFrames": 53,
+        "r19SwipeFires": 0
+      },
+      "detectMs": {
+        "p50": 67.7,
+        "p95": 118.4,
+        "max": 179.3
+      },
+      "claheMs": {
+        "p50": 1.9,
+        "p95": 2.2
+      },
+      "r19Ms": {
+        "p50": 0.1,
+        "p95": 0.2,
+        "max": 3
+      },
+      "e2eMs": {
+        "p50": 69.4,
+        "p95": 120.2,
+        "max": 182.5
+      },
+      "rafIntervalMs": {
+        "p50": 66.7,
+        "p95": 116.7,
+        "max": 183.3
+      },
+      "longTasksCount": 763,
+      "longTasksMaxMs": 184,
+      "jsHeapUsedMB": 16.31,
+      "jsHeapTotalMB": 20.69,
+      "stoppedCleanly": false,
+      "tracksEndedCount": 0,
+      "tracksTotalCount": 0,
+      "cdpPerf": {
+        "jsHeapUsedMB": 7.82,
+        "jsHeapTotalMB": 12.22,
+        "nodes": 190
+      }
+    },
+    {
+      "targetSec": 120,
+      "ready": true,
+      "bootMs": 333,
+      "elapsedSec": 120.39,
+      "delegateInfo": {
+        "delegate": "CPU",
+        "reason": "software-renderer",
+        "fellBack": false,
+        "runtime": {
+          "delegate": "CPU",
+          "reason": "software-renderer",
+          "switchState": "none",
+          "gpuAvgMs": null,
+          "slowStreak": 0,
+          "switchError": null
+        }
+      },
+      "videoSize": "640x360",
+      "framesTotal": 1696,
+      "mpFramesProcessed": 1696,
+      "effectiveMpFps": 14.09,
+      "rafFps": 14.09,
+      "rawHits": 1285,
+      "adaptiveTotalHits": 1346,
+      "adaptiveDetRatePct": 79.36,
+      "claheFallbackCalls": 229,
+      "claheFallbackHits": 61,
+      "counts": {
+        "g0SteerFrames": 953,
+        "g1ReadyFrames": 210,
+        "g1PressFrames": 465,
+        "g1ActiveFrames": 31,
+        "r19ReadyFrames": 189,
+        "r19PressFrames": 459,
+        "r19OtherFrames": 698,
+        "r19ActiveFrames": 31,
+        "r19KeyDownCount": 31,
+        "r19KeyUpCount": 31,
+        "r19JumpCount": 31,
+        "r19EraseFrames": 22,
+        "r19PinchFrames": 115,
+        "r19SwipeFires": 0
+      },
+      "detectMs": {
+        "p50": 67.1,
+        "p95": 97.3,
+        "max": 179.3
+      },
+      "claheMs": {
+        "p50": 1.9,
+        "p95": 2.1
+      },
+      "r19Ms": {
+        "p50": 0.1,
+        "p95": 0.2,
+        "max": 3
+      },
+      "e2eMs": {
+        "p50": 69,
+        "p95": 107.6,
+        "max": 182.5
+      },
+      "rafIntervalMs": {
+        "p50": 66.7,
+        "p95": 116.6,
+        "max": 183.3
+      },
+      "longTasksCount": 1534,
+      "longTasksMaxMs": 184,
+      "jsHeapUsedMB": 16.31,
+      "jsHeapTotalMB": 20.69,
+      "stoppedCleanly": false,
+      "tracksEndedCount": 0,
+      "tracksTotalCount": 0,
+      "cdpPerf": {
+        "jsHeapUsedMB": 8.1,
+        "jsHeapTotalMB": 12.47,
+        "nodes": 191
+      }
+    },
+    {
+      "targetSec": 180,
+      "ready": true,
+      "bootMs": 333,
+      "elapsedSec": 180.43,
+      "delegateInfo": {
+        "delegate": "CPU",
+        "reason": "software-renderer",
+        "fellBack": false,
+        "runtime": {
+          "delegate": "CPU",
+          "reason": "software-renderer",
+          "switchState": "none",
+          "gpuAvgMs": null,
+          "slowStreak": 0,
+          "switchError": null
+        }
+      },
+      "videoSize": "640x360",
+      "framesTotal": 2559,
+      "mpFramesProcessed": 2559,
+      "effectiveMpFps": 14.18,
+      "rafFps": 14.18,
+      "rawHits": 2016,
+      "adaptiveTotalHits": 2095,
+      "adaptiveDetRatePct": 81.87,
+      "claheFallbackCalls": 309,
+      "claheFallbackHits": 79,
+      "counts": {
+        "g0SteerFrames": 1549,
+        "g1ReadyFrames": 350,
+        "g1PressFrames": 772,
+        "g1ActiveFrames": 50,
+        "r19ReadyFrames": 318,
+        "r19PressFrames": 761,
+        "r19OtherFrames": 1016,
+        "r19ActiveFrames": 50,
+        "r19KeyDownCount": 50,
+        "r19KeyUpCount": 50,
+        "r19JumpCount": 50,
+        "r19EraseFrames": 29,
+        "r19PinchFrames": 170,
+        "r19SwipeFires": 0
+      },
+      "detectMs": {
+        "p50": 67.1,
+        "p95": 75.7,
+        "max": 179.3
+      },
+      "claheMs": {
+        "p50": 1.9,
+        "p95": 2.1
+      },
+      "r19Ms": {
+        "p50": 0.1,
+        "p95": 0.2,
+        "max": 3
+      },
+      "e2eMs": {
+        "p50": 68.9,
+        "p95": 101.8,
+        "max": 182.5
+      },
+      "rafIntervalMs": {
+        "p50": 66.7,
+        "p95": 100,
+        "max": 183.3
+      },
+      "longTasksCount": 2349,
+      "longTasksMaxMs": 184,
+      "jsHeapUsedMB": 16.31,
+      "jsHeapTotalMB": 20.69,
+      "stoppedCleanly": false,
+      "tracksEndedCount": 0,
+      "tracksTotalCount": 0,
+      "cdpPerf": {
+        "jsHeapUsedMB": 7.89,
+        "jsHeapTotalMB": 11.72,
+        "nodes": 189
+      }
+    }
+  ],
+  "final_after_stop": {
+    "ready": true,
+    "bootMs": 333,
+    "elapsedSec": 180.53,
+    "delegateInfo": {
+      "delegate": "CPU",
+      "reason": "software-renderer",
+      "fellBack": false,
+      "runtime": {
+        "delegate": "CPU",
+        "reason": "software-renderer",
+        "switchState": "none",
+        "gpuAvgMs": null,
+        "slowStreak": 0,
+        "switchError": null
+      }
+    },
+    "videoSize": "640x360",
+    "framesTotal": 2560,
+    "mpFramesProcessed": 2560,
+    "effectiveMpFps": 14.18,
+    "rafFps": 14.18,
+    "rawHits": 2017,
+    "adaptiveTotalHits": 2096,
+    "adaptiveDetRatePct": 81.88,
+    "claheFallbackCalls": 309,
+    "claheFallbackHits": 79,
+    "counts": {
+      "g0SteerFrames": 1550,
+      "g1ReadyFrames": 350,
+      "g1PressFrames": 772,
+      "g1ActiveFrames": 50,
+      "r19ReadyFrames": 318,
+      "r19PressFrames": 761,
+      "r19OtherFrames": 1017,
+      "r19ActiveFrames": 50,
+      "r19KeyDownCount": 50,
+      "r19KeyUpCount": 50,
+      "r19JumpCount": 50,
+      "r19EraseFrames": 29,
+      "r19PinchFrames": 170,
+      "r19SwipeFires": 0
+    },
+    "detectMs": {
+      "p50": 67.1,
+      "p95": 75.8,
+      "max": 179.3
+    },
+    "claheMs": {
+      "p50": 1.9,
+      "p95": 2.1
+    },
+    "r19Ms": {
+      "p50": 0.1,
+      "p95": 0.2,
+      "max": 3
+    },
+    "e2eMs": {
+      "p50": 68.9,
+      "p95": 101.8,
+      "max": 182.5
+    },
+    "rafIntervalMs": {
+      "p50": 66.7,
+      "p95": 100,
+      "max": 183.3
+    },
+    "longTasksCount": 2349,
+    "longTasksMaxMs": 184,
+    "jsHeapUsedMB": 16.31,
+    "jsHeapTotalMB": 20.69,
+    "stoppedCleanly": true,
+    "tracksEndedCount": 1,
+    "tracksTotalCount": 1,
+    "postStopCdpPerf": {
+      "jsHeapUsedMB": 8.2,
+      "jsHeapTotalMB": 11.72,
+      "nodes": 194
+    }
+  },
+  "console_errors": [
+    "INFO: Created TensorFlow Lite XNNPACK delegate for CPU.",
+    "INFO: Created TensorFlow Lite XNNPACK delegate for CPU.",
+    "INFO: Created TensorFlow Lite XNNPACK delegate for CPU."
+  ],
+  "page_errors": []
+}

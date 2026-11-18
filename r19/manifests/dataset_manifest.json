@@ -1,0 +1,92 @@
+{
+  "generated_at": "2026-11-18T18:39:00+07:00",
+  "plan": "[WIP] NUI_R19-01 v0.1.0",
+  "datasets": [
+    {
+      "id": "handgesture_5g",
+      "name": "HandGesture-5G (Diptho et al., Jahangirnagar Univ., v1 2026-06-30)",
+      "doi_or_url": "https://data.mendeley.com/datasets/wj25crzdbm/1",
+      "license": "CC BY 4.0",
+      "verdict": "SELECT",
+      "streaming_mode": "HTTP 206 Range in-memory only (0 B archive saved on VM)",
+      "upstream_zip_bytes": 5176227373,
+      "entries_total": 2659,
+      "crc32_duplicates_removed": 846,
+      "unique_entries": 1807,
+      "decoded_images": 1797,
+      "heic_skips": 10,
+      "cluster_split": {
+        "clusters": 38,
+        "train_raw_rows": 1095,
+        "val_raw_rows": 445,
+        "test_raw_rows": 257,
+        "notes": "Rebalanced Pointing Up cluster 18<->19 between train/val for val support (6->22); locked test untouched."
+      }
+    },
+    {
+      "id": "natural_rgb_v3",
+      "name": "Natural RGB Hand Gestures Dataset v3 (Rahat et al., AIUB, 2026-07-08)",
+      "doi_or_url": "https://data.mendeley.com/datasets/n66hhk695h/3",
+      "license": "CC BY 4.0",
+      "verdict": "SELECT",
+      "zip_bytes": 382226419,
+      "zip_sha256": "2257bb717af6451166d5ac74450c5f624c1f2960845894c549c14b6d2085a3d6",
+      "clips_decoded": 1352,
+      "sampled_frames": 10816,
+      "participant_split": {
+        "train": "19 participants (936 clips, 7488 frames)",
+        "val": "4 participants (p13, p14, p17, p19; 195 clips, 1560 frames)",
+        "test": "3 participants (p02, p05, p15; 221 clips, 1768 frames)"
+      },
+      "audit_notes": "11 clean classes -> OTHER; point_left (76.1% thumb_lateral>=1.3) & point_right (81.16%) held out as AMBIGUOUS_CONVERSATIONAL_POINTING."
+    },
+    {
+      "id": "ipn_hands",
+      "name": "IPN Hand / IPN HandS (Benitez-Garcia et al., CC BY 4.0 / MP Apache 2.0)",
+      "doi_or_url": "https://gibranbenitez.github.io/IPN_Hand/",
+      "license": "CC BY 4.0 (annotations/GT); Apache 2.0 (MediaPipe predictions)",
+      "verdict": "SELECT",
+      "local_cache_only": true,
+      "reused_from": "r18/manifests/ipn_person_split.json",
+      "sha256": {
+        "IPN_HandS_annotations.zip": "520dfbf3d52ecab6535d8841bba55e94d6b512596ed1cff4505d2c1345bcbaec",
+        "IPN_HandS_landmarks_MPHands.zip": "e511bb2b902207b82a296190daadc30a057f3abc16f628579542d2b1274ce598"
+      },
+      "person_split": "19 train / 5 val (p02,03,08,17,22) / 5 test (p06,10,13,21,29; 36 videos)",
+      "audit_notes": "12 OTHER classes supervised; casual P1F/C1F/2C1 held out (conflation tested separately in g5_p1f_trap)."
+    },
+    {
+      "id": "hands_rgbd",
+      "name": "HANDS RGB-D Dataset (10.17632/ndrczc35bt.2)",
+      "doi_or_url": "https://data.mendeley.com/datasets/ndrczc35bt/2",
+      "license": "CC BY 4.0",
+      "verdict": "EVAL_ONLY",
+      "streaming_mode": "HTTP 206 Range in-memory selective RGB PNG slice (Subject1..5, curation active)"
+    },
+    {
+      "id": "mendeley_bxr7kx84y6_subset",
+      "name": "Egocentric / Exocentric Hands v2 (2 cached slices)",
+      "doi_or_url": "https://data.mendeley.com/datasets/bxr7kx84y6/2",
+      "license": "CC BY 4.0",
+      "verdict": "EVAL_ONLY",
+      "local_cache_only": true,
+      "sha256": {
+        "dim_light_1.zip": "2f91746c3622ace4792ecec54d9284eb56066a652811b88dfca761d27827a266",
+        "natural_light_1.zip": "4655f7e42a6edac6f26686fa6573da777dc042ab12286e4a9d12959685ee86a4"
+      }
+    },
+    {
+      "id": "hagridv2",
+      "name": "HaGRIDv2",
+      "doi_or_url": "https://arxiv.org/abs/2412.01508",
+      "license": "Custom ShareAlike (license/en_us.pdf Sec. 3b & 4)",
+      "verdict": "HOLD_LICENSE"
+    },
+    {
+      "id": "dimhand_llhands_mgrdark",
+      "name": "DimHand / LLHands (XPose) / MGR-Dark",
+      "license": "Non-commercial / Unpublished / Request-only",
+      "verdict": "BLOCKED"
+    }
+  ]
+}

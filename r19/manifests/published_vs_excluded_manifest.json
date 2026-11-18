@@ -1,15 +1,25 @@
 {
   "branch": "research-can",
-  "batch": "R19 Batch 1 (Stages P0 + P1 Audit + P2 Geometry/FSM Baseline)",
+  "batch": "R19 Batch 2 (Stages P1 Curation + P3 Training/Calibration + P4 Chromium WASM Benchmark)",
   "source_sandbox": "/srv/sketchbook/mediapipe-optimize/r19-sandbox",
   "source_main_baseline_commit": "c14b1d0502634cd63cc1a7be7c1e02270b15abc1",
-  "published_count_excluding_manifests": 15,
-  "published_bytes_excluding_manifests": 226017,
+  "published_count_excluding_manifest_and_sums": 43,
+  "published_bytes_excluding_manifest_and_sums": 631009,
   "published_files": [
     {
       "published_path": "docs/plan-rev/[WIP] NUI_R19-01_v0.1.0_Pistol_Press_Dataset_Training_Runtime_Research.md",
       "bytes": 21974,
       "sha256": "c8a27aae060ffee327e28ed85aaad66f1ed4e6cccab206b79a8b0f5fd3a5a43a"
+    },
+    {
+      "published_path": "r19/candidates/browser_harness/harness.ts",
+      "bytes": 13196,
+      "sha256": "8bcb8984b283eccd075f94d9be4145224484154d203d88fe0866be83db46eb7f"
+    },
+    {
+      "published_path": "r19/candidates/browser_harness/index.html",
+      "bytes": 387,
+      "sha256": "5fdc20a00da62a0cb973a243ecb677fa8958056633c103a6b05ad5876993c291"
     },
     {
       "published_path": "r19/candidates/pistol_fsm.ts",
@@ -27,9 +37,54 @@
       "sha256": "b18ead684acb5df8d7117d91456acd01c494318298f46ff6e03a3f89b32f17a5"
     },
     {
+      "published_path": "r19/candidates/r19_features.ts",
+      "bytes": 8621,
+      "sha256": "ed9349456a79284520adb2969a8a11eccd36500cc9d34fe24591f3f742559140"
+    },
+    {
+      "published_path": "r19/candidates/r19_integrated.ts",
+      "bytes": 9903,
+      "sha256": "56f084e4640a9d948a257478c1605cea9ed3adf3577f0b5d9a510dc217acedbd"
+    },
+    {
+      "published_path": "r19/candidates/r19_model.ts",
+      "bytes": 3704,
+      "sha256": "a805ff1a424d516fe36a4b4f24d4438276779b2fd25e0324c4ae238f5253d12b"
+    },
+    {
+      "published_path": "r19/candidates/r19_safety_guards.ts",
+      "bytes": 4097,
+      "sha256": "6e44b69d4f0b45a3d2aecbb4f6399d5014454c24d3fcd352c977804a55dc40c2"
+    },
+    {
       "published_path": "r19/experiments/exp_r19_p2_pistol_geometry_fsm.md",
       "bytes": 9821,
       "sha256": "9eb9889f68d0c7b625afd6da217e514a0457b8749fc6974df33de4f9f220eff7"
+    },
+    {
+      "published_path": "r19/experiments/exp_r19_p3_training_ablation.md",
+      "bytes": 4431,
+      "sha256": "b00a9074c7b647ef3838af7e228543e9c4755fae19621db964ba420c8cefa29b"
+    },
+    {
+      "published_path": "r19/manifests/dataset_manifest.json",
+      "bytes": 3874,
+      "sha256": "01f9cb2971c390477b54db3cb4e3e568fbd48f558458c0232dddf6ee5e2be8c0"
+    },
+    {
+      "published_path": "r19/models/MODEL_CARD.md",
+      "bytes": 5993,
+      "sha256": "3db5b67674c0f1735c41b98f7e82c552d67b063106261a087a5e5428aaabd9d6"
+    },
+    {
+      "published_path": "r19/models/r19_model_lr.json",
+      "bytes": 5092,
+      "sha256": "64821aa20b1cc3b959a0d6b3dbe984ed9f190249be01ad757cfaaed321842737"
+    },
+    {
+      "published_path": "r19/models/r19_model_mlp.json",
+      "bytes": 122768,
+      "sha256": "c6130bd56850534889372a7295d45e7704083cbf60115626cd08b57c6e000293"
     },
     {
       "published_path": "r19/results/R19_DATASET_AUDIT.md",
@@ -37,9 +92,44 @@
       "sha256": "d9ec3020dbef8e13151b844c5018288fa639b3abfd887bdb81f6b6d63d38a2f5"
     },
     {
+      "published_path": "r19/results/R19_GESTURE_LABEL_SCHEMA.md",
+      "bytes": 8561,
+      "sha256": "8720a58caf05f9302a0209b2360115100f2673246c03f993e2fb1e0a125cbbf4"
+    },
+    {
+      "published_path": "r19/results/R19_MAIN_INTEGRATION_HANDOFF.md",
+      "bytes": 6675,
+      "sha256": "8271e333ce77e96747622c091a371498f43465ed426a2617f564eb5f17868093"
+    },
+    {
+      "published_path": "r19/results/R19_RUNTIME_BENCHMARK.md",
+      "bytes": 4673,
+      "sha256": "c3380f19463e2404741a664e4203ce0946228f6087dbad9d0efb40c0353d40cb"
+    },
+    {
+      "published_path": "r19/results/R19_TRAINING_REPORT.md",
+      "bytes": 7300,
+      "sha256": "f7f9ad0237b4aab102f5920e2e9d2c10d6f575461e91fd30174795f70b2745e6"
+    },
+    {
       "published_path": "r19/results/g0_g1_eval.json",
       "bytes": 33419,
       "sha256": "c6acd48166abeecba0fd2fe3f25a56dc796f9c4816bb7870409214b037bc388e"
+    },
+    {
+      "published_path": "r19/results/g5_p1f_trap_training_metrics.json",
+      "bytes": 8552,
+      "sha256": "8b296699da85456a9d54741b53a69cf1c2aacf4e47dc242802bd4e364298cd7d"
+    },
+    {
+      "published_path": "r19/results/g5_r18feat_training_metrics.json",
+      "bytes": 8464,
+      "sha256": "64c5567827caf3c3efd0a6cf7fd5e1dd5a965f8c65e77b59f3bdba20d94f48e2"
+    },
+    {
+      "published_path": "r19/results/handgesture_5g_stats.json",
+      "bytes": 11239,
+      "sha256": "052f9891c46cee82dc008f575a01b0c6191373e4ea97b2fe9d3d3c8b33780598"
     },
     {
       "published_path": "r19/results/ipn_test_g0_g1_baseline.json",
@@ -57,6 +147,26 @@
       "sha256": "b4ee39ee8d2410e62906d7bade8efca868e8cc742d94222f01ebd98befe01b01"
     },
     {
+      "published_path": "r19/results/n66hhk695h_v3_stats.json",
+      "bytes": 13524,
+      "sha256": "91f38cddc559925c216bdf7563bf45725d39ae733a22dd44bb6f1d8960c0fe96"
+    },
+    {
+      "published_path": "r19/results/r19_browser_runtime.json",
+      "bytes": 14633,
+      "sha256": "cec0331d70b49b4e8c64819a80134d74335b5908202cadb1c1df46673f28d0d1"
+    },
+    {
+      "published_path": "r19/results/r19_eval_all.json",
+      "bytes": 45195,
+      "sha256": "011fab07919121309f8a5c8ded6d4a802ac062299163d922a704a1ca66b7f44c"
+    },
+    {
+      "published_path": "r19/results/r19_training_metrics.json",
+      "bytes": 8463,
+      "sha256": "a3f67240029c491960e6b481b196259c91ffab976a61ac9f4d10e113c69739c9"
+    },
+    {
       "published_path": "r19/scripts/eval_g1_on_ipn_test.ts",
       "bytes": 5342,
       "sha256": "c4d4921f2bb669ae9bb6cbd9b78b894014f8239b01fc7f20541f93dea9fea081"
@@ -65,6 +175,21 @@
       "published_path": "r19/scripts/eval_p2_n0_n1.ts",
       "bytes": 2452,
       "sha256": "882a3af300a0d46c04d5154d7eee51867ff532a2c437be86c59d93a871c19de1"
+    },
+    {
+      "published_path": "r19/scripts/eval_r19_all.ts",
+      "bytes": 35794,
+      "sha256": "deff43f77828207bca4a143b4b38bac018465f7f2983e970730f4cdd408fbda1"
+    },
+    {
+      "published_path": "r19/scripts/extract_r19_unified.ts",
+      "bytes": 14743,
+      "sha256": "10f970359129bdda74dd97dda18bd9cbd358f5706fc882c01f33d4403552158c"
+    },
+    {
+      "published_path": "r19/scripts/make_r19_sim_cam_y4m.py",
+      "bytes": 7176,
+      "sha256": "818283e90d909fc355d250ba864e941c2aaeca1c2019342e861d1fa6b2ebf539"
     },
     {
       "published_path": "r19/scripts/n0_n1_pistol_distractors.py",
@@ -77,35 +202,70 @@
       "sha256": "718e5724c95b32be5d0590285e4b9ae1677b09d2edcad7953e46c1d7e7b66003"
     },
     {
+      "published_path": "r19/scripts/run_r19_browser_harness.mjs",
+      "bytes": 9748,
+      "sha256": "dcc8b928bd308d13ab354de6680008b0fb1929eb6229920b5a6ea29eb7ff8c57"
+    },
+    {
       "published_path": "r19/scripts/stream_ipn_split.py",
       "bytes": 2660,
       "sha256": "5388568b3d84c6786ee745e6a5c0f7dca241965beba182b37184bfa88ac03f74"
+    },
+    {
+      "published_path": "r19/scripts/test_r19_invariants_and_latency.ts",
+      "bytes": 3977,
+      "sha256": "93348777b68a75a5d79acb688567ab8ebf21b7a9fd9ad6d6cef9cbce84fe8b19"
+    },
+    {
+      "published_path": "r19/scripts/train_r19_models.py",
+      "bytes": 14209,
+      "sha256": "3602c09a541ce374ddecc703a5d7b02434194e0b4ce01fc812ecb47a19088f2b"
     }
   ],
   "excluded_artifacts": [
     {
       "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/data/n66hhk695h_v3/Root.zip",
+      "bytes": 382226419,
+      "sha256": "2257bb717af6451166d5ac74450c5f624c1f2960845894c549c14b6d2085a3d6",
       "reason": "Raw upstream CC BY 4.0 dataset archive (~364.5 MiB); never push raw datasets to Git"
     },
     {
       "path": "HandGesture-5G GESTURE DATASET JU.zip (remote Mendeley 4.82 GiB)",
-      "reason": "Monolithic zip skipped completely; streamed deduplicated entries in RAM via HTTP Range"
+      "reason": "Monolithic zip skipped completely; streamed deduplicated entries in RAM via HTTP 206 Range (0 B archive saved)"
+    },
+    {
+      "path": "HANDS RGB-D Subject*.zip (remote Mendeley 10.17632/ndrczc35bt.2)",
+      "reason": "Multi-GB upstream RGB-D archives skipped; streaming selective RGB PNG slice in RAM via HTTP Range (active)"
     },
     {
       "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/data/handgesture_5g_derived/",
-      "reason": "Local curated landmark JSONL & audit contact sheets; derived landmark buffers exceed lightweight Git curation threshold"
+      "reason": "Local derived MediaPipe landmark JSONL (~6.2 MiB) & contact sheet .jpg; large landmark caches stay on VM"
     },
     {
-      "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/work/",
-      "reason": "Active download/streaming scratch scripts until Batch 2 curation summary/manifests finalize"
+      "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/data/n66hhk695h_v3_derived/",
+      "reason": "Local derived MediaPipe landmark JSONL (~30.3 MiB) & contact sheet .jpg; large landmark caches stay on VM"
     },
     {
-      "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/train/",
-      "reason": "In-progress Stage P3 feature extraction & MLP training workspace reserved for Batch 2 after real curation completes"
+      "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/data/unified_feat/*.f32",
+      "reason": "Large binary float32 feature matrices (~35+ MiB total); reproducible via r19/scripts/extract_r19_unified.ts"
+    },
+    {
+      "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/browser/r19_sim_cam.y4m",
+      "bytes": 136860054,
+      "reason": "Local fake-video-capture Y4M browser harness fixture (~130.5 MiB); reproducible via r19/scripts/make_r19_sim_cam_y4m.py"
+    },
+    {
+      "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/browser/dist/harness.bundle.js",
+      "bytes": 273928,
+      "reason": "Compiled esbuild harness bundle; source published in r19/candidates/browser_harness/"
+    },
+    {
+      "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/models_v1/{g5_r18feat_model_mlp.json,g5_p1f_trap_model_mlp.json,*_parity_rows.json}",
+      "reason": "Negative ablation checkpoints & large parity vectors kept off-repo; training metrics JSONs published in r19/results/"
     },
     {
       "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/results/worker_{a,b}*",
-      "reason": "Intermediate subagent audit dumps consolidated cleanly into r19/results/R19_DATASET_AUDIT.md and r19/experiments/"
+      "reason": "Intermediate subagent audit dumps consolidated cleanly into r19/results/*.md"
     },
     {
       "path": "main:contexts/can/research/.context-notforagent/",

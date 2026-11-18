@@ -1,8 +1,0 @@
-# Frontend Sketchbook Universe (Next.js/TypeScript): tidak memiliki paket pip.
-# File ini sengaja disediakan untuk handoff Ujang, BUKAN sumber dependency frontend.
-# Instalasi yang BENAR di folder ini: npm ci (berdasarkan package-lock.json).
-# Pengujian: npm run typecheck && npm run lint && npm test && NEXT_PUBLIC_TEST_HOOKS=0 npm run build.
-# Jika menggunakan Docker Compose, image frontend menjalankan npm ci sendiri lewat Dockerfile.
-# Jangan pip install requirements.txt di root untuk menjalankan frontend.
-# Dependency Python API terpisah di backend/requirements.txt dan milik scope partner.
-# Jangan menyalin package Node ke requirements.txt. Node packages bukan Python packages.

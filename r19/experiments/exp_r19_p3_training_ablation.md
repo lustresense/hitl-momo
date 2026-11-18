@@ -35,7 +35,13 @@
 5. **180 s Chromium WASM Benchmark (`run_r19_browser_harness.mjs`, `exit 0`):**
    - `10.83 MB < 25 MB` wire (`r19_model_mlp.json = 47,288 B` wire), `14.18` MP FPS (`81.88%` adaptive det w/ `+79` CLAHE hits), `r19Ms p95 = 0.2 ms`, `50/50` matched `KeyDown/KeyUp/Jump`, `0` page errors, `stoppedCleanly = true`.
 
+6. **Out-of-Domain Real `HANDS RGB-D` Matched-BBox Evaluation (`eval_hands_rgbd.ts`, `exit 0`):**
+   - Streamed `2,700` RGB PNGs across `Subject1..Subject5` (`0 B` zip/depth stored; `3,911` GT-matched L0 hands across `Horiz_H*`, `One`, `Two`, `Five`, `TimeOut`, `Punch`, `Span`, `Six`, `Seven`, `Eight`).
+   - Visual inspection (`hands_rgbd_horiz_audit.jpg`) confirmed `Horiz_H*` are 5-finger horizontal flat palms (`OTHER`), where **`G0_main` steered on `99.33%`** (`99.05%` on `Horiz_HBL`) while **`G4_Hybrid` rejected `100.00%` (`0/2,391` false PRESS/READY)**.
+   - Across `1,308` matched `STRICT_OTHER_NON_POINT` distractors: **`G4_Hybrid = 0.00%` `POINT_PRESS` / `98.93%` `OTHER`** vs `G0_main = 68.58%` steer, `G2_LR = 13.69%` PRESS (`98.28%` on `Span_VFR`), and pure `G3_MLP = 0.38%` PRESS (`75.64%` `Eight_VFR` READY).
+   - On tucked-thumb `One_VFR` at tiny `hand_size p50 = 0.113` (`n = 110`): **`G3_MLP` & `G4_Hybrid` = `99.09%` (`109/110`) `POINT_READY`** (`0.00%` PRESS; `G0 = 100%` steer), while scale-shortcut **`G5_r18feat` collapsed to `39.09%`** (`5.88%` on `One_VFL`).
+
 ---
 
-## 3. Pending Item for Stage Finalization
-- `HANDS RGB-D` (`ndrczc35bt.2`, `EVAL_ONLY`) HTTP Range curation across `Subject1..Subject5` is running in parallel to add out-of-domain real `Horiz_HBL` (dorsal right-hand pointing left) evaluation metrics.
+## 3. Completion Status & Remaining Gate
+- Offline `CC BY 4.0` curation, training, invariance, matched-bbox out-of-domain evaluation, and `180 s` Chromium WASM benchmarks are complete. Physical webcam hardware verification (`OWNER_PHYSICAL_WEBCAM_TEST_PROTOCOL.md` Scenarios 1–10) remains **`NOT_TESTED`**.

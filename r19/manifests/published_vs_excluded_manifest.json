@@ -1,10 +1,10 @@
 {
   "branch": "research-can",
-  "batch": "R19 Batch 2 (Stages P1 Curation + P3 Training/Calibration + P4 Chromium WASM Benchmark)",
+  "batch": "R19 Batch 3 Final Offline Archive (P0-P4 + HANDS RGB-D Out-of-Domain + All Curation Scripts & Cleanup)",
   "source_sandbox": "/srv/sketchbook/mediapipe-optimize/r19-sandbox",
   "source_main_baseline_commit": "c14b1d0502634cd63cc1a7be7c1e02270b15abc1",
-  "published_count_excluding_manifest_and_sums": 43,
-  "published_bytes_excluding_manifest_and_sums": 631009,
+  "published_count_excluding_manifest_and_sums": 53,
+  "published_bytes_excluding_manifest_and_sums": 826321,
   "published_files": [
     {
       "published_path": "docs/plan-rev/[WIP] NUI_R19-01_v0.1.0_Pistol_Press_Dataset_Training_Runtime_Research.md",
@@ -63,13 +63,13 @@
     },
     {
       "published_path": "r19/experiments/exp_r19_p3_training_ablation.md",
-      "bytes": 4431,
-      "sha256": "b00a9074c7b647ef3838af7e228543e9c4755fae19621db964ba420c8cefa29b"
+      "bytes": 5577,
+      "sha256": "d9d33190c9a95ffce624a643a0fd1cf04f57f8eeb6e530dac870f8842945bfa2"
     },
     {
       "published_path": "r19/manifests/dataset_manifest.json",
-      "bytes": 3874,
-      "sha256": "01f9cb2971c390477b54db3cb4e3e568fbd48f558458c0232dddf6ee5e2be8c0"
+      "bytes": 4393,
+      "sha256": "3f436f9e7e24f4051b3b8ee897c5450f8088fb3cf9ea91d0ae12c76c7435a4a2"
     },
     {
       "published_path": "r19/models/MODEL_CARD.md",
@@ -108,8 +108,13 @@
     },
     {
       "published_path": "r19/results/R19_TRAINING_REPORT.md",
-      "bytes": 7300,
-      "sha256": "f7f9ad0237b4aab102f5920e2e9d2c10d6f575461e91fd30174795f70b2745e6"
+      "bytes": 8710,
+      "sha256": "0f8ca7cfbda62781271404c86b4cadd181176c1dd4d9592d4d800dc4ceaf32bb"
+    },
+    {
+      "published_path": "r19/results/data_curation_summary.md",
+      "bytes": 3976,
+      "sha256": "d2b00ffb04d8da707141ab5541af30a6a1603a808bcaa40f2c9e06fdb5986d6f"
     },
     {
       "published_path": "r19/results/g0_g1_eval.json",
@@ -130,6 +135,11 @@
       "published_path": "r19/results/handgesture_5g_stats.json",
       "bytes": 11239,
       "sha256": "052f9891c46cee82dc008f575a01b0c6191373e4ea97b2fe9d3d3c8b33780598"
+    },
+    {
+      "published_path": "r19/results/hands_rgbd_eval_stats.json",
+      "bytes": 14828,
+      "sha256": "70cb0085647f788b4e42e9a3b0c83cca80131722ad2354482b84c2b0b7bdee2c"
     },
     {
       "published_path": "r19/results/ipn_test_g0_g1_baseline.json",
@@ -162,14 +172,44 @@
       "sha256": "011fab07919121309f8a5c8ded6d4a802ac062299163d922a704a1ca66b7f44c"
     },
     {
+      "published_path": "r19/results/r19_hands_rgbd_eval.json",
+      "bytes": 46817,
+      "sha256": "2fcea21867e3f2b3aa0ec01a80525cc3b86963d838226c9fc2aa6fe2dbf0bb30"
+    },
+    {
       "published_path": "r19/results/r19_training_metrics.json",
       "bytes": 8463,
       "sha256": "a3f67240029c491960e6b481b196259c91ffab976a61ac9f4d10e113c69739c9"
     },
     {
+      "published_path": "r19/scripts/build_curation_summary.py",
+      "bytes": 9740,
+      "sha256": "34494d612230c8b6ed7562d26a0bde4fdfadea0e6964916accdb29691b2288a2"
+    },
+    {
+      "published_path": "r19/scripts/curate_handgesture_5g.py",
+      "bytes": 30958,
+      "sha256": "7664df3b8e649aa4745b855c8988bf4356abc901c0051c4846f2f6c4cabc0d67"
+    },
+    {
+      "published_path": "r19/scripts/curate_hands_rgbd.py",
+      "bytes": 16459,
+      "sha256": "f095cd781835395891010e082796d2320937cb32c55e74fe060f85488a11537d"
+    },
+    {
+      "published_path": "r19/scripts/curate_n66hhk695h_v3.py",
+      "bytes": 31148,
+      "sha256": "c7ac7d4a068e58da7a0e7ebfd1a5557531beca52df1308614af4d3f760e64a1f"
+    },
+    {
       "published_path": "r19/scripts/eval_g1_on_ipn_test.ts",
       "bytes": 5342,
       "sha256": "c4d4921f2bb669ae9bb6cbd9b78b894014f8239b01fc7f20541f93dea9fea081"
+    },
+    {
+      "published_path": "r19/scripts/eval_hands_rgbd.ts",
+      "bytes": 12993,
+      "sha256": "2bc7bf23154e42ec7f77e99f82a16ab4aa324588d0f39e8996aa1a5ed98ee296"
     },
     {
       "published_path": "r19/scripts/eval_p2_n0_n1.ts",
@@ -192,9 +232,19 @@
       "sha256": "818283e90d909fc355d250ba864e941c2aaeca1c2019342e861d1fa6b2ebf539"
     },
     {
+      "published_path": "r19/scripts/mp_common.py",
+      "bytes": 13843,
+      "sha256": "c650d70486886135a35b33313c692bcfcd5af42554041d62320739f04323f258"
+    },
+    {
       "published_path": "r19/scripts/n0_n1_pistol_distractors.py",
       "bytes": 5284,
       "sha256": "a5d64ce5cefc1e94598a9acbd97d71e58c4e0969e7fcf45c6a5654e8ec4e0d2d"
+    },
+    {
+      "published_path": "r19/scripts/range_zip.py",
+      "bytes": 11475,
+      "sha256": "460296f3efe76389f0d71992bee7499f75d1021b3b4e8020235ef4f45c45669a"
     },
     {
       "published_path": "r19/scripts/run_g0_g1_eval.ts",
@@ -224,18 +274,16 @@
   ],
   "excluded_artifacts": [
     {
-      "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/data/n66hhk695h_v3/Root.zip",
-      "bytes": 382226419,
-      "sha256": "2257bb717af6451166d5ac74450c5f624c1f2960845894c549c14b6d2085a3d6",
-      "reason": "Raw upstream CC BY 4.0 dataset archive (~364.5 MiB); never push raw datasets to Git"
+      "path": "Natural RGB v3 Root.zip (SHA-256 2257bb717af6451166d5ac74450c5f624c1f2960845894c549c14b6d2085a3d6, 382,226,419 B)",
+      "reason": "Raw upstream CC BY 4.0 archive removed from VM after verified curation; reproducible from DOI 10.17632/n66hhk695h.3"
     },
     {
       "path": "HandGesture-5G GESTURE DATASET JU.zip (remote Mendeley 4.82 GiB)",
       "reason": "Monolithic zip skipped completely; streamed deduplicated entries in RAM via HTTP 206 Range (0 B archive saved)"
     },
     {
-      "path": "HANDS RGB-D Subject*.zip (remote Mendeley 10.17632/ndrczc35bt.2)",
-      "reason": "Multi-GB upstream RGB-D archives skipped; streaming selective RGB PNG slice in RAM via HTTP Range (active)"
+      "path": "HANDS RGB-D Subject1..5.zip (remote Mendeley 10.17632/ndrczc35bt.2)",
+      "reason": "Multi-GB upstream RGB-D archives skipped; 2,700 selective RGB PNGs streamed in RAM via HTTP Range (0 B zip/depth saved)"
     },
     {
       "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/data/handgesture_5g_derived/",
@@ -246,13 +294,16 @@
       "reason": "Local derived MediaPipe landmark JSONL (~30.3 MiB) & contact sheet .jpg; large landmark caches stay on VM"
     },
     {
-      "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/data/unified_feat/*.f32",
-      "reason": "Large binary float32 feature matrices (~35+ MiB total); reproducible via r19/scripts/extract_r19_unified.ts"
+      "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/data/hands_rgbd_eval/",
+      "reason": "Local derived MediaPipe landmark JSONL (14,505,513 B) & audit sheet .jpg; stats JSON published in r19/results/"
     },
     {
-      "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/browser/r19_sim_cam.y4m",
-      "bytes": 136860054,
-      "reason": "Local fake-video-capture Y4M browser harness fixture (~130.5 MiB); reproducible via r19/scripts/make_r19_sim_cam_y4m.py"
+      "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/data/unified_feat/*.f32",
+      "reason": "Large binary float32 feature matrices; reproducible via r19/scripts/extract_r19_unified.ts"
+    },
+    {
+      "path": "r19-sandbox/browser/r19_sim_cam.y4m (136,860,054 B)",
+      "reason": "Temporary fake-video-capture Y4M browser harness fixture cleaned from VM after 180s benchmark; reproducible via r19/scripts/make_r19_sim_cam_y4m.py"
     },
     {
       "path": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/browser/dist/harness.bundle.js",

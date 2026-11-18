@@ -7,6 +7,27 @@
 
 ---
 
+## R19-EXEC-20261118-03 — R19 Batch 3: Out-of-Domain `HANDS RGB-D` (`Subject1..5`) Matched-BBox Evaluation, Curation Scripts Archive & VM Hygiene (`KATA-TOOL` / `OFFLINE_DATASET`)
+
+- **Trigger:** Completion of `HANDS RGB-D` (`10.17632/ndrczc35bt.2`, `CC BY 4.0`, `EVAL_ONLY`) HTTP Range streaming (`Subject1..Subject5`) and final Stage P1–P4 publication hygiene under [`[WIP] NUI_R19-01 v0.1.0`](docs/plan-rev/%5BWIP%5D%20NUI_R19-01_v0.1.0_Pistol_Press_Dataset_Training_Runtime_Research.md).
+- **Published Deliverables (`research-can/r19/` — 54 total files under `r19/`, ~944 KB total):**
+  - **Curation & Eval Scripts (`r19/scripts/`):** [`curate_handgesture_5g.py`](r19/scripts/curate_handgesture_5g.py), [`curate_n66hhk695h_v3.py`](r19/scripts/curate_n66hhk695h_v3.py), [`curate_hands_rgbd.py`](r19/scripts/curate_hands_rgbd.py), [`range_zip.py`](r19/scripts/range_zip.py), [`mp_common.py`](r19/scripts/mp_common.py), [`build_curation_summary.py`](r19/scripts/build_curation_summary.py), [`eval_hands_rgbd.ts`](r19/scripts/eval_hands_rgbd.ts).
+  - **Out-of-Domain `HANDS RGB-D` Results & Consolidated Manifests:** [`data_curation_summary.md`](r19/results/data_curation_summary.md), [`hands_rgbd_eval_stats.json`](r19/results/hands_rgbd_eval_stats.json), [`r19_hands_rgbd_eval.json`](r19/results/r19_hands_rgbd_eval.json), updated [`R19_TRAINING_REPORT.md`](r19/results/R19_TRAINING_REPORT.md), [`exp_r19_p3_training_ablation.md`](r19/experiments/exp_r19_p3_training_ablation.md), [`dataset_manifest.json`](r19/manifests/dataset_manifest.json), [`published_vs_excluded_manifest.json`](r19/manifests/published_vs_excluded_manifest.json), and [`SHA256SUMS.txt`](r19/manifests/SHA256SUMS.txt).
+- **Observed Visual + Quantitative `HANDS RGB-D` Findings (`OFFLINE_DATASET`, `eval_hands_rgbd.ts` `exit 0`):**
+  1. **Streaming & Visual Contact Sheet Audit (`hands_rgbd_horiz_audit.jpg`, `2,700` frames, `0 B` raw zip/depth stored):** Verified `Horiz_HBL/HFR/HFL/HBR` (`3,000` GT instances, `2,391` L0-matched) are horizontal **5-finger open flat palms** (`thumb_lateral p50 = 1.750..1.929`, `OTHER` under R19 Pistol semantics), `One_VFL/VFR` (`212` L0-matched) are vertical **1-finger tucked-thumb pointing** (`POINT_READY`), and `Span/Two/Five/Punch/TimeOut/Six/Seven/Eight` (`1,308` L0-matched across `1,750` GT hands) are non-pistol `OTHER` distractors at tiny upper-body webcam scale (`hand_size p10..p50..p90 = [0.0689, 0.1118, 0.1545]`).
+  2. **Zero False `POINT_PRESS` Across All `3,911` GT-Matched Hands:**
+     - `ALL_HORIZ_POINTING` (`n = 2,391`): **`G4_Hybrid = 0.00%` `PRESS` / `0.00%` `READY` / `100.00%` `OTHER`** (`Horiz_HBL = 0.00%` vs **`G0_main = 99.05%` false steer**, overall `Horiz_*` `G0 = 99.33%`).
+     - `STRICT_OTHER_NON_POINT` (`Punch`, `Five`, `TimeOut`, `Span`, `Two`, `Six`, `Seven`, `Eight`, `n = 1,308`): **`G4_Hybrid = 0.00%` (`0/1,308`) `PRESS`, `1.07%` `READY`, `98.93%` `OTHER`** vs **`G0_main = 68.58%`** false steer, **`G2_LR = 13.69%`** `PRESS` (`98.28%` on thumb+pinky `Span_VFR`), and pure **`G3_MLP = 0.38%`** `PRESS` (`75.64%` `Eight_VFR` `READY` — suppressed to `0.00%` by `G1` barriers inside `G4_Hybrid`).
+     - Scale-invariance confirmed out-of-domain on tucked-thumb **`One_VFR`** (`hand_size p50 = 0.113`, `n = 110`): **`G3_MLP` & `G4_Hybrid` = `99.09%` (`109/110`) `POINT_READY`**, `0.00%` `PRESS` (`G0 = 100.00%` false JUMP), whereas **`G5_r18feat` (`68`-dim w/ `hand_size`) collapsed to `39.09%`** (`5.88%` on `One_VFL` vs `54.90%` `G4_Hybrid`).
+- **Verification & Cleanup (`exit 0`):**
+  - Cleaned temporary raw buffers from VM (`Root.zip`, `r19_sim_cam.y4m`), restoring `/` free space to `3.1 GiB`; untouched `r18-ux0-sandbox/` and `main`.
+  - Standalone strict TypeScript compile on all `7` candidate modules (`r19/candidates/{pistol_types,pistol_geometry,pistol_fsm,r19_safety_guards,r19_features,r19_model,r19_integrated}.ts`): **`exit 0`**.
+  - Verified `test_r19_invariants_and_latency.ts` (`82/82` invariant `max_aspect_invariant_diff = 1.577e-14`, pure MLP `p50/p95 = 23.35/26.55 µs`, full `G4` `54.07/86.12 µs`, `exit 0`) and `sha256sum -c r19/manifests/SHA256SUMS.txt` across all `53` hashed entries (`exit 0`).
+- **Remaining Blocker & Next Action:**
+  - `PHYSICAL_WEBCAM` (`OWNER_PHYSICAL_WEBCAM_TEST_PROTOCOL.md` Scenarios 1–10) remains **`NOT_TESTED`**, so plan retains **`[WIP]`** (`NUI_R19-01`) and `main` deployment remains untouched. Next action: Owner-run physical webcam test on `/nui-lab/gesture` & `/nui-lab/canvas` behind diagnostic toggle per [`R19_MAIN_INTEGRATION_HANDOFF.md`](r19/results/R19_MAIN_INTEGRATION_HANDOFF.md).
+
+---
+
 ## R19-EXEC-20261118-02 — R19 Batch 2: `CC BY 4.0` Data Curation, Scale-Invariant `G3` MLP + `G4` Hybrid, Ablations & `180 s` Chromium WASM Benchmark (`KATA-TOOL` / `OFFLINE_DATASET` / `BROWSER_SIMULATED_VIDEO`)
 
 - **Trigger:** R&D mandate [`[WIP] NUI_R19-01 v0.1.0`](docs/plan-rev/%5BWIP%5D%20NUI_R19-01_v0.1.0_Pistol_Press_Dataset_Training_Runtime_Research.md) Stages P1 (curated real datasets), P3 (feature invariance, lightweight model training/calibration, end-to-end eval & main NUI Lab handoff), and P4 (isolated `180 s` Chromium WASM benchmark).

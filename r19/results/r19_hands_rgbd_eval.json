@@ -1,0 +1,2058 @@
+{
+  "generated_at": "2026-11-18T11:55:52.504Z",
+  "source_jsonl": "/srv/sketchbook/mediapipe-optimize/r19-sandbox/data/hands_rgbd_eval/hands_rgbd_landmarks.jsonl",
+  "total_frames": 2700,
+  "groups": {
+    "ALL_HORIZ_POINTING": {
+      "gt_instances": 3000,
+      "l0_matched": 2391,
+      "l0_recall_pct": 79.7,
+      "m3_matched": 2391,
+      "m3_recall_pct": 79.7,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.0625,
+        0.0801,
+        0.1033
+      ],
+      "thumb_lat_p10_p50_p90": [
+        1.4483,
+        1.8197,
+        2.0467
+      ],
+      "handedness_m3": {
+        "Left": 1163,
+        "Right": 1228
+      },
+      "g0_main": {
+        "steer_pct": 99.33,
+        "pinched_pct": 0,
+        "dirs_cnt": {
+          "left": 1166,
+          "right": 1208,
+          "jump": 1,
+          "none": 16
+        },
+        "poses_cnt": {
+          "open-palm": 2391
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 0
+      },
+      "g1_pistol": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g2_lr": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g3_mlp": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g4_hybrid": {
+        "ready_cnt": 0,
+        "press_cnt": 0,
+        "other_cnt": 2391,
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 0,
+        "reasons_cnt": {
+          "five:open-palm-five": 2240,
+          "four:four-fingers-thumb-tucked": 131,
+          "unknown:ambiguous-finger-posture": 10,
+          "degenerate:collapsed-palm-scale": 8,
+          "degenerate:out-of-range-hand-size": 2
+        },
+        "zones_when_point": {}
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      }
+    },
+    "HORIZ_DORSAL_HBL_HBR": {
+      "gt_instances": 1500,
+      "l0_matched": 1266,
+      "l0_recall_pct": 84.4,
+      "m3_matched": 1266,
+      "m3_recall_pct": 84.4,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.0646,
+        0.0882,
+        0.1114
+      ],
+      "thumb_lat_p10_p50_p90": [
+        1.4286,
+        1.8992,
+        2.0549
+      ],
+      "handedness_m3": {
+        "Left": 630,
+        "Right": 636
+      },
+      "g0_main": {
+        "steer_pct": 99.53,
+        "pinched_pct": 0,
+        "dirs_cnt": {
+          "left": 636,
+          "right": 623,
+          "jump": 1,
+          "none": 6
+        },
+        "poses_cnt": {
+          "open-palm": 1266
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 0
+      },
+      "g1_pistol": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g2_lr": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g3_mlp": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g4_hybrid": {
+        "ready_cnt": 0,
+        "press_cnt": 0,
+        "other_cnt": 1266,
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 0,
+        "reasons_cnt": {
+          "five:open-palm-five": 1217,
+          "four:four-fingers-thumb-tucked": 39,
+          "degenerate:collapsed-palm-scale": 8,
+          "degenerate:out-of-range-hand-size": 2
+        },
+        "zones_when_point": {}
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      }
+    },
+    "HORIZ_PALMAR_HFL_HFR": {
+      "gt_instances": 1500,
+      "l0_matched": 1125,
+      "l0_recall_pct": 75,
+      "m3_matched": 1125,
+      "m3_recall_pct": 75,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.0586,
+        0.0734,
+        0.0904
+      ],
+      "thumb_lat_p10_p50_p90": [
+        1.4829,
+        1.7932,
+        2.031
+      ],
+      "handedness_m3": {
+        "Right": 592,
+        "Left": 533
+      },
+      "g0_main": {
+        "steer_pct": 99.11,
+        "pinched_pct": 0,
+        "dirs_cnt": {
+          "left": 530,
+          "right": 585,
+          "jump": 0,
+          "none": 10
+        },
+        "poses_cnt": {
+          "open-palm": 1125
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 0
+      },
+      "g1_pistol": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g2_lr": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g3_mlp": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g4_hybrid": {
+        "ready_cnt": 0,
+        "press_cnt": 0,
+        "other_cnt": 1125,
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 0,
+        "reasons_cnt": {
+          "five:open-palm-five": 1023,
+          "four:four-fingers-thumb-tucked": 92,
+          "unknown:ambiguous-finger-posture": 10
+        },
+        "zones_when_point": {}
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      }
+    },
+    "STRICT_OTHER_NON_POINT": {
+      "gt_instances": 1750,
+      "l0_matched": 1308,
+      "l0_recall_pct": 74.74,
+      "m3_matched": 1308,
+      "m3_recall_pct": 74.74,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.0689,
+        0.1118,
+        0.1545
+      ],
+      "thumb_lat_p10_p50_p90": [
+        0.2593,
+        1.2833,
+        2.1542
+      ],
+      "handedness_m3": {
+        "Right": 742,
+        "Left": 566
+      },
+      "g0_main": {
+        "steer_pct": 68.58,
+        "pinched_pct": 11.16,
+        "dirs_cnt": {
+          "left": 41,
+          "right": 0,
+          "jump": 856,
+          "none": 411
+        },
+        "poses_cnt": {
+          "none": 500,
+          "thumb-up": 159,
+          "pinch": 30,
+          "open-palm": 381,
+          "one-finger": 10,
+          "two-fingers": 221,
+          "split-palm": 4,
+          "three-fingers": 3
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 1.83
+      },
+      "g1_pistol": {
+        "ready_pct": 1.38,
+        "press_pct": 0,
+        "other_pct": 98.62,
+        "point_any_pct": 1.38
+      },
+      "g2_lr": {
+        "ready_pct": 22.55,
+        "press_pct": 13.69,
+        "other_pct": 63.76,
+        "point_any_pct": 36.24
+      },
+      "g3_mlp": {
+        "ready_pct": 8.1,
+        "press_pct": 0.38,
+        "other_pct": 91.51,
+        "point_any_pct": 8.49
+      },
+      "g4_hybrid": {
+        "ready_cnt": 14,
+        "press_cnt": 0,
+        "other_cnt": 1294,
+        "ready_pct": 1.07,
+        "press_pct": 0,
+        "other_pct": 98.93,
+        "point_any_pct": 1.07,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 1.07,
+        "reasons_cnt": {
+          "pinch:pinch-guard": 56,
+          "fist:all-four-curled": 82,
+          "thumb-up:all-four-curled-thumb-up": 85,
+          "five:open-palm-five": 279,
+          "unknown:ambiguous-finger-posture": 471,
+          "four:four-fingers-thumb-tucked": 82,
+          "degenerate:collapsed-palm-scale": 3,
+          "ready:index-straight-3-curled-thumb-folded": 14,
+          "two-fingers:index-and-middle-extended": 216,
+          "unknown:mlp-other-veto-ready": 4,
+          "three:three-fingers-extended": 2,
+          "degenerate:out-of-range-hand-size": 4,
+          "degenerate:collapsed-bbox-area": 10
+        },
+        "zones_when_point": {
+          "jump-left": 5,
+          "jump": 8,
+          "stop": 1
+        }
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0.54,
+        "press_pct": 0,
+        "other_pct": 99.46,
+        "point_any_pct": 0.54
+      }
+    }
+  },
+  "by_label": {
+    "Horiz_HBL": {
+      "gt_instances": 750,
+      "l0_matched": 630,
+      "l0_recall_pct": 84,
+      "m3_matched": 630,
+      "m3_recall_pct": 84,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.0646,
+        0.088,
+        0.1154
+      ],
+      "thumb_lat_p10_p50_p90": [
+        1.3965,
+        1.8582,
+        2.0563
+      ],
+      "handedness_m3": {
+        "Left": 628,
+        "Right": 2
+      },
+      "g0_main": {
+        "steer_pct": 99.05,
+        "pinched_pct": 0,
+        "dirs_cnt": {
+          "left": 0,
+          "right": 623,
+          "jump": 1,
+          "none": 6
+        },
+        "poses_cnt": {
+          "open-palm": 630
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 0
+      },
+      "g1_pistol": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g2_lr": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g3_mlp": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g4_hybrid": {
+        "ready_cnt": 0,
+        "press_cnt": 0,
+        "other_cnt": 630,
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 0,
+        "reasons_cnt": {
+          "five:open-palm-five": 586,
+          "four:four-fingers-thumb-tucked": 39,
+          "degenerate:collapsed-palm-scale": 4,
+          "degenerate:out-of-range-hand-size": 1
+        },
+        "zones_when_point": {}
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      }
+    },
+    "Horiz_HFR": {
+      "gt_instances": 750,
+      "l0_matched": 593,
+      "l0_recall_pct": 79.07,
+      "m3_matched": 593,
+      "m3_recall_pct": 79.07,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.056,
+        0.0729,
+        0.0868
+      ],
+      "thumb_lat_p10_p50_p90": [
+        1.4483,
+        1.7502,
+        2.0348
+      ],
+      "handedness_m3": {
+        "Right": 446,
+        "Left": 147
+      },
+      "g0_main": {
+        "steer_pct": 98.65,
+        "pinched_pct": 0,
+        "dirs_cnt": {
+          "left": 0,
+          "right": 585,
+          "jump": 0,
+          "none": 8
+        },
+        "poses_cnt": {
+          "open-palm": 593
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 0
+      },
+      "g1_pistol": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g2_lr": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g3_mlp": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g4_hybrid": {
+        "ready_cnt": 0,
+        "press_cnt": 0,
+        "other_cnt": 593,
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 0,
+        "reasons_cnt": {
+          "five:open-palm-five": 497,
+          "four:four-fingers-thumb-tucked": 92,
+          "unknown:ambiguous-finger-posture": 4
+        },
+        "zones_when_point": {}
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      }
+    },
+    "Horiz_HFL": {
+      "gt_instances": 750,
+      "l0_matched": 532,
+      "l0_recall_pct": 70.93,
+      "m3_matched": 532,
+      "m3_recall_pct": 70.93,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.0625,
+        0.0757,
+        0.0946
+      ],
+      "thumb_lat_p10_p50_p90": [
+        1.5679,
+        1.8445,
+        2.021
+      ],
+      "handedness_m3": {
+        "Left": 386,
+        "Right": 146
+      },
+      "g0_main": {
+        "steer_pct": 99.62,
+        "pinched_pct": 0,
+        "dirs_cnt": {
+          "left": 530,
+          "right": 0,
+          "jump": 0,
+          "none": 2
+        },
+        "poses_cnt": {
+          "open-palm": 532
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 0
+      },
+      "g1_pistol": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g2_lr": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g3_mlp": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g4_hybrid": {
+        "ready_cnt": 0,
+        "press_cnt": 0,
+        "other_cnt": 532,
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 0,
+        "reasons_cnt": {
+          "five:open-palm-five": 526,
+          "unknown:ambiguous-finger-posture": 6
+        },
+        "zones_when_point": {}
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      }
+    },
+    "Horiz_HBR": {
+      "gt_instances": 750,
+      "l0_matched": 636,
+      "l0_recall_pct": 84.8,
+      "m3_matched": 636,
+      "m3_recall_pct": 84.8,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.065,
+        0.0886,
+        0.1096
+      ],
+      "thumb_lat_p10_p50_p90": [
+        1.5132,
+        1.9284,
+        2.0526
+      ],
+      "handedness_m3": {
+        "Right": 634,
+        "Left": 2
+      },
+      "g0_main": {
+        "steer_pct": 100,
+        "pinched_pct": 0,
+        "dirs_cnt": {
+          "left": 636,
+          "right": 0,
+          "jump": 0,
+          "none": 0
+        },
+        "poses_cnt": {
+          "open-palm": 636
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 0
+      },
+      "g1_pistol": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g2_lr": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g3_mlp": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g4_hybrid": {
+        "ready_cnt": 0,
+        "press_cnt": 0,
+        "other_cnt": 636,
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 0,
+        "reasons_cnt": {
+          "five:open-palm-five": 631,
+          "degenerate:collapsed-palm-scale": 4,
+          "degenerate:out-of-range-hand-size": 1
+        },
+        "zones_when_point": {}
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      }
+    },
+    "Punch_VFR": {
+      "gt_instances": 150,
+      "l0_matched": 102,
+      "l0_recall_pct": 68,
+      "m3_matched": 102,
+      "m3_recall_pct": 68,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.0581,
+        0.0785,
+        0.0963
+      ],
+      "thumb_lat_p10_p50_p90": [
+        0.6369,
+        1.2434,
+        1.3754
+      ],
+      "handedness_m3": {
+        "Right": 101,
+        "Left": 1
+      },
+      "g0_main": {
+        "steer_pct": 0,
+        "pinched_pct": 48.04,
+        "dirs_cnt": {
+          "left": 0,
+          "right": 0,
+          "jump": 0,
+          "none": 102
+        },
+        "poses_cnt": {
+          "none": 7,
+          "thumb-up": 83,
+          "pinch": 12
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 0
+      },
+      "g1_pistol": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g2_lr": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g3_mlp": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g4_hybrid": {
+        "ready_cnt": 0,
+        "press_cnt": 0,
+        "other_cnt": 102,
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 0,
+        "reasons_cnt": {
+          "pinch:pinch-guard": 19,
+          "fist:all-four-curled": 52,
+          "thumb-up:all-four-curled-thumb-up": 31
+        },
+        "zones_when_point": {}
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      }
+    },
+    "Punch_VFL": {
+      "gt_instances": 150,
+      "l0_matched": 88,
+      "l0_recall_pct": 58.67,
+      "m3_matched": 88,
+      "m3_recall_pct": 58.67,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.0547,
+        0.0726,
+        0.0995
+      ],
+      "thumb_lat_p10_p50_p90": [
+        0.7998,
+        1.4606,
+        1.7482
+      ],
+      "handedness_m3": {
+        "Left": 86,
+        "Right": 2
+      },
+      "g0_main": {
+        "steer_pct": 1.14,
+        "pinched_pct": 60.23,
+        "dirs_cnt": {
+          "left": 0,
+          "right": 0,
+          "jump": 1,
+          "none": 87
+        },
+        "poses_cnt": {
+          "thumb-up": 73,
+          "none": 14,
+          "pinch": 1
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 0
+      },
+      "g1_pistol": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g2_lr": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g3_mlp": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g4_hybrid": {
+        "ready_cnt": 0,
+        "press_cnt": 0,
+        "other_cnt": 88,
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 0,
+        "reasons_cnt": {
+          "fist:all-four-curled": 30,
+          "pinch:pinch-guard": 4,
+          "thumb-up:all-four-curled-thumb-up": 50,
+          "degenerate:out-of-range-hand-size": 4
+        },
+        "zones_when_point": {}
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      }
+    },
+    "Five_VFR": {
+      "gt_instances": 150,
+      "l0_matched": 131,
+      "l0_recall_pct": 87.33,
+      "m3_matched": 131,
+      "m3_recall_pct": 87.33,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.1065,
+        0.1214,
+        0.159
+      ],
+      "thumb_lat_p10_p50_p90": [
+        1.8113,
+        1.9386,
+        2.1141
+      ],
+      "handedness_m3": {
+        "Right": 131
+      },
+      "g0_main": {
+        "steer_pct": 100,
+        "pinched_pct": 0,
+        "dirs_cnt": {
+          "left": 0,
+          "right": 0,
+          "jump": 131,
+          "none": 0
+        },
+        "poses_cnt": {
+          "open-palm": 131
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 0
+      },
+      "g1_pistol": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g2_lr": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g3_mlp": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g4_hybrid": {
+        "ready_cnt": 0,
+        "press_cnt": 0,
+        "other_cnt": 131,
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 0,
+        "reasons_cnt": {
+          "five:open-palm-five": 130,
+          "unknown:ambiguous-finger-posture": 1
+        },
+        "zones_when_point": {}
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      }
+    },
+    "Five_VFL": {
+      "gt_instances": 150,
+      "l0_matched": 134,
+      "l0_recall_pct": 89.33,
+      "m3_matched": 134,
+      "m3_recall_pct": 89.33,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.1061,
+        0.1249,
+        0.1613
+      ],
+      "thumb_lat_p10_p50_p90": [
+        1.6974,
+        1.9357,
+        2.2209
+      ],
+      "handedness_m3": {
+        "Left": 133,
+        "Right": 1
+      },
+      "g0_main": {
+        "steer_pct": 100,
+        "pinched_pct": 0,
+        "dirs_cnt": {
+          "left": 0,
+          "right": 0,
+          "jump": 134,
+          "none": 0
+        },
+        "poses_cnt": {
+          "open-palm": 134
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 0
+      },
+      "g1_pistol": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g2_lr": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g3_mlp": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g4_hybrid": {
+        "ready_cnt": 0,
+        "press_cnt": 0,
+        "other_cnt": 134,
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 0,
+        "reasons_cnt": {
+          "five:open-palm-five": 131,
+          "unknown:ambiguous-finger-posture": 2,
+          "four:four-fingers-thumb-tucked": 1
+        },
+        "zones_when_point": {}
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      }
+    },
+    "TimeOut": {
+      "gt_instances": 150,
+      "l0_matched": 108,
+      "l0_recall_pct": 72,
+      "m3_matched": 108,
+      "m3_recall_pct": 72,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.0647,
+        0.0986,
+        0.1456
+      ],
+      "thumb_lat_p10_p50_p90": [
+        0.1562,
+        1.611,
+        2.2084
+      ],
+      "handedness_m3": {
+        "Right": 78,
+        "Left": 30
+      },
+      "g0_main": {
+        "steer_pct": 93.52,
+        "pinched_pct": 1.85,
+        "dirs_cnt": {
+          "left": 41,
+          "right": 0,
+          "jump": 60,
+          "none": 7
+        },
+        "poses_cnt": {
+          "open-palm": 106,
+          "pinch": 2
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 0
+      },
+      "g1_pistol": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g2_lr": {
+        "ready_pct": 0,
+        "press_pct": 0.93,
+        "other_pct": 99.07,
+        "point_any_pct": 0.93
+      },
+      "g3_mlp": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g4_hybrid": {
+        "ready_cnt": 0,
+        "press_cnt": 0,
+        "other_cnt": 108,
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 0,
+        "reasons_cnt": {
+          "four:four-fingers-thumb-tucked": 75,
+          "degenerate:collapsed-palm-scale": 1,
+          "pinch:pinch-guard": 2,
+          "unknown:ambiguous-finger-posture": 1,
+          "five:open-palm-five": 18,
+          "three:three-fingers-extended": 1,
+          "degenerate:collapsed-bbox-area": 10
+        },
+        "zones_when_point": {}
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      }
+    },
+    "Span_VFR": {
+      "gt_instances": 150,
+      "l0_matched": 116,
+      "l0_recall_pct": 77.33,
+      "m3_matched": 116,
+      "m3_recall_pct": 77.33,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.0646,
+        0.0777,
+        0.1079
+      ],
+      "thumb_lat_p10_p50_p90": [
+        1.964,
+        2.1711,
+        2.2898
+      ],
+      "handedness_m3": {
+        "Right": 116
+      },
+      "g0_main": {
+        "steer_pct": 0,
+        "pinched_pct": 0,
+        "dirs_cnt": {
+          "left": 0,
+          "right": 0,
+          "jump": 0,
+          "none": 116
+        },
+        "poses_cnt": {
+          "none": 113,
+          "thumb-up": 3
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 0
+      },
+      "g1_pistol": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g2_lr": {
+        "ready_pct": 0,
+        "press_pct": 98.28,
+        "other_pct": 1.72,
+        "point_any_pct": 98.28
+      },
+      "g3_mlp": {
+        "ready_pct": 0,
+        "press_pct": 0.86,
+        "other_pct": 99.14,
+        "point_any_pct": 0.86
+      },
+      "g4_hybrid": {
+        "ready_cnt": 0,
+        "press_cnt": 0,
+        "other_cnt": 116,
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 0,
+        "reasons_cnt": {
+          "unknown:ambiguous-finger-posture": 112,
+          "thumb-up:all-four-curled-thumb-up": 4
+        },
+        "zones_when_point": {}
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      }
+    },
+    "Span_VFL": {
+      "gt_instances": 150,
+      "l0_matched": 97,
+      "l0_recall_pct": 64.67,
+      "m3_matched": 97,
+      "m3_recall_pct": 64.67,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.0718,
+        0.0894,
+        0.1152
+      ],
+      "thumb_lat_p10_p50_p90": [
+        1.0142,
+        1.9214,
+        2.4382
+      ],
+      "handedness_m3": {
+        "Right": 17,
+        "Left": 80
+      },
+      "g0_main": {
+        "steer_pct": 11.34,
+        "pinched_pct": 20.62,
+        "dirs_cnt": {
+          "left": 0,
+          "right": 0,
+          "jump": 11,
+          "none": 86
+        },
+        "poses_cnt": {
+          "one-finger": 8,
+          "none": 85,
+          "pinch": 3,
+          "open-palm": 1
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 9.28
+      },
+      "g1_pistol": {
+        "ready_pct": 9.28,
+        "press_pct": 0,
+        "other_pct": 90.72,
+        "point_any_pct": 9.28
+      },
+      "g2_lr": {
+        "ready_pct": 23.71,
+        "press_pct": 62.89,
+        "other_pct": 13.4,
+        "point_any_pct": 86.6
+      },
+      "g3_mlp": {
+        "ready_pct": 15.46,
+        "press_pct": 4.12,
+        "other_pct": 80.41,
+        "point_any_pct": 19.59
+      },
+      "g4_hybrid": {
+        "ready_cnt": 7,
+        "press_cnt": 0,
+        "other_cnt": 90,
+        "ready_pct": 7.22,
+        "press_pct": 0,
+        "other_pct": 92.78,
+        "point_any_pct": 7.22,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 7.22,
+        "reasons_cnt": {
+          "ready:index-straight-3-curled-thumb-folded": 7,
+          "pinch:pinch-guard": 9,
+          "unknown:ambiguous-finger-posture": 78,
+          "degenerate:collapsed-palm-scale": 1,
+          "unknown:mlp-other-veto-ready": 2
+        },
+        "zones_when_point": {
+          "jump-left": 5,
+          "stop": 1,
+          "jump": 1
+        }
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 3.09,
+        "press_pct": 0,
+        "other_pct": 96.91,
+        "point_any_pct": 3.09
+      }
+    },
+    "One_VFR": {
+      "gt_instances": 150,
+      "l0_matched": 110,
+      "l0_recall_pct": 73.33,
+      "m3_matched": 110,
+      "m3_recall_pct": 73.33,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.097,
+        0.1133,
+        0.1475
+      ],
+      "thumb_lat_p10_p50_p90": [
+        0.4333,
+        0.7851,
+        0.9824
+      ],
+      "handedness_m3": {
+        "Right": 109,
+        "Left": 1
+      },
+      "g0_main": {
+        "steer_pct": 100,
+        "pinched_pct": 0,
+        "dirs_cnt": {
+          "left": 0,
+          "right": 0,
+          "jump": 110,
+          "none": 0
+        },
+        "poses_cnt": {
+          "one-finger": 56,
+          "none": 53,
+          "two-fingers": 1
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 96.36
+      },
+      "g1_pistol": {
+        "ready_pct": 99.09,
+        "press_pct": 0,
+        "other_pct": 0.91,
+        "point_any_pct": 99.09
+      },
+      "g2_lr": {
+        "ready_pct": 99.09,
+        "press_pct": 0,
+        "other_pct": 0.91,
+        "point_any_pct": 99.09
+      },
+      "g3_mlp": {
+        "ready_pct": 99.09,
+        "press_pct": 0,
+        "other_pct": 0.91,
+        "point_any_pct": 99.09
+      },
+      "g4_hybrid": {
+        "ready_cnt": 109,
+        "press_cnt": 0,
+        "other_cnt": 1,
+        "ready_pct": 99.09,
+        "press_pct": 0,
+        "other_pct": 0.91,
+        "point_any_pct": 99.09,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 99.09,
+        "reasons_cnt": {
+          "ready:index-straight-3-curled-thumb-folded": 109,
+          "pinch:pinch-guard": 1
+        },
+        "zones_when_point": {
+          "jump": 109
+        }
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 39.09,
+        "press_pct": 0,
+        "other_pct": 60.91,
+        "point_any_pct": 39.09
+      }
+    },
+    "One_VFL": {
+      "gt_instances": 150,
+      "l0_matched": 102,
+      "l0_recall_pct": 68,
+      "m3_matched": 102,
+      "m3_recall_pct": 68,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.0616,
+        0.1024,
+        0.1492
+      ],
+      "thumb_lat_p10_p50_p90": [
+        0.5262,
+        1.0318,
+        1.6242
+      ],
+      "handedness_m3": {
+        "Right": 9,
+        "Left": 93
+      },
+      "g0_main": {
+        "steer_pct": 71.57,
+        "pinched_pct": 27.45,
+        "dirs_cnt": {
+          "left": 0,
+          "right": 3,
+          "jump": 70,
+          "none": 29
+        },
+        "poses_cnt": {
+          "thumb-up": 19,
+          "none": 18,
+          "one-finger": 52,
+          "fist": 5,
+          "pinch": 7,
+          "open-palm": 1
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 63.73
+      },
+      "g1_pistol": {
+        "ready_pct": 60.78,
+        "press_pct": 0,
+        "other_pct": 39.22,
+        "point_any_pct": 60.78
+      },
+      "g2_lr": {
+        "ready_pct": 64.71,
+        "press_pct": 0,
+        "other_pct": 35.29,
+        "point_any_pct": 64.71
+      },
+      "g3_mlp": {
+        "ready_pct": 54.9,
+        "press_pct": 0,
+        "other_pct": 45.1,
+        "point_any_pct": 54.9
+      },
+      "g4_hybrid": {
+        "ready_cnt": 56,
+        "press_cnt": 0,
+        "other_cnt": 46,
+        "ready_pct": 54.9,
+        "press_pct": 0,
+        "other_pct": 45.1,
+        "point_any_pct": 54.9,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 54.9,
+        "reasons_cnt": {
+          "degenerate:collapsed-palm-scale": 3,
+          "pinch:pinch-guard": 12,
+          "unknown:mlp-other-veto-ready": 6,
+          "ready:index-straight-3-curled-thumb-folded": 56,
+          "degenerate:out-of-range-hand-size": 2,
+          "thumb-up:all-four-curled-thumb-up": 7,
+          "fist:all-four-curled": 11,
+          "degenerate:collapsed-bbox-area": 4,
+          "unknown:ambiguous-finger-posture": 1
+        },
+        "zones_when_point": {
+          "jump": 49,
+          "jump-right": 7
+        }
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 5.88,
+        "press_pct": 0,
+        "other_pct": 94.12,
+        "point_any_pct": 5.88
+      }
+    },
+    "Two_VFR": {
+      "gt_instances": 150,
+      "l0_matched": 126,
+      "l0_recall_pct": 84,
+      "m3_matched": 126,
+      "m3_recall_pct": 84,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.1068,
+        0.1231,
+        0.1604
+      ],
+      "thumb_lat_p10_p50_p90": [
+        0.0573,
+        0.373,
+        0.6368
+      ],
+      "handedness_m3": {
+        "Right": 126
+      },
+      "g0_main": {
+        "steer_pct": 100,
+        "pinched_pct": 0,
+        "dirs_cnt": {
+          "left": 0,
+          "right": 0,
+          "jump": 126,
+          "none": 0
+        },
+        "poses_cnt": {
+          "two-fingers": 126
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 0
+      },
+      "g1_pistol": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g2_lr": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g3_mlp": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g4_hybrid": {
+        "ready_cnt": 0,
+        "press_cnt": 0,
+        "other_cnt": 126,
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 0,
+        "reasons_cnt": {
+          "two-fingers:index-and-middle-extended": 126
+        },
+        "zones_when_point": {}
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      }
+    },
+    "Two_VFL": {
+      "gt_instances": 150,
+      "l0_matched": 92,
+      "l0_recall_pct": 61.33,
+      "m3_matched": 92,
+      "m3_recall_pct": 61.33,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.108,
+        0.1234,
+        0.1646
+      ],
+      "thumb_lat_p10_p50_p90": [
+        0.2044,
+        0.545,
+        0.7884
+      ],
+      "handedness_m3": {
+        "Left": 90,
+        "Right": 2
+      },
+      "g0_main": {
+        "steer_pct": 100,
+        "pinched_pct": 0,
+        "dirs_cnt": {
+          "left": 0,
+          "right": 0,
+          "jump": 92,
+          "none": 0
+        },
+        "poses_cnt": {
+          "two-fingers": 86,
+          "none": 3,
+          "open-palm": 1,
+          "one-finger": 2
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 10.87
+      },
+      "g1_pistol": {
+        "ready_pct": 9.78,
+        "press_pct": 0,
+        "other_pct": 90.22,
+        "point_any_pct": 9.78
+      },
+      "g2_lr": {
+        "ready_pct": 7.61,
+        "press_pct": 1.09,
+        "other_pct": 91.3,
+        "point_any_pct": 8.7
+      },
+      "g3_mlp": {
+        "ready_pct": 4.35,
+        "press_pct": 0,
+        "other_pct": 95.65,
+        "point_any_pct": 4.35
+      },
+      "g4_hybrid": {
+        "ready_cnt": 7,
+        "press_cnt": 0,
+        "other_cnt": 85,
+        "ready_pct": 7.61,
+        "press_pct": 0,
+        "other_pct": 92.39,
+        "point_any_pct": 7.61,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 7.61,
+        "reasons_cnt": {
+          "unknown:mlp-other-veto-ready": 2,
+          "two-fingers:index-and-middle-extended": 82,
+          "ready:index-straight-3-curled-thumb-folded": 7,
+          "four:four-fingers-thumb-tucked": 1
+        },
+        "zones_when_point": {
+          "jump": 7
+        }
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      }
+    },
+    "Six_VFR": {
+      "gt_instances": 100,
+      "l0_matched": 74,
+      "l0_recall_pct": 74,
+      "m3_matched": 74,
+      "m3_recall_pct": 74,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.1083,
+        0.1271,
+        0.1655
+      ],
+      "thumb_lat_p10_p50_p90": [
+        -0.1226,
+        0.1584,
+        0.4527
+      ],
+      "handedness_m3": {
+        "Right": 74
+      },
+      "g0_main": {
+        "steer_pct": 100,
+        "pinched_pct": 0,
+        "dirs_cnt": {
+          "left": 0,
+          "right": 0,
+          "jump": 74,
+          "none": 0
+        },
+        "poses_cnt": {
+          "three-fingers": 50,
+          "none": 17,
+          "open-palm": 7
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 0
+      },
+      "g1_pistol": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g2_lr": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g3_mlp": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g4_hybrid": {
+        "ready_cnt": 0,
+        "press_cnt": 0,
+        "other_cnt": 74,
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 0,
+        "reasons_cnt": {
+          "three:three-fingers-extended": 69,
+          "unknown:ambiguous-finger-posture": 5
+        },
+        "zones_when_point": {}
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      }
+    },
+    "Six_VFL": {
+      "gt_instances": 100,
+      "l0_matched": 73,
+      "l0_recall_pct": 73,
+      "m3_matched": 73,
+      "m3_recall_pct": 73,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.1091,
+        0.1271,
+        0.1552
+      ],
+      "thumb_lat_p10_p50_p90": [
+        -0.0636,
+        0.312,
+        1.0167
+      ],
+      "handedness_m3": {
+        "Left": 63,
+        "Right": 10
+      },
+      "g0_main": {
+        "steer_pct": 95.89,
+        "pinched_pct": 8.22,
+        "dirs_cnt": {
+          "left": 0,
+          "right": 0,
+          "jump": 70,
+          "none": 3
+        },
+        "poses_cnt": {
+          "none": 7,
+          "three-fingers": 53,
+          "open-palm": 4,
+          "pinch": 3,
+          "two-fingers": 6
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 0
+      },
+      "g1_pistol": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g2_lr": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g3_mlp": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g4_hybrid": {
+        "ready_cnt": 0,
+        "press_cnt": 0,
+        "other_cnt": 73,
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 0,
+        "reasons_cnt": {
+          "three:three-fingers-extended": 57,
+          "pinch:pinch-guard": 6,
+          "unknown:ambiguous-finger-posture": 2,
+          "two-fingers:index-and-middle-extended": 6,
+          "four:four-fingers-thumb-tucked": 2
+        },
+        "zones_when_point": {}
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      }
+    },
+    "Seven_VFR": {
+      "gt_instances": 100,
+      "l0_matched": 80,
+      "l0_recall_pct": 80,
+      "m3_matched": 80,
+      "m3_recall_pct": 80,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.1045,
+        0.1294,
+        0.1621
+      ],
+      "thumb_lat_p10_p50_p90": [
+        0.1447,
+        0.3364,
+        0.6148
+      ],
+      "handedness_m3": {
+        "Right": 80
+      },
+      "g0_main": {
+        "steer_pct": 100,
+        "pinched_pct": 0,
+        "dirs_cnt": {
+          "left": 0,
+          "right": 0,
+          "jump": 80,
+          "none": 0
+        },
+        "poses_cnt": {
+          "none": 79,
+          "two-fingers": 1
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 0
+      },
+      "g1_pistol": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g2_lr": {
+        "ready_pct": 97.5,
+        "press_pct": 0,
+        "other_pct": 2.5,
+        "point_any_pct": 97.5
+      },
+      "g3_mlp": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g4_hybrid": {
+        "ready_cnt": 0,
+        "press_cnt": 0,
+        "other_cnt": 80,
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 0,
+        "reasons_cnt": {
+          "unknown:ambiguous-finger-posture": 79,
+          "two-fingers:index-and-middle-extended": 1
+        },
+        "zones_when_point": {}
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      }
+    },
+    "Seven_VFL": {
+      "gt_instances": 100,
+      "l0_matched": 79,
+      "l0_recall_pct": 79,
+      "m3_matched": 79,
+      "m3_recall_pct": 79,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.1071,
+        0.129,
+        0.1583
+      ],
+      "thumb_lat_p10_p50_p90": [
+        0.0363,
+        0.4305,
+        0.8337
+      ],
+      "handedness_m3": {
+        "Left": 73,
+        "Right": 6
+      },
+      "g0_main": {
+        "steer_pct": 100,
+        "pinched_pct": 1.27,
+        "dirs_cnt": {
+          "left": 0,
+          "right": 0,
+          "jump": 79,
+          "none": 0
+        },
+        "poses_cnt": {
+          "none": 64,
+          "split-palm": 3,
+          "three-fingers": 3,
+          "two-fingers": 2,
+          "open-palm": 6,
+          "pinch": 1
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 3.8
+      },
+      "g1_pistol": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g2_lr": {
+        "ready_pct": 77.22,
+        "press_pct": 1.27,
+        "other_pct": 21.52,
+        "point_any_pct": 78.48
+      },
+      "g3_mlp": {
+        "ready_pct": 6.33,
+        "press_pct": 0,
+        "other_pct": 93.67,
+        "point_any_pct": 6.33
+      },
+      "g4_hybrid": {
+        "ready_cnt": 0,
+        "press_cnt": 0,
+        "other_cnt": 79,
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 0,
+        "reasons_cnt": {
+          "unknown:ambiguous-finger-posture": 69,
+          "degenerate:collapsed-palm-scale": 1,
+          "three:three-fingers-extended": 1,
+          "two-fingers:index-and-middle-extended": 2,
+          "four:four-fingers-thumb-tucked": 5,
+          "pinch:pinch-guard": 1
+        },
+        "zones_when_point": {}
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 5.06,
+        "press_pct": 0,
+        "other_pct": 94.94,
+        "point_any_pct": 5.06
+      }
+    },
+    "Eight_VFR": {
+      "gt_instances": 100,
+      "l0_matched": 78,
+      "l0_recall_pct": 78,
+      "m3_matched": 78,
+      "m3_recall_pct": 78,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.1002,
+        0.117,
+        0.1585
+      ],
+      "thumb_lat_p10_p50_p90": [
+        0.4456,
+        0.6456,
+        0.9825
+      ],
+      "handedness_m3": {
+        "Right": 78
+      },
+      "g0_main": {
+        "steer_pct": 100,
+        "pinched_pct": 0,
+        "dirs_cnt": {
+          "left": 0,
+          "right": 0,
+          "jump": 78,
+          "none": 0
+        },
+        "poses_cnt": {
+          "none": 78
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 0
+      },
+      "g1_pistol": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g2_lr": {
+        "ready_pct": 100,
+        "press_pct": 0,
+        "other_pct": 0,
+        "point_any_pct": 100
+      },
+      "g3_mlp": {
+        "ready_pct": 75.64,
+        "press_pct": 0,
+        "other_pct": 24.36,
+        "point_any_pct": 75.64
+      },
+      "g4_hybrid": {
+        "ready_cnt": 0,
+        "press_cnt": 0,
+        "other_cnt": 78,
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 0,
+        "reasons_cnt": {
+          "unknown:ambiguous-finger-posture": 78
+        },
+        "zones_when_point": {}
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      }
+    },
+    "Eight_VFL": {
+      "gt_instances": 100,
+      "l0_matched": 77,
+      "l0_recall_pct": 77,
+      "m3_matched": 77,
+      "m3_recall_pct": 77,
+      "l1_recovered_dark": 0,
+      "hand_size_p10_p50_p90": [
+        0.0984,
+        0.115,
+        0.153
+      ],
+      "thumb_lat_p10_p50_p90": [
+        0.43,
+        0.9342,
+        1.3472
+      ],
+      "handedness_m3": {
+        "Left": 73,
+        "Right": 4
+      },
+      "g0_main": {
+        "steer_pct": 83.12,
+        "pinched_pct": 27.27,
+        "dirs_cnt": {
+          "left": 0,
+          "right": 0,
+          "jump": 64,
+          "none": 13
+        },
+        "poses_cnt": {
+          "pinch": 11,
+          "none": 57,
+          "two-fingers": 6,
+          "open-palm": 2,
+          "split-palm": 1
+        }
+      },
+      "r18_ux1": {
+        "point_pct": 2.6
+      },
+      "g1_pistol": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      },
+      "g2_lr": {
+        "ready_pct": 62.34,
+        "press_pct": 1.3,
+        "other_pct": 36.36,
+        "point_any_pct": 63.64
+      },
+      "g3_mlp": {
+        "ready_pct": 29.87,
+        "press_pct": 0,
+        "other_pct": 70.13,
+        "point_any_pct": 29.87
+      },
+      "g4_hybrid": {
+        "ready_cnt": 0,
+        "press_cnt": 0,
+        "other_cnt": 77,
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0,
+        "l0_only_press_pct": 0,
+        "l0_only_point_any_pct": 0,
+        "reasons_cnt": {
+          "pinch:pinch-guard": 21,
+          "unknown:ambiguous-finger-posture": 51,
+          "two-fingers:index-and-middle-extended": 5
+        },
+        "zones_when_point": {}
+      },
+      "g5_r18feat_ablation": {
+        "ready_pct": 0,
+        "press_pct": 0,
+        "other_pct": 100,
+        "point_any_pct": 0
+      }
+    }
+  }
+}

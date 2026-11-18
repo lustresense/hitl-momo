@@ -58,5 +58,9 @@
 
 ---
 
-## 4. Pending Addition (`EVAL_ONLY`)
-- Selective HTTP Range curation of `HANDS RGB-D` (`10.17632/ndrczc35bt.2`, `CC BY 4.0`) across `Subject1..Subject5` (`Horiz_HBL` dorsal right-hand pointing left, `Horiz_HBR/HFL/HFR`, `One`, `Two`, `Six`, `Five`, `TimeOut`, `Punch`) is actively executing and will be scored in the next step without touching model weights.
+## 4. Out-of-Domain Real `HANDS RGB-D` Matched-BBox Evaluation (`EVAL_ONLY`, [`r19_hands_rgbd_eval.json`](./r19_hands_rgbd_eval.json))
+
+Visual audit ([`data_curation_summary.md`](./data_curation_summary.md), `hands_rgbd_horiz_audit.jpg`) across `2,700` RGB PNGs streamed via HTTP Range (`Subject1..Subject5`, `0 B` raw zip stored; [`hands_rgbd_eval_stats.json`](./hands_rgbd_eval_stats.json)) confirmed `Horiz_HBL/HFR/HFL/HBR` are horizontal **5-finger flat open palms** (`OTHER` under Pistol rules), `One_VFL/VFR` are vertical **1-finger tucked-thumb pointing** (`POINT_READY`, `hand_size p50 = 0.113`), and `Span/Two/Five/Punch/TimeOut/Six/Seven/Eight` are non-pistol `OTHER` distractors:
+
+- **Zero False Pistol Presses Across Every Class (`3,911` GT-matched instances):** **`G4_Hybrid` (`G1 + G3 + FSM`) fired `0 / 3,911 (0.00%)` `POINT_PRESS`** across `ALL_HORIZ_POINTING` (`n = 2,391`, **`0.00%` PRESS / `0.00%` READY / `100%` `OTHER`** vs **`G0_main = 99.33%` false steer**; `Horiz_HBL = 99.05%` `G0` vs **`0.00%` `G4`**), `STRICT_OTHER_NON_POINT` (`Punch`, `Five`, `TimeOut`, `Span`, `Two`, `Six`, `Seven`, `Eight`, `n = 1,308`: **`G4 = 0.00%` PRESS / `1.07%` READY / `98.93%` `OTHER`** vs `G0 = 68.58%` steer, `G2_LR = 13.69%` PRESS [up to `98.28%` on thumb+pinky `Span_VFR`], `G3_MLP = 0.38%` PRESS & `75.64%` `Eight_VFR` `READY`), and `One_VFL/VFR` (`n = 212`: `0.00%` PRESS).
+- **Scale-Invariance Confirmed Out-of-Domain on Tiny Upper-Body `One_VFR` (`hand_size p50 = 0.113`, `n = 110`):** Scale-invariant **`G3_MLP` & `G4_Hybrid`** achieve **`99.09%` (`109/110`) `POINT_READY`** (`0.00%` `POINT_PRESS`, `G0_main = 100.00%` false JUMP), whereas **`G5_r18feat` (`68`-dim w/ `hand_size`) collapses to `39.09%`** (`5.88%` on `One_VFL` vs `54.90%` `G4_Hybrid`).

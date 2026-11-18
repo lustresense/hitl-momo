@@ -61,7 +61,11 @@
       "doi_or_url": "https://data.mendeley.com/datasets/ndrczc35bt/2",
       "license": "CC BY 4.0",
       "verdict": "EVAL_ONLY",
-      "streaming_mode": "HTTP 206 Range in-memory selective RGB PNG slice (Subject1..5, curation active)"
+      "streaming_mode": "HTTP 206 Range in-memory selective RGB PNG slice (Subject1..5, 2400 PNGs/CD ea, 0 B zip/depth saved)",
+      "frames_streamed": 2700,
+      "derived_jsonl_bytes": 14505513,
+      "derived_jsonl_sha256": "96b22c405d709e5199996d48b6b928c037813d3fb1088e8aac45fe3cf2077083",
+      "audit_notes": "2,700 frames across Subject1..5 (3,911 L0 GT-matched instances at hand_size p50=0.073..0.129). Visual contact sheet confirmed Horiz_HBL/HBR/HFL/HFR are 5-finger flat palms, One_VFL/VFR are tucked-thumb 1-finger POINT_READY, and Span/Two/Five/Punch/TimeOut/Six/Seven/Eight are non-pistol OTHER distractors."
     },
     {
       "id": "mendeley_bxr7kx84y6_subset",

@@ -19,8 +19,7 @@ services:
       MODEL_PATH: /app/weights/${MODEL_FILE:-model_4_mobilenetv2_best.keras}
       # Browser origins allowed to call the API (same-origin through Caddy needs none; set for split hosting).
       CORS_ORIGINS: ${PUBLIC_URL}
-      # Per-level AI difficulty (backend/app/difficulty.py). ON per Dias 2026-11-19 (backend only).
-      # Has no effect on students until the game sends levelId (NEXT_PUBLIC_PREDICTION_SEND_CONTEXT, Can).
+      # Per-level AI difficulty (backend/app/difficulty.py). ON per Can + Dias agreement 2026-11-19.
       AI_DIFFICULTY_ENABLED: ${AI_DIFFICULTY_ENABLED:-1}
 
   admin:
@@ -42,6 +41,8 @@ services:
         NEXT_PUBLIC_PREDICTION_MODE: partner
         NEXT_PUBLIC_PREDICTION_ENDPOINT: ${PUBLIC_URL:?set PUBLIC_URL in .env}/predict
         NEXT_PUBLIC_DRAW_INPUT_MODE: ${DRAW_INPUT_MODE:-pointer}
+        # Sends levelId with /predict so the backend applies per-level AI difficulty (Can + Dias, 2026-11-19).
+        NEXT_PUBLIC_PREDICTION_SEND_CONTEXT: ${PREDICTION_SEND_CONTEXT:-1}
     image: hitl-web
     restart: unless-stopped
     environment:

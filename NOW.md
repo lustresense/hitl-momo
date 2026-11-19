@@ -1,5 +1,11 @@
 # NOW.md — Status integrasi bersama
 
+## 2026-11-19 — Kesulitan AI per level AKTIF (0.29.0-alpha, di `main`, belum deploy)
+- Kesepakatan Can + Dias 2026-11-19 (disampaikan Dias). Game build mengirim `levelId` (`NEXT_PUBLIC_PREDICTION_SEND_CONTEXT=1` di `docker-compose.yml` dan `frontend/implementation/Dockerfile`); default level Bab 1 = 0, Bab 2 = 40, Bab 3 = 70 (aktif, bisa diubah superadmin di `/admin/kesulitan`). CORS backend mengizinkan `X-Contract-Version`.
+- Siswa di Bab 2 dan 3 akan melihat confidence lebih rendah; di Bab 3 sebagian gambar menampilkan label mirip di peringkat 1 dengan jawaban model asli di peringkat 2.
+- Bukti: backend `pytest tests/integration` 21/21 (flag on/off), uvicorn: preflight CORS + body persis seperti game untuk 3 level; game: vitest `tests/api`+`tests/prediction` 164/164 dan `next build` 24/24 dengan `SEND_CONTEXT=1`, validator game menerima respons Bab 3. Docker, deploy, browser E2E: `NOT_TESTED`.
+- Perlu: Can mencatat keputusan di `contexts/can/DECISIONS.md` (tidak diubah oleh agent).
+
 ## 2026-11-19 — Kesulitan AI dinyalakan di backend (0.28.1-alpha, di `main`, belum deploy)
 - Keputusan Dias: `AI_DIFFICULTY_ENABLED=1` di `docker-compose.yml`/`.env.example`. Semua level masih mati sampai superadmin mengatur di `/admin/kesulitan`.
 - **Siswa belum terdampak:** game belum mengirim `levelId` (`NEXT_PUBLIC_PREDICTION_SEND_CONTEXT` tidak diubah, keputusan Can/K1). Respons `/predict` menambah field `difficulty` (aditif).

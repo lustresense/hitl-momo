@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.29.0-alpha | 2026-11-19 | Fitur | `(0.29.0-alpha)` |
 | 0.28.1-alpha | 2026-11-19 | Fitur | `(0.28.1-alpha)` |
 | 0.28.0-alpha | 2026-11-19 | Fitur | `(0.28.0-alpha)` |
 | 0.27.0-alpha | 2026-11-19 | Fitur | `(0.27.0-alpha)` |
@@ -127,6 +128,19 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.29.0-alpha — 2026-11-19 — Fitur
+
+**Sumber:** Instruksi Dias 2026-11-19: Can dan Dias sepakat mengaktifkan tingkat kesulitan AI per level
+
+**Perubahan:**
+- Game mengirim levelId (NEXT_PUBLIC_PREDICTION_SEND_CONTEXT=1 di docker-compose.yml dan Dockerfile game); default level 0/40/70 aktif; CORS backend mengizinkan X-Contract-Version. DECISIONS.md tidak diubah.
+
+**Commit:** commit berjudul `(0.29.0-alpha)`
+
+**Bukti:** backend pytest tests/integration 21/21 (flag on/off); uvicorn: CORS preflight X-Contract-Version 200, body persis game untuk 3 level (nilai 0/40/70); game vitest tests/api+tests/prediction 164/164 dan next build 24/24 dengan SEND_CONTEXT=1; validator game menerima respons Bab 3. Docker/deploy/browser E2E NOT_TESTED
 
 ---
 

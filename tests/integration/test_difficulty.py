@@ -49,8 +49,23 @@ def test_predict_contract_unchanged_when_off(client, monkeypatch):
     assert len(plain.json()["candidates"]) == 3
 
 
+def test_levels_enabled_by_default(client, monkeypatch):
+    # Can + Dias agreement 2026-11-19: no saved row -> defaults 0 / 40 / 70, all enabled.
+    monkeypatch.setattr(main_mod, "AI_DIFFICULTY_ENABLED", True)
+    got = {}
+    for level in ("stage-1-foundation", "stage-2-ambiguity"):
+        r = client.post("/predict", json={"drawing": DRAWING, "levelId": level}).json()
+        got[level] = r["difficulty"]["value"]
+    assert got == {"stage-1-foundation": 0, "stage-2-ambiguity": 40}
+
+
 def test_flag_on_but_level_disabled_is_raw_model(client, monkeypatch):
     raw = client.post("/predict", json={"drawing": DRAWING}).json()["candidates"]
+    with dbmod.connect() as conn:  # superadmin switched stage 3 off
+        conn.execute(
+            "INSERT OR REPLACE INTO level_difficulty (level_id, enabled, difficulty) VALUES (?, 0, 70)",
+            ("stage-3-validation",),
+        )
     monkeypatch.setattr(main_mod, "AI_DIFFICULTY_ENABLED", True)
     r = client.post("/predict", json={"drawing": DRAWING, "levelId": "stage-3-validation"}).json()
     assert r["difficulty"] == {"levelId": "stage-3-validation", "value": 0}

@@ -11,7 +11,7 @@ from .db import get_db, init_db
 from .difficulty import apply_difficulty, difficulty_enabled, effective_difficulty
 from .inference import load_model, predict_from_drawing, predict_probs
 
-app = FastAPI(title="Momo Backend", version="0.28.1-alpha")
+app = FastAPI(title="Momo Backend", version="0.29.0-alpha")
 app.include_router(dashboard.router)
 app.include_router(classroom.router)
 
@@ -26,7 +26,8 @@ app.add_middleware(
     allow_origins=CORS_ORIGINS,
     allow_credentials=False,
     allow_methods=["GET", "POST", "PATCH", "DELETE", "OPTIONS"],
-    allow_headers=["Authorization", "Content-Type"],
+    # X-Contract-Version: sent by the game when NEXT_PUBLIC_PREDICTION_SEND_CONTEXT=1.
+    allow_headers=["Authorization", "Content-Type", "X-Contract-Version"],
     # Lets the admin dashboard read export filenames cross-origin.
     expose_headers=["Content-Disposition"],
 )

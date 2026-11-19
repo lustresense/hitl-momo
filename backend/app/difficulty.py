@@ -21,11 +21,12 @@ LEVELS: List[Tuple[str, str]] = [
     ("stage-2-ambiguity", "Bab 2 · Menara Lipatan"),
     ("stage-3-validation", "Bab 3 · Lorong Kabut Penghapus"),
 ]
-# Suggested values: easy -> hard. Disabled until a superadmin turns a level on.
+# Easy -> hard. Enabled per Can + Dias agreement 2026-11-19; a superadmin can change or switch
+# off each level in /admin/kesulitan (a saved row always overrides these defaults).
 DEFAULTS: Dict[str, Dict] = {
-    "stage-1-foundation": {"enabled": False, "difficulty": 0},
-    "stage-2-ambiguity": {"enabled": False, "difficulty": 40},
-    "stage-3-validation": {"enabled": False, "difficulty": 70},
+    "stage-1-foundation": {"enabled": True, "difficulty": 0},
+    "stage-2-ambiguity": {"enabled": True, "difficulty": 40},
+    "stage-3-validation": {"enabled": True, "difficulty": 70},
 }
 
 # Labels the model (and students) tend to confuse; first existing entry is used.

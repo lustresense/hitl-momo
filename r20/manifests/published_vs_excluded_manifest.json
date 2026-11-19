@@ -1,8 +1,8 @@
 {
-  "revision": "R20-01 v0.2.0 + R20-FIX-20261119-02",
-  "generated_at": "2026-11-19T13:26:00+07:00",
-  "published_count": 52,
-  "published_total_bytes": 1154704,
+  "revision": "R20-01 v0.2.0 + R20-FIX-20261119-03",
+  "generated_at": "2026-11-19T13:40:00+07:00",
+  "published_count": 53,
+  "published_total_bytes": 1186125,
   "published_files": [
     {
       "path": "r20/candidates/browser_harness/harness.ts",
@@ -98,6 +98,11 @@
       "path": "r20/results/R20_CPU_RUNTIME_AND_NETWORK_BENCHMARK.md",
       "bytes": 8458,
       "sha256": "8b9811714a0650ec1bd4ef83179832aac2e6191cc2b66455135cbcaa5a46e004"
+    },
+    {
+      "path": "r20/results/R20_FIX_AND_NUILAB_EXECUTION_SUMMARY_2026-11-19.md",
+      "bytes": 31421,
+      "sha256": "3de512d2f7e23cfe64699d3e899807668d161b93056359786625e98dcba20376"
     },
     {
       "path": "r20/results/R20_FIX_AUDIT_REPORT.md",

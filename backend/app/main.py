@@ -1,14 +1,17 @@
 import os
+import sqlite3
+from typing import Optional
 
-from fastapi import FastAPI
+from fastapi import Depends, FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, Field, field_validator
 
 from . import classroom, dashboard
-from .db import init_db
-from .inference import load_model, predict_from_drawing
+from .db import get_db, init_db
+from .difficulty import apply_difficulty, difficulty_enabled, effective_difficulty
+from .inference import load_model, predict_from_drawing, predict_probs
 
-app = FastAPI(title="Momo Backend", version="0.27.0-alpha")
+app = FastAPI(title="Momo Backend", version="0.28.0-alpha")
 app.include_router(dashboard.router)
 app.include_router(classroom.router)
 
@@ -39,8 +42,18 @@ def startup_event():
 MAX_PREDICT_POINTS = 20_000  # same cap as a classroom submission; /predict has no auth
 
 
+# Per-level AI difficulty (Dias, migrated from MuhammadDias/HITL@94120d4). OFF by default:
+# it changes the Top-3 the student sees, which is a product decision not yet approved by
+# Can/Dias. While off, /predict ignores levelId and returns exactly the pre-migration contract.
+AI_DIFFICULTY_ENABLED = difficulty_enabled()
+
+
 class DrawingPayload(BaseModel):
     drawing: dict
+    # Optional; the game sends it only when NEXT_PUBLIC_PREDICTION_SEND_CONTEXT=1 (camelCase).
+    level_id: Optional[str] = Field(default=None, alias="levelId")
+
+    model_config = {"populate_by_name": True, "extra": "ignore"}
 
     @field_validator("drawing")
     @classmethod
@@ -58,8 +71,16 @@ def health():
 
 
 @app.post("/predict")
-def predict(payload: DrawingPayload):
-    candidates = predict_from_drawing(payload.drawing)
-    return {"candidates": candidates}
+def predict(payload: DrawingPayload, conn: sqlite3.Connection = Depends(get_db)):
+    if not AI_DIFFICULTY_ENABLED:
+        return {"candidates": predict_from_drawing(payload.drawing)}
+    labels, probs = predict_probs(payload.drawing)
+    difficulty = effective_difficulty(conn, payload.level_id)
+    candidates = apply_difficulty(labels, probs, difficulty, payload.drawing, payload.level_id or "")
+    return {
+        "candidates": candidates,
+        # For dashboards/logs: which level and how much the answer was degraded (0 = raw model).
+        "difficulty": {"levelId": payload.level_id, "value": difficulty},
+    }
 
 

@@ -1,0 +1,38 @@
+{
+  "elapsedMs": 35.21,
+  "invariance": {
+    "featuresChecked": 82,
+    "maxScaleDiff": 0,
+    "maxAspectDiff": 1.577e-14,
+    "pass": true
+  },
+  "weightFormats": {
+    "rowsChecked": 160,
+    "s0_fp32_json_bytes": 73275,
+    "s0_fp32_binary_bytes": 30624,
+    "s0_fp32_binary_argmax_mismatch": 0,
+    "s0_fp32_binary_max_prob_diff": 2.25e-8,
+    "s1_int8_ptq_packed_bytes": 8844,
+    "s1_int8_ptq_argmax_mismatch_vs_fp32": 0,
+    "s1_int8_ptq_max_prob_diff_vs_fp32": 0.002438,
+    "s3_int8_qat_packed_bytes": 8844,
+    "s3_int8_qat_smoke_pred": "OTHER"
+  },
+  "ownership": {
+    "O1_bystander_larger_press_while_owner_locked": {
+      "bystanderStoleLock": false,
+      "bystanderTriggeredPress": false,
+      "pass": true
+    },
+    "O2_owner_exits_while_bystander_remains": {
+      "bystanderImmediateJumpTakeover": false,
+      "stuckKeysAfterOwnerExit": false,
+      "pass": true
+    },
+    "O3_face_anchor_disambiguation": {
+      "faceAnchorPickedOwner": true,
+      "pass": true
+    }
+  },
+  "allPass": true
+}

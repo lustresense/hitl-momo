@@ -1,0 +1,905 @@
+{
+  "prefix": "r20_c3_feat",
+  "device": "cuda:0",
+  "gpu_name": "NVIDIA RTX A5000",
+  "T_IMG_visual_teacher": {
+    "backbone": "ResNet9-GroupNorm-SiLU (4-stage Residual ConvNet on 128x128 RGB hand crops)",
+    "n_crops": 769,
+    "n_clusters": 20,
+    "n_folds_cluster_disjoint": 5,
+    "epochs_per_fold": 38,
+    "elapsed_sec": 34.97,
+    "oof_bright_metrics": {
+      "n": 769,
+      "acc": 0.7724,
+      "macroF1": 0.4647,
+      "f1_ready": 0.5269,
+      "f1_press": 0.0,
+      "recall_ready": 0.4712,
+      "recall_press": 0.0,
+      "precision_press": 0.0,
+      "support": [
+        104,
+        88,
+        577
+      ],
+      "other_to_press": 5,
+      "other_to_press_rate": 0.00867,
+      "other_to_press_wilson95": [
+        0.0037,
+        0.0201
+      ],
+      "ready_to_press": 2,
+      "other_to_ready": 27,
+      "confusion": [
+        [
+          49,
+          2,
+          53
+        ],
+        [
+          6,
+          0,
+          82
+        ],
+        [
+          27,
+          5,
+          545
+        ]
+      ]
+    },
+    "oof_dim_g022_metrics": {
+      "n": 769,
+      "acc": 0.7685,
+      "macroF1": 0.4599,
+      "f1_ready": 0.5022,
+      "f1_press": 0.0,
+      "recall_ready": 0.5481,
+      "recall_press": 0.0,
+      "precision_press": 0.0,
+      "support": [
+        104,
+        88,
+        577
+      ],
+      "other_to_press": 4,
+      "other_to_press_rate": 0.00693,
+      "other_to_press_wilson95": [
+        0.0027,
+        0.0177
+      ],
+      "ready_to_press": 2,
+      "other_to_ready": 39,
+      "confusion": [
+        [
+          57,
+          2,
+          45
+        ],
+        [
+          27,
+          0,
+          61
+        ],
+        [
+          39,
+          4,
+          534
+        ]
+      ]
+    },
+    "T_bright": 3.89,
+    "T_dim": 3.645
+  },
+  "T_ENSEMBLE_blended_teacher": {
+    "deep_teacher_arch": [
+      82,
+      192,
+      96,
+      48,
+      3
+    ],
+    "ensemble_seeds": 3,
+    "visual_rows_blended_with_T_IMG": 3567,
+    "val_metrics": {
+      "n": 5067,
+      "acc": 0.9984,
+      "macroF1": 0.9802,
+      "f1_ready": 0.9778,
+      "f1_press": 0.9636,
+      "recall_ready": 1.0,
+      "recall_press": 0.955,
+      "precision_press": 0.9725,
+      "support": [
+        22,
+        111,
+        4934
+      ],
+      "other_to_press": 3,
+      "other_to_press_rate": 0.00061,
+      "other_to_press_wilson95": [
+        0.0002,
+        0.0018
+      ],
+      "ready_to_press": 0,
+      "other_to_ready": 0,
+      "confusion": [
+        [
+          22,
+          0,
+          0
+        ],
+        [
+          1,
+          106,
+          4
+        ],
+        [
+          0,
+          3,
+          4931
+        ]
+      ]
+    },
+    "elapsed_sec": 10.59
+  },
+  "C6_vs_C7_distillation_grid": {
+    "C6_supervised_no_teacher": {
+      "kd_lambda": 0.0,
+      "kd_T": 2.0,
+      "selected": {
+        "hidden": [
+          96,
+          48
+        ],
+        "seed": 20261121,
+        "best_epoch": 26,
+        "T": 1.5575,
+        "val_nll": 0.00897,
+        "val_ece": 0.0016,
+        "composite_key": [
+          2,
+          0.9801,
+          0.9706,
+          -1
+        ]
+      },
+      "val_exported": {
+        "n": 5067,
+        "acc": 0.9982,
+        "macroF1": 0.9801,
+        "f1_ready": 0.9778,
+        "f1_press": 0.9633,
+        "recall_ready": 1.0,
+        "recall_press": 0.9459,
+        "precision_press": 0.9813,
+        "support": [
+          22,
+          111,
+          4934
+        ],
+        "other_to_press": 2,
+        "other_to_press_rate": 0.00041,
+        "other_to_press_wilson95": [
+          0.0001,
+          0.0015
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 1,
+        "confusion": [
+          [
+            22,
+            0,
+            0
+          ],
+          [
+            0,
+            105,
+            6
+          ],
+          [
+            1,
+            2,
+            4931
+          ]
+        ]
+      },
+      "test_locked_exported": {
+        "n": 4720,
+        "acc": 0.9985,
+        "macroF1": 0.959,
+        "f1_ready": 0.9333,
+        "f1_press": 0.9444,
+        "recall_ready": 1.0,
+        "recall_press": 0.9714,
+        "precision_press": 0.9189,
+        "support": [
+          21,
+          35,
+          4664
+        ],
+        "other_to_press": 3,
+        "other_to_press_rate": 0.00064,
+        "other_to_press_wilson95": [
+          0.0002,
+          0.0019
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 3,
+        "confusion": [
+          [
+            21,
+            0,
+            0
+          ],
+          [
+            0,
+            34,
+            1
+          ],
+          [
+            3,
+            3,
+            4658
+          ]
+        ],
+        "nll": 0.00386,
+        "ece": 0.00162
+      },
+      "json_bytes": 122836,
+      "f32_bytes": 51744,
+      "int8_packed_bytes": 14460,
+      "sha256": "4dd3a557021060929f190b9bece20bcbb39616b09ce03d6b11a818ab90f9c4d5"
+    },
+    "C7_kd_l025_T2": {
+      "kd_lambda": 0.25,
+      "kd_T": 2.0,
+      "selected": {
+        "hidden": [
+          96,
+          48
+        ],
+        "seed": 20261120,
+        "best_epoch": 11,
+        "T": 0.825,
+        "val_nll": 0.00819,
+        "val_ece": 0.00136,
+        "composite_key": [
+          2,
+          0.9875,
+          0.9817,
+          0
+        ]
+      },
+      "val_exported": {
+        "n": 5067,
+        "acc": 0.9984,
+        "macroF1": 0.9875,
+        "f1_ready": 1.0,
+        "f1_press": 0.9633,
+        "recall_ready": 1.0,
+        "recall_press": 0.9459,
+        "precision_press": 0.9813,
+        "support": [
+          22,
+          111,
+          4934
+        ],
+        "other_to_press": 2,
+        "other_to_press_rate": 0.00041,
+        "other_to_press_wilson95": [
+          0.0001,
+          0.0015
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 0,
+        "confusion": [
+          [
+            22,
+            0,
+            0
+          ],
+          [
+            0,
+            105,
+            6
+          ],
+          [
+            0,
+            2,
+            4932
+          ]
+        ]
+      },
+      "test_locked_exported": {
+        "n": 4720,
+        "acc": 0.9987,
+        "macroF1": 0.9635,
+        "f1_ready": 0.9333,
+        "f1_press": 0.9577,
+        "recall_ready": 1.0,
+        "recall_press": 0.9714,
+        "precision_press": 0.9444,
+        "support": [
+          21,
+          35,
+          4664
+        ],
+        "other_to_press": 2,
+        "other_to_press_rate": 0.00043,
+        "other_to_press_wilson95": [
+          0.0001,
+          0.0016
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 3,
+        "confusion": [
+          [
+            21,
+            0,
+            0
+          ],
+          [
+            0,
+            34,
+            1
+          ],
+          [
+            3,
+            2,
+            4659
+          ]
+        ],
+        "nll": 0.00419,
+        "ece": 0.00153
+      },
+      "json_bytes": 122792,
+      "f32_bytes": 51744,
+      "int8_packed_bytes": 14460,
+      "sha256": "6b979338eaf11f348774843e473fe9f0eeebf5fca3b1c353b52c4bc8a01c5136"
+    },
+    "C7_kd_l050_T2": {
+      "kd_lambda": 0.5,
+      "kd_T": 2.0,
+      "selected": {
+        "hidden": [
+          96,
+          48
+        ],
+        "seed": 20261121,
+        "best_epoch": 16,
+        "T": 0.8475,
+        "val_nll": 0.00932,
+        "val_ece": 0.00152,
+        "composite_key": [
+          2,
+          0.9874,
+          0.9815,
+          0
+        ]
+      },
+      "val_exported": {
+        "n": 5067,
+        "acc": 0.9984,
+        "macroF1": 0.9874,
+        "f1_ready": 1.0,
+        "f1_press": 0.963,
+        "recall_ready": 1.0,
+        "recall_press": 0.9369,
+        "precision_press": 0.9905,
+        "support": [
+          22,
+          111,
+          4934
+        ],
+        "other_to_press": 1,
+        "other_to_press_rate": 0.0002,
+        "other_to_press_wilson95": [
+          0.0,
+          0.0011
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 0,
+        "confusion": [
+          [
+            22,
+            0,
+            0
+          ],
+          [
+            0,
+            104,
+            7
+          ],
+          [
+            0,
+            1,
+            4933
+          ]
+        ]
+      },
+      "test_locked_exported": {
+        "n": 4720,
+        "acc": 0.9992,
+        "macroF1": 0.9728,
+        "f1_ready": 0.9333,
+        "f1_press": 0.9855,
+        "recall_ready": 1.0,
+        "recall_press": 0.9714,
+        "precision_press": 1.0,
+        "support": [
+          21,
+          35,
+          4664
+        ],
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0,
+        "other_to_press_wilson95": [
+          0.0,
+          0.0008
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 3,
+        "confusion": [
+          [
+            21,
+            0,
+            0
+          ],
+          [
+            0,
+            34,
+            1
+          ],
+          [
+            3,
+            0,
+            4661
+          ]
+        ],
+        "nll": 0.00266,
+        "ece": 0.00167
+      },
+      "json_bytes": 122894,
+      "f32_bytes": 51744,
+      "int8_packed_bytes": 14460,
+      "sha256": "4080afccc34c27f208aedf0cd73c87db7d2242ec2ec2498ae82e77402e5e4f46"
+    },
+    "C7_kd_l025_T4": {
+      "kd_lambda": 0.25,
+      "kd_T": 4.0,
+      "selected": {
+        "hidden": [
+          96,
+          48
+        ],
+        "seed": 20261121,
+        "best_epoch": 9,
+        "T": 0.8175,
+        "val_nll": 0.00917,
+        "val_ece": 0.00119,
+        "composite_key": [
+          2,
+          0.9859,
+          0.9792,
+          0
+        ]
+      },
+      "val_exported": {
+        "n": 5067,
+        "acc": 0.9982,
+        "macroF1": 0.9859,
+        "f1_ready": 1.0,
+        "f1_press": 0.9585,
+        "recall_ready": 1.0,
+        "recall_press": 0.9369,
+        "precision_press": 0.9811,
+        "support": [
+          22,
+          111,
+          4934
+        ],
+        "other_to_press": 2,
+        "other_to_press_rate": 0.00041,
+        "other_to_press_wilson95": [
+          0.0001,
+          0.0015
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 0,
+        "confusion": [
+          [
+            22,
+            0,
+            0
+          ],
+          [
+            0,
+            104,
+            7
+          ],
+          [
+            0,
+            2,
+            4932
+          ]
+        ]
+      },
+      "test_locked_exported": {
+        "n": 4720,
+        "acc": 0.9987,
+        "macroF1": 0.9613,
+        "f1_ready": 0.913,
+        "f1_press": 0.9714,
+        "recall_ready": 1.0,
+        "recall_press": 0.9714,
+        "precision_press": 0.9714,
+        "support": [
+          21,
+          35,
+          4664
+        ],
+        "other_to_press": 1,
+        "other_to_press_rate": 0.00021,
+        "other_to_press_wilson95": [
+          0.0,
+          0.0012
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 4,
+        "confusion": [
+          [
+            21,
+            0,
+            0
+          ],
+          [
+            0,
+            34,
+            1
+          ],
+          [
+            4,
+            1,
+            4659
+          ]
+        ],
+        "nll": 0.0033,
+        "ece": 0.00162
+      },
+      "json_bytes": 122835,
+      "f32_bytes": 51744,
+      "int8_packed_bytes": 14460,
+      "sha256": "8264aa0f84f8404a17af15b2228e27a1a50668158a8e68771b8266239365ad9d"
+    },
+    "C7_kd_l050_T4": {
+      "kd_lambda": 0.5,
+      "kd_T": 4.0,
+      "selected": {
+        "hidden": [
+          64,
+          32
+        ],
+        "seed": 20261120,
+        "best_epoch": 13,
+        "T": 0.79,
+        "val_nll": 0.00859,
+        "val_ece": 0.00247,
+        "composite_key": [
+          2,
+          0.9891,
+          0.984,
+          0
+        ]
+      },
+      "val_exported": {
+        "n": 5067,
+        "acc": 0.9986,
+        "macroF1": 0.9891,
+        "f1_ready": 1.0,
+        "f1_press": 0.968,
+        "recall_ready": 1.0,
+        "recall_press": 0.955,
+        "precision_press": 0.9815,
+        "support": [
+          22,
+          111,
+          4934
+        ],
+        "other_to_press": 2,
+        "other_to_press_rate": 0.00041,
+        "other_to_press_wilson95": [
+          0.0001,
+          0.0015
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 0,
+        "confusion": [
+          [
+            22,
+            0,
+            0
+          ],
+          [
+            0,
+            106,
+            5
+          ],
+          [
+            0,
+            2,
+            4932
+          ]
+        ]
+      },
+      "test_locked_exported": {
+        "n": 4720,
+        "acc": 0.9994,
+        "macroF1": 0.9826,
+        "f1_ready": 0.9767,
+        "f1_press": 0.9714,
+        "recall_ready": 1.0,
+        "recall_press": 0.9714,
+        "precision_press": 0.9714,
+        "support": [
+          21,
+          35,
+          4664
+        ],
+        "other_to_press": 1,
+        "other_to_press_rate": 0.00021,
+        "other_to_press_wilson95": [
+          0.0,
+          0.0012
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 1,
+        "confusion": [
+          [
+            21,
+            0,
+            0
+          ],
+          [
+            0,
+            34,
+            1
+          ],
+          [
+            1,
+            1,
+            4662
+          ]
+        ],
+        "nll": 0.0042,
+        "ece": 0.00115
+      },
+      "json_bytes": 73138,
+      "f32_bytes": 30624,
+      "int8_packed_bytes": 8844,
+      "sha256": "66acbde9f73868f8e6afada647a6d513d7efab6252a937bf88dede933147d730"
+    }
+  },
+  "best_C6_id": "C6_supervised_no_teacher",
+  "best_C7_id": "C7_kd_l050_T4",
+  "S_TEMP_causal_4frame": {
+    "input_dim": 110,
+    "hidden": [
+      64,
+      32
+    ],
+    "best_epoch": 5,
+    "teacher_val_metrics": {
+      "n": 5067,
+      "acc": 0.9978,
+      "macroF1": 0.9486,
+      "f1_ready": 0.898,
+      "f1_press": 0.9484,
+      "recall_ready": 1.0,
+      "recall_press": 0.9099,
+      "precision_press": 0.9902,
+      "support": [
+        22,
+        111,
+        4934
+      ],
+      "other_to_press": 1,
+      "other_to_press_rate": 0.0002,
+      "other_to_press_wilson95": [
+        0.0,
+        0.0011
+      ],
+      "ready_to_press": 0,
+      "other_to_ready": 0,
+      "confusion": [
+        [
+          22,
+          0,
+          0
+        ],
+        [
+          5,
+          101,
+          5
+        ],
+        [
+          0,
+          1,
+          4933
+        ]
+      ]
+    },
+    "student_val_metrics": {
+      "n": 5067,
+      "acc": 0.9978,
+      "macroF1": 0.9487,
+      "f1_ready": 0.898,
+      "f1_press": 0.9488,
+      "recall_ready": 1.0,
+      "recall_press": 0.9189,
+      "precision_press": 0.9808,
+      "support": [
+        22,
+        111,
+        4934
+      ],
+      "other_to_press": 2,
+      "other_to_press_rate": 0.00041,
+      "other_to_press_wilson95": [
+        0.0001,
+        0.0015
+      ],
+      "ready_to_press": 0,
+      "other_to_ready": 0,
+      "confusion": [
+        [
+          22,
+          0,
+          0
+        ],
+        [
+          5,
+          102,
+          4
+        ],
+        [
+          0,
+          2,
+          4932
+        ]
+      ]
+    },
+    "student_test_locked_metrics": {
+      "n": 4720,
+      "acc": 0.9987,
+      "macroF1": 0.9692,
+      "f1_ready": 0.9767,
+      "f1_press": 0.9315,
+      "recall_ready": 1.0,
+      "recall_press": 0.9714,
+      "precision_press": 0.8947,
+      "support": [
+        21,
+        35,
+        4664
+      ],
+      "other_to_press": 4,
+      "other_to_press_rate": 0.00086,
+      "other_to_press_wilson95": [
+        0.0003,
+        0.0022
+      ],
+      "ready_to_press": 0,
+      "other_to_ready": 1,
+      "confusion": [
+        [
+          21,
+          0,
+          0
+        ],
+        [
+          0,
+          34,
+          1
+        ],
+        [
+          1,
+          4,
+          4659
+        ]
+      ]
+    }
+  },
+  "S3_QAT_int8": {
+    "hidden": [
+      64,
+      32
+    ],
+    "best_epoch": 31,
+    "T": 1.3075,
+    "int8_packed_bytes": 8844,
+    "int8_json_bytes": 29990,
+    "val_int8": {
+      "n": 5067,
+      "acc": 0.9984,
+      "macroF1": 0.9746,
+      "f1_ready": 0.9565,
+      "f1_press": 0.968,
+      "recall_ready": 1.0,
+      "recall_press": 0.955,
+      "precision_press": 0.9815,
+      "support": [
+        22,
+        111,
+        4934
+      ],
+      "other_to_press": 2,
+      "other_to_press_rate": 0.00041,
+      "other_to_press_wilson95": [
+        0.0001,
+        0.0015
+      ],
+      "ready_to_press": 0,
+      "other_to_ready": 1,
+      "confusion": [
+        [
+          22,
+          0,
+          0
+        ],
+        [
+          1,
+          106,
+          4
+        ],
+        [
+          1,
+          2,
+          4931
+        ]
+      ]
+    },
+    "test_locked_int8": {
+      "n": 4720,
+      "acc": 0.9992,
+      "macroF1": 0.9752,
+      "f1_ready": 0.9545,
+      "f1_press": 0.9714,
+      "recall_ready": 1.0,
+      "recall_press": 0.9714,
+      "precision_press": 0.9714,
+      "support": [
+        21,
+        35,
+        4664
+      ],
+      "other_to_press": 1,
+      "other_to_press_rate": 0.00021,
+      "other_to_press_wilson95": [
+        0.0,
+        0.0012
+      ],
+      "ready_to_press": 0,
+      "other_to_ready": 2,
+      "confusion": [
+        [
+          21,
+          0,
+          0
+        ],
+        [
+          0,
+          34,
+          1
+        ],
+        [
+          2,
+          1,
+          4661
+        ]
+      ]
+    },
+    "elapsed_sec": 3.88
+  }
+}

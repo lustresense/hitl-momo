@@ -1,0 +1,662 @@
+{
+  "revision": "R20-01 v0.2.0",
+  "leakage_verification": {
+    "val_f32_byte_identical_across_c0_c1_c2_c3_c4_c6_c7": true,
+    "test_f32_byte_identical_across_c0_c1_c2_c3_c4_c6_c7": true,
+    "val_f32_sha256": "7aea311ba274e79270b85c356b9d995d40d80d8a2213358355c82d6aaa27231c",
+    "test_f32_sha256": "6d3e6eebc4953fa012eedb91470c85578c00d18dba761a6bcb0a13026158cd7e",
+    "hands_rgbd_ood_test_subjects": [
+      "Subject4",
+      "Subject5"
+    ],
+    "hands_rgbd_train_subjects_c3_c4_c6_c7": [
+      "Subject1",
+      "Subject2"
+    ],
+    "bxr7_mendeley_599_games_untouched": [
+      "Chinese Chess",
+      "Dice",
+      "Meeting Chess",
+      "Aeroplane Chess",
+      "Checkers"
+    ],
+    "bxr7_train_games_c3_c4_c6_c7": [
+      "Dim Light/Gomoku (frames 0..68%)",
+      "Natural Light/Poker (frames 0..68%)"
+    ],
+    "bxr7_ood_holdout_games": [
+      "Dim Light/Gomoku (frames 75..100%)",
+      "Natural Light/Poker (frames 75..100%)"
+    ]
+  },
+  "feature_sets": {
+    "r20_feat_base_c0_c1": {
+      "prefix": "r20_feat",
+      "extraFiles": [],
+      "train": {
+        "rows": 17086,
+        "source_counts": {
+          "hg5g_static": {
+            "POINT_READY": 104,
+            "POINT_PRESS": 88,
+            "OTHER": 577
+          },
+          "hg5g_causal": {
+            "POINT_READY": 104,
+            "POINT_PRESS": 88,
+            "OTHER": 577
+          },
+          "hg5g_l1_clahe": {
+            "POINT_READY": 94,
+            "POINT_PRESS": 20,
+            "OTHER": 0
+          },
+          "n66_backlit": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 264
+          },
+          "n66_indoor_moderate": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 1114
+          },
+          "n66_bright_daylight": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 1790
+          },
+          "n66_green_led": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 123
+          },
+          "n66_dim": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 544
+          },
+          "n66_red_led": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 112
+          },
+          "ipn_neg_gesture": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 8314
+          },
+          "ipn_nog": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 3173
+          }
+        }
+      },
+      "val": {
+        "rows": 5067,
+        "source_counts": {
+          "hg5g_static": {
+            "POINT_READY": 22,
+            "POINT_PRESS": 111,
+            "OTHER": 168
+          },
+          "n66_indoor_moderate": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 274
+          },
+          "n66_dim": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 122
+          },
+          "n66_bright_daylight": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 405
+          },
+          "n66_green_led": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 30
+          },
+          "n66_red_led": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 1
+          },
+          "n66_backlit": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 8
+          },
+          "ipn_neg_gesture": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 2869
+          },
+          "ipn_nog": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 1057
+          }
+        }
+      },
+      "test": {
+        "rows": 4720,
+        "source_counts": {
+          "hg5g_static": {
+            "POINT_READY": 21,
+            "POINT_PRESS": 35,
+            "OTHER": 174
+          },
+          "n66_bright_daylight": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 527
+          },
+          "n66_green_led": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 99
+          },
+          "n66_backlit": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 8
+          },
+          "n66_indoor_moderate": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 119
+          },
+          "n66_dim": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 98
+          },
+          "n66_red_led": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 37
+          },
+          "ipn_neg_gesture": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 2691
+          },
+          "ipn_nog": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 911
+          }
+        }
+      }
+    },
+    "r20_c2_feat_pos_light": {
+      "prefix": "r20_c2_feat",
+      "extraFiles": [
+        "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/aug/extra_hg5g_aug.jsonl"
+      ],
+      "train": {
+        "rows": 19001,
+        "source_counts": {
+          "hg5g_static": {
+            "POINT_READY": 104,
+            "POINT_PRESS": 88,
+            "OTHER": 577
+          },
+          "hg5g_causal": {
+            "POINT_READY": 104,
+            "POINT_PRESS": 88,
+            "OTHER": 577
+          },
+          "hg5g_l1_clahe": {
+            "POINT_READY": 94,
+            "POINT_PRESS": 20,
+            "OTHER": 0
+          },
+          "n66_backlit": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 264
+          },
+          "n66_indoor_moderate": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 1114
+          },
+          "n66_bright_daylight": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 1790
+          },
+          "n66_green_led": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 123
+          },
+          "n66_dim": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 544
+          },
+          "n66_red_led": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 112
+          },
+          "ipn_neg_gesture": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 8314
+          },
+          "ipn_nog": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 3173
+          },
+          "hg5g_aug_backlight": {
+            "POINT_READY": 114,
+            "POINT_PRESS": 123,
+            "OTHER": 108
+          },
+          "hg5g_aug_jpeg_q25": {
+            "POINT_READY": 113,
+            "POINT_PRESS": 111,
+            "OTHER": 114
+          },
+          "hg5g_aug_flip": {
+            "POINT_READY": 121,
+            "POINT_PRESS": 140,
+            "OTHER": 121
+          },
+          "hg5g_aug_scale_x048_dim": {
+            "POINT_READY": 82,
+            "POINT_PRESS": 31,
+            "OTHER": 92
+          },
+          "hg5g_aug_blur_dim": {
+            "POINT_READY": 123,
+            "POINT_PRESS": 97,
+            "OTHER": 107
+          },
+          "hg5g_aug_dim_g045": {
+            "POINT_READY": 70,
+            "POINT_PRESS": 27,
+            "OTHER": 82
+          },
+          "hg5g_aug_dim_g020": {
+            "POINT_READY": 6,
+            "POINT_PRESS": 4,
+            "OTHER": 33
+          },
+          "hg5g_aug_dim_warm_led": {
+            "POINT_READY": 3,
+            "POINT_PRESS": 1,
+            "OTHER": 19
+          },
+          "hg5g_aug_dim_cool_mon": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 27
+          },
+          "hg5g_aug_flip_dim_g020": {
+            "POINT_READY": 2,
+            "POINT_PRESS": 1,
+            "OTHER": 32
+          },
+          "hg5g_aug_dim_g008": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 11
+          }
+        }
+      },
+      "val": {
+        "rows": 5067,
+        "source_counts": {
+          "hg5g_static": {
+            "POINT_READY": 22,
+            "POINT_PRESS": 111,
+            "OTHER": 168
+          },
+          "n66_indoor_moderate": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 274
+          },
+          "n66_dim": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 122
+          },
+          "n66_bright_daylight": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 405
+          },
+          "n66_green_led": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 30
+          },
+          "n66_red_led": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 1
+          },
+          "n66_backlit": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 8
+          },
+          "ipn_neg_gesture": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 2869
+          },
+          "ipn_nog": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 1057
+          }
+        }
+      },
+      "test": {
+        "rows": 4720,
+        "source_counts": {
+          "hg5g_static": {
+            "POINT_READY": 21,
+            "POINT_PRESS": 35,
+            "OTHER": 174
+          },
+          "n66_bright_daylight": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 527
+          },
+          "n66_green_led": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 99
+          },
+          "n66_backlit": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 8
+          },
+          "n66_indoor_moderate": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 119
+          },
+          "n66_dim": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 98
+          },
+          "n66_red_led": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 37
+          },
+          "ipn_neg_gesture": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 2691
+          },
+          "ipn_nog": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 911
+          }
+        }
+      }
+    },
+    "r20_c3_feat_hard_neg_and_full": {
+      "prefix": "r20_c3_feat",
+      "extraFiles": [
+        "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/aug/extra_hg5g_aug.jsonl",
+        "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/hard_neg/extra_hands_rgbd_s1_s2_train.jsonl",
+        "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/hard_neg/extra_bxr7_gomoku_poker_train.jsonl"
+      ],
+      "train": {
+        "rows": 20923,
+        "source_counts": {
+          "hg5g_static": {
+            "POINT_READY": 104,
+            "POINT_PRESS": 88,
+            "OTHER": 577
+          },
+          "hg5g_causal": {
+            "POINT_READY": 104,
+            "POINT_PRESS": 88,
+            "OTHER": 577
+          },
+          "hg5g_l1_clahe": {
+            "POINT_READY": 94,
+            "POINT_PRESS": 20,
+            "OTHER": 0
+          },
+          "n66_backlit": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 264
+          },
+          "n66_indoor_moderate": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 1114
+          },
+          "n66_bright_daylight": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 1790
+          },
+          "n66_green_led": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 123
+          },
+          "n66_dim": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 544
+          },
+          "n66_red_led": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 112
+          },
+          "ipn_neg_gesture": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 8314
+          },
+          "ipn_nog": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 3173
+          },
+          "hg5g_aug_backlight": {
+            "POINT_READY": 114,
+            "POINT_PRESS": 123,
+            "OTHER": 108
+          },
+          "hg5g_aug_jpeg_q25": {
+            "POINT_READY": 113,
+            "POINT_PRESS": 111,
+            "OTHER": 114
+          },
+          "hg5g_aug_flip": {
+            "POINT_READY": 121,
+            "POINT_PRESS": 140,
+            "OTHER": 121
+          },
+          "hg5g_aug_scale_x048_dim": {
+            "POINT_READY": 82,
+            "POINT_PRESS": 31,
+            "OTHER": 92
+          },
+          "hg5g_aug_blur_dim": {
+            "POINT_READY": 123,
+            "POINT_PRESS": 97,
+            "OTHER": 107
+          },
+          "hg5g_aug_dim_g045": {
+            "POINT_READY": 70,
+            "POINT_PRESS": 27,
+            "OTHER": 82
+          },
+          "hg5g_aug_dim_g020": {
+            "POINT_READY": 6,
+            "POINT_PRESS": 4,
+            "OTHER": 33
+          },
+          "hg5g_aug_dim_warm_led": {
+            "POINT_READY": 3,
+            "POINT_PRESS": 1,
+            "OTHER": 19
+          },
+          "hg5g_aug_dim_cool_mon": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 27
+          },
+          "hg5g_aug_flip_dim_g020": {
+            "POINT_READY": 2,
+            "POINT_PRESS": 1,
+            "OTHER": 32
+          },
+          "hg5g_aug_dim_g008": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 11
+          },
+          "hrgbd_subject1": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 896
+          },
+          "hrgbd_subject2": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 796
+          },
+          "bxr7_dim_light_gomoku": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 111
+          },
+          "bxr7_natural_light_poker": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 119
+          }
+        }
+      },
+      "val": {
+        "rows": 5067,
+        "source_counts": {
+          "hg5g_static": {
+            "POINT_READY": 22,
+            "POINT_PRESS": 111,
+            "OTHER": 168
+          },
+          "n66_indoor_moderate": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 274
+          },
+          "n66_dim": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 122
+          },
+          "n66_bright_daylight": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 405
+          },
+          "n66_green_led": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 30
+          },
+          "n66_red_led": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 1
+          },
+          "n66_backlit": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 8
+          },
+          "ipn_neg_gesture": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 2869
+          },
+          "ipn_nog": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 1057
+          }
+        }
+      },
+      "test": {
+        "rows": 4720,
+        "source_counts": {
+          "hg5g_static": {
+            "POINT_READY": 21,
+            "POINT_PRESS": 35,
+            "OTHER": 174
+          },
+          "n66_bright_daylight": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 527
+          },
+          "n66_green_led": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 99
+          },
+          "n66_backlit": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 8
+          },
+          "n66_indoor_moderate": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 119
+          },
+          "n66_dim": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 98
+          },
+          "n66_red_led": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 37
+          },
+          "ipn_neg_gesture": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 2691
+          },
+          "ipn_nog": {
+            "POINT_READY": 0,
+            "POINT_PRESS": 0,
+            "OTHER": 911
+          }
+        }
+      }
+    }
+  }
+}

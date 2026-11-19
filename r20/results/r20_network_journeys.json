@@ -1,0 +1,579 @@
+{
+  "generatedAt": "2026-11-19T04:14:52.529Z",
+  "hardGateBytes": 25000000,
+  "allJourneysPassGateG20C": true,
+  "journeys": {
+    "nui_lab_webcam_journey": {
+      "journeyName": "Journey_1_NUI_Lab_Webcam_Test",
+      "routesVisited": [
+        "/nui-lab",
+        "/nui-lab/gesture",
+        "/nui-lab/canvas"
+      ],
+      "includedVisionModelsAndWasm": true,
+      "hardBudgetBytes": 25000000,
+      "coldTotalBUserBytes": 9345570,
+      "coldTotalMiB": 8.91,
+      "passUnder25MB": true,
+      "headroomBytes": 15654430,
+      "uniqueAssetCount": 30,
+      "totalRequestCount": 33,
+      "repeatAssetCount": 3,
+      "uniqueMaxBytesSum": 9340758,
+      "warmRefreshes": [
+        {
+          "refresh": 1,
+          "serverRequests": 1,
+          "encodedBytes": 480
+        },
+        {
+          "refresh": 2,
+          "serverRequests": 1,
+          "encodedBytes": 480
+        }
+      ],
+      "routeTimings": [
+        {
+          "route": "/nui-lab",
+          "loadMs": 610,
+          "title": "NUI Lab · Sketchbook Universe"
+        },
+        {
+          "route": "/nui-lab/gesture",
+          "loadMs": 584,
+          "title": "Gesture Detection Lab · NUI Lab"
+        },
+        {
+          "route": "/nui-lab/canvas",
+          "loadMs": 550,
+          "title": "Canvas Lab · NUI Lab"
+        }
+      ],
+      "topAssetsByWireBytes": [
+        {
+          "path": "/models/hand_landmarker.task",
+          "mime": "application/octet-stream",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 5872267,
+          "maxSingleEncodedBytes": 5872267,
+          "rawDecodedBytes": 7819105
+        },
+        {
+          "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+          "mime": "application/wasm",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 2723391,
+          "maxSingleEncodedBytes": 2723391,
+          "rawDecodedBytes": 9423986
+        },
+        {
+          "path": "/mediapipe/blaze_face_short_range.tflite",
+          "mime": "application/octet-stream",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 201050,
+          "maxSingleEncodedBytes": 201050,
+          "rawDecodedBytes": 229746
+        },
+        {
+          "path": "/r20-harness/harness.bundle.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 74626,
+          "maxSingleEncodedBytes": 74626,
+          "rawDecodedBytes": 296439
+        },
+        {
+          "path": "/_next/static/chunks/fd9d1056-52b97c009c25bc25.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 55927,
+          "maxSingleEncodedBytes": 55927,
+          "rawDecodedBytes": 172834
+        },
+        {
+          "path": "/mediapipe/wasm/vision_wasm_internal.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 55155,
+          "maxSingleEncodedBytes": 55155,
+          "rawDecodedBytes": 209826
+        },
+        {
+          "path": "/r20-harness/r20_worker.bundle.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 52372,
+          "maxSingleEncodedBytes": 52372,
+          "rawDecodedBytes": 208772
+        },
+        {
+          "path": "/_next/static/chunks/287-10e5af40b64f3a1e.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 49778,
+          "maxSingleEncodedBytes": 49778,
+          "rawDecodedBytes": 154071
+        },
+        {
+          "path": "/r20-harness/r19_model_mlp.json",
+          "mime": "application/json; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 47193,
+          "maxSingleEncodedBytes": 47193,
+          "rawDecodedBytes": 122768
+        },
+        {
+          "path": "/_next/static/chunks/966-a8fed9ded89e4fa0.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 33527,
+          "maxSingleEncodedBytes": 33527,
+          "rawDecodedBytes": 124578
+        },
+        {
+          "path": "/_next/static/chunks/329-49649903295093ad.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 32481,
+          "maxSingleEncodedBytes": 32481,
+          "rawDecodedBytes": 101508
+        },
+        {
+          "path": "/r20-harness/r20_winner_model.json",
+          "mime": "application/json; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 29088,
+          "maxSingleEncodedBytes": 29088,
+          "rawDecodedBytes": 73275
+        },
+        {
+          "path": "/_next/static/chunks/639-45969536e1361fbb.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 24144,
+          "maxSingleEncodedBytes": 24144,
+          "rawDecodedBytes": 61085
+        },
+        {
+          "path": "/_next/static/chunks/c15bf2b0-7971b3d333b0cf68.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 21187,
+          "maxSingleEncodedBytes": 21187,
+          "rawDecodedBytes": 52050
+        },
+        {
+          "path": "/_next/static/css/16c2024a37ababb2.css",
+          "mime": "text/css; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 16945,
+          "maxSingleEncodedBytes": 16945,
+          "rawDecodedBytes": 77293
+        },
+        {
+          "path": "/_next/static/chunks/648-e428f957e5ec9380.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 9440,
+          "maxSingleEncodedBytes": 9440,
+          "rawDecodedBytes": 26151
+        },
+        {
+          "path": "/_next/static/css/cbee9783c240c2e2.css",
+          "mime": "text/css; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 7622,
+          "maxSingleEncodedBytes": 7622,
+          "rawDecodedBytes": 28079
+        },
+        {
+          "path": "/nui-lab/canvas",
+          "mime": "text/html; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 7130,
+          "maxSingleEncodedBytes": 7130,
+          "rawDecodedBytes": 23701
+        },
+        {
+          "path": "/nui-lab/gesture",
+          "mime": "text/html; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 6617,
+          "maxSingleEncodedBytes": 6617,
+          "rawDecodedBytes": 24088
+        },
+        {
+          "path": "/_next/static/chunks/app/nui-lab/page-8bd7e42d01fbeda3.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 5096,
+          "maxSingleEncodedBytes": 5096,
+          "rawDecodedBytes": 12978
+        },
+        {
+          "path": "/_next/static/css/067c29a1c637a5bc.css",
+          "mime": "text/css; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 4004,
+          "maxSingleEncodedBytes": 4004,
+          "rawDecodedBytes": 15124
+        },
+        {
+          "path": "/nui-lab",
+          "mime": "text/html; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 3271,
+          "maxSingleEncodedBytes": 3271,
+          "rawDecodedBytes": 8391
+        },
+        {
+          "path": "/nui-lab/gesture.txt",
+          "mime": "text/plain; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 2,
+          "totalEncodedBytes": 3258,
+          "maxSingleEncodedBytes": 1629,
+          "rawDecodedBytes": 3749
+        },
+        {
+          "path": "/nui-lab/canvas.txt",
+          "mime": "text/plain; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 2,
+          "totalEncodedBytes": 3250,
+          "maxSingleEncodedBytes": 1625,
+          "rawDecodedBytes": 3733
+        },
+        {
+          "path": "/nui-lab.txt",
+          "mime": "text/plain; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 2,
+          "totalEncodedBytes": 3116,
+          "maxSingleEncodedBytes": 1558,
+          "rawDecodedBytes": 3164
+        }
+      ]
+    },
+    "student_onboarding_canvas_level_journey": {
+      "journeyName": "Journey_2_Student_Onboarding_Canvas_Gameplay",
+      "routesVisited": [
+        "/",
+        "/onboarding/card",
+        "/onboarding/number",
+        "/onboarding/cam",
+        "/levels",
+        "/canvas1",
+        "/level1"
+      ],
+      "includedVisionModelsAndWasm": true,
+      "hardBudgetBytes": 25000000,
+      "coldTotalBUserBytes": 9432085,
+      "coldTotalMiB": 9,
+      "passUnder25MB": true,
+      "headroomBytes": 15567915,
+      "uniqueAssetCount": 37,
+      "totalRequestCount": 37,
+      "repeatAssetCount": 0,
+      "uniqueMaxBytesSum": 9432085,
+      "warmRefreshes": [
+        {
+          "refresh": 1,
+          "serverRequests": 1,
+          "encodedBytes": 480
+        },
+        {
+          "refresh": 2,
+          "serverRequests": 1,
+          "encodedBytes": 480
+        }
+      ],
+      "routeTimings": [
+        {
+          "route": "/",
+          "loadMs": 562,
+          "title": "Sketchbook Universe — DEV BUILD (author-side)"
+        },
+        {
+          "route": "/onboarding/card",
+          "loadMs": 516,
+          "title": "Sketchbook Universe — DEV BUILD (author-side)"
+        },
+        {
+          "route": "/onboarding/number",
+          "loadMs": 517,
+          "title": "Sketchbook Universe — DEV BUILD (author-side)"
+        },
+        {
+          "route": "/onboarding/cam",
+          "loadMs": 2016,
+          "title": "Sketchbook Universe — DEV BUILD (author-side)"
+        },
+        {
+          "route": "/levels",
+          "loadMs": 518,
+          "title": "Sketchbook Universe — DEV BUILD (author-side)"
+        },
+        {
+          "route": "/canvas1",
+          "loadMs": 745,
+          "title": "Sketchbook Universe — DEV BUILD (author-side)"
+        },
+        {
+          "route": "/level1",
+          "loadMs": 778,
+          "title": "Sketchbook Universe — DEV BUILD (author-side)"
+        }
+      ],
+      "topAssetsByWireBytes": [
+        {
+          "path": "/models/hand_landmarker.task",
+          "mime": "application/octet-stream",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 5872267,
+          "maxSingleEncodedBytes": 5872267,
+          "rawDecodedBytes": 7819105
+        },
+        {
+          "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+          "mime": "application/wasm",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 2723391,
+          "maxSingleEncodedBytes": 2723391,
+          "rawDecodedBytes": 9423986
+        },
+        {
+          "path": "/mediapipe/blaze_face_short_range.tflite",
+          "mime": "application/octet-stream",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 201050,
+          "maxSingleEncodedBytes": 201050,
+          "rawDecodedBytes": 229746
+        },
+        {
+          "path": "/_next/static/chunks/472-75217ee4e78b0ed8.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 98442,
+          "maxSingleEncodedBytes": 98442,
+          "rawDecodedBytes": 292911
+        },
+        {
+          "path": "/r20-harness/harness.bundle.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 74626,
+          "maxSingleEncodedBytes": 74626,
+          "rawDecodedBytes": 296439
+        },
+        {
+          "path": "/_next/static/chunks/fd9d1056-52b97c009c25bc25.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 55927,
+          "maxSingleEncodedBytes": 55927,
+          "rawDecodedBytes": 172834
+        },
+        {
+          "path": "/mediapipe/wasm/vision_wasm_internal.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 55155,
+          "maxSingleEncodedBytes": 55155,
+          "rawDecodedBytes": 209826
+        },
+        {
+          "path": "/r20-harness/r20_worker.bundle.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 52372,
+          "maxSingleEncodedBytes": 52372,
+          "rawDecodedBytes": 208772
+        },
+        {
+          "path": "/_next/static/chunks/287-10e5af40b64f3a1e.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 49778,
+          "maxSingleEncodedBytes": 49778,
+          "rawDecodedBytes": 154071
+        },
+        {
+          "path": "/r20-harness/r19_model_mlp.json",
+          "mime": "application/json; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 47193,
+          "maxSingleEncodedBytes": 47193,
+          "rawDecodedBytes": 122768
+        },
+        {
+          "path": "/_next/static/chunks/966-a8fed9ded89e4fa0.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 33527,
+          "maxSingleEncodedBytes": 33527,
+          "rawDecodedBytes": 124578
+        },
+        {
+          "path": "/r20-harness/r20_winner_model.json",
+          "mime": "application/json; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 29088,
+          "maxSingleEncodedBytes": 29088,
+          "rawDecodedBytes": 73275
+        },
+        {
+          "path": "/_next/static/chunks/639-45969536e1361fbb.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 24144,
+          "maxSingleEncodedBytes": 24144,
+          "rawDecodedBytes": 61085
+        },
+        {
+          "path": "/_next/static/chunks/c15bf2b0-7971b3d333b0cf68.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 21187,
+          "maxSingleEncodedBytes": 21187,
+          "rawDecodedBytes": 52050
+        },
+        {
+          "path": "/_next/static/css/16c2024a37ababb2.css",
+          "mime": "text/css; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 16945,
+          "maxSingleEncodedBytes": 16945,
+          "rawDecodedBytes": 77293
+        },
+        {
+          "path": "/_next/static/css/d0431ab6c14c121a.css",
+          "mime": "text/css; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 11043,
+          "maxSingleEncodedBytes": 11043,
+          "rawDecodedBytes": 43787
+        },
+        {
+          "path": "/_next/static/css/cbee9783c240c2e2.css",
+          "mime": "text/css; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 7622,
+          "maxSingleEncodedBytes": 7622,
+          "rawDecodedBytes": 28079
+        },
+        {
+          "path": "/onboarding/card",
+          "mime": "text/html; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 6807,
+          "maxSingleEncodedBytes": 6807,
+          "rawDecodedBytes": 17281
+        },
+        {
+          "path": "/onboarding/number",
+          "mime": "text/html; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 6806,
+          "maxSingleEncodedBytes": 6806,
+          "rawDecodedBytes": 17293
+        },
+        {
+          "path": "/onboarding/cam",
+          "mime": "text/html; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 6803,
+          "maxSingleEncodedBytes": 6803,
+          "rawDecodedBytes": 17275
+        },
+        {
+          "path": "/levels",
+          "mime": "text/html; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 6781,
+          "maxSingleEncodedBytes": 6781,
+          "rawDecodedBytes": 16779
+        },
+        {
+          "path": "/canvas1",
+          "mime": "text/html; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 6780,
+          "maxSingleEncodedBytes": 6780,
+          "rawDecodedBytes": 16785
+        },
+        {
+          "path": "/level1",
+          "mime": "text/html; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 6779,
+          "maxSingleEncodedBytes": 6779,
+          "rawDecodedBytes": 16779
+        },
+        {
+          "path": "/",
+          "mime": "text/html; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 6610,
+          "maxSingleEncodedBytes": 6610,
+          "rawDecodedBytes": 16322
+        },
+        {
+          "path": "/_next/static/chunks/278-f02bf2fb44e1bbb8.js",
+          "mime": "application/javascript; charset=utf-8",
+          "encoding": "zstd",
+          "requests": 1,
+          "totalEncodedBytes": 4338,
+          "maxSingleEncodedBytes": 4338,
+          "rawDecodedBytes": 14014
+        }
+      ]
+    }
+  }
+}

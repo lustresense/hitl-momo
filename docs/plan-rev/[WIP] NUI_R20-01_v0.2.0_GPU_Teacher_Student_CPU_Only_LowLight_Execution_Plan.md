@@ -3,7 +3,7 @@
 **Proyek:** Sketchbook Universe, NUI Lab / CAN  
 **Disusun:** 18 November 2026 WIB  
 **Jendela kerja yang diminta Owner:** 19 November 2026 siang untuk training; malam untuk tes webcam fisik low-light  
-**Status:** RENCANA R&D REVISI MENDALAM / BELUM DIJALANKAN. Seluruh target performa di bawah adalah **gate/parameter prototipe**, bukan hasil yang sudah terbukti.  
+**Status:** `[WIP]` — Gelombang A0–A5 (`P0 Preflight`, `P1 Data & Hard-Negative Curation`, `P2 GPU Training C1..C4 + Teacher–Student Distillation C6/C7/S-TEMP/S3-QAT`, `P3 CPU-Only Web Worker + Adaptive Low-Light A0..A4 + Cold Network <25 MB Journeys`, `P4 Safe Staging & Handoff`) **SELESAI** pada 19 November 2026 WIB (`OFFLINE_DATASET` / `SYNTHETIC` / `BROWSER_SIMULATED_VIDEO`; bukti lengkap di [`r20/`](../../r20/)). Gelombang A6 (`P5 Owner Night Physical Webcam N1..N6`) **`NOT_TESTED`** (menunggu hardware/webcam Owner). Seluruh target performa tetap dilaporkan terpisah per jenis bukti.  
 **Baseline model:** `research-can` R19 G4 Hybrid, `research-can@5a3eb290464fa74ae4b1ee709e241980bd1c79c9`.  
 **Baseline integrasi NUI Lab:** `main@8969502df4e106d8428055c2ca6f80f4f59250ee`, versi `0.26.0-alpha`, diverifikasi pada 18 November 2026. Verifikasi HEAD lagi sebelum eksekusi.  
 **Penanggung jawab eksekusi:** Agy, satu agent utama **tanpa subagent** kecuali ada izin baru.  
@@ -229,20 +229,20 @@ Rollback adalah memilih **model/source `main@8969502`** sebagai titik referensi 
 
 ## 11. Acceptance checklist untuk Agy
 
-- [ ] Telah membaca `research-can/AGENTS.md`, `README.md`, `LOG.md`, plan R19, model card, dataset manifest, root policy `main`, dan mencatat SHA mutakhir.
-- [ ] Membuat plan R20 di `docs/plan-rev/` tanpa menimpa R19, status `[WIP]` **hanya setelah mulai eksekusi**; root `README.md`/`LOG.md` diperbarui pada setiap push.
-- [ ] Audit setiap sumber label/licence, split, duplicate, dan person/session leakage. Tidak menyalin semua dataset mentah ke repo.
-- [ ] Mereproduksi C0 R19 di CPU dan melatih C1/C2, serta C3/C4 bila data tambahan sah. Melaporkan yang tidak sempat sebagai **NOT_RUN**.
-- [ ] Calibration/threshold berdasar VAL, locked TEST tidak dipakai untuk model selection, model card menampilkan support per kelas/slice dan test uncertainty.
-- [ ] Python/GPU export ↔ TS/CPU parity lulus dengan argmax mismatch 0; bobot ber-hash, model <=200.000 B raw (target prototipe).
-- [ ] CPU-only HandLandmarker, FaceDetector, R20 classifier benar-benar aktif pada browser/harness; GPU inference tidak aktif.
-- [ ] Menjalankan CPU main-thread vs CPU worker A/B; catat apakah worker sungguh membantu, fallback fail-closed dan release no-hand.
-- [ ] Mengukur transfer cold journey NUI Lab dan student flow, keduanya <25.000.000 B jika diklaim PASS.
-- [ ] Tests unit, eval, strict typecheck, lint, build, browser harness dan physical webcam dilaporkan **terpisah**.
-- [ ] Tidak mengubah game siswa, keputusan HITL, model partner, atau main tanpa izin terpisah.
-- [ ] Bukti webcam fisik malam Owner ditulis berdasarkan data nyata; tanpa log nyata status tetap **NOT_TESTED**.
-- [ ] Semua skrip dan metrik yang layak reproducible berada di `research-can/r20/`; `README.md` dan `LOG.md` synced, SHA256 manifest benar; no nested README/AGENTS; no large/private files.
-- [ ] Laporan akhir punya commit, ref, files changed, training hardware/GPU, waktu per tahap, dataset count, model size, CPU/detector vs UI performance, cold wire bytes, winner vs C0, limitations, webcam evidence, dan next action.
+- [x] Telah membaca `research-can/AGENTS.md`, `README.md`, `LOG.md`, plan R19, model card, dataset manifest, root policy `main`, dan mencatat SHA mutakhir ([`R20_PREFLIGHT_AND_BASELINE.md`](../../r20/results/R20_PREFLIGHT_AND_BASELINE.md)).
+- [x] Membuat plan R20 di `docs/plan-rev/` tanpa menimpa R19, status `[WIP]` **hanya setelah mulai eksekusi**; root `README.md`/`LOG.md` diperbarui pada setiap push.
+- [x] Audit setiap sumber label/licence, split, duplicate, dan person/session leakage ([`dataset_manifest.json`](../../r20/manifests/dataset_manifest.json), [`split_manifest.json`](../../r20/manifests/split_manifest.json)). Tidak menyalin semua dataset mentah ke repo.
+- [x] Mereproduksi C0 R19 di CPU dan melatih C1/C2, serta C3/C4 dan C6/C7 (`T-IMG` + `T-ENSEMBLE` + `T-TEMP -> S-TEMP` + `S3 QAT`) pada `2x NVIDIA RTX A5000` ([`R20_TRAINING_AND_EVAL_REPORT.md`](../../r20/results/R20_TRAINING_AND_EVAL_REPORT.md), [`exp_r20_gpu_teacher_student_and_cohort_ablation.md`](../../r20/experiments/exp_r20_gpu_teacher_student_and_cohort_ablation.md)).
+- [x] Calibration/threshold berdasar VAL, locked TEST tidak dipakai untuk model selection, model card menampilkan support per kelas/slice dan test uncertainty ([`MODEL_CARD.md`](../../r20/models/MODEL_CARD.md)).
+- [x] Python/GPU export ↔ TS/CPU parity lulus dengan argmax mismatch 0 (`160/160` rows per model); bobot ber-hash, model <=200.000 B raw (`C4_Full_Focal = 73,275 B` raw JSON / `29,088 B` wire; `C7_Distilled_T4 = 73,138 B` raw JSON).
+- [x] CPU-only HandLandmarker, FaceDetector, R20 classifier benar-benar aktif pada browser/harness (`delegate: "CPU"`, `gpuDelegateAttempted: false`, `gpuDelegateActive: false`); GPU inference tidak aktif ([`R20_CPU_RUNTIME_AND_NETWORK_BENCHMARK.md`](../../r20/results/R20_CPU_RUNTIME_AND_NETWORK_BENCHMARK.md)).
+- [x] Menjalankan CPU main-thread vs CPU worker A/B (`A`, `B1`, `B2`, `B3`); mencatat penurunan main-thread LongTasks `314 -> 0`, UI FPS `15.19 -> 60.04 FPS`, detector rate `B3 = 24.70 Hz` / `B2 = 27.62 Hz` (`B1 fixed numHands=2 = 15.59 Hz`), fallback fail-closed dan release no-hand (`0` stuck keys).
+- [x] Mengukur transfer cold journey NUI Lab (`9,345,570 B` zstd / `11,320,653 B` uncompressed `.task`) dan student flow (`9,432,085 B` zstd / `11,407,168 B` uncompressed `.task`), keduanya `< 25.000.000 B` (`PASS`, [`r20_network_journeys.json`](../../r20/results/r20_network_journeys.json)).
+- [x] Tests unit, eval, strict typecheck (`tsc --noEmit` `exit 0`), browser harness dan physical webcam (`NOT_TESTED`) dilaporkan **terpisah**.
+- [x] Tidak mengubah game siswa, keputusan HITL, model partner, atau main tanpa izin terpisah (`main@8969502` tidak disentuh).
+- [x] Bukti webcam fisik malam Owner ditulis berdasarkan data nyata; tanpa log nyata status tetap **`NOT_TESTED`** ([`R20_OWNER_NIGHT_WEBCAM_PROTOCOL_AND_HANDOFF.md`](../../r20/results/R20_OWNER_NIGHT_WEBCAM_PROTOCOL_AND_HANDOFF.md)).
+- [x] Semua skrip dan metrik yang layak reproducible berada di `research-can/r20/`; `README.md` dan `LOG.md` synced, SHA256 manifest benar; no nested README/AGENTS; no large/private files.
+- [x] Laporan akhir punya commit, ref, files changed, training hardware/GPU, waktu per tahap, dataset count, model size, CPU/detector vs UI performance, cold wire bytes, winner vs C0, limitations, webcam evidence (`NOT_TESTED`), dan next action.
 
 ## 12. REVISI ARSITEKTUR: Teacher GPU → Distilled Student CPU (solusi utama)
 

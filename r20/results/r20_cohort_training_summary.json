@@ -1,0 +1,2634 @@
+{
+  "c0_r19_frozen_reference": {
+    "val": {
+      "n": 5067,
+      "acc": 0.9972,
+      "macroF1": 0.9515,
+      "f1_ready": 0.9167,
+      "f1_press": 0.939,
+      "recall_ready": 1.0,
+      "recall_press": 0.9009,
+      "precision_press": 0.9804,
+      "support": [
+        22,
+        111,
+        4934
+      ],
+      "other_to_press": 2,
+      "other_to_press_rate": 0.00041,
+      "other_to_press_wilson95": [
+        0.0001,
+        0.0015
+      ],
+      "ready_to_press": 0,
+      "other_to_ready": 1,
+      "confusion": [
+        [
+          22,
+          0,
+          0
+        ],
+        [
+          3,
+          100,
+          8
+        ],
+        [
+          1,
+          2,
+          4931
+        ]
+      ]
+    },
+    "test_locked": {
+      "n": 4720,
+      "acc": 0.9985,
+      "macroF1": 0.9567,
+      "f1_ready": 0.913,
+      "f1_press": 0.9577,
+      "recall_ready": 1.0,
+      "recall_press": 0.9714,
+      "precision_press": 0.9444,
+      "support": [
+        21,
+        35,
+        4664
+      ],
+      "other_to_press": 2,
+      "other_to_press_rate": 0.00043,
+      "other_to_press_wilson95": [
+        0.0001,
+        0.0016
+      ],
+      "ready_to_press": 0,
+      "other_to_ready": 4,
+      "confusion": [
+        [
+          21,
+          0,
+          0
+        ],
+        [
+          0,
+          34,
+          1
+        ],
+        [
+          4,
+          2,
+          4658
+        ]
+      ]
+    },
+    "test_slices_by_source": {
+      "hg5g_static": {
+        "n": 230,
+        "support": [
+          21,
+          35,
+          174
+        ],
+        "acc": 0.9957,
+        "recall_press": 0.9714,
+        "recall_ready": 1.0,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "ipn_neg_gesture": {
+        "n": 2691,
+        "support": [
+          0,
+          0,
+          2691
+        ],
+        "acc": 0.9985,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 1,
+        "other_to_press_rate": 0.00037
+      },
+      "ipn_nog": {
+        "n": 911,
+        "support": [
+          0,
+          0,
+          911
+        ],
+        "acc": 0.9978,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 1,
+        "other_to_press_rate": 0.0011
+      },
+      "n66_backlit": {
+        "n": 8,
+        "support": [
+          0,
+          0,
+          8
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_bright_daylight": {
+        "n": 527,
+        "support": [
+          0,
+          0,
+          527
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_dim": {
+        "n": 98,
+        "support": [
+          0,
+          0,
+          98
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_green_led": {
+        "n": 99,
+        "support": [
+          0,
+          0,
+          99
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_indoor_moderate": {
+        "n": 119,
+        "support": [
+          0,
+          0,
+          119
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_red_led": {
+        "n": 37,
+        "support": [
+          0,
+          0,
+          37
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      }
+    },
+    "json_bytes": 122768,
+    "sha256": "c6130bd56850534889372a7295d45e7704083cbf60115626cd08b57c6e000293"
+  },
+  "c1_r20_balanced": {
+    "tag": "c1_balanced",
+    "prefix": "r20_feat",
+    "gpu": {
+      "device": "cuda:0",
+      "name": "NVIDIA RTX A5000",
+      "device_count": 2,
+      "torch": "2.15.0+cu132",
+      "cuda": "13.2"
+    },
+    "weights": "bal",
+    "loss": "ce",
+    "rows": {
+      "train": 17086,
+      "val": 5067,
+      "test": 4720
+    },
+    "train_class_counts": [
+      302,
+      196,
+      16588
+    ],
+    "selected": {
+      "hidden": [
+        64,
+        32
+      ],
+      "noise": 0.025,
+      "seed": 20261121,
+      "best_epoch": 52,
+      "T": 2.0525,
+      "val_nll": 0.0161,
+      "val_ece": 0.00271,
+      "composite_key": [
+        2,
+        0.9701,
+        0.9559,
+        0
+      ]
+    },
+    "lr_comparator": {
+      "val": {
+        "n": 5067,
+        "acc": 0.9826,
+        "macroF1": 0.7595,
+        "f1_ready": 0.4835,
+        "f1_press": 0.8033,
+        "recall_ready": 1.0,
+        "recall_press": 0.8829,
+        "precision_press": 0.7368,
+        "support": [
+          22,
+          111,
+          4934
+        ],
+        "other_to_press": 35,
+        "other_to_press_rate": 0.00709,
+        "other_to_press_wilson95": [
+          0.0051,
+          0.0098
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 40,
+        "confusion": [
+          [
+            22,
+            0,
+            0
+          ],
+          [
+            7,
+            98,
+            6
+          ],
+          [
+            40,
+            35,
+            4859
+          ]
+        ]
+      },
+      "test_locked": {
+        "n": 4720,
+        "acc": 0.9824,
+        "macroF1": 0.7069,
+        "f1_ready": 0.5385,
+        "f1_press": 0.5913,
+        "recall_ready": 1.0,
+        "recall_press": 0.9714,
+        "precision_press": 0.425,
+        "support": [
+          21,
+          35,
+          4664
+        ],
+        "other_to_press": 46,
+        "other_to_press_rate": 0.00986,
+        "other_to_press_wilson95": [
+          0.0074,
+          0.0131
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 36,
+        "confusion": [
+          [
+            21,
+            0,
+            0
+          ],
+          [
+            0,
+            34,
+            1
+          ],
+          [
+            36,
+            46,
+            4582
+          ]
+        ]
+      },
+      "bytes": 5109,
+      "sha256": "2ef61b58df883dfdfe8cf6148173651cb9c0799d6606e7b43d915721947316a4"
+    },
+    "val_exported": {
+      "n": 5067,
+      "acc": 0.9972,
+      "macroF1": 0.9701,
+      "f1_ready": 0.9778,
+      "f1_press": 0.934,
+      "recall_ready": 1.0,
+      "recall_press": 0.8919,
+      "precision_press": 0.9802,
+      "support": [
+        22,
+        111,
+        4934
+      ],
+      "other_to_press": 2,
+      "other_to_press_rate": 0.00041,
+      "other_to_press_wilson95": [
+        0.0001,
+        0.0015
+      ],
+      "ready_to_press": 0,
+      "other_to_ready": 0,
+      "confusion": [
+        [
+          22,
+          0,
+          0
+        ],
+        [
+          1,
+          99,
+          11
+        ],
+        [
+          0,
+          2,
+          4932
+        ]
+      ]
+    },
+    "test_locked_exported": {
+      "n": 4720,
+      "acc": 0.9987,
+      "macroF1": 0.9656,
+      "f1_ready": 0.9545,
+      "f1_press": 0.9429,
+      "recall_ready": 1.0,
+      "recall_press": 0.9429,
+      "precision_press": 0.9429,
+      "support": [
+        21,
+        35,
+        4664
+      ],
+      "other_to_press": 2,
+      "other_to_press_rate": 0.00043,
+      "other_to_press_wilson95": [
+        0.0001,
+        0.0016
+      ],
+      "ready_to_press": 0,
+      "other_to_ready": 2,
+      "confusion": [
+        [
+          21,
+          0,
+          0
+        ],
+        [
+          0,
+          33,
+          2
+        ],
+        [
+          2,
+          2,
+          4660
+        ]
+      ],
+      "nll": 0.007,
+      "ece": 0.00185
+    },
+    "test_locked_int8_ptq": {
+      "n": 4720,
+      "acc": 0.9987,
+      "macroF1": 0.9656,
+      "f1_ready": 0.9545,
+      "f1_press": 0.9429,
+      "recall_ready": 1.0,
+      "recall_press": 0.9429,
+      "precision_press": 0.9429,
+      "support": [
+        21,
+        35,
+        4664
+      ],
+      "other_to_press": 2,
+      "other_to_press_rate": 0.00043,
+      "other_to_press_wilson95": [
+        0.0001,
+        0.0016
+      ],
+      "ready_to_press": 0,
+      "other_to_ready": 2,
+      "confusion": [
+        [
+          21,
+          0,
+          0
+        ],
+        [
+          0,
+          33,
+          2
+        ],
+        [
+          2,
+          2,
+          4660
+        ]
+      ],
+      "argmax_mismatch_vs_fp32": 0
+    },
+    "test_slices_by_source": {
+      "hg5g_static": {
+        "n": 230,
+        "support": [
+          21,
+          35,
+          174
+        ],
+        "acc": 0.9913,
+        "recall_press": 0.9429,
+        "recall_ready": 1.0,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "ipn_neg_gesture": {
+        "n": 2691,
+        "support": [
+          0,
+          0,
+          2691
+        ],
+        "acc": 0.9996,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 1,
+        "other_to_press_rate": 0.00037
+      },
+      "ipn_nog": {
+        "n": 911,
+        "support": [
+          0,
+          0,
+          911
+        ],
+        "acc": 0.9967,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 1,
+        "other_to_press_rate": 0.0011
+      },
+      "n66_backlit": {
+        "n": 8,
+        "support": [
+          0,
+          0,
+          8
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_bright_daylight": {
+        "n": 527,
+        "support": [
+          0,
+          0,
+          527
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_dim": {
+        "n": 98,
+        "support": [
+          0,
+          0,
+          98
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_green_led": {
+        "n": 99,
+        "support": [
+          0,
+          0,
+          99
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_indoor_moderate": {
+        "n": 119,
+        "support": [
+          0,
+          0,
+          119
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_red_led": {
+        "n": 37,
+        "support": [
+          0,
+          0,
+          37
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      }
+    },
+    "artifact": {
+      "json": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/models/c1_balanced/r20_c1_balanced.json",
+      "json_bytes": 73300,
+      "json_sha256": "571e170432b38e721740b5e95c894e6b092d58cc578f17a6d103fc549fd60332",
+      "f32_path": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/models/c1_balanced/r20_c1_balanced.f32",
+      "f32_bytes": 30624,
+      "f32_sha256": "642ed7bda781a1624fbbd4773bf8864c6b6cbb27a4b31575522fbe33daeae687",
+      "int8_json_path": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/models/c1_balanced/r20_c1_balanced_int8.json",
+      "int8_json_bytes": 30083,
+      "int8_packed_bytes": 8844,
+      "int8_sha256": "ad679f5a22101841aa18ea082d98385989218f10d9a4210f0531e6165ad04731"
+    },
+    "wall_seconds": 67.5,
+    "peak_vram_mb": 16.19
+  },
+  "c2_r20_pos_light": {
+    "tag": "c2_pos_light",
+    "prefix": "r20_c2_feat",
+    "gpu": {
+      "device": "cuda:0",
+      "name": "NVIDIA RTX A5000",
+      "device_count": 2,
+      "torch": "2.15.0+cu132",
+      "cuda": "13.2"
+    },
+    "weights": "bal",
+    "loss": "ce",
+    "rows": {
+      "train": 19001,
+      "val": 5067,
+      "test": 4720
+    },
+    "train_class_counts": [
+      936,
+      731,
+      17334
+    ],
+    "selected": {
+      "hidden": [
+        48,
+        24
+      ],
+      "noise": 0.0,
+      "seed": 20261119,
+      "best_epoch": 20,
+      "T": 1.2825,
+      "val_nll": 0.00818,
+      "val_ece": 0.00079,
+      "composite_key": [
+        2,
+        0.9817,
+        0.9729,
+        0
+      ]
+    },
+    "lr_comparator": {
+      "val": {
+        "n": 5067,
+        "acc": 0.9842,
+        "macroF1": 0.7866,
+        "f1_ready": 0.5366,
+        "f1_press": 0.8314,
+        "recall_ready": 1.0,
+        "recall_press": 0.955,
+        "precision_press": 0.7361,
+        "support": [
+          22,
+          111,
+          4934
+        ],
+        "other_to_press": 38,
+        "other_to_press_rate": 0.0077,
+        "other_to_press_wilson95": [
+          0.0056,
+          0.0106
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 37,
+        "confusion": [
+          [
+            22,
+            0,
+            0
+          ],
+          [
+            1,
+            106,
+            4
+          ],
+          [
+            37,
+            38,
+            4859
+          ]
+        ]
+      },
+      "test_locked": {
+        "n": 4720,
+        "acc": 0.9839,
+        "macroF1": 0.726,
+        "f1_ready": 0.6,
+        "f1_press": 0.5862,
+        "recall_ready": 1.0,
+        "recall_press": 0.9714,
+        "precision_press": 0.4198,
+        "support": [
+          21,
+          35,
+          4664
+        ],
+        "other_to_press": 47,
+        "other_to_press_rate": 0.01008,
+        "other_to_press_wilson95": [
+          0.0076,
+          0.0134
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 28,
+        "confusion": [
+          [
+            21,
+            0,
+            0
+          ],
+          [
+            0,
+            34,
+            1
+          ],
+          [
+            28,
+            47,
+            4589
+          ]
+        ]
+      },
+      "bytes": 5104,
+      "sha256": "e069de47de77b1d95e8cafe375f35bc9ab7f3f81563122a08ab5e4a79389815a"
+    },
+    "val_exported": {
+      "n": 5067,
+      "acc": 0.9986,
+      "macroF1": 0.9817,
+      "f1_ready": 0.9778,
+      "f1_press": 0.968,
+      "recall_ready": 1.0,
+      "recall_press": 0.955,
+      "precision_press": 0.9815,
+      "support": [
+        22,
+        111,
+        4934
+      ],
+      "other_to_press": 2,
+      "other_to_press_rate": 0.00041,
+      "other_to_press_wilson95": [
+        0.0001,
+        0.0015
+      ],
+      "ready_to_press": 0,
+      "other_to_ready": 0,
+      "confusion": [
+        [
+          22,
+          0,
+          0
+        ],
+        [
+          1,
+          106,
+          4
+        ],
+        [
+          0,
+          2,
+          4932
+        ]
+      ]
+    },
+    "test_locked_exported": {
+      "n": 4720,
+      "acc": 0.9983,
+      "macroF1": 0.9575,
+      "f1_ready": 0.9545,
+      "f1_press": 0.9189,
+      "recall_ready": 1.0,
+      "recall_press": 0.9714,
+      "precision_press": 0.8718,
+      "support": [
+        21,
+        35,
+        4664
+      ],
+      "other_to_press": 5,
+      "other_to_press_rate": 0.00107,
+      "other_to_press_wilson95": [
+        0.0005,
+        0.0025
+      ],
+      "ready_to_press": 0,
+      "other_to_ready": 2,
+      "confusion": [
+        [
+          21,
+          0,
+          0
+        ],
+        [
+          0,
+          34,
+          1
+        ],
+        [
+          2,
+          5,
+          4657
+        ]
+      ],
+      "nll": 0.0062,
+      "ece": 0.00185
+    },
+    "test_locked_int8_ptq": {
+      "n": 4720,
+      "acc": 0.9983,
+      "macroF1": 0.9575,
+      "f1_ready": 0.9545,
+      "f1_press": 0.9189,
+      "recall_ready": 1.0,
+      "recall_press": 0.9714,
+      "precision_press": 0.8718,
+      "support": [
+        21,
+        35,
+        4664
+      ],
+      "other_to_press": 5,
+      "other_to_press_rate": 0.00107,
+      "other_to_press_wilson95": [
+        0.0005,
+        0.0025
+      ],
+      "ready_to_press": 0,
+      "other_to_ready": 2,
+      "confusion": [
+        [
+          21,
+          0,
+          0
+        ],
+        [
+          0,
+          34,
+          1
+        ],
+        [
+          2,
+          5,
+          4657
+        ]
+      ],
+      "argmax_mismatch_vs_fp32": 0
+    },
+    "test_slices_by_source": {
+      "hg5g_static": {
+        "n": 230,
+        "support": [
+          21,
+          35,
+          174
+        ],
+        "acc": 0.9957,
+        "recall_press": 0.9714,
+        "recall_ready": 1.0,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "ipn_neg_gesture": {
+        "n": 2691,
+        "support": [
+          0,
+          0,
+          2691
+        ],
+        "acc": 0.9989,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 3,
+        "other_to_press_rate": 0.00111
+      },
+      "ipn_nog": {
+        "n": 911,
+        "support": [
+          0,
+          0,
+          911
+        ],
+        "acc": 0.9967,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 1,
+        "other_to_press_rate": 0.0011
+      },
+      "n66_backlit": {
+        "n": 8,
+        "support": [
+          0,
+          0,
+          8
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_bright_daylight": {
+        "n": 527,
+        "support": [
+          0,
+          0,
+          527
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_dim": {
+        "n": 98,
+        "support": [
+          0,
+          0,
+          98
+        ],
+        "acc": 0.9898,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 1,
+        "other_to_press_rate": 0.0102
+      },
+      "n66_green_led": {
+        "n": 99,
+        "support": [
+          0,
+          0,
+          99
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_indoor_moderate": {
+        "n": 119,
+        "support": [
+          0,
+          0,
+          119
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_red_led": {
+        "n": 37,
+        "support": [
+          0,
+          0,
+          37
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      }
+    },
+    "artifact": {
+      "json": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/models/c2_pos_light/r20_c2_pos_light.json",
+      "json_bytes": 52001,
+      "json_sha256": "eb430fc18f0596c32ba93c984b7255022126905027898540b36c64394b446775",
+      "f32_path": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/models/c2_pos_light/r20_c2_pos_light.f32",
+      "f32_bytes": 21600,
+      "f32_sha256": "569a67b8a248808635f309aad6384c9da4dc273e42f4d19dbf1da4a140f06cc8",
+      "int8_json_path": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/models/c2_pos_light/r20_c2_pos_light_int8.json",
+      "int8_json_bytes": 21910,
+      "int8_packed_bytes": 6420,
+      "int8_sha256": "5ba16b3de7f204451ff08622efeec52ed03f52a4572bbfb499fc10fbb46d6e2a"
+    },
+    "wall_seconds": 76.5,
+    "peak_vram_mb": 16.83
+  },
+  "c3_r20_hard_neg": {
+    "tag": "c3_hard_neg",
+    "prefix": "r20_c3_feat",
+    "gpu": {
+      "device": "cuda:0",
+      "name": "NVIDIA RTX A5000",
+      "device_count": 2,
+      "torch": "2.15.0+cu132",
+      "cuda": "13.2"
+    },
+    "weights": "bal",
+    "loss": "ce",
+    "rows": {
+      "train": 20923,
+      "val": 5067,
+      "test": 4720
+    },
+    "train_class_counts": [
+      936,
+      731,
+      19256
+    ],
+    "selected": {
+      "hidden": [
+        96,
+        48
+      ],
+      "noise": 0.04,
+      "seed": 20261121,
+      "best_epoch": 20,
+      "T": 1.375,
+      "val_nll": 0.0085,
+      "val_ece": 0.00128,
+      "composite_key": [
+        2,
+        0.9801,
+        0.9706,
+        -1
+      ]
+    },
+    "lr_comparator": {
+      "val": {
+        "n": 5067,
+        "acc": 0.9838,
+        "macroF1": 0.7873,
+        "f1_ready": 0.55,
+        "f1_press": 0.8203,
+        "recall_ready": 1.0,
+        "recall_press": 0.9459,
+        "precision_press": 0.7241,
+        "support": [
+          22,
+          111,
+          4934
+        ],
+        "other_to_press": 40,
+        "other_to_press_rate": 0.00811,
+        "other_to_press_wilson95": [
+          0.006,
+          0.011
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 36,
+        "confusion": [
+          [
+            22,
+            0,
+            0
+          ],
+          [
+            0,
+            105,
+            6
+          ],
+          [
+            36,
+            40,
+            4858
+          ]
+        ]
+      },
+      "test_locked": {
+        "n": 4720,
+        "acc": 0.9831,
+        "macroF1": 0.7193,
+        "f1_ready": 0.6,
+        "f1_press": 0.5667,
+        "recall_ready": 1.0,
+        "recall_press": 0.9714,
+        "precision_press": 0.4,
+        "support": [
+          21,
+          35,
+          4664
+        ],
+        "other_to_press": 51,
+        "other_to_press_rate": 0.01093,
+        "other_to_press_wilson95": [
+          0.0083,
+          0.0143
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 28,
+        "confusion": [
+          [
+            21,
+            0,
+            0
+          ],
+          [
+            0,
+            34,
+            1
+          ],
+          [
+            28,
+            51,
+            4585
+          ]
+        ]
+      },
+      "bytes": 5148,
+      "sha256": "f383b80f71213bf181f6c539dd1042cf719c7e546ebc9d3220ee37ae8e36a55b"
+    },
+    "val_exported": {
+      "n": 5067,
+      "acc": 0.9982,
+      "macroF1": 0.9801,
+      "f1_ready": 0.9778,
+      "f1_press": 0.9633,
+      "recall_ready": 1.0,
+      "recall_press": 0.9459,
+      "precision_press": 0.9813,
+      "support": [
+        22,
+        111,
+        4934
+      ],
+      "other_to_press": 2,
+      "other_to_press_rate": 0.00041,
+      "other_to_press_wilson95": [
+        0.0001,
+        0.0015
+      ],
+      "ready_to_press": 0,
+      "other_to_ready": 1,
+      "confusion": [
+        [
+          22,
+          0,
+          0
+        ],
+        [
+          0,
+          105,
+          6
+        ],
+        [
+          1,
+          2,
+          4931
+        ]
+      ]
+    },
+    "test_locked_exported": {
+      "n": 4720,
+      "acc": 0.9989,
+      "macroF1": 0.977,
+      "f1_ready": 1.0,
+      "f1_press": 0.9315,
+      "recall_ready": 1.0,
+      "recall_press": 0.9714,
+      "precision_press": 0.8947,
+      "support": [
+        21,
+        35,
+        4664
+      ],
+      "other_to_press": 4,
+      "other_to_press_rate": 0.00086,
+      "other_to_press_wilson95": [
+        0.0003,
+        0.0022
+      ],
+      "ready_to_press": 0,
+      "other_to_ready": 0,
+      "confusion": [
+        [
+          21,
+          0,
+          0
+        ],
+        [
+          0,
+          34,
+          1
+        ],
+        [
+          0,
+          4,
+          4660
+        ]
+      ],
+      "nll": 0.00434,
+      "ece": 0.00168
+    },
+    "test_locked_int8_ptq": {
+      "n": 4720,
+      "acc": 0.9989,
+      "macroF1": 0.977,
+      "f1_ready": 1.0,
+      "f1_press": 0.9315,
+      "recall_ready": 1.0,
+      "recall_press": 0.9714,
+      "precision_press": 0.8947,
+      "support": [
+        21,
+        35,
+        4664
+      ],
+      "other_to_press": 4,
+      "other_to_press_rate": 0.00086,
+      "other_to_press_wilson95": [
+        0.0003,
+        0.0022
+      ],
+      "ready_to_press": 0,
+      "other_to_ready": 0,
+      "confusion": [
+        [
+          21,
+          0,
+          0
+        ],
+        [
+          0,
+          34,
+          1
+        ],
+        [
+          0,
+          4,
+          4660
+        ]
+      ],
+      "argmax_mismatch_vs_fp32": 0
+    },
+    "test_slices_by_source": {
+      "hg5g_static": {
+        "n": 230,
+        "support": [
+          21,
+          35,
+          174
+        ],
+        "acc": 0.9957,
+        "recall_press": 0.9714,
+        "recall_ready": 1.0,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "ipn_neg_gesture": {
+        "n": 2691,
+        "support": [
+          0,
+          0,
+          2691
+        ],
+        "acc": 0.9985,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 4,
+        "other_to_press_rate": 0.00149
+      },
+      "ipn_nog": {
+        "n": 911,
+        "support": [
+          0,
+          0,
+          911
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_backlit": {
+        "n": 8,
+        "support": [
+          0,
+          0,
+          8
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_bright_daylight": {
+        "n": 527,
+        "support": [
+          0,
+          0,
+          527
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_dim": {
+        "n": 98,
+        "support": [
+          0,
+          0,
+          98
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_green_led": {
+        "n": 99,
+        "support": [
+          0,
+          0,
+          99
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_indoor_moderate": {
+        "n": 119,
+        "support": [
+          0,
+          0,
+          119
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_red_led": {
+        "n": 37,
+        "support": [
+          0,
+          0,
+          37
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      }
+    },
+    "artifact": {
+      "json": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/models/c3_hard_neg/r20_c3_hard_neg.json",
+      "json_bytes": 122957,
+      "json_sha256": "279361e8fd6cf484885693f37d6571f650ac3da4cda67c9074593ad03184ec7f",
+      "f32_path": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/models/c3_hard_neg/r20_c3_hard_neg.f32",
+      "f32_bytes": 51744,
+      "f32_sha256": "a97e6ccc57b96b3bc1e5d4a4d4104fe400f92efdf84e21a5f5014eaf072c593f",
+      "int8_json_path": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/models/c3_hard_neg/r20_c3_hard_neg_int8.json",
+      "int8_json_bytes": 48793,
+      "int8_packed_bytes": 14460,
+      "int8_sha256": "55d2551391428b58ebd15fa74560ed4171e980571683790135fa16253f47bd1f"
+    },
+    "wall_seconds": 82.6,
+    "peak_vram_mb": 17.46
+  },
+  "c4_r20_full_focal": {
+    "tag": "c4_full",
+    "prefix": "r20_c3_feat",
+    "gpu": {
+      "device": "cuda:0",
+      "name": "NVIDIA RTX A5000",
+      "device_count": 2,
+      "torch": "2.15.0+cu132",
+      "cuda": "13.2"
+    },
+    "weights": "bal",
+    "loss": "focal",
+    "rows": {
+      "train": 20923,
+      "val": 5067,
+      "test": 4720
+    },
+    "train_class_counts": [
+      936,
+      731,
+      19256
+    ],
+    "selected": {
+      "hidden": [
+        64,
+        32
+      ],
+      "noise": 0.025,
+      "seed": 20261119,
+      "best_epoch": 17,
+      "T": 0.6225,
+      "val_nll": 0.01053,
+      "val_ece": 0.00152,
+      "composite_key": [
+        2,
+        0.9752,
+        0.9633,
+        0
+      ]
+    },
+    "lr_comparator": {
+      "val": {
+        "n": 5067,
+        "acc": 0.9897,
+        "macroF1": 0.8659,
+        "f1_ready": 0.7586,
+        "f1_press": 0.8443,
+        "recall_ready": 1.0,
+        "recall_press": 0.9279,
+        "precision_press": 0.7744,
+        "support": [
+          22,
+          111,
+          4934
+        ],
+        "other_to_press": 30,
+        "other_to_press_rate": 0.00608,
+        "other_to_press_wilson95": [
+          0.0043,
+          0.0087
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 14,
+        "confusion": [
+          [
+            22,
+            0,
+            0
+          ],
+          [
+            0,
+            103,
+            8
+          ],
+          [
+            14,
+            30,
+            4890
+          ]
+        ]
+      },
+      "test_locked": {
+        "n": 4720,
+        "acc": 0.9911,
+        "macroF1": 0.82,
+        "f1_ready": 0.7636,
+        "f1_press": 0.701,
+        "recall_ready": 1.0,
+        "recall_press": 0.9714,
+        "precision_press": 0.5484,
+        "support": [
+          21,
+          35,
+          4664
+        ],
+        "other_to_press": 28,
+        "other_to_press_rate": 0.006,
+        "other_to_press_wilson95": [
+          0.0042,
+          0.0087
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 13,
+        "confusion": [
+          [
+            21,
+            0,
+            0
+          ],
+          [
+            0,
+            34,
+            1
+          ],
+          [
+            13,
+            28,
+            4623
+          ]
+        ]
+      },
+      "bytes": 5151,
+      "sha256": "e46bd0f68dd1925c61a0d46530f608fcdf78d50502a17fd38c4e90b79e26dbe5"
+    },
+    "val_exported": {
+      "n": 5067,
+      "acc": 0.9978,
+      "macroF1": 0.9752,
+      "f1_ready": 0.9778,
+      "f1_press": 0.9488,
+      "recall_ready": 1.0,
+      "recall_press": 0.9189,
+      "precision_press": 0.9808,
+      "support": [
+        22,
+        111,
+        4934
+      ],
+      "other_to_press": 2,
+      "other_to_press_rate": 0.00041,
+      "other_to_press_wilson95": [
+        0.0001,
+        0.0015
+      ],
+      "ready_to_press": 0,
+      "other_to_ready": 0,
+      "confusion": [
+        [
+          22,
+          0,
+          0
+        ],
+        [
+          1,
+          102,
+          8
+        ],
+        [
+          0,
+          2,
+          4932
+        ]
+      ]
+    },
+    "test_locked_exported": {
+      "n": 4720,
+      "acc": 0.9996,
+      "macroF1": 0.9873,
+      "f1_ready": 0.9767,
+      "f1_press": 0.9855,
+      "recall_ready": 1.0,
+      "recall_press": 0.9714,
+      "precision_press": 1.0,
+      "support": [
+        21,
+        35,
+        4664
+      ],
+      "other_to_press": 0,
+      "other_to_press_rate": 0.0,
+      "other_to_press_wilson95": [
+        0.0,
+        0.0008
+      ],
+      "ready_to_press": 0,
+      "other_to_ready": 1,
+      "confusion": [
+        [
+          21,
+          0,
+          0
+        ],
+        [
+          0,
+          34,
+          1
+        ],
+        [
+          1,
+          0,
+          4663
+        ]
+      ],
+      "nll": 0.00377,
+      "ece": 0.00198
+    },
+    "test_locked_int8_ptq": {
+      "n": 4720,
+      "acc": 0.9996,
+      "macroF1": 0.9873,
+      "f1_ready": 0.9767,
+      "f1_press": 0.9855,
+      "recall_ready": 1.0,
+      "recall_press": 0.9714,
+      "precision_press": 1.0,
+      "support": [
+        21,
+        35,
+        4664
+      ],
+      "other_to_press": 0,
+      "other_to_press_rate": 0.0,
+      "other_to_press_wilson95": [
+        0.0,
+        0.0008
+      ],
+      "ready_to_press": 0,
+      "other_to_ready": 1,
+      "confusion": [
+        [
+          21,
+          0,
+          0
+        ],
+        [
+          0,
+          34,
+          1
+        ],
+        [
+          1,
+          0,
+          4663
+        ]
+      ],
+      "argmax_mismatch_vs_fp32": 0
+    },
+    "test_slices_by_source": {
+      "hg5g_static": {
+        "n": 230,
+        "support": [
+          21,
+          35,
+          174
+        ],
+        "acc": 0.9957,
+        "recall_press": 0.9714,
+        "recall_ready": 1.0,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "ipn_neg_gesture": {
+        "n": 2691,
+        "support": [
+          0,
+          0,
+          2691
+        ],
+        "acc": 0.9996,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "ipn_nog": {
+        "n": 911,
+        "support": [
+          0,
+          0,
+          911
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_backlit": {
+        "n": 8,
+        "support": [
+          0,
+          0,
+          8
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_bright_daylight": {
+        "n": 527,
+        "support": [
+          0,
+          0,
+          527
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_dim": {
+        "n": 98,
+        "support": [
+          0,
+          0,
+          98
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_green_led": {
+        "n": 99,
+        "support": [
+          0,
+          0,
+          99
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_indoor_moderate": {
+        "n": 119,
+        "support": [
+          0,
+          0,
+          119
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      },
+      "n66_red_led": {
+        "n": 37,
+        "support": [
+          0,
+          0,
+          37
+        ],
+        "acc": 1.0,
+        "recall_press": null,
+        "recall_ready": null,
+        "other_to_press": 0,
+        "other_to_press_rate": 0.0
+      }
+    },
+    "artifact": {
+      "json": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/models/c4_full/r20_c4_full.json",
+      "json_bytes": 73275,
+      "json_sha256": "e863ef1afe459a3b0a4cf0b0b2594a1db853b382d669add2d7be234e64710a27",
+      "f32_path": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/models/c4_full/r20_c4_full.f32",
+      "f32_bytes": 30624,
+      "f32_sha256": "cb23b71c51ef3816fb7ed8998d4e4473ecb7eb331a2a4b9d37416a7c2bd6baa0",
+      "int8_json_path": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/models/c4_full/r20_c4_full_int8.json",
+      "int8_json_bytes": 29940,
+      "int8_packed_bytes": 8844,
+      "int8_sha256": "72cf802ea54851a883d134bb79e57ae1f87189128f07abe10bdf5fb4e3ac9482"
+    },
+    "wall_seconds": 93.1,
+    "peak_vram_mb": 17.47
+  },
+  "teacher_student_c6_c7_stemp_qat": {
+    "prefix": "r20_c3_feat",
+    "device": "cuda:0",
+    "gpu_name": "NVIDIA RTX A5000",
+    "T_IMG_visual_teacher": {
+      "backbone": "ResNet9-GroupNorm-SiLU (4-stage Residual ConvNet on 128x128 RGB hand crops)",
+      "n_crops": 769,
+      "n_clusters": 20,
+      "n_folds_cluster_disjoint": 5,
+      "epochs_per_fold": 38,
+      "elapsed_sec": 34.97,
+      "oof_bright_metrics": {
+        "n": 769,
+        "acc": 0.7724,
+        "macroF1": 0.4647,
+        "f1_ready": 0.5269,
+        "f1_press": 0.0,
+        "recall_ready": 0.4712,
+        "recall_press": 0.0,
+        "precision_press": 0.0,
+        "support": [
+          104,
+          88,
+          577
+        ],
+        "other_to_press": 5,
+        "other_to_press_rate": 0.00867,
+        "other_to_press_wilson95": [
+          0.0037,
+          0.0201
+        ],
+        "ready_to_press": 2,
+        "other_to_ready": 27,
+        "confusion": [
+          [
+            49,
+            2,
+            53
+          ],
+          [
+            6,
+            0,
+            82
+          ],
+          [
+            27,
+            5,
+            545
+          ]
+        ]
+      },
+      "oof_dim_g022_metrics": {
+        "n": 769,
+        "acc": 0.7685,
+        "macroF1": 0.4599,
+        "f1_ready": 0.5022,
+        "f1_press": 0.0,
+        "recall_ready": 0.5481,
+        "recall_press": 0.0,
+        "precision_press": 0.0,
+        "support": [
+          104,
+          88,
+          577
+        ],
+        "other_to_press": 4,
+        "other_to_press_rate": 0.00693,
+        "other_to_press_wilson95": [
+          0.0027,
+          0.0177
+        ],
+        "ready_to_press": 2,
+        "other_to_ready": 39,
+        "confusion": [
+          [
+            57,
+            2,
+            45
+          ],
+          [
+            27,
+            0,
+            61
+          ],
+          [
+            39,
+            4,
+            534
+          ]
+        ]
+      },
+      "T_bright": 3.89,
+      "T_dim": 3.645
+    },
+    "T_ENSEMBLE_blended_teacher": {
+      "deep_teacher_arch": [
+        82,
+        192,
+        96,
+        48,
+        3
+      ],
+      "ensemble_seeds": 3,
+      "visual_rows_blended_with_T_IMG": 3567,
+      "val_metrics": {
+        "n": 5067,
+        "acc": 0.9984,
+        "macroF1": 0.9802,
+        "f1_ready": 0.9778,
+        "f1_press": 0.9636,
+        "recall_ready": 1.0,
+        "recall_press": 0.955,
+        "precision_press": 0.9725,
+        "support": [
+          22,
+          111,
+          4934
+        ],
+        "other_to_press": 3,
+        "other_to_press_rate": 0.00061,
+        "other_to_press_wilson95": [
+          0.0002,
+          0.0018
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 0,
+        "confusion": [
+          [
+            22,
+            0,
+            0
+          ],
+          [
+            1,
+            106,
+            4
+          ],
+          [
+            0,
+            3,
+            4931
+          ]
+        ]
+      },
+      "elapsed_sec": 10.59
+    },
+    "C6_vs_C7_distillation_grid": {
+      "C6_supervised_no_teacher": {
+        "kd_lambda": 0.0,
+        "kd_T": 2.0,
+        "selected": {
+          "hidden": [
+            96,
+            48
+          ],
+          "seed": 20261121,
+          "best_epoch": 26,
+          "T": 1.5575,
+          "val_nll": 0.00897,
+          "val_ece": 0.0016,
+          "composite_key": [
+            2,
+            0.9801,
+            0.9706,
+            -1
+          ]
+        },
+        "val_exported": {
+          "n": 5067,
+          "acc": 0.9982,
+          "macroF1": 0.9801,
+          "f1_ready": 0.9778,
+          "f1_press": 0.9633,
+          "recall_ready": 1.0,
+          "recall_press": 0.9459,
+          "precision_press": 0.9813,
+          "support": [
+            22,
+            111,
+            4934
+          ],
+          "other_to_press": 2,
+          "other_to_press_rate": 0.00041,
+          "other_to_press_wilson95": [
+            0.0001,
+            0.0015
+          ],
+          "ready_to_press": 0,
+          "other_to_ready": 1,
+          "confusion": [
+            [
+              22,
+              0,
+              0
+            ],
+            [
+              0,
+              105,
+              6
+            ],
+            [
+              1,
+              2,
+              4931
+            ]
+          ]
+        },
+        "test_locked_exported": {
+          "n": 4720,
+          "acc": 0.9985,
+          "macroF1": 0.959,
+          "f1_ready": 0.9333,
+          "f1_press": 0.9444,
+          "recall_ready": 1.0,
+          "recall_press": 0.9714,
+          "precision_press": 0.9189,
+          "support": [
+            21,
+            35,
+            4664
+          ],
+          "other_to_press": 3,
+          "other_to_press_rate": 0.00064,
+          "other_to_press_wilson95": [
+            0.0002,
+            0.0019
+          ],
+          "ready_to_press": 0,
+          "other_to_ready": 3,
+          "confusion": [
+            [
+              21,
+              0,
+              0
+            ],
+            [
+              0,
+              34,
+              1
+            ],
+            [
+              3,
+              3,
+              4658
+            ]
+          ],
+          "nll": 0.00386,
+          "ece": 0.00162
+        },
+        "json_bytes": 122836,
+        "f32_bytes": 51744,
+        "int8_packed_bytes": 14460,
+        "sha256": "4dd3a557021060929f190b9bece20bcbb39616b09ce03d6b11a818ab90f9c4d5"
+      },
+      "C7_kd_l025_T2": {
+        "kd_lambda": 0.25,
+        "kd_T": 2.0,
+        "selected": {
+          "hidden": [
+            96,
+            48
+          ],
+          "seed": 20261120,
+          "best_epoch": 11,
+          "T": 0.825,
+          "val_nll": 0.00819,
+          "val_ece": 0.00136,
+          "composite_key": [
+            2,
+            0.9875,
+            0.9817,
+            0
+          ]
+        },
+        "val_exported": {
+          "n": 5067,
+          "acc": 0.9984,
+          "macroF1": 0.9875,
+          "f1_ready": 1.0,
+          "f1_press": 0.9633,
+          "recall_ready": 1.0,
+          "recall_press": 0.9459,
+          "precision_press": 0.9813,
+          "support": [
+            22,
+            111,
+            4934
+          ],
+          "other_to_press": 2,
+          "other_to_press_rate": 0.00041,
+          "other_to_press_wilson95": [
+            0.0001,
+            0.0015
+          ],
+          "ready_to_press": 0,
+          "other_to_ready": 0,
+          "confusion": [
+            [
+              22,
+              0,
+              0
+            ],
+            [
+              0,
+              105,
+              6
+            ],
+            [
+              0,
+              2,
+              4932
+            ]
+          ]
+        },
+        "test_locked_exported": {
+          "n": 4720,
+          "acc": 0.9987,
+          "macroF1": 0.9635,
+          "f1_ready": 0.9333,
+          "f1_press": 0.9577,
+          "recall_ready": 1.0,
+          "recall_press": 0.9714,
+          "precision_press": 0.9444,
+          "support": [
+            21,
+            35,
+            4664
+          ],
+          "other_to_press": 2,
+          "other_to_press_rate": 0.00043,
+          "other_to_press_wilson95": [
+            0.0001,
+            0.0016
+          ],
+          "ready_to_press": 0,
+          "other_to_ready": 3,
+          "confusion": [
+            [
+              21,
+              0,
+              0
+            ],
+            [
+              0,
+              34,
+              1
+            ],
+            [
+              3,
+              2,
+              4659
+            ]
+          ],
+          "nll": 0.00419,
+          "ece": 0.00153
+        },
+        "json_bytes": 122792,
+        "f32_bytes": 51744,
+        "int8_packed_bytes": 14460,
+        "sha256": "6b979338eaf11f348774843e473fe9f0eeebf5fca3b1c353b52c4bc8a01c5136"
+      },
+      "C7_kd_l050_T2": {
+        "kd_lambda": 0.5,
+        "kd_T": 2.0,
+        "selected": {
+          "hidden": [
+            96,
+            48
+          ],
+          "seed": 20261121,
+          "best_epoch": 16,
+          "T": 0.8475,
+          "val_nll": 0.00932,
+          "val_ece": 0.00152,
+          "composite_key": [
+            2,
+            0.9874,
+            0.9815,
+            0
+          ]
+        },
+        "val_exported": {
+          "n": 5067,
+          "acc": 0.9984,
+          "macroF1": 0.9874,
+          "f1_ready": 1.0,
+          "f1_press": 0.963,
+          "recall_ready": 1.0,
+          "recall_press": 0.9369,
+          "precision_press": 0.9905,
+          "support": [
+            22,
+            111,
+            4934
+          ],
+          "other_to_press": 1,
+          "other_to_press_rate": 0.0002,
+          "other_to_press_wilson95": [
+            0.0,
+            0.0011
+          ],
+          "ready_to_press": 0,
+          "other_to_ready": 0,
+          "confusion": [
+            [
+              22,
+              0,
+              0
+            ],
+            [
+              0,
+              104,
+              7
+            ],
+            [
+              0,
+              1,
+              4933
+            ]
+          ]
+        },
+        "test_locked_exported": {
+          "n": 4720,
+          "acc": 0.9992,
+          "macroF1": 0.9728,
+          "f1_ready": 0.9333,
+          "f1_press": 0.9855,
+          "recall_ready": 1.0,
+          "recall_press": 0.9714,
+          "precision_press": 1.0,
+          "support": [
+            21,
+            35,
+            4664
+          ],
+          "other_to_press": 0,
+          "other_to_press_rate": 0.0,
+          "other_to_press_wilson95": [
+            0.0,
+            0.0008
+          ],
+          "ready_to_press": 0,
+          "other_to_ready": 3,
+          "confusion": [
+            [
+              21,
+              0,
+              0
+            ],
+            [
+              0,
+              34,
+              1
+            ],
+            [
+              3,
+              0,
+              4661
+            ]
+          ],
+          "nll": 0.00266,
+          "ece": 0.00167
+        },
+        "json_bytes": 122894,
+        "f32_bytes": 51744,
+        "int8_packed_bytes": 14460,
+        "sha256": "4080afccc34c27f208aedf0cd73c87db7d2242ec2ec2498ae82e77402e5e4f46"
+      },
+      "C7_kd_l025_T4": {
+        "kd_lambda": 0.25,
+        "kd_T": 4.0,
+        "selected": {
+          "hidden": [
+            96,
+            48
+          ],
+          "seed": 20261121,
+          "best_epoch": 9,
+          "T": 0.8175,
+          "val_nll": 0.00917,
+          "val_ece": 0.00119,
+          "composite_key": [
+            2,
+            0.9859,
+            0.9792,
+            0
+          ]
+        },
+        "val_exported": {
+          "n": 5067,
+          "acc": 0.9982,
+          "macroF1": 0.9859,
+          "f1_ready": 1.0,
+          "f1_press": 0.9585,
+          "recall_ready": 1.0,
+          "recall_press": 0.9369,
+          "precision_press": 0.9811,
+          "support": [
+            22,
+            111,
+            4934
+          ],
+          "other_to_press": 2,
+          "other_to_press_rate": 0.00041,
+          "other_to_press_wilson95": [
+            0.0001,
+            0.0015
+          ],
+          "ready_to_press": 0,
+          "other_to_ready": 0,
+          "confusion": [
+            [
+              22,
+              0,
+              0
+            ],
+            [
+              0,
+              104,
+              7
+            ],
+            [
+              0,
+              2,
+              4932
+            ]
+          ]
+        },
+        "test_locked_exported": {
+          "n": 4720,
+          "acc": 0.9987,
+          "macroF1": 0.9613,
+          "f1_ready": 0.913,
+          "f1_press": 0.9714,
+          "recall_ready": 1.0,
+          "recall_press": 0.9714,
+          "precision_press": 0.9714,
+          "support": [
+            21,
+            35,
+            4664
+          ],
+          "other_to_press": 1,
+          "other_to_press_rate": 0.00021,
+          "other_to_press_wilson95": [
+            0.0,
+            0.0012
+          ],
+          "ready_to_press": 0,
+          "other_to_ready": 4,
+          "confusion": [
+            [
+              21,
+              0,
+              0
+            ],
+            [
+              0,
+              34,
+              1
+            ],
+            [
+              4,
+              1,
+              4659
+            ]
+          ],
+          "nll": 0.0033,
+          "ece": 0.00162
+        },
+        "json_bytes": 122835,
+        "f32_bytes": 51744,
+        "int8_packed_bytes": 14460,
+        "sha256": "8264aa0f84f8404a17af15b2228e27a1a50668158a8e68771b8266239365ad9d"
+      },
+      "C7_kd_l050_T4": {
+        "kd_lambda": 0.5,
+        "kd_T": 4.0,
+        "selected": {
+          "hidden": [
+            64,
+            32
+          ],
+          "seed": 20261120,
+          "best_epoch": 13,
+          "T": 0.79,
+          "val_nll": 0.00859,
+          "val_ece": 0.00247,
+          "composite_key": [
+            2,
+            0.9891,
+            0.984,
+            0
+          ]
+        },
+        "val_exported": {
+          "n": 5067,
+          "acc": 0.9986,
+          "macroF1": 0.9891,
+          "f1_ready": 1.0,
+          "f1_press": 0.968,
+          "recall_ready": 1.0,
+          "recall_press": 0.955,
+          "precision_press": 0.9815,
+          "support": [
+            22,
+            111,
+            4934
+          ],
+          "other_to_press": 2,
+          "other_to_press_rate": 0.00041,
+          "other_to_press_wilson95": [
+            0.0001,
+            0.0015
+          ],
+          "ready_to_press": 0,
+          "other_to_ready": 0,
+          "confusion": [
+            [
+              22,
+              0,
+              0
+            ],
+            [
+              0,
+              106,
+              5
+            ],
+            [
+              0,
+              2,
+              4932
+            ]
+          ]
+        },
+        "test_locked_exported": {
+          "n": 4720,
+          "acc": 0.9994,
+          "macroF1": 0.9826,
+          "f1_ready": 0.9767,
+          "f1_press": 0.9714,
+          "recall_ready": 1.0,
+          "recall_press": 0.9714,
+          "precision_press": 0.9714,
+          "support": [
+            21,
+            35,
+            4664
+          ],
+          "other_to_press": 1,
+          "other_to_press_rate": 0.00021,
+          "other_to_press_wilson95": [
+            0.0,
+            0.0012
+          ],
+          "ready_to_press": 0,
+          "other_to_ready": 1,
+          "confusion": [
+            [
+              21,
+              0,
+              0
+            ],
+            [
+              0,
+              34,
+              1
+            ],
+            [
+              1,
+              1,
+              4662
+            ]
+          ],
+          "nll": 0.0042,
+          "ece": 0.00115
+        },
+        "json_bytes": 73138,
+        "f32_bytes": 30624,
+        "int8_packed_bytes": 8844,
+        "sha256": "66acbde9f73868f8e6afada647a6d513d7efab6252a937bf88dede933147d730"
+      }
+    },
+    "best_C6_id": "C6_supervised_no_teacher",
+    "best_C7_id": "C7_kd_l050_T4",
+    "S_TEMP_causal_4frame": {
+      "input_dim": 110,
+      "hidden": [
+        64,
+        32
+      ],
+      "best_epoch": 5,
+      "teacher_val_metrics": {
+        "n": 5067,
+        "acc": 0.9978,
+        "macroF1": 0.9486,
+        "f1_ready": 0.898,
+        "f1_press": 0.9484,
+        "recall_ready": 1.0,
+        "recall_press": 0.9099,
+        "precision_press": 0.9902,
+        "support": [
+          22,
+          111,
+          4934
+        ],
+        "other_to_press": 1,
+        "other_to_press_rate": 0.0002,
+        "other_to_press_wilson95": [
+          0.0,
+          0.0011
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 0,
+        "confusion": [
+          [
+            22,
+            0,
+            0
+          ],
+          [
+            5,
+            101,
+            5
+          ],
+          [
+            0,
+            1,
+            4933
+          ]
+        ]
+      },
+      "student_val_metrics": {
+        "n": 5067,
+        "acc": 0.9978,
+        "macroF1": 0.9487,
+        "f1_ready": 0.898,
+        "f1_press": 0.9488,
+        "recall_ready": 1.0,
+        "recall_press": 0.9189,
+        "precision_press": 0.9808,
+        "support": [
+          22,
+          111,
+          4934
+        ],
+        "other_to_press": 2,
+        "other_to_press_rate": 0.00041,
+        "other_to_press_wilson95": [
+          0.0001,
+          0.0015
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 0,
+        "confusion": [
+          [
+            22,
+            0,
+            0
+          ],
+          [
+            5,
+            102,
+            4
+          ],
+          [
+            0,
+            2,
+            4932
+          ]
+        ]
+      },
+      "student_test_locked_metrics": {
+        "n": 4720,
+        "acc": 0.9987,
+        "macroF1": 0.9692,
+        "f1_ready": 0.9767,
+        "f1_press": 0.9315,
+        "recall_ready": 1.0,
+        "recall_press": 0.9714,
+        "precision_press": 0.8947,
+        "support": [
+          21,
+          35,
+          4664
+        ],
+        "other_to_press": 4,
+        "other_to_press_rate": 0.00086,
+        "other_to_press_wilson95": [
+          0.0003,
+          0.0022
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 1,
+        "confusion": [
+          [
+            21,
+            0,
+            0
+          ],
+          [
+            0,
+            34,
+            1
+          ],
+          [
+            1,
+            4,
+            4659
+          ]
+        ]
+      }
+    },
+    "S3_QAT_int8": {
+      "hidden": [
+        64,
+        32
+      ],
+      "best_epoch": 31,
+      "T": 1.3075,
+      "int8_packed_bytes": 8844,
+      "int8_json_bytes": 29990,
+      "val_int8": {
+        "n": 5067,
+        "acc": 0.9984,
+        "macroF1": 0.9746,
+        "f1_ready": 0.9565,
+        "f1_press": 0.968,
+        "recall_ready": 1.0,
+        "recall_press": 0.955,
+        "precision_press": 0.9815,
+        "support": [
+          22,
+          111,
+          4934
+        ],
+        "other_to_press": 2,
+        "other_to_press_rate": 0.00041,
+        "other_to_press_wilson95": [
+          0.0001,
+          0.0015
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 1,
+        "confusion": [
+          [
+            22,
+            0,
+            0
+          ],
+          [
+            1,
+            106,
+            4
+          ],
+          [
+            1,
+            2,
+            4931
+          ]
+        ]
+      },
+      "test_locked_int8": {
+        "n": 4720,
+        "acc": 0.9992,
+        "macroF1": 0.9752,
+        "f1_ready": 0.9545,
+        "f1_press": 0.9714,
+        "recall_ready": 1.0,
+        "recall_press": 0.9714,
+        "precision_press": 0.9714,
+        "support": [
+          21,
+          35,
+          4664
+        ],
+        "other_to_press": 1,
+        "other_to_press_rate": 0.00021,
+        "other_to_press_wilson95": [
+          0.0,
+          0.0012
+        ],
+        "ready_to_press": 0,
+        "other_to_ready": 2,
+        "confusion": [
+          [
+            21,
+            0,
+            0
+          ],
+          [
+            0,
+            34,
+            1
+          ],
+          [
+            2,
+            1,
+            4661
+          ]
+        ]
+      },
+      "elapsed_sec": 3.88
+    }
+  }
+}

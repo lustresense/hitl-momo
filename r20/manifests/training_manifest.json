@@ -1,0 +1,91 @@
+{
+  "revision": "R20-01 v0.2.0",
+  "executed_at": "2026-11-19 WIB",
+  "single_agent_compliance_sec19_1": {
+    "subagents_spawned": 0,
+    "ai_delegation_used": false,
+    "hardware_parallelism": "2x NVIDIA RTX A5000 (24,564 MiB VRAM each, Driver 595.99.02, CUDA 13.2, PyTorch 2.15.0+cu132)"
+  },
+  "published_models": [
+    {
+      "id": "r20_model_c4_full_mlp",
+      "path": "r20/models/r20_model_c4_full_mlp.json",
+      "role": "Primary R20 Student Winner (C4 Full Focal + Low-Light Positives + Audited Hard Negatives)",
+      "architecture": [
+        82,
+        64,
+        32,
+        3
+      ],
+      "temperature": 0.6225,
+      "raw_json_bytes": 73275,
+      "wire_zstd_bytes": 29088,
+      "s0_fp32_binary_bytes": 30624,
+      "s1_int8_packed_bytes": 8844,
+      "sha256": "e863ef1afe459a3b0a4cf0b0b2594a1db853b382d669add2d7be234e64710a27",
+      "val_macroF1": 0.9752,
+      "test_locked_macroF1": 0.9873,
+      "test_locked_other_to_press": 0
+    },
+    {
+      "id": "r20_model_c7_distilled_t4_mlp",
+      "path": "r20/models/r20_model_c7_distilled_t4_mlp.json",
+      "role": "Distilled Student Winner [82->64->32->3] (T-IMG ResNet9-RGB OOF + T-ENSEMBLE -> S-SPATIAL, lambda_KD=0.50, T=4.0)",
+      "architecture": [
+        82,
+        64,
+        32,
+        3
+      ],
+      "raw_json_bytes": 73138,
+      "sha256": "66acbde9f73868f8e6afada647a6d513d7efab6252a937bf88dede933147d730",
+      "val_macroF1": 0.9891,
+      "test_locked_macroF1": 0.9826,
+      "test_locked_other_to_press": 1
+    },
+    {
+      "id": "r20_model_c7_distilled_t2_mlp",
+      "path": "r20/models/r20_model_c7_distilled_t2_mlp.json",
+      "role": "Distilled Student [82->96->48->3] (0.00/0.00/0.00 KD/min on IPN NOG/P2F/P1F, 0 locked test false presses)",
+      "architecture": [
+        82,
+        96,
+        48,
+        3
+      ],
+      "raw_json_bytes": 122894,
+      "sha256": "4080afccc34c27f208aedf0cd73c87db7d2242ec2ec2498ae82e77402e5e4f46",
+      "val_macroF1": 0.9874,
+      "test_locked_macroF1": 0.9728,
+      "test_locked_other_to_press": 0
+    },
+    {
+      "id": "r20_model_c1_balanced_mlp",
+      "path": "r20/models/r20_model_c1_balanced_mlp.json",
+      "role": "C1 Balanced 3-Dataset Control [82->64->32->3]",
+      "architecture": [
+        82,
+        64,
+        32,
+        3
+      ],
+      "raw_json_bytes": 73300,
+      "sha256": "571e170432b38e721740b5e95c894e6b092d58cc578f17a6d103fc549fd60332",
+      "val_macroF1": 0.9701,
+      "test_locked_macroF1": 0.9656
+    },
+    {
+      "id": "r20_model_c4_full_lr",
+      "path": "r20/models/r20_model_c4_full_lr.json",
+      "role": "Linear Logistic Regression Size/Safety Comparator [82->3]",
+      "architecture": [
+        82,
+        3
+      ],
+      "raw_json_bytes": 5151,
+      "sha256": "e46bd0f68dd1925c61a0d46530f608fcdf78d50502a17fd38c4e90b79e26dbe5",
+      "val_macroF1": 0.8659,
+      "test_locked_macroF1": 0.82
+    }
+  ]
+}

@@ -1,0 +1,91 @@
+{
+  "revision": "R20-01 v0.2.0",
+  "generated_at": "2026-11-19T11:05:00+07:00",
+  "baseline_ref": "research-can@5a3eb290464fa74ae4b1ee709e241980bd1c79c9 (R19 G4 Hybrid)",
+  "product_read_only_ref": "main@8969502df4e106d8428055c2ca6f80f4f59250ee (0.26.0-alpha)",
+  "datasets": [
+    {
+      "id": "handgesture_5g",
+      "name": "HandGesture-5G (Mendeley wj25crzdbm/1)",
+      "doi": "10.17632/wj25crzdbm.1",
+      "url": "https://data.mendeley.com/datasets/wj25crzdbm/1",
+      "license": "CC BY 4.0",
+      "r20_role": "P0_TRAIN_VAL_TEST_PLUS_LOWLIGHT_AUG_TRAIN",
+      "unique_decoded_images": 1797,
+      "split_policy": "Cluster-disjoint (dHash<=8 + 15s burst Union-Find; Pointing Up cluster 18<->19 swap as in R19; TEST untouched)",
+      "r20_augmentation": {
+        "train_images_cached_720p": 1097,
+        "cohort_augmented_images": 523,
+        "conditions_per_image": 12,
+        "total_augmented_frames_probed": 6276,
+        "extra_valid_landmark_train_rows": 1915,
+        "missing_landmark_policy": "Recorded as DETECTOR_MISS in r20_lowlight_detector_ablation.json; never converted into fake zero features (\u00a712.2)"
+      }
+    },
+    {
+      "id": "natural_rgb_v3",
+      "name": "Natural RGB Hand Gestures v3 (Mendeley n66hhk695h/3)",
+      "doi": "10.17632/n66hhk695h.3",
+      "url": "https://data.mendeley.com/datasets/n66hhk695h/3",
+      "license": "CC BY 4.0",
+      "r20_role": "P0_TRAIN_VAL_TEST_HARD_NEG_LIGHTING_STRATA",
+      "split_policy": "Participant-disjoint 19/4/3 (identical to R19; TEST frozen)",
+      "ambiguous_quarantine": "point_left and point_right kept in AMBIGUOUS_CONVERSATIONAL_POINTING quarantine (0 rows labeled POINT_PRESS)"
+    },
+    {
+      "id": "ipn_hands",
+      "name": "IPN HandS Continuous Video Dataset",
+      "url": "https://gibranbenitez.github.io/IPN_Hand/",
+      "license": "CC BY 4.0",
+      "r20_role": "P0_TRAIN_VAL_TEST_TEMPORAL_NEGATIVES",
+      "split_policy": "Person-disjoint 19/5/5 (identical to R18/R19; 36 locked test videos across 5 unseen subjects; P1F/C1F/2C1 excluded from PRESS)"
+    },
+    {
+      "id": "hands_rgbd_v2",
+      "name": "HANDS RGB-D Dataset (Mendeley ndrczc35bt/2)",
+      "doi": "10.17632/ndrczc35bt.2",
+      "url": "https://data.mendeley.com/datasets/ndrczc35bt/2",
+      "license": "CC BY 4.0",
+      "r20_role": "P1_CONDITIONAL_TRAIN_S1_S2_AND_ISOLATED_PERSON_DISJOINT_OOD_TEST_S4_S5",
+      "strict_partition_rule_sec3": {
+        "Subject1_Subject2": "Audited non-pointing OTHER hard negatives for C3/C4/C6/C7 TRAIN (1692 rows; Horiz_H*=5-finger flat horizontal palm=OTHER; One_VFL/VFR quarantined)",
+        "Subject3": "Held-out hard-negative VAL slice (221 rows)",
+        "Subject4_Subject5": "Strictly isolated Person-Disjoint Locked OOD TEST (1080 frames, 2,092 GT-matched hands; 0 overlap with Subject1..3)"
+      }
+    },
+    {
+      "id": "mendeley_bxr7kx84y6_v2",
+      "name": "Egocentric/Exocentric Hands v2 (Mendeley bxr7kx84y6/2)",
+      "doi": "10.17632/bxr7kx84y6.2",
+      "url": "https://data.mendeley.com/datasets/bxr7kx84y6/2",
+      "license": "CC BY 4.0",
+      "r20_role": "P1_CONDITIONAL_TRAIN_GOMOKU_POKER_AND_SESSION_DISJOINT_OOD_TESTS",
+      "strict_partition_rule_sec3": {
+        "locked_r18_r19_599_frames": "Dim Light/{Chinese Chess, Dice, Meeting Chess} + Natural Light/{Aeroplane Chess, Checkers, Dice} \u2014 100% untouched session-disjoint locked evaluation",
+        "gomoku_poker_train_chunk": "First 68% of Dim Light/Gomoku & Natural Light/Poker after geometric pointing-quarantine filter (230 audited OTHER rows for C3/C4/C6/C7 TRAIN)",
+        "gomoku_poker_ood_holdout": "Final 25% of Dim Light/Gomoku & Natural Light/Poker after >20-frame buffer gap (85 hands for BXR7_OOD_TEST_GOMOKU_POKER)"
+      }
+    },
+    {
+      "id": "excluded_or_blocked_datasets",
+      "items": [
+        {
+          "name": "Exocentric Hand Interaction v2 (9d37m3nfgm/2)",
+          "status": "P2_OPTIONAL_SKIPPED (no pistol labels; bxr7 + HANDS RGB-D already provided 1,922 audited multi-hand/board-game hard negatives)"
+        },
+        {
+          "name": "HaGRIDv2",
+          "status": "HOLD_LICENSE (excluded from weights per \u00a73)"
+        },
+        {
+          "name": "DimHand / LLHands / MGR-Dark",
+          "status": "EXCLUDED_GATED (unpublished/restricted access per \u00a73)"
+        },
+        {
+          "name": "Owner Physical Webcam Dataset",
+          "status": "PENDING_OWNER_HARDWARE (cannot be synthesized by terminal agent per \u00a70.5 & \u00a79)"
+        }
+      ]
+    }
+  ]
+}

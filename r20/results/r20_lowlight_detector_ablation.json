@@ -1,0 +1,165 @@
+{
+  "benchmark_6mode_subset": {
+    "A0_raw": {
+      "n_total": 720,
+      "recall_all": 0.2361,
+      "n_lowlight_strata": 480,
+      "recall_lowlight": 0.1146,
+      "ms_p50": 14.0,
+      "ms_p95": 29.38
+    },
+    "A1_raw320": {
+      "n_total": 720,
+      "recall_all": 0.3139,
+      "n_lowlight_strata": 480,
+      "recall_lowlight": 0.1792,
+      "ms_p50": 13.39,
+      "ms_p95": 25.74
+    },
+    "A2_clahe320": {
+      "n_total": 720,
+      "recall_all": 0.0264,
+      "n_lowlight_strata": 480,
+      "recall_lowlight": 0.0292,
+      "ms_p50": 21.25,
+      "ms_p95": 32.5
+    },
+    "L3_clahe480": {
+      "n_total": 720,
+      "recall_all": 0.025,
+      "n_lowlight_strata": 480,
+      "recall_lowlight": 0.0271,
+      "ms_p50": 29.34,
+      "ms_p95": 41.08
+    },
+    "A3_gamma_denoise_clahe320": {
+      "n_total": 720,
+      "recall_all": 0.0333,
+      "n_lowlight_strata": 480,
+      "recall_lowlight": 0.0333,
+      "ms_p50": 21.78,
+      "ms_p95": 33.58
+    },
+    "A4_adaptive": {
+      "n_total": 720,
+      "recall_all": 0.2361,
+      "n_lowlight_strata": 480,
+      "recall_lowlight": 0.1146,
+      "ms_p50": 21.43,
+      "ms_p95": 31.24
+    }
+  },
+  "full_cohort_by_augmentation": {
+    "raw": {
+      "n": 523,
+      "mean_luma_avg": 0.6218,
+      "l0_raw_recall": 0.7189,
+      "l1_clahe320_recall": 0.4455,
+      "l4_a3_gamma_denoise_clahe320_recall": 0.457,
+      "adaptive_union_recall": 0.7208,
+      "detector_miss_all": 146
+    },
+    "dim_g045": {
+      "n": 523,
+      "mean_luma_avg": 0.4316,
+      "l0_raw_recall": 0.3021,
+      "l1_clahe320_recall": 0.2677,
+      "l4_a3_gamma_denoise_clahe320_recall": 0.2772,
+      "adaptive_union_recall": 0.3423,
+      "detector_miss_all": 344
+    },
+    "dim_g020": {
+      "n": 523,
+      "mean_luma_avg": 0.2975,
+      "l0_raw_recall": 0.0554,
+      "l1_clahe320_recall": 0.0765,
+      "l4_a3_gamma_denoise_clahe320_recall": 0.0669,
+      "adaptive_union_recall": 0.0822,
+      "detector_miss_all": 480
+    },
+    "dim_g008": {
+      "n": 523,
+      "mean_luma_avg": 0.1937,
+      "l0_raw_recall": 0.0,
+      "l1_clahe320_recall": 0.0057,
+      "l4_a3_gamma_denoise_clahe320_recall": 0.021,
+      "adaptive_union_recall": 0.021,
+      "detector_miss_all": 512
+    },
+    "dim_warm_led": {
+      "n": 523,
+      "mean_luma_avg": 0.2826,
+      "l0_raw_recall": 0.0344,
+      "l1_clahe320_recall": 0.0363,
+      "l4_a3_gamma_denoise_clahe320_recall": 0.0382,
+      "adaptive_union_recall": 0.044,
+      "detector_miss_all": 500
+    },
+    "dim_cool_mon": {
+      "n": 523,
+      "mean_luma_avg": 0.2526,
+      "l0_raw_recall": 0.0402,
+      "l1_clahe320_recall": 0.0459,
+      "l4_a3_gamma_denoise_clahe320_recall": 0.0402,
+      "adaptive_union_recall": 0.0516,
+      "detector_miss_all": 496
+    },
+    "backlight": {
+      "n": 523,
+      "mean_luma_avg": 0.6346,
+      "l0_raw_recall": 0.6424,
+      "l1_clahe320_recall": 0.4149,
+      "l4_a3_gamma_denoise_clahe320_recall": 0.4455,
+      "adaptive_union_recall": 0.6597,
+      "detector_miss_all": 178
+    },
+    "blur_dim": {
+      "n": 523,
+      "mean_luma_avg": 0.3586,
+      "l0_raw_recall": 0.6176,
+      "l1_clahe320_recall": 0.3748,
+      "l4_a3_gamma_denoise_clahe320_recall": 0.3767,
+      "adaptive_union_recall": 0.6252,
+      "detector_miss_all": 196
+    },
+    "jpeg_q25": {
+      "n": 523,
+      "mean_luma_avg": 0.622,
+      "l0_raw_recall": 0.6367,
+      "l1_clahe320_recall": 0.3308,
+      "l4_a3_gamma_denoise_clahe320_recall": 0.348,
+      "adaptive_union_recall": 0.6463,
+      "detector_miss_all": 185
+    },
+    "flip": {
+      "n": 523,
+      "mean_luma_avg": 0.6217,
+      "l0_raw_recall": 0.7132,
+      "l1_clahe320_recall": 0.4474,
+      "l4_a3_gamma_denoise_clahe320_recall": 0.4761,
+      "adaptive_union_recall": 0.7304,
+      "detector_miss_all": 141
+    },
+    "flip_dim_g020": {
+      "n": 523,
+      "mean_luma_avg": 0.2974,
+      "l0_raw_recall": 0.0516,
+      "l1_clahe320_recall": 0.0669,
+      "l4_a3_gamma_denoise_clahe320_recall": 0.0631,
+      "adaptive_union_recall": 0.0669,
+      "detector_miss_all": 488
+    },
+    "scale_x048_dim": {
+      "n": 523,
+      "mean_luma_avg": 0.3616,
+      "l0_raw_recall": 0.3098,
+      "l1_clahe320_recall": 0.3423,
+      "l4_a3_gamma_denoise_clahe320_recall": 0.3442,
+      "adaptive_union_recall": 0.392,
+      "detector_miss_all": 318
+    }
+  },
+  "images_processed": 523,
+  "extra_train_rows_emitted": 1915,
+  "elapsed_sec": 275.18
+}

@@ -1,0 +1,1612 @@
+{
+  "metadata": {
+    "title": "R22 Full Scope Robustness, Preprocessing & Custom Detector Ablation",
+    "worker": "w-robust",
+    "contract": "Contract K10",
+    "timestamp_iso": "2026-11-19T20:10:00Z",
+    "acceptance_ids": [
+      "P01",
+      "P02",
+      "P03",
+      "P04",
+      "P05",
+      "P06",
+      "P07",
+      "P08",
+      "P09",
+      "P10",
+      "O01",
+      "O02",
+      "O03",
+      "O04",
+      "O05",
+      "G01",
+      "G04",
+      "G05",
+      "G06",
+      "G09",
+      "G10",
+      "G11",
+      "G12"
+    ]
+  },
+  "preprocessing_inventory_and_audit": {
+    "t2_dim_recovery_threshold_audit": {
+      "r20_legacy_threshold": 0.52,
+      "r22_calibrated_threshold": 0.32,
+      "normal_room_mean_luma": 0.47,
+      "r20_false_trigger_pct": 100.0,
+      "r22_false_trigger_pct": 0.0,
+      "audit_verdict": "RESOLVED_T2"
+    },
+    "a4v2_pipeline_stages": [
+      {
+        "order": 1,
+        "name": "320px downscale canvas",
+        "purpose": "Reduce frame area for fast luma/filtering pass"
+      },
+      {
+        "order": 2,
+        "name": "motionGatedTemporalEmaInPlace",
+        "purpose": "Noise reduction during stillness, zero ghosting during motion"
+      },
+      {
+        "order": 3,
+        "name": "sepMedian5RgbaInPlace",
+        "purpose": "Salt-and-pepper noise removal"
+      },
+      {
+        "order": 4,
+        "name": "denoise3x3RgbaInPlace",
+        "purpose": "Conditional spatial smoothing when noiseProxy >= 5.0"
+      },
+      {
+        "order": 5,
+        "name": "reinhardExposureLutInPlace",
+        "purpose": "Tone mapping low-light pixels towards human perceptual midpoint"
+      }
+    ],
+    "r22_new_stages": [
+      {
+        "name": "applyHighlightSoftKneeInPlace",
+        "purpose": "Prevents Reinhard tone mapping from whiteout-clipping monitor-lit hand highlights (luma > 0.78)",
+        "soft_knee_start": 0.78,
+        "compression_ceiling": 0.94
+      },
+      {
+        "name": "suppressShadowChromaNoiseInPlace",
+        "purpose": "Suppresses RGB chroma spikes in ultra-dark background pixels (luma < 0.045, strength 0.65) to avoid false skin tones",
+        "max_luma_norm": 0.045,
+        "strength": 0.65
+      },
+      {
+        "name": "probeCameraExposureCapabilities",
+        "purpose": "Opportunistic fail-safe inspection of UVC camera capabilities (exposureMode, exposureCompensation, whiteBalanceMode, brightness)"
+      }
+    ],
+    "pre_lut_diagnostics": {
+      "percentiles": [
+        "p10",
+        "p50",
+        "p95"
+      ],
+      "nearWhiteHandPct": "Percentage of hand ROI pixels >= 250 (null when no hand ROI)",
+      "blurProxy": "Laplacian variance sharpness metric (blur warning < 40.0)",
+      "noiseProxy": "Local high-frequency MAD metric (noise warning >= 5.0)"
+    },
+    "typescript_parity_verification": {
+      "generated_at": "2026-11-19T13:02:11.065Z",
+      "a4v2_inventory": {
+        "id": "A4_denoise_reinhard320",
+        "enhanceWidth": 320,
+        "legacyDimThreshold": 0.52,
+        "calibratedDimThreshold": 0.32,
+        "stages": [
+          "downscale320",
+          "motionGatedTemporalEmaInPlace",
+          "sepMedian5RgbaInPlace",
+          "denoise3x3RgbaInPlace(meanLuma<0.14)",
+          "reinhardExposureLutInPlace"
+        ]
+      },
+      "r22_dim_recovery_luma": 0.32,
+      "t2_normal_luma_047_check": {
+        "meanLuma": 0.4706,
+        "shouldActivateDimRecoveryAt032": false
+      },
+      "diagnostics_raw_vs_no_roi": {
+        "with_roi_nearWhiteHandPct": 0,
+        "without_roi_nearWhiteHandPct": null,
+        "diagRaw": {
+          "meanLuma": 0.2417,
+          "centerLuma": 0.6624,
+          "p10": 0.0196,
+          "p50": 0.0431,
+          "p95": 0.9294,
+          "nearWhiteHandPct": 0,
+          "blurProxy": 1672.26,
+          "noiseProxy": 0.33,
+          "isDark": true,
+          "isBacklight": false,
+          "isGlareRisk": false,
+          "isBlurry": false,
+          "isNoisy": false,
+          "shouldActivateDimRecovery": true
+        }
+      },
+      "same_frame_glare_shadow_comparison": {
+        "raw_nearWhiteHandPct": 0,
+        "a4v2_post_nearWhiteHandPct": 3.07,
+        "r22_post_nearWhiteHandPct": 0,
+        "raw_shadowChromaSpread": 11.48,
+        "a4v2_shadowChromaSpread": 20.41,
+        "r22_shadowChromaSpread": 19.11
+      },
+      "primitive_checks": {
+        "softKneeHighlightPixel": [
+          227,
+          212,
+          199
+        ],
+        "softKneeUntouchedMidtonePixel": [
+          120,
+          90,
+          70
+        ],
+        "shadowClampDarkPixel": [
+          18,
+          8,
+          7
+        ],
+        "shadowClampUntouchedSkinPixel": [
+          140,
+          100,
+          80
+        ],
+        "reinhardOrigBrightPixel": [
+          245,
+          236,
+          229
+        ],
+        "reinhardSoftKneeBrightPixel": [
+          225,
+          221,
+          217
+        ]
+      },
+      "p10_camera_probe": {
+        "uvcNull": {
+          "supported": false,
+          "hasGetCapabilities": false,
+          "exposureMode": null,
+          "exposureCompensation": null,
+          "whiteBalanceMode": null,
+          "brightness": null,
+          "currentExposureMode": null,
+          "currentExposureCompensation": null,
+          "currentWhiteBalanceMode": null,
+          "canAdjustExposure": false,
+          "error": null
+        },
+        "uvcUnsupported": {
+          "supported": false,
+          "hasGetCapabilities": false,
+          "exposureMode": null,
+          "exposureCompensation": null,
+          "whiteBalanceMode": null,
+          "brightness": null,
+          "currentExposureMode": null,
+          "currentExposureCompensation": null,
+          "currentWhiteBalanceMode": null,
+          "canAdjustExposure": false,
+          "error": null
+        },
+        "uvcThrowing": {
+          "supported": false,
+          "hasGetCapabilities": true,
+          "exposureMode": null,
+          "exposureCompensation": null,
+          "whiteBalanceMode": null,
+          "brightness": null,
+          "currentExposureMode": null,
+          "currentExposureCompensation": null,
+          "currentWhiteBalanceMode": null,
+          "canAdjustExposure": false,
+          "error": "Hardware error"
+        },
+        "uvcSupported": {
+          "supported": true,
+          "hasGetCapabilities": true,
+          "exposureMode": [
+            "continuous",
+            "manual"
+          ],
+          "exposureCompensation": {
+            "min": -2,
+            "max": 2,
+            "step": 0.25
+          },
+          "whiteBalanceMode": [
+            "continuous",
+            "manual"
+          ],
+          "brightness": null,
+          "currentExposureMode": "continuous",
+          "currentExposureCompensation": 0,
+          "currentWhiteBalanceMode": "continuous",
+          "canAdjustExposure": true,
+          "error": null
+        }
+      }
+    }
+  },
+  "same_frame_preprocessing_ablation": {
+    "generated_at": "2026-11-19T12:59:14Z",
+    "elapsed_sec": 389.19,
+    "t2_threshold_and_normal_lighting": {
+      "hg5g_clean_n": 30,
+      "hg5g_mean_luma_p50": 0.6283,
+      "hg5g_legacy_052_trigger_rate": 0.0,
+      "hg5g_r22_032_trigger_rate": 0.0,
+      "hg5g_raw_recall": 1.0,
+      "physical_natural_light_n": 40,
+      "physical_natural_luma_p50": 0.1841,
+      "physical_natural_legacy_052_trigger_rate": 1.0,
+      "physical_natural_r22_032_trigger_rate": 1.0
+    },
+    "dim_lighting_ablation": {
+      "synthetic_dim_strata": {
+        "dim_g020": {
+          "RAW": {
+            "recall": 0.0,
+            "pre_ms_p50": 0.0,
+            "det_ms_p50": 11.7,
+            "dark_wall_chroma_spike_pct": 17.05
+          },
+          "A4v2_032": {
+            "recall": 0.9583,
+            "pre_ms_p50": 35.11,
+            "det_ms_p50": 21.8,
+            "dark_wall_chroma_spike_pct": 29.0
+          },
+          "R22_SoftKnee_ShadowClamp": {
+            "recall": 0.9583,
+            "pre_ms_p50": 38.45,
+            "det_ms_p50": 21.96,
+            "dark_wall_chroma_spike_pct": 22.44
+          }
+        },
+        "dim_g008": {
+          "RAW": {
+            "recall": 0.0,
+            "pre_ms_p50": 0.0,
+            "det_ms_p50": 11.54,
+            "dark_wall_chroma_spike_pct": 6.31
+          },
+          "A4v2_032": {
+            "recall": 0.7188,
+            "pre_ms_p50": 35.91,
+            "det_ms_p50": 21.84,
+            "dark_wall_chroma_spike_pct": 7.87
+          },
+          "R22_SoftKnee_ShadowClamp": {
+            "recall": 0.4514,
+            "pre_ms_p50": 39.33,
+            "det_ms_p50": 21.41,
+            "dark_wall_chroma_spike_pct": 4.23
+          }
+        },
+        "dim_warm_led": {
+          "RAW": {
+            "recall": 0.0,
+            "pre_ms_p50": 0.0,
+            "det_ms_p50": 12.78,
+            "dark_wall_chroma_spike_pct": 30.77
+          },
+          "A4v2_032": {
+            "recall": 0.9583,
+            "pre_ms_p50": 35.36,
+            "det_ms_p50": 22.66,
+            "dark_wall_chroma_spike_pct": 61.61
+          },
+          "R22_SoftKnee_ShadowClamp": {
+            "recall": 0.934,
+            "pre_ms_p50": 38.67,
+            "det_ms_p50": 22.22,
+            "dark_wall_chroma_spike_pct": 50.57
+          }
+        },
+        "backlight": {
+          "RAW": {
+            "recall": 0.9931,
+            "pre_ms_p50": 0.0,
+            "det_ms_p50": 21.85,
+            "dark_wall_chroma_spike_pct": 58.54
+          },
+          "A4v2_032": {
+            "recall": 0.9931,
+            "pre_ms_p50": 0.0,
+            "det_ms_p50": 21.96,
+            "dark_wall_chroma_spike_pct": 58.54
+          },
+          "R22_SoftKnee_ShadowClamp": {
+            "recall": 0.9931,
+            "pre_ms_p50": 0.0,
+            "det_ms_p50": 21.79,
+            "dark_wall_chroma_spike_pct": 58.54
+          }
+        }
+      },
+      "physical_dim_light_bxr7": {
+        "frames": 45,
+        "mean_luma_p50": 0.2071,
+        "p10_p50_p95": [
+          0.0549,
+          0.2118,
+          0.3961
+        ],
+        "noise_proxy_p50": 0.99,
+        "blur_proxy_p50": 404.82,
+        "policies": {
+          "RAW": {
+            "frames": 45,
+            "hands_detected_frames": 27,
+            "detection_rate": 0.6,
+            "passes": {
+              "A0_raw": 45
+            }
+          },
+          "A4v2_032": {
+            "frames": 45,
+            "hands_detected_frames": 18,
+            "detection_rate": 0.4,
+            "passes": {
+              "A0_raw": 1,
+              "A4_denoise_reinhard320": 44
+            }
+          },
+          "R22_SoftKnee_ShadowClamp": {
+            "frames": 45,
+            "hands_detected_frames": 16,
+            "detection_rate": 0.3556,
+            "passes": {
+              "A0_raw": 1,
+              "R22_softknee_shadowclamp320": 44
+            }
+          }
+        }
+      }
+    },
+    "glare_and_motion_blur_ablation": {
+      "monitor_glare_dark_room": {
+        "sequences_per_policy": 12,
+        "pre_lut_near_white_hand_pct_mean": 8.76,
+        "policies": {
+          "RAW": {
+            "recall": 0.8819,
+            "post_near_white_hand_pct_mean": 8.76,
+            "dark_wall_chroma_spike_pct_mean": 52.33
+          },
+          "A4v2_032": {
+            "recall": 0.8819,
+            "post_near_white_hand_pct_mean": 8.76,
+            "dark_wall_chroma_spike_pct_mean": 52.33
+          },
+          "R22_SoftKnee_ShadowClamp": {
+            "recall": 0.8819,
+            "post_near_white_hand_pct_mean": 8.76,
+            "dark_wall_chroma_spike_pct_mean": 52.33
+          },
+          "A4v2_Always_On_320": {
+            "recall": 1.0,
+            "post_near_white_hand_pct_mean": 8.74,
+            "dark_wall_chroma_spike_pct_mean": 68.26
+          },
+          "R22_Always_On_320": {
+            "recall": 1.0,
+            "post_near_white_hand_pct_mean": 0.0,
+            "dark_wall_chroma_spike_pct_mean": 67.32
+          }
+        }
+      },
+      "motion_blur_stress": {
+        "clean_k1": {
+          "n": 12,
+          "blur_proxy_p10_p50_p90": [
+            88.19,
+            112.65,
+            122.19
+          ],
+          "is_blurry_flagged_rate": 0.0,
+          "raw_recall": 1.0,
+          "r22_recall": 1.0
+        },
+        "fast_blur_k11": {
+          "n": 12,
+          "blur_proxy_p10_p50_p90": [
+            15.46,
+            21.59,
+            24.39
+          ],
+          "is_blurry_flagged_rate": 1.0,
+          "raw_recall": 1.0,
+          "r22_recall": 1.0
+        },
+        "heavy_blur_dim_k15": {
+          "n": 12,
+          "blur_proxy_p10_p50_p90": [
+            2.35,
+            2.81,
+            3.24
+          ],
+          "is_blurry_flagged_rate": 1.0,
+          "raw_recall": 0.0,
+          "r22_recall": 0.1667
+        }
+      }
+    },
+    "roi_crop_mask_and_bystander_ablation": {
+      "metamorphic_coord_roundtrip_max_err": 2.22e-16,
+      "small_hand_scale_0_45_test": {
+        "n": 15,
+        "full_frame_recall": 0.3333,
+        "roi_crop_remap_recall": 0.8,
+        "mean_landmark_alignment_diff_vs_full_frame": 0.05444
+      },
+      "two_hand_bystander_crossing": {
+        "FullFrame_Fixed2": {
+          "frames": 240,
+          "primary_track_retention": 1.0,
+          "bystander_visibility_rate": 0.0063,
+          "det_ms_p50": 21.64,
+          "det_ms_p95": 28.08
+        },
+        "ROI_Crop_Remap": {
+          "frames": 240,
+          "primary_track_retention": 1.0,
+          "bystander_visibility_rate": 0.0,
+          "det_ms_p50": 21.7,
+          "det_ms_p95": 27.72
+        },
+        "ROI_Masked_Outside": {
+          "frames": 240,
+          "primary_track_retention": 0.7917,
+          "bystander_visibility_rate": 0.0,
+          "det_ms_p50": 21.59,
+          "det_ms_p95": 28.24
+        }
+      }
+    }
+  },
+  "one_euro_filter_benchmark": {
+    "generated_at": "2026-11-19T12:51:26.922Z",
+    "default_config": {
+      "minCutoff": 0.9,
+      "beta": 14,
+      "dCutoff": 0.4,
+      "minDtSec": 0.0001,
+      "maxGapSec": 0.35
+    },
+    "loss_and_owner_reset_check": {
+      "lostReturnedNull": true,
+      "reacquiredSnappedExact": true,
+      "ownerSwitchSnappedExact": true,
+      "resetCount": 2
+    },
+    "by_fps_profile": {
+      "webcam_15fps": {
+        "stillness_sigma_0_004": {
+          "raw": {
+            "rmsPx": 3.686,
+            "frameToFrameJitterPx": 4.898
+          },
+          "ema_alpha_0_35": {
+            "rmsPx": 1.585,
+            "frameToFrameJitterPx": 1.317
+          },
+          "ema_alpha_0_45": {
+            "rmsPx": 1.873,
+            "frameToFrameJitterPx": 1.749
+          },
+          "one_euro": {
+            "rmsPx": 1.528,
+            "frameToFrameJitterPx": 1.138
+          }
+        },
+        "fast_onset_and_sweep": {
+          "step90LagMs": {
+            "raw": 0,
+            "ema_alpha_0_35": 333.3,
+            "ema_alpha_0_45": 200,
+            "one_euro": 66.7
+          },
+          "fastSineMeanTrackingErrorPx": {
+            "ema_alpha_0_35": 73.89,
+            "one_euro": 22.1
+          }
+        }
+      },
+      "webcam_30fps": {
+        "stillness_sigma_0_004": {
+          "raw": {
+            "rmsPx": 3.686,
+            "frameToFrameJitterPx": 4.899
+          },
+          "ema_alpha_0_35": {
+            "rmsPx": 1.619,
+            "frameToFrameJitterPx": 1.301
+          },
+          "ema_alpha_0_45": {
+            "rmsPx": 1.909,
+            "frameToFrameJitterPx": 1.737
+          },
+          "one_euro": {
+            "rmsPx": 1.168,
+            "frameToFrameJitterPx": 0.647
+          }
+        },
+        "fast_onset_and_sweep": {
+          "step90LagMs": {
+            "raw": 0,
+            "ema_alpha_0_35": 166.7,
+            "ema_alpha_0_45": 100,
+            "one_euro": 66.7
+          },
+          "fastSineMeanTrackingErrorPx": {
+            "ema_alpha_0_35": 49.2,
+            "one_euro": 18.44
+          }
+        }
+      },
+      "webcam_60fps": {
+        "stillness_sigma_0_004": {
+          "raw": {
+            "rmsPx": 3.553,
+            "frameToFrameJitterPx": 4.699
+          },
+          "ema_alpha_0_35": {
+            "rmsPx": 1.572,
+            "frameToFrameJitterPx": 1.245
+          },
+          "ema_alpha_0_45": {
+            "rmsPx": 1.85,
+            "frameToFrameJitterPx": 1.664
+          },
+          "one_euro": {
+            "rmsPx": 0.839,
+            "frameToFrameJitterPx": 0.344
+          }
+        },
+        "fast_onset_and_sweep": {
+          "step90LagMs": {
+            "raw": 0,
+            "ema_alpha_0_35": 83.3,
+            "ema_alpha_0_45": 50,
+            "one_euro": 50
+          },
+          "fastSineMeanTrackingErrorPx": {
+            "ema_alpha_0_35": 27.22,
+            "one_euro": 14.69
+          }
+        }
+      },
+      "variable_dt_12_33fps": {
+        "stillness_sigma_0_004": {
+          "raw": {
+            "rmsPx": 3.652,
+            "frameToFrameJitterPx": 4.849
+          },
+          "ema_alpha_0_35": {
+            "rmsPx": 1.592,
+            "frameToFrameJitterPx": 1.29
+          },
+          "ema_alpha_0_45": {
+            "rmsPx": 1.882,
+            "frameToFrameJitterPx": 1.72
+          },
+          "one_euro": {
+            "rmsPx": 1.401,
+            "frameToFrameJitterPx": 0.913
+          }
+        },
+        "fast_onset_and_sweep": {
+          "step90LagMs": {
+            "raw": 0,
+            "ema_alpha_0_35": 203.3,
+            "ema_alpha_0_45": 123.1,
+            "one_euro": 54.6
+          },
+          "fastSineMeanTrackingErrorPx": {
+            "ema_alpha_0_35": 64.86,
+            "one_euro": 20.79
+          }
+        }
+      }
+    },
+    "config_tuning_at_15fps": {
+      "uncalibrated_low_beta_0_35": {
+        "config": {
+          "name": "uncalibrated_low_beta_0_35",
+          "minCutoff": 1.4,
+          "beta": 0.35,
+          "dCutoff": 1
+        },
+        "stillness_sigma_0_004": {
+          "raw": {
+            "rmsPx": 3.686,
+            "frameToFrameJitterPx": 4.898
+          },
+          "ema_alpha_0_35": {
+            "rmsPx": 1.585,
+            "frameToFrameJitterPx": 1.317
+          },
+          "ema_alpha_0_45": {
+            "rmsPx": 1.873,
+            "frameToFrameJitterPx": 1.749
+          },
+          "one_euro": {
+            "rmsPx": 1.648,
+            "frameToFrameJitterPx": 1.405
+          }
+        },
+        "fast_onset_and_sweep": {
+          "step90LagMs": {
+            "raw": 0,
+            "ema_alpha_0_35": 333.3,
+            "ema_alpha_0_45": 200,
+            "one_euro": 266.7
+          },
+          "fastSineMeanTrackingErrorPx": {
+            "ema_alpha_0_35": 73.89,
+            "one_euro": 59.58
+          }
+        }
+      },
+      "mild_beta_3_0": {
+        "config": {
+          "name": "mild_beta_3_0",
+          "minCutoff": 1,
+          "beta": 3,
+          "dCutoff": 0.5
+        },
+        "stillness_sigma_0_004": {
+          "raw": {
+            "rmsPx": 3.686,
+            "frameToFrameJitterPx": 4.898
+          },
+          "ema_alpha_0_35": {
+            "rmsPx": 1.585,
+            "frameToFrameJitterPx": 1.317
+          },
+          "ema_alpha_0_45": {
+            "rmsPx": 1.873,
+            "frameToFrameJitterPx": 1.749
+          },
+          "one_euro": {
+            "rmsPx": 1.469,
+            "frameToFrameJitterPx": 1.125
+          }
+        },
+        "fast_onset_and_sweep": {
+          "step90LagMs": {
+            "raw": 0,
+            "ema_alpha_0_35": 333.3,
+            "ema_alpha_0_45": 200,
+            "one_euro": 200
+          },
+          "fastSineMeanTrackingErrorPx": {
+            "ema_alpha_0_35": 73.89,
+            "one_euro": 43.38
+          }
+        }
+      },
+      "balanced_beta_8_0": {
+        "config": {
+          "name": "balanced_beta_8_0",
+          "minCutoff": 1,
+          "beta": 8,
+          "dCutoff": 0.5
+        },
+        "stillness_sigma_0_004": {
+          "raw": {
+            "rmsPx": 3.686,
+            "frameToFrameJitterPx": 4.898
+          },
+          "ema_alpha_0_35": {
+            "rmsPx": 1.585,
+            "frameToFrameJitterPx": 1.317
+          },
+          "ema_alpha_0_45": {
+            "rmsPx": 1.873,
+            "frameToFrameJitterPx": 1.749
+          },
+          "one_euro": {
+            "rmsPx": 1.536,
+            "frameToFrameJitterPx": 1.18
+          }
+        },
+        "fast_onset_and_sweep": {
+          "step90LagMs": {
+            "raw": 0,
+            "ema_alpha_0_35": 333.3,
+            "ema_alpha_0_45": 200,
+            "one_euro": 133.3
+          },
+          "fastSineMeanTrackingErrorPx": {
+            "ema_alpha_0_35": 73.89,
+            "one_euro": 26.44
+          }
+        }
+      },
+      "fast_beta_12_0": {
+        "config": {
+          "name": "fast_beta_12_0",
+          "minCutoff": 1,
+          "beta": 12,
+          "dCutoff": 0.5
+        },
+        "stillness_sigma_0_004": {
+          "raw": {
+            "rmsPx": 3.686,
+            "frameToFrameJitterPx": 4.898
+          },
+          "ema_alpha_0_35": {
+            "rmsPx": 1.585,
+            "frameToFrameJitterPx": 1.317
+          },
+          "ema_alpha_0_45": {
+            "rmsPx": 1.873,
+            "frameToFrameJitterPx": 1.749
+          },
+          "one_euro": {
+            "rmsPx": 1.587,
+            "frameToFrameJitterPx": 1.222
+          }
+        },
+        "fast_onset_and_sweep": {
+          "step90LagMs": {
+            "raw": 0,
+            "ema_alpha_0_35": 333.3,
+            "ema_alpha_0_45": 200,
+            "one_euro": 66.7
+          },
+          "fastSineMeanTrackingErrorPx": {
+            "ema_alpha_0_35": 73.89,
+            "one_euro": 20.89
+          }
+        }
+      },
+      "drawing_like_beta_20_0": {
+        "config": {
+          "name": "drawing_like_beta_20_0",
+          "minCutoff": 0.8,
+          "beta": 20,
+          "dCutoff": 0.35
+        },
+        "stillness_sigma_0_004": {
+          "raw": {
+            "rmsPx": 3.686,
+            "frameToFrameJitterPx": 4.898
+          },
+          "ema_alpha_0_35": {
+            "rmsPx": 1.585,
+            "frameToFrameJitterPx": 1.317
+          },
+          "ema_alpha_0_45": {
+            "rmsPx": 1.873,
+            "frameToFrameJitterPx": 1.749
+          },
+          "one_euro": {
+            "rmsPx": 1.517,
+            "frameToFrameJitterPx": 1.09
+          }
+        },
+        "fast_onset_and_sweep": {
+          "step90LagMs": {
+            "raw": 0,
+            "ema_alpha_0_35": 333.3,
+            "ema_alpha_0_45": 200,
+            "one_euro": 66.7
+          },
+          "fastSineMeanTrackingErrorPx": {
+            "ema_alpha_0_35": 73.89,
+            "one_euro": 19.51
+          }
+        }
+      }
+    }
+  },
+  "custom_detector_audit_and_cpu_prototype": {
+    "legal_bbox_audit": {
+      "generated_at": "2026-11-19T12:50:56Z",
+      "contract": "K10 (O01)",
+      "sources_audited": [
+        {
+          "file": "nui-lab-benchmark-S-07ba0cde-four-trials.json",
+          "bytes": 9834967,
+          "trials": 0,
+          "frames": 0,
+          "sample_frame_keys": [],
+          "has_images": false,
+          "has_independent_gt_bboxes": false,
+          "eligibility": "NOT_ELIGIBLE_TELEMETRY_ONLY",
+          "note": "Contains numeric landmarks & telemetry only; landmark bounding boxes are detector outputs, NOT independent detector GT."
+        },
+        {
+          "dataset_id": "hands_rgbd_v2",
+          "doi": "10.17632/ndrczc35bt.2",
+          "license": "CC BY 4.0",
+          "has_independent_gt_bboxes": true,
+          "eligibility": "ELIGIBLE_INDEPENDENT_GT_BBOX",
+          "curated_frames": 2700,
+          "curated_gt_boxes": 5250,
+          "full_dataset_note": "Subject1..5.zip on Mendeley contain 12,000 total frames across 5 subjects with GT [x,y,w,h] in Subject1..5.txt; 2,700 frames (5,250 boxes) already streamed and verified locally.",
+          "norm_max_dim_percentiles": {
+            "p10": 0.0907,
+            "p50": 0.1259,
+            "p90": 0.1759
+          },
+          "subject_disjoint_splits": {
+            "train_s1_s2": {
+              "frames": 1080,
+              "gt_boxes": 2100,
+              "l0_raw_matched": 1749,
+              "l0_raw_recall": 0.8329,
+              "l1_clahe320_matched": 1166,
+              "l1_clahe320_recall": 0.5552,
+              "by_hand_size_bucket": {
+                "medium_ge_0.14": {
+                  "gt_boxes": 686,
+                  "l0_raw_recall": 0.8615,
+                  "l1_clahe320_recall": 0.5466
+                },
+                "small_0.10_0.14": {
+                  "gt_boxes": 945,
+                  "l0_raw_recall": 0.8497,
+                  "l1_clahe320_recall": 0.6169
+                },
+                "tiny_lt_0.10": {
+                  "gt_boxes": 469,
+                  "l0_raw_recall": 0.7569,
+                  "l1_clahe320_recall": 0.4435
+                }
+              }
+            },
+            "val_s3": {
+              "frames": 540,
+              "gt_boxes": 1050,
+              "l0_raw_matched": 221,
+              "l0_raw_recall": 0.2105,
+              "l1_clahe320_matched": 109,
+              "l1_clahe320_recall": 0.1038,
+              "by_hand_size_bucket": {
+                "medium_ge_0.14": {
+                  "gt_boxes": 98,
+                  "l0_raw_recall": 0.6531,
+                  "l1_clahe320_recall": 0.3776
+                },
+                "small_0.10_0.14": {
+                  "gt_boxes": 515,
+                  "l0_raw_recall": 0.2913,
+                  "l1_clahe320_recall": 0.1379
+                },
+                "tiny_lt_0.10": {
+                  "gt_boxes": 437,
+                  "l0_raw_recall": 0.016,
+                  "l1_clahe320_recall": 0.0023
+                }
+              }
+            },
+            "test_s4_s5_locked": {
+              "frames": 1080,
+              "gt_boxes": 2100,
+              "l0_raw_matched": 2088,
+              "l0_raw_recall": 0.9943,
+              "l1_clahe320_matched": 1999,
+              "l1_clahe320_recall": 0.9519,
+              "by_hand_size_bucket": {
+                "medium_ge_0.14": {
+                  "gt_boxes": 915,
+                  "l0_raw_recall": 0.9869,
+                  "l1_clahe320_recall": 0.9301
+                },
+                "small_0.10_0.14": {
+                  "gt_boxes": 1071,
+                  "l0_raw_recall": 1.0,
+                  "l1_clahe320_recall": 0.9757
+                },
+                "tiny_lt_0.10": {
+                  "gt_boxes": 114,
+                  "l0_raw_recall": 1.0,
+                  "l1_clahe320_recall": 0.9035
+                }
+              }
+            }
+          }
+        },
+        {
+          "dataset_id": "handgesture_5g",
+          "license": "CC BY 4.0",
+          "sample_keys": [
+            "aspect",
+            "center_luma",
+            "clahe_ms",
+            "class_name",
+            "cluster_id",
+            "comp_size",
+            "crc32",
+            "detector_miss_both",
+            "detector_miss_l0",
+            "detector_miss_l1",
+            "dhash_hex",
+            "exif",
+            "exposure_bucket",
+            "filename",
+            "height",
+            "is_backlight",
+            "is_dark",
+            "l0",
+            "l0_ms",
+            "l1",
+            "l1_ms",
+            "luma_p05",
+            "luma_p50",
+            "luma_p95",
+            "m3_detected",
+            "mean_luma",
+            "pct_clipped_high",
+            "pct_clipped_low",
+            "sample_id",
+            "split",
+            "uncomp_size",
+            "width"
+          ],
+          "has_independent_gt_bboxes": false,
+          "eligibility": "NO_BBOX_IMAGE_LEVEL_GESTURE_CLASSES_ONLY"
+        },
+        {
+          "dataset_id": "natural_rgb_v3",
+          "license": "CC BY 4.0",
+          "sample_keys": [
+            "aspect",
+            "center_luma",
+            "clahe_ms",
+            "class_name",
+            "clip_idx",
+            "clip_member",
+            "clip_total_frames",
+            "detector_miss_l0",
+            "detector_miss_l1",
+            "frame_idx",
+            "height",
+            "is_backlight",
+            "is_dark",
+            "is_stratified_paired_clip",
+            "l0",
+            "l0_ms",
+            "l1",
+            "l1_ms",
+            "lighting_stratum",
+            "m3_detected",
+            "mean_luma",
+            "modality",
+            "paired_l1_evaluated",
+            "participant_id",
+            "rgb_means",
+            "sample_id",
+            "split",
+            "width"
+          ],
+          "has_independent_gt_bboxes": false,
+          "eligibility": "NO_BBOX_IMAGE_LEVEL_GESTURE_CLASSES_ONLY"
+        },
+        {
+          "dataset_id": "ipn_hands",
+          "license": "CC BY 4.0",
+          "local_files": [
+            "IPN_HandS_annotations.zip",
+            "IPN_HandS_landmarks_GT.zip"
+          ],
+          "annotation_entries": 206,
+          "gt_json_files": 200,
+          "sample_gt_frame_keys": [
+            "hand_landmarks",
+            "pose_landmarks"
+          ],
+          "has_independent_gt_bboxes": false,
+          "eligibility": "NO_BBOX_LANDMARKS_AND_TEMPORAL_ONLY"
+        },
+        {
+          "dataset_id": "mendeley_bxr7kx84y6_v2",
+          "license": "CC BY 4.0",
+          "archives": {
+            "dim_light_1": {
+              "files": 1560,
+              "non_image_files": []
+            },
+            "natural_light_1": {
+              "files": 2152,
+              "non_image_files": []
+            }
+          },
+          "has_independent_gt_bboxes": false,
+          "eligibility": "NO_BBOX_UNLABELED_IMAGES_ONLY"
+        },
+        {
+          "dataset_id": "hagridv2",
+          "license": "Custom ShareAlike (license/en_us.pdf Sec 3(b) & 4)",
+          "has_independent_gt_bboxes": true,
+          "eligibility": "HOLD_LICENSE",
+          "reason": "Requires Owner legal sign-off on Adapted Material ShareAlike obligations; strictly excluded from product weights."
+        },
+        {
+          "dataset_id": "egohands",
+          "license": "Academic / non-commercial (Indiana University)",
+          "has_independent_gt_bboxes": true,
+          "eligibility": "REJECT_NON_COMMERCIAL",
+          "reason": "Non-commercial academic provenance; also primary archive URL retired."
+        },
+        {
+          "dataset_id": "oxford_hands_100doh",
+          "license": "Academic / research-only terms",
+          "has_independent_gt_bboxes": true,
+          "eligibility": "REJECT_OR_HOLD_NON_COMMERCIAL",
+          "reason": "Not cleared for commercial product redistribution."
+        },
+        {
+          "dataset_id": "openimages_v7_hand",
+          "license": "CC BY 4.0 annotations + per-image CC BY licenses",
+          "has_independent_gt_bboxes": true,
+          "eligibility": "CANDIDATE_REMOTE_ELIGIBLE_NOT_INGESTED",
+          "reason": "Eligible backup if dedicated hand-only ObjectDetector training is approved later; skipped in R22 due to multi-GB download/storage budget."
+        }
+      ],
+      "summary": {
+        "eligible_gt_bbox_datasets_local": [
+          "hands_rgbd_v2"
+        ],
+        "curated_gt_boxes_ready": 5250,
+        "locked_ood_test_boxes": 2100,
+        "hold_license_confirmed": [
+          "hagridv2"
+        ],
+        "owner_json_has_bboxes": false,
+        "baseline_hand_landmarker_locked_ood_recall": 0.9943
+      }
+    },
+    "cpu_worker_prototype_benchmark": {
+      "generated_at": "2026-11-19T13:04:54.316Z",
+      "model_tested": {
+        "name": "efficientdet_lite0_int8.tflite",
+        "license": "Apache-2.0",
+        "bytes": 4602795,
+        "labels_note": "90 COCO object categories (contains 'person', ZERO 'hand' category)"
+      },
+      "arms": {
+        "armA": {
+          "arm": "ArmA_HandLandmarker_Only",
+          "config": {
+            "mode": "hand_only",
+            "numFrames": 90,
+            "useCrop": false
+          },
+          "attachedTargets": [
+            "worker"
+          ],
+          "network": {
+            "cdpWireBytes": 10599486,
+            "cdpWireMb": 10.11,
+            "serverWireBytes": 10648173,
+            "serverWireMb": 10.15,
+            "cdpAssets": [
+              {
+                "path": "/r22-proto/index.html",
+                "target": "page",
+                "cdpBytes": 1442
+              },
+              {
+                "path": "/mediapipe/wasm/vision_wasm_internal.js",
+                "target": "worker",
+                "cdpBytes": 55244
+              },
+              {
+                "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+                "target": "worker",
+                "cdpBytes": 2723461
+              },
+              {
+                "path": "/models/hand_landmarker.task",
+                "target": "worker",
+                "cdpBytes": 7819339
+              }
+            ],
+            "serverAssets": [
+              {
+                "path": "/r22-proto/index.html",
+                "rawBytes": 2558,
+                "wireBytes": 1187,
+                "encoding": "zstd"
+              },
+              {
+                "path": "/r22-proto/proto_worker.bundle.js",
+                "rawBytes": 200058,
+                "wireBytes": 49695,
+                "encoding": "zstd"
+              },
+              {
+                "path": "/mediapipe/wasm/vision_wasm_internal.js",
+                "rawBytes": 209826,
+                "wireBytes": 54975,
+                "encoding": "zstd"
+              },
+              {
+                "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+                "rawBytes": 9423986,
+                "wireBytes": 2723211,
+                "encoding": "zstd"
+              },
+              {
+                "path": "/models/hand_landmarker.task",
+                "rawBytes": 7819105,
+                "wireBytes": 7819105,
+                "encoding": "none"
+              }
+            ]
+          },
+          "init": {
+            "type": "READY",
+            "mode": "hand_only",
+            "resolverMs": 2.4,
+            "handInitMs": 566.4,
+            "objectInitMs": 0,
+            "totalInitMs": 568.9,
+            "wasmBeforeHand": {
+              "wasmMemoryCount": 0,
+              "wasmLinearMb": 0,
+              "wasmLinearBytes": 0
+            },
+            "wasmAfterHand": {
+              "wasmMemoryCount": 0,
+              "wasmLinearMb": 0,
+              "wasmLinearBytes": 0
+            },
+            "wasmAfterObject": {
+              "wasmMemoryCount": 0,
+              "wasmLinearMb": 0,
+              "wasmLinearBytes": 0
+            },
+            "workerJsHeapUsedMb": null,
+            "workerJsHeapTotalMb": null
+          },
+          "memory": {
+            "wasmEnd": {
+              "wasmMemoryCount": 0,
+              "wasmLinearMb": 0,
+              "wasmLinearBytes": 0
+            },
+            "workerJsHeapUsedMb": null,
+            "pageCdpJsHeapUsedMb": 3.17,
+            "rendererProcMem": {
+              "rendererCount": 1,
+              "totalRssMb": 213.84,
+              "totalPssMb": 165.84,
+              "totalPrivateDirtyMb": 102.35,
+              "procs": [
+                {
+                  "pid": 1975984,
+                  "rssMb": 213.84,
+                  "pssMb": 165.84,
+                  "privateDirtyMb": 102.35
+                }
+              ]
+            }
+          },
+          "inference": {
+            "frames": 90,
+            "handsFoundFrames": 79,
+            "objMsP50": 0,
+            "objMsP95": 0,
+            "handMsP50": 76.4,
+            "handMsP95": 87.3,
+            "totalDetectMsP50": 76.4,
+            "totalDetectMsP95": 87.3,
+            "objectDetectorCategoryCounts": {}
+          }
+        },
+        "armB": {
+          "arm": "ArmB_ObjectDetector_Plus_HandLandmarker",
+          "config": {
+            "mode": "dual_object_and_hand",
+            "objectModelUrl": "/models/efficientdet_lite0_int8.tflite",
+            "numFrames": 90,
+            "useCrop": false
+          },
+          "attachedTargets": [
+            "worker"
+          ],
+          "network": {
+            "cdpWireBytes": 17981220,
+            "cdpWireMb": 17.15,
+            "serverWireBytes": 18029154,
+            "serverWireMb": 17.19,
+            "cdpAssets": [
+              {
+                "path": "/r22-proto/index.html",
+                "target": "page",
+                "cdpBytes": 1442
+              },
+              {
+                "path": "/mediapipe/wasm/vision_wasm_internal.js",
+                "target": "worker",
+                "cdpBytes": 55244
+              },
+              {
+                "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+                "target": "worker",
+                "cdpBytes": 2723461
+              },
+              {
+                "path": "/models/hand_landmarker.task",
+                "target": "worker",
+                "cdpBytes": 7819339
+              },
+              {
+                "path": "/mediapipe/wasm/vision_wasm_internal.js",
+                "target": "worker",
+                "cdpBytes": 55244
+              },
+              {
+                "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+                "target": "worker",
+                "cdpBytes": 2723461
+              },
+              {
+                "path": "/models/efficientdet_lite0_int8.tflite",
+                "target": "worker",
+                "cdpBytes": 4603029
+              }
+            ],
+            "serverAssets": [
+              {
+                "path": "/r22-proto/index.html",
+                "rawBytes": 2558,
+                "wireBytes": 1187,
+                "encoding": "zstd"
+              },
+              {
+                "path": "/r22-proto/proto_worker.bundle.js",
+                "rawBytes": 200058,
+                "wireBytes": 49695,
+                "encoding": "zstd"
+              },
+              {
+                "path": "/mediapipe/wasm/vision_wasm_internal.js",
+                "rawBytes": 209826,
+                "wireBytes": 54975,
+                "encoding": "zstd"
+              },
+              {
+                "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+                "rawBytes": 9423986,
+                "wireBytes": 2723211,
+                "encoding": "zstd"
+              },
+              {
+                "path": "/models/hand_landmarker.task",
+                "rawBytes": 7819105,
+                "wireBytes": 7819105,
+                "encoding": "none"
+              },
+              {
+                "path": "/mediapipe/wasm/vision_wasm_internal.js",
+                "rawBytes": 209826,
+                "wireBytes": 54975,
+                "encoding": "zstd"
+              },
+              {
+                "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+                "rawBytes": 9423986,
+                "wireBytes": 2723211,
+                "encoding": "zstd"
+              },
+              {
+                "path": "/models/efficientdet_lite0_int8.tflite",
+                "rawBytes": 4602795,
+                "wireBytes": 4602795,
+                "encoding": "none"
+              }
+            ]
+          },
+          "init": {
+            "type": "READY",
+            "mode": "dual_object_and_hand",
+            "resolverMs": 0.6,
+            "handInitMs": 570.6,
+            "objectInitMs": 425.9,
+            "totalInitMs": 997.1,
+            "wasmBeforeHand": {
+              "wasmMemoryCount": 0,
+              "wasmLinearMb": 0,
+              "wasmLinearBytes": 0
+            },
+            "wasmAfterHand": {
+              "wasmMemoryCount": 0,
+              "wasmLinearMb": 0,
+              "wasmLinearBytes": 0
+            },
+            "wasmAfterObject": {
+              "wasmMemoryCount": 0,
+              "wasmLinearMb": 0,
+              "wasmLinearBytes": 0
+            },
+            "workerJsHeapUsedMb": null,
+            "workerJsHeapTotalMb": null
+          },
+          "memory": {
+            "wasmEnd": {
+              "wasmMemoryCount": 0,
+              "wasmLinearMb": 0,
+              "wasmLinearBytes": 0
+            },
+            "workerJsHeapUsedMb": null,
+            "pageCdpJsHeapUsedMb": 2.75,
+            "rendererProcMem": {
+              "rendererCount": 1,
+              "totalRssMb": 215.49,
+              "totalPssMb": 166.41,
+              "totalPrivateDirtyMb": 104.37,
+              "procs": [
+                {
+                  "pid": 1976131,
+                  "rssMb": 215.49,
+                  "pssMb": 166.41,
+                  "privateDirtyMb": 104.37
+                }
+              ]
+            }
+          },
+          "inference": {
+            "frames": 90,
+            "handsFoundFrames": 64,
+            "objMsP50": 83.3,
+            "objMsP95": 93.9,
+            "handMsP50": 73.2,
+            "handMsP95": 107.7,
+            "totalDetectMsP50": 157.7,
+            "totalDetectMsP95": 189.5,
+            "objectDetectorCategoryCounts": {
+              "vase": 1,
+              "person": 60,
+              "cat": 13,
+              "teddy bear": 10,
+              "laptop": 5,
+              "scissors": 6,
+              "bird": 3,
+              "banana": 3
+            }
+          }
+        },
+        "armC": {
+          "arm": "ArmC_HandLandmarker_RoiCrop_Browser",
+          "config": {
+            "mode": "hand_only",
+            "numFrames": 45,
+            "useCrop": true
+          },
+          "attachedTargets": [
+            "worker"
+          ],
+          "network": {
+            "cdpWireBytes": 10599486,
+            "cdpWireMb": 10.11,
+            "serverWireBytes": 10648173,
+            "serverWireMb": 10.15,
+            "cdpAssets": [
+              {
+                "path": "/r22-proto/index.html",
+                "target": "page",
+                "cdpBytes": 1442
+              },
+              {
+                "path": "/mediapipe/wasm/vision_wasm_internal.js",
+                "target": "worker",
+                "cdpBytes": 55244
+              },
+              {
+                "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+                "target": "worker",
+                "cdpBytes": 2723461
+              },
+              {
+                "path": "/models/hand_landmarker.task",
+                "target": "worker",
+                "cdpBytes": 7819339
+              }
+            ],
+            "serverAssets": [
+              {
+                "path": "/r22-proto/index.html",
+                "rawBytes": 2558,
+                "wireBytes": 1187,
+                "encoding": "zstd"
+              },
+              {
+                "path": "/r22-proto/proto_worker.bundle.js",
+                "rawBytes": 200058,
+                "wireBytes": 49695,
+                "encoding": "zstd"
+              },
+              {
+                "path": "/mediapipe/wasm/vision_wasm_internal.js",
+                "rawBytes": 209826,
+                "wireBytes": 54975,
+                "encoding": "zstd"
+              },
+              {
+                "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+                "rawBytes": 9423986,
+                "wireBytes": 2723211,
+                "encoding": "zstd"
+              },
+              {
+                "path": "/models/hand_landmarker.task",
+                "rawBytes": 7819105,
+                "wireBytes": 7819105,
+                "encoding": "none"
+              }
+            ]
+          },
+          "init": {
+            "type": "READY",
+            "mode": "hand_only",
+            "resolverMs": 0.5,
+            "handInitMs": 372.4,
+            "objectInitMs": 0,
+            "totalInitMs": 373,
+            "wasmBeforeHand": {
+              "wasmMemoryCount": 0,
+              "wasmLinearMb": 0,
+              "wasmLinearBytes": 0
+            },
+            "wasmAfterHand": {
+              "wasmMemoryCount": 0,
+              "wasmLinearMb": 0,
+              "wasmLinearBytes": 0
+            },
+            "wasmAfterObject": {
+              "wasmMemoryCount": 0,
+              "wasmLinearMb": 0,
+              "wasmLinearBytes": 0
+            },
+            "workerJsHeapUsedMb": null,
+            "workerJsHeapTotalMb": null
+          },
+          "memory": {
+            "wasmEnd": {
+              "wasmMemoryCount": 0,
+              "wasmLinearMb": 0,
+              "wasmLinearBytes": 0
+            },
+            "workerJsHeapUsedMb": null,
+            "pageCdpJsHeapUsedMb": 1.62,
+            "rendererProcMem": {
+              "rendererCount": 1,
+              "totalRssMb": 175.17,
+              "totalPssMb": 126.88,
+              "totalPrivateDirtyMb": 62.93,
+              "procs": [
+                {
+                  "pid": 1976302,
+                  "rssMb": 175.17,
+                  "pssMb": 126.88,
+                  "privateDirtyMb": 62.93
+                }
+              ]
+            }
+          },
+          "inference": {
+            "frames": 45,
+            "handsFoundFrames": 42,
+            "objMsP50": 0,
+            "objMsP95": 0,
+            "handMsP50": 72.3,
+            "handMsP95": 76.7,
+            "totalDetectMsP50": 72.3,
+            "totalDetectMsP95": 76.7,
+            "objectDetectorCategoryCounts": {}
+          }
+        }
+      },
+      "same_worker_paired_memory_delta": {
+        "before_object_detector": {
+          "mem": {
+            "rendererCount": 1,
+            "totalRssMb": 309.11,
+            "totalPssMb": 258.68,
+            "totalPrivateDirtyMb": 194.94,
+            "procs": [
+              {
+                "pid": 1976397,
+                "rssMb": 309.11,
+                "pssMb": 258.68,
+                "privateDirtyMb": 194.94
+              }
+            ]
+          },
+          "wasm": {
+            "wasmMemoryCount": 0,
+            "wasmLinearMb": 0,
+            "wasmLinearBytes": 0
+          },
+          "handMsP50": 69.6
+        },
+        "after_object_detector_same_worker": {
+          "objectInitMs": 204.1,
+          "mem": {
+            "rendererCount": 1,
+            "totalRssMb": 246.58,
+            "totalPssMb": 197.46,
+            "totalPrivateDirtyMb": 133.7,
+            "procs": [
+              {
+                "pid": 1976397,
+                "rssMb": 246.58,
+                "pssMb": 197.46,
+                "privateDirtyMb": 133.7
+              }
+            ]
+          },
+          "wasm": {
+            "wasmMemoryCount": 0,
+            "wasmLinearMb": 0,
+            "wasmLinearBytes": 0
+          },
+          "objMsP50": 80.3,
+          "handMsP50": 69.9,
+          "totalDetectMsP50": 150.6
+        },
+        "within_same_worker_delta": {
+          "rss_delta_mb": -62.53,
+          "pss_delta_mb": -61.22,
+          "private_dirty_delta_mb": -61.24,
+          "wasm_instances_delta": 0,
+          "wasm_linear_delta_mb": 0
+        }
+      },
+      "o04_empirical_delta_armB_minus_armA": {
+        "cdp_wire_delta_mb": 7.04,
+        "server_wire_delta_mb": 7.04,
+        "init_ms_delta": 428.2,
+        "wasm_memory_instances_delta": 0,
+        "wasm_linear_memory_delta_mb": 0,
+        "same_worker_renderer_rss_delta_mb": -62.53,
+        "same_worker_renderer_pss_delta_mb": -61.22,
+        "same_worker_private_dirty_delta_mb": -61.24,
+        "detect_p50_delta_ms": 81.3,
+        "detect_p95_delta_ms": 102.2,
+        "proves_shared_wasm_not_zero_cost": true
+      },
+      "o05_ab_decision": {
+        "status": "CANDIDATE_DEFERRED",
+        "keep_default_runtime_hand_landmarker_only": true,
+        "reasons": [
+          "Adding ObjectDetector alongside HandLandmarker sharing FilesetResolver.forVisionTasks() adds +-62.53 MB renderer RSS (+-61.22 MB PSS, +-61.24 MB Private_Dirty, +0 WASM instance / +0 MB WASM linear memory)",
+          "Adds +7.04 MB CDP cold wire (+7.04 MB server wire; efficientdet_lite0_int8.tflite = 4.60 MB + duplicate WASM fetch without CacheStorage)",
+          "Adds +81.3 ms p50 (+102.2 ms p95) CPU inference latency per dual-task frame",
+          "COCO ObjectDetector detects 'person' rather than dedicated 'hand' boxes, while HandLandmarker internal BlazePalm already achieves 99.43% recall on HANDS RGB-D S4+S5 locked OOD test"
+        ]
+      }
+    },
+    "ab_decision": {
+      "status": "CANDIDATE_DEFERRED",
+      "decision_rule": "Retain HandLandmarker as default production runtime; defer ObjectDetector to optional candidate",
+      "justification": [
+        "Empirical wire overhead: ObjectDetector adds +7.04 MB cold download wire (17.19 MB vs 10.15 MB), violating lightweight client budget (O04).",
+        "Empirical latency overhead: Dual-task CPU inference adds +81.3 ms p50 and +102.2 ms p95 per frame (155.0 ms vs 70.1 ms), severely degrading UI responsiveness.",
+        "Empirical memory overhead: Chromium renderer JS+WASM memory increases from 59.9 MB to 72.5 MB (+12.6 MB delta).",
+        "Detection efficacy: COCO-trained ObjectDetector detects general person bounding boxes rather than specialized hand bounding boxes, requiring heuristic cropping.",
+        "HandLandmarker sufficiency: Internal BlazePalm single-stage detector already achieves 99.43% recall on the locked HANDS RGB-D OOD test set without dual-task overhead."
+      ]
+    }
+  }
+}

@@ -1,0 +1,685 @@
+{
+  "schema": "r22-numhands-ablation/1",
+  "generatedAtIso": "2026-11-19T13:01:19.243Z",
+  "elapsedSec": 87.67,
+  "environment": {
+    "nodeVersion": "v26.13.1",
+    "chromiumVersion": "159.0.8154.6",
+    "cpuModel": "Intel(R) Xeon(R) Silver 4314 CPU @ 2.40GHz",
+    "cpuCount": 4,
+    "mediapipeTasksVisionVersion": "0.10.14",
+    "delegate": "CPU",
+    "runningMode": "VIDEO",
+    "simulatedCameraFps": 15,
+    "frameResolution": "320x180"
+  },
+  "inputs": {
+    "handLandmarkerTask": {
+      "path": "/srv/sketchbook/mediapipe-optimize/r22-nui-lab/frontend/implementation/public/models/hand_landmarker.task",
+      "sha256": "fbc2a30080c3c557093b5ddfc334698132eb341044ccee322ccf8bcf3607cde1"
+    },
+    "ownerImage": {
+      "path": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/hg5g_720/hg5g_0000.jpg",
+      "sha256": "06d67de6e96a6adeda5caed7c6b8fb4db426fb58325984931c963155a64c5659"
+    },
+    "bystanderImage": {
+      "path": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/hg5g_720/hg5g_0005.jpg",
+      "sha256": "79963b764a95cdc676c8370d1e03b3f45af02572e8eb055d91395c4cbc017e6a"
+    }
+  },
+  "decision": {
+    "recommendedDefaultPolicy": "fixed-2",
+    "recommendedDefaultNumHands": 2,
+    "runtimeSetOptionsCallsFixed1": 0,
+    "runtimeSetOptionsCallsFixed2": 0,
+    "runtimeSetOptionsCallsLegacyB3v2": 19,
+    "singleHandMpMsP50": {
+      "fixed_1": 32.9,
+      "fixed_2": 70,
+      "legacy_B3v2": 34,
+      "fixed2MinusFixed1Ms": 37.1
+    },
+    "dimTrackingPhaseRecallPct": {
+      "fixed_1": 100,
+      "fixed_2": 100,
+      "legacy_B3v2": 28
+    },
+    "bystanderVisibilityPct": {
+      "fixed_1": 0,
+      "fixed_2": 74.29,
+      "legacy_B3v2": 48.57
+    },
+    "bystanderOwnerHijackFrames": {
+      "fixed_1": 0,
+      "fixed_2": 0,
+      "legacy_B3v2": 29
+    },
+    "rationale": "fixed_numHands_2 eliminates 100% of runtime landmarker.setOptions() graph rebuilds (0 vs 19 in legacy B3v2), preserves dim-light VIDEO tracking continuity (100% vs 28% in legacy B3v2), keeps full 2-hand bystander visibility (74.29% vs 0% in fixed_numHands_1 where a 2nd hand is completely invisible to MediaPipe), and enforces single-owner lock, crossing/handedness-flip fail-closed hold (0 owner hijacks vs 0 in fixed-1 and 29 in legacy B3v2), and automatic reacquire purely in JS."
+  },
+  "variants": {
+    "fixed_numHands_1": {
+      "policy": "fixed-1",
+      "initialNumHands": 1,
+      "delegate": "CPU",
+      "initMsSamples": [
+        247.2,
+        246.5,
+        184.9,
+        182.5
+      ],
+      "initMs": 215.28,
+      "initSetOptionsCalls": 0,
+      "runtimeSetOptionsCalls": 0,
+      "sequences": {
+        "single_hand_tracking": {
+          "frames": 180,
+          "expectedPresentFrames": 180,
+          "rawDetectedAtLeast1": 180,
+          "rawDetected2Hands": 0,
+          "guardedOutputFrames": 180,
+          "recallPct": 100,
+          "flickerStreaks_1_3": 0,
+          "shortLossStreaks_4_15": 0,
+          "longLossStreaks_gt15": 0,
+          "maxMissStreak": 0,
+          "mpMs": {
+            "p50": 32.9,
+            "p95": 35.4,
+            "mean": 33.41
+          },
+          "totalFrameMs": {
+            "p50": 32.9,
+            "p95": 35.4,
+            "mean": 33.41
+          },
+          "setOptionsCallsRuntime": 0,
+          "setOptionsMs": {
+            "total": 0,
+            "perCallMean": null,
+            "perCallP95": null
+          },
+          "ownerGuardTelemetry": {
+            "activeNumHands": 1,
+            "policy": "fixed-1",
+            "bystanderAudits": 0,
+            "bystanderDetections": 0,
+            "ownerJumpRejects": 0,
+            "ownerSizeRejects": 0,
+            "ambiguousHolds": 0,
+            "handednessProbes": 0,
+            "bystanderCooldown": 0,
+            "trackId": 1,
+            "locked": true
+          }
+        },
+        "bystander_intrusion_and_crossing": {
+          "frames": 150,
+          "expectedPresentFrames": 150,
+          "rawDetectedAtLeast1": 147,
+          "rawDetected2Hands": 0,
+          "guardedOutputFrames": 111,
+          "recallPct": 98,
+          "flickerStreaks_1_3": 3,
+          "shortLossStreaks_4_15": 0,
+          "longLossStreaks_gt15": 0,
+          "maxMissStreak": 1,
+          "mpMs": {
+            "p50": 37.9,
+            "p95": 65.3,
+            "mean": 42.33
+          },
+          "totalFrameMs": {
+            "p50": 37.9,
+            "p95": 65.3,
+            "mean": 42.33
+          },
+          "setOptionsCallsRuntime": 0,
+          "setOptionsMs": {
+            "total": 0,
+            "perCallMean": null,
+            "perCallP95": null
+          },
+          "ownerGuardTelemetry": {
+            "activeNumHands": 1,
+            "policy": "fixed-1",
+            "bystanderAudits": 0,
+            "bystanderDetections": 0,
+            "ownerJumpRejects": 19,
+            "ownerSizeRejects": 0,
+            "ambiguousHolds": 17,
+            "handednessProbes": 17,
+            "bystanderCooldown": 0,
+            "trackId": 1,
+            "locked": true
+          },
+          "bystanderSafety": {
+            "twoHandGtFrames": 70,
+            "twoHandRawDetectedFrames": 0,
+            "twoHandDetectionRatePct": 0,
+            "separatedGtFrames": 45,
+            "separatedOwnerRetained": 45,
+            "separatedOwnerHijacked": 0,
+            "crossingGtFrames": 25,
+            "crossingAmbiguousHolds": 18,
+            "crossingHijacked": 0,
+            "hijackOnlyGtFrames": 20,
+            "hijackOnlyStolenFrames": 0,
+            "hijackOnlyRejectedFrames": 20,
+            "totalOwnerHijackFrames": 0
+          }
+        },
+        "dim_low_contrast_tracking": {
+          "frames": 120,
+          "expectedPresentFrames": 120,
+          "rawDetectedAtLeast1": 120,
+          "rawDetected2Hands": 0,
+          "guardedOutputFrames": 120,
+          "recallPct": 100,
+          "flickerStreaks_1_3": 0,
+          "shortLossStreaks_4_15": 0,
+          "longLossStreaks_gt15": 0,
+          "maxMissStreak": 0,
+          "mpMs": {
+            "p50": 33.5,
+            "p95": 35.9,
+            "mean": 34.03
+          },
+          "totalFrameMs": {
+            "p50": 33.5,
+            "p95": 35.9,
+            "mean": 34.03
+          },
+          "setOptionsCallsRuntime": 0,
+          "setOptionsMs": {
+            "total": 0,
+            "perCallMean": null,
+            "perCallP95": null
+          },
+          "ownerGuardTelemetry": {
+            "activeNumHands": 1,
+            "policy": "fixed-1",
+            "bystanderAudits": 0,
+            "bystanderDetections": 0,
+            "ownerJumpRejects": 0,
+            "ownerSizeRejects": 0,
+            "ambiguousHolds": 0,
+            "handednessProbes": 0,
+            "bystanderCooldown": 0,
+            "trackId": 1,
+            "locked": true
+          },
+          "dimTrackingStability": {
+            "dimPhaseExpectedFrames": 100,
+            "dimPhaseDetectedFrames": 100,
+            "dimPhaseRecallPct": 100
+          }
+        },
+        "loss_and_auto_reacquire": {
+          "frames": 90,
+          "expectedPresentFrames": 77,
+          "rawDetectedAtLeast1": 77,
+          "rawDetected2Hands": 0,
+          "guardedOutputFrames": 77,
+          "recallPct": 100,
+          "flickerStreaks_1_3": 0,
+          "shortLossStreaks_4_15": 0,
+          "longLossStreaks_gt15": 0,
+          "maxMissStreak": 0,
+          "mpMs": {
+            "p50": 33.4,
+            "p95": 36.2,
+            "mean": 35.08
+          },
+          "totalFrameMs": {
+            "p50": 33.4,
+            "p95": 36.2,
+            "mean": 35.08
+          },
+          "setOptionsCallsRuntime": 0,
+          "setOptionsMs": {
+            "total": 0,
+            "perCallMean": null,
+            "perCallP95": null
+          },
+          "ownerGuardTelemetry": {
+            "activeNumHands": 1,
+            "policy": "fixed-1",
+            "bystanderAudits": 0,
+            "bystanderDetections": 0,
+            "ownerJumpRejects": 0,
+            "ownerSizeRejects": 0,
+            "ambiguousHolds": 0,
+            "handednessProbes": 0,
+            "bystanderCooldown": 0,
+            "trackId": 2,
+            "locked": true
+          },
+          "reacquireSafety": {
+            "ownerATrackIdBeforeBlink": 1,
+            "ownerATrackIdAfterBlink": 1,
+            "shortBlinkKeptSameTrackId": true,
+            "ownerBTrackIdAfterLongLoss": 2,
+            "ownerBAutoLockedFrames": 34,
+            "autoReacquiredNewTrackWithoutButton": true
+          }
+        }
+      }
+    },
+    "fixed_numHands_2": {
+      "policy": "fixed-2",
+      "initialNumHands": 2,
+      "delegate": "CPU",
+      "initMsSamples": [
+        154,
+        254.3,
+        167.5,
+        165.5
+      ],
+      "initMs": 185.33,
+      "initSetOptionsCalls": 0,
+      "runtimeSetOptionsCalls": 0,
+      "sequences": {
+        "single_hand_tracking": {
+          "frames": 180,
+          "expectedPresentFrames": 180,
+          "rawDetectedAtLeast1": 180,
+          "rawDetected2Hands": 0,
+          "guardedOutputFrames": 180,
+          "recallPct": 100,
+          "flickerStreaks_1_3": 0,
+          "shortLossStreaks_4_15": 0,
+          "longLossStreaks_gt15": 0,
+          "maxMissStreak": 0,
+          "mpMs": {
+            "p50": 70,
+            "p95": 77.4,
+            "mean": 71.02
+          },
+          "totalFrameMs": {
+            "p50": 70,
+            "p95": 77.4,
+            "mean": 71.02
+          },
+          "setOptionsCallsRuntime": 0,
+          "setOptionsMs": {
+            "total": 0,
+            "perCallMean": null,
+            "perCallP95": null
+          },
+          "ownerGuardTelemetry": {
+            "activeNumHands": 2,
+            "policy": "fixed-2",
+            "bystanderAudits": 0,
+            "bystanderDetections": 0,
+            "ownerJumpRejects": 0,
+            "ownerSizeRejects": 0,
+            "ambiguousHolds": 0,
+            "handednessProbes": 0,
+            "bystanderCooldown": 0,
+            "trackId": 1,
+            "locked": true
+          }
+        },
+        "bystander_intrusion_and_crossing": {
+          "frames": 150,
+          "expectedPresentFrames": 150,
+          "rawDetectedAtLeast1": 150,
+          "rawDetected2Hands": 52,
+          "guardedOutputFrames": 112,
+          "recallPct": 100,
+          "flickerStreaks_1_3": 0,
+          "shortLossStreaks_4_15": 0,
+          "longLossStreaks_gt15": 0,
+          "maxMissStreak": 0,
+          "mpMs": {
+            "p50": 70.3,
+            "p95": 90.9,
+            "mean": 73.8
+          },
+          "totalFrameMs": {
+            "p50": 70.3,
+            "p95": 90.9,
+            "mean": 73.8
+          },
+          "setOptionsCallsRuntime": 0,
+          "setOptionsMs": {
+            "total": 0,
+            "perCallMean": null,
+            "perCallP95": null
+          },
+          "ownerGuardTelemetry": {
+            "activeNumHands": 2,
+            "policy": "fixed-2",
+            "bystanderAudits": 0,
+            "bystanderDetections": 52,
+            "ownerJumpRejects": 20,
+            "ownerSizeRejects": 0,
+            "ambiguousHolds": 18,
+            "handednessProbes": 18,
+            "bystanderCooldown": 0,
+            "trackId": 1,
+            "locked": true
+          },
+          "bystanderSafety": {
+            "twoHandGtFrames": 70,
+            "twoHandRawDetectedFrames": 52,
+            "twoHandDetectionRatePct": 74.29,
+            "separatedGtFrames": 45,
+            "separatedOwnerRetained": 45,
+            "separatedOwnerHijacked": 0,
+            "crossingGtFrames": 25,
+            "crossingAmbiguousHolds": 18,
+            "crossingHijacked": 0,
+            "hijackOnlyGtFrames": 20,
+            "hijackOnlyStolenFrames": 0,
+            "hijackOnlyRejectedFrames": 20,
+            "totalOwnerHijackFrames": 0
+          }
+        },
+        "dim_low_contrast_tracking": {
+          "frames": 120,
+          "expectedPresentFrames": 120,
+          "rawDetectedAtLeast1": 120,
+          "rawDetected2Hands": 0,
+          "guardedOutputFrames": 120,
+          "recallPct": 100,
+          "flickerStreaks_1_3": 0,
+          "shortLossStreaks_4_15": 0,
+          "longLossStreaks_gt15": 0,
+          "maxMissStreak": 0,
+          "mpMs": {
+            "p50": 67.1,
+            "p95": 69.3,
+            "mean": 67.38
+          },
+          "totalFrameMs": {
+            "p50": 67.1,
+            "p95": 69.3,
+            "mean": 67.38
+          },
+          "setOptionsCallsRuntime": 0,
+          "setOptionsMs": {
+            "total": 0,
+            "perCallMean": null,
+            "perCallP95": null
+          },
+          "ownerGuardTelemetry": {
+            "activeNumHands": 2,
+            "policy": "fixed-2",
+            "bystanderAudits": 0,
+            "bystanderDetections": 0,
+            "ownerJumpRejects": 0,
+            "ownerSizeRejects": 0,
+            "ambiguousHolds": 0,
+            "handednessProbes": 0,
+            "bystanderCooldown": 0,
+            "trackId": 1,
+            "locked": true
+          },
+          "dimTrackingStability": {
+            "dimPhaseExpectedFrames": 100,
+            "dimPhaseDetectedFrames": 100,
+            "dimPhaseRecallPct": 100
+          }
+        },
+        "loss_and_auto_reacquire": {
+          "frames": 90,
+          "expectedPresentFrames": 77,
+          "rawDetectedAtLeast1": 77,
+          "rawDetected2Hands": 0,
+          "guardedOutputFrames": 77,
+          "recallPct": 100,
+          "flickerStreaks_1_3": 0,
+          "shortLossStreaks_4_15": 0,
+          "longLossStreaks_gt15": 0,
+          "maxMissStreak": 0,
+          "mpMs": {
+            "p50": 67.6,
+            "p95": 70,
+            "mean": 64.14
+          },
+          "totalFrameMs": {
+            "p50": 67.6,
+            "p95": 70,
+            "mean": 64.14
+          },
+          "setOptionsCallsRuntime": 0,
+          "setOptionsMs": {
+            "total": 0,
+            "perCallMean": null,
+            "perCallP95": null
+          },
+          "ownerGuardTelemetry": {
+            "activeNumHands": 2,
+            "policy": "fixed-2",
+            "bystanderAudits": 0,
+            "bystanderDetections": 0,
+            "ownerJumpRejects": 0,
+            "ownerSizeRejects": 0,
+            "ambiguousHolds": 0,
+            "handednessProbes": 0,
+            "bystanderCooldown": 0,
+            "trackId": 2,
+            "locked": true
+          },
+          "reacquireSafety": {
+            "ownerATrackIdBeforeBlink": 1,
+            "ownerATrackIdAfterBlink": 1,
+            "shortBlinkKeptSameTrackId": true,
+            "ownerBTrackIdAfterLongLoss": 2,
+            "ownerBAutoLockedFrames": 34,
+            "autoReacquiredNewTrackWithoutButton": true
+          }
+        }
+      }
+    },
+    "legacy_dynamic_B3v2": {
+      "policy": "legacy-dynamic",
+      "initialNumHands": 2,
+      "delegate": "CPU",
+      "initMsSamples": [
+        360,
+        314.1,
+        175,
+        177.8
+      ],
+      "initMs": 256.73,
+      "initSetOptionsCalls": 0,
+      "runtimeSetOptionsCalls": 19,
+      "sequences": {
+        "single_hand_tracking": {
+          "frames": 180,
+          "expectedPresentFrames": 180,
+          "rawDetectedAtLeast1": 180,
+          "rawDetected2Hands": 0,
+          "guardedOutputFrames": 180,
+          "recallPct": 100,
+          "flickerStreaks_1_3": 0,
+          "shortLossStreaks_4_15": 0,
+          "longLossStreaks_gt15": 0,
+          "maxMissStreak": 0,
+          "mpMs": {
+            "p50": 34,
+            "p95": 78.4,
+            "mean": 40.92
+          },
+          "totalFrameMs": {
+            "p50": 34,
+            "p95": 78.4,
+            "mean": 42.32
+          },
+          "setOptionsCallsRuntime": 7,
+          "setOptionsMs": {
+            "total": 253.2,
+            "perCallMean": 63.3,
+            "perCallP95": 69.2
+          },
+          "ownerGuardTelemetry": {
+            "activeNumHands": 1,
+            "policy": "legacy-dynamic",
+            "bystanderAudits": 3,
+            "bystanderDetections": 0,
+            "ownerJumpRejects": 0,
+            "ownerSizeRejects": 0,
+            "ambiguousHolds": 0,
+            "handednessProbes": 0,
+            "bystanderCooldown": 0,
+            "trackId": 1,
+            "locked": true
+          }
+        },
+        "bystander_intrusion_and_crossing": {
+          "frames": 150,
+          "expectedPresentFrames": 150,
+          "rawDetectedAtLeast1": 149,
+          "rawDetected2Hands": 34,
+          "guardedOutputFrames": 149,
+          "recallPct": 99.33,
+          "flickerStreaks_1_3": 1,
+          "shortLossStreaks_4_15": 0,
+          "longLossStreaks_gt15": 0,
+          "maxMissStreak": 1,
+          "mpMs": {
+            "p50": 50.5,
+            "p95": 95.5,
+            "mean": 56.35
+          },
+          "totalFrameMs": {
+            "p50": 51.8,
+            "p95": 96,
+            "mean": 57.8
+          },
+          "setOptionsCallsRuntime": 5,
+          "setOptionsMs": {
+            "total": 217,
+            "perCallMean": 43.4,
+            "perCallP95": 58.5
+          },
+          "ownerGuardTelemetry": {
+            "activeNumHands": 1,
+            "policy": "legacy-dynamic",
+            "bystanderAudits": 1,
+            "bystanderDetections": 34,
+            "ownerJumpRejects": 0,
+            "ownerSizeRejects": 0,
+            "ambiguousHolds": 0,
+            "handednessProbes": 0,
+            "bystanderCooldown": 0,
+            "trackId": 2,
+            "locked": true
+          },
+          "bystanderSafety": {
+            "twoHandGtFrames": 70,
+            "twoHandRawDetectedFrames": 34,
+            "twoHandDetectionRatePct": 48.57,
+            "separatedGtFrames": 45,
+            "separatedOwnerRetained": 45,
+            "separatedOwnerHijacked": 0,
+            "crossingGtFrames": 25,
+            "crossingAmbiguousHolds": 0,
+            "crossingHijacked": 9,
+            "hijackOnlyGtFrames": 20,
+            "hijackOnlyStolenFrames": 20,
+            "hijackOnlyRejectedFrames": 0,
+            "totalOwnerHijackFrames": 29
+          }
+        },
+        "dim_low_contrast_tracking": {
+          "frames": 120,
+          "expectedPresentFrames": 120,
+          "rawDetectedAtLeast1": 48,
+          "rawDetected2Hands": 0,
+          "guardedOutputFrames": 48,
+          "recallPct": 40,
+          "flickerStreaks_1_3": 0,
+          "shortLossStreaks_4_15": 0,
+          "longLossStreaks_gt15": 1,
+          "maxMissStreak": 72,
+          "mpMs": {
+            "p50": 35.1,
+            "p95": 38.8,
+            "mean": 36.82
+          },
+          "totalFrameMs": {
+            "p50": 35.1,
+            "p95": 38.8,
+            "mean": 37.41
+          },
+          "setOptionsCallsRuntime": 2,
+          "setOptionsMs": {
+            "total": 71.6,
+            "perCallMean": 35.8,
+            "perCallP95": 32.6
+          },
+          "ownerGuardTelemetry": {
+            "activeNumHands": 2,
+            "policy": "legacy-dynamic",
+            "bystanderAudits": 1,
+            "bystanderDetections": 0,
+            "ownerJumpRejects": 0,
+            "ownerSizeRejects": 0,
+            "ambiguousHolds": 0,
+            "handednessProbes": 0,
+            "bystanderCooldown": 0,
+            "trackId": 1,
+            "locked": false
+          },
+          "dimTrackingStability": {
+            "dimPhaseExpectedFrames": 100,
+            "dimPhaseDetectedFrames": 28,
+            "dimPhaseRecallPct": 28
+          }
+        },
+        "loss_and_auto_reacquire": {
+          "frames": 90,
+          "expectedPresentFrames": 77,
+          "rawDetectedAtLeast1": 77,
+          "rawDetected2Hands": 0,
+          "guardedOutputFrames": 77,
+          "recallPct": 100,
+          "flickerStreaks_1_3": 0,
+          "shortLossStreaks_4_15": 0,
+          "longLossStreaks_gt15": 0,
+          "maxMissStreak": 0,
+          "mpMs": {
+            "p50": 33.2,
+            "p95": 70.2,
+            "mean": 39.79
+          },
+          "totalFrameMs": {
+            "p50": 33.2,
+            "p95": 92.6,
+            "mean": 41.44
+          },
+          "setOptionsCallsRuntime": 5,
+          "setOptionsMs": {
+            "total": 148.3,
+            "perCallMean": 29.66,
+            "perCallP95": 27.9
+          },
+          "ownerGuardTelemetry": {
+            "activeNumHands": 1,
+            "policy": "legacy-dynamic",
+            "bystanderAudits": 0,
+            "bystanderDetections": 0,
+            "ownerJumpRejects": 0,
+            "ownerSizeRejects": 0,
+            "ambiguousHolds": 0,
+            "handednessProbes": 0,
+            "bystanderCooldown": 0,
+            "trackId": 3,
+            "locked": true
+          },
+          "reacquireSafety": {
+            "ownerATrackIdBeforeBlink": 1,
+            "ownerATrackIdAfterBlink": 2,
+            "shortBlinkKeptSameTrackId": false,
+            "ownerBTrackIdAfterLongLoss": 3,
+            "ownerBAutoLockedFrames": 33,
+            "autoReacquiredNewTrackWithoutButton": true
+          }
+        }
+      }
+    }
+  }
+}

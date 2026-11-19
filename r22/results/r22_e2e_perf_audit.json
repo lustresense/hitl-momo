@@ -1,0 +1,486 @@
+{
+  "timestamp": "2026-11-19T13:41:49.607Z",
+  "gitCommit": "r22fullscope",
+  "browser": {
+    "type": "chromium",
+    "version": "159.0.8154.6"
+  },
+  "coldWireTransfer": {
+    "totalBytes": 555344,
+    "totalMb": 0.53,
+    "budgetMb": 25,
+    "pass": true
+  },
+  "screenshots": [
+    {
+      "name": "desktop_landing",
+      "path": "/srv/sketchbook/mediapipe-optimize/research-can/r22/results/screenshots/desktop_landing.png"
+    },
+    {
+      "name": "desktop_canvas_before_scroll",
+      "path": "/srv/sketchbook/mediapipe-optimize/research-can/r22/results/screenshots/desktop_canvas_before_scroll.png"
+    },
+    {
+      "name": "desktop_canvas_after_scroll",
+      "path": "/srv/sketchbook/mediapipe-optimize/research-can/r22/results/screenshots/desktop_canvas_after_scroll.png"
+    },
+    {
+      "name": "desktop_gesture",
+      "path": "/srv/sketchbook/mediapipe-optimize/research-can/r22/results/screenshots/desktop_gesture.png"
+    },
+    {
+      "name": "mobile_landing",
+      "path": "/srv/sketchbook/mediapipe-optimize/research-can/r22/results/screenshots/mobile_landing.png"
+    },
+    {
+      "name": "mobile_canvas",
+      "path": "/srv/sketchbook/mediapipe-optimize/research-can/r22/results/screenshots/mobile_canvas.png"
+    }
+  ],
+  "layoutStickyAudit": {
+    "layoutStateBefore": {
+      "hasCameraPanel": true,
+      "hasRightPanel": true,
+      "cameraPosition": "sticky",
+      "cameraTop": 244.046875,
+      "rightOverflowY": "auto",
+      "rightScrollHeight": 1167,
+      "rightClientHeight": 670
+    },
+    "layoutStateAfter": {
+      "cameraTopAfterScroll": 244.046875,
+      "rightScrollTopAfterScroll": 350
+    },
+    "isStickyLeftAnchored": true,
+    "isIndependentRightScrollable": true
+  },
+  "performanceMetrics": {
+    "jsHeapUsedMb": 0,
+    "jsHeapTotalMb": 0,
+    "domNodes": 0,
+    "jsEventListeners": 0,
+    "layoutCount": 0,
+    "recalcStyleCount": 0
+  },
+  "benchmarkT004Analysis": {
+    "file": "/srv/sketchbook/mediapipe-optimize/research-can/docs/plan-rev/R22_FULL_SCOPE_MALAM_20261119/references/benchmarks/nui-lab-benchmark-S-07ba0cde-four-trials.json",
+    "schema": "nui-lab-bench-export/1",
+    "app": {
+      "version": "0.27.0-alpha",
+      "gitCommit": "main-0.27.0-alpha-r20lab"
+    },
+    "checksum": {
+      "checked": false,
+      "schema": "nui-lab-bench-export/1",
+      "status": "v1-no-checksum"
+    },
+    "sessions": [
+      {
+        "sessionId": "S-07ba0cde",
+        "status": "active",
+        "statusReason": null,
+        "app": {
+          "version": "0.27.0-alpha",
+          "gitCommit": "main-0.27.0-alpha-r20lab"
+        },
+        "droppedRecords": {
+          "frames": 0,
+          "events": 0,
+          "perf": 0
+        },
+        "storageFailures": 0,
+        "trials": [
+          {
+            "trialId": "S-07ba0cde-T001",
+            "route": "gesture",
+            "endReason": "replaced:engine-change",
+            "engineId": "r20-c7",
+            "actualModelId": "r20-c7",
+            "modelSha256": "66acbde9f73868f8e6afada647a6d513d7efab6252a937bf88dede933147d730",
+            "modelHashVerified": true,
+            "preprocess": "a4",
+            "independentGroundTruthAvailable": false,
+            "frames": 2297,
+            "rawNoHandFrames": 461,
+            "rawNoHandRate": 0.2007,
+            "activeWindow": {
+              "frames": 2025,
+              "durationSec": 91.26,
+              "missFrames": 189,
+              "activeWindowMissRate": 0.0933,
+              "leadInExcludedFrames": 47,
+              "tailExcludedFrames": 225,
+              "flickerStreaks_1_3": 19,
+              "flickerFrames_1_3": 27,
+              "shortLossStreaks_4_15": 9,
+              "shortLossFrames_4_15": 57,
+              "longAbsenceStreaks_gt15": 1,
+              "longAbsenceFrames_gt15": 105
+            },
+            "missingBreakdown": {
+              "hiddenDurationMs": 0,
+              "hiddenFrames": 0,
+              "bystanderAmbiguousFrames": 0,
+              "ownerRejectFrames": 0,
+              "lockValidatingFrames": 7,
+              "missReasons": {
+                "no-hand": 461
+              }
+            },
+            "pacing": {
+              "uniqueCaptureFpsP50": 15,
+              "uniqueCaptureFpsP95": 15,
+              "detectHzP50": 23,
+              "detectHzP95": 27,
+              "uiFpsP50": 144,
+              "frameDtP50Ms": 38,
+              "frameAgeP50Ms": null,
+              "frameAgeP95Ms": null,
+              "duplicateFrameSkippedCount": null,
+              "framesDroppedBusy": 1535,
+              "initSetOptionsCalls": 0,
+              "runtimeSetOptionsCalls": 0
+            },
+            "qualityProxies": {
+              "labelSource": "RULE_DERIVED",
+              "note": "Post-AE camera sensor values, NOT ground-truth room lux",
+              "lumaMeanP5": 0.459,
+              "lumaMeanP50": 0.472,
+              "lumaMeanP95": 0.4811,
+              "lumaCenterP50": 0.3909,
+              "lumaP10P50": null,
+              "lumaP50P50": null,
+              "lumaP95P50": null,
+              "nearWhiteHandPctP50": null,
+              "blurProxyP50": null,
+              "noiseProxyP50": null,
+              "passes": {
+                "A4_denoise_reinhard320": 2297
+              },
+              "autoConditionTags": []
+            },
+            "actionInvariants": {
+              "noHandActionsCount": 0,
+              "pistolRejectsOnCanvas": 0,
+              "runtimeSetOptionsCalls": 0,
+              "labelSourceCounts": {
+                "UNKNOWN": 2297
+              }
+            }
+          },
+          {
+            "trialId": "S-07ba0cde-T002",
+            "route": "gesture",
+            "endReason": "replaced:preprocess-change",
+            "engineId": "r20-c4",
+            "actualModelId": "r20-c4",
+            "modelSha256": "e863ef1afe459a3b0a4cf0b0b2594a1db853b382d669add2d7be234e64710a27",
+            "modelHashVerified": true,
+            "preprocess": "a4",
+            "independentGroundTruthAvailable": false,
+            "frames": 2907,
+            "rawNoHandFrames": 1570,
+            "rawNoHandRate": 0.5401,
+            "activeWindow": {
+              "frames": 1597,
+              "durationSec": 82.67,
+              "missFrames": 260,
+              "activeWindowMissRate": 0.1628,
+              "leadInExcludedFrames": 28,
+              "tailExcludedFrames": 1282,
+              "flickerStreaks_1_3": 10,
+              "flickerFrames_1_3": 18,
+              "shortLossStreaks_4_15": 3,
+              "shortLossFrames_4_15": 14,
+              "longAbsenceStreaks_gt15": 2,
+              "longAbsenceFrames_gt15": 228
+            },
+            "missingBreakdown": {
+              "hiddenDurationMs": 0,
+              "hiddenFrames": 0,
+              "bystanderAmbiguousFrames": 0,
+              "ownerRejectFrames": 0,
+              "lockValidatingFrames": 3,
+              "missReasons": {
+                "no-hand": 1570
+              }
+            },
+            "pacing": {
+              "uniqueCaptureFpsP50": 15,
+              "uniqueCaptureFpsP95": 15,
+              "detectHzP50": 22,
+              "detectHzP95": 26,
+              "uiFpsP50": 144,
+              "frameDtP50Ms": 41,
+              "frameAgeP50Ms": null,
+              "frameAgeP95Ms": null,
+              "duplicateFrameSkippedCount": null,
+              "framesDroppedBusy": 2069,
+              "initSetOptionsCalls": 0,
+              "runtimeSetOptionsCalls": 0
+            },
+            "qualityProxies": {
+              "labelSource": "RULE_DERIVED",
+              "note": "Post-AE camera sensor values, NOT ground-truth room lux",
+              "lumaMeanP5": 0.447,
+              "lumaMeanP50": 0.4679,
+              "lumaMeanP95": 0.4834,
+              "lumaCenterP50": 0.3959,
+              "lumaP10P50": null,
+              "lumaP50P50": null,
+              "lumaP95P50": null,
+              "nearWhiteHandPctP50": null,
+              "blurProxyP50": null,
+              "noiseProxyP50": null,
+              "passes": {
+                "A4_denoise_reinhard320": 2907
+              },
+              "autoConditionTags": []
+            },
+            "actionInvariants": {
+              "noHandActionsCount": 0,
+              "pistolRejectsOnCanvas": 0,
+              "runtimeSetOptionsCalls": 0,
+              "labelSourceCounts": {
+                "UNKNOWN": 2907
+              }
+            }
+          },
+          {
+            "trialId": "S-07ba0cde-T003",
+            "route": "gesture",
+            "endReason": "route-unmount",
+            "engineId": "r20-c4",
+            "actualModelId": "r20-c4",
+            "modelSha256": "e863ef1afe459a3b0a4cf0b0b2594a1db853b382d669add2d7be234e64710a27",
+            "modelHashVerified": true,
+            "preprocess": "raw",
+            "independentGroundTruthAvailable": false,
+            "frames": 326,
+            "rawNoHandFrames": 230,
+            "rawNoHandRate": 0.7055,
+            "activeWindow": {
+              "frames": 102,
+              "durationSec": 3.45,
+              "missFrames": 6,
+              "activeWindowMissRate": 0.0588,
+              "leadInExcludedFrames": 18,
+              "tailExcludedFrames": 206,
+              "flickerStreaks_1_3": 0,
+              "flickerFrames_1_3": 0,
+              "shortLossStreaks_4_15": 1,
+              "shortLossFrames_4_15": 6,
+              "longAbsenceStreaks_gt15": 0,
+              "longAbsenceFrames_gt15": 0
+            },
+            "missingBreakdown": {
+              "hiddenDurationMs": 0,
+              "hiddenFrames": 0,
+              "bystanderAmbiguousFrames": 0,
+              "ownerRejectFrames": 0,
+              "lockValidatingFrames": 1,
+              "missReasons": {
+                "no-hand": 230
+              }
+            },
+            "pacing": {
+              "uniqueCaptureFpsP50": 15,
+              "uniqueCaptureFpsP95": 15.45,
+              "detectHzP50": 30,
+              "detectHzP95": 31,
+              "uiFpsP50": 144,
+              "frameDtP50Ms": 32,
+              "frameAgeP50Ms": null,
+              "frameAgeP95Ms": null,
+              "duplicateFrameSkippedCount": null,
+              "framesDroppedBusy": 164,
+              "initSetOptionsCalls": 0,
+              "runtimeSetOptionsCalls": 0
+            },
+            "qualityProxies": {
+              "labelSource": "RULE_DERIVED",
+              "note": "Post-AE camera sensor values, NOT ground-truth room lux",
+              "lumaMeanP5": 0.4431,
+              "lumaMeanP50": 0.4652,
+              "lumaMeanP95": 0.4718,
+              "lumaCenterP50": 0.3802,
+              "lumaP10P50": null,
+              "lumaP50P50": null,
+              "lumaP95P50": null,
+              "nearWhiteHandPctP50": null,
+              "blurProxyP50": null,
+              "noiseProxyP50": null,
+              "passes": {
+                "A4_denoise_reinhard320": 1,
+                "A0_raw": 325
+              },
+              "autoConditionTags": []
+            },
+            "actionInvariants": {
+              "noHandActionsCount": 0,
+              "pistolRejectsOnCanvas": 0,
+              "runtimeSetOptionsCalls": 0,
+              "labelSourceCounts": {
+                "UNKNOWN": 326
+              }
+            }
+          },
+          {
+            "trialId": "S-07ba0cde-T004",
+            "route": "canvas",
+            "endReason": null,
+            "engineId": "r20-c4",
+            "actualModelId": "r20-c4",
+            "modelSha256": "e863ef1afe459a3b0a4cf0b0b2594a1db853b382d669add2d7be234e64710a27",
+            "modelHashVerified": true,
+            "preprocess": "raw",
+            "independentGroundTruthAvailable": false,
+            "frames": 2082,
+            "rawNoHandFrames": 668,
+            "rawNoHandRate": 0.3208,
+            "activeWindow": {
+              "frames": 1771,
+              "durationSec": 69.57,
+              "missFrames": 357,
+              "activeWindowMissRate": 0.2016,
+              "leadInExcludedFrames": 44,
+              "tailExcludedFrames": 267,
+              "flickerStreaks_1_3": 9,
+              "flickerFrames_1_3": 10,
+              "shortLossStreaks_4_15": 2,
+              "shortLossFrames_4_15": 16,
+              "longAbsenceStreaks_gt15": 1,
+              "longAbsenceFrames_gt15": 331
+            },
+            "missingBreakdown": {
+              "hiddenDurationMs": 0,
+              "hiddenFrames": 0,
+              "bystanderAmbiguousFrames": 0,
+              "ownerRejectFrames": 0,
+              "lockValidatingFrames": 3,
+              "missReasons": {
+                "no-hand": 668
+              }
+            },
+            "pacing": {
+              "uniqueCaptureFpsP50": 15,
+              "uniqueCaptureFpsP95": 15,
+              "detectHzP50": 26,
+              "detectHzP95": 30,
+              "uiFpsP50": 144,
+              "frameDtP50Ms": 35,
+              "frameAgeP50Ms": null,
+              "frameAgeP95Ms": null,
+              "duplicateFrameSkippedCount": null,
+              "framesDroppedBusy": 1225,
+              "initSetOptionsCalls": 0,
+              "runtimeSetOptionsCalls": 0
+            },
+            "qualityProxies": {
+              "labelSource": "RULE_DERIVED",
+              "note": "Post-AE camera sensor values, NOT ground-truth room lux",
+              "lumaMeanP5": 0.4522,
+              "lumaMeanP50": 0.4703,
+              "lumaMeanP95": 0.4791,
+              "lumaCenterP50": 0.3857,
+              "lumaP10P50": null,
+              "lumaP50P50": null,
+              "lumaP95P50": null,
+              "nearWhiteHandPctP50": null,
+              "blurProxyP50": null,
+              "noiseProxyP50": null,
+              "passes": {
+                "A0_raw": 2082
+              },
+              "autoConditionTags": []
+            },
+            "actionInvariants": {
+              "noHandActionsCount": 0,
+              "pistolRejectsOnCanvas": 82,
+              "runtimeSetOptionsCalls": 0,
+              "labelSourceCounts": {
+                "UNKNOWN": 2082
+              }
+            },
+            "canvas": {
+              "stablePinchFrames": 582,
+              "pinchRejectReasons": {
+                "Tinta aktif": 276,
+                "Tunggu gestur dilepas sebelum aksi baru": 208,
+                "Tidak ada aksi gambar": 59,
+                "Cubit ditolak gate R19": 31,
+                "Pinch dibaca, menunggu validasi tinta": 8
+              },
+              "r19StateDuringCanvas": {
+                "NO_HAND": 671,
+                "OTHER": 1206,
+                "POINT_READY": 205
+              },
+              "strokeStartCount": 19,
+              "strokeEndCount": 19,
+              "strokeEndReasons": {
+                "pinch-release": 14,
+                "detector-miss": 5
+              },
+              "strokeGapEvents": 0,
+              "strokeResumeEvents": 0,
+              "strokeGapReasons": {},
+              "detectorMissBreaks": [
+                {
+                  "strokeId": 4,
+                  "missFrames": 331,
+                  "missMs": 12657,
+                  "nextFrameReject": "validating"
+                },
+                {
+                  "strokeId": 5,
+                  "missFrames": 11,
+                  "missMs": 603,
+                  "nextFrameReject": "validating"
+                },
+                {
+                  "strokeId": 9,
+                  "missFrames": 1,
+                  "missMs": 99,
+                  "nextFrameReject": "Tunggu gestur dilepas sebelum aksi baru"
+                },
+                {
+                  "strokeId": 10,
+                  "missFrames": 5,
+                  "missMs": 220,
+                  "nextFrameReject": "Tunggu gestur dilepas sebelum aksi baru"
+                },
+                {
+                  "strokeId": 11,
+                  "missFrames": 1,
+                  "missMs": 62,
+                  "nextFrameReject": "Tunggu gestur dilepas sebelum aksi baru"
+                }
+              ],
+              "pinchOnCount": 54,
+              "pinchOnWithoutStroke500ms": 29,
+              "eraseStartCount": 0,
+              "undoVia": {
+                "button": 4
+              },
+              "redoVia": {},
+              "actionRejectedReasons": {
+                "Telapak hapus butuh 4 frame stabil": 2,
+                "Tunggu gestur dilepas sebelum aksi baru": 8,
+                "Cubit ditolak gate R19": 48,
+                "Tidak ada aksi gambar": 10
+              }
+            }
+          }
+        ]
+      }
+    ]
+  },
+  "acceptanceGates": {
+    "coldTransferUnder25Mb": true,
+    "stickyLeftCameraAnchored": true,
+    "independentRightScrollable": true,
+    "runtimeSetOptionsCallsZero": true,
+    "allGatesPassed": true
+  }
+}

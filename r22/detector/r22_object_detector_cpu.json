@@ -1,0 +1,523 @@
+{
+  "generated_at": "2026-11-19T13:04:54.316Z",
+  "model_tested": {
+    "name": "efficientdet_lite0_int8.tflite",
+    "license": "Apache-2.0",
+    "bytes": 4602795,
+    "labels_note": "90 COCO object categories (contains 'person', ZERO 'hand' category)"
+  },
+  "arms": {
+    "armA": {
+      "arm": "ArmA_HandLandmarker_Only",
+      "config": {
+        "mode": "hand_only",
+        "numFrames": 90,
+        "useCrop": false
+      },
+      "attachedTargets": [
+        "worker"
+      ],
+      "network": {
+        "cdpWireBytes": 10599486,
+        "cdpWireMb": 10.11,
+        "serverWireBytes": 10648173,
+        "serverWireMb": 10.15,
+        "cdpAssets": [
+          {
+            "path": "/r22-proto/index.html",
+            "target": "page",
+            "cdpBytes": 1442
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "target": "worker",
+            "cdpBytes": 55244
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "target": "worker",
+            "cdpBytes": 2723461
+          },
+          {
+            "path": "/models/hand_landmarker.task",
+            "target": "worker",
+            "cdpBytes": 7819339
+          }
+        ],
+        "serverAssets": [
+          {
+            "path": "/r22-proto/index.html",
+            "rawBytes": 2558,
+            "wireBytes": 1187,
+            "encoding": "zstd"
+          },
+          {
+            "path": "/r22-proto/proto_worker.bundle.js",
+            "rawBytes": 200058,
+            "wireBytes": 49695,
+            "encoding": "zstd"
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "rawBytes": 209826,
+            "wireBytes": 54975,
+            "encoding": "zstd"
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "rawBytes": 9423986,
+            "wireBytes": 2723211,
+            "encoding": "zstd"
+          },
+          {
+            "path": "/models/hand_landmarker.task",
+            "rawBytes": 7819105,
+            "wireBytes": 7819105,
+            "encoding": "none"
+          }
+        ]
+      },
+      "init": {
+        "type": "READY",
+        "mode": "hand_only",
+        "resolverMs": 2.4,
+        "handInitMs": 566.4,
+        "objectInitMs": 0,
+        "totalInitMs": 568.9,
+        "wasmBeforeHand": {
+          "wasmMemoryCount": 0,
+          "wasmLinearMb": 0,
+          "wasmLinearBytes": 0
+        },
+        "wasmAfterHand": {
+          "wasmMemoryCount": 0,
+          "wasmLinearMb": 0,
+          "wasmLinearBytes": 0
+        },
+        "wasmAfterObject": {
+          "wasmMemoryCount": 0,
+          "wasmLinearMb": 0,
+          "wasmLinearBytes": 0
+        },
+        "workerJsHeapUsedMb": null,
+        "workerJsHeapTotalMb": null
+      },
+      "memory": {
+        "wasmEnd": {
+          "wasmMemoryCount": 0,
+          "wasmLinearMb": 0,
+          "wasmLinearBytes": 0
+        },
+        "workerJsHeapUsedMb": null,
+        "pageCdpJsHeapUsedMb": 3.17,
+        "rendererProcMem": {
+          "rendererCount": 1,
+          "totalRssMb": 213.84,
+          "totalPssMb": 165.84,
+          "totalPrivateDirtyMb": 102.35,
+          "procs": [
+            {
+              "pid": 1975984,
+              "rssMb": 213.84,
+              "pssMb": 165.84,
+              "privateDirtyMb": 102.35
+            }
+          ]
+        }
+      },
+      "inference": {
+        "frames": 90,
+        "handsFoundFrames": 79,
+        "objMsP50": 0,
+        "objMsP95": 0,
+        "handMsP50": 76.4,
+        "handMsP95": 87.3,
+        "totalDetectMsP50": 76.4,
+        "totalDetectMsP95": 87.3,
+        "objectDetectorCategoryCounts": {}
+      }
+    },
+    "armB": {
+      "arm": "ArmB_ObjectDetector_Plus_HandLandmarker",
+      "config": {
+        "mode": "dual_object_and_hand",
+        "objectModelUrl": "/models/efficientdet_lite0_int8.tflite",
+        "numFrames": 90,
+        "useCrop": false
+      },
+      "attachedTargets": [
+        "worker"
+      ],
+      "network": {
+        "cdpWireBytes": 17981220,
+        "cdpWireMb": 17.15,
+        "serverWireBytes": 18029154,
+        "serverWireMb": 17.19,
+        "cdpAssets": [
+          {
+            "path": "/r22-proto/index.html",
+            "target": "page",
+            "cdpBytes": 1442
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "target": "worker",
+            "cdpBytes": 55244
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "target": "worker",
+            "cdpBytes": 2723461
+          },
+          {
+            "path": "/models/hand_landmarker.task",
+            "target": "worker",
+            "cdpBytes": 7819339
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "target": "worker",
+            "cdpBytes": 55244
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "target": "worker",
+            "cdpBytes": 2723461
+          },
+          {
+            "path": "/models/efficientdet_lite0_int8.tflite",
+            "target": "worker",
+            "cdpBytes": 4603029
+          }
+        ],
+        "serverAssets": [
+          {
+            "path": "/r22-proto/index.html",
+            "rawBytes": 2558,
+            "wireBytes": 1187,
+            "encoding": "zstd"
+          },
+          {
+            "path": "/r22-proto/proto_worker.bundle.js",
+            "rawBytes": 200058,
+            "wireBytes": 49695,
+            "encoding": "zstd"
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "rawBytes": 209826,
+            "wireBytes": 54975,
+            "encoding": "zstd"
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "rawBytes": 9423986,
+            "wireBytes": 2723211,
+            "encoding": "zstd"
+          },
+          {
+            "path": "/models/hand_landmarker.task",
+            "rawBytes": 7819105,
+            "wireBytes": 7819105,
+            "encoding": "none"
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "rawBytes": 209826,
+            "wireBytes": 54975,
+            "encoding": "zstd"
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "rawBytes": 9423986,
+            "wireBytes": 2723211,
+            "encoding": "zstd"
+          },
+          {
+            "path": "/models/efficientdet_lite0_int8.tflite",
+            "rawBytes": 4602795,
+            "wireBytes": 4602795,
+            "encoding": "none"
+          }
+        ]
+      },
+      "init": {
+        "type": "READY",
+        "mode": "dual_object_and_hand",
+        "resolverMs": 0.6,
+        "handInitMs": 570.6,
+        "objectInitMs": 425.9,
+        "totalInitMs": 997.1,
+        "wasmBeforeHand": {
+          "wasmMemoryCount": 0,
+          "wasmLinearMb": 0,
+          "wasmLinearBytes": 0
+        },
+        "wasmAfterHand": {
+          "wasmMemoryCount": 0,
+          "wasmLinearMb": 0,
+          "wasmLinearBytes": 0
+        },
+        "wasmAfterObject": {
+          "wasmMemoryCount": 0,
+          "wasmLinearMb": 0,
+          "wasmLinearBytes": 0
+        },
+        "workerJsHeapUsedMb": null,
+        "workerJsHeapTotalMb": null
+      },
+      "memory": {
+        "wasmEnd": {
+          "wasmMemoryCount": 0,
+          "wasmLinearMb": 0,
+          "wasmLinearBytes": 0
+        },
+        "workerJsHeapUsedMb": null,
+        "pageCdpJsHeapUsedMb": 2.75,
+        "rendererProcMem": {
+          "rendererCount": 1,
+          "totalRssMb": 215.49,
+          "totalPssMb": 166.41,
+          "totalPrivateDirtyMb": 104.37,
+          "procs": [
+            {
+              "pid": 1976131,
+              "rssMb": 215.49,
+              "pssMb": 166.41,
+              "privateDirtyMb": 104.37
+            }
+          ]
+        }
+      },
+      "inference": {
+        "frames": 90,
+        "handsFoundFrames": 64,
+        "objMsP50": 83.3,
+        "objMsP95": 93.9,
+        "handMsP50": 73.2,
+        "handMsP95": 107.7,
+        "totalDetectMsP50": 157.7,
+        "totalDetectMsP95": 189.5,
+        "objectDetectorCategoryCounts": {
+          "vase": 1,
+          "person": 60,
+          "cat": 13,
+          "teddy bear": 10,
+          "laptop": 5,
+          "scissors": 6,
+          "bird": 3,
+          "banana": 3
+        }
+      }
+    },
+    "armC": {
+      "arm": "ArmC_HandLandmarker_RoiCrop_Browser",
+      "config": {
+        "mode": "hand_only",
+        "numFrames": 45,
+        "useCrop": true
+      },
+      "attachedTargets": [
+        "worker"
+      ],
+      "network": {
+        "cdpWireBytes": 10599486,
+        "cdpWireMb": 10.11,
+        "serverWireBytes": 10648173,
+        "serverWireMb": 10.15,
+        "cdpAssets": [
+          {
+            "path": "/r22-proto/index.html",
+            "target": "page",
+            "cdpBytes": 1442
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "target": "worker",
+            "cdpBytes": 55244
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "target": "worker",
+            "cdpBytes": 2723461
+          },
+          {
+            "path": "/models/hand_landmarker.task",
+            "target": "worker",
+            "cdpBytes": 7819339
+          }
+        ],
+        "serverAssets": [
+          {
+            "path": "/r22-proto/index.html",
+            "rawBytes": 2558,
+            "wireBytes": 1187,
+            "encoding": "zstd"
+          },
+          {
+            "path": "/r22-proto/proto_worker.bundle.js",
+            "rawBytes": 200058,
+            "wireBytes": 49695,
+            "encoding": "zstd"
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "rawBytes": 209826,
+            "wireBytes": 54975,
+            "encoding": "zstd"
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "rawBytes": 9423986,
+            "wireBytes": 2723211,
+            "encoding": "zstd"
+          },
+          {
+            "path": "/models/hand_landmarker.task",
+            "rawBytes": 7819105,
+            "wireBytes": 7819105,
+            "encoding": "none"
+          }
+        ]
+      },
+      "init": {
+        "type": "READY",
+        "mode": "hand_only",
+        "resolverMs": 0.5,
+        "handInitMs": 372.4,
+        "objectInitMs": 0,
+        "totalInitMs": 373,
+        "wasmBeforeHand": {
+          "wasmMemoryCount": 0,
+          "wasmLinearMb": 0,
+          "wasmLinearBytes": 0
+        },
+        "wasmAfterHand": {
+          "wasmMemoryCount": 0,
+          "wasmLinearMb": 0,
+          "wasmLinearBytes": 0
+        },
+        "wasmAfterObject": {
+          "wasmMemoryCount": 0,
+          "wasmLinearMb": 0,
+          "wasmLinearBytes": 0
+        },
+        "workerJsHeapUsedMb": null,
+        "workerJsHeapTotalMb": null
+      },
+      "memory": {
+        "wasmEnd": {
+          "wasmMemoryCount": 0,
+          "wasmLinearMb": 0,
+          "wasmLinearBytes": 0
+        },
+        "workerJsHeapUsedMb": null,
+        "pageCdpJsHeapUsedMb": 1.62,
+        "rendererProcMem": {
+          "rendererCount": 1,
+          "totalRssMb": 175.17,
+          "totalPssMb": 126.88,
+          "totalPrivateDirtyMb": 62.93,
+          "procs": [
+            {
+              "pid": 1976302,
+              "rssMb": 175.17,
+              "pssMb": 126.88,
+              "privateDirtyMb": 62.93
+            }
+          ]
+        }
+      },
+      "inference": {
+        "frames": 45,
+        "handsFoundFrames": 42,
+        "objMsP50": 0,
+        "objMsP95": 0,
+        "handMsP50": 72.3,
+        "handMsP95": 76.7,
+        "totalDetectMsP50": 72.3,
+        "totalDetectMsP95": 76.7,
+        "objectDetectorCategoryCounts": {}
+      }
+    }
+  },
+  "same_worker_paired_memory_delta": {
+    "before_object_detector": {
+      "mem": {
+        "rendererCount": 1,
+        "totalRssMb": 309.11,
+        "totalPssMb": 258.68,
+        "totalPrivateDirtyMb": 194.94,
+        "procs": [
+          {
+            "pid": 1976397,
+            "rssMb": 309.11,
+            "pssMb": 258.68,
+            "privateDirtyMb": 194.94
+          }
+        ]
+      },
+      "wasm": {
+        "wasmMemoryCount": 0,
+        "wasmLinearMb": 0,
+        "wasmLinearBytes": 0
+      },
+      "handMsP50": 69.6
+    },
+    "after_object_detector_same_worker": {
+      "objectInitMs": 204.1,
+      "mem": {
+        "rendererCount": 1,
+        "totalRssMb": 246.58,
+        "totalPssMb": 197.46,
+        "totalPrivateDirtyMb": 133.7,
+        "procs": [
+          {
+            "pid": 1976397,
+            "rssMb": 246.58,
+            "pssMb": 197.46,
+            "privateDirtyMb": 133.7
+          }
+        ]
+      },
+      "wasm": {
+        "wasmMemoryCount": 0,
+        "wasmLinearMb": 0,
+        "wasmLinearBytes": 0
+      },
+      "objMsP50": 80.3,
+      "handMsP50": 69.9,
+      "totalDetectMsP50": 150.6
+    },
+    "within_same_worker_delta": {
+      "rss_delta_mb": -62.53,
+      "pss_delta_mb": -61.22,
+      "private_dirty_delta_mb": -61.24,
+      "wasm_instances_delta": 0,
+      "wasm_linear_delta_mb": 0
+    }
+  },
+  "o04_empirical_delta_armB_minus_armA": {
+    "cdp_wire_delta_mb": 7.04,
+    "server_wire_delta_mb": 7.04,
+    "init_ms_delta": 428.2,
+    "wasm_memory_instances_delta": 0,
+    "wasm_linear_memory_delta_mb": 0,
+    "same_worker_renderer_rss_delta_mb": -62.53,
+    "same_worker_renderer_pss_delta_mb": -61.22,
+    "same_worker_private_dirty_delta_mb": -61.24,
+    "detect_p50_delta_ms": 81.3,
+    "detect_p95_delta_ms": 102.2,
+    "proves_shared_wasm_not_zero_cost": true
+  },
+  "o05_ab_decision": {
+    "status": "CANDIDATE_DEFERRED",
+    "keep_default_runtime_hand_landmarker_only": true,
+    "reasons": [
+      "Adding ObjectDetector alongside HandLandmarker sharing FilesetResolver.forVisionTasks() adds +-62.53 MB renderer RSS (+-61.22 MB PSS, +-61.24 MB Private_Dirty, +0 WASM instance / +0 MB WASM linear memory)",
+      "Adds +7.04 MB CDP cold wire (+7.04 MB server wire; efficientdet_lite0_int8.tflite = 4.60 MB + duplicate WASM fetch without CacheStorage)",
+      "Adds +81.3 ms p50 (+102.2 ms p95) CPU inference latency per dual-task frame",
+      "COCO ObjectDetector detects 'person' rather than dedicated 'hand' boxes, while HandLandmarker internal BlazePalm already achieves 99.43% recall on HANDS RGB-D S4+S5 locked OOD test"
+    ]
+  }
+}

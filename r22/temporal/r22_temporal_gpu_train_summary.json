@@ -1,0 +1,72 @@
+{
+  "schema": "r22-temporal-gpu-train-summary/1",
+  "generated_at_iso": "2026-11-19T20:10:00.000Z",
+  "device": "NVIDIA RTX A5000 (GPU 1, CUDA_VISIBLE_DEVICES=1)",
+  "contract": "K5:r22-temporal-146d-v1",
+  "taxonomy": "K4:v1.0-FROZEN",
+  "models": {
+    "r22_temporal_model_w3": {
+      "window_size": 3,
+      "num_params": 9915,
+      "raw_bytes": 98557,
+      "sha256": "75125db31157f11b73a065b23ddcf9d4f4132a4a302b70af562a3afde4d5a46c",
+      "val_metrics": {
+        "macro_f1": 0.8924,
+        "other_to_press": 3,
+        "ready_to_press": 0
+      },
+      "test_metrics": {
+        "macro_f1": 0.8677,
+        "other_to_press": 4,
+        "ready_to_press": 0
+      },
+      "ood_metrics": {
+        "macro_f1": 0.9669,
+        "other_to_press": 2,
+        "ready_to_press": 0
+      }
+    },
+    "r22_temporal_model_w5": {
+      "window_size": 5,
+      "num_params": 9915,
+      "raw_bytes": 98668,
+      "sha256": "b4ac8b546126592ca0c3381b225a8d9b029f041a28cbc528d6b1721da2949162",
+      "val_metrics": {
+        "macro_f1": 0.9097,
+        "other_to_press": 1,
+        "ready_to_press": 0
+      },
+      "test_metrics": {
+        "macro_f1": 0.9236,
+        "other_to_press": 4,
+        "ready_to_press": 0
+      },
+      "ood_metrics": {
+        "macro_f1": 0.9600,
+        "other_to_press": 2,
+        "ready_to_press": 0
+      }
+    },
+    "r22_temporal_model_w8": {
+      "window_size": 8,
+      "num_params": 9915,
+      "raw_bytes": 98627,
+      "sha256": "6640795348c667aae6cf0ed089054a6cbd8b9738a0129a7d302cbc4fe897130c",
+      "val_metrics": {
+        "macro_f1": 0.9310,
+        "other_to_press": 1,
+        "ready_to_press": 0
+      },
+      "test_metrics": {
+        "macro_f1": 0.9217,
+        "other_to_press": 2,
+        "ready_to_press": 0
+      },
+      "ood_metrics": {
+        "macro_f1": 0.9492,
+        "other_to_press": 0,
+        "ready_to_press": 0
+      }
+    }
+  }
+}

@@ -1,0 +1,238 @@
+{
+  "generated_at": "2026-11-19T12:59:14Z",
+  "elapsed_sec": 389.19,
+  "t2_threshold_and_normal_lighting": {
+    "hg5g_clean_n": 30,
+    "hg5g_mean_luma_p50": 0.6283,
+    "hg5g_legacy_052_trigger_rate": 0.0,
+    "hg5g_r22_032_trigger_rate": 0.0,
+    "hg5g_raw_recall": 1.0,
+    "physical_natural_light_n": 40,
+    "physical_natural_luma_p50": 0.1841,
+    "physical_natural_legacy_052_trigger_rate": 1.0,
+    "physical_natural_r22_032_trigger_rate": 1.0
+  },
+  "dim_lighting_ablation": {
+    "synthetic_dim_strata": {
+      "dim_g020": {
+        "RAW": {
+          "recall": 0.0,
+          "pre_ms_p50": 0.0,
+          "det_ms_p50": 11.7,
+          "dark_wall_chroma_spike_pct": 17.05
+        },
+        "A4v2_032": {
+          "recall": 0.9583,
+          "pre_ms_p50": 35.11,
+          "det_ms_p50": 21.8,
+          "dark_wall_chroma_spike_pct": 29.0
+        },
+        "R22_SoftKnee_ShadowClamp": {
+          "recall": 0.9583,
+          "pre_ms_p50": 38.45,
+          "det_ms_p50": 21.96,
+          "dark_wall_chroma_spike_pct": 22.44
+        }
+      },
+      "dim_g008": {
+        "RAW": {
+          "recall": 0.0,
+          "pre_ms_p50": 0.0,
+          "det_ms_p50": 11.54,
+          "dark_wall_chroma_spike_pct": 6.31
+        },
+        "A4v2_032": {
+          "recall": 0.7188,
+          "pre_ms_p50": 35.91,
+          "det_ms_p50": 21.84,
+          "dark_wall_chroma_spike_pct": 7.87
+        },
+        "R22_SoftKnee_ShadowClamp": {
+          "recall": 0.4514,
+          "pre_ms_p50": 39.33,
+          "det_ms_p50": 21.41,
+          "dark_wall_chroma_spike_pct": 4.23
+        }
+      },
+      "dim_warm_led": {
+        "RAW": {
+          "recall": 0.0,
+          "pre_ms_p50": 0.0,
+          "det_ms_p50": 12.78,
+          "dark_wall_chroma_spike_pct": 30.77
+        },
+        "A4v2_032": {
+          "recall": 0.9583,
+          "pre_ms_p50": 35.36,
+          "det_ms_p50": 22.66,
+          "dark_wall_chroma_spike_pct": 61.61
+        },
+        "R22_SoftKnee_ShadowClamp": {
+          "recall": 0.934,
+          "pre_ms_p50": 38.67,
+          "det_ms_p50": 22.22,
+          "dark_wall_chroma_spike_pct": 50.57
+        }
+      },
+      "backlight": {
+        "RAW": {
+          "recall": 0.9931,
+          "pre_ms_p50": 0.0,
+          "det_ms_p50": 21.85,
+          "dark_wall_chroma_spike_pct": 58.54
+        },
+        "A4v2_032": {
+          "recall": 0.9931,
+          "pre_ms_p50": 0.0,
+          "det_ms_p50": 21.96,
+          "dark_wall_chroma_spike_pct": 58.54
+        },
+        "R22_SoftKnee_ShadowClamp": {
+          "recall": 0.9931,
+          "pre_ms_p50": 0.0,
+          "det_ms_p50": 21.79,
+          "dark_wall_chroma_spike_pct": 58.54
+        }
+      }
+    },
+    "physical_dim_light_bxr7": {
+      "frames": 45,
+      "mean_luma_p50": 0.2071,
+      "p10_p50_p95": [
+        0.0549,
+        0.2118,
+        0.3961
+      ],
+      "noise_proxy_p50": 0.99,
+      "blur_proxy_p50": 404.82,
+      "policies": {
+        "RAW": {
+          "frames": 45,
+          "hands_detected_frames": 27,
+          "detection_rate": 0.6,
+          "passes": {
+            "A0_raw": 45
+          }
+        },
+        "A4v2_032": {
+          "frames": 45,
+          "hands_detected_frames": 18,
+          "detection_rate": 0.4,
+          "passes": {
+            "A0_raw": 1,
+            "A4_denoise_reinhard320": 44
+          }
+        },
+        "R22_SoftKnee_ShadowClamp": {
+          "frames": 45,
+          "hands_detected_frames": 16,
+          "detection_rate": 0.3556,
+          "passes": {
+            "A0_raw": 1,
+            "R22_softknee_shadowclamp320": 44
+          }
+        }
+      }
+    }
+  },
+  "glare_and_motion_blur_ablation": {
+    "monitor_glare_dark_room": {
+      "sequences_per_policy": 12,
+      "pre_lut_near_white_hand_pct_mean": 8.76,
+      "policies": {
+        "RAW": {
+          "recall": 0.8819,
+          "post_near_white_hand_pct_mean": 8.76,
+          "dark_wall_chroma_spike_pct_mean": 52.33
+        },
+        "A4v2_032": {
+          "recall": 0.8819,
+          "post_near_white_hand_pct_mean": 8.76,
+          "dark_wall_chroma_spike_pct_mean": 52.33
+        },
+        "R22_SoftKnee_ShadowClamp": {
+          "recall": 0.8819,
+          "post_near_white_hand_pct_mean": 8.76,
+          "dark_wall_chroma_spike_pct_mean": 52.33
+        },
+        "A4v2_Always_On_320": {
+          "recall": 1.0,
+          "post_near_white_hand_pct_mean": 8.74,
+          "dark_wall_chroma_spike_pct_mean": 68.26
+        },
+        "R22_Always_On_320": {
+          "recall": 1.0,
+          "post_near_white_hand_pct_mean": 0.0,
+          "dark_wall_chroma_spike_pct_mean": 67.32
+        }
+      }
+    },
+    "motion_blur_stress": {
+      "clean_k1": {
+        "n": 12,
+        "blur_proxy_p10_p50_p90": [
+          88.19,
+          112.65,
+          122.19
+        ],
+        "is_blurry_flagged_rate": 0.0,
+        "raw_recall": 1.0,
+        "r22_recall": 1.0
+      },
+      "fast_blur_k11": {
+        "n": 12,
+        "blur_proxy_p10_p50_p90": [
+          15.46,
+          21.59,
+          24.39
+        ],
+        "is_blurry_flagged_rate": 1.0,
+        "raw_recall": 1.0,
+        "r22_recall": 1.0
+      },
+      "heavy_blur_dim_k15": {
+        "n": 12,
+        "blur_proxy_p10_p50_p90": [
+          2.35,
+          2.81,
+          3.24
+        ],
+        "is_blurry_flagged_rate": 1.0,
+        "raw_recall": 0.0,
+        "r22_recall": 0.1667
+      }
+    }
+  },
+  "roi_crop_mask_and_bystander_ablation": {
+    "metamorphic_coord_roundtrip_max_err": 2.22e-16,
+    "small_hand_scale_0_45_test": {
+      "n": 15,
+      "full_frame_recall": 0.3333,
+      "roi_crop_remap_recall": 0.8,
+      "mean_landmark_alignment_diff_vs_full_frame": 0.05444
+    },
+    "two_hand_bystander_crossing": {
+      "FullFrame_Fixed2": {
+        "frames": 240,
+        "primary_track_retention": 1.0,
+        "bystander_visibility_rate": 0.0063,
+        "det_ms_p50": 21.64,
+        "det_ms_p95": 28.08
+      },
+      "ROI_Crop_Remap": {
+        "frames": 240,
+        "primary_track_retention": 1.0,
+        "bystander_visibility_rate": 0.0,
+        "det_ms_p50": 21.7,
+        "det_ms_p95": 27.72
+      },
+      "ROI_Masked_Outside": {
+        "frames": 240,
+        "primary_track_retention": 0.7917,
+        "bystander_visibility_rate": 0.0,
+        "det_ms_p50": 21.59,
+        "det_ms_p95": 28.24
+      }
+    }
+  }
+}

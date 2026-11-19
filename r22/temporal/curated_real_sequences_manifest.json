@@ -1,0 +1,241 @@
+{
+  "schema": "r22-temporal-sequence-manifest/1",
+  "generated_at_epoch": 1795092845.64,
+  "encoder_contract": "K5:r22-temporal-146d-v1",
+  "taxonomy_contract": "K4:v1.0-FROZEN",
+  "split_contract": "K7:R19-R20-DISJOINT",
+  "anti_fabrication_invariants": {
+    "static_single_image_replication_allowed": false,
+    "invented_landmark_visibility_allowed": false,
+    "zero_motion_sequences_accepted": 0,
+    "person_participant_cluster_leakage_groups": [],
+    "rejected_short_or_static_counts": {
+      "natural_rgb_v3:too_short_lt3": 364,
+      "hands_rgbd_v2:too_short_lt3": 438,
+      "handgesture_5g:too_short_lt3": 20
+    }
+  },
+  "excluded_sources_audit": [
+    {
+      "source": "r20-sandbox/data/aug/a4v2_detected_landmarks.jsonl",
+      "status": "EXCLUDED_D05_G07",
+      "reason": "Synthetic 24-frame cv2.warpAffine sinusoidal jitter of single static HandGesture-5G images (eval_a4_sequential.py:make_sequence); NOT genuine multi-frame temporal motion."
+    },
+    {
+      "source": "HaGRIDv2",
+      "status": "EXCLUDED_HOLD_LICENSE_K7",
+      "reason": "HOLD_LICENSE per R17-R20 & K7 legal gate; never enters product/candidate weights."
+    },
+    {
+      "source": "nui-lab-benchmark-S-07ba0cde-four-trials.json",
+      "status": "EXCLUDED_UNLABELED_TELEMETRY_D07",
+      "reason": "Unlabeled Owner webcam telemetry; never used as training data or supervised Ground Truth."
+    }
+  ],
+  "honest_data_cadence_disclosure": {
+    "video_30fps_sources": [
+      "ipn_hands",
+      "hands_rgbd_v2"
+    ],
+    "video_subsampled_30fps_sources": [
+      "natural_rgb_v3",
+      "mendeley_bxr7_v2"
+    ],
+    "photo_burst_exif_sources": [
+      "handgesture_5g"
+    ],
+    "critical_data_gap_note": "POINT_PRESS (L-Sign) has genuine distinct-CRC32 multi-frame EXIF photo bursts in HandGesture-5G (dt ~ 0.25-5.0s, med_disp ~ 0.025-0.094), NOT 15-30 FPS continuous video. All other classes (POINT_READY via HANDS RGB-D One_VFR/VFL, OTHER via IPN HandS / Natural RGB v3 / HANDS RGB-D / Mendeley bxr7, and all 5 Canvas Pose classes FIST/ONE/TWO/FIVE/OTHER) have 100% genuine 30 FPS continuous video sequences."
+  },
+  "source_file_sha256": {
+    "ipn_person_split.json": "24590205954fdf6eb8d6d07a131fa2d083ca9ddb452994bc52ad6643cc4e4431",
+    "handgesture_5g_landmarks.jsonl": "6466e8d7e50f6906dd6698aaab4872ba9eb34c6a31c71ac37c12fc4831e121e9",
+    "n66hhk695h_v3_landmarks.jsonl": "de9f75df73583402ffa0bc732636c23ffe5b6781dac67236efd8967c59a97cc8",
+    "hands_rgbd_landmarks.jsonl": "96b22c405d709e5199996d48b6b928c037813d3fb1088e8aac45fe3cf2077083",
+    "ux3_mendeley_distractor_landmarks.json": "e617e9233c44fb48ecb7388d2e5ab91a4aa7df1c753508951fce49bbdae1c88e"
+  },
+  "totals": {
+    "total_sequences": 1464,
+    "total_frames": 815413,
+    "total_valid_frames": 630757,
+    "total_real_no_hand_frames": 184656,
+    "cache_npz_bytes": 144824446
+  },
+  "stats_by_source_and_split": {
+    "handgesture_5g:test": {
+      "sequences": 12,
+      "frames": 228,
+      "valid_frames": 228
+    },
+    "handgesture_5g:train": {
+      "sequences": 34,
+      "frames": 751,
+      "valid_frames": 751
+    },
+    "handgesture_5g:val": {
+      "sequences": 12,
+      "frames": 290,
+      "valid_frames": 290
+    },
+    "hands_rgbd_v2:ood_test": {
+      "sequences": 64,
+      "frames": 1834,
+      "valid_frames": 1828
+    },
+    "hands_rgbd_v2:train": {
+      "sequences": 111,
+      "frames": 1690,
+      "valid_frames": 1491
+    },
+    "hands_rgbd_v2:val": {
+      "sequences": 33,
+      "frames": 378,
+      "valid_frames": 180
+    },
+    "ipn_hands:test": {
+      "sequences": 36,
+      "frames": 147209,
+      "valid_frames": 110881
+    },
+    "ipn_hands:train": {
+      "sequences": 128,
+      "frames": 505896,
+      "valid_frames": 388059
+    },
+    "ipn_hands:val": {
+      "sequences": 36,
+      "frames": 148371,
+      "valid_frames": 120020
+    },
+    "mendeley_bxr7_v2:ood_test": {
+      "sequences": 8,
+      "frames": 669,
+      "valid_frames": 439
+    },
+    "mendeley_bxr7_v2:train": {
+      "sequences": 2,
+      "frames": 193,
+      "valid_frames": 193
+    },
+    "natural_rgb_v3:test": {
+      "sequences": 159,
+      "frames": 1272,
+      "valid_frames": 1025
+    },
+    "natural_rgb_v3:train": {
+      "sequences": 686,
+      "frames": 5488,
+      "valid_frames": 4417
+    },
+    "natural_rgb_v3:val": {
+      "sequences": 143,
+      "frames": 1144,
+      "valid_frames": 955
+    }
+  },
+  "pistol_valid_frames_by_split": {
+    "ood_test": {
+      "OTHER": 2149,
+      "POINT_READY": 118
+    },
+    "test": {
+      "OTHER": 72444,
+      "POINT_PRESS": 33,
+      "POINT_READY": 21
+    },
+    "train": {
+      "OTHER": 261737,
+      "POINT_READY": 165,
+      "POINT_PRESS": 83
+    },
+    "val": {
+      "OTHER": 79365,
+      "POINT_READY": 27,
+      "POINT_PRESS": 109
+    }
+  },
+  "pose5_valid_frames_by_split": {
+    "ood_test": {
+      "FIVE": 104,
+      "FIST": 118,
+      "ONE": 118,
+      "TWO": 116,
+      "OTHER": 1811
+    },
+    "test": {
+      "ONE": 39657,
+      "TWO": 38623,
+      "OTHER": 30358,
+      "FIST": 124,
+      "FIVE": 262
+    },
+    "train": {
+      "ONE": 133091,
+      "TWO": 130613,
+      "OTHER": 116142,
+      "FIST": 603,
+      "FIVE": 1150
+    },
+    "val": {
+      "ONE": 41971,
+      "TWO": 41312,
+      "OTHER": 34161,
+      "FIST": 114,
+      "FIVE": 265
+    }
+  },
+  "motion_and_dt_verification_by_source": {
+    "handgesture_5g": {
+      "sequences": 58,
+      "mean_joint_disp_median": 0.05267,
+      "mean_joint_disp_p90": 0.106345,
+      "dt_ms_median": 1000.0
+    },
+    "hands_rgbd_v2": {
+      "sequences": 208,
+      "mean_joint_disp_median": 0.01011,
+      "mean_joint_disp_p90": 0.04126,
+      "dt_ms_median": 166.67
+    },
+    "ipn_hands": {
+      "sequences": 200,
+      "mean_joint_disp_median": 0.019077,
+      "mean_joint_disp_p90": 0.030812,
+      "dt_ms_median": 33.33
+    },
+    "mendeley_bxr7_v2": {
+      "sequences": 10,
+      "mean_joint_disp_median": 0.210512,
+      "mean_joint_disp_p90": 0.240035,
+      "dt_ms_median": 333.33
+    },
+    "natural_rgb_v3": {
+      "sequences": 988,
+      "mean_joint_disp_median": 0.147938,
+      "mean_joint_disp_p90": 0.352103,
+      "dt_ms_median": 300.0
+    }
+  },
+  "ipn_native_transitions_top20": {
+    "train:NOG->P1F": 409,
+    "train:NOG->P2F": 402,
+    "train:P1F->NOG": 376,
+    "train:P2F->NOG": 372,
+    "train:NOG->GRB": 198,
+    "val:NOG->P1F": 131,
+    "val:NOG->P2F": 117,
+    "val:P2F->NOG": 114,
+    "val:P1F->NOG": 111,
+    "train:TDN->NOG": 103,
+    "train:ZOT->NOG": 101,
+    "train:TRT->NOG": 98,
+    "train:C1F->P1F": 97,
+    "train:TLT->NOG": 96,
+    "train:C2F->P2F": 93,
+    "train:TUP->NOG": 93,
+    "test:NOG->P1F": 92,
+    "train:ZIN->NOG": 91,
+    "train:NOG->ZIN": 88,
+    "test:NOG->P2F": 87
+  },
+  "elapsed_sec": 46.16
+}

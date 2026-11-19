@@ -1,0 +1,338 @@
+{
+  "schema": "r22-canvas-t004-replay/1",
+  "generatedAt": "2026-11-19T13:01:40.953Z",
+  "evidenceClass": "REPLAY_REAL_OWNER_LANDMARKS_UNIT",
+  "caveat": "Replayed from Owner T004 recorded 21-point landmarks and timestamps (no raw RGB video); validates Canvas FSM, PinchSource, PoseSource, grace window, and StrokeStore invariants deterministically, not pixel-level MediaPipe detector recall.",
+  "before": {
+    "sourceTrialId": "S-07ba0cde-T004",
+    "sourceFile": "nui-lab-benchmark-S-07ba0cde-four-trials.json",
+    "engine": "r20-c4",
+    "preprocess": "raw",
+    "totalFrames": 2082,
+    "trackedFrames": 1411,
+    "rawNoHandFrames": 668,
+    "r19StateCounts": {
+      "NO_HAND": 671,
+      "OTHER": 1206,
+      "POINT_READY": 205
+    },
+    "pointReadyCanvasFrames": 205,
+    "pointReadyCanvasRejections": 205,
+    "cubitDitolakGateR19AllFrames": 82,
+    "cubitDitolakGateR19StablePinchFrames": 31,
+    "stablePinchFrameCount": 582,
+    "stablePinchRejectBreakdown": {
+      "Tinta aktif": 276,
+      "Tidak ada aksi gambar": 59,
+      "Cubit ditolak gate R19": 31,
+      "Pinch dibaca, menunggu validasi tinta": 8,
+      "Tunggu gestur dilepas sebelum aksi baru": 208
+    },
+    "rearmRejectAllFrames": 281,
+    "rearmRejectOnStablePinchFrames": 208,
+    "pinchOnCount": 54,
+    "strokeStartCount": 19,
+    "pinchOnNoStrokeWithin500ms": 29,
+    "strokeEndReasons": {
+      "pinch-release": 14,
+      "detector-miss": 5
+    },
+    "detectorMissBreakCount": 5,
+    "detectorMissBreakDurationsMs": [
+      12657,
+      603,
+      99,
+      220,
+      62
+    ],
+    "undoVia": {
+      "button": 4
+    },
+    "jitter": {
+      "stillFrames": 16,
+      "rawMedianPx": 2.546,
+      "inkMedianPx": 0.516
+    }
+  },
+  "after": {
+    "config": {
+      "lossGraceMs": 240,
+      "maxResumeGapMs": 360,
+      "cursorFilterMode": "default"
+    },
+    "totalFrames": 2082,
+    "r19StateCounts": {
+      "NO_HAND": 674,
+      "OTHER": 1408
+    },
+    "r19GateStateCounts": {
+      "DISABLED_ON_CANVAS": 2082
+    },
+    "pointReadyCanvasFrames": 0,
+    "pointPressCanvasFrames": 0,
+    "pointReadyCanvasRejections": 0,
+    "cubitDitolakGateR19Count": 0,
+    "stablePinchFrameCount": 620,
+    "stablePinchRejectBreakdown": {
+      "Tinta aktif": 482,
+      "Kepal netral": 33,
+      "Tidak ada aksi gambar": 10,
+      "Tunggu gestur dilepas sebelum aksi baru": 58,
+      "Pinch dibaca, menunggu validasi tinta": 6,
+      "Cubit belum rapat (near-pinch)": 11,
+      "Kepal dulu untuk mengaktifkan Undo/Redo": 20
+    },
+    "pinchContactFrameCount": 612,
+    "pinchContactActiveInkFrames": 509,
+    "rearmRejectAllFrames": 90,
+    "rearmRejectOnStablePinchFrames": 58,
+    "rearmRejectAfterShortBlinkCount": 0,
+    "rearmRejectRuns": [
+      {
+        "startIdx": 50,
+        "endIdx": 64,
+        "length": 15,
+        "pose": "open-palm",
+        "precedingGapDurationMs": 1674,
+        "precedingGapWasShortBlink": false
+      },
+      {
+        "startIdx": 529,
+        "endIdx": 543,
+        "length": 15,
+        "pose": "open-palm",
+        "precedingGapDurationMs": 12724,
+        "precedingGapWasShortBlink": false
+      },
+      {
+        "startIdx": 585,
+        "endIdx": 644,
+        "length": 60,
+        "pose": "pinch",
+        "precedingGapDurationMs": 667,
+        "precedingGapWasShortBlink": false
+      }
+    ],
+    "pinchOnCount": 66,
+    "strokeStartCount": 34,
+    "pinchOnNoStrokeWithin500ms": 19,
+    "strokeEndReasons": {
+      "pinch-release": 32,
+      "detector-miss": 2
+    },
+    "detectorMissStrokeEnds": [
+      {
+        "strokeId": 3,
+        "endIdx": 200,
+        "t": 438822,
+        "reason": "detector-miss",
+        "points": 6
+      },
+      {
+        "strokeId": 4,
+        "endIdx": 578,
+        "t": 453333,
+        "reason": "detector-miss",
+        "points": 19
+      }
+    ],
+    "speculativePointsAddedDuringNoHand": 0,
+    "jitter": {
+      "stillFrames": 14,
+      "rawMedianPx": 2.511,
+      "inkMedianPx": 0.604
+    },
+    "breaks": {
+      "stroke_11_62ms_blink": {
+        "originalStrokeId": 11,
+        "missFrames": 1,
+        "missDurationMs": 62,
+        "totalGapMs": 148,
+        "expectedOutcome": "SURVIVE_RESUME",
+        "beforeHadActiveStroke": true,
+        "beforeStrokeId": 9,
+        "beforePoints": 52,
+        "allMissFramesHeldInGrace": true,
+        "pointsAddedDuringMiss": 0,
+        "resumeHasActiveStroke": true,
+        "resumeStrokeId": 9,
+        "resumePoints": 53,
+        "resumeRejectReason": "Tinta aktif",
+        "resumeNextRejectReason": "Tinta aktif",
+        "rearmBlockedOnResume": false,
+        "survivedSameStroke": true,
+        "closedFailClosed": false,
+        "pass": true
+      },
+      "stroke_9_99ms_blink": {
+        "originalStrokeId": 9,
+        "missFrames": 1,
+        "missDurationMs": 99,
+        "totalGapMs": 182,
+        "expectedOutcome": "SURVIVE_RESUME",
+        "beforeHadActiveStroke": true,
+        "beforeStrokeId": 7,
+        "beforePoints": 41,
+        "allMissFramesHeldInGrace": true,
+        "pointsAddedDuringMiss": 0,
+        "resumeHasActiveStroke": true,
+        "resumeStrokeId": 7,
+        "resumePoints": 42,
+        "resumeRejectReason": "Tinta aktif",
+        "resumeNextRejectReason": "Tinta aktif",
+        "rearmBlockedOnResume": false,
+        "survivedSameStroke": true,
+        "closedFailClosed": false,
+        "pass": true
+      },
+      "stroke_10_220ms_blink": {
+        "originalStrokeId": 10,
+        "missFrames": 5,
+        "missDurationMs": 220,
+        "totalGapMs": 311,
+        "expectedOutcome": "SURVIVE_RESUME",
+        "beforeHadActiveStroke": true,
+        "beforeStrokeId": 8,
+        "beforePoints": 10,
+        "allMissFramesHeldInGrace": true,
+        "pointsAddedDuringMiss": 0,
+        "resumeHasActiveStroke": true,
+        "resumeStrokeId": 8,
+        "resumePoints": 11,
+        "resumeRejectReason": "Tinta aktif",
+        "resumeNextRejectReason": "Tinta aktif",
+        "rearmBlockedOnResume": false,
+        "survivedSameStroke": true,
+        "closedFailClosed": false,
+        "pass": true
+      },
+      "stroke_5_603ms_long_loss": {
+        "originalStrokeId": 5,
+        "missFrames": 11,
+        "missDurationMs": 603,
+        "totalGapMs": 717,
+        "expectedOutcome": "CLOSE_FAIL_CLOSED",
+        "beforeHadActiveStroke": true,
+        "beforeStrokeId": 4,
+        "beforePoints": 19,
+        "allMissFramesHeldInGrace": false,
+        "pointsAddedDuringMiss": 0,
+        "resumeHasActiveStroke": false,
+        "resumeStrokeId": null,
+        "resumePoints": 0,
+        "resumeRejectReason": "no-hand",
+        "resumeNextRejectReason": "validating",
+        "rearmBlockedOnResume": false,
+        "survivedSameStroke": false,
+        "closedFailClosed": true,
+        "pass": true
+      },
+      "stroke_4_12657ms_long_loss": {
+        "originalStrokeId": 4,
+        "missFrames": 331,
+        "missDurationMs": 12657,
+        "totalGapMs": 12711,
+        "expectedOutcome": "CLOSE_FAIL_CLOSED",
+        "beforeHadActiveStroke": true,
+        "beforeStrokeId": 3,
+        "beforePoints": 6,
+        "allMissFramesHeldInGrace": false,
+        "pointsAddedDuringMiss": 0,
+        "resumeHasActiveStroke": false,
+        "resumeStrokeId": null,
+        "resumePoints": 0,
+        "resumeRejectReason": "no-hand",
+        "resumeNextRejectReason": "validating",
+        "rearmBlockedOnResume": false,
+        "survivedSameStroke": false,
+        "closedFailClosed": true,
+        "pass": true
+      }
+    },
+    "allBreaksPassed": true
+  },
+  "afterWithOneEuroCursorHook": {
+    "allBreaksPassed": true,
+    "jitter": {
+      "stillFrames": 14,
+      "rawMedianPx": 2.511,
+      "inkMedianPx": 0.604
+    },
+    "pointReadyCanvasFrames": 0,
+    "cubitDitolakGateR19Count": 0,
+    "rearmRejectAfterShortBlinkCount": 0
+  },
+  "graceWindowAblation": {
+    "selected": {
+      "lossGraceMs": 240,
+      "lossGraceAnchor": "loss-start",
+      "maxResumeGapMs": 360,
+      "maxResumeJumpShare": 0.12,
+      "rationale": "T004 Stroke 10 has 5 lost frames (missStart->resume = 220 ms, lastTracked->resume = 311 ms, tip8Jump = 21.9 px <= 153.6 px). 150 ms and 200 ms still break Stroke 10; 240 ms anchored at loss-start with 360 ms maxResumeGapMs survives all 3 short detector blinks (62, 99, 220 ms) with 0 speculative points while fail-closing both long losses (603 ms, 12,657 ms)."
+    },
+    "candidates": [
+      {
+        "label": "grace_150ms",
+        "lossGraceMs": 150,
+        "maxResumeGapMs": 240,
+        "stroke_11_62ms_survived": true,
+        "stroke_9_99ms_survived": true,
+        "stroke_10_220ms_survived": false,
+        "stroke_5_603ms_closed_safely": true,
+        "stroke_4_12657ms_closed_safely": true,
+        "detectorMissStrokeEndCount": 3,
+        "rearmRejectOnStablePinchFrames": 58,
+        "allBreaksPassed": false
+      },
+      {
+        "label": "grace_200ms",
+        "lossGraceMs": 200,
+        "maxResumeGapMs": 300,
+        "stroke_11_62ms_survived": true,
+        "stroke_9_99ms_survived": true,
+        "stroke_10_220ms_survived": false,
+        "stroke_5_603ms_closed_safely": true,
+        "stroke_4_12657ms_closed_safely": true,
+        "detectorMissStrokeEndCount": 2,
+        "rearmRejectOnStablePinchFrames": 58,
+        "allBreaksPassed": false
+      },
+      {
+        "label": "grace_240ms_selected",
+        "lossGraceMs": 240,
+        "maxResumeGapMs": 360,
+        "stroke_11_62ms_survived": true,
+        "stroke_9_99ms_survived": true,
+        "stroke_10_220ms_survived": true,
+        "stroke_5_603ms_closed_safely": true,
+        "stroke_4_12657ms_closed_safely": true,
+        "detectorMissStrokeEndCount": 2,
+        "rearmRejectOnStablePinchFrames": 58,
+        "allBreaksPassed": true
+      },
+      {
+        "label": "grace_250ms",
+        "lossGraceMs": 250,
+        "maxResumeGapMs": 380,
+        "stroke_11_62ms_survived": true,
+        "stroke_9_99ms_survived": true,
+        "stroke_10_220ms_survived": true,
+        "stroke_5_603ms_closed_safely": true,
+        "stroke_4_12657ms_closed_safely": true,
+        "detectorMissStrokeEndCount": 2,
+        "rearmRejectOnStablePinchFrames": 58,
+        "allBreaksPassed": true
+      }
+    ]
+  },
+  "audits": {
+    "splitPalmA8_11": {
+      "legacyStudentGameplay": "src/input/hand-stroke-pipeline.ts line 241 currently allows 5-finger split-palm to erase in student gameplay, causing 1 legacy test failure in tests/input/hand-stroke-surface.test.ts ('a split palm under the eraser tool neither erases nor draws'). Left UNCHANGED in default student gameplay per §A8 #11 (must be decided by Owner).",
+      "nuiLabR22K3": "src/components/nui-lab/bench/action-resolver.ts explicitly detects split-palm and excludes it from Canvas FIVE erase (non-split-palm 5-finger open palm only)."
+    },
+    "secondaryHandEraserResizeB07_C16": {
+      "legacyStudentGameplay": "src/input/hand-stroke-pipeline.ts line 158 still gates two-hand EraserSizer on stable==='fist', while R17 disabled fist-erase in favor of 5-finger open palm (root cause of legacy failures in tests/input/two-hand-surface.test.ts and eraser-controls.test.ts). Left UNCHANGED in default student gameplay.",
+      "nuiLabR22K3": "LabAnalyzer + HandStrokePipeline.feedResolved() enable secondary-hand EraserSizer ONLY when primary owner hand is locked, non-ambiguous, and actively executing 5-finger open-palm ERASE (default radius 32 canvas px = 16 CSS px). Secondary hand NEVER draws, erases, fires Undo/Redo, or hijacks primary owner lock."
+    }
+  }
+}

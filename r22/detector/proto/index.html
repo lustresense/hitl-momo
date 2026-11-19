@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><title>R22 ObjectDetector CPU Prototype</title></head>
+<body>
+<video id="cam" autoplay playsinline muted width="640" height="360"></video>
+<pre id="status">idle</pre>
+<script>
+window.runDetectorProto = async function(cfg) {
+  const video = document.getElementById("cam");
+  const stream = await navigator.mediaDevices.getUserMedia({ video: { width: 640, height: 360 } });
+  video.srcObject = stream;
+  await video.play();
+  while (video.readyState < 2 || !video.videoWidth) {
+    await new Promise((r) => setTimeout(r, 15));
+  }
+
+  const worker = new Worker("/r22-proto/proto_worker.bundle.js");
+  window.__r22ProtoWorker = worker;
+  let readyInfo = null;
+  await new Promise((resolve, reject) => {
+    worker.onmessage = (ev) => {
+      if (ev.data.type === "READY") {
+        readyInfo = ev.data;
+        resolve();
+      }
+    };
+    worker.onerror = (err) => reject(new Error(err.message || "worker error"));
+    worker.postMessage({
+      type: "INIT",
+      mode: cfg.mode,
+      wasmRoot: "/mediapipe/wasm",
+      handModelUrl: "/models/hand_landmarker.task",
+      objectModelUrl: cfg.objectModelUrl,
+    });
+  });
+
+  const runBatch = async (count) => {
+    const out = [];
+    for (let i = 1; i <= count; i++) {
+      const bitmap = await createImageBitmap(video, { resizeWidth: 640, resizeHeight: 360 });
+      window.__r22LastTs = Math.max((window.__r22LastTs || 0) + 33, Math.round(performance.now()));
+      const ts = window.__r22LastTs;
+      const res = await new Promise((resolve) => {
+        worker.onmessage = (ev) => {
+          if (ev.data.type === "RESULT" && ev.data.frameId === i) resolve(ev.data);
+        };
+        const roiCrop = cfg.useCrop ? [0.15, 0.1, 0.85, 0.9] : null;
+        worker.postMessage({ type: "DETECT", frameId: i, timestampMs: ts, bitmap, roiCrop }, [bitmap]);
+      });
+      out.push(res);
+    }
+    return out;
+  };
+
+  window.__r22RunBatch = runBatch;
+  window.__r22AddObjectDetector = async (objectModelUrl) => {
+    return await new Promise((resolve) => {
+      worker.onmessage = (ev) => {
+        if (ev.data.type === "OBJECT_DETECTOR_ADDED") resolve(ev.data);
+      };
+      worker.postMessage({ type: "ADD_OBJECT_DETECTOR", objectModelUrl });
+    });
+  };
+  window.__r22Cleanup = () => {
+    for (const tr of stream.getTracks()) tr.stop();
+    worker.terminate();
+  };
+
+  const frames = await runBatch(cfg.numFrames);
+  if (!cfg.keepAliveForStep) {
+    window.__r22Cleanup();
+  }
+  return { readyInfo, frames };
+};
+</script>
+</body>
+</html>

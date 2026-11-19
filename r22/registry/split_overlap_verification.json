@@ -1,0 +1,320 @@
+{
+  "generated_at": "2026-11-19T13:02:30Z",
+  "contract": "K7 (Frozen Dataset Registry & Zero-Leakage Verification)",
+  "overall_PASS": true,
+  "k5_encoder_sha256_match": true,
+  "k5_encoder_sha256": "ed9349456a79284520adb2969a8a11eccd36500cc9d34fe24591f3f742559140",
+  "locked_val_test_byte_identical": {
+    "val": true,
+    "test": true,
+    "f32_hashes": {
+      "r20_feat_train": {
+        "path": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/feat/r20_feat_train.f32",
+        "bytes": 5604208,
+        "sha256": "cb7651a8a4324ae31120e9c770d69953a998eb88052606d499ccf3669848d22f",
+        "rows": 17086,
+        "feature_count": 82
+      },
+      "r20_feat_val": {
+        "path": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/feat/r20_feat_val.f32",
+        "bytes": 1661976,
+        "sha256": "7aea311ba274e79270b85c356b9d995d40d80d8a2213358355c82d6aaa27231c",
+        "rows": 5067,
+        "feature_count": 82
+      },
+      "r20_feat_test": {
+        "path": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/feat/r20_feat_test.f32",
+        "bytes": 1548160,
+        "sha256": "6d3e6eebc4953fa012eedb91470c85578c00d18dba761a6bcb0a13026158cd7e",
+        "rows": 4720,
+        "feature_count": 82
+      },
+      "r20_c2_feat_train": {
+        "path": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/feat/r20_c2_feat_train.f32",
+        "bytes": 6232328,
+        "sha256": "2ecfe6ad5f60cd02566aa5069cf54aa933b90a4c180a4958ce2720df8ba1b548",
+        "rows": 19001,
+        "feature_count": 82
+      },
+      "r20_c2_feat_val": {
+        "path": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/feat/r20_c2_feat_val.f32",
+        "bytes": 1661976,
+        "sha256": "7aea311ba274e79270b85c356b9d995d40d80d8a2213358355c82d6aaa27231c",
+        "rows": 5067,
+        "feature_count": 82
+      },
+      "r20_c2_feat_test": {
+        "path": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/feat/r20_c2_feat_test.f32",
+        "bytes": 1548160,
+        "sha256": "6d3e6eebc4953fa012eedb91470c85578c00d18dba761a6bcb0a13026158cd7e",
+        "rows": 4720,
+        "feature_count": 82
+      },
+      "r20_c3_feat_train": {
+        "path": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/feat/r20_c3_feat_train.f32",
+        "bytes": 6862744,
+        "sha256": "2a0464fc7e0be1c6c2ac5825f70686f0baae7df81d6f77afc34032a6b7d55e6b",
+        "rows": 20923,
+        "feature_count": 82
+      },
+      "r20_c3_feat_val": {
+        "path": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/feat/r20_c3_feat_val.f32",
+        "bytes": 1661976,
+        "sha256": "7aea311ba274e79270b85c356b9d995d40d80d8a2213358355c82d6aaa27231c",
+        "rows": 5067,
+        "feature_count": 82
+      },
+      "r20_c3_feat_test": {
+        "path": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/feat/r20_c3_feat_test.f32",
+        "bytes": 1548160,
+        "sha256": "6d3e6eebc4953fa012eedb91470c85578c00d18dba761a6bcb0a13026158cd7e",
+        "rows": 4720,
+        "feature_count": 82
+      }
+    }
+  },
+  "r18_68d_segregation": {
+    "train": {
+      "path": "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/datasets/derived/ux3_feat_train.f32",
+      "rows": 221715,
+      "feature_count": 68,
+      "sha256": "57712e0e9816c8549e901299d9696be390fddbbc3c23e43e83e08dde30ec17c1",
+      "segregated_from_82d": true
+    },
+    "val": {
+      "path": "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/datasets/derived/ux3_feat_val.f32",
+      "rows": 120020,
+      "feature_count": 68,
+      "sha256": "1806946245669e85dac63d77c55f29a9b33dd07b1d45e7bc46fcc32179429d30",
+      "segregated_from_82d": true
+    },
+    "test": {
+      "path": "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/datasets/derived/ux3_feat_test.f32",
+      "rows": 110881,
+      "feature_count": 68,
+      "sha256": "2fc98e0739cfa4f1a48e3e8a4b6264a2316c3affe8abaa3a225e6f504b10e0d1",
+      "segregated_from_82d": true
+    }
+  },
+  "handgesture_5g": {
+    "total_decoded_rows": 1797,
+    "split_row_counts": {
+      "train": 1097,
+      "val": 443,
+      "test": 257
+    },
+    "split_cluster_counts": {
+      "train": 21,
+      "val": 8,
+      "test": 9
+    },
+    "cluster_overlap_train_val": [],
+    "cluster_overlap_train_test": [],
+    "cluster_overlap_val_test": [],
+    "sample_id_overlap_total": 0,
+    "filename_overlap_total": 0,
+    "crc32_overlap_total": 0,
+    "cross_split_same_class_dhash_le_8": 0,
+    "cross_split_same_class_burst_15s": 0,
+    "cross_split_diff_class_same_session_dhash_le_8_note": 1407,
+    "cross_split_diff_class_same_session_burst_15s_note": 265,
+    "cross_class_session_note": "R19 clustered HG5G within each class (0 same-class cross-split near-duplicates or bursts); different classes recorded on the same day/device can appear in different splits, which is why person-disjoint Natural RGB v3, IPN HandS, and HANDS RGB-D S4..5 OOD evaluation is mandatory alongside HG5G.",
+    "extra_hg5g_aug_rows": 1915,
+    "extra_hg5g_aug_overlap_val_clusters": [],
+    "extra_hg5g_aug_overlap_test_clusters": [],
+    "cached_hg5g_720_images": 1097,
+    "cached_hg5g_720_non_train_leak": 0,
+    "PASS": true
+  },
+  "natural_rgb_v3": {
+    "total_sampled_frames": 10816,
+    "split_participants": {
+      "train": [
+        "p01",
+        "p03",
+        "p04",
+        "p06",
+        "p07",
+        "p08",
+        "p09",
+        "p10",
+        "p11",
+        "p12",
+        "p16",
+        "p18",
+        "p20",
+        "p21",
+        "p22",
+        "p23",
+        "p24",
+        "p25",
+        "p26"
+      ],
+      "val": [
+        "p13",
+        "p14",
+        "p17",
+        "p19"
+      ],
+      "test": [
+        "p02",
+        "p05",
+        "p15"
+      ]
+    },
+    "split_clip_counts": {
+      "train": 936,
+      "val": 195,
+      "test": 221
+    },
+    "participant_overlap_train_val": [],
+    "participant_overlap_train_test": [],
+    "participant_overlap_val_test": [],
+    "clip_overlap_total": 0,
+    "sample_id_overlap_total": 0,
+    "PASS": true
+  },
+  "ipn_hands": {
+    "split_persons": {
+      "train": [
+        "1",
+        "4",
+        "5",
+        "7",
+        "9",
+        "11",
+        "12",
+        "14",
+        "15",
+        "16",
+        "18",
+        "19",
+        "20",
+        "23",
+        "24",
+        "26",
+        "30",
+        "31",
+        "32"
+      ],
+      "val": [
+        "2",
+        "3",
+        "8",
+        "17",
+        "22"
+      ],
+      "test": [
+        "6",
+        "10",
+        "13",
+        "21",
+        "29"
+      ]
+    },
+    "split_video_counts": {
+      "train": 128,
+      "val": 36,
+      "test": 36
+    },
+    "person_overlap_train_val": [],
+    "person_overlap_train_test": [],
+    "person_overlap_val_test": [],
+    "video_overlap_total": 0,
+    "official_148_52_rejected_reason": "Official split overlaps 8 person_ids (1,2,3,12,13,15,18,21); strictly superseded by ipn_person_split.json",
+    "PASS": true
+  },
+  "hands_rgbd_v2": {
+    "train_subjects": [
+      "Subject1",
+      "Subject2"
+    ],
+    "val_subjects": [
+      "Subject3"
+    ],
+    "locked_ood_subjects": [
+      "Subject4",
+      "Subject5"
+    ],
+    "train_rows": 1692,
+    "val_rows": 221,
+    "locked_ood_frames": 1080,
+    "locked_ood_matched_hands": 2092,
+    "subject_overlap_total": 0,
+    "filename_overlap_total": 0,
+    "PASS": true
+  },
+  "mendeley_bxr7kx84y6_v2": {
+    "mendeley_599_locked_games": [
+      "Dim Light/Chinese Chess",
+      "Dim Light/Dice",
+      "Dim Light/Meeting Chess",
+      "Natural Light/Aeroplane Chess",
+      "Natural Light/Checkers",
+      "Natural Light/Dice"
+    ],
+    "gomoku_poker_train_games": [
+      "Dim Light/Gomoku",
+      "Natural Light/Poker"
+    ],
+    "gomoku_poker_ood_games": [
+      "Dim Light/Gomoku",
+      "Natural Light/Poker"
+    ],
+    "train_rows": 230,
+    "ood_holdout_rows": 85,
+    "overlap_599_vs_train_games": [],
+    "overlap_599_vs_train_files": 0,
+    "overlap_train_vs_ood_files": 0,
+    "temporal_buffer_gaps": {
+      "Dim Light/Gomoku": {
+        "train_max_frame_idx": 224,
+        "ood_min_frame_idx": 248,
+        "buffer_gap_frames": 24
+      },
+      "Natural Light/Poker": {
+        "train_max_frame_idx": 375,
+        "ood_min_frame_idx": 416,
+        "buffer_gap_frames": 41
+      }
+    },
+    "PASS": true
+  },
+  "legal_and_telemetry_gates": {
+    "hagridv2_status": "HOLD_LICENSE",
+    "hagridv2_rows_in_product_weights": 0,
+    "dimhand_llhands_mgrdark_status": "BLOCKED",
+    "dimhand_llhands_rows_in_product_weights": 0,
+    "owner_S_07ba0cde_status": "UNLABELLED_TELEMETRY",
+    "owner_S_07ba0cde_supervised_gt_rows": 0,
+    "verified_train_sources_only_cc_by_4_0": [
+      "bxr7_dim_light_gomoku",
+      "bxr7_natural_light_poker",
+      "hg5g_aug_backlight",
+      "hg5g_aug_blur_dim",
+      "hg5g_aug_dim_cool_mon",
+      "hg5g_aug_dim_g008",
+      "hg5g_aug_dim_g020",
+      "hg5g_aug_dim_g045",
+      "hg5g_aug_dim_warm_led",
+      "hg5g_aug_flip",
+      "hg5g_aug_flip_dim_g020",
+      "hg5g_aug_jpeg_q25",
+      "hg5g_aug_scale_x048_dim",
+      "hg5g_causal",
+      "hg5g_l1_clahe",
+      "hg5g_static",
+      "hrgbd_subject1",
+      "hrgbd_subject2",
+      "ipn_neg_gesture",
+      "ipn_nog",
+      "n66_backlit",
+      "n66_bright_daylight",
+      "n66_dim",
+      "n66_green_led",
+      "n66_indoor_moderate",
+      "n66_red_led"
+    ],
+    "PASS": true
+  }
+}

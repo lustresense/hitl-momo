@@ -1,0 +1,338 @@
+{
+  "generated_at": "2026-11-19T12:51:26.922Z",
+  "default_config": {
+    "minCutoff": 0.9,
+    "beta": 14,
+    "dCutoff": 0.4,
+    "minDtSec": 0.0001,
+    "maxGapSec": 0.35
+  },
+  "loss_and_owner_reset_check": {
+    "lostReturnedNull": true,
+    "reacquiredSnappedExact": true,
+    "ownerSwitchSnappedExact": true,
+    "resetCount": 2
+  },
+  "by_fps_profile": {
+    "webcam_15fps": {
+      "stillness_sigma_0_004": {
+        "raw": {
+          "rmsPx": 3.686,
+          "frameToFrameJitterPx": 4.898
+        },
+        "ema_alpha_0_35": {
+          "rmsPx": 1.585,
+          "frameToFrameJitterPx": 1.317
+        },
+        "ema_alpha_0_45": {
+          "rmsPx": 1.873,
+          "frameToFrameJitterPx": 1.749
+        },
+        "one_euro": {
+          "rmsPx": 1.528,
+          "frameToFrameJitterPx": 1.138
+        }
+      },
+      "fast_onset_and_sweep": {
+        "step90LagMs": {
+          "raw": 0,
+          "ema_alpha_0_35": 333.3,
+          "ema_alpha_0_45": 200,
+          "one_euro": 66.7
+        },
+        "fastSineMeanTrackingErrorPx": {
+          "ema_alpha_0_35": 73.89,
+          "one_euro": 22.1
+        }
+      }
+    },
+    "webcam_30fps": {
+      "stillness_sigma_0_004": {
+        "raw": {
+          "rmsPx": 3.686,
+          "frameToFrameJitterPx": 4.899
+        },
+        "ema_alpha_0_35": {
+          "rmsPx": 1.619,
+          "frameToFrameJitterPx": 1.301
+        },
+        "ema_alpha_0_45": {
+          "rmsPx": 1.909,
+          "frameToFrameJitterPx": 1.737
+        },
+        "one_euro": {
+          "rmsPx": 1.168,
+          "frameToFrameJitterPx": 0.647
+        }
+      },
+      "fast_onset_and_sweep": {
+        "step90LagMs": {
+          "raw": 0,
+          "ema_alpha_0_35": 166.7,
+          "ema_alpha_0_45": 100,
+          "one_euro": 66.7
+        },
+        "fastSineMeanTrackingErrorPx": {
+          "ema_alpha_0_35": 49.2,
+          "one_euro": 18.44
+        }
+      }
+    },
+    "webcam_60fps": {
+      "stillness_sigma_0_004": {
+        "raw": {
+          "rmsPx": 3.553,
+          "frameToFrameJitterPx": 4.699
+        },
+        "ema_alpha_0_35": {
+          "rmsPx": 1.572,
+          "frameToFrameJitterPx": 1.245
+        },
+        "ema_alpha_0_45": {
+          "rmsPx": 1.85,
+          "frameToFrameJitterPx": 1.664
+        },
+        "one_euro": {
+          "rmsPx": 0.839,
+          "frameToFrameJitterPx": 0.344
+        }
+      },
+      "fast_onset_and_sweep": {
+        "step90LagMs": {
+          "raw": 0,
+          "ema_alpha_0_35": 83.3,
+          "ema_alpha_0_45": 50,
+          "one_euro": 50
+        },
+        "fastSineMeanTrackingErrorPx": {
+          "ema_alpha_0_35": 27.22,
+          "one_euro": 14.69
+        }
+      }
+    },
+    "variable_dt_12_33fps": {
+      "stillness_sigma_0_004": {
+        "raw": {
+          "rmsPx": 3.652,
+          "frameToFrameJitterPx": 4.849
+        },
+        "ema_alpha_0_35": {
+          "rmsPx": 1.592,
+          "frameToFrameJitterPx": 1.29
+        },
+        "ema_alpha_0_45": {
+          "rmsPx": 1.882,
+          "frameToFrameJitterPx": 1.72
+        },
+        "one_euro": {
+          "rmsPx": 1.401,
+          "frameToFrameJitterPx": 0.913
+        }
+      },
+      "fast_onset_and_sweep": {
+        "step90LagMs": {
+          "raw": 0,
+          "ema_alpha_0_35": 203.3,
+          "ema_alpha_0_45": 123.1,
+          "one_euro": 54.6
+        },
+        "fastSineMeanTrackingErrorPx": {
+          "ema_alpha_0_35": 64.86,
+          "one_euro": 20.79
+        }
+      }
+    }
+  },
+  "config_tuning_at_15fps": {
+    "uncalibrated_low_beta_0_35": {
+      "config": {
+        "name": "uncalibrated_low_beta_0_35",
+        "minCutoff": 1.4,
+        "beta": 0.35,
+        "dCutoff": 1
+      },
+      "stillness_sigma_0_004": {
+        "raw": {
+          "rmsPx": 3.686,
+          "frameToFrameJitterPx": 4.898
+        },
+        "ema_alpha_0_35": {
+          "rmsPx": 1.585,
+          "frameToFrameJitterPx": 1.317
+        },
+        "ema_alpha_0_45": {
+          "rmsPx": 1.873,
+          "frameToFrameJitterPx": 1.749
+        },
+        "one_euro": {
+          "rmsPx": 1.648,
+          "frameToFrameJitterPx": 1.405
+        }
+      },
+      "fast_onset_and_sweep": {
+        "step90LagMs": {
+          "raw": 0,
+          "ema_alpha_0_35": 333.3,
+          "ema_alpha_0_45": 200,
+          "one_euro": 266.7
+        },
+        "fastSineMeanTrackingErrorPx": {
+          "ema_alpha_0_35": 73.89,
+          "one_euro": 59.58
+        }
+      }
+    },
+    "mild_beta_3_0": {
+      "config": {
+        "name": "mild_beta_3_0",
+        "minCutoff": 1,
+        "beta": 3,
+        "dCutoff": 0.5
+      },
+      "stillness_sigma_0_004": {
+        "raw": {
+          "rmsPx": 3.686,
+          "frameToFrameJitterPx": 4.898
+        },
+        "ema_alpha_0_35": {
+          "rmsPx": 1.585,
+          "frameToFrameJitterPx": 1.317
+        },
+        "ema_alpha_0_45": {
+          "rmsPx": 1.873,
+          "frameToFrameJitterPx": 1.749
+        },
+        "one_euro": {
+          "rmsPx": 1.469,
+          "frameToFrameJitterPx": 1.125
+        }
+      },
+      "fast_onset_and_sweep": {
+        "step90LagMs": {
+          "raw": 0,
+          "ema_alpha_0_35": 333.3,
+          "ema_alpha_0_45": 200,
+          "one_euro": 200
+        },
+        "fastSineMeanTrackingErrorPx": {
+          "ema_alpha_0_35": 73.89,
+          "one_euro": 43.38
+        }
+      }
+    },
+    "balanced_beta_8_0": {
+      "config": {
+        "name": "balanced_beta_8_0",
+        "minCutoff": 1,
+        "beta": 8,
+        "dCutoff": 0.5
+      },
+      "stillness_sigma_0_004": {
+        "raw": {
+          "rmsPx": 3.686,
+          "frameToFrameJitterPx": 4.898
+        },
+        "ema_alpha_0_35": {
+          "rmsPx": 1.585,
+          "frameToFrameJitterPx": 1.317
+        },
+        "ema_alpha_0_45": {
+          "rmsPx": 1.873,
+          "frameToFrameJitterPx": 1.749
+        },
+        "one_euro": {
+          "rmsPx": 1.536,
+          "frameToFrameJitterPx": 1.18
+        }
+      },
+      "fast_onset_and_sweep": {
+        "step90LagMs": {
+          "raw": 0,
+          "ema_alpha_0_35": 333.3,
+          "ema_alpha_0_45": 200,
+          "one_euro": 133.3
+        },
+        "fastSineMeanTrackingErrorPx": {
+          "ema_alpha_0_35": 73.89,
+          "one_euro": 26.44
+        }
+      }
+    },
+    "fast_beta_12_0": {
+      "config": {
+        "name": "fast_beta_12_0",
+        "minCutoff": 1,
+        "beta": 12,
+        "dCutoff": 0.5
+      },
+      "stillness_sigma_0_004": {
+        "raw": {
+          "rmsPx": 3.686,
+          "frameToFrameJitterPx": 4.898
+        },
+        "ema_alpha_0_35": {
+          "rmsPx": 1.585,
+          "frameToFrameJitterPx": 1.317
+        },
+        "ema_alpha_0_45": {
+          "rmsPx": 1.873,
+          "frameToFrameJitterPx": 1.749
+        },
+        "one_euro": {
+          "rmsPx": 1.587,
+          "frameToFrameJitterPx": 1.222
+        }
+      },
+      "fast_onset_and_sweep": {
+        "step90LagMs": {
+          "raw": 0,
+          "ema_alpha_0_35": 333.3,
+          "ema_alpha_0_45": 200,
+          "one_euro": 66.7
+        },
+        "fastSineMeanTrackingErrorPx": {
+          "ema_alpha_0_35": 73.89,
+          "one_euro": 20.89
+        }
+      }
+    },
+    "drawing_like_beta_20_0": {
+      "config": {
+        "name": "drawing_like_beta_20_0",
+        "minCutoff": 0.8,
+        "beta": 20,
+        "dCutoff": 0.35
+      },
+      "stillness_sigma_0_004": {
+        "raw": {
+          "rmsPx": 3.686,
+          "frameToFrameJitterPx": 4.898
+        },
+        "ema_alpha_0_35": {
+          "rmsPx": 1.585,
+          "frameToFrameJitterPx": 1.317
+        },
+        "ema_alpha_0_45": {
+          "rmsPx": 1.873,
+          "frameToFrameJitterPx": 1.749
+        },
+        "one_euro": {
+          "rmsPx": 1.517,
+          "frameToFrameJitterPx": 1.09
+        }
+      },
+      "fast_onset_and_sweep": {
+        "step90LagMs": {
+          "raw": 0,
+          "ema_alpha_0_35": 333.3,
+          "ema_alpha_0_45": 200,
+          "one_euro": 66.7
+        },
+        "fastSineMeanTrackingErrorPx": {
+          "ema_alpha_0_35": 73.89,
+          "one_euro": 19.51
+        }
+      }
+    }
+  }
+}

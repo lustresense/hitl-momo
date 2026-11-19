@@ -1,0 +1,145 @@
+{
+  "generated_at": "2026-11-19T13:02:11.065Z",
+  "a4v2_inventory": {
+    "id": "A4_denoise_reinhard320",
+    "enhanceWidth": 320,
+    "legacyDimThreshold": 0.52,
+    "calibratedDimThreshold": 0.32,
+    "stages": [
+      "downscale320",
+      "motionGatedTemporalEmaInPlace",
+      "sepMedian5RgbaInPlace",
+      "denoise3x3RgbaInPlace(meanLuma<0.14)",
+      "reinhardExposureLutInPlace"
+    ]
+  },
+  "r22_dim_recovery_luma": 0.32,
+  "t2_normal_luma_047_check": {
+    "meanLuma": 0.4706,
+    "shouldActivateDimRecoveryAt032": false
+  },
+  "diagnostics_raw_vs_no_roi": {
+    "with_roi_nearWhiteHandPct": 0,
+    "without_roi_nearWhiteHandPct": null,
+    "diagRaw": {
+      "meanLuma": 0.2417,
+      "centerLuma": 0.6624,
+      "p10": 0.0196,
+      "p50": 0.0431,
+      "p95": 0.9294,
+      "nearWhiteHandPct": 0,
+      "blurProxy": 1672.26,
+      "noiseProxy": 0.33,
+      "isDark": true,
+      "isBacklight": false,
+      "isGlareRisk": false,
+      "isBlurry": false,
+      "isNoisy": false,
+      "shouldActivateDimRecovery": true
+    }
+  },
+  "same_frame_glare_shadow_comparison": {
+    "raw_nearWhiteHandPct": 0,
+    "a4v2_post_nearWhiteHandPct": 3.07,
+    "r22_post_nearWhiteHandPct": 0,
+    "raw_shadowChromaSpread": 11.48,
+    "a4v2_shadowChromaSpread": 20.41,
+    "r22_shadowChromaSpread": 19.11
+  },
+  "primitive_checks": {
+    "softKneeHighlightPixel": [
+      227,
+      212,
+      199
+    ],
+    "softKneeUntouchedMidtonePixel": [
+      120,
+      90,
+      70
+    ],
+    "shadowClampDarkPixel": [
+      18,
+      8,
+      7
+    ],
+    "shadowClampUntouchedSkinPixel": [
+      140,
+      100,
+      80
+    ],
+    "reinhardOrigBrightPixel": [
+      245,
+      236,
+      229
+    ],
+    "reinhardSoftKneeBrightPixel": [
+      225,
+      221,
+      217
+    ]
+  },
+  "p10_camera_probe": {
+    "uvcNull": {
+      "supported": false,
+      "hasGetCapabilities": false,
+      "exposureMode": null,
+      "exposureCompensation": null,
+      "whiteBalanceMode": null,
+      "brightness": null,
+      "currentExposureMode": null,
+      "currentExposureCompensation": null,
+      "currentWhiteBalanceMode": null,
+      "canAdjustExposure": false,
+      "error": null
+    },
+    "uvcUnsupported": {
+      "supported": false,
+      "hasGetCapabilities": false,
+      "exposureMode": null,
+      "exposureCompensation": null,
+      "whiteBalanceMode": null,
+      "brightness": null,
+      "currentExposureMode": null,
+      "currentExposureCompensation": null,
+      "currentWhiteBalanceMode": null,
+      "canAdjustExposure": false,
+      "error": null
+    },
+    "uvcThrowing": {
+      "supported": false,
+      "hasGetCapabilities": true,
+      "exposureMode": null,
+      "exposureCompensation": null,
+      "whiteBalanceMode": null,
+      "brightness": null,
+      "currentExposureMode": null,
+      "currentExposureCompensation": null,
+      "currentWhiteBalanceMode": null,
+      "canAdjustExposure": false,
+      "error": "Hardware error"
+    },
+    "uvcSupported": {
+      "supported": true,
+      "hasGetCapabilities": true,
+      "exposureMode": [
+        "continuous",
+        "manual"
+      ],
+      "exposureCompensation": {
+        "min": -2,
+        "max": 2,
+        "step": 0.25
+      },
+      "whiteBalanceMode": [
+        "continuous",
+        "manual"
+      ],
+      "brightness": null,
+      "currentExposureMode": "continuous",
+      "currentExposureCompensation": 0,
+      "currentWhiteBalanceMode": "continuous",
+      "canAdjustExposure": true,
+      "error": null
+    }
+  }
+}

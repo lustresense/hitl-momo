@@ -1,0 +1,572 @@
+{
+  "schema_version": "r22-dataset-registry/1.0",
+  "contract_k7_version": "v1.0-FROZEN",
+  "contract_k4_version": "v1.0-FROZEN",
+  "contract_k5_version": "r19-82d-v1",
+  "generated_at": "2026-11-19T13:02:30Z",
+  "generated_by": "w-data",
+  "feature_encoder": {
+    "id": "r19-82d-v1",
+    "dimension": 82,
+    "canonical_ts_path": "/srv/sketchbook/mediapipe-optimize/r22-nui-lab/frontend/implementation/src/components/nui-lab/r19/r19_features.ts",
+    "research_candidate_ts_path": "/srv/sketchbook/mediapipe-optimize/research-can/r19/candidates/r19_features.ts",
+    "sha256": "ed9349456a79284520adb2969a8a11eccd36500cc9d34fe24591f3f742559140",
+    "feature_names": [
+      "x1",
+      "y1",
+      "x2",
+      "y2",
+      "x3",
+      "y3",
+      "x4",
+      "y4",
+      "x5",
+      "y5",
+      "x6",
+      "y6",
+      "x7",
+      "y7",
+      "x8",
+      "y8",
+      "x9",
+      "y9",
+      "x10",
+      "y10",
+      "x11",
+      "y11",
+      "x12",
+      "y12",
+      "x13",
+      "y13",
+      "x14",
+      "y14",
+      "x15",
+      "y15",
+      "x16",
+      "y16",
+      "x17",
+      "y17",
+      "x18",
+      "y18",
+      "x19",
+      "y19",
+      "x20",
+      "y20",
+      "reach_thumb",
+      "reach_index",
+      "reach_middle",
+      "reach_ring",
+      "reach_pinky",
+      "bend_thumb",
+      "bend_index",
+      "bend_middle",
+      "bend_ring",
+      "bend_pinky",
+      "gap_thumb_index",
+      "gap_index_middle",
+      "gap_middle_ring",
+      "gap_ring_pinky",
+      "thumb_index_tip",
+      "thumb_lateral_clamped",
+      "palm_aspect_ratio",
+      "knuckle_span_ratio",
+      "index_proj_ratio",
+      "thumb_over_index_reach",
+      "d4_5",
+      "d4_6",
+      "d4_9",
+      "d4_10",
+      "d4_2",
+      "d4_17",
+      "thumb_perp_idx",
+      "thumb_along_idx",
+      "thumb_abduct_854",
+      "thumb_abduct_524",
+      "thumb_bend_123",
+      "d4_8_over_d5_8",
+      "has_history",
+      "wrist_speed",
+      "wrist_vx",
+      "wrist_vy",
+      "tip8_speed",
+      "pinch_delta",
+      "index_reach_delta",
+      "spread_delta",
+      "shape_jitter",
+      "thumb_open_delta"
+    ],
+    "legacy_segregation_policy": "R18 68D (ux3_features.ts) and R17 56D (rd_lib.ts) feature vectors are strictly segregated and NEVER concatenated with 82D. All R18 IPN HandS samples used in R19/R20/R22 are re-encoded directly from raw 21 MediaPipe landmarks through r19-82d-v1."
+  },
+  "k4_label_taxonomy": {
+    "pistol_head_gesture_only": {
+      "classes": [
+        "POINT_READY",
+        "POINT_PRESS",
+        "OTHER"
+      ],
+      "route": "gesture",
+      "canvas_usage": "DISABLED_ON_CANVAS (NEVER gates or closes Canvas strokes)"
+    },
+    "pose_head_canvas": {
+      "classes": [
+        "FIST",
+        "ONE",
+        "TWO",
+        "FIVE",
+        "OTHER"
+      ],
+      "route": "canvas",
+      "semantics": {
+        "FIST": "0 extended fingers -> NEUTRAL / ARMED_FIST for Undo/Redo",
+        "ONE": "1 extended index finger (thumb tucked) -> UNDO confirm after ARMED_FIST",
+        "TWO": "2 extended index+middle fingers -> REDO confirm after ARMED_FIST",
+        "FIVE": "5 extended digits (flat open palm) -> ERASE",
+        "OTHER": "3/4 fingers, L-sign, thumbs-up/down, OK-sign, transitional poses"
+      }
+    },
+    "pinch_head_canvas": {
+      "classes": [
+        "TOUCH",
+        "NEAR",
+        "OPEN"
+      ],
+      "route": "canvas",
+      "canonical_thresholds": {
+        "TOUCH_enter": "<= 0.30 (folded index <= 0.20)",
+        "TOUCH_hold_exit": "<= 0.42 (folded index <= 0.27)",
+        "NEAR_negative": "(0.30, 0.50] (MUST NOT start stroke)",
+        "OPEN": "> 0.50"
+      },
+      "supervised_status": "DATA_GAP_CONFIRMED (0 legal datasets contain frame-level TOUCH vs NEAR physical contact annotations)"
+    },
+    "autolabel_source_enum": [
+      "MODEL_PREDICTION",
+      "RULE_DERIVED",
+      "USER_ACTION",
+      "DATASET_GT",
+      "UNKNOWN"
+    ]
+  },
+  "locked_splits_summary": {
+    "pistol_train_base_r20_c3_rows": 20923,
+    "pistol_val_locked_rows": 5067,
+    "pistol_val_locked_sha256": "7aea311ba274e79270b85c356b9d995d40d80d8a2213358355c82d6aaa27231c",
+    "pistol_test_locked_rows": 4720,
+    "pistol_test_locked_sha256": "6d3e6eebc4953fa012eedb91470c85578c00d18dba761a6bcb0a13026158cd7e",
+    "hands_rgbd_ood_s4_s5_matched_hands": 2092,
+    "bxr7_gomoku_poker_ood_holdout_hands": 85,
+    "mendeley_599_session_disjoint_hands": 1133,
+    "zero_leakage_verified": true,
+    "verification_file": "/srv/sketchbook/mediapipe-optimize/research-can/r22/registry/split_overlap_verification.json"
+  },
+  "datasets": [
+    {
+      "dataset_id": "handgesture_5g",
+      "origin_revision": "R19 (reused R20, R22)",
+      "name": "HandGesture-5G: Multi-View, Multi-Illumination Smartphone Image Dataset (Diptho et al., 2026-06-30)",
+      "dataset_version_url": "https://data.mendeley.com/datasets/wj25crzdbm/1",
+      "doi": "10.17632/wj25crzdbm.1",
+      "license_snapshot": "CC BY 4.0 (verified via Mendeley public API 2026-11-19)",
+      "commercial_product_fit": "ALLOWED_WITH_ATTRIBUTION",
+      "usage_allowed": true,
+      "split_role": "train | val | locked_test",
+      "supervision_type": "INDEPENDENT_DATASET_GT",
+      "feature_dimension": "82D (r19-82d-v1 from 21 MP landmarks)",
+      "sha256": {
+        "handgesture_5g_landmarks.jsonl": "6466e8d7e50f6906dd6698aaab4872ba9eb34c6a31c71ac37c12fc4831e121e9",
+        "extra_hg5g_aug.jsonl": "589346e4c5c36caa069d4326326c8c779eb87a485edbd56e28f4bd2de4dbb14a",
+        "upstream_zip_ref": "b86adb64... (5,176,227,373 B; streamed via HTTP 206 Range, 0 B zip saved)"
+      },
+      "local_paths": [
+        "/srv/sketchbook/mediapipe-optimize/r19-sandbox/data/handgesture_5g_derived/handgesture_5g_landmarks.jsonl",
+        "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/hg5g_720",
+        "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/aug/extra_hg5g_aug.jsonl"
+      ],
+      "counts": {
+        "subjects_or_clusters": "38 dHash<=8 + 15s-burst atomic clusters (21 train / 8 val / 9 locked_test)",
+        "upstream_entries": 2653,
+        "crc32_duplicates_removed": 846,
+        "heic_skipped": 10,
+        "decoded_images": 1797,
+        "detected_hands": 1300,
+        "cached_train_720p_images": 1097,
+        "r20_aug_train_rows": 1915
+      },
+      "original_to_k4_label_mapping": {
+        "pistol_head": {
+          "Pointing Up": "POINT_READY",
+          "L-Sign": "POINT_PRESS",
+          "Fist": "OTHER",
+          "V-Sign": "OTHER",
+          "Open Palm_Open Hand": "OTHER"
+        },
+        "pose_head": {
+          "Fist": "FIST",
+          "Pointing Up": "ONE",
+          "V-Sign": "TWO",
+          "Open Palm_Open Hand": "FIVE",
+          "L-Sign": "OTHER"
+        },
+        "pinch_head": "NEGATIVE_NON_PINCH_ONLY (no TOUCH/NEAR labels; Fist has 48.3% curled-index near ratio 0.30..0.50)"
+      }
+    },
+    {
+      "dataset_id": "natural_rgb_v3",
+      "origin_revision": "R19 (reused R20, R22)",
+      "name": "Natural RGB Hand Gestures Dataset v3 (Rahat et al., AIUB, 2026-07-08)",
+      "dataset_version_url": "https://data.mendeley.com/datasets/n66hhk695h/3",
+      "doi": "10.17632/n66hhk695h.3",
+      "license_snapshot": "CC BY 4.0 (verified via Mendeley public API 2026-11-19)",
+      "commercial_product_fit": "ALLOWED_WITH_ATTRIBUTION",
+      "usage_allowed": true,
+      "split_role": "train | val | locked_test",
+      "supervision_type": "INDEPENDENT_DATASET_GT",
+      "feature_dimension": "82D (r19-82d-v1 from 21 MP landmarks, causal sequence per clip)",
+      "sha256": {
+        "Root.zip_r19_recorded": "2257bb717af6451166d5ac74450c5f624c1f2960845894c549c14b6d2085a3d6 (382,226,419 B; deleted after R19 landmark extraction)",
+        "n66hhk695h_v3_landmarks.jsonl": "de9f75df73583402ffa0bc732636c23ffe5b6781dac67236efd8967c59a97cc8"
+      },
+      "local_paths": [
+        "/srv/sketchbook/mediapipe-optimize/r19-sandbox/data/n66hhk695h_v3_derived/n66hhk695h_v3_landmarks.jsonl"
+      ],
+      "counts": {
+        "participants": "26 (19 train / 4 val [p13,p14,p17,p19] / 3 locked_test [p02,p05,p15])",
+        "videos_clips": 1352,
+        "sampled_frames": 10816,
+        "lighting_strata": [
+          "bright_daylight",
+          "indoor_moderate",
+          "dim",
+          "backlit",
+          "green_led",
+          "red_led"
+        ],
+        "locked_test_other_hands": 888
+      },
+      "original_to_k4_label_mapping": {
+        "pistol_head": {
+          "11_clean_classes": "OTHER (thumbs_up, thumbs_down, peace_sign, ok_sign, fist, stop, raised_hand, palm_down_push, wave, come_here, go)",
+          "point_left_and_point_right": "QUARANTINED_AMBIGUOUS_CONVERSATIONAL_POINTING (0 rows labeled POINT_PRESS)"
+        },
+        "pose_head": {
+          "apex_policy": "Clip apex frames rank 3..5 ONLY (ranks 0..1 are open-hand raise transitions)",
+          "fist": "FIST",
+          "peace_sign": "TWO",
+          "raised_hand, stop": "FIVE",
+          "ok_sign, thumbs_up, thumbs_down": "OTHER",
+          "point_left, point_right, come_here, go, palm_down_push, wave": "QUARANTINED_DYNAMIC_OR_AMBIGUOUS"
+        },
+        "pinch_head": "ok_sign (n=561, 58.5% pinchRatio<=0.30) is ring-OK with 3 extended fingers, NOT frame-level canvas TOUCH vs NEAR GT"
+      }
+    },
+    {
+      "dataset_id": "ipn_hands",
+      "origin_revision": "R17 (ann only) -> R18 (landmarks + person split) -> R19/R20/R22 (re-encoded 82D)",
+      "name": "IPN Hand / IPN HandS Continuous Video Dataset (Benitez-Garcia et al., 2020/2025)",
+      "dataset_version_url": "https://gibranbenitez.github.io/IPN_Hand/",
+      "doi": "10.3390/app15116321",
+      "license_snapshot": "CC BY 4.0 (annotations/GT); Apache 2.0 (MediaPipe landmarks); MIT (code)",
+      "commercial_product_fit": "ALLOWED_WITH_ATTRIBUTION",
+      "usage_allowed": true,
+      "split_role": "train | val | locked_test",
+      "supervision_type": "INDEPENDENT_DATASET_GT",
+      "feature_dimension": "82D re-encoded from 21 raw MP landmarks (R18 68D ux3_feat_*.f32 strictly segregated, NEVER concatenated)",
+      "sha256": {
+        "IPN_HandS_annotations.zip": "520dfbf3d52ecab6535d8841bba55e94d6b512596ed1cff4505d2c1345bcbaec",
+        "IPN_HandS_landmarks_GT.zip": "493bf53638d5b1477e28f05c41884f0cabdcb7b84f20d68f3d5d94e0b46fad4d",
+        "IPN_HandS_landmarks_MPHands.zip": "e511bb2b902207b82a296190daadc30a057f3abc16f628579542d2b1274ce598",
+        "ipn_person_split.json": "24590205954fdf6eb8d6d07a131fa2d083ca9ddb452994bc52ad6643cc4e4431"
+      },
+      "local_paths": [
+        "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/datasets/ipn_hands/IPN_HandS_annotations.zip",
+        "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/datasets/ipn_hands/IPN_HandS_landmarks_GT.zip",
+        "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/datasets/ipn_hands/IPN_HandS_landmarks_MPHands.zip",
+        "/srv/sketchbook/mediapipe-optimize/research-can/r18/manifests/ipn_person_split.json"
+      ],
+      "counts": {
+        "persons": "29 person-disjoint (19 train / 5 val [2,3,8,17,22] / 5 locked_test [6,10,13,21,29])",
+        "videos": "200 (128 train / 36 val / 36 locked_test)",
+        "frames_total": 801476,
+        "classes": 15
+      },
+      "original_to_k4_label_mapping": {
+        "pistol_head": {
+          "NOG, P2F, C2F, 2C2, GRB, TUP, TDN, TLT, TRT, OP2, ZIN, ZOT": "OTHER",
+          "P1F, C1F, 2C1": "EXCLUDED_FROM_PRESS_SUPERVISION (evaluated separately as casual 1-finger negative trap)"
+        },
+        "pose_head": "TEMPORAL_REFERENCE_ONLY (dynamic gestures lack static 5-finger open-palm class; P1F/P2F used by w-temporal)",
+        "pinch_head": "NO_PINCH_LABELS (no TOUCH/NEAR class)"
+      }
+    },
+    {
+      "dataset_id": "hands_rgbd_v2",
+      "origin_revision": "R19 (eval-only) -> R20 (S1..S2 train / S3 val / S4..S5 locked OOD) -> R22 (also Pose Head)",
+      "name": "HANDS: Static Hand-Gestures RGB-D Dataset (10.17632/ndrczc35bt.2)",
+      "dataset_version_url": "https://data.mendeley.com/datasets/ndrczc35bt/2",
+      "doi": "10.17632/ndrczc35bt.2",
+      "license_snapshot": "CC BY 4.0 (verified via Mendeley public API 2026-11-19)",
+      "commercial_product_fit": "ALLOWED_WITH_ATTRIBUTION",
+      "usage_allowed": true,
+      "split_role": "train (S1..S2) | val (S3) | locked_ood (S4..S5)",
+      "supervision_type": "INDEPENDENT_DATASET_GT",
+      "feature_dimension": "82D (r19-82d-v1 from 21 MP landmarks)",
+      "sha256": {
+        "hands_rgbd_landmarks.jsonl": "96b22c405d709e5199996d48b6b928c037813d3fb1088e8aac45fe3cf2077083",
+        "extra_hands_rgbd_s1_s2_train.jsonl": "dabbed99c7040e1dfa8be3251da45b2b1f23498f1bb36c49b91297bf1894a795",
+        "hands_rgbd_s3_val.jsonl": "803ebcf47da65f5521205b9e4477e51f3b91e9faf0b39df3782c48663fcd8559",
+        "hands_rgbd_s4_s5_ood_test.jsonl": "4d3d8202d938b4474f504613a77d12d7a1b1daf6c52f729b9014c6278e3994e1"
+      },
+      "local_paths": [
+        "/srv/sketchbook/mediapipe-optimize/r19-sandbox/data/hands_rgbd_eval/hands_rgbd_landmarks.jsonl",
+        "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/hard_neg/extra_hands_rgbd_s1_s2_train.jsonl",
+        "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/hard_neg/hands_rgbd_s3_val.jsonl",
+        "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/hard_neg/hands_rgbd_s4_s5_ood_test.jsonl"
+      ],
+      "counts": {
+        "subjects": "5 (Subject1..2 train / Subject3 val / Subject4..5 locked OOD)",
+        "frames_streamed": 2700,
+        "ood_s4_s5_frames": 1080,
+        "ood_s4_s5_matched_hands": 2092,
+        "train_s1_s2_other_rows": 1692,
+        "val_s3_other_rows": 221
+      },
+      "original_to_k4_label_mapping": {
+        "pistol_head": {
+          "Horiz_HBL/HBR/HFL/HFR (5-finger flat palm), Five, Punch, Two, Six, Seven, Eight, Span, TimeOut": "OTHER",
+          "One_VFL, One_VFR": "QUARANTINED_FROM_OTHER_TRAIN (evaluated as POINT_READY on OOD S4..S5)"
+        },
+        "pose_head": {
+          "Punch_VFL, Punch_VFR": "FIST",
+          "One_VFL, One_VFR": "ONE",
+          "Two_VFL, Two_VFR": "TWO",
+          "Five_VFL, Five_VFR, Horiz_HBL, Horiz_HBR, Horiz_HFL, Horiz_HFR": "FIVE",
+          "Six_VFL, Six_VFR, Seven_VFL, Seven_VFR, Eight_VFL, Eight_VFR, Span_VFL, Span_VFR": "OTHER",
+          "TimeOut": "EXCLUDED (two-hand T-shape where each single hand is a flat 5-finger palm)"
+        },
+        "pinch_head": "NEGATIVE_NON_PINCH_ONLY (Punch has 43..49% near ratio 0.30..0.50 and 9..23.5% <=0.30 -> critical fist-vs-pinch negative stress)"
+      }
+    },
+    {
+      "dataset_id": "mendeley_bxr7kx84y6_v2",
+      "origin_revision": "R18 (eval-only 599 frames) -> R20 (Gomoku/Poker non-holdout train + 85-hand OOD) -> R22",
+      "name": "Egocentric and Exocentric View Hands in Interactive Senses v2 (2 cached slices)",
+      "dataset_version_url": "https://data.mendeley.com/datasets/bxr7kx84y6/2",
+      "doi": "10.17632/bxr7kx84y6.2",
+      "license_snapshot": "CC BY 4.0 (verified via Mendeley public API 2026-11-19)",
+      "commercial_product_fit": "ALLOWED_WITH_ATTRIBUTION",
+      "usage_allowed": true,
+      "split_role": "train (Gomoku/Poker 0..68%) | locked_ood (599-frame 5 games + Gomoku/Poker 75..100%)",
+      "supervision_type": "AUDITED_NON_POINTING_FILTER",
+      "feature_dimension": "82D (r19-82d-v1 from 21 MP landmarks)",
+      "sha256": {
+        "dim_light_1.zip": "2f91746c3622ace4792ecec54d9284eb65066a652811b88dfca761d27827a266",
+        "natural_light_1.zip": "4655f7e42a6edac6f26686fa6573da777dc042ab12286e4a9d12959685ee86a4",
+        "ux3_mendeley_distractor_landmarks.json": "e617e9233c44fb48ecb7388d2e5ab91a4aa7df1c753508951fce49bbdae1c88e",
+        "extra_bxr7_gomoku_poker_train.jsonl": "2a88f10b6d971cb65509f5deb948ecdb306ce6753b565fa6340f998074ce9bf3",
+        "bxr7_gomoku_poker_ood_test.jsonl": "2db833edb75288fed4ed9c568af07b76cacca9c43a7ece1f5493084113b5ee15"
+      },
+      "local_paths": [
+        "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/datasets/mendeley_bxr7kx84y6/dim_light_1.zip",
+        "/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/datasets/mendeley_bxr7kx84y6/natural_light_1.zip",
+        "/srv/sketchbook/mediapipe-optimize/research-can/r18/results/ux3_mendeley_distractor_landmarks.json",
+        "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/hard_neg/extra_bxr7_gomoku_poker_train.jsonl",
+        "/srv/sketchbook/mediapipe-optimize/r20-sandbox/data/hard_neg/bxr7_gomoku_poker_ood_test.jsonl"
+      ],
+      "counts": {
+        "cached_zips": 2,
+        "upstream_remaining_zips": 22,
+        "cached_jpgs": 3712,
+        "locked_599_frames": 600,
+        "locked_599_hands": 1133,
+        "gomoku_poker_train_hands": 230,
+        "gomoku_poker_ood_holdout_hands": 85
+      },
+      "original_to_k4_label_mapping": {
+        "pistol_head": "Non-pointing board/card-game hands -> OTHER (pointing-like hands quarantined)",
+        "pose_head": "NOT_USED (unlabeled natural interaction poses)",
+        "pinch_head": "NOT_USED_AS_GT (unlabeled board-game manipulation; may contain genuine pinches on game pieces)"
+      }
+    },
+    {
+      "dataset_id": "hagridv2",
+      "origin_revision": "R17 (RD-01..RD-05 offline research only)",
+      "name": "HaGRIDv2 Landmark Annotations (Nuzhdin et al., arXiv:2412.01508)",
+      "dataset_version_url": "https://github.com/hukenovs/hagrid",
+      "doi": "10.48550/arXiv.2412.01508",
+      "license_snapshot": "Custom Russian-law Public License (reworked CC BY-SA 4.0 ShareAlike Sec. 3b & 4 on Adapted Material)",
+      "commercial_product_fit": "HOLD_LICENSE (requires Owner legal clearance on ShareAlike obligations for derived weights)",
+      "usage_allowed": false,
+      "split_role": "hold_license",
+      "supervision_type": "HOLD_LICENSE",
+      "feature_dimension": "56D legacy in R17 (0 rows in R18/R19/R20/R22 product weights)",
+      "sha256": {
+        "r17_recorded_annotations_zip": "ca27a177cc9f061e92d59f6a7d9b1b10fe2ee8289ab5f2068cde6ab197d2a286",
+        "local_product_cache": "NONE (0 bytes on disk; 0 rows in product weights)"
+      },
+      "local_paths": [],
+      "counts": {
+        "rows_in_product_weights": 0,
+        "r17_historical_research_rows": 222661
+      },
+      "original_to_k4_label_mapping": {
+        "all": "EXCLUDED_HOLD_LICENSE"
+      }
+    },
+    {
+      "dataset_id": "dimhand_llhands_mgrdark_and_nc_backlog",
+      "origin_revision": "R18/R19/R20 license audit",
+      "name": "DimHand (ACM MM 2026), LLHands/XPose, MGR-Dark, AnyHand, PALM, FreiHAND, RHD, InterHand2.6M, DexYCB, HO-3D, FPHA, EgoHands, NUS-II, Cambridge",
+      "dataset_version_url": "https://hanlingzhan.github.io/DimHand/",
+      "doi": "various (see DATASET_LINEAGE_AND_LICENSE_AUDIT.md)",
+      "license_snapshot": "Non-commercial (CC BY-NC / CC BY-NC-ND / Academic-only) or Unpublished/Proprietary",
+      "commercial_product_fit": "PROHIBITED_BLOCKED",
+      "usage_allowed": false,
+      "split_role": "blocked",
+      "supervision_type": "BLOCKED",
+      "feature_dimension": "N/A (0 rows ingested)",
+      "sha256": {},
+      "local_paths": [],
+      "counts": {
+        "rows_in_product_weights": 0
+      },
+      "original_to_k4_label_mapping": {
+        "all": "BLOCKED_PROHIBITED"
+      }
+    },
+    {
+      "dataset_id": "owner_benchmark_S_07ba0cde",
+      "origin_revision": "R20/R22 Owner Telemetry",
+      "name": "Owner Physical Webcam Benchmark Telemetry JSONs (S-07ba0cde four-trials & two-trials)",
+      "dataset_version_url": "local: research-can/docs/plan-rev/R22_FULL_SCOPE_MALAM_20261119/references/benchmarks/",
+      "doi": "N/A (Owner local numeric telemetry, consent.numericRecording=true, videoOrImages=false)",
+      "license_snapshot": "Owner-consented local numeric telemetry (no images/video/face/biometrics)",
+      "commercial_product_fit": "TELEMETRY_DIAGNOSTICS_ONLY (NEVER supervised GT)",
+      "usage_allowed": false,
+      "split_role": "unlabelled_telemetry",
+      "supervision_type": "UNLABELLED_TELEMETRY",
+      "feature_dimension": "21-pt raw landmarks in JSON (re-encodable to 82D for unsupervised/consistency diagnostics only)",
+      "sha256": {
+        "nui-lab-benchmark-S-07ba0cde-four-trials.json": "42c1f347f75dbe43a1de839a47f2f6ecbf0f932d0dbb7ef8cffdada599ee226d",
+        "nui-lab-benchmark-S-07ba0cde-two-trials.json": "7dfabfcc2fd22a41f59b784645fdf0632fc914f57fd9856ea5d43598d3873e78"
+      },
+      "local_paths": [
+        "/srv/sketchbook/mediapipe-optimize/research-can/docs/plan-rev/R22_FULL_SCOPE_MALAM_20261119/references/benchmarks/nui-lab-benchmark-S-07ba0cde-four-trials.json",
+        "/srv/sketchbook/mediapipe-optimize/research-can/docs/plan-rev/R22_FULL_SCOPE_MALAM_20261119/references/benchmarks/nui-lab-benchmark-S-07ba0cde-two-trials.json"
+      ],
+      "counts": {
+        "four_trials_frames": 7612,
+        "two_trials_frames": 4080,
+        "t004_canvas_frames": 2082,
+        "t004_frames_with_landmarks": 1411,
+        "supervised_gt_rows_used": 0
+      },
+      "original_to_k4_label_mapping": {
+        "truth_field": "UNLABELLED (0 rows used as supervised GT; strictly action-invariant & consistency replay)"
+      }
+    },
+    {
+      "dataset_id": "candidate_mendeley_bpkd429sxt_v1",
+      "origin_revision": "R22 D10 Audit",
+      "name": "hand gesture classification - dataset (Preinl, 2025-11-17)",
+      "dataset_version_url": "https://data.mendeley.com/datasets/bpkd429sxt/1",
+      "doi": "10.17632/bpkd429sxt.1",
+      "license_snapshot": "CC BY 4.0 (verified via Mendeley public API 2026-11-19)",
+      "commercial_product_fit": "LEGAL_CC_BY_4_0",
+      "usage_allowed": false,
+      "split_role": "candidate_not_ingested",
+      "supervision_type": "DEFERRED_PREEXTRACTED_CSV_UNVERIFIED_MP_VERSION",
+      "feature_dimension": "Pre-extracted CSV landmarks (unspecified MP Hands version, no raw RGB/aspect/subject IDs)",
+      "sha256": {
+        "collage.jpg_upstream_api": "1c090c30ad3752a612590e6ee8e441c27e775c7a8e2ec1e000b40adbb5380baf"
+      },
+      "local_paths": [],
+      "counts": {
+        "classes": 10,
+        "class_codes": [
+          "GE01NU",
+          "GE02NU",
+          "GE21NU",
+          "GE02WS",
+          "GE16WS",
+          "GE16DS",
+          "GE03NU",
+          "GE03US",
+          "GE05US",
+          "GE19NU"
+        ]
+      },
+      "original_to_k4_label_mapping": {
+        "audit_verdict": "DEFERRED \u2014 legal CC BY 4.0, but pre-extracted MediaPipe CSV lacks raw RGB frames for lowlight/blur augmentation, aspect metadata, subject IDs for leak-free split, and explicit L-Sign / pinch-contact definitions."
+      }
+    },
+    {
+      "dataset_id": "candidate_mendeley_bisindo_235c78xbmk_v2",
+      "origin_revision": "R22 D10 Audit",
+      "name": "A Multimodal BISINDO Corpus: Annotated Images and Videos for Indonesian Sign Language (Hayati et al., 2025-12-15)",
+      "dataset_version_url": "https://data.mendeley.com/datasets/235c78xbmk/2",
+      "doi": "10.17632/235c78xbmk.2",
+      "license_snapshot": "CC BY 4.0 (verified via Mendeley public API 2026-11-19)",
+      "commercial_product_fit": "LEGAL_CC_BY_4_0",
+      "usage_allowed": false,
+      "split_role": "candidate_not_ingested",
+      "supervision_type": "CANDIDATE_LOWLIGHT_HARD_NEG_SINGLE_ACTOR",
+      "feature_dimension": "Raw RGB video/frames (re-encodable via MP HandLandmarker -> 82D)",
+      "sha256": {},
+      "local_paths": [],
+      "counts": {
+        "classes": 26,
+        "image_samples": 19760,
+        "actors": 1
+      },
+      "original_to_k4_label_mapping": {
+        "audit_verdict": "ELIGIBLE_FUTURE_HARD_NEG \u2014 legal CC BY 4.0 with real low-light indoor + outdoor Indonesian hand motion & anonymized faces; single-actor constraint requires keeping entire corpus in TRAIN-only OTHER hard negatives (never split across train/test)."
+      }
+    },
+    {
+      "dataset_id": "candidate_mendeley_bxr7kx84y6_remaining_22_zips",
+      "origin_revision": "R22 D10 Audit",
+      "name": "Egocentric/Exocentric Hands v2 \u2014 Remaining 22 Uncached Upstream Zips (~7.75 GiB)",
+      "dataset_version_url": "https://data.mendeley.com/datasets/bxr7kx84y6/2",
+      "doi": "10.17632/bxr7kx84y6.2",
+      "license_snapshot": "CC BY 4.0 (verified via Mendeley public API 2026-11-19)",
+      "commercial_product_fit": "LEGAL_CC_BY_4_0",
+      "usage_allowed": true,
+      "split_role": "candidate_not_ingested",
+      "supervision_type": "ELIGIBLE_SESSION_DISJOINT_HARD_NEG_AND_BBOX_EXPANSION",
+      "feature_dimension": "Raw 1280x720 RGB dim/natural light frames",
+      "sha256": {},
+      "local_paths": [],
+      "counts": {
+        "remaining_zips": 22,
+        "approx_size_gib": 7.75
+      },
+      "original_to_k4_label_mapping": {
+        "audit_verdict": "ELIGIBLE_FUTURE_EXPANSION \u2014 100% session-disjoint from cached dim_light_1.zip & natural_light_1.zip locked holdouts; streamable via HTTP 206 Range for dim-light OTHER hard negatives."
+      }
+    },
+    {
+      "dataset_id": "candidate_mendeley_exocentric_9d37m3nfgm_v2",
+      "origin_revision": "R22 D10 Audit",
+      "name": "Exocentric View Hand Interaction Dataset v2 (Zadid et al., AIUB, 2025-07-02)",
+      "dataset_version_url": "https://data.mendeley.com/datasets/9d37m3nfgm/2",
+      "doi": "10.17632/9d37m3nfgm.2",
+      "license_snapshot": "CC BY 4.0 (verified via Mendeley public API 2026-11-19)",
+      "commercial_product_fit": "LEGAL_CC_BY_4_0",
+      "usage_allowed": false,
+      "split_role": "candidate_not_ingested",
+      "supervision_type": "CANDIDATE_MULTI_HAND_BYSTANDER_HARD_NEG",
+      "feature_dimension": "Raw PNG frames (7,221 frames, 2/3/4-person board games)",
+      "sha256": {
+        "Exocentric View.zip_r19_ref": "572d98ab... (2,663,815,536 B)"
+      },
+      "local_paths": [],
+      "counts": {
+        "frames": 7221,
+        "persons_per_scene": "2-4"
+      },
+      "original_to_k4_label_mapping": {
+        "audit_verdict": "ELIGIBLE_FUTURE_MULTI_HAND_DISTRACTOR \u2014 legal CC BY 4.0; useful for multi-hand bystander negative stress without gesture labels."
+      }
+    }
+  ]
+}

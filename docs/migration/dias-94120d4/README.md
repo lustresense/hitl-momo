@@ -22,7 +22,7 @@ Angka audit awal di mandat terverifikasi ulang: 754 file, 452 identik di path sa
 
 | Kategori | Jumlah | Arti |
 |---|---:|---|
-| `1-IDENTICAL` | 468 | Blob sama persis di path sama (termasuk file baru yang dibawa) |
+| `1-IDENTICAL` | 467 | Blob sama persis di path sama (termasuk file baru yang dibawa) |
 | `1-IDENTICAL-RELOCATED` | 248 | Blob sama persis di path lain (mis. `docs/history/dias/frontend-implementation-donor/`, `contexts/dias/notes/`) |
 | `2-INTEGRATED` | 5 | Isi sama setelah CRLF→LF (`config.py`, `utils.py`, `train/01`, `train/02`, `train/06`) |
 | `3-ADAPTED` | 8 | Digabung dengan perubahan monorepo (lihat §3) |
@@ -34,7 +34,7 @@ Angka audit awal di mandat terverifikasi ulang: 754 file, 452 identik di path sa
 | `5-SECRET` | 0 | Tidak ada secret/DB/data siswa di file terlacak |
 | **Total** | **754** | 0 `UNRESOLVED` |
 
-Angka di atas dihasilkan oleh commit pertama branch; jalankan ulang script untuk HEAD terbaru.
+Angka di atas dihasilkan terhadap `023d061` (`python3 docs/migration/dias-94120d4/build_manifest.py <dias_repo> 94120d4 81bab5e HEAD docs/migration/dias-94120d4/MANIFEST.csv`).
 
 **Bukti dapat dipulihkan:** 51 blob Dias yang tidak terjangkau dari riwayat monorepo disimpan byte-exact di `contexts/dias/archive/source-94120d4/files-not-in-monorepo.tar.gz` (dibuat `git archive 94120d4`). 703 blob lainnya terjangkau dari `origin/*` monorepo.
 

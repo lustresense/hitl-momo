@@ -1,23 +1,33 @@
 {
-  "revision": "R20-01 v0.2.0",
-  "generated_at": "2026-11-19T11:25:00+07:00",
-  "published_count": 42,
-  "published_total_bytes": 895292,
+  "revision": "R20-01 v0.2.0 + R20-FIX-20261119-02",
+  "generated_at": "2026-11-19T13:26:00+07:00",
+  "published_count": 52,
+  "published_total_bytes": 1154704,
   "published_files": [
     {
+      "path": "r20/candidates/browser_harness/harness.ts",
+      "bytes": 16013,
+      "sha256": "a4260b98dac20dad1246f845eb9e18e4f23f6c431682ef7b3f54d76197fd0084"
+    },
+    {
+      "path": "r20/candidates/browser_harness/index.html",
+      "bytes": 404,
+      "sha256": "03390e88cfc26e782e9d56453cc41ef7e8c9b4eff7f4bce34d5e7b2a91b0cc2c"
+    },
+    {
       "path": "r20/candidates/r20_hand_landmarker.worker.ts",
-      "bytes": 13980,
-      "sha256": "301acb1203a600a100d7f0e7e745d5d73c1f8a4a0d5c21a9f39a56f0dd47acd2"
+      "bytes": 13701,
+      "sha256": "f9cca4b43cc5f635f7120e5e5da1e5119d2bf1a7d825debb0430506a7f7ac100"
     },
     {
       "path": "r20/candidates/r20_hand_landmarker_cpu.ts",
-      "bytes": 15440,
-      "sha256": "939c03c8cdb822672303c8cef8301b6b974a910700a7cc94034d5fd9c5710bd2"
+      "bytes": 15880,
+      "sha256": "50b16aed33da89040396728b8638453f98cccc49213653873571be1639c37b4e"
     },
     {
       "path": "r20/candidates/r20_lowlight_frame_source.ts",
-      "bytes": 14374,
-      "sha256": "8bb8e6c8d83f6d7d412aba4579847f6a8e046e73485962b2e9b48a6ea7f35827"
+      "bytes": 19148,
+      "sha256": "ce524d245136ebb22fe8bc45cc83d1e3378d295fd6076b0717f5e9ed72dff19d"
     },
     {
       "path": "r20/candidates/r20_model.ts",
@@ -25,14 +35,9 @@
       "sha256": "e4bd05afacaf7943990e37795958a851e4141f7bad9483afe2cc2f8f9ee40876"
     },
     {
-      "path": "r20/candidates/browser_harness/harness.ts",
-      "bytes": 15169,
-      "sha256": "aa5156b44cb100bebb695edc72f8298fa11b2cedae830cba556acd832f1e66e9"
-    },
-    {
-      "path": "r20/candidates/browser_harness/index.html",
-      "bytes": 404,
-      "sha256": "03390e88cfc26e782e9d56453cc41ef7e8c9b4eff7f4bce34d5e7b2a91b0cc2c"
+      "path": "r20/candidates/r20_worker_owner_guard.ts",
+      "bytes": 10869,
+      "sha256": "50183bcbd23dbf2a79af4a32207a631f9272e82b222b25c10934f45aa1c6981a"
     },
     {
       "path": "r20/experiments/exp_r20_gpu_teacher_student_and_cohort_ablation.md",
@@ -95,6 +100,11 @@
       "sha256": "8b9811714a0650ec1bd4ef83179832aac2e6191cc2b66455135cbcaa5a46e004"
     },
     {
+      "path": "r20/results/R20_FIX_AUDIT_REPORT.md",
+      "bytes": 18896,
+      "sha256": "9c26283f555109a7c36f8b2ccb3bb48c5a2a55f450e4c523b2190fc0e542e186"
+    },
+    {
       "path": "r20/results/R20_OWNER_NIGHT_WEBCAM_PROTOCOL_AND_HANDOFF.md",
       "bytes": 7446,
       "sha256": "9150801a324e65886c2ac985f231bf0ee2b1c5cf24cf45bd30d3891ebef4b3d0"
@@ -110,6 +120,16 @@
       "sha256": "27b9eb085c3be4907d4821d7335f20864273c7209aa9b8a6d922d41dbe0c9c78"
     },
     {
+      "path": "r20/results/r20_a4_detector_vs_classifier.json",
+      "bytes": 28890,
+      "sha256": "c483f4a054bdf8c3349019cbbf139cb8ff2bacaf49d1a00b9af8aa3b34a797c1"
+    },
+    {
+      "path": "r20/results/r20_a4_sequential_audit.json",
+      "bytes": 38767,
+      "sha256": "0283f5bf7a6db65d4f71ab2e40487265c68f27ad13d2cf1f42abd338f9531d3f"
+    },
+    {
       "path": "r20/results/r20_browser_runtime.json",
       "bytes": 28489,
       "sha256": "1e8bb5a491400a02d48b791ff3b457ba4a991d67d9b5f9c6971f53ca50be812d"
@@ -123,6 +143,16 @@
       "path": "r20/results/r20_eval_all.json",
       "bytes": 58640,
       "sha256": "6886d7c0284681e8cb3ce61422f798bf5c111d115aed8901292478d3d8155154"
+    },
+    {
+      "path": "r20/results/r20_fix_network_cdp_audit.json",
+      "bytes": 58444,
+      "sha256": "ffe7cd0d127cdd1a013f81fdbce3ee13494cc2d68062b6fa6552a9647ec3304a"
+    },
+    {
+      "path": "r20/results/r20_fix_runtime_and_nuilab_e2e.json",
+      "bytes": 18265,
+      "sha256": "46cf5168a90e7e2854e2792e4a5c1e676deb33e843c41958a316d22a9daf1336"
     },
     {
       "path": "r20/results/r20_hard_neg_curation_summary.json",
@@ -151,8 +181,8 @@
     },
     {
       "path": "r20/scripts/augment_hg5g.py",
-      "bytes": 18437,
-      "sha256": "a84c6ee6a364e05cb610ad160fc8d23d0a929055fa61d589bbf2dc223978a92c"
+      "bytes": 18776,
+      "sha256": "72954838a10308231c3cf4afc2b7ca2be4f6475aae7d9668340febee1e15b743"
     },
     {
       "path": "r20/scripts/build_r20_manifests.py",
@@ -163,6 +193,21 @@
       "path": "r20/scripts/curate_r20_hard_negatives.py",
       "bytes": 14339,
       "sha256": "b6c10e88a171498e65e7f4336a26f15c81a01224116075702534257bd8b004a8"
+    },
+    {
+      "path": "r20/scripts/eval_a4_sequential.py",
+      "bytes": 17207,
+      "sha256": "0efd16e9c515d3877f1e2f02d504dae268188a340f3cb0c0c2628b2343b885c1"
+    },
+    {
+      "path": "r20/scripts/eval_a4v2_classifier_separation.ts",
+      "bytes": 5815,
+      "sha256": "7d6728b2c8ca6c2080927b47fdd7921ea633ebe1fdb7b59f78bbb0cff13bbd69"
+    },
+    {
+      "path": "r20/scripts/eval_a4v2_sequential.py",
+      "bytes": 16930,
+      "sha256": "f820955618c9d122fa8235744ecb026c24fb2ef261deb2b20c561aec065a6bbb"
     },
     {
       "path": "r20/scripts/eval_r20_all.ts",
@@ -198,6 +243,11 @@
       "path": "r20/scripts/run_r20_browser_harness.mjs",
       "bytes": 19853,
       "sha256": "c20531b42703607385bef97279f178236c263ec4f95e64ab5c9f578d4c9d7804"
+    },
+    {
+      "path": "r20/scripts/run_r20_fix_browser_audit.mjs",
+      "bytes": 39211,
+      "sha256": "670e06804f2240b259370b2da808032db6f5fc66ac1715b829b4d72aae425eb6"
     },
     {
       "path": "r20/scripts/test_r20_invariants_and_ownership.ts",
@@ -245,6 +295,11 @@
       "local_path": "main:contexts/can/research/.context-notforagent/",
       "approx_size": "0 B accessed",
       "reason": "Strictly forbidden by AGENTS.md \u00a71 & R20 \u00a70.6; never opened, searched, or read"
+    },
+    {
+      "local_path": "/srv/sketchbook/mediapipe-optimize/r20-sandbox/browser/nui_lab_e2e_export.json & dist/",
+      "approx_size": "~0.8 MiB",
+      "reason": "Ephemeral headless browser harness bundles and synthetic E2E download artifact (excluded from research-can)"
     }
   ]
 }

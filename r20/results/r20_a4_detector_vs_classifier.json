@@ -1,0 +1,816 @@
+{
+  "generated_at": "2026-11-19T06:12:56.357Z",
+  "input_rows": 5040,
+  "models": {
+    "C0_R19": {
+      "P0_raw": {
+        "overall": {
+          "total_frames": 2520,
+          "detector_miss_frames": 1647,
+          "detector_miss_rate": 0.6536,
+          "detected_frames": 873,
+          "conditional_classifier_acc": 0.9828,
+          "classifier_error_frames": 15,
+          "false_press_on_non_press": 0,
+          "end_to_end_correct_rate": 0.3405
+        },
+        "by_condition": {
+          "raw": {
+            "total_frames": 210,
+            "detector_miss_frames": 0,
+            "detector_miss_rate": 0,
+            "detected_frames": 210,
+            "conditional_classifier_acc": 0.9571,
+            "classifier_error_frames": 9,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9571
+          },
+          "dim_g045": {
+            "total_frames": 210,
+            "detector_miss_frames": 183,
+            "detector_miss_rate": 0.8714,
+            "detected_frames": 27,
+            "conditional_classifier_acc": 1,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.1286
+          },
+          "dim_g020": {
+            "total_frames": 210,
+            "detector_miss_frames": 210,
+            "detector_miss_rate": 1,
+            "detected_frames": 0,
+            "conditional_classifier_acc": null,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0
+          },
+          "dim_g008": {
+            "total_frames": 210,
+            "detector_miss_frames": 210,
+            "detector_miss_rate": 1,
+            "detected_frames": 0,
+            "conditional_classifier_acc": null,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0
+          },
+          "dim_warm_led": {
+            "total_frames": 210,
+            "detector_miss_frames": 210,
+            "detector_miss_rate": 1,
+            "detected_frames": 0,
+            "conditional_classifier_acc": null,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0
+          },
+          "dim_cool_mon": {
+            "total_frames": 210,
+            "detector_miss_frames": 210,
+            "detector_miss_rate": 1,
+            "detected_frames": 0,
+            "conditional_classifier_acc": null,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0
+          },
+          "backlight": {
+            "total_frames": 210,
+            "detector_miss_frames": 6,
+            "detector_miss_rate": 0.0286,
+            "detected_frames": 204,
+            "conditional_classifier_acc": 0.9902,
+            "classifier_error_frames": 2,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9619
+          },
+          "blur_dim": {
+            "total_frames": 210,
+            "detector_miss_frames": 92,
+            "detector_miss_rate": 0.4381,
+            "detected_frames": 118,
+            "conditional_classifier_acc": 1,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.5619
+          },
+          "jpeg_q25": {
+            "total_frames": 210,
+            "detector_miss_frames": 8,
+            "detector_miss_rate": 0.0381,
+            "detected_frames": 202,
+            "conditional_classifier_acc": 0.9802,
+            "classifier_error_frames": 4,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9429
+          },
+          "flip": {
+            "total_frames": 210,
+            "detector_miss_frames": 126,
+            "detector_miss_rate": 0.6,
+            "detected_frames": 84,
+            "conditional_classifier_acc": 1,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.4
+          },
+          "flip_dim_g020": {
+            "total_frames": 210,
+            "detector_miss_frames": 210,
+            "detector_miss_rate": 1,
+            "detected_frames": 0,
+            "conditional_classifier_acc": null,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0
+          },
+          "scale_x048_dim": {
+            "total_frames": 210,
+            "detector_miss_frames": 182,
+            "detector_miss_rate": 0.8667,
+            "detected_frames": 28,
+            "conditional_classifier_acc": 1,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.1333
+          }
+        }
+      },
+      "P7_a4v2_chroma_singlecall": {
+        "overall": {
+          "total_frames": 2520,
+          "detector_miss_frames": 297,
+          "detector_miss_rate": 0.1179,
+          "detected_frames": 2223,
+          "conditional_classifier_acc": 0.9811,
+          "classifier_error_frames": 42,
+          "false_press_on_non_press": 0,
+          "end_to_end_correct_rate": 0.8655
+        },
+        "by_condition": {
+          "raw": {
+            "total_frames": 210,
+            "detector_miss_frames": 0,
+            "detector_miss_rate": 0,
+            "detected_frames": 210,
+            "conditional_classifier_acc": 0.9571,
+            "classifier_error_frames": 9,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9571
+          },
+          "dim_g045": {
+            "total_frames": 210,
+            "detector_miss_frames": 0,
+            "detector_miss_rate": 0,
+            "detected_frames": 210,
+            "conditional_classifier_acc": 0.9952,
+            "classifier_error_frames": 1,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9952
+          },
+          "dim_g020": {
+            "total_frames": 210,
+            "detector_miss_frames": 0,
+            "detector_miss_rate": 0,
+            "detected_frames": 210,
+            "conditional_classifier_acc": 0.9857,
+            "classifier_error_frames": 3,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9857
+          },
+          "dim_g008": {
+            "total_frames": 210,
+            "detector_miss_frames": 18,
+            "detector_miss_rate": 0.0857,
+            "detected_frames": 192,
+            "conditional_classifier_acc": 0.9531,
+            "classifier_error_frames": 9,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.8714
+          },
+          "dim_warm_led": {
+            "total_frames": 210,
+            "detector_miss_frames": 0,
+            "detector_miss_rate": 0,
+            "detected_frames": 210,
+            "conditional_classifier_acc": 0.9952,
+            "classifier_error_frames": 1,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9952
+          },
+          "dim_cool_mon": {
+            "total_frames": 210,
+            "detector_miss_frames": 1,
+            "detector_miss_rate": 0.0048,
+            "detected_frames": 209,
+            "conditional_classifier_acc": 0.9856,
+            "classifier_error_frames": 3,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.981
+          },
+          "backlight": {
+            "total_frames": 210,
+            "detector_miss_frames": 6,
+            "detector_miss_rate": 0.0286,
+            "detected_frames": 204,
+            "conditional_classifier_acc": 0.9902,
+            "classifier_error_frames": 2,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9619
+          },
+          "blur_dim": {
+            "total_frames": 210,
+            "detector_miss_frames": 0,
+            "detector_miss_rate": 0,
+            "detected_frames": 210,
+            "conditional_classifier_acc": 0.981,
+            "classifier_error_frames": 4,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.981
+          },
+          "jpeg_q25": {
+            "total_frames": 210,
+            "detector_miss_frames": 8,
+            "detector_miss_rate": 0.0381,
+            "detected_frames": 202,
+            "conditional_classifier_acc": 0.9802,
+            "classifier_error_frames": 4,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9429
+          },
+          "flip": {
+            "total_frames": 210,
+            "detector_miss_frames": 126,
+            "detector_miss_rate": 0.6,
+            "detected_frames": 84,
+            "conditional_classifier_acc": 1,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.4
+          },
+          "flip_dim_g020": {
+            "total_frames": 210,
+            "detector_miss_frames": 124,
+            "detector_miss_rate": 0.5905,
+            "detected_frames": 86,
+            "conditional_classifier_acc": 1,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.4095
+          },
+          "scale_x048_dim": {
+            "total_frames": 210,
+            "detector_miss_frames": 14,
+            "detector_miss_rate": 0.0667,
+            "detected_frames": 196,
+            "conditional_classifier_acc": 0.9694,
+            "classifier_error_frames": 6,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9048
+          }
+        }
+      }
+    },
+    "C4_R20": {
+      "P0_raw": {
+        "overall": {
+          "total_frames": 2520,
+          "detector_miss_frames": 1647,
+          "detector_miss_rate": 0.6536,
+          "detected_frames": 873,
+          "conditional_classifier_acc": 0.9863,
+          "classifier_error_frames": 12,
+          "false_press_on_non_press": 0,
+          "end_to_end_correct_rate": 0.3417
+        },
+        "by_condition": {
+          "raw": {
+            "total_frames": 210,
+            "detector_miss_frames": 0,
+            "detector_miss_rate": 0,
+            "detected_frames": 210,
+            "conditional_classifier_acc": 0.9714,
+            "classifier_error_frames": 6,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9714
+          },
+          "dim_g045": {
+            "total_frames": 210,
+            "detector_miss_frames": 183,
+            "detector_miss_rate": 0.8714,
+            "detected_frames": 27,
+            "conditional_classifier_acc": 1,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.1286
+          },
+          "dim_g020": {
+            "total_frames": 210,
+            "detector_miss_frames": 210,
+            "detector_miss_rate": 1,
+            "detected_frames": 0,
+            "conditional_classifier_acc": null,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0
+          },
+          "dim_g008": {
+            "total_frames": 210,
+            "detector_miss_frames": 210,
+            "detector_miss_rate": 1,
+            "detected_frames": 0,
+            "conditional_classifier_acc": null,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0
+          },
+          "dim_warm_led": {
+            "total_frames": 210,
+            "detector_miss_frames": 210,
+            "detector_miss_rate": 1,
+            "detected_frames": 0,
+            "conditional_classifier_acc": null,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0
+          },
+          "dim_cool_mon": {
+            "total_frames": 210,
+            "detector_miss_frames": 210,
+            "detector_miss_rate": 1,
+            "detected_frames": 0,
+            "conditional_classifier_acc": null,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0
+          },
+          "backlight": {
+            "total_frames": 210,
+            "detector_miss_frames": 6,
+            "detector_miss_rate": 0.0286,
+            "detected_frames": 204,
+            "conditional_classifier_acc": 0.9902,
+            "classifier_error_frames": 2,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9619
+          },
+          "blur_dim": {
+            "total_frames": 210,
+            "detector_miss_frames": 92,
+            "detector_miss_rate": 0.4381,
+            "detected_frames": 118,
+            "conditional_classifier_acc": 1,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.5619
+          },
+          "jpeg_q25": {
+            "total_frames": 210,
+            "detector_miss_frames": 8,
+            "detector_miss_rate": 0.0381,
+            "detected_frames": 202,
+            "conditional_classifier_acc": 0.9802,
+            "classifier_error_frames": 4,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9429
+          },
+          "flip": {
+            "total_frames": 210,
+            "detector_miss_frames": 126,
+            "detector_miss_rate": 0.6,
+            "detected_frames": 84,
+            "conditional_classifier_acc": 1,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.4
+          },
+          "flip_dim_g020": {
+            "total_frames": 210,
+            "detector_miss_frames": 210,
+            "detector_miss_rate": 1,
+            "detected_frames": 0,
+            "conditional_classifier_acc": null,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0
+          },
+          "scale_x048_dim": {
+            "total_frames": 210,
+            "detector_miss_frames": 182,
+            "detector_miss_rate": 0.8667,
+            "detected_frames": 28,
+            "conditional_classifier_acc": 1,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.1333
+          }
+        }
+      },
+      "P7_a4v2_chroma_singlecall": {
+        "overall": {
+          "total_frames": 2520,
+          "detector_miss_frames": 297,
+          "detector_miss_rate": 0.1179,
+          "detected_frames": 2223,
+          "conditional_classifier_acc": 0.9834,
+          "classifier_error_frames": 37,
+          "false_press_on_non_press": 0,
+          "end_to_end_correct_rate": 0.8675
+        },
+        "by_condition": {
+          "raw": {
+            "total_frames": 210,
+            "detector_miss_frames": 0,
+            "detector_miss_rate": 0,
+            "detected_frames": 210,
+            "conditional_classifier_acc": 0.9714,
+            "classifier_error_frames": 6,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9714
+          },
+          "dim_g045": {
+            "total_frames": 210,
+            "detector_miss_frames": 0,
+            "detector_miss_rate": 0,
+            "detected_frames": 210,
+            "conditional_classifier_acc": 0.9952,
+            "classifier_error_frames": 1,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9952
+          },
+          "dim_g020": {
+            "total_frames": 210,
+            "detector_miss_frames": 0,
+            "detector_miss_rate": 0,
+            "detected_frames": 210,
+            "conditional_classifier_acc": 0.9905,
+            "classifier_error_frames": 2,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9905
+          },
+          "dim_g008": {
+            "total_frames": 210,
+            "detector_miss_frames": 18,
+            "detector_miss_rate": 0.0857,
+            "detected_frames": 192,
+            "conditional_classifier_acc": 0.9531,
+            "classifier_error_frames": 9,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.8714
+          },
+          "dim_warm_led": {
+            "total_frames": 210,
+            "detector_miss_frames": 0,
+            "detector_miss_rate": 0,
+            "detected_frames": 210,
+            "conditional_classifier_acc": 0.9952,
+            "classifier_error_frames": 1,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9952
+          },
+          "dim_cool_mon": {
+            "total_frames": 210,
+            "detector_miss_frames": 1,
+            "detector_miss_rate": 0.0048,
+            "detected_frames": 209,
+            "conditional_classifier_acc": 0.9856,
+            "classifier_error_frames": 3,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.981
+          },
+          "backlight": {
+            "total_frames": 210,
+            "detector_miss_frames": 6,
+            "detector_miss_rate": 0.0286,
+            "detected_frames": 204,
+            "conditional_classifier_acc": 0.9902,
+            "classifier_error_frames": 2,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9619
+          },
+          "blur_dim": {
+            "total_frames": 210,
+            "detector_miss_frames": 0,
+            "detector_miss_rate": 0,
+            "detected_frames": 210,
+            "conditional_classifier_acc": 0.9857,
+            "classifier_error_frames": 3,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9857
+          },
+          "jpeg_q25": {
+            "total_frames": 210,
+            "detector_miss_frames": 8,
+            "detector_miss_rate": 0.0381,
+            "detected_frames": 202,
+            "conditional_classifier_acc": 0.9802,
+            "classifier_error_frames": 4,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9429
+          },
+          "flip": {
+            "total_frames": 210,
+            "detector_miss_frames": 126,
+            "detector_miss_rate": 0.6,
+            "detected_frames": 84,
+            "conditional_classifier_acc": 1,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.4
+          },
+          "flip_dim_g020": {
+            "total_frames": 210,
+            "detector_miss_frames": 124,
+            "detector_miss_rate": 0.5905,
+            "detected_frames": 86,
+            "conditional_classifier_acc": 1,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.4095
+          },
+          "scale_x048_dim": {
+            "total_frames": 210,
+            "detector_miss_frames": 14,
+            "detector_miss_rate": 0.0667,
+            "detected_frames": 196,
+            "conditional_classifier_acc": 0.9694,
+            "classifier_error_frames": 6,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9048
+          }
+        }
+      }
+    },
+    "C7_R20_Distilled": {
+      "P0_raw": {
+        "overall": {
+          "total_frames": 2520,
+          "detector_miss_frames": 1647,
+          "detector_miss_rate": 0.6536,
+          "detected_frames": 873,
+          "conditional_classifier_acc": 0.9863,
+          "classifier_error_frames": 12,
+          "false_press_on_non_press": 0,
+          "end_to_end_correct_rate": 0.3417
+        },
+        "by_condition": {
+          "raw": {
+            "total_frames": 210,
+            "detector_miss_frames": 0,
+            "detector_miss_rate": 0,
+            "detected_frames": 210,
+            "conditional_classifier_acc": 0.9714,
+            "classifier_error_frames": 6,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9714
+          },
+          "dim_g045": {
+            "total_frames": 210,
+            "detector_miss_frames": 183,
+            "detector_miss_rate": 0.8714,
+            "detected_frames": 27,
+            "conditional_classifier_acc": 1,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.1286
+          },
+          "dim_g020": {
+            "total_frames": 210,
+            "detector_miss_frames": 210,
+            "detector_miss_rate": 1,
+            "detected_frames": 0,
+            "conditional_classifier_acc": null,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0
+          },
+          "dim_g008": {
+            "total_frames": 210,
+            "detector_miss_frames": 210,
+            "detector_miss_rate": 1,
+            "detected_frames": 0,
+            "conditional_classifier_acc": null,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0
+          },
+          "dim_warm_led": {
+            "total_frames": 210,
+            "detector_miss_frames": 210,
+            "detector_miss_rate": 1,
+            "detected_frames": 0,
+            "conditional_classifier_acc": null,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0
+          },
+          "dim_cool_mon": {
+            "total_frames": 210,
+            "detector_miss_frames": 210,
+            "detector_miss_rate": 1,
+            "detected_frames": 0,
+            "conditional_classifier_acc": null,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0
+          },
+          "backlight": {
+            "total_frames": 210,
+            "detector_miss_frames": 6,
+            "detector_miss_rate": 0.0286,
+            "detected_frames": 204,
+            "conditional_classifier_acc": 0.9902,
+            "classifier_error_frames": 2,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9619
+          },
+          "blur_dim": {
+            "total_frames": 210,
+            "detector_miss_frames": 92,
+            "detector_miss_rate": 0.4381,
+            "detected_frames": 118,
+            "conditional_classifier_acc": 1,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.5619
+          },
+          "jpeg_q25": {
+            "total_frames": 210,
+            "detector_miss_frames": 8,
+            "detector_miss_rate": 0.0381,
+            "detected_frames": 202,
+            "conditional_classifier_acc": 0.9802,
+            "classifier_error_frames": 4,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9429
+          },
+          "flip": {
+            "total_frames": 210,
+            "detector_miss_frames": 126,
+            "detector_miss_rate": 0.6,
+            "detected_frames": 84,
+            "conditional_classifier_acc": 1,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.4
+          },
+          "flip_dim_g020": {
+            "total_frames": 210,
+            "detector_miss_frames": 210,
+            "detector_miss_rate": 1,
+            "detected_frames": 0,
+            "conditional_classifier_acc": null,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0
+          },
+          "scale_x048_dim": {
+            "total_frames": 210,
+            "detector_miss_frames": 182,
+            "detector_miss_rate": 0.8667,
+            "detected_frames": 28,
+            "conditional_classifier_acc": 1,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.1333
+          }
+        }
+      },
+      "P7_a4v2_chroma_singlecall": {
+        "overall": {
+          "total_frames": 2520,
+          "detector_miss_frames": 297,
+          "detector_miss_rate": 0.1179,
+          "detected_frames": 2223,
+          "conditional_classifier_acc": 0.9834,
+          "classifier_error_frames": 37,
+          "false_press_on_non_press": 0,
+          "end_to_end_correct_rate": 0.8675
+        },
+        "by_condition": {
+          "raw": {
+            "total_frames": 210,
+            "detector_miss_frames": 0,
+            "detector_miss_rate": 0,
+            "detected_frames": 210,
+            "conditional_classifier_acc": 0.9714,
+            "classifier_error_frames": 6,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9714
+          },
+          "dim_g045": {
+            "total_frames": 210,
+            "detector_miss_frames": 0,
+            "detector_miss_rate": 0,
+            "detected_frames": 210,
+            "conditional_classifier_acc": 0.9952,
+            "classifier_error_frames": 1,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9952
+          },
+          "dim_g020": {
+            "total_frames": 210,
+            "detector_miss_frames": 0,
+            "detector_miss_rate": 0,
+            "detected_frames": 210,
+            "conditional_classifier_acc": 0.9905,
+            "classifier_error_frames": 2,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9905
+          },
+          "dim_g008": {
+            "total_frames": 210,
+            "detector_miss_frames": 18,
+            "detector_miss_rate": 0.0857,
+            "detected_frames": 192,
+            "conditional_classifier_acc": 0.9531,
+            "classifier_error_frames": 9,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.8714
+          },
+          "dim_warm_led": {
+            "total_frames": 210,
+            "detector_miss_frames": 0,
+            "detector_miss_rate": 0,
+            "detected_frames": 210,
+            "conditional_classifier_acc": 0.9952,
+            "classifier_error_frames": 1,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9952
+          },
+          "dim_cool_mon": {
+            "total_frames": 210,
+            "detector_miss_frames": 1,
+            "detector_miss_rate": 0.0048,
+            "detected_frames": 209,
+            "conditional_classifier_acc": 0.9856,
+            "classifier_error_frames": 3,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.981
+          },
+          "backlight": {
+            "total_frames": 210,
+            "detector_miss_frames": 6,
+            "detector_miss_rate": 0.0286,
+            "detected_frames": 204,
+            "conditional_classifier_acc": 0.9902,
+            "classifier_error_frames": 2,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9619
+          },
+          "blur_dim": {
+            "total_frames": 210,
+            "detector_miss_frames": 0,
+            "detector_miss_rate": 0,
+            "detected_frames": 210,
+            "conditional_classifier_acc": 0.9857,
+            "classifier_error_frames": 3,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9857
+          },
+          "jpeg_q25": {
+            "total_frames": 210,
+            "detector_miss_frames": 8,
+            "detector_miss_rate": 0.0381,
+            "detected_frames": 202,
+            "conditional_classifier_acc": 0.9802,
+            "classifier_error_frames": 4,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9429
+          },
+          "flip": {
+            "total_frames": 210,
+            "detector_miss_frames": 126,
+            "detector_miss_rate": 0.6,
+            "detected_frames": 84,
+            "conditional_classifier_acc": 1,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.4
+          },
+          "flip_dim_g020": {
+            "total_frames": 210,
+            "detector_miss_frames": 124,
+            "detector_miss_rate": 0.5905,
+            "detected_frames": 86,
+            "conditional_classifier_acc": 1,
+            "classifier_error_frames": 0,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.4095
+          },
+          "scale_x048_dim": {
+            "total_frames": 210,
+            "detector_miss_frames": 14,
+            "detector_miss_rate": 0.0667,
+            "detected_frames": 196,
+            "conditional_classifier_acc": 0.9694,
+            "classifier_error_frames": 6,
+            "false_press_on_non_press": 0,
+            "end_to_end_correct_rate": 0.9048
+          }
+        }
+      }
+    }
+  }
+}

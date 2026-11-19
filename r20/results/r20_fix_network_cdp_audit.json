@@ -1,0 +1,2122 @@
+{
+  "generatedAt": "2026-11-19T06:08:47.332Z",
+  "method": "TRUE CDP Network.loadingFinished.encodedDataLength across Page + Web Worker targets, reconciled against actual HTTP socket bytesWritten",
+  "hardBudgetBytes": 25000000,
+  "profiles": {
+    "caddy_default_zstd_gzip": {
+      "profile": "caddy_default_zstd_gzip",
+      "journey1_nui_lab": {
+        "cdpTotalEncodedBytes": 10966014,
+        "cdpTotalMiB": 10.46,
+        "cdpPageBytes": 326346,
+        "cdpWorkerBytes": 10639668,
+        "cdpRequestCount": 28,
+        "cdpWorkerRequestCount": 7,
+        "serverSocketWireBytes": 10971923,
+        "serverBodyWireBytes": 10965502,
+        "serverRawUncompressedBytes": 18607749,
+        "serverRequestCount": 25,
+        "reconciliationDeltaCdpMinusServerSocket": -5909,
+        "passUnder25MB_CDP": true,
+        "passUnder25MB_ServerSocket": true,
+        "headroomBytes_CDP": 14033986,
+        "byCategoryCdp": {
+          "html_document": 5128,
+          "css": 29095,
+          "app_js": 356404,
+          "other": 3434,
+          "student_model": 29165,
+          "mediapipe_hand_model": 7819333,
+          "wasm": 2723455
+        },
+        "byCategoryServer": {
+          "html_document": 5128,
+          "css": 29095,
+          "app_js": 362313,
+          "other": 3434,
+          "student_model": 29165,
+          "mediapipe_hand_model": 7819333,
+          "wasm": 2723455
+        },
+        "topAssetsByCdpBytes": [
+          {
+            "path": "/models/hand_landmarker.task",
+            "category": "mediapipe_hand_model",
+            "targets": [
+              "worker"
+            ],
+            "requests": 1,
+            "cdpBytes": 7819333,
+            "cacheHits": 0
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "category": "wasm",
+            "targets": [
+              "worker"
+            ],
+            "requests": 2,
+            "cdpBytes": 2723455,
+            "cacheHits": 1
+          },
+          {
+            "path": "/_next/static/chunks/fd9d1056-52b97c009c25bc25.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 56010,
+            "cacheHits": 0
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "category": "app_js",
+            "targets": [
+              "worker"
+            ],
+            "requests": 2,
+            "cdpBytes": 55238,
+            "cacheHits": 1
+          },
+          {
+            "path": "/_next/static/chunks/555-81e3a22585898291.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 50601,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/386.1579199c34f6d31f.js",
+            "category": "app_js",
+            "targets": [
+              "worker"
+            ],
+            "requests": 2,
+            "cdpBytes": 41642,
+            "cacheHits": 1
+          },
+          {
+            "path": "/_next/static/chunks/329-84744c286addfb5a.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 35480,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/966-a8fed9ded89e4fa0.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 33610,
+            "cacheHits": 0
+          },
+          {
+            "path": "/models/r20-c4-model.json",
+            "category": "student_model",
+            "targets": [
+              "page"
+            ],
+            "requests": 2,
+            "cdpBytes": 29165,
+            "cacheHits": 1
+          },
+          {
+            "path": "/_next/static/chunks/639-45969536e1361fbb.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 24227,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/445-8dbd5c7e0de25a29.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 22355,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/c15bf2b0-7971b3d333b0cf68.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 21270,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/16c2024a37ababb2.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 17014,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/648-e428f957e5ec9380.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 9522,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/cbee9783c240c2e2.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 7690,
+            "cacheHits": 0
+          },
+          {
+            "path": "/nui-lab",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 5128,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/bef5c4bc39f08b31.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 4391,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/page-787441771484166f.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 2917,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/webpack-10ebe2e782078414.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 2256,
+            "cacheHits": 0
+          },
+          {
+            "path": "/nui-lab/gesture.txt",
+            "category": "other",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 1720,
+            "cacheHits": 0
+          }
+        ]
+      },
+      "journey2a_student_spa_real_visit": {
+        "cdpTotalEncodedBytes": 26801677,
+        "cdpTotalMiB": 25.56,
+        "cdpPageBytes": 26801677,
+        "cdpWorkerBytes": 0,
+        "cdpRequestCount": 25,
+        "cdpWorkerRequestCount": 0,
+        "serverSocketWireBytes": 26801677,
+        "serverBodyWireBytes": 26796146,
+        "serverRawUncompressedBytes": 34365174,
+        "serverRequestCount": 22,
+        "reconciliationDeltaCdpMinusServerSocket": 0,
+        "passUnder25MB_CDP": false,
+        "passUnder25MB_ServerSocket": false,
+        "headroomBytes_CDP": -1801677,
+        "byCategoryCdp": {
+          "css": 37298,
+          "html_document": 6683,
+          "app_js": 346269,
+          "wasm": 2723455,
+          "mediapipe_hand_model": 23457999,
+          "mediapipe_face_model": 229973
+        },
+        "byCategoryServer": {
+          "html_document": 6683,
+          "css": 37298,
+          "app_js": 346269,
+          "wasm": 2723455,
+          "mediapipe_hand_model": 23457999,
+          "mediapipe_face_model": 229973
+        },
+        "topAssetsByCdpBytes": [
+          {
+            "path": "/models/hand_landmarker.task",
+            "category": "mediapipe_hand_model",
+            "targets": [
+              "page"
+            ],
+            "requests": 3,
+            "cdpBytes": 23457999,
+            "cacheHits": 0
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "category": "wasm",
+            "targets": [
+              "page"
+            ],
+            "requests": 4,
+            "cdpBytes": 2723455,
+            "cacheHits": 3
+          },
+          {
+            "path": "/mediapipe/blaze_face_short_range.tflite",
+            "category": "mediapipe_face_model",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 229973,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/472-d1fbe462fc1eb44e.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 97759,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/fd9d1056-52b97c009c25bc25.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 56010,
+            "cacheHits": 0
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 55238,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/555-81e3a22585898291.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 50601,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/966-a8fed9ded89e4fa0.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 33610,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/639-45969536e1361fbb.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 24227,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/c15bf2b0-7971b3d333b0cf68.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 21270,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/16c2024a37ababb2.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 17014,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/d0431ab6c14c121a.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 11112,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/cbee9783c240c2e2.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 7690,
+            "cacheHits": 0
+          },
+          {
+            "path": "/",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 6683,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/278-f02bf2fb44e1bbb8.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 4420,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/webpack-10ebe2e782078414.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 2256,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/0020c51bce99d144.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 855,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/2456e4000e050c8e.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 627,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/main-app-b8e3cc0808bbb96a.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 471,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/app/page-2c539ad60cc0e8df.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 407,
+            "cacheHits": 0
+          }
+        ]
+      },
+      "journey2b_student_hard_reloads_audit": {
+        "cdpTotalEncodedBytes": 26615335,
+        "cdpTotalMiB": 25.38,
+        "cdpPageBytes": 26615335,
+        "cdpWorkerBytes": 0,
+        "cdpRequestCount": 122,
+        "cdpWorkerRequestCount": 0,
+        "serverSocketWireBytes": 34434668,
+        "serverBodyWireBytes": 34426076,
+        "serverRawUncompressedBytes": 42057775,
+        "serverRequestCount": 34,
+        "reconciliationDeltaCdpMinusServerSocket": -7819333,
+        "passUnder25MB_CDP": false,
+        "passUnder25MB_ServerSocket": false,
+        "headroomBytes_CDP": -1615335,
+        "byCategoryCdp": {
+          "css": 37298,
+          "html_document": 47875,
+          "app_js": 348708,
+          "wasm": 2723455,
+          "mediapipe_hand_model": 23457999
+        },
+        "byCategoryServer": {
+          "html_document": 47875,
+          "css": 37298,
+          "app_js": 348708,
+          "wasm": 2723455,
+          "mediapipe_hand_model": 31277332
+        },
+        "topAssetsByCdpBytes": [
+          {
+            "path": "/models/hand_landmarker.task",
+            "category": "mediapipe_hand_model",
+            "targets": [
+              "page"
+            ],
+            "requests": 3,
+            "cdpBytes": 23457999,
+            "cacheHits": 0
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "category": "wasm",
+            "targets": [
+              "page"
+            ],
+            "requests": 4,
+            "cdpBytes": 2723455,
+            "cacheHits": 3
+          },
+          {
+            "path": "/_next/static/chunks/472-d1fbe462fc1eb44e.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 97759,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/fd9d1056-52b97c009c25bc25.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 56010,
+            "cacheHits": 0
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 3,
+            "cdpBytes": 55238,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/555-81e3a22585898291.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 50601,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/966-a8fed9ded89e4fa0.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 33610,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/639-45969536e1361fbb.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 24227,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/c15bf2b0-7971b3d333b0cf68.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 21270,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/16c2024a37ababb2.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 17014,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/d0431ab6c14c121a.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 11112,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/cbee9783c240c2e2.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 7690,
+            "cacheHits": 0
+          },
+          {
+            "path": "/onboarding/card",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 6878,
+            "cacheHits": 0
+          },
+          {
+            "path": "/onboarding/number",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 6878,
+            "cacheHits": 0
+          },
+          {
+            "path": "/onboarding/cam",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 6876,
+            "cacheHits": 0
+          },
+          {
+            "path": "/canvas1",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 6854,
+            "cacheHits": 0
+          },
+          {
+            "path": "/levels",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 6853,
+            "cacheHits": 0
+          },
+          {
+            "path": "/level1",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 6853,
+            "cacheHits": 0
+          },
+          {
+            "path": "/",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 6683,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/278-f02bf2fb44e1bbb8.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 4420,
+            "cacheHits": 0
+          }
+        ]
+      }
+    },
+    "gzip_standard": {
+      "profile": "gzip_standard",
+      "journey1_nui_lab": {
+        "cdpTotalEncodedBytes": 11102853,
+        "cdpTotalMiB": 10.59,
+        "cdpPageBytes": 309781,
+        "cdpWorkerBytes": 10793072,
+        "cdpRequestCount": 28,
+        "cdpWorkerRequestCount": 7,
+        "serverSocketWireBytes": 11108284,
+        "serverBodyWireBytes": 11101863,
+        "serverRawUncompressedBytes": 18607749,
+        "serverRequestCount": 25,
+        "reconciliationDeltaCdpMinusServerSocket": -5431,
+        "passUnder25MB_CDP": true,
+        "passUnder25MB_ServerSocket": true,
+        "headroomBytes_CDP": 13897147,
+        "byCategoryCdp": {
+          "html_document": 4980,
+          "css": 25560,
+          "app_js": 340385,
+          "other": 3341,
+          "student_model": 28557,
+          "mediapipe_hand_model": 7819333,
+          "wasm": 2880697
+        },
+        "byCategoryServer": {
+          "html_document": 4980,
+          "css": 25560,
+          "app_js": 345816,
+          "other": 3341,
+          "student_model": 28557,
+          "mediapipe_hand_model": 7819333,
+          "wasm": 2880697
+        },
+        "topAssetsByCdpBytes": [
+          {
+            "path": "/models/hand_landmarker.task",
+            "category": "mediapipe_hand_model",
+            "targets": [
+              "worker"
+            ],
+            "requests": 1,
+            "cdpBytes": 7819333,
+            "cacheHits": 0
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "category": "wasm",
+            "targets": [
+              "worker"
+            ],
+            "requests": 2,
+            "cdpBytes": 2880697,
+            "cacheHits": 1
+          },
+          {
+            "path": "/_next/static/chunks/fd9d1056-52b97c009c25bc25.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 54005,
+            "cacheHits": 0
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "category": "app_js",
+            "targets": [
+              "worker"
+            ],
+            "requests": 2,
+            "cdpBytes": 52946,
+            "cacheHits": 1
+          },
+          {
+            "path": "/_next/static/chunks/555-81e3a22585898291.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 48424,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/386.1579199c34f6d31f.js",
+            "category": "app_js",
+            "targets": [
+              "worker"
+            ],
+            "requests": 1,
+            "cdpBytes": 39834,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/329-84744c286addfb5a.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 33345,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/966-a8fed9ded89e4fa0.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 32205,
+            "cacheHits": 0
+          },
+          {
+            "path": "/models/r20-c4-model.json",
+            "category": "student_model",
+            "targets": [
+              "page"
+            ],
+            "requests": 2,
+            "cdpBytes": 28557,
+            "cacheHits": 1
+          },
+          {
+            "path": "/_next/static/chunks/639-45969536e1361fbb.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 22729,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/445-8dbd5c7e0de25a29.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 21230,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/c15bf2b0-7971b3d333b0cf68.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 20086,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/16c2024a37ababb2.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 14782,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/648-e428f957e5ec9380.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 9008,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/cbee9783c240c2e2.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 6862,
+            "cacheHits": 0
+          },
+          {
+            "path": "/nui-lab",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 4980,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/bef5c4bc39f08b31.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 3916,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/page-787441771484166f.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 2799,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/webpack-10ebe2e782078414.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 2205,
+            "cacheHits": 0
+          },
+          {
+            "path": "/nui-lab/gesture.txt",
+            "category": "other",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 1671,
+            "cacheHits": 0
+          }
+        ]
+      },
+      "journey2a_student_spa_real_visit": {
+        "cdpTotalEncodedBytes": 26941497,
+        "cdpTotalMiB": 25.69,
+        "cdpPageBytes": 26941497,
+        "cdpWorkerBytes": 0,
+        "cdpRequestCount": 25,
+        "cdpWorkerRequestCount": 0,
+        "serverSocketWireBytes": 26941497,
+        "serverBodyWireBytes": 26935967,
+        "serverRawUncompressedBytes": 34365174,
+        "serverRequestCount": 22,
+        "reconciliationDeltaCdpMinusServerSocket": 0,
+        "passUnder25MB_CDP": false,
+        "passUnder25MB_ServerSocket": false,
+        "headroomBytes_CDP": -1941497,
+        "byCategoryCdp": {
+          "html_document": 6456,
+          "css": 32906,
+          "app_js": 333466,
+          "wasm": 2880697,
+          "mediapipe_hand_model": 23457999,
+          "mediapipe_face_model": 229973
+        },
+        "byCategoryServer": {
+          "html_document": 6456,
+          "css": 32906,
+          "app_js": 333466,
+          "wasm": 2880697,
+          "mediapipe_hand_model": 23457999,
+          "mediapipe_face_model": 229973
+        },
+        "topAssetsByCdpBytes": [
+          {
+            "path": "/models/hand_landmarker.task",
+            "category": "mediapipe_hand_model",
+            "targets": [
+              "page"
+            ],
+            "requests": 3,
+            "cdpBytes": 23457999,
+            "cacheHits": 0
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "category": "wasm",
+            "targets": [
+              "page"
+            ],
+            "requests": 4,
+            "cdpBytes": 2880697,
+            "cacheHits": 3
+          },
+          {
+            "path": "/mediapipe/blaze_face_short_range.tflite",
+            "category": "mediapipe_face_model",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 229973,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/472-d1fbe462fc1eb44e.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 95734,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/fd9d1056-52b97c009c25bc25.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 54005,
+            "cacheHits": 0
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 52946,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/555-81e3a22585898291.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 48424,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/966-a8fed9ded89e4fa0.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 32205,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/639-45969536e1361fbb.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 22729,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/c15bf2b0-7971b3d333b0cf68.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 20086,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/16c2024a37ababb2.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 14782,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/d0431ab6c14c121a.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 9824,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/cbee9783c240c2e2.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 6862,
+            "cacheHits": 0
+          },
+          {
+            "path": "/",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 6456,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/278-f02bf2fb44e1bbb8.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 4235,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/webpack-10ebe2e782078414.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 2205,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/0020c51bce99d144.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 824,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/2456e4000e050c8e.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 614,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/main-app-b8e3cc0808bbb96a.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 480,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/app/page-2c539ad60cc0e8df.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 417,
+            "cacheHits": 0
+          }
+        ]
+      },
+      "journey2b_student_hard_reloads_audit": {
+        "cdpTotalEncodedBytes": 26753076,
+        "cdpTotalMiB": 25.51,
+        "cdpPageBytes": 26753076,
+        "cdpWorkerBytes": 0,
+        "cdpRequestCount": 122,
+        "cdpWorkerRequestCount": 0,
+        "serverSocketWireBytes": 34572409,
+        "serverBodyWireBytes": 34563818,
+        "serverRawUncompressedBytes": 42057775,
+        "serverRequestCount": 34,
+        "reconciliationDeltaCdpMinusServerSocket": -7819333,
+        "passUnder25MB_CDP": false,
+        "passUnder25MB_ServerSocket": false,
+        "headroomBytes_CDP": -1753076,
+        "byCategoryCdp": {
+          "html_document": 45509,
+          "css": 32906,
+          "app_js": 335965,
+          "wasm": 2880697,
+          "mediapipe_hand_model": 23457999
+        },
+        "byCategoryServer": {
+          "html_document": 45509,
+          "css": 32906,
+          "app_js": 335965,
+          "wasm": 2880697,
+          "mediapipe_hand_model": 31277332
+        },
+        "topAssetsByCdpBytes": [
+          {
+            "path": "/models/hand_landmarker.task",
+            "category": "mediapipe_hand_model",
+            "targets": [
+              "page"
+            ],
+            "requests": 3,
+            "cdpBytes": 23457999,
+            "cacheHits": 0
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "category": "wasm",
+            "targets": [
+              "page"
+            ],
+            "requests": 4,
+            "cdpBytes": 2880697,
+            "cacheHits": 3
+          },
+          {
+            "path": "/_next/static/chunks/472-d1fbe462fc1eb44e.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 95734,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/fd9d1056-52b97c009c25bc25.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 54005,
+            "cacheHits": 0
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 3,
+            "cdpBytes": 52946,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/555-81e3a22585898291.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 48424,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/966-a8fed9ded89e4fa0.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 32205,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/639-45969536e1361fbb.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 22729,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/c15bf2b0-7971b3d333b0cf68.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 20086,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/16c2024a37ababb2.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 14782,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/d0431ab6c14c121a.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 9824,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/cbee9783c240c2e2.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 6862,
+            "cacheHits": 0
+          },
+          {
+            "path": "/onboarding/number",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 6522,
+            "cacheHits": 0
+          },
+          {
+            "path": "/onboarding/cam",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 6520,
+            "cacheHits": 0
+          },
+          {
+            "path": "/onboarding/card",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 6519,
+            "cacheHits": 0
+          },
+          {
+            "path": "/levels",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 6498,
+            "cacheHits": 0
+          },
+          {
+            "path": "/canvas1",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 6497,
+            "cacheHits": 0
+          },
+          {
+            "path": "/level1",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 6497,
+            "cacheHits": 0
+          },
+          {
+            "path": "/",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 6456,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/278-f02bf2fb44e1bbb8.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 4235,
+            "cacheHits": 0
+          }
+        ]
+      }
+    },
+    "uncompressed_dev": {
+      "profile": "uncompressed_dev",
+      "journey1_nui_lab": {
+        "cdpTotalEncodedBytes": 28022116,
+        "cdpTotalMiB": 26.72,
+        "cdpPageBytes": 1009017,
+        "cdpWorkerBytes": 27013099,
+        "cdpRequestCount": 27,
+        "cdpWorkerRequestCount": 6,
+        "serverSocketWireBytes": 28037811,
+        "serverBodyWireBytes": 28031735,
+        "serverRawUncompressedBytes": 28031735,
+        "serverRequestCount": 26,
+        "reconciliationDeltaCdpMinusServerSocket": -15695,
+        "passUnder25MB_CDP": false,
+        "passUnder25MB_ServerSocket": false,
+        "headroomBytes_CDP": -3022116,
+        "byCategoryCdp": {
+          "html_document": 14354,
+          "css": 122586,
+          "app_js": 1135897,
+          "other": 8026,
+          "student_model": 73508,
+          "mediapipe_hand_model": 7819333,
+          "wasm": 18848412
+        },
+        "byCategoryServer": {
+          "html_document": 14354,
+          "css": 122586,
+          "app_js": 1151592,
+          "other": 8026,
+          "student_model": 73508,
+          "mediapipe_hand_model": 7819333,
+          "wasm": 18848412
+        },
+        "topAssetsByCdpBytes": [
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "category": "wasm",
+            "targets": [
+              "worker"
+            ],
+            "requests": 2,
+            "cdpBytes": 18848412,
+            "cacheHits": 0
+          },
+          {
+            "path": "/models/hand_landmarker.task",
+            "category": "mediapipe_hand_model",
+            "targets": [
+              "worker"
+            ],
+            "requests": 1,
+            "cdpBytes": 7819333,
+            "cacheHits": 0
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "category": "app_js",
+            "targets": [
+              "worker"
+            ],
+            "requests": 2,
+            "cdpBytes": 210066,
+            "cacheHits": 1
+          },
+          {
+            "path": "/_next/static/chunks/fd9d1056-52b97c009c25bc25.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 173074,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/555-81e3a22585898291.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 156383,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/386.1579199c34f6d31f.js",
+            "category": "app_js",
+            "targets": [
+              "worker"
+            ],
+            "requests": 1,
+            "cdpBytes": 135288,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/966-a8fed9ded89e4fa0.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 124818,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/329-84744c286addfb5a.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 112843,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/16c2024a37ababb2.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 77518,
+            "cacheHits": 0
+          },
+          {
+            "path": "/models/r20-c4-model.json",
+            "category": "student_model",
+            "targets": [
+              "page"
+            ],
+            "requests": 2,
+            "cdpBytes": 73508,
+            "cacheHits": 1
+          },
+          {
+            "path": "/_next/static/chunks/445-8dbd5c7e0de25a29.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 70725,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/639-45969536e1361fbb.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 61324,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/c15bf2b0-7971b3d333b0cf68.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 52289,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/cbee9783c240c2e2.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 28304,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/648-e428f957e5ec9380.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 26390,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/bef5c4bc39f08b31.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 16764,
+            "cacheHits": 0
+          },
+          {
+            "path": "/nui-lab",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 14354,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/page-787441771484166f.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 6955,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/webpack-10ebe2e782078414.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 4228,
+            "cacheHits": 0
+          },
+          {
+            "path": "/nui-lab/gesture.txt",
+            "category": "other",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 4021,
+            "cacheHits": 0
+          }
+        ]
+      },
+      "journey2a_student_spa_real_visit": {
+        "cdpTotalEncodedBytes": 62642900,
+        "cdpTotalMiB": 59.74,
+        "cdpPageBytes": 62642900,
+        "cdpWorkerBytes": 0,
+        "cdpRequestCount": 25,
+        "cdpWorkerRequestCount": 0,
+        "serverSocketWireBytes": 62642900,
+        "serverBodyWireBytes": 62637132,
+        "serverRawUncompressedBytes": 62637132,
+        "serverRequestCount": 25,
+        "reconciliationDeltaCdpMinusServerSocket": 0,
+        "passUnder25MB_CDP": false,
+        "passUnder25MB_ServerSocket": false,
+        "headroomBytes_CDP": -37642900,
+        "byCategoryCdp": {
+          "html_document": 16548,
+          "css": 152915,
+          "app_js": 1088641,
+          "wasm": 37696824,
+          "mediapipe_hand_model": 23457999,
+          "mediapipe_face_model": 229973
+        },
+        "byCategoryServer": {
+          "html_document": 16548,
+          "css": 152915,
+          "app_js": 1088641,
+          "wasm": 37696824,
+          "mediapipe_hand_model": 23457999,
+          "mediapipe_face_model": 229973
+        },
+        "topAssetsByCdpBytes": [
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "category": "wasm",
+            "targets": [
+              "page"
+            ],
+            "requests": 4,
+            "cdpBytes": 37696824,
+            "cacheHits": 0
+          },
+          {
+            "path": "/models/hand_landmarker.task",
+            "category": "mediapipe_hand_model",
+            "targets": [
+              "page"
+            ],
+            "requests": 3,
+            "cdpBytes": 23457999,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/472-d1fbe462fc1eb44e.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 291096,
+            "cacheHits": 0
+          },
+          {
+            "path": "/mediapipe/blaze_face_short_range.tflite",
+            "category": "mediapipe_face_model",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 229973,
+            "cacheHits": 0
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 210066,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/fd9d1056-52b97c009c25bc25.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 173074,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/555-81e3a22585898291.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 156383,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/966-a8fed9ded89e4fa0.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 124818,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/16c2024a37ababb2.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 77518,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/639-45969536e1361fbb.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 61324,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/c15bf2b0-7971b3d333b0cf68.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 52289,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/d0431ab6c14c121a.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 44012,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/cbee9783c240c2e2.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 28304,
+            "cacheHits": 0
+          },
+          {
+            "path": "/",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 16548,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/278-f02bf2fb44e1bbb8.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 14253,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/webpack-10ebe2e782078414.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 4228,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/0020c51bce99d144.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 1949,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/2456e4000e050c8e.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 1132,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/main-app-b8e3cc0808bbb96a.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 698,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/app/page-2c539ad60cc0e8df.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 412,
+            "cacheHits": 0
+          }
+        ]
+      },
+      "journey2b_student_hard_reloads_audit": {
+        "cdpTotalEncodedBytes": 62518947,
+        "cdpTotalMiB": 59.62,
+        "cdpPageBytes": 62518947,
+        "cdpWorkerBytes": 0,
+        "cdpRequestCount": 122,
+        "cdpWorkerRequestCount": 0,
+        "serverSocketWireBytes": 71943153,
+        "serverBodyWireBytes": 71934614,
+        "serverRawUncompressedBytes": 71934614,
+        "serverRequestCount": 37,
+        "reconciliationDeltaCdpMinusServerSocket": -9424206,
+        "passUnder25MB_CDP": false,
+        "passUnder25MB_ServerSocket": false,
+        "headroomBytes_CDP": -37518947,
+        "byCategoryCdp": {
+          "html_document": 120096,
+          "css": 152915,
+          "app_js": 1091113,
+          "wasm": 37696824,
+          "mediapipe_hand_model": 23457999
+        },
+        "byCategoryServer": {
+          "html_document": 120096,
+          "css": 152915,
+          "app_js": 1091113,
+          "wasm": 47121030,
+          "mediapipe_hand_model": 23457999
+        },
+        "topAssetsByCdpBytes": [
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "category": "wasm",
+            "targets": [
+              "page"
+            ],
+            "requests": 4,
+            "cdpBytes": 37696824,
+            "cacheHits": 0
+          },
+          {
+            "path": "/models/hand_landmarker.task",
+            "category": "mediapipe_hand_model",
+            "targets": [
+              "page"
+            ],
+            "requests": 3,
+            "cdpBytes": 23457999,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/472-d1fbe462fc1eb44e.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 291096,
+            "cacheHits": 0
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 3,
+            "cdpBytes": 210066,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/fd9d1056-52b97c009c25bc25.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 173074,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/555-81e3a22585898291.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 156383,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/966-a8fed9ded89e4fa0.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 124818,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/16c2024a37ababb2.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 77518,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/639-45969536e1361fbb.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 61324,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/c15bf2b0-7971b3d333b0cf68.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 52289,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/d0431ab6c14c121a.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 44012,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/css/cbee9783c240c2e2.css",
+            "category": "css",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 28304,
+            "cacheHits": 0
+          },
+          {
+            "path": "/onboarding/number",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 17519,
+            "cacheHits": 0
+          },
+          {
+            "path": "/onboarding/card",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 17507,
+            "cacheHits": 0
+          },
+          {
+            "path": "/onboarding/cam",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 17501,
+            "cacheHits": 0
+          },
+          {
+            "path": "/canvas1",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 17011,
+            "cacheHits": 0
+          },
+          {
+            "path": "/levels",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 17005,
+            "cacheHits": 0
+          },
+          {
+            "path": "/level1",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 17005,
+            "cacheHits": 0
+          },
+          {
+            "path": "/",
+            "category": "html_document",
+            "targets": [
+              "page"
+            ],
+            "requests": 1,
+            "cdpBytes": 16548,
+            "cacheHits": 0
+          },
+          {
+            "path": "/_next/static/chunks/278-f02bf2fb44e1bbb8.js",
+            "category": "app_js",
+            "targets": [
+              "page"
+            ],
+            "requests": 7,
+            "cdpBytes": 14253,
+            "cacheHits": 0
+          }
+        ]
+      }
+    }
+  }
+}

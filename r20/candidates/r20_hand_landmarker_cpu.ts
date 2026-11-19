@@ -50,8 +50,19 @@ export interface R20HandDetectionFrameResult {
     mainThreadDispatchMs: number;
     preprocessMs: number;
     detectMs: number;
+    setOptionsMs?: number;
     totalE2eMs: number;
   };
+  ownerGuard?: {
+    activeNumHands: 1 | 2;
+    bystanderAudits: number;
+    bystanderDetections: number;
+    ownerJumpRejects: number;
+    ownerSizeRejects: number;
+    handednessProbes: number;
+    bystanderCooldown: number;
+  };
+  monotonicClamps?: number;
 }
 
 export interface R20CpuDetectorTelemetry {
@@ -208,8 +219,11 @@ export class R20CpuHandDetector {
               mainThreadDispatchMs: dispatchMs,
               preprocessMs: msg.timing.preprocessMs,
               detectMs: msg.timing.detectMs,
+              setOptionsMs: msg.timing.setOptionsMs ?? 0,
               totalE2eMs,
             },
+            ownerGuard: msg.ownerGuard,
+            monotonicClamps: msg.monotonicClamps ?? 0,
           });
           // Immediate frame pump: if <video> already advanced while worker was busy, submit immediately without waiting up to 16.7ms for next rAF
           if (this.activeVideo && !this.closed && this.ready && this.inFlight === 0) {

@@ -17,11 +17,12 @@ import {
   R20_DARK_LUMA,
   R20_DIM_RECOVERY_LUMA,
   R20_ENHANCE_WIDTH,
+  applyA4ChromaRecoveryInPlace,
   claheAndGammaRgbaInPlace,
   computeMeanAndCenterLuma,
-  denoise3x3RgbaInPlace,
   type R20LowLightMode,
 } from "./r20_lowlight_frame_source";
+import { WorkerOwnerGuard, type OwnerGuardTelemetry } from "./r20_worker_owner_guard";
 
 export interface R20WorkerInitMessage {
   type: "INIT";
@@ -77,8 +78,12 @@ export interface R20WorkerHandResult {
   timing: {
     preprocessMs: number;
     detectMs: number;
+    setOptionsMs?: number;
     workerTotalMs: number;
+    detectorCalls?: number;
   };
+  ownerGuard?: OwnerGuardTelemetry;
+  monotonicClamps?: number;
 }
 
 export interface R20WorkerReadyMessage {
@@ -105,11 +110,11 @@ export type R20WorkerOutboundMessage =
 let landmarker: HandLandmarker | null = null;
 let currentEpoch = 0;
 let lastMonotonicTs = Number.NEGATIVE_INFINITY;
+let monotonicClamps = 0;
 let lowLightMode: R20LowLightMode = "adaptive-fallback";
 let dynamicOwnerLock = false;
-let activeNumHands = 2;
-let lockedStreak = 0;
-let lastOwnerPalm: { x: number; y: number } | null = null;
+let activeNumHands: 1 | 2 = 2;
+let ownerGuard = new WorkerOwnerGuard({ enabled: false });
 let consecutiveMisses = 0;
 let lastRecoveryWorked = false;
 let lastLuma: number | null = null;
@@ -119,6 +124,8 @@ let isDark = false;
 let isBacklight = false;
 let offscreen: OffscreenCanvas | null = null;
 let offCtx: OffscreenCanvasRenderingContext2D | null = null;
+let scratchBuf: Uint8ClampedArray | null = null;
+let temporalPrev: Uint8ClampedArray | null = null;
 
 function safeCloseLandmarker(): void {
   if (!landmarker) return;
@@ -144,6 +151,8 @@ function prepareWorkerSurface(
   if (!offscreen || offscreen.width !== w || offscreen.height !== h) {
     offscreen = new OffscreenCanvas(w, h);
     offCtx = offscreen.getContext("2d", { willReadFrequently: true });
+    scratchBuf = new Uint8ClampedArray(w * h * 4);
+    temporalPrev = null;
   }
   if (!offCtx || !offscreen) {
     return { surface: bitmap, activePass: "A0_raw", preprocessMs: 0 };
@@ -185,13 +194,19 @@ function prepareWorkerSurface(
   }
 
   const lumaVal = lastLuma ?? 0.5;
+  const isDimOrBacklit = lumaVal < R20_DIM_RECOVERY_LUMA || isBacklight;
   const shouldEnhance =
     lowLightMode === "gamma-denoise-clahe320" ||
     (lowLightMode === "adaptive-fallback" &&
-      (lumaVal < R20_DIM_RECOVERY_LUMA || isBacklight) &&
-      (lastRecoveryWorked || (consecutiveMisses > 0 && consecutiveMisses % 2 === 1)));
+      isDimOrBacklit &&
+      (lastRecoveryWorked || consecutiveMisses >= 1));
 
   if (!shouldEnhance) {
+    if (isDimOrBacklit && imgData) {
+      temporalPrev = new Uint8ClampedArray(imgData.data);
+    } else if (!isDimOrBacklit) {
+      temporalPrev = null;
+    }
     return {
       surface: bitmap,
       activePass: "A0_raw",
@@ -203,17 +218,18 @@ function prepareWorkerSurface(
     offCtx.drawImage(bitmap, 0, 0, w, h);
     imgData = offCtx.getImageData(0, 0, w, h);
   }
-  if (lumaVal < 0.22) {
-    denoise3x3RgbaInPlace(imgData.data, w, h);
-  }
-  const clipLim = lumaVal < 0.14 ? 1.6 : 2.0;
-  const gamma = lumaVal < 0.16 ? 0.72 : lumaVal < 0.28 ? 0.82 : 0.90;
-  const noiseFloor = lumaVal < 0.18 ? 3 : 0;
-  claheAndGammaRgbaInPlace(imgData.data, w, h, clipLim, gamma, noiseFloor);
+  temporalPrev = applyA4ChromaRecoveryInPlace(
+    imgData.data,
+    w,
+    h,
+    lumaVal,
+    temporalPrev,
+    scratchBuf ?? undefined,
+  );
   offCtx.putImageData(imgData, 0, 0);
   return {
     surface: offscreen,
-    activePass: "A3_gamma_denoise_clahe320",
+    activePass: "A4_denoise_reinhard320",
     preprocessMs: Math.round((performance.now() - t0) * 100) / 100,
   };
 }
@@ -262,12 +278,14 @@ ctx.onmessage = async (ev: MessageEvent<R20WorkerInboundMessage>) => {
     currentEpoch = msg.sessionEpoch;
     lowLightMode = msg.lowLightMode ?? "adaptive-fallback";
     dynamicOwnerLock = Boolean(msg.dynamicOwnerLock);
-    activeNumHands = dynamicOwnerLock ? 2 : msg.numHands;
-    lockedStreak = 0;
-    lastOwnerPalm = null;
+    activeNumHands = dynamicOwnerLock ? 2 : (msg.numHands === 1 ? 1 : 2);
+    ownerGuard = new WorkerOwnerGuard({ enabled: dynamicOwnerLock, lockConfirmFrames: 3, auditIntervalFrames: 45 });
+    ownerGuard.reset(activeNumHands);
     consecutiveMisses = 0;
     lastRecoveryWorked = false;
     lastMonotonicTs = Number.NEGATIVE_INFINITY;
+    monotonicClamps = 0;
+    temporalPrev = null;
     safeCloseLandmarker();
     try {
       const [vision, modelAssetBuffer] = await Promise.all([
@@ -315,8 +333,22 @@ ctx.onmessage = async (ev: MessageEvent<R20WorkerInboundMessage>) => {
       if (sessionEpoch !== currentEpoch || !landmarker) {
         return;
       }
-      const ts = Math.max(Math.round(msg.timestampMs), lastMonotonicTs + 1);
+      const rawTs = Math.round(msg.timestampMs);
+      let ts = rawTs;
+      if (ts <= lastMonotonicTs) {
+        ts = lastMonotonicTs + 1;
+        monotonicClamps++;
+      }
       lastMonotonicTs = ts;
+
+      let setOptionsMs = 0;
+      const preNumHands = ownerGuard.beforeDetect();
+      if (preNumHands !== activeNumHands) {
+        const tOpt = performance.now();
+        await landmarker.setOptions({ numHands: preNumHands });
+        setOptionsMs += performance.now() - tOpt;
+        activeNumHands = preNumHands;
+      }
 
       const prep = prepareWorkerSurface(bitmap, ts);
       const tDet0 = performance.now();
@@ -334,62 +366,23 @@ ctx.onmessage = async (ev: MessageEvent<R20WorkerInboundMessage>) => {
         };
       });
 
-      // Dynamic Owner-Lock numHands transitions (2 hands during acquisition/disambiguation -> 1 hand while locked)
-      if (dynamicOwnerLock && landmarker) {
-        if (lms.length > 0) {
-          // Pick closest hand to lastOwnerPalm if locked, else largest hand
-          let pickIdx = 0;
-          if (lastOwnerPalm && lms.length > 1) {
-            let bestDist = Infinity;
-            for (let i = 0; i < lms.length; i++) {
-              const p0 = lms[i]![0]!;
-              const p9 = lms[i]![9]!;
-              const cx = 0.5 * (p0.x + p9.x);
-              const cy = 0.5 * (p0.y + p9.y);
-              const d = Math.hypot(cx - lastOwnerPalm.x, cy - lastOwnerPalm.y);
-              if (d < bestDist) {
-                bestDist = d;
-                pickIdx = i;
-              }
-            }
-          }
-          const picked = lms[pickIdx]!;
-          const cx = 0.5 * (picked[0]!.x + picked[9]!.x);
-          const cy = 0.5 * (picked[0]!.y + picked[9]!.y);
-          const jumpDist = lastOwnerPalm ? Math.hypot(cx - lastOwnerPalm.x, cy - lastOwnerPalm.y) : 0;
-
-          if (activeNumHands === 1 && lastOwnerPalm && jumpDist > 0.25) {
-            // Sudden spatial jump in 1-hand mode -> possible bystander steal; fail-closed and revert to 2-hand mode
-            lms = [];
-            hds = [];
-            lockedStreak = 0;
-            lastOwnerPalm = null;
-            activeNumHands = 2;
-            await landmarker.setOptions({ numHands: 2 });
-          } else {
-            lastOwnerPalm = { x: cx, y: cy };
-            lockedStreak++;
-            if (activeNumHands === 2 && lockedStreak >= 2) {
-              activeNumHands = 1;
-              await landmarker.setOptions({ numHands: 1 });
-            }
-          }
-        } else {
-          lockedStreak = 0;
-          lastOwnerPalm = null;
-          if (activeNumHands !== 2) {
-            activeNumHands = 2;
-            await landmarker.setOptions({ numHands: 2 });
-          }
-        }
+      // Guarded Dynamic Owner-Lock (spatial <= 0.18, sizeRatio <= 1.6, handedness probe, periodic 2-hand bystander audit)
+      const guarded = ownerGuard.afterDetect(lms, hds);
+      lms = guarded.landmarks;
+      hds = guarded.handedness;
+      if (guarded.nextNumHands !== activeNumHands) {
+        const tOpt2 = performance.now();
+        await landmarker.setOptions({ numHands: guarded.nextNumHands });
+        setOptionsMs += performance.now() - tOpt2;
+        activeNumHands = guarded.nextNumHands;
       }
 
       if (lms.length > 0) {
         consecutiveMisses = 0;
-        lastRecoveryWorked = prep.activePass === "A3_gamma_denoise_clahe320";
+        lastRecoveryWorked = prep.activePass === "A4_denoise_reinhard320";
       } else {
         consecutiveMisses++;
-        if (prep.activePass === "A3_gamma_denoise_clahe320") {
+        if (prep.activePass === "A4_denoise_reinhard320" && consecutiveMisses % 4 === 0) {
           lastRecoveryWorked = false;
         }
       }
@@ -415,8 +408,12 @@ ctx.onmessage = async (ev: MessageEvent<R20WorkerInboundMessage>) => {
         timing: {
           preprocessMs: prep.preprocessMs,
           detectMs,
+          setOptionsMs: Math.round(setOptionsMs * 100) / 100,
           workerTotalMs: Math.round((performance.now() - tStart) * 100) / 100,
+          detectorCalls: 1,
         },
+        ownerGuard: ownerGuard.telemetry(),
+        monotonicClamps,
       };
       ctx.postMessage(out);
     } catch (err) {

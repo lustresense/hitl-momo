@@ -26,7 +26,8 @@ export type R20LowLightMode =
 
 export const R20_ENHANCE_WIDTH = 320;
 export const R20_DARK_LUMA = 0.28;
-export const R20_DIM_RECOVERY_LUMA = 0.36;
+/** R20-FIX P0.1: fire miss-driven A4v2 recovery up to moderate indoor noise/dimness (zero cost while A0_raw tracks). */
+export const R20_DIM_RECOVERY_LUMA = 0.52;
 export const R20_BACKLIGHT_CENTER_MAX = 0.36;
 export const R20_BACKLIGHT_LUMA_GAP = 0.18;
 export const R20_LUMA_SAMPLE_INTERVAL_MS = 400;
@@ -81,6 +82,119 @@ export function computeMeanAndCenterLuma(
     meanLuma: countAll > 0 ? sumAll / (countAll * 255) : 0,
     centerLuma: countCenter > 0 ? sumCenter / (countCenter * 255) : 0,
   };
+}
+
+/** Exact median of 5 bytes using a 6-comparison sorting network (zero allocations). */
+export function median5(a: number, b: number, c: number, d: number, e: number): number {
+  let t: number;
+  if (a > b) { t = a; a = b; b = t; }
+  if (c > d) { t = c; c = d; d = t; }
+  if (a > c) { t = a; a = c; c = t; t = b; b = d; d = t; }
+  if (e > b) { t = e; e = b; b = t; }
+  return e <= c ? (b < c ? b : c) : e < d ? e : d;
+}
+
+/** Separable 1D median-of-5 (horizontal then vertical) on RGB channels. */
+export function sepMedian5RgbaInPlace(
+  rgba: Uint8ClampedArray,
+  width: number,
+  height: number,
+  scratch?: Uint8ClampedArray,
+): void {
+  if (width < 5 || height < 5) return;
+  const nBytes = width * height * 4;
+  const tmp = scratch && scratch.length >= nBytes ? scratch : new Uint8ClampedArray(nBytes);
+  for (let y = 0; y < height; y++) {
+    const row = y * width;
+    for (let x = 0; x < width; x++) {
+      const x0 = x < 2 ? 0 : x - 2;
+      const x1 = x < 1 ? 0 : x - 1;
+      const x3 = x + 1 >= width ? width - 1 : x + 1;
+      const x4 = x + 2 >= width ? width - 1 : x + 2;
+      const o = (row + x) << 2;
+      const i0 = (row + x0) << 2;
+      const i1 = (row + x1) << 2;
+      const i3 = (row + x3) << 2;
+      const i4 = (row + x4) << 2;
+      tmp[o] = median5(rgba[i0]!, rgba[i1]!, rgba[o]!, rgba[i3]!, rgba[i4]!);
+      tmp[o + 1] = median5(rgba[i0 + 1]!, rgba[i1 + 1]!, rgba[o + 1]!, rgba[i3 + 1]!, rgba[i4 + 1]!);
+      tmp[o + 2] = median5(rgba[i0 + 2]!, rgba[i1 + 2]!, rgba[o + 2]!, rgba[i3 + 2]!, rgba[i4 + 2]!);
+      tmp[o + 3] = 255;
+    }
+  }
+  for (let y = 0; y < height; y++) {
+    const y0 = y < 2 ? 0 : y - 2;
+    const y1 = y < 1 ? 0 : y - 1;
+    const y3 = y + 1 >= height ? height - 1 : y + 1;
+    const y4 = y + 2 >= height ? height - 1 : y + 2;
+    const r0 = y0 * width, r1 = y1 * width, r2 = y * width, r3 = y3 * width, r4 = y4 * width;
+    for (let x = 0; x < width; x++) {
+      const o = (r2 + x) << 2;
+      const i0 = (r0 + x) << 2, i1 = (r1 + x) << 2, i3 = (r3 + x) << 2, i4 = (r4 + x) << 2;
+      rgba[o] = median5(tmp[i0]!, tmp[i1]!, tmp[o]!, tmp[i3]!, tmp[i4]!);
+      rgba[o + 1] = median5(tmp[i0 + 1]!, tmp[i1 + 1]!, tmp[o + 1]!, tmp[i3 + 1]!, tmp[i4 + 1]!);
+      rgba[o + 2] = median5(tmp[i0 + 2]!, tmp[i1 + 2]!, tmp[o + 2]!, tmp[i3 + 2]!, tmp[i4 + 2]!);
+    }
+  }
+}
+
+/** Motion-gated temporal EMA on 320px RGBA buffer (reduces stationary low-light noise without ghosting). */
+export function motionGatedTemporalEmaInPlace(
+  rgba: Uint8ClampedArray,
+  prev: Uint8ClampedArray | null,
+  motionThresh = 28,
+): Uint8ClampedArray {
+  const n = rgba.length;
+  if (!prev || prev.length !== n) return new Uint8ClampedArray(rgba);
+  for (let i = 0; i < n; i += 4) {
+    const dr = Math.abs(rgba[i]! - prev[i]!);
+    const dg = Math.abs(rgba[i + 1]! - prev[i + 1]!);
+    const db = Math.abs(rgba[i + 2]! - prev[i + 2]!);
+    if (dr < motionThresh && dg < motionThresh && db < motionThresh) {
+      const nr = (rgba[i]! * 3 + prev[i]! * 5 + 4) >> 3;
+      const ng = (rgba[i + 1]! * 3 + prev[i + 1]! * 5 + 4) >> 3;
+      const nb = (rgba[i + 2]! * 3 + prev[i + 2]! * 5 + 4) >> 3;
+      rgba[i] = nr; rgba[i + 1] = ng; rgba[i + 2] = nb;
+      prev[i] = nr; prev[i + 1] = ng; prev[i + 2] = nb;
+    } else {
+      prev[i] = rgba[i]!; prev[i + 1] = rgba[i + 1]!; prev[i + 2] = rgba[i + 2]!;
+    }
+  }
+  return prev;
+}
+
+/** Chroma-preserving Reinhard tone-mapping LUT: y = (k*x)/(1+(k-1)*x), preserving skin-tone chromaticity. */
+export function reinhardExposureLutInPlace(rgba: Uint8ClampedArray, meanLuma: number, targetLuma = 0.48): void {
+  const m = Math.max(meanLuma, 0.015);
+  const k = Math.max(1.0, Math.min(14.0, targetLuma / m));
+  if (k <= 1.04) return;
+  const lut = new Uint8Array(256);
+  for (let i = 0; i < 256; i++) {
+    const x = i / 255;
+    const v = Math.round(((k * x) / (1 + (k - 1) * x)) * 255);
+    lut[i] = v < 0 ? 0 : v > 255 ? 255 : v;
+  }
+  for (let i = 0; i < rgba.length; i += 4) {
+    rgba[i] = lut[rgba[i]!]!;
+    rgba[i + 1] = lut[rgba[i + 1]!]!;
+    rgba[i + 2] = lut[rgba[i + 2]!]!;
+  }
+}
+
+/** Full R20-FIX A4v2 chroma-preserving low-light recovery in-place on 320px RGBA buffer. */
+export function applyA4ChromaRecoveryInPlace(
+  rgba: Uint8ClampedArray,
+  width: number,
+  height: number,
+  meanLuma: number,
+  temporalPrev: Uint8ClampedArray | null,
+  scratch?: Uint8ClampedArray,
+): Uint8ClampedArray {
+  const nextPrev = motionGatedTemporalEmaInPlace(rgba, temporalPrev, 28);
+  sepMedian5RgbaInPlace(rgba, width, height, scratch);
+  if (meanLuma < 0.14) denoise3x3RgbaInPlace(rgba, width, height);
+  reinhardExposureLutInPlace(rgba, meanLuma, 0.48);
+  return nextPrev;
 }
 
 /** Separable 3x3 box/Gaussian denoise on RGB channels in-place (suppresses near-black sensor noise before CLAHE). */

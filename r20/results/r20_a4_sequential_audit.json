@@ -1,0 +1,1021 @@
+{
+  "generated_at": "2026-11-19T06:12:32Z",
+  "methodology_note": "Sequential VIDEO-mode evaluation (24 frames @30fps per sequence, fresh sensor shot+read noise per frame, mild hand drift, reference hand center from clean base image). Explicitly separates stateless 3-call oracle_union_recall_upper_bound from actual sequential policies, counts detector calls per frame and recovery overhead honestly. Synthetic sequences derived from still images \u2014 NOT a physical webcam recording.",
+  "n_sequences": 576,
+  "n_sequences_ref_detectable": 420,
+  "frames_per_sequence": 24,
+  "elapsed_sec": 900.3,
+  "overall": {
+    "oracle_union_recall_upper_bound": 0.3187,
+    "policies": {
+      "P0_raw": {
+        "recall_all_frames": 0.3423,
+        "recall_after_first_hit": 0.9934,
+        "sequences_never_detected": 267,
+        "median_first_hit_frame": 0.0,
+        "detector_calls_per_frame": 1.0,
+        "preprocess_ms_per_frame_native": 0.0,
+        "detect_ms_per_frame_native": 21.031,
+        "recovery_overhead_calls_vs_raw": 0.0
+      },
+      "P1_clahe_always": {
+        "recall_all_frames": 0.0821,
+        "recall_after_first_hit": 0.9892,
+        "sequences_never_detected": 374,
+        "median_first_hit_frame": 3.5,
+        "detector_calls_per_frame": 1.0,
+        "preprocess_ms_per_frame_native": 9.335,
+        "detect_ms_per_frame_native": 14.336,
+        "recovery_overhead_calls_vs_raw": 0.0
+      },
+      "P2_a3_always": {
+        "recall_all_frames": 0.0973,
+        "recall_after_first_hit": 0.9675,
+        "sequences_never_detected": 365,
+        "median_first_hit_frame": 3.0,
+        "detector_calls_per_frame": 1.0,
+        "preprocess_ms_per_frame_native": 10.318,
+        "detect_ms_per_frame_native": 14.577,
+        "recovery_overhead_calls_vs_raw": 0.0
+      },
+      "P3_shipped_alt": {
+        "recall_all_frames": 0.3424,
+        "recall_after_first_hit": 0.9934,
+        "sequences_never_detected": 266,
+        "median_first_hit_frame": 0.0,
+        "detector_calls_per_frame": 1.0,
+        "preprocess_ms_per_frame_native": 2.467,
+        "detect_ms_per_frame_native": 17.539,
+        "recovery_overhead_calls_vs_raw": 0.0
+      },
+      "P4_a4s_sameframe": {
+        "recall_all_frames": 0.3463,
+        "recall_after_first_hit": 0.9935,
+        "sequences_never_detected": 264,
+        "median_first_hit_frame": 0.0,
+        "detector_calls_per_frame": 1.461,
+        "preprocess_ms_per_frame_native": 4.901,
+        "detect_ms_per_frame_native": 23.497,
+        "recovery_overhead_calls_vs_raw": 0.461
+      },
+      "P7_a4v2_chroma_singlecall": {
+        "recall_all_frames": 0.8542,
+        "recall_after_first_hit": 0.9955,
+        "sequences_never_detected": 43,
+        "median_first_hit_frame": 1.0,
+        "detector_calls_per_frame": 1.0,
+        "preprocess_ms_per_frame_native": 25.872,
+        "detect_ms_per_frame_native": 27.363,
+        "recovery_overhead_calls_vs_raw": 0.0
+      },
+      "P8_a4v2_chroma_sameframe": {
+        "recall_all_frames": 0.8724,
+        "recall_after_first_hit": 0.9956,
+        "sequences_never_detected": 43,
+        "median_first_hit_frame": 0.0,
+        "detector_calls_per_frame": 1.045,
+        "preprocess_ms_per_frame_native": 27.033,
+        "detect_ms_per_frame_native": 28.696,
+        "recovery_overhead_calls_vs_raw": 0.045
+      }
+    }
+  },
+  "by_condition": {
+    "raw": {
+      "n_sequences": 48,
+      "n_sequences_ref_detectable": 35,
+      "mean_luma_avg": 0.6254,
+      "oracle_union_recall_upper_bound": 0.9964,
+      "policies": {
+        "P0_raw": {
+          "recall_all_frames": 1.0,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 0,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 28.828,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P1_clahe_always": {
+          "recall_all_frames": 0.1976,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 25,
+          "median_first_hit_frame": 3.5,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 9.339,
+          "detect_ms_per_frame_native": 15.558,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P2_a3_always": {
+          "recall_all_frames": 0.2583,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 23,
+          "median_first_hit_frame": 4.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 10.294,
+          "detect_ms_per_frame_native": 16.071,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P3_shipped_alt": {
+          "recall_all_frames": 1.0,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 0,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 24.015,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P4_a4s_sameframe": {
+          "recall_all_frames": 1.0,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 0,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 24.07,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P7_a4v2_chroma_singlecall": {
+          "recall_all_frames": 1.0,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 0,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 28.97,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P8_a4v2_chroma_sameframe": {
+          "recall_all_frames": 1.0,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 0,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 28.389,
+          "recovery_overhead_calls_vs_raw": 0.0
+        }
+      }
+    },
+    "dim_g045": {
+      "n_sequences": 48,
+      "n_sequences_ref_detectable": 35,
+      "mean_luma_avg": 0.4341,
+      "oracle_union_recall_upper_bound": 0.0524,
+      "policies": {
+        "P0_raw": {
+          "recall_all_frames": 0.1214,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 30,
+          "median_first_hit_frame": 2.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 17.574,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P1_clahe_always": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 9.19,
+          "detect_ms_per_frame_native": 12.927,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P2_a3_always": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 10.092,
+          "detect_ms_per_frame_native": 13.204,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P3_shipped_alt": {
+          "recall_all_frames": 0.1214,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 30,
+          "median_first_hit_frame": 2.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 14.564,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P4_a4s_sameframe": {
+          "recall_all_frames": 0.1214,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 30,
+          "median_first_hit_frame": 2.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 14.547,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P7_a4v2_chroma_singlecall": {
+          "recall_all_frames": 0.9607,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 0,
+          "median_first_hit_frame": 1.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 40.07,
+          "detect_ms_per_frame_native": 28.317,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P8_a4v2_chroma_sameframe": {
+          "recall_all_frames": 1.0,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 0,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.039,
+          "preprocess_ms_per_frame_native": 40.195,
+          "detect_ms_per_frame_native": 28.069,
+          "recovery_overhead_calls_vs_raw": 0.039
+        }
+      }
+    },
+    "dim_g020": {
+      "n_sequences": 48,
+      "n_sequences_ref_detectable": 35,
+      "mean_luma_avg": 0.2989,
+      "oracle_union_recall_upper_bound": 0.0,
+      "policies": {
+        "P0_raw": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 17.261,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P1_clahe_always": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 9.359,
+          "detect_ms_per_frame_native": 12.861,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P2_a3_always": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 10.246,
+          "detect_ms_per_frame_native": 12.719,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P3_shipped_alt": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 5.145,
+          "detect_ms_per_frame_native": 13.436,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P4_a4s_sameframe": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 2.0,
+          "preprocess_ms_per_frame_native": 10.366,
+          "detect_ms_per_frame_native": 26.394,
+          "recovery_overhead_calls_vs_raw": 1.0
+        },
+        "P7_a4v2_chroma_singlecall": {
+          "recall_all_frames": 0.9583,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 0,
+          "median_first_hit_frame": 1.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 41.565,
+          "detect_ms_per_frame_native": 27.381,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P8_a4v2_chroma_sameframe": {
+          "recall_all_frames": 0.9929,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 0,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.049,
+          "preprocess_ms_per_frame_native": 43.281,
+          "detect_ms_per_frame_native": 28.582,
+          "recovery_overhead_calls_vs_raw": 0.049
+        }
+      }
+    },
+    "dim_g008": {
+      "n_sequences": 48,
+      "n_sequences_ref_detectable": 35,
+      "mean_luma_avg": 0.1953,
+      "oracle_union_recall_upper_bound": 0.0,
+      "policies": {
+        "P0_raw": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 14.887,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P1_clahe_always": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 9.015,
+          "detect_ms_per_frame_native": 12.773,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P2_a3_always": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 10.785,
+          "detect_ms_per_frame_native": 12.841,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P3_shipped_alt": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 5.417,
+          "detect_ms_per_frame_native": 12.596,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P4_a4s_sameframe": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 2.0,
+          "preprocess_ms_per_frame_native": 10.912,
+          "detect_ms_per_frame_native": 25.003,
+          "recovery_overhead_calls_vs_raw": 1.0
+        },
+        "P7_a4v2_chroma_singlecall": {
+          "recall_all_frames": 0.856,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 1,
+          "median_first_hit_frame": 2.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 42.996,
+          "detect_ms_per_frame_native": 26.148,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P8_a4v2_chroma_sameframe": {
+          "recall_all_frames": 0.8631,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 1,
+          "median_first_hit_frame": 2.0,
+          "detector_calls_per_frame": 1.175,
+          "preprocess_ms_per_frame_native": 45.199,
+          "detect_ms_per_frame_native": 30.058,
+          "recovery_overhead_calls_vs_raw": 0.175
+        }
+      }
+    },
+    "dim_warm_led": {
+      "n_sequences": 48,
+      "n_sequences_ref_detectable": 35,
+      "mean_luma_avg": 0.284,
+      "oracle_union_recall_upper_bound": 0.0,
+      "policies": {
+        "P0_raw": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 17.16,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P1_clahe_always": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 9.287,
+          "detect_ms_per_frame_native": 12.903,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P2_a3_always": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 10.064,
+          "detect_ms_per_frame_native": 12.729,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P3_shipped_alt": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 5.236,
+          "detect_ms_per_frame_native": 13.565,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P4_a4s_sameframe": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.998,
+          "preprocess_ms_per_frame_native": 10.383,
+          "detect_ms_per_frame_native": 26.68,
+          "recovery_overhead_calls_vs_raw": 0.998
+        },
+        "P7_a4v2_chroma_singlecall": {
+          "recall_all_frames": 0.9583,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 0,
+          "median_first_hit_frame": 1.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 42.068,
+          "detect_ms_per_frame_native": 26.868,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P8_a4v2_chroma_sameframe": {
+          "recall_all_frames": 0.9881,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 0,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.054,
+          "preprocess_ms_per_frame_native": 45.098,
+          "detect_ms_per_frame_native": 29.779,
+          "recovery_overhead_calls_vs_raw": 0.054
+        }
+      }
+    },
+    "dim_cool_mon": {
+      "n_sequences": 48,
+      "n_sequences_ref_detectable": 35,
+      "mean_luma_avg": 0.2537,
+      "oracle_union_recall_upper_bound": 0.0,
+      "policies": {
+        "P0_raw": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 14.641,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P1_clahe_always": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 9.348,
+          "detect_ms_per_frame_native": 12.794,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P2_a3_always": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 10.124,
+          "detect_ms_per_frame_native": 12.596,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P3_shipped_alt": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 5.329,
+          "detect_ms_per_frame_native": 12.814,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P4_a4s_sameframe": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 2.0,
+          "preprocess_ms_per_frame_native": 10.464,
+          "detect_ms_per_frame_native": 25.338,
+          "recovery_overhead_calls_vs_raw": 1.0
+        },
+        "P7_a4v2_chroma_singlecall": {
+          "recall_all_frames": 0.9464,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 0,
+          "median_first_hit_frame": 1.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 41.369,
+          "detect_ms_per_frame_native": 26.374,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P8_a4v2_chroma_sameframe": {
+          "recall_all_frames": 0.9679,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 0,
+          "median_first_hit_frame": 1.0,
+          "detector_calls_per_frame": 1.074,
+          "preprocess_ms_per_frame_native": 44.47,
+          "detect_ms_per_frame_native": 28.591,
+          "recovery_overhead_calls_vs_raw": 0.074
+        }
+      }
+    },
+    "backlight": {
+      "n_sequences": 48,
+      "n_sequences_ref_detectable": 35,
+      "mean_luma_avg": 0.6397,
+      "oracle_union_recall_upper_bound": 0.8607,
+      "policies": {
+        "P0_raw": {
+          "recall_all_frames": 0.9571,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 0,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 28.531,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P1_clahe_always": {
+          "recall_all_frames": 0.231,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 24,
+          "median_first_hit_frame": 4.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 9.362,
+          "detect_ms_per_frame_native": 15.435,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P2_a3_always": {
+          "recall_all_frames": 0.2881,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 23,
+          "median_first_hit_frame": 1.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 10.331,
+          "detect_ms_per_frame_native": 16.335,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P3_shipped_alt": {
+          "recall_all_frames": 0.9571,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 0,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 23.507,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P4_a4s_sameframe": {
+          "recall_all_frames": 0.9571,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 0,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 23.447,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P7_a4v2_chroma_singlecall": {
+          "recall_all_frames": 0.9571,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 0,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 26.946,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P8_a4v2_chroma_sameframe": {
+          "recall_all_frames": 0.9571,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 0,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 28.255,
+          "recovery_overhead_calls_vs_raw": 0.0
+        }
+      }
+    },
+    "blur_dim": {
+      "n_sequences": 48,
+      "n_sequences_ref_detectable": 35,
+      "mean_luma_avg": 0.3604,
+      "oracle_union_recall_upper_bound": 0.4631,
+      "policies": {
+        "P0_raw": {
+          "recall_all_frames": 0.556,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 12,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 23.572,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P1_clahe_always": {
+          "recall_all_frames": 0.0167,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 33,
+          "median_first_hit_frame": 17.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 9.721,
+          "detect_ms_per_frame_native": 14.762,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P2_a3_always": {
+          "recall_all_frames": 0.0167,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 33,
+          "median_first_hit_frame": 17.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 10.731,
+          "detect_ms_per_frame_native": 15.119,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P3_shipped_alt": {
+          "recall_all_frames": 0.525,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 14,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 2.462,
+          "detect_ms_per_frame_native": 19.692,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P4_a4s_sameframe": {
+          "recall_all_frames": 0.556,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 12,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.44,
+          "preprocess_ms_per_frame_native": 4.692,
+          "detect_ms_per_frame_native": 26.326,
+          "recovery_overhead_calls_vs_raw": 0.44
+        },
+        "P7_a4v2_chroma_singlecall": {
+          "recall_all_frames": 0.9762,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 0,
+          "median_first_hit_frame": 1.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 21.299,
+          "detect_ms_per_frame_native": 27.601,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P8_a4v2_chroma_sameframe": {
+          "recall_all_frames": 1.0,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 0,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.024,
+          "preprocess_ms_per_frame_native": 22.915,
+          "detect_ms_per_frame_native": 29.386,
+          "recovery_overhead_calls_vs_raw": 0.024
+        }
+      }
+    },
+    "jpeg_q25": {
+      "n_sequences": 48,
+      "n_sequences_ref_detectable": 35,
+      "mean_luma_avg": 0.6256,
+      "oracle_union_recall_upper_bound": 0.7571,
+      "policies": {
+        "P0_raw": {
+          "recall_all_frames": 0.95,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 1,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 27.966,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P1_clahe_always": {
+          "recall_all_frames": 0.0286,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 34,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 9.242,
+          "detect_ms_per_frame_native": 14.16,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P2_a3_always": {
+          "recall_all_frames": 0.0607,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 32,
+          "median_first_hit_frame": 10.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 10.209,
+          "detect_ms_per_frame_native": 14.55,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P3_shipped_alt": {
+          "recall_all_frames": 0.95,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 1,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 23.524,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P4_a4s_sameframe": {
+          "recall_all_frames": 0.95,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 1,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 23.263,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P7_a4v2_chroma_singlecall": {
+          "recall_all_frames": 0.95,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 1,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 26.879,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P8_a4v2_chroma_sameframe": {
+          "recall_all_frames": 0.95,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 1,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 27.206,
+          "recovery_overhead_calls_vs_raw": 0.0
+        }
+      }
+    },
+    "flip": {
+      "n_sequences": 48,
+      "n_sequences_ref_detectable": 35,
+      "mean_luma_avg": 0.6252,
+      "oracle_union_recall_upper_bound": 0.4107,
+      "policies": {
+        "P0_raw": {
+          "recall_all_frames": 0.4012,
+          "recall_after_first_hit": 0.9361,
+          "sequences_never_detected": 20,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 28.467,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P1_clahe_always": {
+          "recall_all_frames": 0.0726,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 32,
+          "median_first_hit_frame": 2.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 9.278,
+          "detect_ms_per_frame_native": 16.707,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P2_a3_always": {
+          "recall_all_frames": 0.0774,
+          "recall_after_first_hit": 0.7386,
+          "sequences_never_detected": 31,
+          "median_first_hit_frame": 1.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 10.192,
+          "detect_ms_per_frame_native": 17.073,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P3_shipped_alt": {
+          "recall_all_frames": 0.4012,
+          "recall_after_first_hit": 0.9361,
+          "sequences_never_detected": 20,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 24.51,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P4_a4s_sameframe": {
+          "recall_all_frames": 0.4012,
+          "recall_after_first_hit": 0.9361,
+          "sequences_never_detected": 20,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 24.332,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P7_a4v2_chroma_singlecall": {
+          "recall_all_frames": 0.4012,
+          "recall_after_first_hit": 0.9361,
+          "sequences_never_detected": 20,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 27.995,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P8_a4v2_chroma_sameframe": {
+          "recall_all_frames": 0.4012,
+          "recall_after_first_hit": 0.9361,
+          "sequences_never_detected": 20,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 28.575,
+          "recovery_overhead_calls_vs_raw": 0.0
+        }
+      }
+    },
+    "flip_dim_g020": {
+      "n_sequences": 48,
+      "n_sequences_ref_detectable": 35,
+      "mean_luma_avg": 0.2987,
+      "oracle_union_recall_upper_bound": 0.0,
+      "policies": {
+        "P0_raw": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 15.206,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P1_clahe_always": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 9.261,
+          "detect_ms_per_frame_native": 12.667,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P2_a3_always": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 10.122,
+          "detect_ms_per_frame_native": 12.718,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P3_shipped_alt": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 5.123,
+          "detect_ms_per_frame_native": 13.004,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P4_a4s_sameframe": {
+          "recall_all_frames": 0.0,
+          "recall_after_first_hit": null,
+          "sequences_never_detected": 35,
+          "median_first_hit_frame": null,
+          "detector_calls_per_frame": 2.0,
+          "preprocess_ms_per_frame_native": 10.47,
+          "detect_ms_per_frame_native": 25.886,
+          "recovery_overhead_calls_vs_raw": 1.0
+        },
+        "P7_a4v2_chroma_singlecall": {
+          "recall_all_frames": 0.3929,
+          "recall_after_first_hit": 0.9538,
+          "sequences_never_detected": 19,
+          "median_first_hit_frame": 1.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 40.387,
+          "detect_ms_per_frame_native": 26.522,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P8_a4v2_chroma_sameframe": {
+          "recall_all_frames": 0.4095,
+          "recall_after_first_hit": 0.9556,
+          "sequences_never_detected": 19,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.049,
+          "preprocess_ms_per_frame_native": 42.003,
+          "detect_ms_per_frame_native": 27.694,
+          "recovery_overhead_calls_vs_raw": 0.049
+        }
+      }
+    },
+    "scale_x048_dim": {
+      "n_sequences": 48,
+      "n_sequences_ref_detectable": 35,
+      "mean_luma_avg": 0.367,
+      "oracle_union_recall_upper_bound": 0.2845,
+      "policies": {
+        "P0_raw": {
+          "recall_all_frames": 0.1214,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 29,
+          "median_first_hit_frame": 5.5,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.0,
+          "detect_ms_per_frame_native": 18.275,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P1_clahe_always": {
+          "recall_all_frames": 0.4393,
+          "recall_after_first_hit": 0.9762,
+          "sequences_never_detected": 16,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 9.616,
+          "detect_ms_per_frame_native": 18.484,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P2_a3_always": {
+          "recall_all_frames": 0.4667,
+          "recall_after_first_hit": 0.9751,
+          "sequences_never_detected": 13,
+          "median_first_hit_frame": 3.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 10.631,
+          "detect_ms_per_frame_native": 18.967,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P3_shipped_alt": {
+          "recall_all_frames": 0.1536,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 26,
+          "median_first_hit_frame": 13.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 0.896,
+          "detect_ms_per_frame_native": 15.242,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P4_a4s_sameframe": {
+          "recall_all_frames": 0.1702,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 26,
+          "median_first_hit_frame": 8.0,
+          "detector_calls_per_frame": 1.098,
+          "preprocess_ms_per_frame_native": 1.52,
+          "detect_ms_per_frame_native": 16.68,
+          "recovery_overhead_calls_vs_raw": 0.098
+        },
+        "P7_a4v2_chroma_singlecall": {
+          "recall_all_frames": 0.8929,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 2,
+          "median_first_hit_frame": 1.0,
+          "detector_calls_per_frame": 1.0,
+          "preprocess_ms_per_frame_native": 40.706,
+          "detect_ms_per_frame_native": 28.355,
+          "recovery_overhead_calls_vs_raw": 0.0
+        },
+        "P8_a4v2_chroma_sameframe": {
+          "recall_all_frames": 0.9393,
+          "recall_after_first_hit": 1.0,
+          "sequences_never_detected": 2,
+          "median_first_hit_frame": 0.0,
+          "detector_calls_per_frame": 1.073,
+          "preprocess_ms_per_frame_native": 41.234,
+          "detect_ms_per_frame_native": 29.772,
+          "recovery_overhead_calls_vs_raw": 0.073
+        }
+      }
+    }
+  }
+}

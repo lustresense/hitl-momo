@@ -73,7 +73,10 @@ async function boot() {
     mainThreadDispatchMs: [] as number[],
     preprocessMs: [] as number[],
     detectMs: [] as number[],
+    setOptionsMs: [] as number[],
     e2eMs: [] as number[],
+    lastOwnerGuard: null as R20HandDetectionFrameResult["ownerGuard"] | null,
+    monotonicClamps: 0,
     c0ClassifierMs: [] as number[],
     r20ClassifierMs: [] as number[],
     rafDtMs: [] as number[],
@@ -142,9 +145,17 @@ async function boot() {
       capPush(stats.mainThreadDispatchMs, res.timing.mainThreadDispatchMs);
       capPush(stats.preprocessMs, res.timing.preprocessMs);
       capPush(stats.detectMs, res.timing.detectMs);
+      if (typeof res.timing.setOptionsMs === "number" && res.timing.setOptionsMs > 0) {
+        capPush(stats.setOptionsMs, res.timing.setOptionsMs);
+      }
       capPush(stats.e2eMs, res.timing.totalE2eMs);
+      if (res.ownerGuard) stats.lastOwnerGuard = res.ownerGuard;
+      if (typeof res.monotonicClamps === "number") stats.monotonicClamps = res.monotonicClamps;
 
-      if (res.luma.activePass === "A3_gamma_denoise_clahe320" && res.landmarks.length > 0) {
+      if (
+        (res.luma.activePass === "A3_gamma_denoise_clahe320" || res.luma.activePass === "A4_denoise_reinhard320") &&
+        res.landmarks.length > 0
+      ) {
         stats.a3EnhancedRecoveryFrames++;
       }
 
@@ -301,6 +312,14 @@ async function boot() {
           p95: quant(stats.detectMs, 0.95),
           max: quant(stats.detectMs, 1.0),
         },
+        setOptionsMs: {
+          calls: stats.setOptionsMs.length,
+          p50: quant(stats.setOptionsMs, 0.5),
+          p95: quant(stats.setOptionsMs, 0.95),
+          max: quant(stats.setOptionsMs, 1.0),
+        },
+        ownerGuard: stats.lastOwnerGuard,
+        monotonicClamps: stats.monotonicClamps,
         r20ClassifierMs: {
           p50: quant(stats.r20ClassifierMs, 0.5),
           p95: quant(stats.r20ClassifierMs, 0.95),

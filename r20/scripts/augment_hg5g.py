@@ -362,6 +362,9 @@ def summarize_benchmark(bench_rows: list[dict], cover_rows: list[dict]) -> dict:
         l0_ok = sum(1 for r in sub if r["l0"] > 0)
         l1_ok = sum(1 for r in sub if r["l1_clahe320"] > 0)
         l4_ok = sum(1 for r in sub if r["l4_a3_gamma_denoise_clahe320"] > 0)
+        # NOTE (R20-FIX P0.1 audit): `oracle_union_recall` is a stateless 3-call ORACLE UPPER BOUND
+        # (any of RAW, CLAHE, or A3 hitting counts as ok). It is NOT actual sequential pipeline recall;
+        # see `eval_a4v2_sequential.py` and `r20/results/r20_a4_sequential_audit.json` for honest stateful VIDEO evaluation.
         union_ok = sum(1 for r in sub if (r["l0"] > 0 or r["l1_clahe320"] > 0 or r["l4_a3_gamma_denoise_clahe320"] > 0))
         by_aug[aug] = {
             "n": n,
@@ -369,7 +372,7 @@ def summarize_benchmark(bench_rows: list[dict], cover_rows: list[dict]) -> dict:
             "l0_raw_recall": round(l0_ok / n, 4),
             "l1_clahe320_recall": round(l1_ok / n, 4),
             "l4_a3_gamma_denoise_clahe320_recall": round(l4_ok / n, 4),
-            "adaptive_union_recall": round(union_ok / n, 4),
+            "oracle_union_recall_upper_bound": round(union_ok / n, 4),
             "detector_miss_all": n - union_ok,
         }
     return {

@@ -1,0 +1,689 @@
+{
+  "generatedAt": "2026-11-19T06:23:06.038Z",
+  "chromiumFlags": [
+    "--disable-gpu",
+    "--use-fake-device-for-media-stream"
+  ],
+  "nuiLabStaticExportE2E": {
+    "startDisabledBeforeConsent": true,
+    "perfRecordingOff": {
+      "uiFps": 60,
+      "rafP95Ms": 16.7,
+      "longTasks": 0,
+      "frames": 360
+    },
+    "perfRecordingOn": {
+      "uiFps": 60,
+      "rafP95Ms": 16.7,
+      "longTasks": 0,
+      "frames": 480
+    },
+    "recordingFpsDelta": 0,
+    "barMetricsAfterRec": "Trial: 1 · Dibuang: 0 · Antrian: 11 · UI 60 FPS · Det 26 Hz · Pipe p95 108.6 ms",
+    "exportedSchema": "nui-lab-bench-export/1",
+    "exportedBytes": 287559,
+    "containsForbiddenDataUrl": false,
+    "sessionStatus": "finished",
+    "storageBackend": "indexeddb",
+    "droppedRecords": {
+      "frames": 0,
+      "events": 0,
+      "perf": 0
+    },
+    "storageFailures": 0,
+    "validation": {
+      "schemaOk": true,
+      "status": "finished",
+      "problems": [],
+      "physicalWebcamEvidence": "VIRTUAL_OR_SIMULATED_SUSPECTED",
+      "cameraDeviceClasses": [
+        "virtual-suspected"
+      ],
+      "note": "Device class is a heuristic from the camera name (name not stored). PHYSICAL_PRESUMED does not prove the night scenarios were run correctly; the Owner's N1..N6 notes and tester labels are the ground truth.",
+      "framesReconciled": 219,
+      "eventsReconciled": 47,
+      "droppedRecords": {
+        "frames": 0,
+        "events": 0,
+        "perf": 0
+      },
+      "storageFailures": 0,
+      "trialsWithUnverifiedModelHash": []
+    },
+    "groupCount": 3,
+    "groupEngines": [
+      "r20-c4:gesture-lab:a4",
+      "r19-c0:gesture-lab:a4",
+      "r19-c0:canvas-lab:a4"
+    ],
+    "trialsSummary": [
+      {
+        "trialId": "S-43f2a6c4-T001",
+        "route": "gesture",
+        "engineId": "r20-c4",
+        "modelHashVerified": true,
+        "preprocess": "a4",
+        "detector": "cpu-worker",
+        "frames": 124,
+        "handFrames": 71,
+        "detectorMissFrames": 53,
+        "pointerStrokes": 0
+      },
+      {
+        "trialId": "S-43f2a6c4-T002",
+        "route": "gesture",
+        "engineId": "r19-c0",
+        "modelHashVerified": true,
+        "preprocess": "a4",
+        "detector": "cpu-worker",
+        "frames": 50,
+        "handFrames": 11,
+        "detectorMissFrames": 39,
+        "pointerStrokes": 0
+      },
+      {
+        "trialId": "S-43f2a6c4-T003",
+        "route": "canvas",
+        "engineId": "r19-c0",
+        "modelHashVerified": true,
+        "preprocess": "a4",
+        "detector": "cpu-worker",
+        "frames": 45,
+        "handFrames": 27,
+        "detectorMissFrames": 18,
+        "pointerStrokes": 1
+      }
+    ],
+    "totalExportedFrames": 219,
+    "totalExportedEvents": 47,
+    "totalExportedPerf": 14,
+    "reloadRecoveryShowsInterrupted": true,
+    "consoleErrorsCount": 3,
+    "pageErrorsCount": 0,
+    "consoleErrors": [
+      "INFO: Created TensorFlow Lite XNNPACK delegate for CPU.",
+      "INFO: Created TensorFlow Lite XNNPACK delegate for CPU.",
+      "INFO: Created TensorFlow Lite XNNPACK delegate for CPU."
+    ],
+    "pageErrors": []
+  },
+  "longSessionWorkerAudit": {
+    "B3v2_guarded_owner_lock_long_90s": {
+      "label": "B3v2_guarded_owner_lock_long_90s",
+      "durationSec": 90,
+      "consoleErrorsCount": 1,
+      "pageErrorsCount": 0,
+      "lifecycle": {
+        "tabHiddenRelease": {
+          "releaseAllCount": 1,
+          "lastReleaseReason": "tab-hidden-long-test",
+          "c0Stuck": false,
+          "r20Stuck": false
+        },
+        "workerRestartRelease": {
+          "releaseAllCount": 2,
+          "lastReleaseReason": "worker-restart-long-test",
+          "c0Stuck": false,
+          "r20Stuck": false
+        },
+        "stoppedCleanly": true,
+        "zeroStuckKeys": true
+      },
+      "finalSummary": {
+        "ready": true,
+        "bootMs": 534,
+        "elapsedSec": 90.07,
+        "variant": "cpu-web-worker",
+        "numHands": 2,
+        "lowLightMode": "adaptive-fallback",
+        "captureWidth": 320,
+        "delegate": "CPU",
+        "gpuDelegateAttempted": false,
+        "gpuDelegateActive": false,
+        "videoSize": "640x360",
+        "rafFramesTotal": 5404,
+        "mpFramesCompleted": 1361,
+        "effectiveMpFps": 15.11,
+        "uiFpsMean": 60,
+        "uiFpsP5": 60,
+        "uiFpsP50": 60,
+        "handsDetectedFrames": 1015,
+        "detectionCoveragePct": 74.58,
+        "a3EnhancedRecoveryFrames": 1010,
+        "detectorTelemetry": {
+          "variant": "cpu-web-worker",
+          "delegate": "CPU",
+          "gpuDelegateAttempted": false,
+          "gpuDelegateActive": false,
+          "numHands": 2,
+          "lowLightMode": "adaptive-fallback",
+          "ready": false,
+          "closed": true,
+          "inFlight": 0,
+          "maxInFlightObserved": 1,
+          "framesSubmitted": 1362,
+          "framesCompleted": 1361,
+          "framesDroppedBusy": 5403,
+          "staleFramesDiscarded": 0,
+          "releaseAllCount": 3,
+          "lastReleaseReason": "harness-stop",
+          "lastError": null
+        },
+        "mainThreadDispatchMs": {
+          "p50": 1.2,
+          "p95": 2,
+          "max": 5
+        },
+        "preprocessMs": {
+          "p50": 4.5,
+          "p95": 8.5
+        },
+        "detectMs": {
+          "p50": 36.4,
+          "p95": 93.4,
+          "max": 208.7
+        },
+        "setOptionsMs": {
+          "calls": 232,
+          "p50": 26.8,
+          "p95": 34,
+          "max": 56.6
+        },
+        "ownerGuard": {
+          "activeNumHands": 1,
+          "bystanderAudits": 5,
+          "bystanderDetections": 4,
+          "ownerJumpRejects": 52,
+          "ownerSizeRejects": 9,
+          "handednessProbes": 18,
+          "bystanderCooldown": 0
+        },
+        "monotonicClamps": 0,
+        "r20ClassifierMs": {
+          "p50": 0,
+          "p95": 0.1,
+          "max": 0.5
+        },
+        "e2eMs": {
+          "p50": 67.8,
+          "p95": 105.2,
+          "max": 217.6
+        },
+        "rafIntervalMs": {
+          "p50": 16.7,
+          "p95": 16.7,
+          "max": 16.8
+        },
+        "longTasksAfterBootCount": 0,
+        "longTasksAfterBootMaxMs": 0,
+        "c0Counts": {
+          "readyFrames": 209,
+          "pressFrames": 338,
+          "otherFrames": 468,
+          "activeFrames": 77,
+          "keydowns": 60,
+          "keyups": 60,
+          "jumps": 60,
+          "releaseAlls": 3,
+          "stuckKeysNow": false
+        },
+        "r20Counts": {
+          "readyFrames": 182,
+          "pressFrames": 314,
+          "otherFrames": 519,
+          "activeFrames": 77,
+          "keydowns": 60,
+          "keyups": 60,
+          "jumps": 60,
+          "releaseAlls": 3,
+          "eraseFrames": 0,
+          "pinchFrames": 75,
+          "swipeFires": 0,
+          "stuckKeysNow": false
+        },
+        "g0SteerFrames": 595,
+        "jsHeapUsedMB": 9.54,
+        "jsHeapTotalMB": 9.54,
+        "stoppedCleanly": true,
+        "tracksEndedCount": 1,
+        "tracksTotalCount": 1
+      },
+      "postStopHeap": {
+        "jsHeapUsedMB": 4.1,
+        "jsHeapTotalMB": 6.82,
+        "nodes": 209
+      },
+      "heapGrowthMB": 0.86,
+      "checkpoints": [
+        {
+          "atSec": 15,
+          "mpFps": 14.25,
+          "uiFps": 60,
+          "uiFpsP5": 59.99,
+          "longTasks": 0,
+          "detP95": 95.1,
+          "heap": {
+            "jsHeapUsedMB": 3.37,
+            "jsHeapTotalMB": 6.32,
+            "nodes": 211
+          }
+        },
+        {
+          "atSec": 30,
+          "mpFps": 14.69,
+          "uiFps": 59.98,
+          "uiFpsP5": 60,
+          "longTasks": 0,
+          "detP95": 94.7,
+          "heap": {
+            "jsHeapUsedMB": 4.28,
+            "jsHeapTotalMB": 6.32,
+            "nodes": 226
+          }
+        },
+        {
+          "atSec": 45,
+          "mpFps": 14.66,
+          "uiFps": 60,
+          "uiFpsP5": 60,
+          "longTasks": 0,
+          "detP95": 94.6,
+          "heap": {
+            "jsHeapUsedMB": 5.04,
+            "jsHeapTotalMB": 7.07,
+            "nodes": 241
+          }
+        },
+        {
+          "atSec": 60,
+          "mpFps": 14.86,
+          "uiFps": 59.99,
+          "uiFpsP5": 60,
+          "longTasks": 0,
+          "detP95": 94,
+          "heap": {
+            "jsHeapUsedMB": 2.82,
+            "jsHeapTotalMB": 5.82,
+            "nodes": 175
+          }
+        },
+        {
+          "atSec": 75,
+          "mpFps": 14.96,
+          "uiFps": 60,
+          "uiFpsP5": 60,
+          "longTasks": 0,
+          "detP95": 93.7,
+          "heap": {
+            "jsHeapUsedMB": 3.84,
+            "jsHeapTotalMB": 6.07,
+            "nodes": 190
+          }
+        },
+        {
+          "atSec": 90,
+          "mpFps": 15.11,
+          "uiFps": 60.01,
+          "uiFpsP5": 60,
+          "longTasks": 0,
+          "detP95": 93.4,
+          "heap": {
+            "jsHeapUsedMB": 4.23,
+            "jsHeapTotalMB": 6.82,
+            "nodes": 205
+          }
+        }
+      ]
+    },
+    "B1_fixed_numHands2_30s": {
+      "label": "B1_fixed_numHands2_30s",
+      "durationSec": 30,
+      "consoleErrorsCount": 1,
+      "pageErrorsCount": 0,
+      "lifecycle": {
+        "tabHiddenRelease": {
+          "releaseAllCount": 1,
+          "lastReleaseReason": "tab-hidden-long-test",
+          "c0Stuck": false,
+          "r20Stuck": false
+        },
+        "workerRestartRelease": {
+          "releaseAllCount": 2,
+          "lastReleaseReason": "worker-restart-long-test",
+          "c0Stuck": false,
+          "r20Stuck": false
+        },
+        "stoppedCleanly": true,
+        "zeroStuckKeys": true
+      },
+      "finalSummary": {
+        "ready": true,
+        "bootMs": 415,
+        "elapsedSec": 30.04,
+        "variant": "cpu-web-worker",
+        "numHands": 2,
+        "lowLightMode": "adaptive-fallback",
+        "captureWidth": 320,
+        "delegate": "CPU",
+        "gpuDelegateAttempted": false,
+        "gpuDelegateActive": false,
+        "videoSize": "640x360",
+        "rafFramesTotal": 1803,
+        "mpFramesCompleted": 414,
+        "effectiveMpFps": 13.78,
+        "uiFpsMean": 60.02,
+        "uiFpsP5": 59.99,
+        "uiFpsP50": 60,
+        "handsDetectedFrames": 362,
+        "detectionCoveragePct": 87.44,
+        "a3EnhancedRecoveryFrames": 340,
+        "detectorTelemetry": {
+          "variant": "cpu-web-worker",
+          "delegate": "CPU",
+          "gpuDelegateAttempted": false,
+          "gpuDelegateActive": false,
+          "numHands": 2,
+          "lowLightMode": "adaptive-fallback",
+          "ready": false,
+          "closed": true,
+          "inFlight": 0,
+          "maxInFlightObserved": 1,
+          "framesSubmitted": 415,
+          "framesCompleted": 414,
+          "framesDroppedBusy": 1802,
+          "staleFramesDiscarded": 0,
+          "releaseAllCount": 3,
+          "lastReleaseReason": "harness-stop",
+          "lastError": null
+        },
+        "mainThreadDispatchMs": {
+          "p50": 1.2,
+          "p95": 1.6,
+          "max": 2
+        },
+        "preprocessMs": {
+          "p50": 4.5,
+          "p95": 8.6
+        },
+        "detectMs": {
+          "p50": 66.9,
+          "p95": 69.7,
+          "max": 177
+        },
+        "setOptionsMs": {
+          "calls": 0,
+          "p50": null,
+          "p95": null,
+          "max": null
+        },
+        "ownerGuard": {
+          "activeNumHands": 2,
+          "bystanderAudits": 0,
+          "bystanderDetections": 0,
+          "ownerJumpRejects": 0,
+          "ownerSizeRejects": 0,
+          "handednessProbes": 0,
+          "bystanderCooldown": 0
+        },
+        "monotonicClamps": 0,
+        "r20ClassifierMs": {
+          "p50": 0,
+          "p95": 0.1,
+          "max": 0.6
+        },
+        "e2eMs": {
+          "p50": 73.3,
+          "p95": 79.2,
+          "max": 181.7
+        },
+        "rafIntervalMs": {
+          "p50": 16.7,
+          "p95": 16.8,
+          "max": 16.8
+        },
+        "longTasksAfterBootCount": 0,
+        "longTasksAfterBootMaxMs": 0,
+        "c0Counts": {
+          "readyFrames": 93,
+          "pressFrames": 121,
+          "otherFrames": 148,
+          "activeFrames": 25,
+          "keydowns": 24,
+          "keyups": 24,
+          "jumps": 24,
+          "releaseAlls": 3,
+          "stuckKeysNow": false
+        },
+        "r20Counts": {
+          "readyFrames": 75,
+          "pressFrames": 102,
+          "otherFrames": 185,
+          "activeFrames": 25,
+          "keydowns": 24,
+          "keyups": 24,
+          "jumps": 24,
+          "releaseAlls": 3,
+          "eraseFrames": 0,
+          "pinchFrames": 19,
+          "swipeFires": 0,
+          "stuckKeysNow": false
+        },
+        "g0SteerFrames": 294,
+        "jsHeapUsedMB": 9.54,
+        "jsHeapTotalMB": 9.54,
+        "stoppedCleanly": true,
+        "tracksEndedCount": 1,
+        "tracksTotalCount": 1
+      },
+      "postStopHeap": {
+        "jsHeapUsedMB": 3.04,
+        "jsHeapTotalMB": 5.82,
+        "nodes": 174
+      },
+      "heapGrowthMB": -1.41,
+      "checkpoints": [
+        {
+          "atSec": 15,
+          "mpFps": 13.59,
+          "uiFps": 60.02,
+          "uiFpsP5": 60,
+          "longTasks": 0,
+          "detP95": 69.4,
+          "heap": {
+            "jsHeapUsedMB": 4.5,
+            "jsHeapTotalMB": 7.57,
+            "nodes": 211
+          }
+        },
+        {
+          "atSec": 30,
+          "mpFps": 13.79,
+          "uiFps": 60.01,
+          "uiFpsP5": 59.99,
+          "longTasks": 0,
+          "detP95": 69.7,
+          "heap": {
+            "jsHeapUsedMB": 3.09,
+            "jsHeapTotalMB": 5.57,
+            "nodes": 170
+          }
+        }
+      ]
+    },
+    "B2_numHands1_ceiling_25s": {
+      "label": "B2_numHands1_ceiling_25s",
+      "durationSec": 25,
+      "consoleErrorsCount": 1,
+      "pageErrorsCount": 0,
+      "lifecycle": {
+        "tabHiddenRelease": {
+          "releaseAllCount": 1,
+          "lastReleaseReason": "tab-hidden-long-test",
+          "c0Stuck": false,
+          "r20Stuck": false
+        },
+        "workerRestartRelease": {
+          "releaseAllCount": 2,
+          "lastReleaseReason": "worker-restart-long-test",
+          "c0Stuck": false,
+          "r20Stuck": false
+        },
+        "stoppedCleanly": true,
+        "zeroStuckKeys": true
+      },
+      "finalSummary": {
+        "ready": true,
+        "bootMs": 465,
+        "elapsedSec": 25.03,
+        "variant": "cpu-web-worker",
+        "numHands": 1,
+        "lowLightMode": "adaptive-fallback",
+        "captureWidth": 320,
+        "delegate": "CPU",
+        "gpuDelegateAttempted": false,
+        "gpuDelegateActive": false,
+        "videoSize": "640x360",
+        "rafFramesTotal": 1502,
+        "mpFramesCompleted": 607,
+        "effectiveMpFps": 24.25,
+        "uiFpsMean": 60,
+        "uiFpsP5": 60,
+        "uiFpsP50": 60,
+        "handsDetectedFrames": 554,
+        "detectionCoveragePct": 91.27,
+        "a3EnhancedRecoveryFrames": 513,
+        "detectorTelemetry": {
+          "variant": "cpu-web-worker",
+          "delegate": "CPU",
+          "gpuDelegateAttempted": false,
+          "gpuDelegateActive": false,
+          "numHands": 1,
+          "lowLightMode": "adaptive-fallback",
+          "ready": false,
+          "closed": true,
+          "inFlight": 0,
+          "maxInFlightObserved": 1,
+          "framesSubmitted": 608,
+          "framesCompleted": 607,
+          "framesDroppedBusy": 1501,
+          "staleFramesDiscarded": 0,
+          "releaseAllCount": 3,
+          "lastReleaseReason": "harness-stop",
+          "lastError": null
+        },
+        "mainThreadDispatchMs": {
+          "p50": 1.1,
+          "p95": 1.7,
+          "max": 2.6
+        },
+        "preprocessMs": {
+          "p50": 4.4,
+          "p95": 8.6
+        },
+        "detectMs": {
+          "p50": 32.9,
+          "p95": 35.8,
+          "max": 174
+        },
+        "setOptionsMs": {
+          "calls": 0,
+          "p50": null,
+          "p95": null,
+          "max": null
+        },
+        "ownerGuard": {
+          "activeNumHands": 1,
+          "bystanderAudits": 0,
+          "bystanderDetections": 0,
+          "ownerJumpRejects": 0,
+          "ownerSizeRejects": 0,
+          "handednessProbes": 0,
+          "bystanderCooldown": 0
+        },
+        "monotonicClamps": 0,
+        "r20ClassifierMs": {
+          "p50": 0,
+          "p95": 0.1,
+          "max": 0.5
+        },
+        "e2eMs": {
+          "p50": 39,
+          "p95": 44.4,
+          "max": 178.6
+        },
+        "rafIntervalMs": {
+          "p50": 16.7,
+          "p95": 16.8,
+          "max": 16.8
+        },
+        "longTasksAfterBootCount": 0,
+        "longTasksAfterBootMaxMs": 0,
+        "c0Counts": {
+          "readyFrames": 166,
+          "pressFrames": 207,
+          "otherFrames": 181,
+          "activeFrames": 44,
+          "keydowns": 20,
+          "keyups": 20,
+          "jumps": 20,
+          "releaseAlls": 3,
+          "stuckKeysNow": false
+        },
+        "r20Counts": {
+          "readyFrames": 155,
+          "pressFrames": 179,
+          "otherFrames": 220,
+          "activeFrames": 44,
+          "keydowns": 20,
+          "keyups": 20,
+          "jumps": 20,
+          "releaseAlls": 3,
+          "eraseFrames": 0,
+          "pinchFrames": 34,
+          "swipeFires": 0,
+          "stuckKeysNow": false
+        },
+        "g0SteerFrames": 454,
+        "jsHeapUsedMB": 9.54,
+        "jsHeapTotalMB": 9.54,
+        "stoppedCleanly": true,
+        "tracksEndedCount": 1,
+        "tracksTotalCount": 1
+      },
+      "postStopHeap": {
+        "jsHeapUsedMB": 6.55,
+        "jsHeapTotalMB": 11.82,
+        "nodes": 225
+      },
+      "heapGrowthMB": 0.91,
+      "checkpoints": [
+        {
+          "atSec": 15,
+          "mpFps": 24.38,
+          "uiFps": 60.03,
+          "uiFpsP5": 60,
+          "longTasks": 0,
+          "detP95": 35,
+          "heap": {
+            "jsHeapUsedMB": 4.6,
+            "jsHeapTotalMB": 7.57,
+            "nodes": 211
+          }
+        },
+        {
+          "atSec": 25,
+          "mpFps": 24.22,
+          "uiFps": 60.03,
+          "uiFpsP5": 60,
+          "longTasks": 0,
+          "detP95": 35.8,
+          "heap": {
+            "jsHeapUsedMB": 5.51,
+            "jsHeapTotalMB": 11.82,
+            "nodes": 221
+          }
+        }
+      ]
+    }
+  }
+}

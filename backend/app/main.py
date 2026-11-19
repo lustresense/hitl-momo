@@ -11,7 +11,7 @@ from .db import get_db, init_db
 from .difficulty import apply_difficulty, difficulty_enabled, effective_difficulty
 from .inference import load_model, predict_from_drawing, predict_probs
 
-app = FastAPI(title="Momo Backend", version="0.28.0-alpha")
+app = FastAPI(title="Momo Backend", version="0.28.1-alpha")
 app.include_router(dashboard.router)
 app.include_router(classroom.router)
 
@@ -74,9 +74,13 @@ def health():
 def predict(payload: DrawingPayload, conn: sqlite3.Connection = Depends(get_db)):
     if not AI_DIFFICULTY_ENABLED:
         return {"candidates": predict_from_drawing(payload.drawing)}
-    labels, probs = predict_probs(payload.drawing)
     difficulty = effective_difficulty(conn, payload.level_id)
-    candidates = apply_difficulty(labels, probs, difficulty, payload.drawing, payload.level_id or "")
+    if difficulty == 0:
+        # No level sent, or level switched off: identical to the raw model path.
+        candidates = predict_from_drawing(payload.drawing)
+    else:
+        labels, probs = predict_probs(payload.drawing)
+        candidates = apply_difficulty(labels, probs, difficulty, payload.drawing, payload.level_id or "")
     return {
         "candidates": candidates,
         # For dashboards/logs: which level and how much the answer was degraded (0 = raw model).

@@ -31,11 +31,16 @@ def client():
         yield c
 
 
-def test_flag_is_off_by_default():
-    assert main_mod.AI_DIFFICULTY_ENABLED is False
+def test_flag_follows_env(monkeypatch):
+    from backend.app.difficulty import difficulty_enabled
+    monkeypatch.delenv("AI_DIFFICULTY_ENABLED", raising=False)
+    assert difficulty_enabled() is False  # code default; docker-compose turns it on
+    monkeypatch.setenv("AI_DIFFICULTY_ENABLED", "1")
+    assert difficulty_enabled() is True
 
 
-def test_predict_contract_unchanged_when_off(client):
+def test_predict_contract_unchanged_when_off(client, monkeypatch):
+    monkeypatch.setattr(main_mod, "AI_DIFFICULTY_ENABLED", False)
     plain = client.post("/predict", json={"drawing": DRAWING})
     with_level = client.post("/predict", json={"drawing": DRAWING, "levelId": "stage-3-validation"})
     assert plain.status_code == with_level.status_code == 200

@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.28.1-alpha | 2026-11-19 | Fitur | `(0.28.1-alpha)` |
 | 0.28.0-alpha | 2026-11-19 | Fitur | `(0.28.0-alpha)` |
 | 0.27.0-alpha | 2026-11-19 | Fitur | `(0.27.0-alpha)` |
 | 0.26.0-alpha | 2026-11-18 | Fitur | `(0.26.0-alpha)` |
@@ -126,6 +127,19 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.28.1-alpha — 2026-11-19 — Fitur
+
+**Sumber:** Instruksi Dias 2026-11-19: 'kesulitan ai dinyalakan', dipilih 'backend saja dulu' (game/SEND_CONTEXT menunggu Can)
+
+**Perubahan:**
+- docker-compose.yml dan .env.example: AI_DIFFICULTY_ENABLED=1 untuk backend. /predict memakai jalur model mentah bila kesulitan efektif 0. Banner /admin/kesulitan menyatakan status aktif. Game tidak diubah.
+
+**Commit:** commit berjudul `(0.28.1-alpha)`
+
+**Bukti:** pytest tests/integration 20/20 dengan AI_DIFFICULTY_ENABLED kosong dan =1; uvicorn flag on: tanpa level / level mati = output model mentah, level 3 @70 menukar Top-1 (asli tetap rank 2); admin tsc+build
 
 ---
 

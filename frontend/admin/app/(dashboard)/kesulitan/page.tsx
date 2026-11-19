@@ -106,7 +106,12 @@ export default function DifficultyPage() {
       {!settings.active && (
         <div className="alert">
           Fitur ini belum aktif di server (AI_DIFFICULTY_ENABLED mati). Pengaturan tersimpan, tetapi tebakan model
-          yang dilihat murid belum diubah. Pengaktifan menunggu persetujuan Can dan Dias.
+          yang dilihat murid belum diubah.
+        </div>
+      )}
+      {settings.active && (
+        <div className="alert alert-ok">
+          Aktif di backend. Murid baru terdampak setelah game mengirim level yang dimainkan (menunggu Can).
         </div>
       )}
       {notice && <div className="alert alert-ok">{notice}</div>}

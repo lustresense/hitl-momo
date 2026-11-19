@@ -1,5 +1,10 @@
 # NOW.md — Status integrasi bersama
 
+## 2026-11-19 — Kesulitan AI dinyalakan di backend (0.28.1-alpha, di `main`, belum deploy)
+- Keputusan Dias: `AI_DIFFICULTY_ENABLED=1` di `docker-compose.yml`/`.env.example`. Semua level masih mati sampai superadmin mengatur di `/admin/kesulitan`.
+- **Siswa belum terdampak:** game belum mengirim `levelId` (`NEXT_PUBLIC_PREDICTION_SEND_CONTEXT` tidak diubah, keputusan Can/K1). Respons `/predict` menambah field `difficulty` (aditif).
+- Bukti: `pytest tests/integration` 20/20 (flag on & off), uji HTTP uvicorn flag on, admin `tsc` + build. Docker/deploy: `NOT_TESTED`.
+
 ## 2026-11-19 — Migrasi menyeluruh repo Dias `94120d4` (0.28.0-alpha, di `main`, belum deploy)
 - Branch `integration/dias-repo-migration-20261119` dari `main@68a7d9a`, di-push ke `main` (fast-forward) atas instruksi Dias 2026-11-19; izin ini hanya untuk tugas ini, bukan izin push `main` berikutnya. 754/754 file Dias berstatus (`docs/migration/dias-94120d4/MANIFEST.csv`), 51 blob yang tak ada di riwayat monorepo diarsip byte-exact.
 - Dibawa: script training/evaluasi 6 arsitektur, label model dari `.labels.json` (fallback kategori lama, perilaku model sekarang sama), kesulitan AI per level + `/admin/kesulitan` **di balik `AI_DIFFICULTY_ENABLED` default mati**, tes black-box, dokumen & bukti Dias di `contexts/dias/`.

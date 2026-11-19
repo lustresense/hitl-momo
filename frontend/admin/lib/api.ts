@@ -94,6 +94,21 @@ export interface SchoolDetail {
   }[];
 }
 
+export interface LevelDifficulty {
+  level_id: string;
+  name: string;
+  enabled: boolean;
+  /** 0 = raw model, 100 = hardest. */
+  difficulty: number;
+}
+
+export interface DifficultySettings {
+  levels: LevelDifficulty[];
+  formula: { temperature_gain: number; swap_probability: number };
+  /** False while the backend's AI_DIFFICULTY_ENABLED flag is off: settings are stored but not applied. */
+  active: boolean;
+}
+
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message);
@@ -153,6 +168,10 @@ export const api = {
   getSchool: (id: number) => request<SchoolDetail>("GET", `/api/schools/${id}`),
   createAdmin: (schoolId: number, body: { name: string; email: string; password: string }) =>
     request<{ id: number }>("POST", `/api/schools/${schoolId}/admins`, body),
+
+  getDifficulty: () => request<DifficultySettings>("GET", "/api/settings/difficulty"),
+  saveDifficulty: (levels: Pick<LevelDifficulty, "level_id" | "enabled" | "difficulty">[]) =>
+    request<{ levels: LevelDifficulty[] }>("PUT", "/api/settings/difficulty", { levels }),
 
   listClasses: (schoolId?: number) =>
     request<ClassSummary[]>("GET", `/api/classes${schoolId ? `?school_id=${schoolId}` : ""}`),

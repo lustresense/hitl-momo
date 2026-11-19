@@ -27,6 +27,11 @@ const OUT = process.env.E2E_OUT ?? path.join(ROOT, "e2e-out", "classroom");
 const missingEnv = [!DB && "DB_PATH", !PASS && "TEACHER_PASSWORD"].filter(Boolean);
 if (missingEnv.length) { console.error(`classroom-e2e: missing env ${missingEnv.join(", ")}`); process.exit(2); }
 fs.mkdirSync(OUT, { recursive: true });
+// modelLabel -> displayName, read from the game's own label map (single source of truth).
+const MODEL_DISPLAY = new Map(
+  [...fs.readFileSync(path.join(ROOT, "src/prediction/label-map.ts"), "utf8")
+    .matchAll(/modelLabel:\s*"([^"]+)",\s*displayName:\s*"([^"]+)"/g)].map(m => [m[1].toLowerCase(), m[2]]),
+);
 const plans = JSON.parse(fs.readFileSync(path.join(ROOT, "e2e/lib/level-plans.json"), "utf8"));
 
 const checks = [];
@@ -94,7 +99,10 @@ try {
   const predictResp = net.filter(n => /\/predict$/.test(n.url)).at(-1);
   check("predict: real backend answered 200 with 3 candidates", predictResp?.status === 200 && predictResp.body?.candidates?.length === 3, predictResp ? `status=${predictResp.status}` : "no /predict response");
   const predLabels = (predictResp?.body?.candidates ?? []).map(c => c.label);
-  check("predict: UI shows the labels returned by the server", JSON.stringify(predLabels) === JSON.stringify(labels), `server=${JSON.stringify(predLabels)} ui=${JSON.stringify(labels)}`);
+  // The game shows each model label through src/prediction/label-map.ts (e.g. "car" -> "Mobil");
+  // unknown labels are shown as sent. Compare through that map.
+  const shown = predLabels.map(l => MODEL_DISPLAY.get(String(l).trim().toLowerCase()) ?? l);
+  check("predict: UI shows the labels returned by the server (via label map)", JSON.stringify(shown) === JSON.stringify(labels), `server=${JSON.stringify(predLabels)} expected=${JSON.stringify(shown)} ui=${JSON.stringify(labels)}`);
   check("submit: first delivery was dropped and retried (>=2 POSTs)", postCount >= 2, `posts=${postCount}`);
   const posts = net.filter(n => n.method === "POST" && n.url.endsWith("/api/submissions"));
   // The first response was dropped on purpose, so the browser only sees the retry's answer.

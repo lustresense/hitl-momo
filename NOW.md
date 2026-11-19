@@ -1,5 +1,10 @@
 # NOW.md — Status integrasi bersama
 
+## 2026-11-19 — Project berjalan end-to-end setelah migrasi Dias (0.29.1-alpha, di `main`, belum deploy)
+- E2E kelas penuh di browser 19/19 dengan model asli dan kesulitan AI per level aktif. Cek label di `classroom-e2e.mjs` sekarang lewat `label-map.ts`.
+- `vitest` game penuh: 2299 lulus, 22 gagal. Ke-22 tes itu sudah gagal di `68a7d9a` (pra-migrasi), di area kamera/penghapus Can.
+- Ringkasan perubahan dan tugas Can/Dias: `docs/migration/dias-94120d4/PERUBAHAN-DAN-LANGKAH-SELANJUTNYA.md`.
+
 ## 2026-11-19 — Kesulitan AI per level AKTIF (0.29.0-alpha, di `main`, belum deploy)
 - Kesepakatan Can + Dias 2026-11-19 (disampaikan Dias). Game build mengirim `levelId` (`NEXT_PUBLIC_PREDICTION_SEND_CONTEXT=1` di `docker-compose.yml` dan `frontend/implementation/Dockerfile`); default level Bab 1 = 0, Bab 2 = 40, Bab 3 = 70 (aktif, bisa diubah superadmin di `/admin/kesulitan`). CORS backend mengizinkan `X-Contract-Version`.
 - Siswa di Bab 2 dan 3 akan melihat confidence lebih rendah; di Bab 3 sebagian gambar menampilkan label mirip di peringkat 1 dengan jawaban model asli di peringkat 2.

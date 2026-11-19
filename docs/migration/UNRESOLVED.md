@@ -2,6 +2,8 @@
 
 Daftar ini tidak diselesaikan oleh integrator sendiri. Setiap item butuh keputusan pemilik, Can, atau Dias.
 
+> **Pembaruan 2026-11-19:** Dias menyampaikan bahwa Can dan Dias sudah menyetujui perubahan file di kedua sisi. Dengan itu **A1–A5** (kontrak token, `submission_key`, outcome, bentuk respons, CORS) dan **K1** migrasi Dias (kesulitan AI per level) dianggap disetujui dan sudah aktif di `main`. Persetujuan ini **belum tercatat** di `contexts/can/DECISIONS.md` (Can yang mencatat). Item B dan seterusnya di bawah tetap terbuka kecuali disebut lain. Ringkasan: `docs/migration/dias-94120d4/PERUBAHAN-DAN-LANGKAH-SELANJUTNYA.md`.
+
 ## A. Perubahan kontrak yang sudah dikerjakan, menunggu persetujuan
 
 | # | Perubahan | Owner | Yang perlu |

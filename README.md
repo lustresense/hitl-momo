@@ -92,7 +92,7 @@ Semua perintah dari root repo. Empat proses terpisah: backend, game, dashboard.
 python3 -m venv .venv && . .venv/bin/activate
 pip install -r backend/requirements.txt
 python backend/create_superadmin.py --email guru@contoh.test --name "Guru Uji"   # minta password
-uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
+AI_DIFFICULTY_ENABLED=1 uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
 ```
 
 Database dibuat di `backend/data/momo.sqlite` (ubah dengan `MOMO_DB_PATH`). Model: `weights/model_4_mobilenetv2_best.keras` (ubah dengan `MODEL_PATH`).
@@ -104,10 +104,11 @@ cd frontend/implementation && npm ci
 NEXT_PUBLIC_PREDICTION_MODE=partner \
 NEXT_PUBLIC_PREDICTION_ENDPOINT=http://localhost:8000/predict \
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8000 \
+NEXT_PUBLIC_PREDICTION_SEND_CONTEXT=1 \
 npm run dev -- -p 3000
 ```
 
-Tanpa `NEXT_PUBLIC_PREDICTION_MODE=partner`, game memakai prediksi tiruan (mock) dan tidak memanggil model.
+Tanpa `NEXT_PUBLIC_PREDICTION_MODE=partner`, game memakai prediksi tiruan (mock) dan tidak memanggil model. `AI_DIFFICULTY_ENABLED=1` (backend) dan `NEXT_PUBLIC_PREDICTION_SEND_CONTEXT=1` (game) menyalakan kesulitan AI per level seperti di produksi; tanpa keduanya prediksi selalu jawaban model apa adanya.
 
 **3. Dashboard** (port 3002):
 
@@ -164,12 +165,13 @@ Semua ini baru terbukti dengan landmark sintetis dan test hook. Belum diuji deng
 
 | Perintah | Membuktikan |
 |---|---|
-| `python -m pytest tests/integration/test_classroom_contract.py -q` | Kontrak classroom: token sesi, idempotensi, outcome, CORS, pembersihan sesi kedaluwarsa, batas titik `/predict`. 14 test |
+| `python -m pytest tests/integration -q` | Kontrak classroom (token sesi, idempotensi, outcome, CORS, batas titik `/predict`) dan kesulitan AI per level (flag, default level, level dimatikan). 21 test |
+| `python backend/tests/blackbox.py --base http://127.0.0.1:8000 --email <e> --password <p>` | 10 skenario black-box Dias lewat HTTP (pakai DB sementara, bukan DB produksi) + benchmark `/predict` |
 | `python tests/integration/verify_backend.py "$PWD" /tmp/backend_verify.json` | 20 pemeriksaan runtime terhadap backend dengan **bobot model asli**. Menulis ulang `contracts/openapi.json` |
 | `cd frontend/implementation && npx vitest run` | 151 file, 1144 test unit game, termasuk test kontrak dengan fixture bersama dan test pemulihan outbox |
 | `cd frontend/implementation && npm run typecheck` | Tipe game |
 | `cd frontend/admin && npm run typecheck` | Tipe dashboard |
-| `node e2e/classroom-e2e.mjs` (dari `frontend/implementation`) | E2E classroom 17 cek: join, prediksi model asli, submit yang di-retry, database, dashboard. Butuh game ter-build, backend, dashboard, dan env di komentar awal file |
+| `node e2e/classroom-e2e.mjs` (dari `frontend/implementation`) | E2E classroom 19 cek: join, prediksi model asli, submit yang di-retry, database, dashboard. Butuh game ter-build, backend, dashboard, dan env di komentar awal file |
 | `node e2e/normal-journey.mjs`, `node e2e/recovery-paths.mjs` | Gameplay penuh dengan prediksi tiruan (mock) |
 
 `npm run e2e` memanggil `e2e/run.mjs` yang berstatus LEGACY. Jangan dipakai.
@@ -185,6 +187,7 @@ Backend (env saat menjalankan):
 | `MODEL_PATH` | file model Keras | `weights/model_4_mobilenetv2_best.keras` |
 | `MOMO_DB_PATH` | file SQLite | `backend/data/momo.sqlite` |
 | `CORS_ORIGINS` | origin browser yang boleh memanggil API, dipisah koma | `localhost` port 3344, 3002, 3000 |
+| `AI_DIFFICULTY_ENABLED` | `1` = kesulitan AI per level berlaku (atur di `/admin/kesulitan`) | `0` di kode, `1` di `docker-compose.yml` |
 
 Game (env **saat build**, nilainya tertanam di file statis dan terlihat siapa pun):
 
@@ -194,10 +197,11 @@ Game (env **saat build**, nilainya tertanam di file statis dan terlihat siapa pu
 | `NEXT_PUBLIC_PREDICTION_ENDPOINT` | alamat penuh `/predict` |
 | `NEXT_PUBLIC_API_BASE_URL` | alamat API untuk join dan submission. Kosong berarti origin yang sama |
 | `NEXT_PUBLIC_DRAW_INPUT_MODE` | `pointer` (bawaan) atau mode kamera |
+| `NEXT_PUBLIC_PREDICTION_SEND_CONTEXT` | `1` = kirim `levelId` ke `/predict` (dibutuhkan kesulitan AI per level). `1` di `docker-compose.yml` |
 
 Dashboard (env saat build): `NEXT_PUBLIC_API_URL`, `NEXT_PUBLIC_GAME_URL`, `NEXT_BASE_PATH` (`/admin` di belakang Caddy).
 
-Compose (`.env`): `PUBLIC_URL` (wajib), `SITE_ADDRESS`, `HTTP_PORT`, `HTTPS_PORT`, `DRAW_INPUT_MODE`, `MODEL_FILE`. `.env.example` hanya berisi contoh, tidak ada rahasia.
+Compose (`.env`): `PUBLIC_URL` (wajib), `SITE_ADDRESS`, `HTTP_PORT`, `HTTPS_PORT`, `DRAW_INPUT_MODE`, `MODEL_FILE`, `AI_DIFFICULTY_ENABLED` (bawaan 1), `PREDICTION_SEND_CONTEXT` (bawaan 1). `.env.example` hanya berisi contoh, tidak ada rahasia.
 
 ## Kontrak REST ringkas
 
@@ -219,6 +223,7 @@ Rinciannya, termasuk kode status dan perubahan terbaru: [`contracts/API_INVENTOR
 
 - Alur kelas dari ujung ke ujung, langsung dan lewat Caddy, dengan model asli.
 - Retry yang aman: respons pertama sengaja dijatuhkan setelah server menyimpan, retry dijawab `duplicate`, database tetap satu baris.
+- Perubahan kontrak dan kesulitan AI per level disetujui Can dan Dias (disampaikan Dias, 2026-11-19); belum tercatat di `contexts/can/DECISIONS.md`.
 - Kontrak sama di dua sisi (fixture bersama), backend 14 test, game 681 test, probe 20 pemeriksaan.
 - Gameplay dengan prediksi tiruan: 3 level dan 16 skenario pemulihan.
 - Dev server game dan dashboard hidup. Build produksi game dan dashboard sukses.
@@ -228,7 +233,6 @@ Rinciannya, termasuk kode status dan perubahan terbaru: [`contracts/API_INVENTOR
 - Build image Docker dan `docker compose up`.
 - Outcome gameplay dari browser (endpoint dan client sudah diuji lewat test, belum lewat game sungguhan).
 - Kamera fisik dan MediaPipe.
-- Persetujuan formal Can dan Dias atas perubahan kontrak.
 - Logika game dipindah ke server: belum dikerjakan, konflik dengan keputusan produk.
 
 ## Aturan kerja bersama
@@ -256,3 +260,4 @@ Rinciannya, termasuk kode status dan perubahan terbaru: [`contracts/API_INVENTOR
 - Laporan dan bukti integrasi: [`docs/migration/INTEGRATION_REPORT.md`](docs/migration/INTEGRATION_REPORT.md), [`docs/migration/evidence/`](docs/migration/evidence/)
 - Asal setiap file: [`docs/migration/SOURCE_MAP.csv`](docs/migration/SOURCE_MAP.csv), [`docs/migration/SOURCE_MANIFEST.md`](docs/migration/SOURCE_MANIFEST.md)
 - Status singkat: [`NOW.md`](NOW.md)
+- **Migrasi repo Dias, apa yang diubah, dan langkah selanjutnya:** [`docs/migration/dias-94120d4/PERUBAHAN-DAN-LANGKAH-SELANJUTNYA.md`](docs/migration/dias-94120d4/PERUBAHAN-DAN-LANGKAH-SELANJUTNYA.md)

@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.29.1-alpha | 2026-11-19 | Perbaikan | `(0.29.1-alpha)` |
 | 0.29.0-alpha | 2026-11-19 | Fitur | `(0.29.0-alpha)` |
 | 0.28.1-alpha | 2026-11-19 | Fitur | `(0.28.1-alpha)` |
 | 0.28.0-alpha | 2026-11-19 | Fitur | `(0.28.0-alpha)` |
@@ -128,6 +129,19 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.29.1-alpha — 2026-11-19 — Perbaikan
+
+**Sumber:** Instruksi Dias 2026-11-19: project harus berjalan; Can dan Dias menyetujui perubahan file kedua sisi; tulis dokumentasi perubahan dan langkah selanjutnya
+
+**Perubahan:**
+- classroom-e2e.mjs membandingkan label lewat label-map.ts; README root (env, tes, jalan lokal); UNRESOLVED catatan persetujuan; dokumen docs/migration/dias-94120d4/PERUBAHAN-DAN-LANGKAH-SELANJUTNYA.md
+
+**Commit:** commit berjudul `(0.29.1-alpha)`
+
+**Bukti:** E2E kelas penuh di browser (classroom-e2e.mjs) 19/19 REAL_MODEL dengan SEND_CONTEXT=1 dan AI_DIFFICULTY_ENABLED=1; backend pytest 21/21, verify_backend 20/20; game vitest penuh 2299 lulus / 22 gagal (8 file sama persis gagal di 68a7d9a, pra-migrasi); lint lulus; Docker/deploy/webcam NOT_TESTED
 
 ---
 

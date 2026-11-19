@@ -1,6 +1,6 @@
 {
   "name": "sketchbook-universe-admin",
-  "version": "0.29.0-alpha",
+  "version": "0.29.1-alpha",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3002",

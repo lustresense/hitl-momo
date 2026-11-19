@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.27.0-alpha | 2026-11-19 | Fitur | `(0.27.0-alpha)` |
 | 0.26.0-alpha | 2026-11-18 | Fitur | `(0.26.0-alpha)` |
 | 0.25.0-alpha | 2026-11-18 | Fitur | `(0.25.0-alpha)` |
 | 0.24.1-alpha | 2026-11-17 | Dokumen | `(0.24.1-alpha)` |
@@ -124,6 +125,21 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.27.0-alpha — 2026-11-19 — Fitur
+
+**Sumber:** Owner 2026-11-19 R20 Fix + NUI Lab Physical Webcam Benchmark Recorder
+
+**Perubahan:**
+- Upgrade arsitektur recorder /nui-lab kompatibel dengan lab-recorder.ts menjadi sesi benchmark persisten IndexedDB multi-trial lintas /nui-lab, /nui-lab/gesture, /nui-lab/canvas, dan /nui-lab/diagnostics dengan gerbang consent eksplisit, recovery sesi interrupted saat reload/crash, peringatan kuota + penghitung droppedRecords/storageFailures, dashboard perbandingan per konfigurasi, serta ekspor 1 klik JSON+CSV langsung dari browser.
+- Integrasikan kandidat R20 C4 (73,275 B) dan R20 C7 distilled (73,138 B) beserta baseline R19 C0 (122,768 B) dengan verifikasi SHA-256 fail-closed, Web Worker MediaPipe HandLandmarker 100% CPU-only dengan WorkerOwnerGuard anti-bystander, dan preprocessing low-light adaptif A4v2 (chroma-preserving Reinhard + motion-gated EMA + separable median-5) khusus ruang lingkup NUI Lab.
+- Gameplay siswa, storyline, alur HITL, backend logic, contracts, DECISIONS.md, dan SOUL.md tidak diubah (hanya sinkronisasi metadata versi monorepo 0.27.0-alpha via bump_version.py).
+
+**Commit:** commit berjudul `(0.27.0-alpha)`
+
+**Bukti:** vitest tests/nui-lab 210/210 (17 files), owner-build-manifest 4/4, tsc 0 errors, lint 0 new warnings, build 24/24 static pages, Playwright Chromium CPU-only static-export E2E PASS (60 FPS delta 0, 0 LongTasks, 0 droppedRecords, reloadRecoveryShowsInterrupted=true, export reanalysis ok=true), CDP cold NUI Lab 10.46 MiB PASS; physical webcam NOT_TESTED
 
 ---
 

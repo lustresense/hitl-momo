@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { BenchDashboard } from "@/src/components/nui-lab/bench/BenchControls";
 import { DEFAULT_R19_MODEL_URL } from "@/src/components/nui-lab/r19/r19_loader";
 import "@/src/components/nui-lab/NuiLabPage.css";
 
@@ -41,12 +42,12 @@ export default function NuiLabLanding() {
               <span className="nui-lab__landing-count">ENGINE AKTIF</span>
               <span className="nui-lab__pill nui-lab__pill--warn">Webcam Fisik: NOT_TESTED</span>
             </div>
-            <strong>R19 G4 Hybrid</strong>
+            <strong>R19 G4 Hybrid &amp; Kandidat R20 (CPU-Only)</strong>
             <p className="nui-lab__muted">
-              Arsitektur: <code>G1 Geometry + G3 MLP 82-&gt;96-&gt;48-&gt;3 + PistolVirtualKeyFSM</code>
+              Baseline: <code>R19 C0 (82-&gt;96-&gt;48-&gt;3)</code> · Kandidat: <code>R20 C4 (82-&gt;64-&gt;32-&gt;3)</code> &amp; <code>R20 C7 Distilasi</code>
             </p>
             <p className="nui-lab__muted">
-              Model bobot: <code>{DEFAULT_R19_MODEL_URL}</code>
+              Model baseline: <code>{DEFAULT_R19_MODEL_URL}</code> · R20 C4: <code>/models/r20-c4-model.json</code>
             </p>
             <p className="nui-lab__muted">
               Status uji webcam fisik saat ini: <strong>NOT_TESTED</strong>. Hasil NUI Lab adalah diagnostik lokal,
@@ -105,6 +106,8 @@ export default function NuiLabLanding() {
             <span className="nui-lab__landing-open">Buka Canvas Lab</span>
           </Link>
         </div>
+
+        <BenchDashboard />
       </div>
     </main>
   );

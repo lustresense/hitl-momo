@@ -75,6 +75,60 @@ const ACTIONS: ReadonlySet<string> = new Set(["draw", "erase", "undo", "redo"]);
 const R19_STATES: ReadonlySet<string> = new Set(["POINT_READY", "POINT_PRESS", "OTHER", "NO_HAND"]);
 const VKEY_EVENTS: ReadonlySet<string> = new Set(["KEYDOWN", "HELD", "KEYUP", "RELEASE_ALL", "NONE"]);
 
+/**
+ * Pure builder shared by the legacy one-shot recorder and the benchmark session recorder (bench/), so both write the
+ * exact same per-frame numbers. `tMs` is milliseconds since that recording started (never a date).
+ */
+export function buildRecordFrame(
+  snap: LabSnapshot,
+  landmarks: Landmark[] | null,
+  truth: TruthLabel,
+  tMs: number,
+  commandAtMs: number | null = null,
+): RecordFrame {
+  const d = snap.diag;
+  const hasHand = landmarks !== null && landmarks.length === 21;
+  const lastCommand = d.lastCommand;
+  const action: FinalAction =
+    lastCommand && commandAtMs !== null && lastCommand.atMs === commandAtMs
+      ? lastCommand.kind
+      : snap.drawingAction && ACTIONS.has(snap.drawingAction) ? (snap.drawingAction as FinalAction) : "none";
+  return {
+    t: tMs,
+    lm: hasHand ? landmarks.map((p): [number, number] => [r4(p.x), r4(p.y)]) : null,
+    session: snap.acquisitionId,
+    lock: snap.lockStatus,
+    aspect: r4(d.aspect),
+    rawPose: d.rawPose,
+    stablePose: d.stablePose,
+    fingers: d.rawFingerCount,
+    fingersLegacy: d.legacyFingerCount,
+    fingerStates: snap.fingerStates ? [...snap.fingerStates] : null,
+    thumb: d.thumb
+      ? {
+          legacyRatio: r4(d.thumb.legacyRatio),
+          lateral: d.thumb.lateral === null ? null : r4(d.thumb.lateral),
+          ipAngleDeg: d.thumb.ipAngleDeg === null ? null : Math.round(d.thumb.ipAngleDeg),
+          open: d.thumb.robustOpen,
+        }
+      : null,
+    pinchRatio: snap.pinchRatio === null ? null : r4(snap.pinchRatio),
+    r19State: snap.r19.state,
+    r19SubClass: snap.r19.subClass,
+    vkeyEvent: snap.r19.virtualKey.event,
+    r19Probs: snap.r19.probs
+      ? {
+          ready: r4(snap.r19.probs.ready),
+          press: r4(snap.r19.probs.press),
+          other: r4(snap.r19.probs.other),
+        }
+      : null,
+    truth,
+    reject: snap.rejectionReason,
+    action,
+  };
+}
+
 export class LandmarkRecorder {
   private frames: RecordFrame[] = [];
   private startMs = 0;
@@ -117,47 +171,7 @@ export class LandmarkRecorder {
       return;
     }
     this.mode = snap.classifierMode;
-    const d = snap.diag;
-    const hasHand = landmarks !== null && landmarks.length === 21;
-    const lastCommand = d.lastCommand;
-    const action: FinalAction =
-      lastCommand && commandAtMs !== null && lastCommand.atMs === commandAtMs
-        ? lastCommand.kind
-        : snap.drawingAction && ACTIONS.has(snap.drawingAction) ? (snap.drawingAction as FinalAction) : "none";
-    this.frames.push({
-      t: Math.round(nowMs - this.startMs),
-      lm: hasHand ? landmarks.map((p): [number, number] => [r4(p.x), r4(p.y)]) : null,
-      session: snap.acquisitionId,
-      lock: snap.lockStatus,
-      aspect: r4(d.aspect),
-      rawPose: d.rawPose,
-      stablePose: d.stablePose,
-      fingers: d.rawFingerCount,
-      fingersLegacy: d.legacyFingerCount,
-      fingerStates: snap.fingerStates ? [...snap.fingerStates] : null,
-      thumb: d.thumb
-        ? {
-            legacyRatio: r4(d.thumb.legacyRatio),
-            lateral: d.thumb.lateral === null ? null : r4(d.thumb.lateral),
-            ipAngleDeg: d.thumb.ipAngleDeg === null ? null : Math.round(d.thumb.ipAngleDeg),
-            open: d.thumb.robustOpen,
-          }
-        : null,
-      pinchRatio: snap.pinchRatio === null ? null : r4(snap.pinchRatio),
-      r19State: snap.r19.state,
-      r19SubClass: snap.r19.subClass,
-      vkeyEvent: snap.r19.virtualKey.event,
-      r19Probs: snap.r19.probs
-        ? {
-            ready: r4(snap.r19.probs.ready),
-            press: r4(snap.r19.probs.press),
-            other: r4(snap.r19.probs.other),
-          }
-        : null,
-      truth,
-      reject: snap.rejectionReason,
-      action,
-    });
+    this.frames.push(buildRecordFrame(snap, landmarks, truth, Math.round(nowMs - this.startMs), commandAtMs));
   }
 
   toFile(): RecordFile {

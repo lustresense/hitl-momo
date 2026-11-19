@@ -1,24 +1,22 @@
-# CAN Agent Session Checkpoint — 2026-11-18
+# CAN Agent Session Checkpoint — 2026-11-19
 
 This is a short portable handoff for switching Codex, Claude Code and Antigravity accounts. It is **not** a decision log. Always read root `AGENTS.md` and `contexts/can/AGENTS.md`, then check `git branch --show-current`, `git rev-parse HEAD` and `git status --short` before using this snapshot.
 
 - Repository `lustresense/hitl-momo`. Working dir: `/srv/sketchbook/mediapipe-optimize/main-r19` (clone of `main`).
-- **Current version:** `0.26.0-alpha` (bumped from 0.25.0-alpha by R19 integration).
-- **Current task (2026-11-18):** R19 G4 Hybrid integration as SOLE NUI Lab engine. Owner mandate M-R19-01. All Baseline/R17/R18 UI toggles removed. Fail-closed model load. Lifecycle guards. Virtual keyboard diagnostics.
-- **R19 engine:** `G1 Geometry + G3 MLP [82→96→48→3] + PistolVirtualKeyFSM`. Source from `research-can/r19/candidates/` (never merged — selective copy only).
-- **Model:** `/models/r19-pistol-model.json` (122,768 B, sha256 `c6130bd56850534889372a7295d45e7704083cbf60115626cd08b57c6e000293`).
-- **R19 source files in main:**
-  - `frontend/implementation/src/components/nui-lab/r19/` — engine modules (pistol_types, pistol_geometry, pistol_fsm, r19_safety_guards, r19_features, r19_model, r19_integrated, r19_loader)
-  - `frontend/implementation/src/components/nui-lab/NuiLabPage.tsx` — sole R19 UI (1355 lines)
-  - `frontend/implementation/src/components/nui-lab/lab-analyzer.ts` — R19 G4 Hybrid sole engine (1050 lines)
-  - `frontend/implementation/app/nui-lab/{page,gesture/page,canvas/page,diagnostics/page}.tsx` — routes
-  - `frontend/implementation/tests/nui-lab/` — 195/195 tests
-- **Deleted:** `public/models/r18-ux3-model.json`, `src/components/nui-lab/r18/`
-- **Test results:** `tests/nui-lab` 195/195 PASS; `tests/app/domain/prediction/events/config/api/manifest` 327/327 PASS; `tsc --noEmit` 0 errors; `lint` 0 new warnings; build 24/24 static pages.
-- **Pre-existing failures:** 13 in `tests/input/tests/camera` (fist-erase/GPU baseline — REVISIONS R16-10, NOT caused by R19).
-- **Webcam:** `NOT_TESTED`. Synthetic tests ≠ physical webcam evidence.
-- **Scope strictly observed:** `app/level1..3`, `src/game/*`, `src/input/{gameplay-hand-driver,mediapipe-input,arbiter}.ts`, `backend/`, `contracts/`, `DECISIONS.md`, `SOUL.md` — NOT TOUCHED.
-- **Git:** committed to `main` as `0.26.0-alpha`. See root `CHANGELOG.md` for SHA.
-- **Next QA:** Owner physical webcam test for pistol gesture. Verify RIGHT→RIGHT+JUMP→RIGHT continuity. Test dorsal (back-of-hand facing camera, right hand pointing left).
-- **research-can:** source-only branch, never merged into main. R19 R&D docs remain on that branch.
-- **Open:** Physical webcam test; potential Playwright E2E browser QA (script at scratch dir); DimHand dataset integration (future R19 iteration if needed).
+- **Current version:** `0.27.0-alpha` (bumped from `0.26.0-alpha` via `scripts/bump_version.py`).
+- **Current task (2026-11-19):** NUI Lab persistent multi-trial benchmark recorder (`IndexedDB` + batched `ChunkWriter` + 1-click JSON/CSV browser export + crash/reload `interrupted` recovery) + R20 `C4`/`C7` CPU-only Web Worker & `A4v2` chroma-preserving low-light integration (preserving `R19 C0` baseline as explicit selectable comparator).
+- **Pinned Models (`public/models/`, SHA-256 fail-closed):**
+  - `r19-pistol-model.json` (`122,768 B`, sha256 `c6130bd56850534889372a7295d45e7704083cbf60115626cd08b57c6e000293`) — Baseline `R19 C0`
+  - `r20-c4-model.json` (`73,275 B`, sha256 `e863ef1afe459a3b0a4cf0b0b2594a1db853b382d669add2d7be234e64710a27`) — Candidate `R20 C4`
+  - `r20-c7-t4-model.json` (`73,138 B`, sha256 `66acbde9f73868f8e6afada647a6d513d7efab6252a937bf88dede933147d730`) — Comparator `R20 C7`
+- **New/Updated NUI Lab source files in `main`:**
+  - `frontend/implementation/src/components/nui-lab/bench/` — 16 modules (`schema`, `engines`, `stats`, `store`, `writer`, `export`, `manager`, `perf-monitor`, `env`, `config`, `canvas-tracker`, `r20-lowlight`, `worker-owner-guard`, `r20-hand.worker`, `r20-worker-client`, `BenchControls`)
+  - `frontend/implementation/src/components/nui-lab/{NuiLabPage.tsx,NuiLabPage.css,lab-recorder.ts}`
+  - `frontend/implementation/app/nui-lab/page.tsx`
+  - `frontend/implementation/tests/nui-lab/{bench-recorder.test.ts,bench-worker-and-lowlight.test.ts,bench-ui-flow.test.tsx}`
+  - `frontend/implementation/docs/execution/NUI_R20_BENCHMARK_RECORDER_HANDOFF_2026-11-19.md`
+- **Test & E2E results:** `tests/nui-lab` 210/210 PASS (17 files); `tests/owner-build-manifest.test.ts` 4/4 PASS; `tsc --noEmit` 0 errors; `lint` 0 new warnings; `NEXT_PUBLIC_TEST_HOOKS=0 npm run build` 24/24 static pages; Playwright Chromium `--disable-gpu` static-export E2E PASS (`60.0 -> 60.0 FPS` delta 0, `0` LongTasks, `0` droppedRecords, `reloadRecoveryShowsInterrupted: true`, `validateExportFile` 0 errors, `reanalyzeExport.ok: true`); true CDP cold transfer on NUI Lab `10,966,014 B` (`10.46 MiB` < 25 MB PASS under `deploy/Caddyfile` zstd+gzip).
+- **Pre-existing non-lab findings (NOT modified):** 13+ legacy tests in `tests/input/` & `tests/camera/` (fist-erase/GPU baseline from 0.25.0-alpha); true CDP audit on unmodified Student SPA `main` showed `26,801,677 B` (`25.56 MiB` FAIL < 25 MB due to `3×` `.task` fetch in untouched `src/camera/hand-landmarker.ts`).
+- **Physical Webcam (`N1..N6`):** **`NOT_TESTED`**. R20 plan on `research-can@b0f43f01e226434d212a20437d24b00c31d583f3` remains `[WIP]`.
+- **Scope strictly observed:** `app/level1..3`, `app/canvas1..3`, `app/onboarding/*`, `src/game/*`, `src/input/{gameplay-hand-driver,mediapipe-input,arbiter}.ts`, `src/camera/*`, `backend/` logic, `contracts/`, `DECISIONS.md`, `SOUL.md`, and running Caddy/Ujang services — NOT TOUCHED.
+- **Next QA:** Ujang pulls `main` + runs `bash frontend/implementation/scripts/ujang-verify-web.sh`; Owner opens `/nui-lab`, consents, runs `N1..N6` physical night webcam paired tests across `R19 C0` / `R20 C4` / `R20 C7`, and downloads full JSON + CSV archive in 1 click.

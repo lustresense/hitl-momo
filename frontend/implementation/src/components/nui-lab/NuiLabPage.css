@@ -629,3 +629,91 @@
   flex-wrap: wrap;
   gap: 8px;
 }
+
+
+/* R20 Benchmark Session Dashboard & Active Session Bar (scoped strictly to NUI Lab). */
+.nui-lab__bench-dash {
+  display: grid;
+  gap: 14px;
+  margin-top: 20px;
+  border: 2px solid var(--nb-ink, #111);
+}
+.nui-lab__bench-config {
+  display: grid;
+  gap: 12px;
+  padding: 12px;
+  border: 1.5px solid var(--nb-ink, #111);
+  border-radius: 10px;
+  background: #ffffff;
+}
+.nui-lab__bench-group {
+  display: grid;
+  gap: 6px;
+}
+.nui-lab__bench-consent-box {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 2px solid var(--nb-orange, #ef7a37);
+  border-radius: 10px;
+  background: #fffbeb;
+}
+.nui-lab__bench-table-wrap {
+  overflow-x: auto;
+}
+.nui-lab__bench-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  background: #ffffff;
+}
+.nui-lab__bench-table th,
+.nui-lab__bench-table td {
+  padding: 6px 8px;
+  border: 1px solid #cbd5e1;
+  text-align: left;
+  white-space: nowrap;
+}
+.nui-lab__bench-table th {
+  background: #f1f5f9;
+  font-weight: 700;
+}
+.nui-lab__bench-prev ul {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  font-size: 0.88rem;
+}
+.nui-lab__bench-bar {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  border: 2px solid var(--nb-ink, #111);
+  border-radius: 10px;
+  background: #ffffff;
+}
+.nui-lab__bench-bar-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.nui-lab__bench-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.88rem;
+  font-weight: 600;
+}
+.nui-lab__bench-inline select {
+  min-height: 36px;
+  padding: 4px 6px;
+  border: 1.5px solid var(--nb-ink, #111);
+  border-radius: 6px;
+  background: #ffffff;
+  font: inherit;
+}
+.nui-lab__check--compact {
+  align-items: center;
+  font-size: 0.85rem;
+}

@@ -42,7 +42,17 @@ import {
 import { LandmarkRecorder, TRUTH_LABELS, type TruthLabel } from "./lab-recorder";
 import { countHandRoles } from "./lab-roles";
 import type { FingerState } from "./r19/pistol_types";
-import { fetchR19Model } from "./r19/r19_loader";
+import { validateR19Model } from "./r19/r19_loader";
+import { BenchSessionBar, useBenchState, useLabBenchConfig } from "./bench/BenchControls";
+import { LabTelemetryBridge } from "./bench/canvas-tracker";
+import { canUseCpuWorker, type LabBenchConfig } from "./bench/config";
+import { buildEngineConfig, ENGINE_SPECS, fetchEngineModel } from "./bench/engines";
+import { classifyCameraTrack } from "./bench/env";
+import { getBenchManager } from "./bench/manager";
+import { UiPerfMonitor } from "./bench/perf-monitor";
+import { LabCpuWorkerClient, type CpuWorkerResult } from "./bench/r20-worker-client";
+import type { CameraProfile, EngineId, PreprocessMode } from "./bench/schema";
+import { quantile } from "./bench/stats";
 import "./NuiLabPage.css";
 
 const WASM_ROOT = "/mediapipe/wasm";
@@ -56,6 +66,12 @@ const REFRESH_MS = 250;
 const MAX_DETECT_FAILURES = 3;
 
 const R19_ENGINE_LABEL = "R19 G4 Hybrid · G1 Geometry + G3 MLP + PistolVirtualKeyFSM";
+function engineBadgeLabel(engineId: EngineId, detector: "cpu-worker" | "cpu-main-thread"): string {
+  const detTag = detector === "cpu-worker" ? "CPU Web Worker" : "CPU Main-Thread";
+  if (engineId === "r19-c0") return `${R19_ENGINE_LABEL} (${detTag})`;
+  if (engineId === "r20-c4") return `R20 C4 · G4 Hybrid MLP 82->64->32->3 (${detTag})`;
+  return `R20 C7 · G4 Hybrid Distilasi T=4 (${detTag})`;
+}
 const R19_VKEY_SCOPE_NOTE =
   "Simulasi tombol virtual R19 hanya untuk diagnostik NUI Lab — tidak menggerakkan Thinman produksi.";
 const R19_CANVAS_PISTOL_NOTE = "Gestur pistol hanya dipantau diagnostik — tidak menggerakkan Thinman.";
@@ -170,24 +186,44 @@ const EMPTY_READOUT: Readout = {
 /** Everything one camera session owns; released together. */
 interface Session {
   stream: MediaStream;
+  cameraProfile: CameraProfile;
+  detectorKind: "cpu-worker" | "cpu-main-thread";
   landmarker: HandLandmarker | null;
-  /** The player's face, found at a low rate; it narrows which hand counts (same as the game). */
-  face: FaceAnchor;
+  workerClient: LabCpuWorkerClient | null;
+  /** The player's face, found at a low rate in main-thread mode; null in CPU Worker mode to prevent competing detectors. */
+  face: FaceAnchor | null;
   analyzer: LabAnalyzer;
+  perfMonitor: UiPerfMonitor;
   rafId: number | null;
   timerId: ReturnType<typeof setInterval> | null;
+  perfTimerId: ReturnType<typeof setInterval> | null;
   cleanupListeners: () => void;
   /** Times of new video frames in the last second. */
   frameTimes: number[];
+  detectTimes: number[];
+  pipelineSamples: number[];
   lastVideoTime: number;
   lastVideoFrameCount: number | null;
   failures: number;
+  frameIdSeq: number;
+  mainReceived: number;
+  mainProcessed: number;
+  mainSkipped: number;
+  workerLuma: {
+    mean: number | null;
+    center: number | null;
+    backlight: boolean;
+    activePass: string;
+    preprocessMs: number | null;
+  };
 }
 
 function releaseSession(s: Session | null): void {
   if (!s) return;
   if (s.rafId !== null) cancelAnimationFrame(s.rafId);
   if (s.timerId !== null) clearInterval(s.timerId);
+  if (s.perfTimerId !== null) clearInterval(s.perfTimerId);
+  s.perfMonitor.stop();
   try {
     s.cleanupListeners();
   } catch {
@@ -205,7 +241,13 @@ function releaseSession(s: Session | null): void {
   } catch {
     /* best-effort */
   }
+  try {
+    s.workerClient?.close("session-release");
+  } catch {
+    /* best-effort */
+  }
   s.landmarker = null;
+  s.workerClient = null;
 }
 
 const fmtMs = (v: number | null): string => (v === null ? "—" : `${Math.round(v)} ms`);
@@ -238,14 +280,18 @@ function fingerStateLabel(state: FingerState | undefined): string {
   }
 }
 
-/** Unified NUI Lab workspace supporting Gesture Detection and Canvas Lab with sole R19 G4 Hybrid engine. */
+/** Unified NUI Lab workspace supporting Gesture Detection and Canvas Lab with selectable R19/R20 engines & benchmark session recorder. */
 export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "canvas" } = {}) {
   const isCanvas = variant === "canvas";
   const isGesture = variant === "gesture";
+  const benchState = useBenchState();
+  const benchCfg = useLabBenchConfig();
+  const benchMgr = getBenchManager();
   const [pointerTool, setPointerTool] = useState<"pen" | "eraser">("pen");
   const pointerDown = useRef(false);
-  // RD-02: numbers-only recorder, opt-in, local. It stays empty and idle until the tester consents and presses start.
+  // RD-02: numbers-only recorder, opt-in, local. Kept compatible alongside the upgraded multi-trial BenchSessionManager.
   const recorderRef = useRef(new LandmarkRecorder());
+  const telemetryBridgeRef = useRef(new LabTelemetryBridge(benchMgr, isCanvas));
   const truthRef = useRef<TruthLabel>("UNLABELLED");
   const pointerCursor = useRef<HandCursor | null>(null);
   const analyzerRef = useRef(
@@ -268,14 +314,39 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
   const overlayRef = useRef<HTMLCanvasElement>(null);
   const inkRef = useRef<HTMLCanvasElement>(null);
   const session = useRef<Session | null>(null);
+  const activeEngineRef = useRef<EngineId>(benchCfg.engineId);
+  const activePreprocessRef = useRef<PreprocessMode>(benchCfg.preprocess);
+  const modelHashVerifiedRef = useRef<boolean>(false);
   /** The lab must not leave its diagnostic preprocessing override active in the student game. */
   const initialDetectionMode = useRef<LowLightMode>("auto");
   /** Bumped by stop and unmount, so a camera/model request that is still opening is discarded cleanly. */
   const generation = useRef({ value: 0 });
   const mounted = useRef(false);
 
+  activeEngineRef.current = benchCfg.engineId;
+  activePreprocessRef.current = benchCfg.preprocess;
+
   const syncSnapshot = (analyzer: LabAnalyzer, nowMs = performance.now()) => {
     setReadout((prev) => ({ ...prev, snapshot: analyzer.snapshot(nowMs) }));
+  };
+
+  const openTrialForSession = (
+    s: Session,
+    engineId: EngineId,
+    preprocess: PreprocessMode,
+    reason: string,
+  ) => {
+    if (!benchMgr.isActive) return;
+    telemetryBridgeRef.current.reset();
+    benchMgr.beginTrial(
+      {
+        route: variant,
+        source: isCanvas ? "canvas-lab" : "gesture-lab",
+        engine: buildEngineConfig(engineId, preprocess, s.detectorKind, modelHashVerifiedRef.current),
+        camera: s.cameraProfile,
+      },
+      reason,
+    );
   };
 
   useEffect(() => {
@@ -286,6 +357,9 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
     initialDetectionMode.current = getFrameSourceStats().mode;
     setSupported(typeof navigator !== "undefined" && !!navigator.mediaDevices?.getUserMedia);
     setLowLightState(getFrameSourceStats().mode);
+    if (benchMgr.isActive) {
+      benchMgr.event("ROUTE_CHANGE", { to: variant }, "system");
+    }
     return () => {
       const now = performance.now();
       mounted.current = false;
@@ -296,8 +370,19 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
       recorder.stop();
       analyzer.releaseAll("unmount", now);
       analyzer.stop(now);
+      if (benchMgr.hasOpenTrial) {
+        benchMgr.endTrial("route-unmount");
+      }
     };
-  }, []);
+  }, [benchMgr, variant]);
+
+  // If the tester starts a benchmark session while the camera is already ON, begin a trial once model load settles.
+  useEffect(() => {
+    const s = session.current;
+    if (phase === "on" && modelState === "ready" && s && benchState.phase === "active" && !benchMgr.hasOpenTrial) {
+      openTrialForSession(s, benchCfg.engineId, benchCfg.preprocess, "session-started-while-camera-on");
+    }
+  });
 
   const paintInk = () => {
     const canvas = inkRef.current;
@@ -358,15 +443,19 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
     }
   };
 
-  const stopCamera = () => {
+  const stopCamera = (reason = "stop") => {
     const now = performance.now();
     generation.current.value++;
     const s = session.current;
     session.current = null;
     releaseSession(s);
     recorderRef.current.stop();
-    analyzerRef.current.releaseAll("stop", now);
+    analyzerRef.current.releaseAll(reason, now);
     analyzerRef.current.stop(now);
+    if (benchMgr.isActive) {
+      benchMgr.event("CAMERA_STOP", { reason }, "system");
+      if (benchMgr.hasOpenTrial) benchMgr.endTrial(`camera-${reason}`);
+    }
     if (videoRef.current) videoRef.current.srcObject = null;
     setPhase("off");
     setInfo(EMPTY_INFO);
@@ -378,30 +467,41 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
     paintInk();
   };
 
-  const loadR19ModelForAnalyzer = async (analyzer: LabAnalyzer, isWanted: () => boolean) => {
+  const loadModelForEngine = async (
+    engineId: EngineId,
+    analyzer: LabAnalyzer,
+    isWanted: () => boolean,
+  ): Promise<boolean> => {
     analyzer.setR19Loading();
+    modelHashVerifiedRef.current = false;
     if (isWanted()) {
       setModelState("loading");
       setModelError(null);
       syncSnapshot(analyzer);
     }
     try {
-      const model = await fetchR19Model();
-      if (!isWanted()) return;
+      const loaded = await fetchEngineModel(engineId);
+      const model = validateR19Model(loaded.json);
+      if (!isWanted()) return false;
+      modelHashVerifiedRef.current = loaded.hashVerified;
       const now = performance.now();
       analyzer.enableR19(model, now);
       setModelState("ready");
       setModelError(null);
       syncSnapshot(analyzer, now);
+      return true;
     } catch (err) {
-      if (!isWanted()) return;
+      if (!isWanted()) return false;
       const msg =
-        err instanceof Error && err.message.trim().length > 0 ? err.message : "Gagal memuat model R19";
+        err instanceof Error && err.message.trim().length > 0
+          ? err.message
+          : `Gagal memuat model ${ENGINE_SPECS[engineId].short}`;
       const now = performance.now();
       analyzer.failR19(msg, now);
       setModelState("error");
       setModelError(msg);
       syncSnapshot(analyzer, now);
+      return false;
     }
   };
 
@@ -409,7 +509,11 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
     if (modelState === "loading") return;
     const gen = generation.current.value;
     const analyzer = session.current?.analyzer ?? analyzerRef.current;
-    await loadR19ModelForAnalyzer(analyzer, () => mounted.current && generation.current.value === gen);
+    await loadModelForEngine(
+      activeEngineRef.current,
+      analyzer,
+      () => mounted.current && generation.current.value === gen,
+    );
   };
 
   const canvasPoint = (event: PointerEvent<HTMLCanvasElement>) => {
@@ -428,6 +532,7 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
     pointerCursor.current = { ...point, state: "drawing", erasing: pointerTool === "eraser" };
     if (pointerTool === "pen") analyzerRef.current.beginPointerStroke(point);
     else analyzerRef.current.erasePointer(point);
+    telemetryBridgeRef.current.onPointerDown(pointerTool, point, performance.now());
     paintInk();
   };
   const onCanvasMove = (event: PointerEvent<HTMLCanvasElement>) => {
@@ -436,6 +541,7 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
     pointerCursor.current = { ...point, state: "drawing", erasing: pointerTool === "eraser" };
     if (pointerTool === "pen") analyzerRef.current.movePointerStroke(point);
     else analyzerRef.current.erasePointer(point);
+    telemetryBridgeRef.current.onPointerMove(point);
     paintInk();
   };
   const onCanvasUp = () => {
@@ -443,13 +549,51 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
     pointerDown.current = false;
     if (pointerTool === "pen") analyzerRef.current.endPointerStroke();
     else analyzerRef.current.endPointerErase();
+    telemetryBridgeRef.current.onPointerUp(performance.now());
     pointerCursor.current = null;
     paintInk();
   };
   const runCanvasAction = (action: "undo" | "redo" | "clear") => {
     analyzerRef.current.canvasAction(action);
+    telemetryBridgeRef.current.onManualCanvasAction(action);
     if (session.current) syncSnapshot(session.current.analyzer);
     paintInk();
+  };
+
+  const handleBenchConfigChange = (next: LabBenchConfig) => {
+    const s = session.current;
+    if (!s) return;
+    const now = performance.now();
+    // Detector switch requires safe teardown & restart so two detectors never overlap.
+    if (next.detector !== s.detectorKind) {
+      benchMgr.event("ENGINE_CHANGE", { detector: next.detector, engineId: next.engineId, preprocess: next.preprocess }, "system");
+      stopCamera("detector-switch");
+      setMessage("Mode detektor diubah. Tekan Nyalakan kamera untuk memulai detektor baru secara aman.");
+      return;
+    }
+    if (next.preprocess !== activePreprocessRef.current) {
+      activePreprocessRef.current = next.preprocess;
+      if (s.workerClient) {
+        s.workerClient.setPreprocess(next.preprocess);
+      } else {
+        const mapped: LowLightMode = next.preprocess === "raw" ? "off" : next.preprocess === "clahe" ? "on" : "auto";
+        setLowLightEnhancement(mapped);
+        setLowLightState(mapped);
+      }
+      benchMgr.event("ENGINE_CHANGE", { preprocess: next.preprocess }, "system");
+      openTrialForSession(s, next.engineId, next.preprocess, "preprocess-change");
+    }
+    if (next.engineId !== activeEngineRef.current) {
+      activeEngineRef.current = next.engineId;
+      s.analyzer.releaseAll("engine-change", now);
+      benchMgr.event("ENGINE_CHANGE", { engineId: next.engineId }, "system");
+      const gen = generation.current.value;
+      void loadModelForEngine(next.engineId, s.analyzer, () => mounted.current && generation.current.value === gen).then((ok) => {
+        if (ok && session.current === s) {
+          openTrialForSession(s, next.engineId, next.preprocess, "engine-change");
+        }
+      });
+    }
   };
 
   const startCamera = async () => {
@@ -472,35 +616,70 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
       return;
     }
 
+    const videoTracks = typeof stream.getVideoTracks === "function" ? stream.getVideoTracks() : [];
+    const cameraProfile = classifyCameraTrack(videoTracks[0]);
+    const useWorker = benchCfg.detector === "cpu-worker" && canUseCpuWorker();
+    const detectorKind: "cpu-worker" | "cpu-main-thread" = useWorker ? "cpu-worker" : "cpu-main-thread";
+
+    if (!useWorker) {
+      const mapped: LowLightMode =
+        benchCfg.preprocess === "raw" ? "off" : benchCfg.preprocess === "clahe" ? "on" : "auto";
+      setLowLightEnhancement(mapped);
+      setLowLightState(mapped);
+    }
+
     const s: Session = {
       stream,
+      cameraProfile,
+      detectorKind,
       landmarker: null,
-      face: new FaceAnchor(),
+      workerClient: null,
+      face: useWorker ? null : new FaceAnchor(),
       analyzer: analyzerRef.current,
+      perfMonitor: new UiPerfMonitor(2000),
       rafId: null,
       timerId: null,
+      perfTimerId: null,
       cleanupListeners: () => undefined,
       frameTimes: [],
+      detectTimes: [],
+      pipelineSamples: [],
       lastVideoTime: -1,
       lastVideoFrameCount: null,
       failures: 0,
+      frameIdSeq: 0,
+      mainReceived: 0,
+      mainProcessed: 0,
+      mainSkipped: 0,
+      workerLuma: {
+        mean: null,
+        center: null,
+        backlight: false,
+        activePass: "A0_raw",
+        preprocessMs: null,
+      },
     };
 
-    const videoTracks = typeof stream.getVideoTracks === "function" ? stream.getVideoTracks() : [];
     const onTrackEnded = () => {
       if (session.current !== s) return;
       const now = performance.now();
       s.analyzer.releaseAll("stream-ended", now);
+      if (benchMgr.isActive) benchMgr.event("TRACK_ENDED", {}, "system");
       syncSnapshot(s.analyzer, now);
-      stopCamera();
+      stopCamera("stream-ended");
       if (mounted.current) setMessage("Stream kamera berhenti");
     };
     const onVisibilityChange = () => {
-      if (!document.hidden || session.current !== s) return;
-      const now = performance.now();
-      s.analyzer.releaseAll("browser-hidden", now);
-      syncSnapshot(s.analyzer, now);
-      paintInk();
+      if (session.current !== s) return;
+      if (document.hidden) {
+        const now = performance.now();
+        s.analyzer.releaseAll("browser-hidden", now);
+        if (benchMgr.isActive) benchMgr.event("VISIBILITY_HIDDEN", {}, "system");
+        syncSnapshot(s.analyzer, now);
+        paintInk();
+      } else if (benchMgr.isActive) {
+        benchMgr.event("VISIBILITY_VISIBLE", {}, "system");
+      }
     };
     document.addEventListener("visibilitychange", onVisibilityChange);
     for (const track of videoTracks) {
@@ -530,27 +709,15 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
       height: settings.height ?? null,
       frameRate: settings.frameRate ?? null,
     });
-
-    // Launch R19 model loading and MediaPipe HandLandmarker initialization in parallel.
-    const r19LoadPromise = loadR19ModelForAnalyzer(s.analyzer, stillWanted);
-    try {
-      const created = await createHandLandmarker({ wasmRoot: WASM_ROOT, modelUrl: MODEL_URL });
-      if (!stillWanted()) {
-        try {
-          created.landmarker.close();
-        } catch {
-          /* best-effort */
-        }
-        return;
-      }
-      s.landmarker = created.landmarker;
-    } catch (err) {
-      // The preview keeps running; the numbers just show no hands.
-      if (stillWanted()) setMessage(messageFor(classifyCameraError(err)));
+    if (benchMgr.isActive) {
+      benchMgr.event("CAMERA_START", {
+        width: settings.width ?? null,
+        height: settings.height ?? null,
+        frameRate: settings.frameRate ?? null,
+        detector: detectorKind,
+      }, "system");
     }
-    if (!stillWanted()) return;
 
-    setPhase("on");
     const paintOverlay = (v: HTMLVideoElement, cur: Session) => {
       const canvas = overlayRef.current;
       if (!canvas || !v.videoWidth || !v.videoHeight) return;
@@ -563,13 +730,171 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
       const ctx = canvas.getContext("2d");
       if (ctx) {
         drawHands(ctx, cur.analyzer.lastHands, cur.analyzer.primaryHandIndex, canvas.width, canvas.height, cur.analyzer.currentFace);
-        drawFaceArea(ctx, cur.analyzer.currentFace, canvas.width, canvas.height, cur.face.others(performance.now()));
+        drawFaceArea(
+          ctx,
+          cur.analyzer.currentFace,
+          canvas.width,
+          canvas.height,
+          cur.face ? cur.face.others(performance.now()) : [],
+        );
       }
     };
+
+    const recordFrameToBench = (
+      cur: Session,
+      frameId: number,
+      nowMs: number,
+      luma: { mean: number | null; center: number | null; backlight: boolean; pass: string },
+      timing: {
+        mpMs: number | null;
+        preMs: number | null;
+        workerMs: number | null;
+        classifierMs: number | null;
+        pipelineMs: number | null;
+      },
+      droppedSincePrev: number,
+    ) => {
+      const a = cur.analyzer;
+      const snapNow = a.snapshot(nowMs);
+      const primaryLm = a.primaryLandmarks();
+      if (recorderRef.current.isRecording) {
+        recorderRef.current.add(snapNow, primaryLm, truthRef.current, nowMs, snapNow.diag.lastCommand?.atMs ?? null);
+      }
+      if (benchMgr.isActive && benchMgr.hasOpenTrial) {
+        const st = a.strokes();
+        telemetryBridgeRef.current.onAnalyzedFrame(snapNow, {
+          frameId,
+          nowMs,
+          landmarks: primaryLm,
+          truth: benchMgr.currentTruth !== "UNLABELLED" ? benchMgr.currentTruth : truthRef.current,
+          luma,
+          timing,
+          droppedSincePrev,
+          activeStrokePoints: st.active,
+          completedStrokeCount: st.completed.length,
+        });
+      }
+    };
+
+    const handleWorkerResult = (cur: Session, res: CpuWorkerResult) => {
+      if (session.current !== cur) return;
+      const nowMs = performance.now();
+      cur.detectTimes.push(nowMs);
+      cur.pipelineSamples.push(res.timing.pipelineMs);
+      if (cur.pipelineSamples.length > 120) cur.pipelineSamples.shift();
+      cur.workerLuma = {
+        mean: res.luma.meanLuma,
+        center: res.luma.centerLuma,
+        backlight: res.luma.isBacklight,
+        activePass: res.luma.activePass,
+        preprocessMs: res.timing.preprocessMs,
+      };
+      cur.analyzer.analyse({
+        landmarks: res.landmarks as Landmark[][],
+        inferMs: res.timing.detectMs,
+        nowMs,
+        face: null,
+        aspect: res.aspect,
+      });
+      const r19Ms = cur.analyzer.snapshot(nowMs).r19.ms;
+      recordFrameToBench(
+        cur,
+        res.frameId,
+        nowMs,
+        {
+          mean: res.luma.meanLuma,
+          center: res.luma.centerLuma,
+          backlight: res.luma.isBacklight,
+          pass: res.luma.activePass,
+        },
+        {
+          mpMs: res.timing.detectMs,
+          preMs: res.timing.preprocessMs,
+          workerMs: res.timing.workerTotalMs,
+          classifierMs: r19Ms,
+          pipelineMs: res.timing.pipelineMs,
+        },
+        res.droppedSincePrev,
+      );
+      const v = videoRef.current;
+      if (v) paintOverlay(v, cur);
+      paintInk();
+      // Immediately pump next frame if video is ready to avoid RAF synchronization bubbles
+      if (v && !document.hidden && cur.workerClient) {
+        void cur.workerClient.submitFrame(v, performance.now());
+      }
+    };
+
+    // Launch selected classifier model loading and MediaPipe detector initialization in parallel.
+    const selectedEngine = activeEngineRef.current;
+    const modelLoadPromise = loadModelForEngine(selectedEngine, s.analyzer, stillWanted);
+    if (useWorker) {
+      const workerClient = new LabCpuWorkerClient({
+        wasmRoot: WASM_ROOT,
+        modelUrl: MODEL_URL,
+        preprocess: activePreprocessRef.current,
+        dynamicOwnerLock: true,
+        auditIntervalFrames: 45,
+        captureWidth: 320,
+        onResult: (res) => handleWorkerResult(s, res),
+        onReleaseAll: (reason) => {
+          const now = performance.now();
+          s.analyzer.releaseAll(reason, now);
+          if (benchMgr.isActive) benchMgr.event("RELEASE_ALL", { reason }, "system");
+          syncSnapshot(s.analyzer, now);
+          paintInk();
+        },
+        onWorkerRestart: (reason, attempt) => {
+          if (benchMgr.isActive) benchMgr.event("WORKER_RESTART", { reason, attempt }, "system");
+        },
+        onError: (err) => {
+          if (benchMgr.isActive) benchMgr.event("DETECTOR_ERROR", { message: err }, "system");
+          if (mounted.current && session.current === s) setMessage(`Detektor CPU Worker: ${err}`);
+        },
+      });
+      try {
+        await workerClient.init();
+        if (!stillWanted()) {
+          workerClient.close("stale-init");
+          return;
+        }
+        s.workerClient = workerClient;
+      } catch (err) {
+        workerClient.close("init-failed");
+        if (stillWanted()) setMessage(messageFor(classifyCameraError(err)));
+      }
+    } else {
+      try {
+        const created = await createHandLandmarker({ wasmRoot: WASM_ROOT, modelUrl: MODEL_URL });
+        if (!stillWanted()) {
+          try {
+            created.landmarker.close();
+          } catch {
+            /* best-effort */
+          }
+          return;
+        }
+        s.landmarker = created.landmarker;
+      } catch (err) {
+        // The preview keeps running; the numbers just show no hands.
+        if (stillWanted()) setMessage(messageFor(classifyCameraError(err)));
+      }
+    }
+    if (!stillWanted()) return;
+
+    s.perfMonitor.start();
+    setPhase("on");
+
+    // Open a benchmark trial once model load settles if a benchmark session is active.
+    void modelLoadPromise.then(() => {
+      if (session.current === s && benchMgr.isActive && !benchMgr.hasOpenTrial) {
+        openTrialForSession(s, activeEngineRef.current, activePreprocessRef.current, "camera-start");
+      }
+    });
+
     const runFrame = (cur: Session) => {
       const v = videoRef.current;
-      if (!cur.landmarker || !v || document.hidden) return;
-      if (v.readyState < 2) return;
+      if (!v || document.hidden || v.readyState < 2) return;
       // video.currentTime advances continuously and can fake 120+ FPS on a 30 FPS camera.
       const decoded = v.getVideoPlaybackQuality?.().totalVideoFrames;
       if (typeof decoded === "number" && decoded > 0) {
@@ -581,9 +906,17 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
       cur.lastVideoTime = v.currentTime;
       const t0 = performance.now();
       cur.frameTimes.push(t0);
+
+      if (cur.workerClient) {
+        void cur.workerClient.submitFrame(v, t0);
+        return;
+      }
+
+      if (!cur.landmarker) return;
+      cur.mainReceived++;
       // The face has its own, slower rate (face-anchor.ts); it is read before the hands are analysed.
-      cur.face.update(v, t0);
-      const face = cur.face.current(t0);
+      if (cur.face) cur.face.update(v, t0);
+      const face = cur.face ? cur.face.current(t0) : null;
       // Through the app-wide gate, so the lab shows the rate and load the game would really get. A frame the
       // gate skips is not analysed; the next camera frame is asked for afresh (latest frame wins).
       const landmarker = cur.landmarker;
@@ -601,27 +934,72 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
         cur.failures = 0;
       } catch {
         cur.failures++;
+        if (benchMgr.isActive) benchMgr.event("DETECTOR_ERROR", { failures: cur.failures }, "system");
         if (cur.failures >= MAX_DETECT_FAILURES) {
-          stopCamera();
+          stopCamera("tracker-error");
           setMessage(messageFor("tracker-error"));
         }
         return;
       }
-      if (landmarks === null) return;
-      // Geometry is measured in true image proportions: x/width and y/height are not the same unit on a 16:9 stream.
+      if (landmarks === null) {
+        cur.mainSkipped++;
+        return;
+      }
+      cur.mainProcessed++;
+      cur.detectTimes.push(t0);
       const aspect = v.videoWidth > 0 && v.videoHeight > 0 ? v.videoWidth / v.videoHeight : undefined;
       cur.analyzer.analyse({ landmarks, inferMs, nowMs: t0, face, aspect });
-      if (recorderRef.current.isRecording) {
-        const a = cur.analyzer;
-        recorderRef.current.add(a.snapshot(t0), a.primaryLandmarks(), truthRef.current, t0, a.snapshot(t0).diag.lastCommand?.atMs ?? null);
-      }
+      const pipeMs = Math.round((performance.now() - t0) * 100) / 100;
+      cur.pipelineSamples.push(pipeMs);
+      if (cur.pipelineSamples.length > 120) cur.pipelineSamples.shift();
+      const fStats = getFrameSourceStats();
+      const r19Ms = cur.analyzer.snapshot(t0).r19.ms;
+      recordFrameToBench(
+        cur,
+        ++cur.frameIdSeq,
+        t0,
+        {
+          mean: fStats.lastLuma,
+          center: fStats.lastCenterLuma,
+          backlight: fStats.backlightCandidate,
+          pass: fStats.enhancing ? "A2_clahe320" : fStats.mode === "scaled" ? "A1_raw320" : "A0_raw",
+        },
+        {
+          mpMs: Math.round(inferMs * 100) / 100,
+          preMs: fStats.lastClaheMs,
+          workerMs: null,
+          classifierMs: r19Ms,
+          pipelineMs: pipeMs,
+        },
+        0,
+      );
       paintOverlay(v, cur);
       paintInk();
     };
+
     const refresh = () => {
       if (session.current !== s) return;
       const now = performance.now();
       s.frameTimes = s.frameTimes.filter((t) => now - t <= 1000);
+      s.detectTimes = s.detectTimes.filter((t) => now - t <= 1000);
+      if (s.workerClient) {
+        const wl = s.workerLuma;
+        setReadout({
+          snapshot: s.analyzer.snapshot(now),
+          deliveredFps: s.frameTimes.length,
+          luma: wl.mean,
+          centerLuma: wl.center,
+          backlightCandidate: wl.backlight,
+          claheMs: wl.preprocessMs,
+          enhancing: wl.activePass !== "A0_raw",
+          sched: null,
+          faceModel: "ready",
+          engine: "CPU (Web Worker · R20)",
+          reason: "CPU-only Web Worker (tanpa GPU delegate, Guarded Owner-Lock)",
+          switchText: "tidak ada pindah (CPU tetap)",
+        });
+        return;
+      }
       const stats = getFrameSourceStats();
       // Read live: a runtime GPU-to-CPU switch shows up here within one refresh.
       const delegate = getDelegateInfo();
@@ -634,7 +1012,7 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
         claheMs: stats.lastClaheMs,
         enhancing: stats.enhancing,
         sched: getInferenceStats(),
-        faceModel: s.face.status(),
+        faceModel: s.face ? s.face.status() : "ready",
         // getDelegateInfo is process-wide: without a landmarker of this session it may describe an older one.
         engine:
           s.landmarker && delegate.delegate
@@ -648,6 +1026,35 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
         switchText: switchStateText(delegate.switchState, delegate.switchError),
       });
     };
+
+    const recordPerfTick = () => {
+      if (session.current !== s || !benchMgr.isActive) return;
+      const now = performance.now();
+      const uiPerf = s.perfMonitor.snapshot(now);
+      const sortedPipe = [...s.pipelineSamples].sort((a, b) => a - b);
+      const r2 = (v: number | null) => (v === null ? null : Math.round(v * 100) / 100);
+      const wt = s.workerClient?.getTelemetry() ?? null;
+      const schedStats = s.workerClient ? null : getInferenceStats();
+      benchMgr.recordPerf({
+        framesReceived: wt ? wt.framesReceived : s.mainReceived,
+        framesProcessed: wt ? wt.framesCompleted : s.mainProcessed,
+        framesSkipped: wt ? 0 : (schedStats?.skippedFrames ?? s.mainSkipped),
+        framesDropped: wt ? wt.framesDroppedBusy : 0,
+        detectHz: s.detectTimes.filter((t) => now - t <= 1000).length,
+        videoFps: s.frameTimes.filter((t) => now - t <= 1000).length,
+        uiFps: uiPerf.uiFps,
+        rafIntervalP95Ms: uiPerf.rafIntervalP95Ms,
+        rafIntervalMaxMs: uiPerf.rafIntervalMaxMs,
+        longTasksInWindow: uiPerf.longTasksInWindow,
+        longTaskMaxMs: uiPerf.longTaskMaxMs,
+        inFlight: wt ? wt.inFlight : 0,
+        workerRestarts: wt ? wt.workerRestarts : 0,
+        pipelineP50Ms: r2(quantile(sortedPipe, 0.5)),
+        pipelineP95Ms: r2(quantile(sortedPipe, 0.95)),
+        jsHeapUsedMb: uiPerf.jsHeapUsedMb,
+      });
+    };
+
     const tick = () => {
       if (session.current !== s) return;
       s.rafId = requestAnimationFrame(tick);
@@ -656,7 +1063,8 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
     refresh();
     s.rafId = requestAnimationFrame(tick);
     s.timerId = setInterval(refresh, REFRESH_MS);
-    await r19LoadPromise;
+    s.perfTimerId = setInterval(recordPerfTick, 1000);
+    await modelLoadPromise;
   };
 
   const relockHand = () => {
@@ -701,7 +1109,7 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
         </p>
         <div className="nui-lab__r19-bar">
           <span className="nui-lab__r19-badge" data-testid="r19-engine-badge">
-            {R19_ENGINE_LABEL}
+            {engineBadgeLabel(benchCfg.engineId, benchCfg.detector)}
           </span>
           <span
             className="nui-lab__r19-status"
@@ -712,6 +1120,7 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
             {modelStatusText(r19ModelState)}
           </span>
         </div>
+        <BenchSessionBar onConfigChange={handleBenchConfigChange} />
         {r19ModelState === "error" && (
           <div role="alert" className="nui-lab__r19-alert" data-testid="r19-model-error">
             <div>
@@ -743,7 +1152,7 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
             Nyalakan kamera
           </button>
         ) : (
-          <button type="button" className="nui-lab__button" onClick={stopCamera}>
+          <button type="button" className="nui-lab__button" onClick={() => stopCamera("stop")}>
             Matikan kamera
           </button>
         )}

@@ -1,5 +1,11 @@
 # NOW.md — Status integrasi bersama
 
+## 2026-11-19 — Migrasi menyeluruh repo Dias `94120d4` (0.28.0-alpha, branch PR, BELUM DI `main`)
+- Branch `integration/dias-repo-migration-20261119` dari `main@68a7d9a`. 754/754 file Dias berstatus (`docs/migration/dias-94120d4/MANIFEST.csv`), 51 blob yang tak ada di riwayat monorepo diarsip byte-exact.
+- Dibawa: script training/evaluasi 6 arsitektur, label model dari `.labels.json` (fallback kategori lama, perilaku model sekarang sama), kesulitan AI per level + `/admin/kesulitan` **di balik `AI_DIFFICULTY_ENABLED` default mati**, tes black-box, dokumen & bukti Dias di `contexts/dias/`.
+- Tidak di-port: edit Dias di `frontend/implementation/` (label level baru, `SEND_CONTEXT`), arsip patch. Keputusan K1 (kesulitan AI) dan K2 (model retrain + label level) menunggu Can + Dias.
+- Bukti: `pytest tests/integration` 20/20, `verify_backend.py` 20/20 `REAL_MODEL`, `blackbox.py` 10/10 via uvicorn, admin `tsc`+`next build` PASS. `frontend/implementation`, Docker, training, webcam: `NOT_TESTED`.
+
 ## 2026-11-19 — NUI Lab Benchmark Recorder Persisten + Integrasi R20 C4/C7 CPU Worker (0.27.0-alpha, UNIT 210/210, E2E PASS, BUILD 24/24, WEBCAM NOT_TESTED)
 - **Recorder NUI Lab:** Upgrade kompatibel atas `lab-recorder.ts` (`src/components/nui-lab/bench/`) dengan gerbang consent eksplisit, penyimpanan persisten IndexedDB + batched `ChunkWriter`, multi-trial lintas `/nui-lab`, `/nui-lab/gesture`, `/nui-lab/canvas`, dan `/nui-lab/diagnostics`, recovery status `interrupted` saat reload/crash, peringatan kuota + penghitung `droppedRecords`/`storageFailures`, dashboard perbandingan per konfigurasi (R19 vs R20 tidak dicampur), serta unduh 1 klik JSON+CSV & hapus data lokal langsung dari browser. Tanpa rekaman gambar/video/audio/identitas/upload.
 - **Engine & Model NUI Lab (SHA-256 fail-closed):** Baseline `R19 C0` (`122,768 B`), kandidat utama `R20 C4` (`73,275 B`), dan pembanding `R20 C7 distilled` (`73,138 B`) dari `research-can@b0f43f0`. Detektor `HandLandmarker` Web Worker 100% CPU-only (`delegate: "CPU"`, `CacheStorage` dedup), `WorkerOwnerGuard` anti-bystander jarak dekat, serta mode preprocessing `RAW`/`CLAHE`/`A4` (`A4v2` chroma-preserving Reinhard + motion-gated EMA + separable median-5).

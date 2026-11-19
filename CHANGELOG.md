@@ -42,6 +42,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.28.0-alpha | 2026-11-19 | Fitur | `(0.28.0-alpha)` |
 | 0.27.0-alpha | 2026-11-19 | Fitur | `(0.27.0-alpha)` |
 | 0.26.0-alpha | 2026-11-18 | Fitur | `(0.26.0-alpha)` |
 | 0.25.0-alpha | 2026-11-18 | Fitur | `(0.25.0-alpha)` |
@@ -125,6 +126,19 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.28.0-alpha — 2026-11-19 — Fitur
+
+**Sumber:** Mandat Owner 2026-11-19: migrasi menyeluruh MuhammadDias/HITL@94120d4 ke monorepo (branch integration/dias-repo-migration-20261119, PR ke main, belum di-merge)
+
+**Perubahan:**
+- Migrasi pekerjaan Dias v0.6-v0.8: script training 6 arsitektur + evaluasi/perbandingan, label model dari <model>.labels.json (fallback LEGACY_CATEGORIES), kesulitan AI per level (backend + halaman /admin/kesulitan) di balik flag AI_DIFFICULTY_ENABLED default mati, tes black-box, dokumen & bukti evaluasi Dias di contexts/dias, manifest per file docs/migration/dias-94120d4/
+
+**Commit:** commit berjudul `(0.28.0-alpha)`
+
+**Bukti:** pytest tests/integration 20/20; verify_backend.py 20/20 REAL_MODEL (model_4_mobilenetv2_best.keras); backend/tests/blackbox.py 10/10 via uvicorn lokal; frontend/admin tsc 0 + next build PASS; manifest 754/754 berstatus, 0 UNRESOLVED; frontend/implementation tidak diubah (NOT_TESTED)
 
 ---
 

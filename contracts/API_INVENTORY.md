@@ -1,6 +1,6 @@
 # API Inventory — Sketchbook Universe
 
-Sumber: router FastAPI di `backend/app/` (`main.py`, `classroom.py`, `dashboard.py`). Skema live diekspor ke `contracts/openapi.json` (18 path).
+Sumber: router FastAPI di `backend/app/` (`main.py`, `classroom.py`, `dashboard.py`). Skema live diekspor ke `contracts/openapi.json` (19 path).
 Status: `EXISTING` = ada di source dan diuji. `PROPOSED` = belum ada di source.
 
 ## Endpoint game (dipakai client Can)
@@ -8,7 +8,7 @@ Status: `EXISTING` = ada di source dan diuji. `PROPOSED` = belum ada di source.
 | Method | Path | Status | Auth | Consumer | Catatan |
 |---|---|---|---|---|---|
 | GET | `/health` | EXISTING | none | ops | `{"status":"ok"}` |
-| POST | `/predict` | EXISTING | none | Can `partner-http-provider` | body `{"drawing": {...}}`; respons `{"candidates": [3 item]}`. Model asli dari `MODEL_PATH`. `prediction_id` belum dikirim. |
+| POST | `/predict` | EXISTING | none | Can `partner-http-provider` | body `{"drawing": {...}, "levelId"?: string}`; respons `{"candidates": [3 item]}`. Model asli dari `MODEL_PATH`. `prediction_id` belum dikirim. `levelId` opsional (0.28.0-alpha, aditif) **diabaikan** selama `AI_DIFFICULTY_ENABLED` mati (default). Bila flag dinyalakan: Top-3 bisa dikaburkan per level dan respons menambah `difficulty: {levelId, value}` — butuh persetujuan Can + Dias. |
 | GET | `/api/join/{token}` | EXISTING | token kelas di path | Can `classroom-client.ts` | info kelas + `taken_numbers` |
 | POST | `/api/join/{token}/students` | EXISTING | token kelas di path | Can `classroom-client.ts` | body `{number, name}`. Respons: `student_id`, `number`, `name`, `class_name`, **`student_session_token`**, `expires_in` (28800), `joined_at`. Token disimpan sebagai SHA-256. |
 | POST | `/api/submissions` | EXISTING | **`Authorization: Bearer <student_session_token>`** | Can `submission-client.ts` | body `submission_key` (wajib, idempoten per siswa), `join_token`, `student_id`, `level_id`, `attempt_id?`, `prediction_id?`, `strokes`, `candidates` (tepat 3), `decision_type`, `source_rank?`, `final_label`, `redraw_count?`. Respons **201** `{id, status:"created"}`, atau **200** `{id, status:"duplicate"}` bila key sudah ada. 401 tanpa/salah token, 403 bila token bukan milik murid/kelas tersebut. |
@@ -25,6 +25,8 @@ Status: `EXISTING` = ada di source dan diuji. `PROPOSED` = belum ada di source.
 | GET | `/api/classes/{id}/submissions` | EXISTING | Bearer. Kolom: `id, level_id, decision_type, source_rank, final_label, candidates, created_at, student_id, student_number, student_name` |
 | GET | `/api/submissions/{id}/image.png` | EXISTING | Bearer atau `?token=` |
 | GET | `/api/classes/{id}/export.csv`, `export.zip` | EXISTING | Bearer |
+| GET | `/api/settings/difficulty` | EXISTING (0.28.0-alpha) | Bearer. `{levels: [{level_id, name, enabled, difficulty}], formula, active}`; `active` = status `AI_DIFFICULTY_ENABLED` |
+| PUT | `/api/settings/difficulty` | EXISTING (0.28.0-alpha) | superadmin. body `{levels: [{level_id, enabled, difficulty 0–100}]}`; level tak dikenal → 400 |
 
 ## Belum ada (PROPOSED)
 
@@ -48,3 +50,9 @@ Perubahan 1–3 bersifat aditif untuk respons, tetapi wajib auth untuk request. 
 - `/predict` tanpa auth.
 - Sesi admin (`sessions` di `db.py`) menyimpan token mentah, bukan hash.
 - `load_model(..., safe_mode=False)`.
+
+## Perubahan kontrak migrasi Dias `94120d4` (0.28.0-alpha, branch PR, belum di-merge)
+
+1. `/predict` menerima `levelId` opsional (aditif, diabaikan selama flag mati). Client Can tidak berubah.
+2. `GET/PUT /api/settings/difficulty` (dashboard saja).
+3. Tidak ada field yang dihapus atau dijadikan wajib. Detail: `docs/migration/dias-94120d4/README.md`.

@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Momo Backend",
-    "version": "0.1.0"
+    "version": "0.28.0-alpha"
   },
   "paths": {
     "/api/auth/login": {
@@ -768,6 +768,102 @@
         }
       }
     },
+    "/api/settings/difficulty": {
+      "get": {
+        "summary": "Get Difficulty Settings",
+        "operationId": "get_difficulty_settings_api_settings_difficulty_get",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Put Difficulty Settings",
+        "operationId": "put_difficulty_settings_api_settings_difficulty_put",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DifficultySettingsBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/join/{token}": {
       "get": {
         "summary": "Class Info",
@@ -1074,12 +1170,41 @@
         ],
         "title": "ClassBody"
       },
+      "DifficultySettingsBody": {
+        "properties": {
+          "levels": {
+            "items": {
+              "$ref": "#/components/schemas/LevelDifficultyBody"
+            },
+            "type": "array",
+            "maxItems": 3,
+            "minItems": 1,
+            "title": "Levels"
+          }
+        },
+        "type": "object",
+        "required": [
+          "levels"
+        ],
+        "title": "DifficultySettingsBody"
+      },
       "DrawingPayload": {
         "properties": {
           "drawing": {
             "additionalProperties": true,
             "type": "object",
             "title": "Drawing"
+          },
+          "levelId": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Levelid"
           }
         },
         "type": "object",
@@ -1121,6 +1246,31 @@
           "name"
         ],
         "title": "JoinBody"
+      },
+      "LevelDifficultyBody": {
+        "properties": {
+          "level_id": {
+            "type": "string",
+            "title": "Level Id"
+          },
+          "enabled": {
+            "type": "boolean",
+            "title": "Enabled"
+          },
+          "difficulty": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Difficulty"
+          }
+        },
+        "type": "object",
+        "required": [
+          "level_id",
+          "enabled",
+          "difficulty"
+        ],
+        "title": "LevelDifficultyBody"
       },
       "LoginBody": {
         "properties": {

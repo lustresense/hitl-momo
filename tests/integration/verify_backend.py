@@ -14,7 +14,7 @@ os.chdir(root)
 
 from fastapi.testclient import TestClient  # noqa: E402
 from backend.app.main import app  # noqa: E402
-from config import CATEGORIES  # noqa: E402
+from backend.app.inference import load_model  # noqa: E402
 
 results = []
 
@@ -42,8 +42,10 @@ with TestClient(app) as c:
     check("predict confidences are in [0,1] and sorted desc",
           all(0 <= x["confidence"] <= 1 for x in cands)
           and [x["confidence"] for x in cands] == sorted([x["confidence"] for x in cands], reverse=True), cands)
-    check("predict labels are members of config.CATEGORIES",
-          all(x["label"] in CATEGORIES for x in cands), [x["label"] for x in cands])
+    # Labels come from <model>.labels.json, or config.LEGACY_CATEGORIES for models without one.
+    MODEL_LABELS = load_model()[1]
+    check("predict labels are members of the loaded model's label list",
+          all(x["label"] in MODEL_LABELS for x in cands), [x["label"] for x in cands])
     probs_sum = sum(x["confidence"] for x in cands)
     check("top-3 confidence sum <= 1 (softmax output, not mock constant)", probs_sum <= 1.0 + 1e-6, probs_sum)
 

@@ -51,7 +51,7 @@ Perubahan 1–3 bersifat aditif untuk respons, tetapi wajib auth untuk request. 
 - Sesi admin (`sessions` di `db.py`) menyimpan token mentah, bukan hash.
 - `load_model(..., safe_mode=False)`.
 
-## Perubahan kontrak migrasi Dias `94120d4` (0.28.0-alpha, branch PR, belum di-merge)
+## Perubahan kontrak migrasi Dias `94120d4` (0.28.0-alpha, di `main`)
 
 1. `/predict` menerima `levelId` opsional (aditif, diabaikan selama flag mati). Client Can tidak berubah.
 2. `GET/PUT /api/settings/difficulty` (dashboard saja).

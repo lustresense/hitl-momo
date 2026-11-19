@@ -1,7 +1,7 @@
 # Dias — Status kerja
 
 **As of:** 2026-11-19. Snapshot integrator, bukan keputusan Dias.
-**Source:** `MuhammadDias/HITL` @ `94120d4` → branch `integration/dias-repo-migration-20261119` (PR ke `main`, **belum di-merge**).
+**Source:** `MuhammadDias/HITL` @ `94120d4` → branch `integration/dias-repo-migration-20261119` → di-push ke `main` (fast-forward) 2026-11-19 atas instruksi Dias. Belum di-deploy.
 
 | Item | Status | Bukti |
 |---|---|---|

@@ -131,7 +131,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 ## 0.28.0-alpha — 2026-11-19 — Fitur
 
-**Sumber:** Mandat Owner 2026-11-19: migrasi menyeluruh MuhammadDias/HITL@94120d4 ke monorepo (branch integration/dias-repo-migration-20261119, PR ke main, belum di-merge)
+**Sumber:** Mandat Owner 2026-11-19: migrasi menyeluruh MuhammadDias/HITL@94120d4 ke monorepo (branch integration/dias-repo-migration-20261119, di-push ke main fast-forward atas instruksi Dias 2026-11-19)
 
 **Perubahan:**
 - Migrasi pekerjaan Dias v0.6-v0.8: script training 6 arsitektur + evaluasi/perbandingan, label model dari <model>.labels.json (fallback LEGACY_CATEGORIES), kesulitan AI per level (backend + halaman /admin/kesulitan) di balik flag AI_DIFFICULTY_ENABLED default mati, tes black-box, dokumen & bukti evaluasi Dias di contexts/dias, manifest per file docs/migration/dias-94120d4/

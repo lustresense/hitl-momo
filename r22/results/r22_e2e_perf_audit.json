@@ -1,486 +1,2337 @@
 {
-  "timestamp": "2026-11-19T13:41:49.607Z",
-  "gitCommit": "r22fullscope",
-  "browser": {
-    "type": "chromium",
-    "version": "159.0.8154.6"
-  },
-  "coldWireTransfer": {
-    "totalBytes": 555344,
-    "totalMb": 0.53,
-    "budgetMb": 25,
-    "pass": true
-  },
-  "screenshots": [
-    {
-      "name": "desktop_landing",
-      "path": "/srv/sketchbook/mediapipe-optimize/research-can/r22/results/screenshots/desktop_landing.png"
+  "schema": "r22-e2e-full-journey-audit/3",
+  "timestamp": "2026-11-19T22:45:51.066Z",
+  "gitCommit": "2a7117c9662e574ee71eac4dcb1c390f90468d51",
+  "gitBranch": "r22-nui-lab",
+  "fakeWebcamVideos": {
+    "cam15fps": {
+      "path": "/tmp/r22_real_hand_15fps.y4m",
+      "resolution": "640x360",
+      "fps": 15,
+      "sourceImage": "hg5g_0000.jpg (real hand)"
     },
-    {
-      "name": "desktop_canvas_before_scroll",
-      "path": "/srv/sketchbook/mediapipe-optimize/research-can/r22/results/screenshots/desktop_canvas_before_scroll.png"
-    },
-    {
-      "name": "desktop_canvas_after_scroll",
-      "path": "/srv/sketchbook/mediapipe-optimize/research-can/r22/results/screenshots/desktop_canvas_after_scroll.png"
-    },
-    {
-      "name": "desktop_gesture",
-      "path": "/srv/sketchbook/mediapipe-optimize/research-can/r22/results/screenshots/desktop_gesture.png"
-    },
-    {
-      "name": "mobile_landing",
-      "path": "/srv/sketchbook/mediapipe-optimize/research-can/r22/results/screenshots/mobile_landing.png"
-    },
-    {
-      "name": "mobile_canvas",
-      "path": "/srv/sketchbook/mediapipe-optimize/research-can/r22/results/screenshots/mobile_canvas.png"
+    "cam30fps": {
+      "path": "/tmp/r22_real_hand_30fps.y4m",
+      "resolution": "640x360",
+      "fps": 30,
+      "sourceImage": "hg5g_0000.jpg (real hand)"
     }
-  ],
-  "layoutStickyAudit": {
-    "layoutStateBefore": {
-      "hasCameraPanel": true,
-      "hasRightPanel": true,
-      "cameraPosition": "sticky",
-      "cameraTop": 244.046875,
-      "rightOverflowY": "auto",
-      "rightScrollHeight": 1167,
-      "rightClientHeight": 670
-    },
-    "layoutStateAfter": {
-      "cameraTopAfterScroll": 244.046875,
-      "rightScrollTopAfterScroll": 350
-    },
-    "isStickyLeftAnchored": true,
-    "isIndependentRightScrollable": true
   },
-  "performanceMetrics": {
-    "jsHeapUsedMb": 0,
-    "jsHeapTotalMb": 0,
-    "domNodes": 0,
-    "jsEventListeners": 0,
-    "layoutCount": 0,
-    "recalcStyleCount": 0
-  },
-  "benchmarkT004Analysis": {
-    "file": "/srv/sketchbook/mediapipe-optimize/research-can/docs/plan-rev/R22_FULL_SCOPE_MALAM_20261119/references/benchmarks/nui-lab-benchmark-S-07ba0cde-four-trials.json",
-    "schema": "nui-lab-bench-export/1",
-    "app": {
-      "version": "0.27.0-alpha",
-      "gitCommit": "main-0.27.0-alpha-r20lab"
-    },
-    "checksum": {
-      "checked": false,
-      "schema": "nui-lab-bench-export/1",
-      "status": "v1-no-checksum"
-    },
-    "sessions": [
+  "journeyGzip": {
+    "compressionMode": "gzip",
+    "attachedTargets": [
       {
-        "sessionId": "S-07ba0cde",
-        "status": "active",
-        "statusReason": null,
-        "app": {
-          "version": "0.27.0-alpha",
-          "gitCommit": "main-0.27.0-alpha-r20lab"
-        },
-        "droppedRecords": {
-          "frames": 0,
-          "events": 0,
-          "perf": 0
-        },
-        "storageFailures": 0,
-        "trials": [
+        "type": "worker",
+        "url": "http://127.0.0.1:45571/_next/static/chunks/280.345871946d9cd0e4.js"
+      },
+      {
+        "type": "worker",
+        "url": "http://127.0.0.1:45571/_next/static/chunks/280.345871946d9cd0e4.js"
+      }
+    ],
+    "consoleErrors": [
+      {
+        "url": "http://127.0.0.1:45571/nui-lab/canvas",
+        "text": "INFO: Created TensorFlow Lite XNNPACK delegate for CPU."
+      },
+      {
+        "url": "http://127.0.0.1:45571/nui-lab/gesture",
+        "text": "INFO: Created TensorFlow Lite XNNPACK delegate for CPU."
+      }
+    ],
+    "pageErrors": [
+      {
+        "url": "http://127.0.0.1:45571/nui-lab",
+        "error": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      },
+      {
+        "url": "http://127.0.0.1:45571/nui-lab",
+        "error": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      },
+      {
+        "url": "http://127.0.0.1:45571/nui-lab",
+        "error": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      },
+      {
+        "url": "http://127.0.0.1:45571/nui-lab",
+        "error": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      },
+      {
+        "url": "http://127.0.0.1:45571/nui-lab",
+        "error": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      },
+      {
+        "url": "http://127.0.0.1:45571/nui-lab",
+        "error": "Error: Minified React error #418; visit https://react.dev/errors/418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      },
+      {
+        "url": "http://127.0.0.1:45571/nui-lab",
+        "error": "Error: Minified React error #423; visit https://react.dev/errors/423 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      }
+    ],
+    "networkPhases": {
+      "landingOnly": {
+        "cdpTotalBytes": 299624,
+        "cdpTotalMb": 0.286,
+        "cdpPageBytes": 299624,
+        "cdpWorkerBytes": 0,
+        "serverBodyWireBytes": 294376,
+        "serverBodyWireMb": 0.281,
+        "serverRawUncompressedBytes": 1009140,
+        "serverRawUncompressedMb": 0.962,
+        "reconciliationDiffBytes": 5248,
+        "hasWasmLoaded": false,
+        "hasHandLandmarkerTaskLoaded": false,
+        "hasStudentModelLoaded": false,
+        "topAssets": [
           {
-            "trialId": "S-07ba0cde-T001",
-            "route": "gesture",
-            "endReason": "replaced:engine-change",
-            "engineId": "r20-c7",
-            "actualModelId": "r20-c7",
-            "modelSha256": "66acbde9f73868f8e6afada647a6d513d7efab6252a937bf88dede933147d730",
-            "modelHashVerified": true,
-            "preprocess": "a4",
-            "independentGroundTruthAvailable": false,
-            "frames": 2297,
-            "rawNoHandFrames": 461,
-            "rawNoHandRate": 0.2007,
-            "activeWindow": {
-              "frames": 2025,
-              "durationSec": 91.26,
-              "missFrames": 189,
-              "activeWindowMissRate": 0.0933,
-              "leadInExcludedFrames": 47,
-              "tailExcludedFrames": 225,
-              "flickerStreaks_1_3": 19,
-              "flickerFrames_1_3": 27,
-              "shortLossStreaks_4_15": 9,
-              "shortLossFrames_4_15": 57,
-              "longAbsenceStreaks_gt15": 1,
-              "longAbsenceFrames_gt15": 105
-            },
-            "missingBreakdown": {
-              "hiddenDurationMs": 0,
-              "hiddenFrames": 0,
-              "bystanderAmbiguousFrames": 0,
-              "ownerRejectFrames": 0,
-              "lockValidatingFrames": 7,
-              "missReasons": {
-                "no-hand": 461
-              }
-            },
-            "pacing": {
-              "uniqueCaptureFpsP50": 15,
-              "uniqueCaptureFpsP95": 15,
-              "detectHzP50": 23,
-              "detectHzP95": 27,
-              "uiFpsP50": 144,
-              "frameDtP50Ms": 38,
-              "frameAgeP50Ms": null,
-              "frameAgeP95Ms": null,
-              "duplicateFrameSkippedCount": null,
-              "framesDroppedBusy": 1535,
-              "initSetOptionsCalls": 0,
-              "runtimeSetOptionsCalls": 0
-            },
-            "qualityProxies": {
-              "labelSource": "RULE_DERIVED",
-              "note": "Post-AE camera sensor values, NOT ground-truth room lux",
-              "lumaMeanP5": 0.459,
-              "lumaMeanP50": 0.472,
-              "lumaMeanP95": 0.4811,
-              "lumaCenterP50": 0.3909,
-              "lumaP10P50": null,
-              "lumaP50P50": null,
-              "lumaP95P50": null,
-              "nearWhiteHandPctP50": null,
-              "blurProxyP50": null,
-              "noiseProxyP50": null,
-              "passes": {
-                "A4_denoise_reinhard320": 2297
-              },
-              "autoConditionTags": []
-            },
-            "actionInvariants": {
-              "noHandActionsCount": 0,
-              "pistolRejectsOnCanvas": 0,
-              "runtimeSetOptionsCalls": 0,
-              "labelSourceCounts": {
-                "UNKNOWN": 2297
-              }
-            }
+            "path": "/_next/static/chunks/a6ac839c-6945fd0205bff45b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 54023,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 53742,
+            "serverRawBytes": 172834
           },
           {
-            "trialId": "S-07ba0cde-T002",
-            "route": "gesture",
-            "endReason": "replaced:preprocess-change",
-            "engineId": "r20-c4",
-            "actualModelId": "r20-c4",
-            "modelSha256": "e863ef1afe459a3b0a4cf0b0b2594a1db853b382d669add2d7be234e64710a27",
-            "modelHashVerified": true,
-            "preprocess": "a4",
-            "independentGroundTruthAvailable": false,
-            "frames": 2907,
-            "rawNoHandFrames": 1570,
-            "rawNoHandRate": 0.5401,
-            "activeWindow": {
-              "frames": 1597,
-              "durationSec": 82.67,
-              "missFrames": 260,
-              "activeWindowMissRate": 0.1628,
-              "leadInExcludedFrames": 28,
-              "tailExcludedFrames": 1282,
-              "flickerStreaks_1_3": 10,
-              "flickerFrames_1_3": 18,
-              "shortLossStreaks_4_15": 3,
-              "shortLossFrames_4_15": 14,
-              "longAbsenceStreaks_gt15": 2,
-              "longAbsenceFrames_gt15": 228
-            },
-            "missingBreakdown": {
-              "hiddenDurationMs": 0,
-              "hiddenFrames": 0,
-              "bystanderAmbiguousFrames": 0,
-              "ownerRejectFrames": 0,
-              "lockValidatingFrames": 3,
-              "missReasons": {
-                "no-hand": 1570
-              }
-            },
-            "pacing": {
-              "uniqueCaptureFpsP50": 15,
-              "uniqueCaptureFpsP95": 15,
-              "detectHzP50": 22,
-              "detectHzP95": 26,
-              "uiFpsP50": 144,
-              "frameDtP50Ms": 41,
-              "frameAgeP50Ms": null,
-              "frameAgeP95Ms": null,
-              "duplicateFrameSkippedCount": null,
-              "framesDroppedBusy": 2069,
-              "initSetOptionsCalls": 0,
-              "runtimeSetOptionsCalls": 0
-            },
-            "qualityProxies": {
-              "labelSource": "RULE_DERIVED",
-              "note": "Post-AE camera sensor values, NOT ground-truth room lux",
-              "lumaMeanP5": 0.447,
-              "lumaMeanP50": 0.4679,
-              "lumaMeanP95": 0.4834,
-              "lumaCenterP50": 0.3959,
-              "lumaP10P50": null,
-              "lumaP50P50": null,
-              "lumaP95P50": null,
-              "nearWhiteHandPctP50": null,
-              "blurProxyP50": null,
-              "noiseProxyP50": null,
-              "passes": {
-                "A4_denoise_reinhard320": 2907
-              },
-              "autoConditionTags": []
-            },
-            "actionInvariants": {
-              "noHandActionsCount": 0,
-              "pistolRejectsOnCanvas": 0,
-              "runtimeSetOptionsCalls": 0,
-              "labelSourceCounts": {
-                "UNKNOWN": 2907
-              }
-            }
+            "path": "/_next/static/chunks/396-140a335e56951a2a.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 48444,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 48163,
+            "serverRawBytes": 156143
           },
           {
-            "trialId": "S-07ba0cde-T003",
-            "route": "gesture",
-            "endReason": "route-unmount",
-            "engineId": "r20-c4",
-            "actualModelId": "r20-c4",
-            "modelSha256": "e863ef1afe459a3b0a4cf0b0b2594a1db853b382d669add2d7be234e64710a27",
-            "modelHashVerified": true,
-            "preprocess": "raw",
-            "independentGroundTruthAvailable": false,
-            "frames": 326,
-            "rawNoHandFrames": 230,
-            "rawNoHandRate": 0.7055,
-            "activeWindow": {
-              "frames": 102,
-              "durationSec": 3.45,
-              "missFrames": 6,
-              "activeWindowMissRate": 0.0588,
-              "leadInExcludedFrames": 18,
-              "tailExcludedFrames": 206,
-              "flickerStreaks_1_3": 0,
-              "flickerFrames_1_3": 0,
-              "shortLossStreaks_4_15": 1,
-              "shortLossFrames_4_15": 6,
-              "longAbsenceStreaks_gt15": 0,
-              "longAbsenceFrames_gt15": 0
-            },
-            "missingBreakdown": {
-              "hiddenDurationMs": 0,
-              "hiddenFrames": 0,
-              "bystanderAmbiguousFrames": 0,
-              "ownerRejectFrames": 0,
-              "lockValidatingFrames": 1,
-              "missReasons": {
-                "no-hand": 230
-              }
-            },
-            "pacing": {
-              "uniqueCaptureFpsP50": 15,
-              "uniqueCaptureFpsP95": 15.45,
-              "detectHzP50": 30,
-              "detectHzP95": 31,
-              "uiFpsP50": 144,
-              "frameDtP50Ms": 32,
-              "frameAgeP50Ms": null,
-              "frameAgeP95Ms": null,
-              "duplicateFrameSkippedCount": null,
-              "framesDroppedBusy": 164,
-              "initSetOptionsCalls": 0,
-              "runtimeSetOptionsCalls": 0
-            },
-            "qualityProxies": {
-              "labelSource": "RULE_DERIVED",
-              "note": "Post-AE camera sensor values, NOT ground-truth room lux",
-              "lumaMeanP5": 0.4431,
-              "lumaMeanP50": 0.4652,
-              "lumaMeanP95": 0.4718,
-              "lumaCenterP50": 0.3802,
-              "lumaP10P50": null,
-              "lumaP50P50": null,
-              "lumaP95P50": null,
-              "nearWhiteHandPctP50": null,
-              "blurProxyP50": null,
-              "noiseProxyP50": null,
-              "passes": {
-                "A4_denoise_reinhard320": 1,
-                "A0_raw": 325
-              },
-              "autoConditionTags": []
-            },
-            "actionInvariants": {
-              "noHandActionsCount": 0,
-              "pistolRejectsOnCanvas": 0,
-              "runtimeSetOptionsCalls": 0,
-              "labelSourceCounts": {
-                "UNKNOWN": 326
-              }
-            }
+            "path": "/_next/static/chunks/367-e565b6c9e3266751.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 47828,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 47547,
+            "serverRawBytes": 175647
           },
           {
-            "trialId": "S-07ba0cde-T004",
-            "route": "canvas",
-            "endReason": null,
-            "engineId": "r20-c4",
-            "actualModelId": "r20-c4",
-            "modelSha256": "e863ef1afe459a3b0a4cf0b0b2594a1db853b382d669add2d7be234e64710a27",
-            "modelHashVerified": true,
-            "preprocess": "raw",
-            "independentGroundTruthAvailable": false,
-            "frames": 2082,
-            "rawNoHandFrames": 668,
-            "rawNoHandRate": 0.3208,
-            "activeWindow": {
-              "frames": 1771,
-              "durationSec": 69.57,
-              "missFrames": 357,
-              "activeWindowMissRate": 0.2016,
-              "leadInExcludedFrames": 44,
-              "tailExcludedFrames": 267,
-              "flickerStreaks_1_3": 9,
-              "flickerFrames_1_3": 10,
-              "shortLossStreaks_4_15": 2,
-              "shortLossFrames_4_15": 16,
-              "longAbsenceStreaks_gt15": 1,
-              "longAbsenceFrames_gt15": 331
-            },
-            "missingBreakdown": {
-              "hiddenDurationMs": 0,
-              "hiddenFrames": 0,
-              "bystanderAmbiguousFrames": 0,
-              "ownerRejectFrames": 0,
-              "lockValidatingFrames": 3,
-              "missReasons": {
-                "no-hand": 668
-              }
-            },
-            "pacing": {
-              "uniqueCaptureFpsP50": 15,
-              "uniqueCaptureFpsP95": 15,
-              "detectHzP50": 26,
-              "detectHzP95": 30,
-              "uiFpsP50": 144,
-              "frameDtP50Ms": 35,
-              "frameAgeP50Ms": null,
-              "frameAgeP95Ms": null,
-              "duplicateFrameSkippedCount": null,
-              "framesDroppedBusy": 1225,
-              "initSetOptionsCalls": 0,
-              "runtimeSetOptionsCalls": 0
-            },
-            "qualityProxies": {
-              "labelSource": "RULE_DERIVED",
-              "note": "Post-AE camera sensor values, NOT ground-truth room lux",
-              "lumaMeanP5": 0.4522,
-              "lumaMeanP50": 0.4703,
-              "lumaMeanP95": 0.4791,
-              "lumaCenterP50": 0.3857,
-              "lumaP10P50": null,
-              "lumaP50P50": null,
-              "lumaP95P50": null,
-              "nearWhiteHandPctP50": null,
-              "blurProxyP50": null,
-              "noiseProxyP50": null,
-              "passes": {
-                "A0_raw": 2082
-              },
-              "autoConditionTags": []
-            },
-            "actionInvariants": {
-              "noHandActionsCount": 0,
-              "pistolRejectsOnCanvas": 82,
-              "runtimeSetOptionsCalls": 0,
-              "labelSourceCounts": {
-                "UNKNOWN": 2082
-              }
-            },
-            "canvas": {
-              "stablePinchFrames": 582,
-              "pinchRejectReasons": {
-                "Tinta aktif": 276,
-                "Tunggu gestur dilepas sebelum aksi baru": 208,
-                "Tidak ada aksi gambar": 59,
-                "Cubit ditolak gate R19": 31,
-                "Pinch dibaca, menunggu validasi tinta": 8
-              },
-              "r19StateDuringCanvas": {
-                "NO_HAND": 671,
-                "OTHER": 1206,
-                "POINT_READY": 205
-              },
-              "strokeStartCount": 19,
-              "strokeEndCount": 19,
-              "strokeEndReasons": {
-                "pinch-release": 14,
-                "detector-miss": 5
-              },
-              "strokeGapEvents": 0,
-              "strokeResumeEvents": 0,
-              "strokeGapReasons": {},
-              "detectorMissBreaks": [
-                {
-                  "strokeId": 4,
-                  "missFrames": 331,
-                  "missMs": 12657,
-                  "nextFrameReject": "validating"
-                },
-                {
-                  "strokeId": 5,
-                  "missFrames": 11,
-                  "missMs": 603,
-                  "nextFrameReject": "validating"
-                },
-                {
-                  "strokeId": 9,
-                  "missFrames": 1,
-                  "missMs": 99,
-                  "nextFrameReject": "Tunggu gestur dilepas sebelum aksi baru"
-                },
-                {
-                  "strokeId": 10,
-                  "missFrames": 5,
-                  "missMs": 220,
-                  "nextFrameReject": "Tunggu gestur dilepas sebelum aksi baru"
-                },
-                {
-                  "strokeId": 11,
-                  "missFrames": 1,
-                  "missMs": 62,
-                  "nextFrameReject": "Tunggu gestur dilepas sebelum aksi baru"
-                }
-              ],
-              "pinchOnCount": 54,
-              "pinchOnWithoutStroke500ms": 29,
-              "eraseStartCount": 0,
-              "undoVia": {
-                "button": 4
-              },
-              "redoVia": {},
-              "actionRejectedReasons": {
-                "Telapak hapus butuh 4 frame stabil": 2,
-                "Tunggu gestur dilepas sebelum aksi baru": 8,
-                "Cubit ditolak gate R19": 48,
-                "Tidak ada aksi gambar": 10
-              }
-            }
+            "path": "/_next/static/chunks/741-5aed90506606b91b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 32212,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 31931,
+            "serverRawBytes": 124566
+          },
+          {
+            "path": "/_next/static/chunks/708-aa0b09e9f93a3fc0.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 24852,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 24571,
+            "serverRawBytes": 83476
+          },
+          {
+            "path": "/_next/static/chunks/886-33b88f39b58f4cad.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 23443,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 23162,
+            "serverRawBytes": 64726
+          },
+          {
+            "path": "/_next/static/chunks/88e7b6b6-b62a1c3025c2d623.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 20104,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 19823,
+            "serverRawBytes": 52050
+          },
+          {
+            "path": "/_next/static/css/16c2024a37ababb2.css",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 14800,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 14533,
+            "serverRawBytes": 77293
+          },
+          {
+            "path": "/_next/static/chunks/701-0792c39f24bc8011.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 9011,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 8730,
+            "serverRawBytes": 26149
+          },
+          {
+            "path": "/_next/static/css/cbee9783c240c2e2.css",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 6881,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 6614,
+            "serverRawBytes": 28079
+          },
+          {
+            "path": "/nui-lab",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 4132,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 3865,
+            "serverRawBytes": 11445
+          },
+          {
+            "path": "/_next/static/css/8b87f9e44933e360.css",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 4034,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 3768,
+            "serverRawBytes": 17181
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/page-97c33a8cbe4e762b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 2905,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 2625,
+            "serverRawBytes": 7186
+          },
+          {
+            "path": "/_next/static/chunks/webpack-98f51d3095a8da44.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 2223,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 1943,
+            "serverRawBytes": 3989
+          },
+          {
+            "path": "/nui-lab/gesture.txt",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 1686,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 1418,
+            "serverRawBytes": 3795
+          },
+          {
+            "path": "/nui-lab/canvas.txt",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 1683,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 1415,
+            "serverRawBytes": 3779
+          },
+          {
+            "path": "/_next/static/chunks/main-app-9117fbc67dea2d8b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 497,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 218,
+            "serverRawBytes": 460
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/gesture/page-e79aaef7af6cfaf5.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 433,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 154,
+            "serverRawBytes": 171
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/canvas/page-6d2c9c868bceabf2.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 433,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 154,
+            "serverRawBytes": 171
+          }
+        ]
+      },
+      "afterCanvasWithCameraAndModels": {
+        "cdpTotalBytes": 11121081,
+        "cdpTotalMb": 10.606,
+        "cdpPageBytes": 328199,
+        "cdpWorkerBytes": 10792882,
+        "serverBodyWireBytes": 11123262,
+        "serverBodyWireMb": 10.608,
+        "serverRawUncompressedBytes": 18699679,
+        "serverRawUncompressedMb": 17.833,
+        "reconciliationDiffBytes": -2181,
+        "hasWasmLoaded": true,
+        "hasHandLandmarkerTaskLoaded": true,
+        "hasStudentModelLoaded": true,
+        "topAssets": [
+          {
+            "path": "/models/hand_landmarker.task",
+            "cdpTarget": "worker",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 7819351,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 7819105,
+            "serverRawBytes": 7819105
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "cdpTarget": "worker",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 2880715,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 2880453,
+            "serverRawBytes": 9423986
+          },
+          {
+            "path": "/_next/static/chunks/a6ac839c-6945fd0205bff45b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 54023,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 53742,
+            "serverRawBytes": 172834
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "cdpTarget": "worker",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 52964,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 52683,
+            "serverRawBytes": 209826
+          },
+          {
+            "path": "/_next/static/chunks/396-140a335e56951a2a.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 48444,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 48163,
+            "serverRawBytes": 156143
+          },
+          {
+            "path": "/_next/static/chunks/367-e565b6c9e3266751.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 47828,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 47547,
+            "serverRawBytes": 175647
+          },
+          {
+            "path": "/_next/static/chunks/77.379dd971c3c27d93.js",
+            "cdpTarget": "worker",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 39852,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 39571,
+            "serverRawBytes": 135047
+          },
+          {
+            "path": "/_next/static/chunks/741-5aed90506606b91b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 32212,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 31931,
+            "serverRawBytes": 124566
+          },
+          {
+            "path": "/models/r20-c4-model.json",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 28575,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 28300,
+            "serverRawBytes": 73275
+          },
+          {
+            "path": "/_next/static/chunks/708-aa0b09e9f93a3fc0.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 24852,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 24571,
+            "serverRawBytes": 83476
+          },
+          {
+            "path": "/_next/static/chunks/886-33b88f39b58f4cad.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 23443,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 23162,
+            "serverRawBytes": 64726
+          },
+          {
+            "path": "/_next/static/chunks/88e7b6b6-b62a1c3025c2d623.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 20104,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 19823,
+            "serverRawBytes": 52050
+          },
+          {
+            "path": "/_next/static/css/16c2024a37ababb2.css",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 14800,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 14533,
+            "serverRawBytes": 77293
+          },
+          {
+            "path": "/_next/static/chunks/701-0792c39f24bc8011.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 9011,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 8730,
+            "serverRawBytes": 26149
+          },
+          {
+            "path": "/_next/static/chunks/280.345871946d9cd0e4.js",
+            "cdpTarget": "untracked-in-cdp",
+            "cdpRequests": 0,
+            "cdpEncodedBytes": 0,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 8774,
+            "serverRawBytes": 29300
+          },
+          {
+            "path": "/_next/static/css/cbee9783c240c2e2.css",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 6881,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 6614,
+            "serverRawBytes": 28079
+          },
+          {
+            "path": "/nui-lab",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 4132,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 3865,
+            "serverRawBytes": 11445
+          },
+          {
+            "path": "/_next/static/css/8b87f9e44933e360.css",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 4034,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 3768,
+            "serverRawBytes": 17181
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/page-97c33a8cbe4e762b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 2905,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 2625,
+            "serverRawBytes": 7186
+          },
+          {
+            "path": "/_next/static/chunks/webpack-98f51d3095a8da44.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 2223,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 1943,
+            "serverRawBytes": 3989
+          },
+          {
+            "path": "/nui-lab/gesture.txt",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 1686,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 1418,
+            "serverRawBytes": 3795
+          },
+          {
+            "path": "/nui-lab/canvas.txt",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 1683,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 1415,
+            "serverRawBytes": 3779
+          },
+          {
+            "path": "/_next/static/chunks/main-app-9117fbc67dea2d8b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 497,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 218,
+            "serverRawBytes": 460
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/gesture/page-e79aaef7af6cfaf5.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 433,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 154,
+            "serverRawBytes": 171
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/canvas/page-6d2c9c868bceabf2.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 433,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 154,
+            "serverRawBytes": 171
+          }
+        ]
+      },
+      "fullJourneyLandingCanvasGesture": {
+        "cdpTotalBytes": 11121081,
+        "cdpTotalMb": 10.606,
+        "cdpPageBytes": 328199,
+        "cdpWorkerBytes": 10792882,
+        "serverBodyWireBytes": 11123262,
+        "serverBodyWireMb": 10.608,
+        "serverRawUncompressedBytes": 18699679,
+        "serverRawUncompressedMb": 17.833,
+        "reconciliationDiffBytes": -2181,
+        "hasWasmLoaded": true,
+        "hasHandLandmarkerTaskLoaded": true,
+        "hasStudentModelLoaded": true,
+        "topAssets": [
+          {
+            "path": "/models/hand_landmarker.task",
+            "cdpTarget": "worker",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 7819351,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 7819105,
+            "serverRawBytes": 7819105
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "cdpTarget": "worker",
+            "cdpRequests": 2,
+            "cdpEncodedBytes": 2880715,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 2880453,
+            "serverRawBytes": 9423986
+          },
+          {
+            "path": "/_next/static/chunks/a6ac839c-6945fd0205bff45b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 54023,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 53742,
+            "serverRawBytes": 172834
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "cdpTarget": "worker",
+            "cdpRequests": 2,
+            "cdpEncodedBytes": 52964,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 52683,
+            "serverRawBytes": 209826
+          },
+          {
+            "path": "/_next/static/chunks/396-140a335e56951a2a.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 48444,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 48163,
+            "serverRawBytes": 156143
+          },
+          {
+            "path": "/_next/static/chunks/367-e565b6c9e3266751.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 47828,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 47547,
+            "serverRawBytes": 175647
+          },
+          {
+            "path": "/_next/static/chunks/77.379dd971c3c27d93.js",
+            "cdpTarget": "worker",
+            "cdpRequests": 2,
+            "cdpEncodedBytes": 39852,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 39571,
+            "serverRawBytes": 135047
+          },
+          {
+            "path": "/_next/static/chunks/741-5aed90506606b91b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 32212,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 31931,
+            "serverRawBytes": 124566
+          },
+          {
+            "path": "/models/r20-c4-model.json",
+            "cdpTarget": "page",
+            "cdpRequests": 2,
+            "cdpEncodedBytes": 28575,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 28300,
+            "serverRawBytes": 73275
+          },
+          {
+            "path": "/_next/static/chunks/708-aa0b09e9f93a3fc0.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 24852,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 24571,
+            "serverRawBytes": 83476
+          },
+          {
+            "path": "/_next/static/chunks/886-33b88f39b58f4cad.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 23443,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 23162,
+            "serverRawBytes": 64726
+          },
+          {
+            "path": "/_next/static/chunks/88e7b6b6-b62a1c3025c2d623.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 20104,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 19823,
+            "serverRawBytes": 52050
+          },
+          {
+            "path": "/_next/static/css/16c2024a37ababb2.css",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 14800,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 14533,
+            "serverRawBytes": 77293
+          },
+          {
+            "path": "/_next/static/chunks/701-0792c39f24bc8011.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 9011,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 8730,
+            "serverRawBytes": 26149
+          },
+          {
+            "path": "/_next/static/chunks/280.345871946d9cd0e4.js",
+            "cdpTarget": "untracked-in-cdp",
+            "cdpRequests": 0,
+            "cdpEncodedBytes": 0,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 8774,
+            "serverRawBytes": 29300
+          },
+          {
+            "path": "/_next/static/css/cbee9783c240c2e2.css",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 6881,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 6614,
+            "serverRawBytes": 28079
+          },
+          {
+            "path": "/nui-lab",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 4132,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 3865,
+            "serverRawBytes": 11445
+          },
+          {
+            "path": "/_next/static/css/8b87f9e44933e360.css",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 4034,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 3768,
+            "serverRawBytes": 17181
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/page-97c33a8cbe4e762b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 2905,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 2625,
+            "serverRawBytes": 7186
+          },
+          {
+            "path": "/_next/static/chunks/webpack-98f51d3095a8da44.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 2223,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 1943,
+            "serverRawBytes": 3989
+          },
+          {
+            "path": "/nui-lab/gesture.txt",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 1686,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 1418,
+            "serverRawBytes": 3795
+          },
+          {
+            "path": "/nui-lab/canvas.txt",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 1683,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 1415,
+            "serverRawBytes": 3779
+          },
+          {
+            "path": "/_next/static/chunks/main-app-9117fbc67dea2d8b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 497,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 218,
+            "serverRawBytes": 460
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/gesture/page-e79aaef7af6cfaf5.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 433,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 154,
+            "serverRawBytes": 171
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/canvas/page-6d2c9c868bceabf2.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 433,
+            "serverRequests": 1,
+            "serverEncoding": "gzip",
+            "serverBodyWireBytes": 154,
+            "serverRawBytes": 171
           }
         ]
       }
+    },
+    "liveInference": {
+      "canvas": {
+        "firstProcessedCaptureFrameId": 4,
+        "lastProcessedCaptureFrameId": 73,
+        "lastCaptureFrameId": 73,
+        "measurementWindowSec": 4.55,
+        "captureIdRateHz": 15.17,
+        "domUniqueCaptureFps": 14.8,
+        "domRealDetectHz": 14,
+        "domUiFps": 60,
+        "domStats": {
+          "FPS Kamera Unik": "14.8 fps",
+          "Deteksi (Hz)": "14 Hz",
+          "UI FPS": "60 fps",
+          "Latensi Pipeline": "70 ms",
+          "Gerbang pistol": "DISABLED_ON_CANVAS · Nonaktif di Canvas",
+          "Aksi K3 & FSM Undo/Redo": "NEUTRAL (Tidak ada aksi gambar) · NEUTRAL",
+          "Arah telunjuk": "NEUTRAL (Netral)",
+          "Cubit / Hapus 5 jari": "tidak / tidak",
+          "Lock & alasan": "locked · Tidak ada aksi gambar",
+          "Lencana UI": "NUI R22 · CPU · Otomatis",
+          "Model aktif nyata": "r20-c4 · R20 C4 · MLP 82→64→32→3 (fokal, kohort penuh)",
+          "SHA-256 model": "e863ef1afe459a3b0a4cf0b0b2594a1db853b382d669add2d7be234e64710a27",
+          "Hash terverifikasi": "ya (SHA-256 cocok)",
+          "Delegate aktif": "CPU (Web Worker · R22)",
+          "setOptions() runtime": "0",
+          "Frame duplikat dilewati": "0",
+          "Kontrol eksposur kamera (UVC)": "tidak tersedia",
+          "Resolusi kamera": "640 × 360",
+          "FPS kamera (pengaturan)": "15",
+          "FPS frame diterima": "14.8 /detik",
+          "Deteksi efektif": "14 /detik",
+          "FPS deteksi analyzer": "15 /detik",
+          "Waktu deteksi rata-rata": "—",
+          "Waktu deteksi p50 / p95": "68 ms / 69 ms",
+          "Waktu inferensi model": "0.00 ms",
+          "Tangan (deteksi)": "—",
+          "Wajah (deteksi)": "—",
+          "Sibuk (diukur)": "—",
+          "Alasan mesin": "CPU-only Web Worker (tanpa GPU delegate, Single-Owner Guard)",
+          "Status pindah mesin": "tidak ada pindah (CPU tetap)",
+          "Sesi tangan (non-biometrik)": "1",
+          "Penyebab hand lock": "active",
+          "Rasio cubit jempol-telunjuk": "0.435",
+          "Izin tindakan tinta": "ditahan",
+          "Alasan tindakan terakhir": "Tidak ada aksi gambar",
+          "Tangan terlihat": "1 (jauh: 0)",
+          "Wajah pemain": "Wajah tidak terlihat",
+          "Tangan ditolak": "jauh 0 · wajah 0 · luar 0",
+          "Tangan diam / jitter mentah / tinta": "tidak · tahan tangan diam · tahan tangan diam",
+          "Luma mean / p10 / p50 / p95": "0.66 / 0.42 / 0.75 / 0.80",
+          "Near-white hand % / blur / noise": "0.0% / 118.05 / 0.66",
+          "Pass preprocessing aktif": "A0_raw",
+          "Rasio frame geometri": "1.778",
+          "Pose mentah / stabil": "thumb-up / thumb-up",
+          "Jari terbuka: geometri / dasar": "1 / 0",
+          "Jempol: rasio dasar": "1.06 → tertutup",
+          "Jempol: menyamping": "1.36 → terbuka",
+          "Jempol: sudut sendi IP": "160°",
+          "Lima jari valid untuk Hapus": "tidak",
+          "Siap aksi (gambar / hapus / perintah)": "ya / ya / ya",
+          "Status tangan (Hapus)": "—",
+          "Gambar / hapus (streak)": "- 0 / - 0",
+          "Hapus terakhir kena stroke": "—",
+          "Stroke selesai / titik aktif": "0 / 0",
+          "Mode Undo/Redo": "Kepal → 1/2 jari (R22)",
+          "Perintah terakhir": "—",
+          "Jumlah perintah dijalankan": "0"
+        },
+        "lockStatus": "locked"
+      },
+      "gesture": {
+        "firstProcessedCaptureFrameId": 4,
+        "lastProcessedCaptureFrameId": 72,
+        "lastCaptureFrameId": 72,
+        "measurementWindowSec": 4.57,
+        "captureIdRateHz": 14.88,
+        "domUniqueCaptureFps": 14.1,
+        "domRealDetectHz": 13,
+        "domUiFps": 60,
+        "domStats": {
+          "FPS Kamera Unik": "14.1 fps",
+          "Deteksi (Hz)": "13 Hz",
+          "UI FPS": "60 fps",
+          "Latensi Pipeline": "81 ms",
+          "Event FSM": "NONE",
+          "State FSM": "OTHER",
+          "Alasan lepas": "—",
+          "Counter (KD / Held / KU / Jump / RelAll)": "0 / 0 / 0 / 0 / 0",
+          "Zona arah": "NEUTRAL",
+          "Label arah": "Netral",
+          "Sudut telunjuk": "-140.2°",
+          "Jumlah jari terbuka": "1 / 5",
+          "Jempol": "Terbuka (PRESS)",
+          "Telunjuk": "terlipat",
+          "Tengah": "terlipat",
+          "Manis": "terlipat",
+          "Kelingking": "terlipat",
+          "Pinch aktif (gambar)": "tidak (geometri: tidak)",
+          "Hapus 5-jari stabil": "tidak",
+          "Gate negatif jempol atas": "ya",
+          "Pose aktif": "Jempol",
+          "Lencana UI": "NUI R22 · CPU · Otomatis",
+          "Model aktif nyata": "r20-c4 · R20 C4 · MLP 82→64→32→3 (fokal, kohort penuh)",
+          "SHA-256 model": "e863ef1afe459a3b0a4cf0b0b2594a1db853b382d669add2d7be234e64710a27",
+          "Hash terverifikasi": "ya (SHA-256 cocok)",
+          "Delegate aktif": "CPU (Web Worker · R22)",
+          "setOptions() runtime": "0",
+          "Frame duplikat dilewati": "0",
+          "Kontrol eksposur kamera (UVC)": "tidak tersedia",
+          "Resolusi kamera": "640 × 360",
+          "FPS kamera (pengaturan)": "15",
+          "FPS frame diterima": "14.1 /detik",
+          "Deteksi efektif": "13 /detik",
+          "FPS deteksi analyzer": "14 /detik",
+          "Waktu deteksi rata-rata": "—",
+          "Waktu deteksi p50 / p95": "69 ms / 76 ms",
+          "Waktu inferensi model": "0.20 ms",
+          "Tangan (deteksi)": "—",
+          "Wajah (deteksi)": "—",
+          "Sibuk (diukur)": "—",
+          "Alasan mesin": "CPU-only Web Worker (tanpa GPU delegate, Single-Owner Guard)",
+          "Status pindah mesin": "tidak ada pindah (CPU tetap)",
+          "Sesi tangan (non-biometrik)": "1",
+          "Penyebab hand lock": "active",
+          "Rasio cubit jempol-telunjuk": "0.454",
+          "Izin tindakan tinta": "ditahan",
+          "Alasan tindakan terakhir": "Tinta dinonaktifkan",
+          "Tangan terlihat": "1 (jauh: 0)",
+          "Wajah pemain": "Wajah tidak terlihat",
+          "Tangan ditolak": "jauh 0 · wajah 0 · luar 0",
+          "Tangan diam / jitter mentah / tinta": "tidak · tahan tangan diam · tahan tangan diam",
+          "Luma mean / p10 / p50 / p95": "0.66 / 0.42 / 0.75 / 0.79",
+          "Near-white hand % / blur / noise": "0.0% / 118.05 / 0.66",
+          "Pass preprocessing aktif": "A0_raw",
+          "Rasio frame geometri": "1.778",
+          "Pose mentah / stabil": "thumb-up / none",
+          "Jari terbuka: geometri / dasar": "1 / 0",
+          "Jempol: rasio dasar": "1.06 → tertutup",
+          "Jempol: menyamping": "1.36 → terbuka",
+          "Jempol: sudut sendi IP": "160°",
+          "Lima jari valid untuk Hapus": "tidak",
+          "Siap aksi (gambar / hapus / perintah)": "ya / ya / ya",
+          "Status tangan (Hapus)": "—",
+          "Gambar / hapus (streak)": "- 0 / - 0",
+          "Hapus terakhir kena stroke": "—",
+          "Stroke selesai / titik aktif": "0 / 0",
+          "Mode Undo/Redo": "Kepal → 1/2 jari (R22)",
+          "Perintah terakhir": "—",
+          "Jumlah perintah dijalankan": "0"
+        },
+        "lockStatus": "locked"
+      }
+    },
+    "layoutStickyAudit": {
+      "before": {
+        "hasCameraPanel": true,
+        "hasRightPanel": true,
+        "cameraPosition": "sticky",
+        "cameraTop": 207.05,
+        "rightOverflowY": "auto",
+        "rightScrollHeight": 2709,
+        "rightClientHeight": 670
+      },
+      "after": {
+        "cameraTopAfterScroll": 207.05,
+        "rightScrollTopAfterScroll": 350
+      },
+      "isStickyLeftAnchored": true,
+      "isIndependentRightScrollable": true
+    },
+    "memory": {
+      "duringCanvasWorkerActive": {
+        "rendererCount": 1,
+        "totalRssMb": 452.02,
+        "totalPssMb": 387.28,
+        "totalPrivateDirtyMb": 299.68
+      },
+      "afterCameraStop": {
+        "rendererCount": 1,
+        "totalRssMb": 385.14,
+        "totalPssMb": 319.33,
+        "totalPrivateDirtyMb": 230.25
+      },
+      "pageCdpJsHeapUsedMb": 10.17,
+      "pageCdpJsHeapTotalMb": 17.38,
+      "domNodes": 1627
+    },
+    "liveExportSummary": {
+      "schema": "nui-lab-bench-export/2",
+      "exportBytes": 389061,
+      "contentSha256": "a9373f030a374601d268e5c11f29e8c42e359dcd7c6eb2231396cd783035d242",
+      "sessionId": "S-7fd4e7f2",
+      "trialCount": 2,
+      "trials": [
+        {
+          "trialId": "S-7fd4e7f2-T001",
+          "route": "canvas",
+          "endReason": "camera-stop",
+          "frames": 77,
+          "handFrames": 76,
+          "detectorMissFrames": 1,
+          "rawNoHandRate": 0,
+          "activeWindowMissRate": 0,
+          "detectHzMean": 14.211,
+          "uniqueCaptureFpsP50": 14.5,
+          "duplicateFramesSkipped": 0,
+          "runtimeSetOptionsCalls": 0,
+          "mpMs": {
+            "n": 77,
+            "mean": 69.119,
+            "p50": 67.4,
+            "p95": 69.36,
+            "max": 196.1
+          },
+          "preMs": {
+            "n": 77,
+            "mean": 0.21,
+            "p50": 0,
+            "p95": 1.12,
+            "max": 3.5
+          },
+          "pipelineMs": {
+            "n": 77,
+            "mean": 71.545,
+            "p50": 69.7,
+            "p95": 73.36,
+            "max": 203.1
+          },
+          "independentGroundTruthAvailable": false,
+          "falsePressFrames": null
+        },
+        {
+          "trialId": "S-7fd4e7f2-T002",
+          "route": "gesture",
+          "endReason": "camera-stop",
+          "frames": 69,
+          "handFrames": 68,
+          "detectorMissFrames": 1,
+          "rawNoHandRate": 0,
+          "activeWindowMissRate": 0,
+          "detectHzMean": 13.83,
+          "uniqueCaptureFpsP50": 14.4,
+          "duplicateFramesSkipped": 0,
+          "runtimeSetOptionsCalls": 0,
+          "mpMs": {
+            "n": 69,
+            "mean": 70.984,
+            "p50": 68.1,
+            "p95": 77.54,
+            "max": 193.7
+          },
+          "preMs": {
+            "n": 69,
+            "mean": 0.172,
+            "p50": 0,
+            "p95": 0.76,
+            "max": 3
+          },
+          "pipelineMs": {
+            "n": 69,
+            "mean": 73.391,
+            "p50": 70.4,
+            "p95": 80.26,
+            "max": 199.9
+          },
+          "independentGroundTruthAvailable": false,
+          "falsePressFrames": null
+        }
+      ]
+    }
+  },
+  "journeyUncompressed": {
+    "networkPhases": {
+      "landingOnly": {
+        "cdpTotalBytes": 1013942,
+        "cdpTotalMb": 0.967,
+        "cdpPageBytes": 1013942,
+        "cdpWorkerBytes": 0,
+        "serverBodyWireBytes": 1009140,
+        "serverBodyWireMb": 0.962,
+        "serverRawUncompressedBytes": 1009140,
+        "serverRawUncompressedMb": 0.962,
+        "reconciliationDiffBytes": 4802,
+        "hasWasmLoaded": false,
+        "hasHandLandmarkerTaskLoaded": false,
+        "hasStudentModelLoaded": false,
+        "topAssets": [
+          {
+            "path": "/_next/static/chunks/367-e565b6c9e3266751.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 175905,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 175647,
+            "serverRawBytes": 175647
+          },
+          {
+            "path": "/_next/static/chunks/a6ac839c-6945fd0205bff45b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 173092,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 172834,
+            "serverRawBytes": 172834
+          },
+          {
+            "path": "/_next/static/chunks/396-140a335e56951a2a.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 156401,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 156143,
+            "serverRawBytes": 156143
+          },
+          {
+            "path": "/_next/static/chunks/741-5aed90506606b91b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 124824,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 124566,
+            "serverRawBytes": 124566
+          },
+          {
+            "path": "/_next/static/chunks/708-aa0b09e9f93a3fc0.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 83734,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 83476,
+            "serverRawBytes": 83476
+          },
+          {
+            "path": "/_next/static/css/16c2024a37ababb2.css",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 77537,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 77293,
+            "serverRawBytes": 77293
+          },
+          {
+            "path": "/_next/static/chunks/886-33b88f39b58f4cad.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 64983,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 64726,
+            "serverRawBytes": 64726
+          },
+          {
+            "path": "/_next/static/chunks/88e7b6b6-b62a1c3025c2d623.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 52307,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 52050,
+            "serverRawBytes": 52050
+          },
+          {
+            "path": "/_next/static/css/cbee9783c240c2e2.css",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 28322,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 28079,
+            "serverRawBytes": 28079
+          },
+          {
+            "path": "/_next/static/chunks/701-0792c39f24bc8011.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 26406,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 26149,
+            "serverRawBytes": 26149
+          },
+          {
+            "path": "/_next/static/css/8b87f9e44933e360.css",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 17424,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 17181,
+            "serverRawBytes": 17181
+          },
+          {
+            "path": "/nui-lab",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 11689,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 11445,
+            "serverRawBytes": 11445
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/page-97c33a8cbe4e762b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 7443,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 7186,
+            "serverRawBytes": 7186
+          },
+          {
+            "path": "/_next/static/chunks/webpack-98f51d3095a8da44.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 4245,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 3989,
+            "serverRawBytes": 3989
+          },
+          {
+            "path": "/nui-lab/gesture.txt",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 4039,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 3795,
+            "serverRawBytes": 3795
+          },
+          {
+            "path": "/nui-lab/canvas.txt",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 4023,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 3779,
+            "serverRawBytes": 3779
+          },
+          {
+            "path": "/_next/static/chunks/main-app-9117fbc67dea2d8b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 716,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 460,
+            "serverRawBytes": 460
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/gesture/page-e79aaef7af6cfaf5.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 426,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 171,
+            "serverRawBytes": 171
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/canvas/page-6d2c9c868bceabf2.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 426,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 171,
+            "serverRawBytes": 171
+          }
+        ]
+      },
+      "afterCanvasWithCameraAndModels": {
+        "cdpTotalBytes": 18676433,
+        "cdpTotalMb": 17.811,
+        "cdpPageBytes": 1087469,
+        "cdpWorkerBytes": 17588964,
+        "serverBodyWireBytes": 18699679,
+        "serverBodyWireMb": 17.833,
+        "serverRawUncompressedBytes": 18699679,
+        "serverRawUncompressedMb": 17.833,
+        "reconciliationDiffBytes": -23246,
+        "hasWasmLoaded": true,
+        "hasHandLandmarkerTaskLoaded": true,
+        "hasStudentModelLoaded": true,
+        "topAssets": [
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "cdpTarget": "worker",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 9424224,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 9423986,
+            "serverRawBytes": 9423986
+          },
+          {
+            "path": "/models/hand_landmarker.task",
+            "cdpTarget": "worker",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 7819351,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 7819105,
+            "serverRawBytes": 7819105
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "cdpTarget": "worker",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 210084,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 209826,
+            "serverRawBytes": 209826
+          },
+          {
+            "path": "/_next/static/chunks/367-e565b6c9e3266751.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 175905,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 175647,
+            "serverRawBytes": 175647
+          },
+          {
+            "path": "/_next/static/chunks/a6ac839c-6945fd0205bff45b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 173092,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 172834,
+            "serverRawBytes": 172834
+          },
+          {
+            "path": "/_next/static/chunks/396-140a335e56951a2a.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 156401,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 156143,
+            "serverRawBytes": 156143
+          },
+          {
+            "path": "/_next/static/chunks/77.379dd971c3c27d93.js",
+            "cdpTarget": "worker",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 135305,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 135047,
+            "serverRawBytes": 135047
+          },
+          {
+            "path": "/_next/static/chunks/741-5aed90506606b91b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 124824,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 124566,
+            "serverRawBytes": 124566
+          },
+          {
+            "path": "/_next/static/chunks/708-aa0b09e9f93a3fc0.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 83734,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 83476,
+            "serverRawBytes": 83476
+          },
+          {
+            "path": "/_next/static/css/16c2024a37ababb2.css",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 77537,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 77293,
+            "serverRawBytes": 77293
+          },
+          {
+            "path": "/models/r20-c4-model.json",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 73527,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 73275,
+            "serverRawBytes": 73275
+          },
+          {
+            "path": "/_next/static/chunks/886-33b88f39b58f4cad.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 64983,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 64726,
+            "serverRawBytes": 64726
+          },
+          {
+            "path": "/_next/static/chunks/88e7b6b6-b62a1c3025c2d623.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 52307,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 52050,
+            "serverRawBytes": 52050
+          },
+          {
+            "path": "/_next/static/chunks/280.345871946d9cd0e4.js",
+            "cdpTarget": "untracked-in-cdp",
+            "cdpRequests": 0,
+            "cdpEncodedBytes": 0,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 29300,
+            "serverRawBytes": 29300
+          },
+          {
+            "path": "/_next/static/css/cbee9783c240c2e2.css",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 28322,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 28079,
+            "serverRawBytes": 28079
+          },
+          {
+            "path": "/_next/static/chunks/701-0792c39f24bc8011.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 26406,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 26149,
+            "serverRawBytes": 26149
+          },
+          {
+            "path": "/_next/static/css/8b87f9e44933e360.css",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 17424,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 17181,
+            "serverRawBytes": 17181
+          },
+          {
+            "path": "/nui-lab",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 11689,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 11445,
+            "serverRawBytes": 11445
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/page-97c33a8cbe4e762b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 7443,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 7186,
+            "serverRawBytes": 7186
+          },
+          {
+            "path": "/_next/static/chunks/webpack-98f51d3095a8da44.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 4245,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 3989,
+            "serverRawBytes": 3989
+          },
+          {
+            "path": "/nui-lab/gesture.txt",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 4039,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 3795,
+            "serverRawBytes": 3795
+          },
+          {
+            "path": "/nui-lab/canvas.txt",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 4023,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 3779,
+            "serverRawBytes": 3779
+          },
+          {
+            "path": "/_next/static/chunks/main-app-9117fbc67dea2d8b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 716,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 460,
+            "serverRawBytes": 460
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/gesture/page-e79aaef7af6cfaf5.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 426,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 171,
+            "serverRawBytes": 171
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/canvas/page-6d2c9c868bceabf2.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 426,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 171,
+            "serverRawBytes": 171
+          }
+        ]
+      },
+      "fullJourneyLandingCanvasGesture": {
+        "cdpTotalBytes": 18676433,
+        "cdpTotalMb": 17.811,
+        "cdpPageBytes": 1087469,
+        "cdpWorkerBytes": 17588964,
+        "serverBodyWireBytes": 18699679,
+        "serverBodyWireMb": 17.833,
+        "serverRawUncompressedBytes": 18699679,
+        "serverRawUncompressedMb": 17.833,
+        "reconciliationDiffBytes": -23246,
+        "hasWasmLoaded": true,
+        "hasHandLandmarkerTaskLoaded": true,
+        "hasStudentModelLoaded": true,
+        "topAssets": [
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.wasm",
+            "cdpTarget": "worker",
+            "cdpRequests": 2,
+            "cdpEncodedBytes": 9424224,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 9423986,
+            "serverRawBytes": 9423986
+          },
+          {
+            "path": "/models/hand_landmarker.task",
+            "cdpTarget": "worker",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 7819351,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 7819105,
+            "serverRawBytes": 7819105
+          },
+          {
+            "path": "/mediapipe/wasm/vision_wasm_internal.js",
+            "cdpTarget": "worker",
+            "cdpRequests": 2,
+            "cdpEncodedBytes": 210084,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 209826,
+            "serverRawBytes": 209826
+          },
+          {
+            "path": "/_next/static/chunks/367-e565b6c9e3266751.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 175905,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 175647,
+            "serverRawBytes": 175647
+          },
+          {
+            "path": "/_next/static/chunks/a6ac839c-6945fd0205bff45b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 173092,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 172834,
+            "serverRawBytes": 172834
+          },
+          {
+            "path": "/_next/static/chunks/396-140a335e56951a2a.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 156401,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 156143,
+            "serverRawBytes": 156143
+          },
+          {
+            "path": "/_next/static/chunks/77.379dd971c3c27d93.js",
+            "cdpTarget": "worker",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 135305,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 135047,
+            "serverRawBytes": 135047
+          },
+          {
+            "path": "/_next/static/chunks/741-5aed90506606b91b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 124824,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 124566,
+            "serverRawBytes": 124566
+          },
+          {
+            "path": "/_next/static/chunks/708-aa0b09e9f93a3fc0.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 83734,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 83476,
+            "serverRawBytes": 83476
+          },
+          {
+            "path": "/_next/static/css/16c2024a37ababb2.css",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 77537,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 77293,
+            "serverRawBytes": 77293
+          },
+          {
+            "path": "/models/r20-c4-model.json",
+            "cdpTarget": "page",
+            "cdpRequests": 2,
+            "cdpEncodedBytes": 73527,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 73275,
+            "serverRawBytes": 73275
+          },
+          {
+            "path": "/_next/static/chunks/886-33b88f39b58f4cad.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 64983,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 64726,
+            "serverRawBytes": 64726
+          },
+          {
+            "path": "/_next/static/chunks/88e7b6b6-b62a1c3025c2d623.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 52307,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 52050,
+            "serverRawBytes": 52050
+          },
+          {
+            "path": "/_next/static/chunks/280.345871946d9cd0e4.js",
+            "cdpTarget": "untracked-in-cdp",
+            "cdpRequests": 0,
+            "cdpEncodedBytes": 0,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 29300,
+            "serverRawBytes": 29300
+          },
+          {
+            "path": "/_next/static/css/cbee9783c240c2e2.css",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 28322,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 28079,
+            "serverRawBytes": 28079
+          },
+          {
+            "path": "/_next/static/chunks/701-0792c39f24bc8011.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 26406,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 26149,
+            "serverRawBytes": 26149
+          },
+          {
+            "path": "/_next/static/css/8b87f9e44933e360.css",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 17424,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 17181,
+            "serverRawBytes": 17181
+          },
+          {
+            "path": "/nui-lab",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 11689,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 11445,
+            "serverRawBytes": 11445
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/page-97c33a8cbe4e762b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 7443,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 7186,
+            "serverRawBytes": 7186
+          },
+          {
+            "path": "/_next/static/chunks/webpack-98f51d3095a8da44.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 4245,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 3989,
+            "serverRawBytes": 3989
+          },
+          {
+            "path": "/nui-lab/gesture.txt",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 4039,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 3795,
+            "serverRawBytes": 3795
+          },
+          {
+            "path": "/nui-lab/canvas.txt",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 4023,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 3779,
+            "serverRawBytes": 3779
+          },
+          {
+            "path": "/_next/static/chunks/main-app-9117fbc67dea2d8b.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 716,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 460,
+            "serverRawBytes": 460
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/gesture/page-e79aaef7af6cfaf5.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 426,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 171,
+            "serverRawBytes": 171
+          },
+          {
+            "path": "/_next/static/chunks/app/nui-lab/canvas/page-6d2c9c868bceabf2.js",
+            "cdpTarget": "page",
+            "cdpRequests": 1,
+            "cdpEncodedBytes": 426,
+            "serverRequests": 1,
+            "serverEncoding": "none",
+            "serverBodyWireBytes": 171,
+            "serverRawBytes": 171
+          }
+        ]
+      }
+    },
+    "liveInference": {
+      "canvas": {
+        "firstProcessedCaptureFrameId": 1,
+        "lastProcessedCaptureFrameId": 73,
+        "lastCaptureFrameId": 73,
+        "measurementWindowSec": 4.58,
+        "captureIdRateHz": 15.73,
+        "domUniqueCaptureFps": 14.3,
+        "domRealDetectHz": 13,
+        "domUiFps": 60,
+        "domStats": {
+          "FPS Kamera Unik": "14.3 fps",
+          "Deteksi (Hz)": "13 Hz",
+          "UI FPS": "60 fps",
+          "Latensi Pipeline": "75 ms",
+          "Gerbang pistol": "DISABLED_ON_CANVAS · Nonaktif di Canvas",
+          "Aksi K3 & FSM Undo/Redo": "NEUTRAL (Tidak ada aksi gambar) · NEUTRAL",
+          "Arah telunjuk": "NEUTRAL (Netral)",
+          "Cubit / Hapus 5 jari": "tidak / tidak",
+          "Lock & alasan": "locked · Tidak ada aksi gambar",
+          "Lencana UI": "NUI R22 · CPU · Otomatis",
+          "Model aktif nyata": "r20-c4 · R20 C4 · MLP 82→64→32→3 (fokal, kohort penuh)",
+          "SHA-256 model": "e863ef1afe459a3b0a4cf0b0b2594a1db853b382d669add2d7be234e64710a27",
+          "Hash terverifikasi": "ya (SHA-256 cocok)",
+          "Delegate aktif": "CPU (Web Worker · R22)",
+          "setOptions() runtime": "0",
+          "Frame duplikat dilewati": "0",
+          "Kontrol eksposur kamera (UVC)": "tidak tersedia",
+          "Resolusi kamera": "640 × 360",
+          "FPS kamera (pengaturan)": "15",
+          "FPS frame diterima": "14.3 /detik",
+          "Deteksi efektif": "13 /detik",
+          "FPS deteksi analyzer": "14 /detik",
+          "Waktu deteksi rata-rata": "—",
+          "Waktu deteksi p50 / p95": "71 ms / 86 ms",
+          "Waktu inferensi model": "0.00 ms",
+          "Tangan (deteksi)": "—",
+          "Wajah (deteksi)": "—",
+          "Sibuk (diukur)": "—",
+          "Alasan mesin": "CPU-only Web Worker (tanpa GPU delegate, Single-Owner Guard)",
+          "Status pindah mesin": "tidak ada pindah (CPU tetap)",
+          "Sesi tangan (non-biometrik)": "1",
+          "Penyebab hand lock": "active",
+          "Rasio cubit jempol-telunjuk": "0.425",
+          "Izin tindakan tinta": "ditahan",
+          "Alasan tindakan terakhir": "Tidak ada aksi gambar",
+          "Tangan terlihat": "1 (jauh: 0)",
+          "Wajah pemain": "Wajah tidak terlihat",
+          "Tangan ditolak": "jauh 0 · wajah 0 · luar 0",
+          "Tangan diam / jitter mentah / tinta": "tidak · tahan tangan diam · tahan tangan diam",
+          "Luma mean / p10 / p50 / p95": "0.66 / 0.42 / 0.75 / 0.79",
+          "Near-white hand % / blur / noise": "0.0% / 116.15 / 0.66",
+          "Pass preprocessing aktif": "A0_raw",
+          "Rasio frame geometri": "1.778",
+          "Pose mentah / stabil": "thumb-up / thumb-up",
+          "Jari terbuka: geometri / dasar": "1 / 0",
+          "Jempol: rasio dasar": "1.06 → tertutup",
+          "Jempol: menyamping": "1.35 → terbuka",
+          "Jempol: sudut sendi IP": "160°",
+          "Lima jari valid untuk Hapus": "tidak",
+          "Siap aksi (gambar / hapus / perintah)": "ya / ya / ya",
+          "Status tangan (Hapus)": "—",
+          "Gambar / hapus (streak)": "- 0 / - 0",
+          "Hapus terakhir kena stroke": "—",
+          "Stroke selesai / titik aktif": "0 / 0",
+          "Mode Undo/Redo": "Kepal → 1/2 jari (R22)",
+          "Perintah terakhir": "—",
+          "Jumlah perintah dijalankan": "0"
+        },
+        "lockStatus": "locked"
+      },
+      "gesture": {
+        "firstProcessedCaptureFrameId": 4,
+        "lastProcessedCaptureFrameId": 73,
+        "lastCaptureFrameId": 73,
+        "measurementWindowSec": 4.57,
+        "captureIdRateHz": 15.1,
+        "domUniqueCaptureFps": 15,
+        "domRealDetectHz": 14,
+        "domUiFps": 60,
+        "domStats": {
+          "FPS Kamera Unik": "15 fps",
+          "Deteksi (Hz)": "14 Hz",
+          "UI FPS": "60 fps",
+          "Latensi Pipeline": "70 ms",
+          "Event FSM": "NONE",
+          "State FSM": "OTHER",
+          "Alasan lepas": "—",
+          "Counter (KD / Held / KU / Jump / RelAll)": "0 / 0 / 0 / 0 / 0",
+          "Zona arah": "NEUTRAL",
+          "Label arah": "Netral",
+          "Sudut telunjuk": "-140.4°",
+          "Jumlah jari terbuka": "1 / 5",
+          "Jempol": "Terbuka (PRESS)",
+          "Telunjuk": "terlipat",
+          "Tengah": "terlipat",
+          "Manis": "terlipat",
+          "Kelingking": "terlipat",
+          "Pinch aktif (gambar)": "tidak (geometri: tidak)",
+          "Hapus 5-jari stabil": "tidak",
+          "Gate negatif jempol atas": "ya",
+          "Pose aktif": "Jempol",
+          "Lencana UI": "NUI R22 · CPU · Otomatis",
+          "Model aktif nyata": "r20-c4 · R20 C4 · MLP 82→64→32→3 (fokal, kohort penuh)",
+          "SHA-256 model": "e863ef1afe459a3b0a4cf0b0b2594a1db853b382d669add2d7be234e64710a27",
+          "Hash terverifikasi": "ya (SHA-256 cocok)",
+          "Delegate aktif": "CPU (Web Worker · R22)",
+          "setOptions() runtime": "0",
+          "Frame duplikat dilewati": "0",
+          "Kontrol eksposur kamera (UVC)": "tidak tersedia",
+          "Resolusi kamera": "640 × 360",
+          "FPS kamera (pengaturan)": "15",
+          "FPS frame diterima": "15 /detik",
+          "Deteksi efektif": "14 /detik",
+          "FPS deteksi analyzer": "14 /detik",
+          "Waktu deteksi rata-rata": "—",
+          "Waktu deteksi p50 / p95": "68 ms / 75 ms",
+          "Waktu inferensi model": "0.10 ms",
+          "Tangan (deteksi)": "—",
+          "Wajah (deteksi)": "—",
+          "Sibuk (diukur)": "—",
+          "Alasan mesin": "CPU-only Web Worker (tanpa GPU delegate, Single-Owner Guard)",
+          "Status pindah mesin": "tidak ada pindah (CPU tetap)",
+          "Sesi tangan (non-biometrik)": "1",
+          "Penyebab hand lock": "active",
+          "Rasio cubit jempol-telunjuk": "0.447",
+          "Izin tindakan tinta": "ditahan",
+          "Alasan tindakan terakhir": "Tinta dinonaktifkan",
+          "Tangan terlihat": "1 (jauh: 0)",
+          "Wajah pemain": "Wajah tidak terlihat",
+          "Tangan ditolak": "jauh 0 · wajah 0 · luar 0",
+          "Tangan diam / jitter mentah / tinta": "tidak · tahan tangan diam · tahan tangan diam",
+          "Luma mean / p10 / p50 / p95": "0.66 / 0.43 / 0.75 / 0.80",
+          "Near-white hand % / blur / noise": "0.0% / 115.26 / 0.66",
+          "Pass preprocessing aktif": "A0_raw",
+          "Rasio frame geometri": "1.778",
+          "Pose mentah / stabil": "thumb-up / none",
+          "Jari terbuka: geometri / dasar": "1 / 0",
+          "Jempol: rasio dasar": "1.06 → tertutup",
+          "Jempol: menyamping": "1.36 → terbuka",
+          "Jempol: sudut sendi IP": "159°",
+          "Lima jari valid untuk Hapus": "tidak",
+          "Siap aksi (gambar / hapus / perintah)": "ya / ya / ya",
+          "Status tangan (Hapus)": "—",
+          "Gambar / hapus (streak)": "- 0 / - 0",
+          "Hapus terakhir kena stroke": "—",
+          "Stroke selesai / titik aktif": "0 / 0",
+          "Mode Undo/Redo": "Kepal → 1/2 jari (R22)",
+          "Perintah terakhir": "—",
+          "Jumlah perintah dijalankan": "0"
+        },
+        "lockStatus": "locked"
+      }
+    },
+    "consoleErrors": [
+      {
+        "url": "http://127.0.0.1:35795/nui-lab/canvas",
+        "text": "INFO: Created TensorFlow Lite XNNPACK delegate for CPU."
+      },
+      {
+        "url": "http://127.0.0.1:35795/nui-lab/gesture",
+        "text": "INFO: Created TensorFlow Lite XNNPACK delegate for CPU."
+      }
+    ],
+    "pageErrors": [
+      {
+        "url": "http://127.0.0.1:35795/nui-lab",
+        "error": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      },
+      {
+        "url": "http://127.0.0.1:35795/nui-lab",
+        "error": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      },
+      {
+        "url": "http://127.0.0.1:35795/nui-lab",
+        "error": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      },
+      {
+        "url": "http://127.0.0.1:35795/nui-lab",
+        "error": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      },
+      {
+        "url": "http://127.0.0.1:35795/nui-lab",
+        "error": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      },
+      {
+        "url": "http://127.0.0.1:35795/nui-lab",
+        "error": "Error: Minified React error #418; visit https://react.dev/errors/418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      },
+      {
+        "url": "http://127.0.0.1:35795/nui-lab",
+        "error": "Error: Minified React error #423; visit https://react.dev/errors/423 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      }
     ]
   },
+  "journey30fpsRealHand": {
+    "liveInference": {
+      "canvas": {
+        "firstProcessedCaptureFrameId": 9,
+        "lastProcessedCaptureFrameId": 146,
+        "lastCaptureFrameId": 146,
+        "measurementWindowSec": 4.55,
+        "captureIdRateHz": 30.09,
+        "domUniqueCaptureFps": 29.6,
+        "domRealDetectHz": 14,
+        "domUiFps": 60,
+        "domStats": {
+          "FPS Kamera Unik": "29.6 fps",
+          "Deteksi (Hz)": "14 Hz",
+          "UI FPS": "60 fps",
+          "Latensi Pipeline": "70 ms",
+          "Gerbang pistol": "DISABLED_ON_CANVAS · Nonaktif di Canvas",
+          "Aksi K3 & FSM Undo/Redo": "NEUTRAL (Tidak ada aksi gambar) · NEUTRAL",
+          "Arah telunjuk": "NEUTRAL (Netral)",
+          "Cubit / Hapus 5 jari": "tidak / tidak",
+          "Lock & alasan": "locked · Tidak ada aksi gambar",
+          "Lencana UI": "NUI R22 · CPU · Otomatis",
+          "Model aktif nyata": "r20-c4 · R20 C4 · MLP 82→64→32→3 (fokal, kohort penuh)",
+          "SHA-256 model": "e863ef1afe459a3b0a4cf0b0b2594a1db853b382d669add2d7be234e64710a27",
+          "Hash terverifikasi": "ya (SHA-256 cocok)",
+          "Delegate aktif": "CPU (Web Worker · R22)",
+          "setOptions() runtime": "0",
+          "Frame duplikat dilewati": "0",
+          "Kontrol eksposur kamera (UVC)": "tidak tersedia",
+          "Resolusi kamera": "640 × 360",
+          "FPS kamera (pengaturan)": "30",
+          "FPS frame diterima": "29.6 /detik",
+          "Deteksi efektif": "14 /detik",
+          "FPS deteksi analyzer": "15 /detik",
+          "Waktu deteksi rata-rata": "—",
+          "Waktu deteksi p50 / p95": "67 ms / 69 ms",
+          "Waktu inferensi model": "0.00 ms",
+          "Tangan (deteksi)": "—",
+          "Wajah (deteksi)": "—",
+          "Sibuk (diukur)": "—",
+          "Alasan mesin": "CPU-only Web Worker (tanpa GPU delegate, Single-Owner Guard)",
+          "Status pindah mesin": "tidak ada pindah (CPU tetap)",
+          "Sesi tangan (non-biometrik)": "1",
+          "Penyebab hand lock": "active",
+          "Rasio cubit jempol-telunjuk": "0.438",
+          "Izin tindakan tinta": "ditahan",
+          "Alasan tindakan terakhir": "Tidak ada aksi gambar",
+          "Tangan terlihat": "1 (jauh: 0)",
+          "Wajah pemain": "Wajah tidak terlihat",
+          "Tangan ditolak": "jauh 0 · wajah 0 · luar 0",
+          "Tangan diam / jitter mentah / tinta": "tidak · tahan tangan diam · tahan tangan diam",
+          "Luma mean / p10 / p50 / p95": "0.66 / 0.42 / 0.75 / 0.80",
+          "Near-white hand % / blur / noise": "0.0% / 119.59 / 0.66",
+          "Pass preprocessing aktif": "A0_raw",
+          "Rasio frame geometri": "1.778",
+          "Pose mentah / stabil": "thumb-up / thumb-up",
+          "Jari terbuka: geometri / dasar": "1 / 0",
+          "Jempol: rasio dasar": "1.07 → tertutup",
+          "Jempol: menyamping": "1.36 → terbuka",
+          "Jempol: sudut sendi IP": "159°",
+          "Lima jari valid untuk Hapus": "tidak",
+          "Siap aksi (gambar / hapus / perintah)": "ya / ya / ya",
+          "Status tangan (Hapus)": "—",
+          "Gambar / hapus (streak)": "- 0 / - 0",
+          "Hapus terakhir kena stroke": "—",
+          "Stroke selesai / titik aktif": "0 / 0",
+          "Mode Undo/Redo": "Kepal → 1/2 jari (R22)",
+          "Perintah terakhir": "—",
+          "Jumlah perintah dijalankan": "0"
+        },
+        "lockStatus": "locked"
+      },
+      "gesture": {
+        "firstProcessedCaptureFrameId": 7,
+        "lastProcessedCaptureFrameId": 147,
+        "lastCaptureFrameId": 147,
+        "measurementWindowSec": 4.59,
+        "captureIdRateHz": 30.51,
+        "domUniqueCaptureFps": 30.1,
+        "domRealDetectHz": 13,
+        "domUiFps": 60,
+        "domStats": {
+          "FPS Kamera Unik": "30.1 fps",
+          "Deteksi (Hz)": "13 Hz",
+          "UI FPS": "60 fps",
+          "Latensi Pipeline": "75 ms",
+          "Event FSM": "NONE",
+          "State FSM": "OTHER",
+          "Alasan lepas": "—",
+          "Counter (KD / Held / KU / Jump / RelAll)": "0 / 0 / 0 / 0 / 0",
+          "Zona arah": "NEUTRAL",
+          "Label arah": "Netral",
+          "Sudut telunjuk": "-141.6°",
+          "Jumlah jari terbuka": "1 / 5",
+          "Jempol": "Terbuka (PRESS)",
+          "Telunjuk": "terlipat",
+          "Tengah": "terlipat",
+          "Manis": "terlipat",
+          "Kelingking": "terlipat",
+          "Pinch aktif (gambar)": "tidak (geometri: tidak)",
+          "Hapus 5-jari stabil": "tidak",
+          "Gate negatif jempol atas": "ya",
+          "Pose aktif": "Jempol",
+          "Lencana UI": "NUI R22 · CPU · Otomatis",
+          "Model aktif nyata": "r20-c4 · R20 C4 · MLP 82→64→32→3 (fokal, kohort penuh)",
+          "SHA-256 model": "e863ef1afe459a3b0a4cf0b0b2594a1db853b382d669add2d7be234e64710a27",
+          "Hash terverifikasi": "ya (SHA-256 cocok)",
+          "Delegate aktif": "CPU (Web Worker · R22)",
+          "setOptions() runtime": "0",
+          "Frame duplikat dilewati": "0",
+          "Kontrol eksposur kamera (UVC)": "tidak tersedia",
+          "Resolusi kamera": "640 × 360",
+          "FPS kamera (pengaturan)": "30",
+          "FPS frame diterima": "30.1 /detik",
+          "Deteksi efektif": "13 /detik",
+          "FPS deteksi analyzer": "13 /detik",
+          "Waktu deteksi rata-rata": "—",
+          "Waktu deteksi p50 / p95": "74 ms / 98 ms",
+          "Waktu inferensi model": "0.20 ms",
+          "Tangan (deteksi)": "—",
+          "Wajah (deteksi)": "—",
+          "Sibuk (diukur)": "—",
+          "Alasan mesin": "CPU-only Web Worker (tanpa GPU delegate, Single-Owner Guard)",
+          "Status pindah mesin": "tidak ada pindah (CPU tetap)",
+          "Sesi tangan (non-biometrik)": "1",
+          "Penyebab hand lock": "active",
+          "Rasio cubit jempol-telunjuk": "0.442",
+          "Izin tindakan tinta": "ditahan",
+          "Alasan tindakan terakhir": "Tinta dinonaktifkan",
+          "Tangan terlihat": "1 (jauh: 0)",
+          "Wajah pemain": "Wajah tidak terlihat",
+          "Tangan ditolak": "jauh 0 · wajah 0 · luar 0",
+          "Tangan diam / jitter mentah / tinta": "tidak · tahan tangan diam · tahan tangan diam",
+          "Luma mean / p10 / p50 / p95": "0.66 / 0.42 / 0.75 / 0.80",
+          "Near-white hand % / blur / noise": "0.0% / 115.07 / 0.66",
+          "Pass preprocessing aktif": "A0_raw",
+          "Rasio frame geometri": "1.778",
+          "Pose mentah / stabil": "thumb-up / none",
+          "Jari terbuka: geometri / dasar": "1 / 0",
+          "Jempol: rasio dasar": "1.05 → tertutup",
+          "Jempol: menyamping": "1.38 → terbuka",
+          "Jempol: sudut sendi IP": "155°",
+          "Lima jari valid untuk Hapus": "tidak",
+          "Siap aksi (gambar / hapus / perintah)": "ya / ya / ya",
+          "Status tangan (Hapus)": "—",
+          "Gambar / hapus (streak)": "- 0 / - 0",
+          "Hapus terakhir kena stroke": "—",
+          "Stroke selesai / titik aktif": "0 / 0",
+          "Mode Undo/Redo": "Kepal → 1/2 jari (R22)",
+          "Perintah terakhir": "—",
+          "Jumlah perintah dijalankan": "0"
+        },
+        "lockStatus": "locked"
+      }
+    },
+    "liveExportSummary": {
+      "schema": "nui-lab-bench-export/2",
+      "exportBytes": 354250,
+      "contentSha256": "21dfb29526aa688061941882a9e9f5eafbe65ae53122a40be693d24abf7ea85b",
+      "sessionId": "S-39cb0e28",
+      "trialCount": 2,
+      "trials": [
+        {
+          "trialId": "S-39cb0e28-T001",
+          "route": "canvas",
+          "endReason": "camera-stop",
+          "frames": 70,
+          "handFrames": 69,
+          "detectorMissFrames": 1,
+          "rawNoHandRate": 0,
+          "activeWindowMissRate": 0,
+          "detectHzMean": 14.174,
+          "uniqueCaptureFpsP50": 29.5,
+          "duplicateFramesSkipped": 0,
+          "runtimeSetOptionsCalls": 0,
+          "mpMs": {
+            "n": 70,
+            "mean": 69.564,
+            "p50": 67.5,
+            "p95": 69.585,
+            "max": 199.8
+          },
+          "preMs": {
+            "n": 70,
+            "mean": 0.21,
+            "p50": 0,
+            "p95": 1.22,
+            "max": 3.8
+          },
+          "pipelineMs": {
+            "n": 70,
+            "mean": 71.926,
+            "p50": 69.8,
+            "p95": 72.255,
+            "max": 207.6
+          },
+          "independentGroundTruthAvailable": false,
+          "falsePressFrames": null
+        },
+        {
+          "trialId": "S-39cb0e28-T002",
+          "route": "gesture",
+          "endReason": "camera-stop",
+          "frames": 62,
+          "handFrames": 61,
+          "detectorMissFrames": 1,
+          "rawNoHandRate": 0,
+          "activeWindowMissRate": 0,
+          "detectHzMean": 12.677,
+          "uniqueCaptureFpsP50": 29.5,
+          "duplicateFramesSkipped": 0,
+          "runtimeSetOptionsCalls": 0,
+          "mpMs": {
+            "n": 62,
+            "mean": 77.074,
+            "p50": 72.9,
+            "p95": 92.045,
+            "max": 225.8
+          },
+          "preMs": {
+            "n": 62,
+            "mean": 0.198,
+            "p50": 0,
+            "p95": 1.085,
+            "max": 3.1
+          },
+          "pipelineMs": {
+            "n": 62,
+            "mean": 80.719,
+            "p50": 75.95,
+            "p95": 98.285,
+            "max": 231.9
+          },
+          "independentGroundTruthAvailable": false,
+          "falsePressFrames": null
+        }
+      ]
+    },
+    "consoleErrors": [
+      {
+        "url": "http://127.0.0.1:33649/nui-lab/canvas",
+        "text": "INFO: Created TensorFlow Lite XNNPACK delegate for CPU."
+      },
+      {
+        "url": "http://127.0.0.1:33649/nui-lab/gesture",
+        "text": "INFO: Created TensorFlow Lite XNNPACK delegate for CPU."
+      }
+    ],
+    "pageErrors": [
+      {
+        "url": "http://127.0.0.1:33649/nui-lab",
+        "error": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      },
+      {
+        "url": "http://127.0.0.1:33649/nui-lab",
+        "error": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      },
+      {
+        "url": "http://127.0.0.1:33649/nui-lab",
+        "error": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      },
+      {
+        "url": "http://127.0.0.1:33649/nui-lab",
+        "error": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      },
+      {
+        "url": "http://127.0.0.1:33649/nui-lab",
+        "error": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      },
+      {
+        "url": "http://127.0.0.1:33649/nui-lab",
+        "error": "Error: Minified React error #418; visit https://react.dev/errors/418 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      },
+      {
+        "url": "http://127.0.0.1:33649/nui-lab",
+        "error": "Error: Minified React error #423; visit https://react.dev/errors/423 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+      }
+    ]
+  },
+  "mobileAudit": {
+    "landingHorizontalOverflow": false,
+    "canvasHorizontalOverflow": false
+  },
+  "liveExportAnalyzerVerification": {
+    "checksumChecked": true,
+    "checksumOk": true,
+    "sessionCount": 1
+  },
+  "ownerFourTrialsBaselineCount": 4,
   "acceptanceGates": {
-    "coldTransferUnder25Mb": true,
+    "gzipColdFullJourneyCdpBytes": 11121081,
+    "gzipColdFullJourneyServerWireBytes": 11123262,
+    "gzipColdFullJourneyUnder25MB": true,
+    "uncompressedColdFullJourneyCdpBytes": 18676433,
+    "uncompressedColdFullJourneyServerWireBytes": 18699679,
+    "uncompressedColdFullJourneyUnder25MB": true,
+    "allCoreAssetsVerifiedLoaded": true,
     "stickyLeftCameraAnchored": true,
     "independentRightScrollable": true,
-    "runtimeSetOptionsCallsZero": true,
-    "allGatesPassed": true
+    "mobileZeroHorizontalOverflow": true,
+    "liveRuntimeSetOptionsCallsZero": true,
+    "liveCanvas15fpsRealDetectHzMean": 14.211,
+    "liveCanvas15fpsMpMsP50": 67.4,
+    "liveCanvas15fpsMpMsP95": 69.36,
+    "liveGesture15fpsRealDetectHzMean": 13.83,
+    "liveGesture15fpsMpMsP50": 68.1,
+    "liveGesture15fpsMpMsP95": 77.54,
+    "liveCanvas30fpsRealDetectHzMean": 14.174,
+    "liveCanvas30fpsMpMsP50": 67.5,
+    "liveCanvas30fpsMpMsP95": 69.585,
+    "liveGesture30fpsRealDetectHzMean": 12.677,
+    "liveGesture30fpsMpMsP50": 72.9,
+    "liveGesture30fpsMpMsP95": 92.045,
+    "realHandDetectedInLiveExport": true,
+    "liveExportChecksumOk": true,
+    "pageErrorsCount": 7
   }
 }

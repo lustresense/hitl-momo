@@ -1,0 +1,9 @@
+a,b,a_predicted_as_b_percent,b_predicted_as_a_percent,rank_among_all_mistakes
+tangga,pagar,0.18,0.33,70
+tangga,anak tangga,0.63,0.80,16
+gergaji,zigzag,0.28,0.38,58
+petir,zigzag,3.17,6.37,2
+ular,garis,0.27,0.28,91
+pisau,pedang,5.25,4.70,3
+jembatan,bangku,1.08,2.22,7
+bangku,meja,11.37,4.83,1

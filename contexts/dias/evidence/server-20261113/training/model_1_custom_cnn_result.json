@@ -1,0 +1,10 @@
+{
+  "model": "model_1_custom_cnn",
+  "test_accuracy": 0.8928083181381226,
+  "test_top3_accuracy": 0.9678999781608582,
+  "test_loss": 0.37075990438461304,
+  "minutes": 113.2,
+  "epochs_run": 50,
+  "params": 113172,
+  "finished_at": "2026-11-14 03:22:00"
+}

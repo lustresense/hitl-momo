@@ -1,0 +1,10 @@
+{
+  "model": "model_3_squeezenet",
+  "test_accuracy": 0.918025016784668,
+  "test_top3_accuracy": 0.975641667842865,
+  "test_loss": 0.8665444254875183,
+  "minutes": 99.3,
+  "epochs_run": 32,
+  "params": 82352,
+  "finished_at": "2026-11-14 05:47:01"
+}

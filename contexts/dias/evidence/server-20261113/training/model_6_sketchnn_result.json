@@ -1,0 +1,10 @@
+{
+  "model": "model_6_sketchnn",
+  "test_accuracy": 0.9217249751091003,
+  "test_top3_accuracy": 0.9760749936103821,
+  "test_loss": 0.8182734847068787,
+  "minutes": 45.0,
+  "epochs_run": 50,
+  "params": 66516,
+  "finished_at": "2026-11-14 04:07:22"
+}

@@ -1,0 +1,10 @@
+{
+  "model": "model_2_efficientnet",
+  "test_accuracy": 0.9420166611671448,
+  "test_top3_accuracy": 0.9833083152770996,
+  "test_loss": 0.2004280835390091,
+  "minutes": 77.8,
+  "epochs_run": 13,
+  "params": 4383671,
+  "finished_at": "2026-11-14 15:46:49"
+}

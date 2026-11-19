@@ -168,6 +168,10 @@ Tidak berubah: `frontend/admin/`, `backend/app/dashboard.py`, `auth.py`, `infere
 
 Perubahan kontrak ini dikerjakan atas instruksi pemilik dan **belum disetujui formal oleh Can dan Dias**. Rincian endpoint: `contracts/API_INVENTORY.md`.
 
+### 8a. Migrasi Dias `94120d4` (0.28.0-alpha, PR)
+
+Pekerjaan Dias v0.6–v0.8 dibawa ke monorepo: training/evaluasi 6 arsitektur (`train/`), label model dari `<model>.labels.json` (`backend/app/inference.py`), kesulitan AI per level (`backend/app/difficulty.py`, `/api/settings/difficulty`, `/admin/kesulitan`) yang **mati secara default** (`AI_DIFFICULTY_ENABLED`). Alur game tidak berubah: `/predict` tetap mengembalikan `{"candidates": [3]}`. Laporan: `docs/migration/dias-94120d4/README.md`.
+
 ## 9. Keputusan dan risiko yang masih terbuka
 
 Daftar lengkap: `docs/migration/UNRESOLVED.md`. Yang paling relevan untuk Dias:

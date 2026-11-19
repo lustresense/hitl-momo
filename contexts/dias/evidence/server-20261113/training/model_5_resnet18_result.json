@@ -1,0 +1,10 @@
+{
+  "model": "model_5_resnet18",
+  "test_accuracy": 0.9445750117301941,
+  "test_top3_accuracy": 0.9837583303451538,
+  "test_loss": 0.7463514804840088,
+  "minutes": 520.8,
+  "epochs_run": 50,
+  "params": 1308852,
+  "finished_at": "2026-11-14 14:28:18"
+}

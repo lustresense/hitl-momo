@@ -1,0 +1,5 @@
+model,input,params,size_mb,accuracy,top3_accuracy,f1_macro,ms_per_image,trained_on
+Custom CNN,28x28x1,239284,2.8,0.9162,0.9744,0.9164,0.106,2026-04-29
+EfficientNet-B0,96x96x3,4383671,50.8,0.9541,0.9838,0.9541,303.271,2026-04-29
+ResNet-18,56x56x1,1308852,15.2,0.9561,0.9852,0.9562,2.353,2026-04-30
+MobileNetV2 (lama),28x28x1,1548612,18.2,0.9589,0.987,0.959,1.732,2026-09-25

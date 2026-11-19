@@ -1,0 +1,152 @@
+{
+  "model": "model_4_mobilenetv2_best.keras",
+  "model_size_mb": 18.21,
+  "test_images": 120000,
+  "accuracy": 0.9434,
+  "top3_accuracy": 0.9832,
+  "f1_macro": 0.9433,
+  "f1_weighted": 0.9433,
+  "inference_seconds_total": 204.4,
+  "per_class": [
+    {
+      "label": "tangga",
+      "precision": 0.9773,
+      "recall": 0.9745,
+      "f1": 0.9759,
+      "support": 6000
+    },
+    {
+      "label": "anak tangga",
+      "precision": 0.9629,
+      "recall": 0.9467,
+      "f1": 0.9547,
+      "support": 6000
+    },
+    {
+      "label": "jembatan",
+      "precision": 0.9023,
+      "recall": 0.9317,
+      "f1": 0.9168,
+      "support": 6000
+    },
+    {
+      "label": "bangku",
+      "precision": 0.8871,
+      "recall": 0.826,
+      "f1": 0.8554,
+      "support": 6000
+    },
+    {
+      "label": "meja",
+      "precision": 0.8639,
+      "recall": 0.9217,
+      "f1": 0.8919,
+      "support": 6000
+    },
+    {
+      "label": "papan luncur",
+      "precision": 0.9836,
+      "recall": 0.972,
+      "f1": 0.9778,
+      "support": 6000
+    },
+    {
+      "label": "kaktus",
+      "precision": 0.9667,
+      "recall": 0.968,
+      "f1": 0.9674,
+      "support": 6000
+    },
+    {
+      "label": "api unggun",
+      "precision": 0.9508,
+      "recall": 0.97,
+      "f1": 0.9603,
+      "support": 6000
+    },
+    {
+      "label": "petir",
+      "precision": 0.8941,
+      "recall": 0.9273,
+      "f1": 0.9104,
+      "support": 6000
+    },
+    {
+      "label": "gergaji",
+      "precision": 0.935,
+      "recall": 0.9525,
+      "f1": 0.9437,
+      "support": 6000
+    },
+    {
+      "label": "pisau",
+      "precision": 0.8992,
+      "recall": 0.8842,
+      "f1": 0.8916,
+      "support": 6000
+    },
+    {
+      "label": "pedang",
+      "precision": 0.9263,
+      "recall": 0.926,
+      "f1": 0.9262,
+      "support": 6000
+    },
+    {
+      "label": "ular",
+      "precision": 0.9677,
+      "recall": 0.96,
+      "f1": 0.9639,
+      "support": 6000
+    },
+    {
+      "label": "laba-laba",
+      "precision": 0.9717,
+      "recall": 0.9673,
+      "f1": 0.9695,
+      "support": 6000
+    },
+    {
+      "label": "pagar",
+      "precision": 0.9535,
+      "recall": 0.9427,
+      "f1": 0.948,
+      "support": 6000
+    },
+    {
+      "label": "zigzag",
+      "precision": 0.9299,
+      "recall": 0.897,
+      "f1": 0.9131,
+      "support": 6000
+    },
+    {
+      "label": "garis",
+      "precision": 0.9469,
+      "recall": 0.9598,
+      "f1": 0.9533,
+      "support": 6000
+    },
+    {
+      "label": "awan",
+      "precision": 0.9747,
+      "recall": 0.9743,
+      "f1": 0.9745,
+      "support": 6000
+    },
+    {
+      "label": "ember",
+      "precision": 0.9888,
+      "recall": 0.9827,
+      "f1": 0.9857,
+      "support": 6000
+    },
+    {
+      "label": "payung",
+      "precision": 0.9903,
+      "recall": 0.983,
+      "f1": 0.9866,
+      "support": 6000
+    }
+  ]
+}

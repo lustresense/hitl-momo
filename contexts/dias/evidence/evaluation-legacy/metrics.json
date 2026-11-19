@@ -1,0 +1,79 @@
+{
+  "test_images": 120000,
+  "categories": [
+    "apple",
+    "banana",
+    "bicycle",
+    "bird",
+    "book",
+    "car",
+    "cat",
+    "cloud",
+    "dog",
+    "fish",
+    "flower",
+    "house",
+    "moon",
+    "star",
+    "sun",
+    "tree",
+    "airplane",
+    "sailboat",
+    "chair",
+    "mountain"
+  ],
+  "models": [
+    {
+      "model": "Custom CNN",
+      "file": "model_1_custom_cnn_best.keras",
+      "input": "28x28x1",
+      "params": 239284,
+      "size_mb": 2.8,
+      "trained_on": "2026-04-29",
+      "accuracy": 0.9162,
+      "top3_accuracy": 0.9744,
+      "f1_macro": 0.9164,
+      "ms_per_image": 0.106
+    },
+    {
+      "model": "EfficientNet-B0",
+      "file": "model_2_efficientnet_best.keras",
+      "input": "96x96x3",
+      "params": 4383671,
+      "size_mb": 50.8,
+      "trained_on": "2026-04-29",
+      "accuracy": 0.9541,
+      "top3_accuracy": 0.9838,
+      "f1_macro": 0.9541,
+      "ms_per_image": 303.271
+    },
+    {
+      "model": "ResNet-18",
+      "file": "model_5_resnet18_best.keras",
+      "input": "56x56x1",
+      "params": 1308852,
+      "size_mb": 15.2,
+      "trained_on": "2026-04-30",
+      "accuracy": 0.9561,
+      "top3_accuracy": 0.9852,
+      "f1_macro": 0.9562,
+      "ms_per_image": 2.353
+    },
+    {
+      "model": "MobileNetV2 (lama)",
+      "file": "model_4_mobilenetv2_best.keras",
+      "input": "28x28x1",
+      "params": 1548612,
+      "size_mb": 18.2,
+      "trained_on": "2026-09-25",
+      "accuracy": 0.9589,
+      "top3_accuracy": 0.987,
+      "f1_macro": 0.959,
+      "ms_per_image": 1.732
+    }
+  ],
+  "not_available": [
+    "SqueezeNet",
+    "SketchNN"
+  ]
+}

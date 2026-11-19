@@ -1,0 +1,31 @@
+true,predicted,count,percent_of_true_class
+bangku,meja,682,11.37
+zigzag,petir,382,6.37
+pisau,pedang,315,5.25
+meja,bangku,290,4.83
+pedang,pisau,282,4.70
+petir,zigzag,190,3.17
+bangku,jembatan,133,2.22
+pagar,jembatan,126,2.10
+pisau,gergaji,120,2.00
+jembatan,meja,82,1.37
+jembatan,pagar,77,1.28
+meja,jembatan,73,1.22
+jembatan,bangku,65,1.08
+gergaji,pisau,63,1.05
+anak tangga,bangku,56,0.93
+anak tangga,tangga,48,0.80
+anak tangga,zigzag,48,0.80
+pagar,bangku,44,0.73
+anak tangga,petir,42,0.70
+jembatan,garis,40,0.67
+kaktus,api unggun,40,0.67
+tangga,anak tangga,38,0.63
+bangku,pagar,38,0.63
+papan luncur,bangku,38,0.63
+ular,petir,36,0.60
+ular,zigzag,36,0.60
+laba-laba,api unggun,36,0.60
+zigzag,anak tangga,35,0.58
+kaktus,laba-laba,33,0.55
+petir,pisau,33,0.55

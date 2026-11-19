@@ -1,0 +1,353 @@
+diff --git a/frontend/implementation/Dockerfile b/frontend/implementation/Dockerfile
+index 8620fe3..6fdcd25 100644
+--- a/frontend/implementation/Dockerfile
++++ b/frontend/implementation/Dockerfile
+@@ -11,7 +11,10 @@ COPY . .
+ ARG NEXT_PUBLIC_PREDICTION_MODE=partner
+ ARG NEXT_PUBLIC_PREDICTION_ENDPOINT
+ ARG NEXT_PUBLIC_DRAW_INPUT_MODE=pointer
+-ENV NEXT_PUBLIC_PREDICTION_MODE=$NEXT_PUBLIC_PREDICTION_MODE \
++# Sends levelId with each /predict so the backend can apply per-level AI difficulty.
++ARG NEXT_PUBLIC_PREDICTION_SEND_CONTEXT=1
++ENV NEXT_PUBLIC_PREDICTION_SEND_CONTEXT=$NEXT_PUBLIC_PREDICTION_SEND_CONTEXT \
++    NEXT_PUBLIC_PREDICTION_MODE=$NEXT_PUBLIC_PREDICTION_MODE \
+     NEXT_PUBLIC_PREDICTION_ENDPOINT=$NEXT_PUBLIC_PREDICTION_ENDPOINT \
+     NEXT_PUBLIC_DRAW_INPUT_MODE=$NEXT_PUBLIC_DRAW_INPUT_MODE \
+     NEXT_TELEMETRY_DISABLED=1
+diff --git a/frontend/implementation/src/components/onboarding/TutorialBrochure.tsx b/frontend/implementation/src/components/onboarding/TutorialBrochure.tsx
+index e9863a4..6a9d719 100644
+--- a/frontend/implementation/src/components/onboarding/TutorialBrochure.tsx
++++ b/frontend/implementation/src/components/onboarding/TutorialBrochure.tsx
+@@ -484,7 +484,7 @@ export function TutorialBrochure({ onStart, onSkip, characterDisplayName }: Tuto
+ 
+   const pages: Array<{ title: string; copy: string; cta: string; ctaIcon: IconName }> = [
+     { title: `Kenalin ${characterName}`, copy: "Dia mau menyeberangi buku gambar ini. Geser tanganmu ke kanan dan kiri buat ajak dia jalan ke bendera.", cta: "Lanjut", ctaIcon: "arrow-right" },
+-    { title: "Pijakan aman, atau bahaya", copy: `Gambar benda padat kayak balok atau tangga biar ${characterName} bisa lewat. Hindari benda tajam kayak duri atau pisau biar bukunya nggak sobek.`, cta: "Lanjut", ctaIcon: "arrow-right" },
++    { title: "Pijakan aman, atau bahaya", copy: `Gambar benda padat kayak jembatan atau tangga biar ${characterName} bisa lewat. Hindari benda tajam kayak kaktus atau pisau biar bukunya nggak sobek.`, cta: "Lanjut", ctaIcon: "arrow-right" },
+     { title: "Coba gestur tanganmu", copy: "Coret di kanvas pakai jarimu, lalu coba hapus, mundur, dan maju. Tiap gestur yang kamu coba akan tercentang.", cta: "Mulai Level 1", ctaIcon: "play" },
+   ];
+ 
+diff --git a/frontend/implementation/src/components/ui/Icon.tsx b/frontend/implementation/src/components/ui/Icon.tsx
+index 29ea136..b20a385 100644
+--- a/frontend/implementation/src/components/ui/Icon.tsx
++++ b/frontend/implementation/src/components/ui/Icon.tsx
+@@ -64,12 +64,12 @@ export const ICON_NAMES = Object.keys(GLYPHS) as IconName[];
+ /** Map a level catalog label to an object glyph; unknown labels fall back to a pencil. */
+ export function objectIconFor(labelId: string): IconName {
+   switch (labelId) {
+-    case "balok": return "block";
+-    case "papan": return "plank";
+-    case "tangga": return "ladder";
+-    case "duri": return "spike";
++    case "balok": case "bangku": case "meja": return "block";
++    case "papan": case "jembatan": case "papan luncur": return "plank";
++    case "tangga": case "anak tangga": case "pagar": return "ladder";
++    case "duri": case "kaktus": case "gergaji": case "zigzag": case "petir": return "spike";
+     case "batu": return "rock";
+-    case "tali": return "rope";
++    case "tali": case "ular": case "garis": return "rope";
+     case "ember": return "bucket";
+     default: return "pencil";
+   }
+diff --git a/frontend/implementation/src/domain/levels.ts b/frontend/implementation/src/domain/levels.ts
+index 4d43ee5..ab4556e 100644
+--- a/frontend/implementation/src/domain/levels.ts
++++ b/frontend/implementation/src/domain/levels.ts
+@@ -38,6 +38,29 @@ export interface LevelDefinition extends LevelContext {
+   };
+ }
+ 
++/**
++ * One behavior rule for every level, using the partner model's labels
++ * (config.py LABELS_ID in MuhammadDias/HITL). The challenge comes from the AI
++ * confusing look-alikes (tangga/pagar, gergaji/zigzag, ular/garis), not from
++ * rules that change per level. Labels not listed are neutral (no collision).
++ */
++const MODEL_BEHAVIOR_MAP: LevelDefinition["behaviorMap"] = {
++  jembatan: "solid",
++  tangga: "solid",
++  "anak tangga": "solid",
++  bangku: "solid",
++  meja: "solid",
++  "papan luncur": "solid",
++  kaktus: "danger",
++  "api unggun": "danger",
++  petir: "danger",
++  gergaji: "danger",
++  pisau: "danger",
++  pedang: "danger",
++  ular: "danger",
++  "laba-laba": "danger",
++};
++
+ /** Stage 1 — Foundation: draw → prediction → decision → consequence. */
+ const STAGE_1: LevelDefinition = makeLevel({
+   levelId: "stage-1-foundation",
+@@ -46,18 +69,13 @@ const STAGE_1: LevelDefinition = makeLevel({
+   title: "Bab 1 · Jembatan Pertama",
+   task: "Gambar satu objek untuk menyeberangi celah di buku.",
+   stageEmphasis: "Pahami alur dasar: gambar → tebakan AI → keputusanmu → konsekuensi.",
+-  behaviorMap: {
+-    papan: "solid",
+-    balok: "solid",
+-    tangga: "solid",
+-    batu: "danger",
+-  },
+-  vocabulary: ["papan", "batu", "tangga", "balok"],
++  behaviorMap: MODEL_BEHAVIOR_MAP,
++  vocabulary: ["jembatan", "tangga", "bangku", "meja", "kaktus", "api unggun", "awan", "ember"],
+   catalog: [
+-    { labelId: "balok", displayName: "Balok", icon: "🧱" },
+-    { labelId: "papan", displayName: "Papan", icon: "🪵" },
+-    { labelId: "batu", displayName: "Batu", icon: "🪨" },
++    { labelId: "jembatan", displayName: "Jembatan", icon: "🌉" },
+     { labelId: "tangga", displayName: "Tangga", icon: "🪜" },
++    { labelId: "bangku", displayName: "Bangku", icon: "🪑" },
++    { labelId: "kaktus", displayName: "Kaktus", icon: "🌵" },
+   ],
+   summary: {
+     gameplay: "Kamu berhasil membuat jalur untuk {character} menyeberangi celah!",
+@@ -79,18 +97,13 @@ const STAGE_2: LevelDefinition = makeLevel({
+     gapWidth: 180,
+     goalX: 680,
+   },
+-  behaviorMap: {
+-    papan: "solid",
+-    balok: "solid",
+-    tangga: "solid",
+-    duri: "danger",
+-  },
+-  vocabulary: ["papan", "balok", "duri", "tangga"],
++  behaviorMap: MODEL_BEHAVIOR_MAP,
++  vocabulary: ["tangga", "anak tangga", "pagar", "jembatan", "papan luncur", "gergaji", "zigzag", "petir", "ular", "garis"],
+   catalog: [
+-    { labelId: "papan", displayName: "Papan", icon: "🪵" },
+-    { labelId: "balok", displayName: "Balok", icon: "🧱" },
+-    { labelId: "duri", displayName: "Duri", icon: "🌵" },
+     { labelId: "tangga", displayName: "Tangga", icon: "🪜" },
++    { labelId: "anak tangga", displayName: "Anak tangga", icon: "📶" },
++    { labelId: "gergaji", displayName: "Gergaji", icon: "🪚" },
++    { labelId: "pagar", displayName: "Pagar", icon: "🚧" },
+   ],
+   summary: {
+     gameplay: "Kamu berhasil menemukan jalan ke halaman atas!",
+@@ -115,17 +128,13 @@ const STAGE_3: LevelDefinition = makeLevel({
+     gapWidth: 220,
+     goalX: 720,
+   },
+-  behaviorMap: {
+-    tali: "danger",
+-    papan: "solid",
+-    tangga: "solid",
+-  },
+-  vocabulary: ["papan", "tali", "tangga", "ember"],
++  behaviorMap: MODEL_BEHAVIOR_MAP,
++  vocabulary: ["jembatan", "tangga", "meja", "bangku", "pisau", "pedang", "ular", "garis", "laba-laba", "payung"],
+   catalog: [
+-    { labelId: "papan", displayName: "Papan", icon: "🪵" },
+-    { labelId: "tali", displayName: "Tali", icon: "🪢" },
++    { labelId: "jembatan", displayName: "Jembatan", icon: "🌉" },
++    { labelId: "ular", displayName: "Ular", icon: "🐍" },
+     { labelId: "tangga", displayName: "Tangga", icon: "🪜" },
+-    { labelId: "ember", displayName: "Ember", icon: "🪣" },
++    { labelId: "pisau", displayName: "Pisau", icon: "🔪" },
+   ],
+   summary: {
+     gameplay: "Kamu berhasil keluar dari Lorong Kabut!",
+diff --git a/frontend/implementation/tests/app/state-machine.test.ts b/frontend/implementation/tests/app/state-machine.test.ts
+index 6c249c9..f323215 100644
+--- a/frontend/implementation/tests/app/state-machine.test.ts
++++ b/frontend/implementation/tests/app/state-machine.test.ts
+@@ -21,7 +21,7 @@ function makeFlow(stageId: string) {
+   const level = getLevel(stageId)!;
+   const rec = recordingSink();
+   const provider = new MockPredictionProvider({
+-    vocabulary: ["papan", "batu", "tangga", "tali"],
++    vocabulary: ["jembatan", "kaktus", "tangga", "ular"],
+     stage: level.stage,
+     latencyMs: 0,
+   });
+@@ -88,7 +88,7 @@ describe("FlowController — PRD §13 vertical slice (TASK 02/03)", () => {
+     expect(() => ctx.flow.decideOverride("   ")).toThrow();
+     expect(ctx.flow.getSnapshot()).toEqual(before);
+ 
+-    const alt = ["papan", "batu", "tangga", "tali"].find((v) => !top3.includes(v))!;
++    const alt = ["jembatan", "kaktus", "tangga", "ular"].find((v) => !top3.includes(v))!;
+     ctx.flow.decideOverride(alt);
+     expect(ctx.flow.decision).toEqual({ type: "override", finalLabel: alt });
+     expect(ctx.flow.phase).toBe("falling");
+@@ -140,13 +140,13 @@ describe("FlowController — PRD §13 vertical slice (TASK 02/03)", () => {
+     const c = makeFlow("stage-3-validation");
+     c.flow.enterLevel(c.level);
+     await c.flow.submitDrawing(INK);
+-    let top3HasTali = c.flow.prediction!.candidates.some((x) => x.label === "tali");
+-    while (top3HasTali) {
++    let top3HasUlar = c.flow.prediction!.candidates.some((x) => x.label === "ular");
++    while (top3HasUlar) {
+       c.flow.requestRedraw("evaluation");
+       await c.flow.submitDrawing(INK);
+-      top3HasTali = c.flow.prediction!.candidates.some((x) => x.label === "tali");
++      top3HasUlar = c.flow.prediction!.candidates.some((x) => x.label === "ular");
+     }
+-    c.flow.decideOverride("tali");
++    c.flow.decideOverride("ular");
+     expect(c.flow.behavior).toBe("danger");
+     c.flow.completeFall();
+     c.flow.commitPlacement();
+@@ -160,7 +160,7 @@ describe("FlowController — PRD §13 vertical slice (TASK 02/03)", () => {
+     c.flow.enterLevel(c.level);
+     await c.flow.submitDrawing(INK);
+     let top3 = c.flow.prediction!.candidates.map((x) => x.label);
+-    let alt = ["papan", "batu", "tangga", "tali"].find((v) => !top3.includes(v))!;
++    let alt = ["jembatan", "kaktus", "tangga", "ular"].find((v) => !top3.includes(v))!;
+     c.flow.decideOverride(alt);
+     c.flow.completeFall();
+     c.flow.commitPlacement();
+diff --git a/frontend/implementation/tests/components/mission-briefing.test.tsx b/frontend/implementation/tests/components/mission-briefing.test.tsx
+index 00cc32f..50b44b9 100644
+--- a/frontend/implementation/tests/components/mission-briefing.test.tsx
++++ b/frontend/implementation/tests/components/mission-briefing.test.tsx
+@@ -28,9 +28,9 @@ describe("MissionBriefing Component", () => {
+     expect(screen.getByText(/Di depan ada celah/i)).toBeTruthy();
+     // Momo speaks the hint
+     expect(screen.getByTestId("mission-chat").textContent).toContain("Di depan ada celah");
+-    // Examples (papan, balok, tangga derived from L1)
+-    expect(screen.getByText(/Balok/i)).toBeTruthy();
+-    expect(screen.getByText(/Papan/i)).toBeTruthy();
++    // Examples (jembatan, tangga, bangku derived from L1)
++    expect(screen.getByText(/Jembatan/i)).toBeTruthy();
++    expect(screen.getByText(/Bangku/i)).toBeTruthy();
+     expect(screen.getByText(/Tangga/i)).toBeTruthy();
+     // Primary CTA
+     const startBtn = screen.getByRole("button", { name: /Mulai Menggambar/i });
+diff --git a/frontend/implementation/tests/domain/behavior-resolver.test.ts b/frontend/implementation/tests/domain/behavior-resolver.test.ts
+index 5a91f90..277ea0f 100644
+--- a/frontend/implementation/tests/domain/behavior-resolver.test.ts
++++ b/frontend/implementation/tests/domain/behavior-resolver.test.ts
+@@ -32,17 +32,26 @@ describe("behavior resolver (FR-09)", () => {
+     });
+   });
+ 
+-  it("context-aware: same label differs across levels (no global semantics)", () => {
+-    const l1 = LEVELS.find((l) => l.levelId === "stage-1-foundation")!;
+-    const l3 = LEVELS.find((l) => l.levelId === "stage-3-validation")!;
+-    expect(resolveBehavior("tali", l1).behavior).toBe("unresolved");
+-    expect(resolveBehavior("tali", l3).behavior).toBe("danger");
++  it("context-aware: behavior comes from the level's own map (no global semantics in the resolver)", () => {
++    const other: LevelContext = { ...LEVEL, behaviorMap: { papan: "danger" } };
++    expect(resolveBehavior("papan", LEVEL).behavior).toBe("solid");
++    expect(resolveBehavior("papan", other).behavior).toBe("danger");
++  });
++
++  it("the three game levels share one rule for the model's labels", () => {
++    for (const level of LEVELS) {
++      expect(resolveBehavior("pedang", level).behavior).toBe("danger");
++      expect(resolveBehavior("bangku", level).behavior).toBe("solid");
++      expect(resolveBehavior("pagar", level).behavior).toBe("unresolved");
++    }
+   });
+ 
+   it("Level 2 maps tangga as solid scaffold", () => {
+     const l2 = LEVELS.find((l) => l.levelId === "stage-2-ambiguity")!;
+     expect(resolveBehavior("tangga", l2).behavior).toBe("solid");
+-    expect(resolveBehavior("balok", l2).behavior).toBe("solid");
+-    expect(resolveBehavior("duri", l2).behavior).toBe("danger");
++    expect(resolveBehavior("anak tangga", l2).behavior).toBe("solid");
++    expect(resolveBehavior("gergaji", l2).behavior).toBe("danger");
++    // Look-alike of tangga, but not a foothold.
++    expect(resolveBehavior("pagar", l2).behavior).toBe("unresolved");
+   });
+ });
+diff --git a/frontend/implementation/tests/domain/mission-config.test.ts b/frontend/implementation/tests/domain/mission-config.test.ts
+index 2e72489..700e1e0 100644
+--- a/frontend/implementation/tests/domain/mission-config.test.ts
++++ b/frontend/implementation/tests/domain/mission-config.test.ts
+@@ -54,11 +54,11 @@ describe("mission-config domain", () => {
+     expect(config.examples.length).toBeGreaterThan(0);
+     // Derived from actual level 1 catalog & behaviorMap (only solid stepping objects for L1)
+     const exampleLabels = config.examples.map((e) => e.labelId);
+-    expect(exampleLabels).toContain("papan");
+-    expect(exampleLabels).toContain("balok");
++    expect(exampleLabels).toContain("jembatan");
++    expect(exampleLabels).toContain("bangku");
+     expect(exampleLabels).toContain("tangga");
+-    // Batu is danger in L1, should not be suggested as crossing aid
+-    expect(exampleLabels).not.toContain("batu");
++    // Kaktus is danger in L1, should not be suggested as crossing aid
++    expect(exampleLabels).not.toContain("kaktus");
+   });
+ 
+   it("interpolates configured character name in stage 2 and 3", () => {
+@@ -66,9 +66,9 @@ describe("mission-config domain", () => {
+     expect(configL2.stage).toBe(2);
+     expect(configL2.title).toBe("Bantu Pahlawan naik lebih tinggi!");
+     expect(configL2.instruction).toContain("Pahlawan");
+-    // Duri is danger in L2, excluded from climbing examples
++    // Gergaji is danger in L2, excluded from climbing examples
+     const l2Labels = configL2.examples.map((e) => e.labelId);
+-    expect(l2Labels).not.toContain("duri");
++    expect(l2Labels).not.toContain("gergaji");
+     expect(l2Labels).toContain("tangga");
+ 
+     const configL3 = getMissionConfigForLevel(level3, "   ");
+@@ -76,10 +76,10 @@ describe("mission-config domain", () => {
+     // whitespace falls back to Stickman
+     expect(configL3.title).toBe("Bantu Stickman memilih jalan aman!");
+     expect(configL3.instruction).toContain("Stickman");
+-    // Tali is danger in L3, excluded from safe route examples
++    // Ular is danger in L3, excluded from safe route examples
+     const l3Labels = configL3.examples.map((e) => e.labelId);
+-    expect(l3Labels).not.toContain("tali");
+-    expect(l3Labels).toContain("papan");
++    expect(l3Labels).not.toContain("ular");
++    expect(l3Labels).toContain("jembatan");
+   });
+ 
+   it("handles empty catalog or empty manifest gracefully with zero examples", () => {
+diff --git a/frontend/implementation/tests/game/three-level-progression.test.ts b/frontend/implementation/tests/game/three-level-progression.test.ts
+index 7d89af1..7751748 100644
+--- a/frontend/implementation/tests/game/three-level-progression.test.ts
++++ b/frontend/implementation/tests/game/three-level-progression.test.ts
+@@ -23,10 +23,10 @@ describe("three-level puzzle geometry & solvability verification", () => {
+     expect(g.spawn.x).toBeLessThan(200);
+     expect(g.goal.x).toBeGreaterThan(600);
+ 
+-    expect(resolveBehavior("papan", l1).behavior).toBe("solid");
+-    expect(resolveBehavior("balok", l1).behavior).toBe("solid");
++    expect(resolveBehavior("jembatan", l1).behavior).toBe("solid");
++    expect(resolveBehavior("bangku", l1).behavior).toBe("solid");
+     expect(resolveBehavior("tangga", l1).behavior).toBe("solid");
+-    expect(resolveBehavior("batu", l1).behavior).toBe("danger");
++    expect(resolveBehavior("kaktus", l1).behavior).toBe("danger");
+   });
+ 
+   it("Level 2 (Ambiguity/Vertical): requires height positioning to reach elevated roof goal", () => {
+@@ -50,13 +50,13 @@ describe("three-level puzzle geometry & solvability verification", () => {
+     };
+     expect(integratedPlacementAllowed(stepPlank, g, [])).toBe(true);
+ 
+-    expect(resolveBehavior("papan", l2).behavior).toBe("solid");
+-    expect(resolveBehavior("balok", l2).behavior).toBe("solid");
++    expect(resolveBehavior("jembatan", l2).behavior).toBe("solid");
++    expect(resolveBehavior("anak tangga", l2).behavior).toBe("solid");
+     expect(resolveBehavior("tangga", l2).behavior).toBe("solid");
+-    expect(resolveBehavior("duri", l2).behavior).toBe("danger");
++    expect(resolveBehavior("gergaji", l2).behavior).toBe("danger");
+   });
+ 
+-  it("Level 3 (Critical Hazard): spikes on ground, context-aware mapping maps tali to danger", () => {
++  it("Level 3 (Critical Hazard): spikes on ground, context-aware mapping maps ular to danger", () => {
+     const l3 = LEVELS[2]!;
+     expect(l3.stage).toBe(3);
+     const g = getStageGeometry(3);
+@@ -64,8 +64,8 @@ describe("three-level puzzle geometry & solvability verification", () => {
+     expect(g.hazards.length).toBeGreaterThan(0);
+     expect(g.hazards[0]!.id).toContain("spike");
+ 
+-    expect(resolveBehavior("tali", l3).behavior).toBe("danger");
+-    expect(resolveBehavior("papan", l3).behavior).toBe("solid");
++    expect(resolveBehavior("ular", l3).behavior).toBe("danger");
++    expect(resolveBehavior("jembatan", l3).behavior).toBe("solid");
+     expect(resolveBehavior("tangga", l3).behavior).toBe("solid");
+   });
+ });

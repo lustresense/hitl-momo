@@ -1,0 +1,57 @@
+diff --git a/docs/DOKUMENTASI-TEKNIS.md b/docs/DOKUMENTASI-TEKNIS.md
+index 7c7a060..3e6f4e5 100644
+--- a/docs/DOKUMENTASI-TEKNIS.md
++++ b/docs/DOKUMENTASI-TEKNIS.md
+@@ -128,7 +128,7 @@ Pada popup *Tebakan Momo*, siswa memilih salah satu dari tiga keputusan:
+ | **Pilih lain** | Merevisi (*correct*) | Memilih tebakan peringkat 2 atau 3 |
+ | **Bukan semua** | Menolak (*override*) | Menolak semua tebakan dan memilih label sendiri |
+ 
+-Label akhir hasil keputusan siswa menentukan perilaku objek di dunia permainan (Bagian 4.4). Jika siswa masuk
++Label akhir hasil keputusan siswa menentukan perilaku objek di dunia permainan (Bagian 4.5). Jika siswa masuk
+ melalui tautan kelas, keputusan tersebut dikirim ke backend melalui `POST /api/submissions` beserta goresan
+ gambar, tiga tebakan AI, jenis keputusan, dan label akhir, lalu disimpan ke database untuk dianalisis guru.
+ 
+@@ -223,7 +223,42 @@ Bersama model, proses pelatihan menyimpan berkas `model_4_mobilenetv2.labels.jso
+ terjemahan bahasa Indonesianya. Backend membaca berkas ini untuk memetakan keluaran model ke label, dan menolak
+ berjalan jika jumlah label tidak sama dengan jumlah keluaran model, sehingga label tidak dapat tertukar.
+ 
+-### 4.4 Dari label ke perilaku objek
++### 4.4 Perbandingan arsitektur
++
++Untuk menguji pilihan MobileNetV2, lima arsitektur lain dilatih ulang dengan data, pembagian data, dan pengaturan
++pelatihan yang sama (maksimum 50 epoch, *early stopping* kesabaran 10 epoch, satu GPU RTX A5000), lalu diuji pada
++120.000 gambar uji yang sama (`train/train_all_models.sh`, `train/compare_models.py`).
++
++| Model | Masukan | Parameter | Ukuran | Akurasi | Top-3 | F1 makro | Inferensi/gambar* | Lama pelatihan | Epoch |
++|---|---|---|---|---|---|---|---|---|---|
++| ResNet-18 | 56×56×1 | 1.308.852 | 15,2 MB | 94,46% | 98,38% | 94,46% | 0,101 ms | 520,8 menit | 50 |
++| **MobileNetV2 (dipakai)** | 28×28×1 | 1.548.612 | 18,2 MB | **94,34%** | **98,32%** | **94,34%** | 0,096 ms | ±11,7 jam | 47 |
++| EfficientNet-B0 | 96×96×3 | 4.383.671 | 50,8 MB | 94,20% | 98,33% | 94,20% | 0,286 ms | 77,8 menit | 13 |
++| SketchNN | 28×28×2 | 66.516 | 0,9 MB | 92,17% | 97,61% | 92,16% | 0,055 ms | 45,0 menit | 50 |
++| SqueezeNet | 64×64×3 | 82.352 | 1,1 MB | 91,80% | 97,56% | 91,80% | 0,025 ms | 99,3 menit | 32 |
++| Custom CNN | 28×28×1 | 113.172 | 1,4 MB | 89,28% | 96,79% | 89,29% | 0,016 ms | 113,2 menit | 50 |
++
++\* Rata-rata per gambar saat diproses dalam *batch* 256 di GPU, sehingga mengukur *throughput*, bukan waktu
++respons satu permintaan (lihat subbab 6.2).
++
++Temuan:
++
++- **Tiga model besar setara.** Selisih ResNet-18, MobileNetV2, dan EfficientNet-B0 hanya 0,26 poin akurasi
++  (±310 dari 120.000 gambar) dan Top-3 ketiganya hampir sama (98,32–98,38%). Keunggulan tipis ResNet-18 tidak
++  cukup untuk menggantikan model yang sudah terpasang dan teruji di sistem.
++- **EfficientNet-B0 tidak memberi keuntungan**: ukurannya hampir tiga kali lipat dan inferensinya paling lambat.
++  Akurasi validasinya memuncak di epoch ke-3 lalu turun sementara akurasi latih terus naik (*overfitting*),
++  sehingga pelatihan dihentikan otomatis di epoch ke-13.
++- **Model ringan kehilangan 2–5 poin.** SketchNN dan SqueezeNet berukuran sekitar 1 MB (±20 kali lebih kecil),
++  tetapi akurasinya 92% ke bawah. Karena inferensi dijalankan di server, ukuran model tidak menjadi kendala,
++  sehingga akurasi lebih diutamakan.
++- Custom CNN dan SketchNN mencapai batas 50 epoch; dengan epoch lebih banyak akurasinya mungkin masih naik
++  sedikit, tetapi kecil kemungkinan menyusul model besar.
++
++Kurva akurasi dan *loss* per epoch setiap model tersedia di `output/comparison/curves_<model>.png`, dan akurasi
++validasi semua model dalam satu grafik di `output/comparison/val_accuracy_all.png`.
++
++### 4.5 Dari label ke perilaku objek
+ 
+ Game memetakan label akhir keputusan siswa ke perilaku objek melalui satu aturan yang berlaku di semua level
+ (`MODEL_BEHAVIOR_MAP` pada `levels.ts`). Objek **bisa dipijak** menjadi pijakan padat bagi karakter, objek

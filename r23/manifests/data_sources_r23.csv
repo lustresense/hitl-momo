@@ -1,0 +1,19 @@
+id,url,file,bytes,sha256,date,mode
+A13,https://rndml-team-cv.obs.ru-moscow-1.hc.sbercloud.ru/datasets/hagrid_v2/annotations_with_landmarks/annotations.zip,annotations.zip,719041314,ca27a177cc9f061e92d59f6a7d9b1b10fe2ee8289ab5f2068cde6ab197d2a286,2026-11-20,full
+A1,https://data.mendeley.com/public-files/datasets/ndrczc35bt/files/74194129-e9c8-41f5-a3a2-7c25bd838b5e/file_downloaded,Subject1.zip,1360295597,91791b44819d50d92493dac3ca69712f173a04b5322f7734cb753974edd63754,2026-11-20,range
+A1,https://data.mendeley.com/public-files/datasets/ndrczc35bt/files/2b75386e-0f21-4132-9e9f-4901106d4396/file_downloaded,Subject2.zip,1420184877,3d38ff16661009c0a4db2d75bd95fa490563236317142352044539458ce3f47b,2026-11-20,range
+A1,https://data.mendeley.com/public-files/datasets/ndrczc35bt/files/7f45eb77-2369-42dd-b8c3-003c666a612b/file_downloaded,Subject3.zip,1473257353,f754dc335639816860d763f79cbc092be74f748cc6b38eda274cd9f41a16b8a8,2026-11-20,range
+A1,https://data.mendeley.com/public-files/datasets/ndrczc35bt/files/1424f31b-73c1-4642-bba6-ed8958ecbd8e/file_downloaded,Subject4.zip,1292028752,6f66aa96f8782f5c6ad6d171b86c9c99463cee16f07585f3d9126a518c67c75c,2026-11-20,range
+A1,https://data.mendeley.com/public-files/datasets/ndrczc35bt/files/301ea9de-a70a-4e68-8a6f-7d2a9c972353/file_downloaded,Subject5.zip,1453310587,40f7199c9a208071a44621563e71818d97c770fe0683c17b6eb3b1b729dd7b87,2026-11-20,range
+A13,https://rndml-team-cv.obs.ru-moscow-1.hc.sbercloud.ru/datasets/hagrid_v2/hagridv2_512.zip,hagridv2_512.zip,47171542152,,2026-11-20,range
+A5,/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox/datasets/mendeley_bxr7kx84y6/dim_light_1.zip,dim_light_1.zip,202816317,2f91746c3622ace4792ecec54d9284eb65066a652811b88dfca761d27827a266,2026-11-20,local
+A5,https://data.mendeley.com/public-files/datasets/bxr7kx84y6/files/d86302e3-09b2-4b71-af0c-526397a90d6c/file_downloaded,Dim Light.zip (2),280943339,,2026-11-20,range
+A5,https://data.mendeley.com/public-files/datasets/bxr7kx84y6/files/acb9c4c8-9c04-4a51-aee1-23842097d09e/file_downloaded,Dim Light.zip (3),270976270,,2026-11-20,range
+A5,https://data.mendeley.com/public-files/datasets/bxr7kx84y6/files/6a44b17e-9e60-479f-852e-1d65dd2a93c4/file_downloaded,Dim Light.zip (4),307026318,,2026-11-20,range
+A5,https://data.mendeley.com/public-files/datasets/bxr7kx84y6/files/ada1f251-d7b8-4c98-b8a1-973c1bf6b7fb/file_downloaded,Dim Light.zip (5),312112475,,2026-11-20,range
+A5,https://data.mendeley.com/public-files/datasets/bxr7kx84y6/files/4cea41c2-7fb8-4865-ad74-e8c34895b0bb/file_downloaded,Dim Light.zip (6),211450919,,2026-11-20,range
+A4,https://data.mendeley.com/public-files/datasets/n66hhk695h/files/e1926e2e-8533-4f8a-bb15-32647b976117/file_downloaded,Root.zip,382226419,2257bb717af6451166d5ac74450c5f624c1f2960845894c549c14b6d2085a3d6,2026-11-20,full
+A3,https://data.mendeley.com/public-files/datasets/wj25crzdbm/files/be3aa0e6-8b18-4563-8201-37e46eadd025/file_downloaded,GESTURE DATASET JU.zip,5176227373,,2026-11-20,range
+A8,https://storage.googleapis.com/openimages/v7/oidv7-train-annotations-bbox.csv,oidv7-train-annotations-bbox.csv,2425514107,,2026-11-20,stream
+A8,https://storage.googleapis.com/openimages/v5/validation-annotations-bbox.csv,validation-annotations-bbox.csv,76839352,,2026-11-20,full
+A8,https://storage.googleapis.com/openimages/v5/test-annotations-bbox.csv,test-annotations-bbox.csv,236746960,,2026-11-20,full

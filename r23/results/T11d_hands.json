@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "total_processed": 2700,
+  "split_counts": {
+    "train": 1080,
+    "val": 540,
+    "test": 1080
+  },
+  "total_bytes": 1574571878,
+  "duration_seconds": 821.7
+}

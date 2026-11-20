@@ -1,0 +1,13 @@
+{
+  "status": "BLOCKED (IPN_GDRIVE)",
+  "reason": "Google Drive quota exceeded: 'Too many users have viewed or downloaded this file recently' on all 5 video archives (videos01.tgz .. videos05.tgz). Per mandate §6 T11c step 7, proceeding to next sub-tasks without halting.",
+  "gdrive_folder": "https://drive.google.com/open?id=1O4Fn_jbAEcKIksXHmQIMcHTyaDw4wt9x",
+  "files": [
+    "videos01.tgz (id: 1HylyDnApIRNMloREqvKYWWhB88q7Z1Cg)",
+    "videos02.tgz (id: 1tqR2FF8OlXGmYACw3TSxyS6QGDit_s3a)",
+    "videos03.tgz (id: 1Dk7l-jAAvNLlb0faypAco88XYLWPa9g_)",
+    "videos04.tgz (id: 1x0mDr-QHQtDkfcQAm9bKdWBR7Lj3fLcV)",
+    "videos05.tgz (id: 1PCjldH6hmVYV7EObPf-jtNWCtDK60o6n)"
+  ],
+  "date": "2026-11-20"
+}

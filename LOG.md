@@ -7,6 +7,80 @@
 
 ---
 
+## R23-COMPLETE — MoNUI-7 Wave 0 (T00–T29) Execution & Patch Candidates (`2026-11-21 WIB`; `KATA-TOOL` / `CANDIDATE`)
+
+- **Scope & Mandate:** Full execution of MoNUI-7 R23 Wave 0 (T00–T29) under [`docs/plan-rev/R23/[WIP] NUI_R23-02_v1.1.0_MANDAT_AGY_MoNUI-7.md`](docs/plan-rev/R23/%5BWIP%5D%20NUI_R23-02_v1.1.0_MANDAT_AGY_MoNUI-7.md).
+- **Execution Team:** Coordinator (MAIN) + 2 Subagents (`W-DATA`, `W-TRAIN`) using strictly Gemini 3.8 Flash High (`gemini-3.8-flash-high`).
+- **Baseline Gates (T01):**
+  - Base Tree Hash: `16806cb23382a0655c040b3398903feeeaf0fe7b` (`TREE_OK`).
+  - NUI Lab Vitest: **264/264 tests passed (23 files) (`PASS`)**.
+  - Gameplay Baseline: **39 passed | 9 failed (48 tests) (`PASS` — identical to baseline)**.
+- **YOLO26n v0 Training & Winner Selection (T17):**
+  - **Winner:** **`v0a`** (base hand dataset, 56,080 training images from HaGRID & HANDS v2).
+  - Decision reason: `v0b` (synthetic darkpool aug) failed promotion formula ($B_0+B_1$ pooled recall dropped by 2.02 points: 72.13% -> 70.11%, and $B_3$ recall dropped by 4.78 points: 62.73% -> 57.95%).
+  - **Overall Recall:** **60.61%** (4,220 / 6,963 ground truth boxes).
+  - **Recall by Luminance Bin:**
+    - **B0** ($Y < 0.08$ extreme dark): **3.33%** (1/30)
+    - **B1** ($0.08 \le Y < 0.15$ dim): **78.62%** (250/318)
+    - **B0+B1 (Pooled Dim/Dark):** **72.13%** (251/348)
+    - **B2** ($0.15 \le Y < 0.30$ indoor): **39.67%** (311/784)
+    - **B3** ($Y \ge 0.30$ normal/bright): **62.73%** (3,658/5,831)
+  - **Recall by Source:**
+    - `hands` (HANDS v2): **99.10%** (2,081 / 2,100)
+    - `oi` (Open Images Human Hand): **43.99%** (2,139 / 4,863)
+    - `hagrid` & `darkpool`: Train-only sets.
+  - **ONNX Export & Latency:**
+    - Model: `monui7-hand-yolo26n-320.onnx` (9.3 MB, opset 17, shape `[1, 5, 2100]`, SHA-256 `ee50a5d1e9f195c734f348f0d09eceab354f85b8094e8aefff1a5a9e45099f98`).
+    - CPU Proxy Benchmark (1-thread, 100 runs): **p50 = 11.89 ms**, **p95 = 12.69 ms** (target $\le 20$ ms `PASS`).
+    - Evidence: [`r23/detector/T17_v0_report.md`](r23/detector/T17_v0_report.md), [`r23/results/T17_v0_metrics.json`](r23/results/T17_v0_metrics.json).
+- **YOLO Module Frontend & Parity (T21):**
+  - Unit tests: **6/6 passed** (`tests/nui-lab/monui7-yolo.test.ts`).
+  - PyTorch vs ONNX Parity (20 test images): **Mean IoU = 1.00000** (0.9999996), **Max score diff = 3.28e-7**, **Class match = 100.0% (`PASS`)**.
+  - Evidence: [`r23/results/T21_yolo_parity.json`](r23/results/T21_yolo_parity.json).
+- **Final Verification & Production Build (T28):**
+  - Next.js Static Export: **Clean build, exit 0 (`PASS`)**.
+  - NUI Lab Vitest: **290/290 tests passed (27 files) (`PASS`)**.
+  - Gameplay Baseline Vitest: **39 passed | 9 failed (48 tests) (`PASS` — exact match)**.
+  - Lazy Loading Audit: **0 ORT requests before rescue (`PASS`)**.
+  - Evidence: [`r23/results/T28_final_gates.json`](r23/results/T28_final_gates.json), [`r23/results/T28_lazy_loading.json`](r23/results/T28_lazy_loading.json).
+- **Published Patch Candidates (T29):**
+  - Target Commit SHA: `57acc5e8770a700da3649f23f14f920062f29703` (`57acc5e`).
+  - Target Write-Tree Hash: `aed6f04ee5be846ed185128f8e2cfea282e2a0b9`.
+  - Cumulative Patch: [`r23/candidates/monui7/r23_main-745bb6d_to_57acc5e.patch`](r23/candidates/monui7/r23_main-745bb6d_to_57acc5e.patch) (SHA-256 `0011ae...`).
+  - Incremental Patch: [`r23/candidates/monui7/r23_incremental_c6ed50b_to_57acc5e.patch`](r23/candidates/monui7/r23_incremental_c6ed50b_to_57acc5e.patch) (SHA-256 `fa437e...`).
+  - Instructions: [`r23/candidates/monui7/APPLY.md`](r23/candidates/monui7/APPLY.md), [`r23/manifests/SHA256SUMS.txt`](r23/manifests/SHA256SUMS.txt), [`r23/candidates/monui7/published_vs_excluded.md`](r23/candidates/monui7/published_vs_excluded.md).
+- **Wave 0 Task Status Summary (T00–T29):**
+  | Task | Description | Status | Evidence / Notes |
+  | :--- | :--- | :---: | :--- |
+  | **T00** | Preflight & Two-Tier Storage | `PASS` | [`r23/results/T00_preflight.txt`](r23/results/T00_preflight.txt) |
+  | **T01** | Baseline Gates & Worktree Base | `PASS` | Tree hash `16806cb...`, Vitest 264/264 & 39/9 |
+  | **T02** | License Audit & Attribution | `PASS` | [`r23/registry/LICENSE_NOTES.md`](r23/registry/LICENSE_NOTES.md) |
+  | **T03** | Dataset Registry K7 v1.2 | `PASS` | [`r23/registry/dataset_registry_r23.json`](r23/registry/dataset_registry_r23.json) |
+  | **T10** | Python Environment Data | `PASS` | `.venv-data`, [`r23/results/T10_env.txt`](r23/results/T10_env.txt) |
+  | **T11a** | HaGRID HTTP Range Ingestion | `PASS` | 50,000 train images, [`r23/results/T11a_hagrid.json`](r23/results/T11a_hagrid.json) |
+  | **T11b** | Open Images Hand Ingestion | `PASS` | 5,000 train, 1,931 val, 2,069 test, [`r23/results/T11b_openimages.json`](r23/results/T11b_openimages.json) |
+  | **T11c** | IPN Hand Ingestion | `BLOCKED` | `IPN_GDRIVE` quota exceeded. Evidence: [`r23/results/T11c_ipn.json`](r23/results/T11c_ipn.json) |
+  | **T11d** | HANDS v2 Ingestion | `PASS` | 2,700 images (1,080 train, 540 val, 1,080 test), [`r23/results/T11d_hands.json`](r23/results/T11d_hands.json) |
+  | **T11e** | EgoHands Roboflow Ingestion | `SKIP` | `ROBOFLOW_AUTH_REQUIRED` per mandate §6. Evidence in log. |
+  | **T11f** | Darkpool Real Dark Collection | `PASS` | 3,121 frames collected, [`r23/results/T11f_darkpool.json`](r23/results/T11f_darkpool.json) |
+  | **T12** | Dataset Inspection Table | `PASS` | [`r23/results/T12_dataset_inspection.md`](r23/results/T12_dataset_inspection.md) |
+  | **T13** | Label Validation & YAML | `PASS` | 61,700 images, 96,109 boxes, 0 errors, [`r23/results/T13_label_validation.json`](r23/results/T13_label_validation.json) |
+  | **T15** | Synthetic Dark Augmentation | `PASS` | 1,200 dark aug images, [`r23/results/T15_dark_aug.json`](r23/results/T15_dark_aug.json) |
+  | **T16** | Test Split Isolation Lock | `PASS` | 3,149 test images locked, 0 overlap, [`r23/results/T16_split_lock.json`](r23/results/T16_split_lock.json) |
+  | **T17** | YOLO26n v0 Training & Selection| `PASS` | Winner `v0a`, 100 epochs, [`r23/detector/T17_v0_report.md`](r23/detector/T17_v0_report.md) |
+  | **T20** | onnxruntime-web Installation | `PASS` | v1.31.1 installed in `$WORK`, wasm assets copied |
+  | **T21** | YOLO Module in Worker & Parity | `PASS` | 6/6 unit tests pass, IoU parity 1.000, [`r23/results/T21_yolo_parity.json`](r23/results/T21_yolo_parity.json) |
+  | **T22** | Rescue State Machine & Worker | `PASS` | 11/11 unit tests pass, integrated into `r20-hand.worker.ts` |
+  | **T23** | Default & One-Euro Preset | `PASS` | Steps 1, 2, 4 complete; Step 3 `BLOCKED (OA-3)` pending S-352 in `$OWNER_IN` |
+  | **T24** | Momo Pemandu (Guide) & UI | `PASS` | 8/8 unit tests pass, wired in `NuiLabPage.tsx`, 5 screenshots saved |
+  | **T25** | Telemetri K8 v2.2 | `PASS` | Schema 2.2, contract K8-v2.2, fixture and unit tests pass |
+  | **T26** | Protokol p2-mini | `PASS` | 19 steps, 138s duration, 3/3 unit tests pass |
+  | **T27** | Lisensi AGPL & Notices | `PASS` | AGPL-3.0 in `LICENSE.md`, `THIRD_PARTY_NOTICES.md`, UI links added |
+  | **T28** | Production Build & Final Gates | `PASS` | Clean build, Vitest NUI Lab 290/290, Gameplay 39/9, [`r23/results/T28_final_gates.json`](r23/results/T28_final_gates.json) |
+  | **T29** | Publikasi Patch r23 | `PASS` | Cumulative & incremental patches published, tree hash verified |
+
+---
+
 ## R23-T02-T03-T10 — Bukti Lisensi, Registry K7 v1.2 & Environment Data (`2026-11-20 WIB`; `KATA-TOOL` / `OFFLINE_DATASET`)
 
 - **Subagent:** Executed by `W-DATA` (Model: Gemini 3.8 Flash High).

@@ -1,0 +1,17 @@
+{
+  "benchmark": {
+    "runs": 100,
+    "warmup": 10,
+    "p50_ms": 11.89,
+    "p95_ms": 12.69,
+    "mean_ms": 12.02
+  },
+  "parity": {
+    "images_evaluated": 50,
+    "mean_iou": 0.9928,
+    "min_iou": 0.9366,
+    "mean_score_diff": 0.0008,
+    "max_score_diff": 0.0045,
+    "parity_ok": true
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "status": "PASS",
+  "timestamp": "2026-11-20T13:22:20Z",
+  "yaml_file": {
+    "path": "/home/deano/monui7-local/data/yolo/monui7_hand_v0.yaml",
+    "exists": true
+  },
+  "split_stats": {
+    "train": {
+      "image_count": 56080,
+      "label_count": 56080,
+      "missing_label_count": 0,
+      "orphan_label_count": 0,
+      "total_boxes": 83363,
+      "empty_label_count": 0,
+      "format_errors": 0,
+      "prefix_distribution": {
+        "hagrid": 50000,
+        "hands": 1080,
+        "oi": 5000
+      }
+    },
+    "val": {
+      "image_count": 2471,
+      "label_count": 2471,
+      "missing_label_count": 0,
+      "orphan_label_count": 0,
+      "total_boxes": 5783,
+      "empty_label_count": 0,
+      "format_errors": 0,
+      "prefix_distribution": {
+        "oi": 1931,
+        "hands": 540
+      }
+    },
+    "test": {
+      "image_count": 3149,
+      "label_count": 3149,
+      "missing_label_count": 0,
+      "orphan_label_count": 0,
+      "total_boxes": 6963,
+      "empty_label_count": 0,
+      "format_errors": 0,
+      "prefix_distribution": {
+        "hands": 1080,
+        "oi": 2069
+      }
+    }
+  },
+  "total_images": 61700,
+  "total_labels": 61700,
+  "total_boxes": 96109,
+  "total_errors_count": 0,
+  "error_samples": [],
+  "duration_seconds": 10.68
+}

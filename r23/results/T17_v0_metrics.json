@@ -1,0 +1,85 @@
+{
+  "task": "T17",
+  "name": "YOLO26n v0 Training & Evaluation",
+  "winner": "v0a",
+  "decision_reason": "v0b did not meet the mandate criteria (v0b wins ONLY IF recall B0+B1 increases by >= 3.0 points AND recall B3 decreases by <= 1.0 point vs v0a). In evaluation, v0b B0+B1 pooled recall dropped by 2.01 points (v0a 72.13% vs v0b 70.11%) and B3 recall dropped by 4.78 points (v0a 62.73% vs v0b 57.95%). v0a has higher overall recall (60.61% vs 55.81%), higher precision across all bins, and superior source recall. Therefore, v0a is unequivocally the winner.",
+  "models": {
+    "v0a": {
+      "model_path": "/home/deano/monui7-local/data/runs/v0a/weights/best.pt",
+      "data_yaml": "/home/deano/monui7-local/data/yolo/monui7_hand_v0.yaml",
+      "overall_recall": 0.6061,
+      "recall_by_bin": {
+        "B0": 0.0333,
+        "B1": 0.7862,
+        "B0_B1_pooled": 0.7213,
+        "B2": 0.3967,
+        "B3": 0.6273
+      },
+      "recall_by_source": {
+        "hands": 0.991,
+        "oi": 0.4399
+      },
+      "counts": {
+        "total_test_images": 3149,
+        "total_gt_boxes": 6963,
+        "total_tp": 4220,
+        "total_fn": 2743
+      }
+    },
+    "v0b": {
+      "model_path": "/home/deano/monui7-local/data/runs/v0b/weights/best.pt",
+      "data_yaml": "/home/deano/monui7-local/data/yolo/monui7_hand_v0_dark.yaml",
+      "overall_recall": 0.5581,
+      "recall_by_bin": {
+        "B0": 0.0,
+        "B1": 0.7673,
+        "B0_B1_pooled": 0.7011,
+        "B2": 0.3355,
+        "B3": 0.5795
+      },
+      "recall_by_source": {
+        "hands": 0.961,
+        "oi": 0.3841
+      },
+      "counts": {
+        "total_test_images": 3149,
+        "total_gt_boxes": 6963,
+        "total_tp": 3886,
+        "total_fn": 3077
+      }
+    }
+  },
+  "delta_v0b_minus_v0a": {
+    "overall_recall": -0.048,
+    "B0_recall": -0.0333,
+    "B1_recall": -0.0189,
+    "B0_B1_pooled_recall": -0.0202,
+    "B2_recall": -0.0612,
+    "B3_recall": -0.0478,
+    "hands_recall": -0.03,
+    "oi_recall": -0.0558
+  },
+  "winner_export": {
+    "winner_model": "v0a",
+    "onnx_path": "/home/deano/monui7-local/data/release/monui7-hand-yolo26n-320.onnx",
+    "frontend_model_path": "/home/deano/monui7-local/work/frontend/implementation/public/models/monui7-hand-yolo26n-320.onnx",
+    "backup_weights_path": "/home/deano/mnt/monui7-data/backup/runs/v0a_best.pt",
+    "cpu_proxy_benchmark": {
+      "framework": "onnxruntime",
+      "threads": 1,
+      "imgsz": 320,
+      "runs": 100,
+      "p50_ms": 11.89,
+      "p95_ms": 12.69,
+      "mean_ms": 12.02
+    },
+    "pytorch_onnx_parity": {
+      "images_evaluated": 50,
+      "mean_iou": 0.9928,
+      "min_iou": 0.9366,
+      "mean_score_diff": 0.0008,
+      "max_score_diff": 0.0045,
+      "parity_ok": true
+    }
+  }
+}

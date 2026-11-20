@@ -1,0 +1,167 @@
+{
+  "task": "T21",
+  "title": "MoNUI-7 YOLO Module PyTorch vs ONNX Parity Verification",
+  "status": "PASS",
+  "onnx_model_path": "/home/deano/monui7-local/data/release/monui7-hand-yolo26n-320.onnx",
+  "pytorch_model_path": "/home/deano/monui7-local/data/runs/v0a/weights/best.pt",
+  "onnx_output_shape": [
+    1,
+    5,
+    2100
+  ],
+  "test_images_count": 20,
+  "detections_evaluated": 32,
+  "mean_iou": 0.9999996423721313,
+  "min_iou": 0.9999983906745911,
+  "max_iou_diff": 1.6093254089355469e-06,
+  "mean_score_diff": 1.564621925354004e-07,
+  "max_score_diff": 3.2782554626464844e-07,
+  "class_label_match_rate": 1.0,
+  "parity_criteria": {
+    "mean_iou_gte_0_99": true,
+    "class_match_100pct": true,
+    "output_shape_valid": true
+  },
+  "per_image_results": [
+    {
+      "image": "hands__Subject4_3191_color.jpg",
+      "pt_detections": 2,
+      "onnx_detections": 2,
+      "mean_iou": 1.0,
+      "mean_score_diff": 2.086162567138672e-07
+    },
+    {
+      "image": "hands__Subject4_454_color.jpg",
+      "pt_detections": 2,
+      "onnx_detections": 2,
+      "mean_iou": 0.9999995231628418,
+      "mean_score_diff": 1.4901161193847656e-07
+    },
+    {
+      "image": "hands__Subject5_2306_color.jpg",
+      "pt_detections": 1,
+      "onnx_detections": 1,
+      "mean_iou": 0.9999989867210388,
+      "mean_score_diff": 5.960464477539063e-08
+    },
+    {
+      "image": "hands__Subject5_2481_color.jpg",
+      "pt_detections": 2,
+      "onnx_detections": 2,
+      "mean_iou": 1.0,
+      "mean_score_diff": 1.1920928955078125e-07
+    },
+    {
+      "image": "hands__Subject5_2482_color.jpg",
+      "pt_detections": 2,
+      "onnx_detections": 2,
+      "mean_iou": 0.9999995231628418,
+      "mean_score_diff": 2.682209014892578e-07
+    },
+    {
+      "image": "hands__Subject5_2983_color.jpg",
+      "pt_detections": 2,
+      "onnx_detections": 2,
+      "mean_iou": 0.9999991655349731,
+      "mean_score_diff": 2.086162567138672e-07
+    },
+    {
+      "image": "oi__2fd0c0b235c86538.jpg",
+      "pt_detections": 2,
+      "onnx_detections": 2,
+      "mean_iou": 0.9999996423721313,
+      "mean_score_diff": 2.980232238769531e-07
+    },
+    {
+      "image": "oi__34b20b14c27d3d1e.jpg",
+      "pt_detections": 2,
+      "onnx_detections": 2,
+      "mean_iou": 1.0,
+      "mean_score_diff": 1.7881393432617188e-07
+    },
+    {
+      "image": "oi__3ce1f806251201eb.jpg",
+      "pt_detections": 0,
+      "onnx_detections": 0,
+      "mean_iou": 1.0,
+      "mean_score_diff": 0.0
+    },
+    {
+      "image": "oi__4b39721d1c50a4f6.jpg",
+      "pt_detections": 0,
+      "onnx_detections": 0,
+      "mean_iou": 1.0,
+      "mean_score_diff": 0.0
+    },
+    {
+      "image": "oi__4c4c1d298f7ce180.jpg",
+      "pt_detections": 1,
+      "onnx_detections": 1,
+      "mean_iou": 1.0,
+      "mean_score_diff": 5.960464477539063e-08
+    },
+    {
+      "image": "oi__53dd667a34149fe8.jpg",
+      "pt_detections": 2,
+      "onnx_detections": 2,
+      "mean_iou": 1.0,
+      "mean_score_diff": 2.8312206268310547e-07
+    },
+    {
+      "image": "oi__65ecb2d40d3d1008.jpg",
+      "pt_detections": 1,
+      "onnx_detections": 1,
+      "mean_iou": 0.9999996423721313,
+      "mean_score_diff": 1.1920928955078125e-07
+    },
+    {
+      "image": "oi__81e0b59d468b3017.jpg",
+      "pt_detections": 2,
+      "onnx_detections": 2,
+      "mean_iou": 1.0,
+      "mean_score_diff": 1.1920928955078125e-07
+    },
+    {
+      "image": "oi__9967762e0b6c3a06.jpg",
+      "pt_detections": 1,
+      "onnx_detections": 1,
+      "mean_iou": 0.9999993443489075,
+      "mean_score_diff": 0.0
+    },
+    {
+      "image": "oi__aa7c0dee534db5e7.jpg",
+      "pt_detections": 1,
+      "onnx_detections": 1,
+      "mean_iou": 1.0,
+      "mean_score_diff": 0.0
+    },
+    {
+      "image": "oi__adc0d8e66318ae39.jpg",
+      "pt_detections": 2,
+      "onnx_detections": 2,
+      "mean_iou": 0.9999998211860657,
+      "mean_score_diff": 2.9802322387695312e-08
+    },
+    {
+      "image": "oi__b9926f0956d089d0.jpg",
+      "pt_detections": 2,
+      "onnx_detections": 2,
+      "mean_iou": 0.9999995231628418,
+      "mean_score_diff": 1.1920928955078125e-07
+    },
+    {
+      "image": "oi__d8c0d102d2572c69.jpg",
+      "pt_detections": 2,
+      "onnx_detections": 2,
+      "mean_iou": 1.0,
+      "mean_score_diff": 1.4901161193847656e-07
+    },
+    {
+      "image": "oi__eb3dbf04abfa65b0.jpg",
+      "pt_detections": 3,
+      "onnx_detections": 3,
+      "mean_iou": 0.9999991059303284,
+      "mean_score_diff": 1.688798221266552e-07
+    }
+  ]
+}

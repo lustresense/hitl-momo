@@ -1,0 +1,3591 @@
+diff --git a/LICENSE.md b/LICENSE.md
+index 141fa8adc645e8efb542cc0b749b907fc549b132..fac51584e12412477ce440eb5c01e9c3d35b897a 100644
+--- a/LICENSE.md
++++ b/LICENSE.md
+@@ -1,21 +1,663 @@
+-MIT License
+-
+-Copyright (c) 2026 Farchan Deano Muhammad & Muhammad Dias Al-Izzat
+-
+-Permission is hereby granted, free of charge, to any person obtaining a copy
+-of this software and associated documentation files (the "Software"), to deal
+-in the Software without restriction, including without limitation the rights
+-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+-copies of the Software, and to permit persons to whom the Software is
+-furnished to do so, subject to the following conditions:
+-
+-The above copyright notice and this permission notice shall be included in all
+-copies or substantial portions of the Software.
+-
+-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+-SOFTWARE.
++Catatan: Kode sebelum R23 dirilis dengan MIT dan sekarang didistribusikan sebagai bagian dari karya AGPL-3.0.
++
++                    GNU AFFERO GENERAL PUBLIC LICENSE
++                       Version 3, 19 November 2007
++
++ Copyright (C) 2007 Free Software Foundation, Inc. <https://fsf.org/>
++ Everyone is permitted to copy and distribute verbatim copies
++ of this license document, but changing it is not allowed.
++
++                            Preamble
++
++  The GNU Affero General Public License is a free, copyleft license for
++software and other kinds of works, specifically designed to ensure
++cooperation with the community in the case of network server software.
++
++  The licenses for most software and other practical works are designed
++to take away your freedom to share and change the works.  By contrast,
++our General Public Licenses are intended to guarantee your freedom to
++share and change all versions of a program--to make sure it remains free
++software for all its users.
++
++  When we speak of free software, we are referring to freedom, not
++price.  Our General Public Licenses are designed to make sure that you
++have the freedom to distribute copies of free software (and charge for
++them if you wish), that you receive source code or can get it if you
++want it, that you can change the software or use pieces of it in new
++free programs, and that you know you can do these things.
++
++  Developers that use our General Public Licenses protect your rights
++with two steps: (1) assert copyright on the software, and (2) offer
++you this License which gives you legal permission to copy, distribute
++and/or modify the software.
++
++  A secondary benefit of defending all users' freedom is that
++improvements made in alternate versions of the program, if they
++receive widespread use, become available for other developers to
++incorporate.  Many developers of free software are heartened and
++encouraged by the resulting cooperation.  However, in the case of
++software used on network servers, this result may fail to come about.
++The GNU General Public License permits making a modified version and
++letting the public access it on a server without ever releasing its
++source code to the public.
++
++  The GNU Affero General Public License is designed specifically to
++ensure that, in such cases, the modified source code becomes available
++to the community.  It requires the operator of a network server to
++provide the source code of the modified version running there to the
++users of that server.  Therefore, public use of a modified version, on
++a publicly accessible server, gives the public access to the source
++code of the modified version.
++
++  An older license, called the Affero General Public License and
++published by Affero, was designed to accomplish similar goals.  This is
++a different license, not a version of the Affero GPL, but Affero has
++released a new version of the Affero GPL which permits relicensing under
++this license.
++
++  The precise terms and conditions for copying, distribution and
++modification follow.
++
++                       TERMS AND CONDITIONS
++
++  0. Definitions.
++
++  "This License" refers to version 3 of the GNU Affero General Public License.
++
++  "Copyright" also means copyright-like laws that apply to other kinds of
++works, such as semiconductor masks.
++
++  "The Program" refers to any copyrightable work licensed under this
++License.  Each licensee is addressed as "you".  "Licensees" and
++"recipients" may be individuals or organizations.
++
++  To "modify" a work means to copy from or adapt all or part of the work
++in a fashion requiring copyright permission, other than the making of an
++exact copy.  The resulting work is called a "modified version" of the
++earlier work or a work "based on" the earlier work.
++
++  A "covered work" means either the unmodified Program or a work based
++on the Program.
++
++  To "propagate" a work means to do anything with it that, without
++permission, would make you directly or secondarily liable for
++infringement under applicable copyright law, except executing it on a
++computer or modifying a private copy.  Propagation includes copying,
++distribution (with or without modification), making available to the
++public, and in some countries other activities as well.
++
++  To "convey" a work means any kind of propagation that enables other
++parties to make or receive copies.  Mere interaction with a user through
++a computer network, with no transfer of a copy, is not conveying.
++
++  An interactive user interface displays "Appropriate Legal Notices"
++to the extent that it includes a convenient and prominently visible
++feature that (1) displays an appropriate copyright notice, and (2)
++tells the user that there is no warranty for the work (except to the
++extent that warranties are provided), that licensees may convey the
++work under this License, and how to view a copy of this License.  If
++the interface presents a list of user commands or options, such as a
++menu, a prominent item in the list meets this criterion.
++
++  1. Source Code.
++
++  The "source code" for a work means the preferred form of the work
++for making modifications to it.  "Object code" means any non-source
++form of a work.
++
++  A "Standard Interface" means an interface that either is an official
++standard defined by a recognized standards body, or, in the case of
++interfaces specified for a particular programming language, one that
++is widely used among developers working in that language.
++
++  The "System Libraries" of an executable work include anything, other
++than the work as a whole, that (a) is included in the normal form of
++packaging a Major Component, but which is not part of that Major
++Component, and (b) serves only to enable use of the work with that
++Major Component, or to implement a Standard Interface for which an
++implementation is available to the public in source code form.  A
++"Major Component", in this context, means a major essential component
++(kernel, window system, and so on) of the specific operating system
++(if any) on which the executable work runs, or a compiler used to
++produce the work, or an object code interpreter used to run it.
++
++  The "Corresponding Source" for a work in object code form means all
++the source code needed to generate, install, and (for an executable
++work) run the object code and to modify the work, including scripts to
++control those activities.  However, it does not include the work's
++System Libraries, or general-purpose tools or generally available free
++programs which are used unmodified in performing those activities but
++which are not part of the work.  For example, Corresponding Source
++includes interface definition files associated with source files for
++the work, and the source code for shared libraries and dynamically
++linked subprograms that the work is specifically designed to require,
++such as by intimate data communication or control flow between those
++subprograms and other parts of the work.
++
++  The Corresponding Source need not include anything that users
++can regenerate automatically from other parts of the Corresponding
++Source.
++
++  The Corresponding Source for a work in source code form is that
++same work.
++
++  2. Basic Permissions.
++
++  All rights granted under this License are granted for the term of
++copyright on the Program, and are irrevocable provided the stated
++conditions are met.  This License explicitly affirms your unlimited
++permission to run the unmodified Program.  The output from running a
++covered work is covered by this License only if the output, given its
++content, constitutes a covered work.  This License acknowledges your
++rights of fair use or other equivalent, as provided by copyright law.
++
++  You may make, run and propagate covered works that you do not
++convey, without conditions so long as your license otherwise remains
++in force.  You may convey covered works to others for the sole purpose
++of having them make modifications exclusively for you, or provide you
++with facilities for running those works, provided that you comply with
++the terms of this License in conveying all material for which you do
++not control copyright.  Those thus making or running the covered works
++for you must do so exclusively on your behalf, under your direction
++and control, on terms that prohibit them from making any copies of
++your copyrighted material outside their relationship with you.
++
++  Conveying under any other circumstances is permitted solely under
++the conditions stated below.  Sublicensing is not allowed; section 10
++makes it unnecessary.
++
++  3. Protecting Users' Legal Rights From Anti-Circumvention Law.
++
++  No covered work shall be deemed part of an effective technological
++measure under any applicable law fulfilling obligations under article
++11 of the WIPO copyright treaty adopted on 20 December 1996, or
++similar laws prohibiting or restricting circumvention of such
++measures.
++
++  When you convey a covered work, you waive any legal power to forbid
++circumvention of technological measures to the extent such circumvention
++is effected by exercising rights under this License with respect to
++the covered work, and you disclaim any intention to limit operation or
++modification of the work as a means of enforcing, against the work's
++users, your or third parties' legal rights to forbid circumvention of
++technological measures.
++
++  4. Conveying Verbatim Copies.
++
++  You may convey verbatim copies of the Program's source code as you
++receive it, in any medium, provided that you conspicuously and
++appropriately publish on each copy an appropriate copyright notice;
++keep intact all notices stating that this License and any
++non-permissive terms added in accord with section 7 apply to the code;
++keep intact all notices of the absence of any warranty; and give all
++recipients a copy of this License along with the Program.
++
++  You may charge any price or no price for each copy that you convey,
++and you may offer support or warranty protection for a fee.
++
++  5. Conveying Modified Source Versions.
++
++  You may convey a work based on the Program, or the modifications to
++produce it from the Program, in the form of source code under the
++terms of section 4, provided that you also meet all of these conditions:
++
++    a) The work must carry prominent notices stating that you modified
++    it, and giving a relevant date.
++
++    b) The work must carry prominent notices stating that it is
++    released under this License and any conditions added under section
++    7.  This requirement modifies the requirement in section 4 to
++    "keep intact all notices".
++
++    c) You must license the entire work, as a whole, under this
++    License to anyone who comes into possession of a copy.  This
++    License will therefore apply, along with any applicable section 7
++    additional terms, to the whole of the work, and all its parts,
++    regardless of how they are packaged.  This License gives no
++    permission to license the work in any other way, but it does not
++    invalidate such permission if you have separately received it.
++
++    d) If the work has interactive user interfaces, each must display
++    Appropriate Legal Notices; however, if the Program has interactive
++    interfaces that do not display Appropriate Legal Notices, your
++    work need not make them do so.
++
++  A compilation of a covered work with other separate and independent
++works, which are not by their nature extensions of the covered work,
++and which are not combined with it such as to form a larger program,
++in or on a volume of a storage or distribution medium, is called an
++"aggregate" if the compilation and its resulting copyright are not
++used to limit the access or legal rights of the compilation's users
++beyond what the individual works permit.  Inclusion of a covered work
++in an aggregate does not cause this License to apply to the other
++parts of the aggregate.
++
++  6. Conveying Non-Source Forms.
++
++  You may convey a covered work in object code form under the terms
++of sections 4 and 5, provided that you also convey the
++machine-readable Corresponding Source under the terms of this License,
++in one of these ways:
++
++    a) Convey the object code in, or embodied in, a physical product
++    (including a physical distribution medium), accompanied by the
++    Corresponding Source fixed on a durable physical medium
++    customarily used for software interchange.
++
++    b) Convey the object code in, or embodied in, a physical product
++    (including a physical distribution medium), accompanied by a
++    written offer, valid for at least three years and valid for as
++    long as you offer spare parts or customer support for that product
++    model, to give anyone who possesses the object code either (1) a
++    copy of the Corresponding Source for all the software in the
++    product that is covered by this License, on a durable physical
++    medium customarily used for software interchange, for a price no
++    more than your reasonable cost of physically performing this
++    conveying of source, or (2) access to copy the
++    Corresponding Source from a network server at no charge.
++
++    c) Convey individual copies of the object code with a copy of the
++    written offer to provide the Corresponding Source.  This
++    alternative is allowed only occasionally and noncommercially, and
++    only if you received the object code with such an offer, in accord
++    with subsection 6b.
++
++    d) Convey the object code by offering access from a designated
++    place (gratis or for a charge), and offer equivalent access to the
++    Corresponding Source in the same way through the same place at no
++    further charge.  You need not require recipients to copy the
++    Corresponding Source along with the object code.  If the place to
++    copy the object code is a network server, the Corresponding Source
++    may be on a different server (operated by you or a third party)
++    that supports equivalent copying facilities, provided you maintain
++    clear directions next to the object code saying where to find the
++    Corresponding Source.  Regardless of what server hosts the
++    Corresponding Source, you remain obligated to ensure that it is
++    available for as long as needed to satisfy these requirements.
++
++    e) Convey the object code using peer-to-peer transmission, provided
++    you inform other peers where the object code and Corresponding
++    Source of the work are being offered to the general public at no
++    charge under subsection 6d.
++
++  A separable portion of the object code, whose source code is excluded
++from the Corresponding Source as a System Library, need not be
++included in conveying the object code work.
++
++  A "User Product" is either (1) a "consumer product", which means any
++tangible personal property which is normally used for personal, family,
++or household purposes, or (2) anything designed or sold for incorporation
++into a dwelling.  In determining whether a product is a consumer product,
++doubtful cases shall be resolved in favor of coverage.  For a particular
++product received by a particular user, "normally used" refers to a
++typical or common use of that class of product, regardless of the status
++of the particular user or of the way in which the particular user
++actually uses, or expects or is expected to use, the product.  A product
++is a consumer product regardless of whether the product has substantial
++commercial, industrial or non-consumer uses, unless such uses represent
++the only significant mode of use of the product.
++
++  "Installation Information" for a User Product means any methods,
++procedures, authorization keys, or other information required to install
++and execute modified versions of a covered work in that User Product from
++a modified version of its Corresponding Source.  The information must
++suffice to ensure that the continued functioning of the modified object
++code is in no case prevented or interfered with solely because
++modification has been made.
++
++  If you convey an object code work under this section in, or with, or
++specifically for use in, a User Product, and the conveying occurs as
++part of a transaction in which the right of possession and use of the
++User Product is transferred to the recipient in perpetuity or for a
++fixed term (regardless of how the transaction is characterized), the
++Corresponding Source conveyed under this section must be accompanied
++by the Installation Information.  But this requirement does not apply
++if neither you nor any third party retains the ability to install
++modified object code on the User Product (for example, the work has
++been installed in ROM).
++
++  The requirement to provide Installation Information does not include a
++requirement to continue to provide support service, warranty, or updates
++for a work that has been modified or installed by the recipient, or for
++the User Product in which it has been modified or installed.  Access to a
++network may be denied when the modification itself materially and
++adversely affects the operation of the network or violates the rules and
++protocols for communication across the network.
++
++  Corresponding Source conveyed, and Installation Information provided,
++in accord with this section must be in a format that is publicly
++documented (and with an implementation available to the public in
++source code form), and must require no special password or key for
++unpacking, reading or copying.
++
++  7. Additional Terms.
++
++  "Additional permissions" are terms that supplement the terms of this
++License by making exceptions from one or more of its conditions.
++Additional permissions that are applicable to the entire Program shall
++be treated as though they were included in this License, to the extent
++that they are valid under applicable law.  If additional permissions
++apply only to part of the Program, that part may be used separately
++under those permissions, but the entire Program remains governed by
++this License without regard to the additional permissions.
++
++  When you convey a copy of a covered work, you may at your option
++remove any additional permissions from that copy, or from any part of
++it.  (Additional permissions may be written to require their own
++removal in certain cases when you modify the work.)  You may place
++additional permissions on material, added by you to a covered work,
++for which you have or can give appropriate copyright permission.
++
++  Notwithstanding any other provision of this License, for material you
++add to a covered work, you may (if authorized by the copyright holders of
++that material) supplement the terms of this License with terms:
++
++    a) Disclaiming warranty or limiting liability differently from the
++    terms of sections 15 and 16 of this License; or
++
++    b) Requiring preservation of specified reasonable legal notices or
++    author attributions in that material or in the Appropriate Legal
++    Notices displayed by works containing it; or
++
++    c) Prohibiting misrepresentation of the origin of that material, or
++    requiring that modified versions of such material be marked in
++    reasonable ways as different from the original version; or
++
++    d) Limiting the use for publicity purposes of names of licensors or
++    authors of the material; or
++
++    e) Declining to grant rights under trademark law for use of some
++    trade names, trademarks, or service marks; or
++
++    f) Requiring indemnification of licensors and authors of that
++    material by anyone who conveys the material (or modified versions of
++    it) with contractual assumptions of liability to the recipient, for
++    any liability that these contractual assumptions directly impose on
++    those licensors and authors.
++
++  All other non-permissive additional terms are considered "further
++restrictions" within the meaning of section 10.  If the Program as you
++received it, or any part of it, contains a notice stating that it is
++governed by this License along with a term that is a further
++restriction, you may remove that term.  If a license document contains
++a further restriction but permits relicensing or conveying under this
++License, you may add to a covered work material governed by the terms
++of that license document, provided that the further restriction does
++not survive such relicensing or conveying.
++
++  If you add terms to a covered work in accord with this section, you
++must place, in the relevant source files, a statement of the
++additional terms that apply to those files, or a notice indicating
++where to find the applicable terms.
++
++  Additional terms, permissive or non-permissive, may be stated in the
++form of a separately written license, or stated as exceptions;
++the above requirements apply either way.
++
++  8. Termination.
++
++  You may not propagate or modify a covered work except as expressly
++provided under this License.  Any attempt otherwise to propagate or
++modify it is void, and will automatically terminate your rights under
++this License (including any patent licenses granted under the third
++paragraph of section 11).
++
++  However, if you cease all violation of this License, then your
++license from a particular copyright holder is reinstated (a)
++provisionally, unless and until the copyright holder explicitly and
++finally terminates your license, and (b) permanently, if the copyright
++holder fails to notify you of the violation by some reasonable means
++prior to 60 days after the cessation.
++
++  Moreover, your license from a particular copyright holder is
++reinstated permanently if the copyright holder notifies you of the
++violation by some reasonable means, this is the first time you have
++received notice of violation of this License (for any work) from that
++copyright holder, and you cure the violation prior to 30 days after
++your receipt of the notice.
++
++  Termination of your rights under this section does not terminate the
++licenses of parties who have received copies or rights from you under
++this License.  If your rights have been terminated and not permanently
++reinstated, you do not qualify to receive new licenses for the same
++material under section 10.
++
++  9. Acceptance Not Required for Having Copies.
++
++  You are not required to accept this License in order to receive or
++run a copy of the Program.  Ancillary propagation of a covered work
++occurring solely as a consequence of using peer-to-peer transmission
++to receive a copy likewise does not require acceptance.  However,
++nothing other than this License grants you permission to propagate or
++modify any covered work.  These actions infringe copyright if you do
++not accept this License.  Therefore, by modifying or propagating a
++covered work, you indicate your acceptance of this License to do so.
++
++  10. Automatic Licensing of Downstream Recipients.
++
++  Each time you convey a covered work, the recipient automatically
++receives a license from the original licensors, to run, modify and
++propagate that work, subject to this License.  You are not responsible
++for enforcing compliance by third parties with this License.
++
++  An "entity transaction" is a transaction transferring control of an
++organization, or substantially all assets of one, or subdividing an
++organization, or merging organizations.  If propagation of a covered
++work results from an entity transaction, each party to that
++transaction who receives a copy of the work also receives whatever
++licenses to the work the party's predecessor in interest had or could
++give under the previous paragraph, plus a right to possession of the
++Corresponding Source of the work from the predecessor in interest, if
++the predecessor has it or can get it with reasonable efforts.
++
++  You may not impose any further restrictions on the exercise of the
++rights granted or affirmed under this License.  For example, you may
++not impose a license fee, royalty, or other charge for exercise of
++rights granted under this License, and you may not initiate litigation
++(including a cross-claim or counterclaim in a lawsuit) alleging that
++any patent claim is infringed by making, using, selling, offering for
++sale, or importing the Program or any portion of it.
++
++  11. Patents.
++
++  A "contributor" is a copyright holder who authorizes use under this
++License of the Program or a work on which the Program is based.  The
++work thus licensed is called the contributor's "contributor version".
++
++  A contributor's "essential patent claims" are all patent claims
++owned or controlled by the contributor, whether already acquired or
++hereafter acquired, that would be infringed by some manner, permitted
++by this License, of making, using, or selling its contributor version,
++but do not include claims that would be infringed only as a
++consequence of further modification of the contributor version.  For
++purposes of this definition, "control" includes the right to grant
++patent sublicenses in a manner consistent with the requirements of
++this License.
++
++  Each contributor grants you a non-exclusive, worldwide, royalty-free
++patent license under the contributor's essential patent claims, to
++make, use, sell, offer for sale, import and otherwise run, modify and
++propagate the contents of its contributor version.
++
++  In the following three paragraphs, a "patent license" is any express
++agreement or commitment, however denominated, not to enforce a patent
++(such as an express permission to practice a patent or covenant not to
++sue for patent infringement).  To "grant" such a patent license to a
++party means to make such an agreement or commitment not to enforce a
++patent against the party.
++
++  If you convey a covered work, knowingly relying on a patent license,
++and the Corresponding Source of the work is not available for anyone
++to copy, free of charge and under the terms of this License, through a
++publicly available network server or other readily accessible means,
++then you must either (1) cause the Corresponding Source to be so
++available, or (2) arrange to deprive yourself of the benefit of the
++patent license for this particular work, or (3) arrange, in a manner
++consistent with the requirements of this License, to extend the patent
++license to downstream recipients.  "Knowingly relying" means you have
++actual knowledge that, but for the patent license, your conveying the
++covered work in a country, or your recipient's use of the covered work
++in a country, would infringe one or more identifiable patents in that
++country that you have reason to believe are valid.
++
++  If, pursuant to or in connection with a single transaction or
++arrangement, you convey, or propagate by procuring conveyance of, a
++covered work, and grant a patent license to some of the parties
++receiving the covered work authorizing them to use, propagate, modify
++or convey a specific copy of the covered work, then the patent license
++you grant is automatically extended to all recipients of the covered
++work and works based on it.
++
++  A patent license is "discriminatory" if it does not include within
++the scope of its coverage, prohibits the exercise of, or is
++conditioned on the non-exercise of one or more of the rights that are
++specifically granted under this License.  You may not convey a covered
++work if you are a party to an arrangement with a third party that is
++in the business of distributing software, under which you make payment
++to the third party based on the extent of your activity of conveying
++the work, and under which the third party grants, to any of the
++parties who would receive the covered work from you, a discriminatory
++patent license (a) in connection with copies of the covered work
++conveyed by you (or copies made from those copies), or (b) primarily
++for and in connection with specific products or compilations that
++contain the covered work, unless you entered into that arrangement,
++or that patent license was granted, prior to 28 March 2007.
++
++  Nothing in this License shall be construed as excluding or limiting
++any implied license or other defenses to infringement that may
++otherwise be available to you under applicable patent law.
++
++  12. No Surrender of Others' Freedom.
++
++  If conditions are imposed on you (whether by court order, agreement or
++otherwise) that contradict the conditions of this License, they do not
++excuse you from the conditions of this License.  If you cannot convey a
++covered work so as to satisfy simultaneously your obligations under this
++License and any other pertinent obligations, then as a consequence you may
++not convey it at all.  For example, if you agree to terms that obligate you
++to collect a royalty for further conveying from those to whom you convey
++the Program, the only way you could satisfy both those terms and this
++License would be to refrain entirely from conveying the Program.
++
++  13. Remote Network Interaction; Use with the GNU General Public License.
++
++  Notwithstanding any other provision of this License, if you modify the
++Program, your modified version must prominently offer all users
++interacting with it remotely through a computer network (if your version
++supports such interaction) an opportunity to receive the Corresponding
++Source of your version by providing access to the Corresponding Source
++from a network server at no charge, through some standard or customary
++means of facilitating copying of software.  This Corresponding Source
++shall include the Corresponding Source for any work covered by version 3
++of the GNU General Public License that is incorporated pursuant to the
++following paragraph.
++
++  Notwithstanding any other provision of this License, you have
++permission to link or combine any covered work with a work licensed
++under version 3 of the GNU General Public License into a single
++combined work, and to convey the resulting work.  The terms of this
++License will continue to apply to the part which is the covered work,
++but the work with which it is combined will remain governed by version
++3 of the GNU General Public License.
++
++  14. Revised Versions of this License.
++
++  The Free Software Foundation may publish revised and/or new versions of
++the GNU Affero General Public License from time to time.  Such new versions
++will be similar in spirit to the present version, but may differ in detail to
++address new problems or concerns.
++
++  Each version is given a distinguishing version number.  If the
++Program specifies that a certain numbered version of the GNU Affero General
++Public License "or any later version" applies to it, you have the
++option of following the terms and conditions either of that numbered
++version or of any later version published by the Free Software
++Foundation.  If the Program does not specify a version number of the
++GNU Affero General Public License, you may choose any version ever published
++by the Free Software Foundation.
++
++  If the Program specifies that a proxy can decide which future
++versions of the GNU Affero General Public License can be used, that proxy's
++public statement of acceptance of a version permanently authorizes you
++to choose that version for the Program.
++
++  Later license versions may give you additional or different
++permissions.  However, no additional obligations are imposed on any
++author or copyright holder as a result of your choosing to follow a
++later version.
++
++  15. Disclaimer of Warranty.
++
++  THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY
++APPLICABLE LAW.  EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT
++HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS" WITHOUT WARRANTY
++OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT NOT LIMITED TO,
++THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
++PURPOSE.  THE ENTIRE RISK AS TO THE QUALITY AND PERFORMANCE OF THE PROGRAM
++IS WITH YOU.  SHOULD THE PROGRAM PROVE DEFECTIVE, YOU ASSUME THE COST OF
++ALL NECESSARY SERVICING, REPAIR OR CORRECTION.
++
++  16. Limitation of Liability.
++
++  IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN WRITING
++WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MODIFIES AND/OR CONVEYS
++THE PROGRAM AS PERMITTED ABOVE, BE LIABLE TO YOU FOR DAMAGES, INCLUDING ANY
++GENERAL, SPECIAL, INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE
++USE OR INABILITY TO USE THE PROGRAM (INCLUDING BUT NOT LIMITED TO LOSS OF
++DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU OR THIRD
++PARTIES OR A FAILURE OF THE PROGRAM TO OPERATE WITH ANY OTHER PROGRAMS),
++EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN ADVISED OF THE POSSIBILITY OF
++SUCH DAMAGES.
++
++  17. Interpretation of Sections 15 and 16.
++
++  If the disclaimer of warranty and limitation of liability provided
++above cannot be given local legal effect according to their terms,
++reviewing courts shall apply local law that most closely approximates
++an absolute waiver of all civil liability in connection with the
++Program, unless a warranty or assumption of liability accompanies a
++copy of the Program in return for a fee.
++
++                     END OF TERMS AND CONDITIONS
++
++            How to Apply These Terms to Your New Programs
++
++  If you develop a new program, and you want it to be of the greatest
++possible use to the public, the best way to achieve this is to make it
++free software which everyone can redistribute and change under these terms.
++
++  To do so, attach the following notices to the program.  It is safest
++to attach them to the start of each source file to most effectively
++state the exclusion of warranty; and each file should have at least
++the "copyright" line and a pointer to where the full notice is found.
++
++    <one line to give the program's name and a brief idea of what it does.>
++    Copyright (C) <year>  <name of author>
++
++    This program is free software: you can redistribute it and/or modify
++    it under the terms of the GNU Affero General Public License as published by
++    the Free Software Foundation, either version 3 of the License, or
++    (at your option) any later version.
++
++    This program is distributed in the hope that it will be useful,
++    but WITHOUT ANY WARRANTY; without even the implied warranty of
++    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++    GNU Affero General Public License for more details.
++
++    You should have received a copy of the GNU Affero General Public License
++    along with this program.  If not, see <https://www.gnu.org/licenses/>.
++
++Also add information on how to contact you by electronic and paper mail.
++
++  If your software can interact with users remotely through a computer
++network, you should also make sure that it provides a way for users to
++get its source.  For example, if your program is a web application, its
++interface could display a "Source" link that leads users to an archive
++of the code.  There are many ways you could offer source, and different
++solutions will be better for different programs; see section 13 for the
++specific requirements.
++
++  You should also get your employer (if you work as a programmer) or school,
++if any, to sign a "copyright disclaimer" for the program, if necessary.
++For more information on this, and how to apply and follow the GNU AGPL, see
++<https://www.gnu.org/licenses/>.
+diff --git a/THIRD_PARTY_NOTICES.md b/THIRD_PARTY_NOTICES.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..042a0710253ab2ea05c919e8957c213eaef0db2c
+--- /dev/null
++++ b/THIRD_PARTY_NOTICES.md
+@@ -0,0 +1,77 @@
++# Third-Party Software and Dataset Notices
++
++This project incorporates third-party open-source software libraries, pre-trained neural network architectures, and research datasets. Below are the required attributions, copyright notices, and license terms.
++
++---
++
++## 1. Third-Party Software and Machine Learning Frameworks
++
++### YOLO26n / Ultralytics
++- **Repository:** [https://github.com/ultralytics/ultralytics](https://github.com/ultralytics/ultralytics)
++- **License:** GNU Affero General Public License v3.0 (AGPL-3.0)
++- **Copyright:** Copyright (c) Ultralytics Inc. All rights reserved.
++- **Notice:** This project utilizes neural network architectures and export tooling provided by Ultralytics under the AGPL-3.0 license.
++
++### onnxruntime-web
++- **Repository:** [https://github.com/Microsoft/onnxruntime](https://github.com/Microsoft/onnxruntime)
++- **License:** MIT License
++- **Copyright:** Copyright (c) Microsoft Corporation. All rights reserved.
++- **Notice:** Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
++The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
++
++### MediaPipe Tasks Vision
++- **Repository:** [https://github.com/google-ai-edge/mediapipe](https://github.com/google-ai-edge/mediapipe)
++- **License:** Apache License, Version 2.0
++- **Copyright:** Copyright 2023 The MediaPipe Authors.
++- **Notice:** Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0.
++
++---
++
++## 2. Research Datasets Attribution and Licenses
++
++The following research datasets are utilized in training and evaluating MoNUI-7 hand detection and rescue models:
++
++### A1: HANDS RGB-D v2
++- **DOI:** [10.17632/ndrczc35bt.2](https://data.mendeley.com/datasets/ndrczc35bt/2)
++- **License:** Creative Commons Attribution 4.0 International (CC BY 4.0)
++- **Attribution:** Dataset provided by Mendeley Data contributors under CC BY 4.0.
++
++### A2: IPN Hand + HandS
++- **URL:** [https://gibranbenitez.github.io/IPN_Hand/](https://gibranbenitez.github.io/IPN_Hand/)
++- **License:** Creative Commons Attribution 4.0 International (CC BY 4.0) (Data) / MIT (Code)
++- **Attribution:** G. Benitez-Garcia et al., "IPN Hand: A Dataset for Online Gesture Recognition with Background Movement", 2020.
++
++### A3: HandGesture-5G v2
++- **DOI:** [10.17632/wj25crzdbm.2](https://data.mendeley.com/datasets/wj25crzdbm/2)
++- **License:** Creative Commons Attribution 4.0 International (CC BY 4.0)
++- **Attribution:** Dataset provided under CC BY 4.0 on Mendeley Data.
++
++### A4: Natural RGB v3
++- **DOI:** [10.17632/n66hhk695h.3](https://data.mendeley.com/datasets/n66hhk695h/3)
++- **License:** Creative Commons Attribution 4.0 International (CC BY 4.0)
++- **Attribution:** Dataset provided under CC BY 4.0 on Mendeley Data.
++
++### A5: bxr7 v2
++- **DOI:** [10.17632/bxr7kx84y6.2](https://data.mendeley.com/datasets/bxr7kx84y6/2)
++- **License:** Creative Commons Attribution 4.0 International (CC BY 4.0)
++- **Attribution:** Dataset provided under CC BY 4.0 on Mendeley Data.
++
++### A6: BISINDO v2
++- **DOI:** [10.17632/235c78xbmk.2](https://data.mendeley.com/datasets/235c78xbmk/2)
++- **License:** Creative Commons Attribution 4.0 International (CC BY 4.0)
++- **Attribution:** Indonesian Sign Language (BISINDO) dataset provided under CC BY 4.0.
++
++### A8: Open Images V7 (Human hand)
++- **URL:** [https://storage.googleapis.com/openimages/web/factsfigures_v7.html](https://storage.googleapis.com/openimages/web/factsfigures_v7.html)
++- **License:** Annotations licensed under CC BY 4.0 by Google LLC; Images licensed under CC BY 2.0.
++- **Attribution:** Open Images V7 dataset contributors and Google LLC.
++
++### A10: Depth Camera D435
++- **DOI:** [10.17632/8ffrgcmjkm/1](https://data.mendeley.com/datasets/8ffrgcmjkm/1)
++- **License:** Creative Commons Attribution 4.0 International (CC BY 4.0)
++- **Attribution:** RealSense D435 RGB-D dataset provided under CC BY 4.0 on Mendeley Data.
++
++### A13: HaGRID v2 (HAnd Gesture Recognition Image Dataset)
++- **Repository:** [https://github.com/hukenovs/hagrid](https://github.com/hukenovs/hagrid)
++- **License:** Custom Open Public License (CC BY-SA 4.0 Derivative, ShareAlike)
++- **Attribution:** A. Kapitanov et al., "HaGRID -- HAnd Gesture Recognition Image Dataset", 2022-2024.
+diff --git a/frontend/implementation/.gitignore b/frontend/implementation/.gitignore
+index f1329d8179f33491f940d36d442868331b754781..44585dc256ff768d9786c095dbc52ed5bcad1644 100644
+--- a/frontend/implementation/.gitignore
++++ b/frontend/implementation/.gitignore
+@@ -12,3 +12,8 @@ coverage/
+ docs/stage-visual-reference/*.log
+ docs/stage-visual-reference/*gates.json
+ docs/stage-visual-reference/serve_export.py
++
++# MoNUI-7 R23 exclusions (models and wasm generated via prebuild)
++public/models/*.onnx
++public/ort/
++
+diff --git a/frontend/implementation/app/nui-lab/page.tsx b/frontend/implementation/app/nui-lab/page.tsx
+index 34302837dc6356d532ce895fbf09f984ad857e53..3e38ac84c5adf946ff51f40b3d38e6b4576f2fb0 100644
+--- a/frontend/implementation/app/nui-lab/page.tsx
++++ b/frontend/implementation/app/nui-lab/page.tsx
+@@ -160,6 +160,25 @@ export default function NuiLabLanding() {
+             </dl>
+           </div>
+         </details>
++
++        <footer className="nui-lab__landing-footer" style={{ marginTop: "2rem", paddingTop: "1rem", borderTop: "1px solid var(--nui-border, #333)", fontSize: "0.85rem", opacity: 0.85, display: "flex", gap: "1rem" }}>
++          <a
++            href="https://github.com/lustresense/hitl-momo"
++            target="_blank"
++            rel="noopener noreferrer"
++            className="nui-lab__source-link"
++          >
++            Kode sumber (AGPL-3.0)
++          </a>
++          <a
++            href="https://github.com/lustresense/hitl-momo/blob/main/THIRD_PARTY_NOTICES.md"
++            target="_blank"
++            rel="noopener noreferrer"
++            className="nui-lab__notices-link"
++          >
++            Third-Party Notices
++          </a>
++        </footer>
+       </div>
+     </main>
+   );
+diff --git a/frontend/implementation/package-lock.json b/frontend/implementation/package-lock.json
+index 83c6205b2d1a79fee0793d254c3e5b226de41776..e4814d99d399e7a5d1a35950d3a28c5915627229 100644
+--- a/frontend/implementation/package-lock.json
++++ b/frontend/implementation/package-lock.json
+@@ -1,18 +1,19 @@
+ {
+   "name": "sketchbook-universe-author-side",
+-  "version": "0.2.0",
++  "version": "0.29.1-alpha",
+   "lockfileVersion": 3,
+   "requires": true,
+   "packages": {
+     "": {
+       "name": "sketchbook-universe-author-side",
+-      "version": "0.2.0",
++      "version": "0.29.1-alpha",
+       "dependencies": {
+         "@mediapipe/tasks-vision": "^0.10.14",
+         "@playwright/test": "^1.64.1",
+         "gsap": "^3.15.0",
+         "kaplay": "^3001.0.0",
+         "next": "^14.2.35",
++        "onnxruntime-web": "1.31.1",
+         "react": "^18.3.1",
+         "react-dom": "^18.3.1"
+       },
+@@ -988,6 +989,63 @@
+         "node": ">=20"
+       }
+     },
++    "node_modules/@protobufjs/aspromise": {
++      "version": "1.1.2",
++      "resolved": "https://registry.npmjs.org/@protobufjs/aspromise/-/aspromise-1.1.2.tgz",
++      "integrity": "sha512-j+gKExEuLmKwvz3OgROXtrJ2UG2x8Ch2YZUxahh+s1F2HZ+wAceUNLkvy6zKCPVRkU++ZWQrdxsUeQXmcg4uoQ==",
++      "license": "BSD-3-Clause"
++    },
++    "node_modules/@protobufjs/base64": {
++      "version": "1.1.2",
++      "resolved": "https://registry.npmjs.org/@protobufjs/base64/-/base64-1.1.2.tgz",
++      "integrity": "sha512-AZkcAA5vnN/v4PDqKyMR5lx7hZttPDgClv83E//FMNhR2TMcLUhfRUBHCmSl0oi9zMgDDqRUJkSxO3wm85+XLg==",
++      "license": "BSD-3-Clause"
++    },
++    "node_modules/@protobufjs/codegen": {
++      "version": "2.0.5",
++      "resolved": "https://registry.npmjs.org/@protobufjs/codegen/-/codegen-2.0.5.tgz",
++      "integrity": "sha512-zgXFLzW3Ap33e6d0Wlj4MGIm6Ce8O89n/apUaGNB/jx+hw+ruWEp7EwGUshdLKVRCxZW12fp9r40E1mQrf/34g==",
++      "license": "BSD-3-Clause"
++    },
++    "node_modules/@protobufjs/eventemitter": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/@protobufjs/eventemitter/-/eventemitter-1.1.1.tgz",
++      "integrity": "sha512-vW1GmwMZNnL+gMRaovlh9yZX74kc+TTU3FObkkurpMaRtBfLP3ldjS9KQWlwZgraRE0+dheEEoAxdzcJQ8eXZg==",
++      "license": "BSD-3-Clause"
++    },
++    "node_modules/@protobufjs/fetch": {
++      "version": "1.1.1",
++      "resolved": "https://registry.npmjs.org/@protobufjs/fetch/-/fetch-1.1.1.tgz",
++      "integrity": "sha512-GpptLrs57adMSuHi3VNj0mAF8dwh36LMaYF6XyJ6JMWlVsc+t42tm1HSEDmOs3A8fC9yyeisgLhsTVQokOZ0zw==",
++      "license": "BSD-3-Clause",
++      "dependencies": {
++        "@protobufjs/aspromise": "^1.1.1"
++      }
++    },
++    "node_modules/@protobufjs/float": {
++      "version": "1.0.2",
++      "resolved": "https://registry.npmjs.org/@protobufjs/float/-/float-1.0.2.tgz",
++      "integrity": "sha512-Ddb+kVXlXst9d+R9PfTIxh1EdNkgoRe5tOX6t01f1lYWOvJnSPDBlG241QLzcyPdoNTsblLUdujGSE4RzrTZGQ==",
++      "license": "BSD-3-Clause"
++    },
++    "node_modules/@protobufjs/path": {
++      "version": "1.1.2",
++      "resolved": "https://registry.npmjs.org/@protobufjs/path/-/path-1.1.2.tgz",
++      "integrity": "sha512-6JOcJ5Tm08dOHAbdR3GrvP+yUUfkjG5ePsHYczMFLq3ZmMkAD98cDgcT2iA1lJ9NVwFd4tH/iSSoe44YWkltEA==",
++      "license": "BSD-3-Clause"
++    },
++    "node_modules/@protobufjs/pool": {
++      "version": "1.1.0",
++      "resolved": "https://registry.npmjs.org/@protobufjs/pool/-/pool-1.1.0.tgz",
++      "integrity": "sha512-0kELaGSIDBKvcgS4zkjz1PeddatrjYcmMWOlAuAPwAeccUrPHdUqo/J6LiymHHEiJT5NrF1UVwxY14f+fy4WQw==",
++      "license": "BSD-3-Clause"
++    },
++    "node_modules/@protobufjs/utf8": {
++      "version": "1.1.2",
++      "resolved": "https://registry.npmjs.org/@protobufjs/utf8/-/utf8-1.1.2.tgz",
++      "integrity": "sha512-b1UQwcEZ4yCnMCD8DAL1VlbvBJE9/IX4FTIp7BG1xYpf29SLazLSrqUkj4w7Y5y7cCVP6E5tcqqcI0xemPkHug==",
++      "license": "BSD-3-Clause"
++    },
+     "node_modules/@rollup/rollup-android-arm-eabi": {
+       "version": "4.62.5",
+       "resolved": "https://registry.npmjs.org/@rollup/rollup-android-arm-eabi/-/rollup-android-arm-eabi-4.62.5.tgz",
+@@ -1417,7 +1475,6 @@
+       "version": "22.20.1",
+       "resolved": "https://registry.npmjs.org/@types/node/-/node-22.20.1.tgz",
+       "integrity": "sha512-EANqOCF9QFyra+4pfxUcX9STKJpCLjMbObVzljIJomAWSnuSIEAvyzEU53GaajbXJEgdh0iEcPL+DGvpUd4k1Q==",
+-      "dev": true,
+       "dependencies": {
+         "undici-types": "~6.21.0"
+       }
+@@ -3614,6 +3671,12 @@
+         "node": "^10.12.0 || >=12.0.0"
+       }
+     },
++    "node_modules/flatbuffers": {
++      "version": "25.9.23",
++      "resolved": "https://registry.npmjs.org/flatbuffers/-/flatbuffers-25.9.23.tgz",
++      "integrity": "sha512-MI1qs7Lo4Syw0EOzUl0xjs2lsoeqFku44KpngfIduHBYvzm8h2+7K8YMQh1JtVVVrUvhLpNwqVi4DERegUJhPQ==",
++      "license": "Apache-2.0"
++    },
+     "node_modules/flatted": {
+       "version": "3.4.4",
+       "resolved": "https://registry.npmjs.org/flatted/-/flatted-3.4.4.tgz",
+@@ -3922,6 +3985,12 @@
+       "integrity": "sha512-dMW4CWBTUK1AEEDeZc1g4xpPGIrSf9fJF960qbTZmN/QwZIWY5wgliS6JWl9/25fpTGJrMRtSjGtOmPnfjZB+A==",
+       "license": "Standard 'no charge' license: https://gsap.com/standard-license."
+     },
++    "node_modules/guid-typescript": {
++      "version": "1.0.9",
++      "resolved": "https://registry.npmjs.org/guid-typescript/-/guid-typescript-1.0.9.tgz",
++      "integrity": "sha512-Y8T4vYhEfwJOTbouREvG+3XDsjr8E3kIr7uf+JZ0BYloFsttiHU0WfvANVsR7TxNUJa/WpCnw/Ino/p+DeBhBQ==",
++      "license": "ISC"
++    },
+     "node_modules/has-bigints": {
+       "version": "1.1.0",
+       "resolved": "https://registry.npmjs.org/has-bigints/-/has-bigints-1.1.0.tgz",
+@@ -4755,6 +4824,12 @@
+       "integrity": "sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==",
+       "dev": true
+     },
++    "node_modules/long": {
++      "version": "5.3.2",
++      "resolved": "https://registry.npmjs.org/long/-/long-5.3.2.tgz",
++      "integrity": "sha512-mNAgZ1GmyNhD7AuqnTG3/VQ26o760+ZYBPKjPvugO8+nLbYfX6TVpJPseBvopbdY+qpZ/lKUnmEc1LeZYS3QAA==",
++      "license": "Apache-2.0"
++    },
+     "node_modules/loose-envify": {
+       "version": "1.4.0",
+       "resolved": "https://registry.npmjs.org/loose-envify/-/loose-envify-1.4.0.tgz",
+@@ -5133,6 +5208,26 @@
+         "wrappy": "1"
+       }
+     },
++    "node_modules/onnxruntime-common": {
++      "version": "1.31.1",
++      "resolved": "https://registry.npmjs.org/onnxruntime-common/-/onnxruntime-common-1.31.1.tgz",
++      "integrity": "sha512-F+nnYNiQtmNJ95V6R/isBJqiVpdANCrsMEg1OaF+Bkbl3GAtzWLR7Ng17Ld0QtYtYJyotOHPJzOQn1Y6PLZjpg==",
++      "license": "MIT"
++    },
++    "node_modules/onnxruntime-web": {
++      "version": "1.31.1",
++      "resolved": "https://registry.npmjs.org/onnxruntime-web/-/onnxruntime-web-1.31.1.tgz",
++      "integrity": "sha512-5GeH+bWQ+HxM10z7erGlsWqryrwMbSvm/1tkIsKTT48g0fI19VXVVC435t4t7VsPdSQeS7NmuZPXrQ73k82URw==",
++      "license": "MIT",
++      "dependencies": {
++        "flatbuffers": "^25.1.24",
++        "guid-typescript": "^1.0.9",
++        "long": "^5.2.3",
++        "onnxruntime-common": "1.31.1",
++        "platform": "^1.3.6",
++        "protobufjs": "^7.2.4"
++      }
++    },
+     "node_modules/optionator": {
+       "version": "0.9.4",
+       "resolved": "https://registry.npmjs.org/optionator/-/optionator-0.9.4.tgz",
+@@ -5291,6 +5386,12 @@
+       "resolved": "https://registry.npmjs.org/picocolors/-/picocolors-1.1.1.tgz",
+       "integrity": "sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA=="
+     },
++    "node_modules/platform": {
++      "version": "1.3.6",
++      "resolved": "https://registry.npmjs.org/platform/-/platform-1.3.6.tgz",
++      "integrity": "sha512-fnWVljUchTro6RiCFvCXBbNhJc2NijN7oIQxbwsyL0buWJPG85v81ehlHI9fXrJsMNgTofEoWIQeClKpgxFLrg==",
++      "license": "MIT"
++    },
+     "node_modules/playwright": {
+       "version": "1.64.1",
+       "resolved": "https://registry.npmjs.org/playwright/-/playwright-1.64.1.tgz",
+@@ -5407,6 +5508,29 @@
+       "integrity": "sha512-24e6ynE2H+OKt4kqsOvNd8kBpV65zoxbA4BVsEOB3ARVWQki/DHzaUoC5KuON/BiccDaCCTZBuOcfZs70kR8bQ==",
+       "dev": true
+     },
++    "node_modules/protobufjs": {
++      "version": "7.6.6",
++      "resolved": "https://registry.npmjs.org/protobufjs/-/protobufjs-7.6.6.tgz",
++      "integrity": "sha512-dYDWdjSl5RNb7SgPxGQcRU+GtvP7s2fpkrY0r432PcOIaZ0/rBcxEZnQN67iJhFuQiVw754JDoPruPCNdGsbjg==",
++      "hasInstallScript": true,
++      "license": "BSD-3-Clause",
++      "dependencies": {
++        "@protobufjs/aspromise": "^1.1.2",
++        "@protobufjs/base64": "^1.1.2",
++        "@protobufjs/codegen": "^2.0.5",
++        "@protobufjs/eventemitter": "^1.1.1",
++        "@protobufjs/fetch": "^1.1.1",
++        "@protobufjs/float": "^1.0.2",
++        "@protobufjs/path": "^1.1.2",
++        "@protobufjs/pool": "^1.1.0",
++        "@protobufjs/utf8": "^1.1.1",
++        "@types/node": ">=13.7.0",
++        "long": "^5.3.2"
++      },
++      "engines": {
++        "node": ">=12.0.0"
++      }
++    },
+     "node_modules/psl": {
+       "version": "1.15.0",
+       "resolved": "https://registry.npmjs.org/psl/-/psl-1.15.0.tgz",
+@@ -6536,8 +6660,7 @@
+     "node_modules/undici-types": {
+       "version": "6.21.0",
+       "resolved": "https://registry.npmjs.org/undici-types/-/undici-types-6.21.0.tgz",
+-      "integrity": "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ==",
+-      "dev": true
++      "integrity": "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="
+     },
+     "node_modules/universalify": {
+       "version": "0.2.0",
+diff --git a/frontend/implementation/package.json b/frontend/implementation/package.json
+index 2aed900bd7bdcdda4863cb8bbd4c4261591945aa..b98d281b61ae32a1c5f9eb68996972c9695e9e6c 100644
+--- a/frontend/implementation/package.json
++++ b/frontend/implementation/package.json
+@@ -1,10 +1,11 @@
+ {
+   "name": "sketchbook-universe-author-side",
+   "private": true,
+-  "version": "0.29.1-alpha",
++  "version": "0.29.1-alpha+r23-monui7",
+   "private_note": "CAN(USER)-owned application side. Frontend-only Next.js static export; partner classifier/backend remain behind client adapters.",
+   "scripts": {
+     "dev": "next dev",
++    "prebuild": "node scripts/copy-ort-wasm.mjs",
+     "build": "next build",
+     "start": "next start",
+     "lint": "next lint",
+@@ -19,6 +20,7 @@
+     "gsap": "^3.15.0",
+     "kaplay": "^3001.0.0",
+     "next": "^14.2.35",
++    "onnxruntime-web": "1.31.1",
+     "react": "^18.3.1",
+     "react-dom": "^18.3.1"
+   },
+diff --git a/frontend/implementation/scripts/copy-ort-wasm.mjs b/frontend/implementation/scripts/copy-ort-wasm.mjs
+new file mode 100644
+index 0000000000000000000000000000000000000000..fd02c6096f77fc19a3a2c7fa8bd85992acc564d7
+--- /dev/null
++++ b/frontend/implementation/scripts/copy-ort-wasm.mjs
+@@ -0,0 +1,27 @@
++import fs from 'node:fs';
++import path from 'node:path';
++import { fileURLToPath } from 'node:url';
++
++const __filename = fileURLToPath(import.meta.url);
++const __dirname = path.dirname(__filename);
++const projectRoot = path.resolve(__dirname, '..');
++const distDir = path.join(projectRoot, 'node_modules', 'onnxruntime-web', 'dist');
++const targetDir = path.join(projectRoot, 'public', 'ort');
++
++fs.mkdirSync(targetDir, { recursive: true });
++
++if (fs.existsSync(distDir)) {
++  const files = fs.readdirSync(distDir);
++  let count = 0;
++  for (const file of files) {
++    if (file.startsWith('ort-wasm') || file.includes('wasm')) {
++      if (file.endsWith('.wasm') || file.endsWith('.mjs')) {
++        fs.copyFileSync(path.join(distDir, file), path.join(targetDir, file));
++        count++;
++      }
++    }
++  }
++  console.log(`[copy-ort-wasm] Copied ${count} ORT WASM files to ${targetDir}`);
++} else {
++  console.warn(`[copy-ort-wasm] onnxruntime-web dist directory not found at ${distDir}`);
++}
+diff --git a/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx b/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx
+index b281ba8956cf8f4bec74a7aa6697f46d4375c955..b6b645e0de6848353cda01ec9240c2c40c43eabb 100644
+--- a/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx
++++ b/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx
+@@ -30,6 +30,11 @@ import type { HandCursor } from "@/src/input/hand-stroke-pipeline";
+ import type { Landmark } from "@/src/input/types";
+ import { drawFaceArea, drawHands } from "./hand-overlay";
+ import { startLabCamera } from "./lab-camera";
++import {
++  MomoGuideFSM,
++  MOMO_GUIDE_TEXTS,
++  type MomoGuideState,
++} from "./bench/monui7-momo-guide";
+ import {
+   LabAnalyzer,
+   type LabDiagnostics,
+@@ -490,11 +495,16 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
+   const pointerDown = useRef(false);
+   const telemetryBridgeRef = useRef(new LabTelemetryBridge(benchMgr, isCanvas));
+   const pointerCursor = useRef<HandCursor | null>(null);
++  const momoGuideRef = useRef<MomoGuideFSM>(new MomoGuideFSM());
++  const [guideState, setGuideState] = useState<MomoGuideState>("GREET");
++  const [guideText, setGuideText] = useState<string | null>(MOMO_GUIDE_TEXTS["GREET"]);
+   const analyzerRef = useRef(
+     new LabAnalyzer({
+       route: variant,
+       fullFrameLock: true,
+       enableInk: isCanvas,
++      cursorFilterMode: isCanvas ? "one-euro" : "default",
++      guideInkGate: () => (isCanvas && momoGuideRef.current ? momoGuideRef.current.isInkAllowed : true),
+     }),
+   );
+   const [supported, setSupported] = useState<boolean | null>(null);
+@@ -561,12 +571,14 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
+     isTrainedR22Model: activeEngineSpec.isTrainedR22Model,
+   });
+ 
+-  const handlePresetChange = (nextId: string) => {
++  const handlePresetChange = (nextId: string, source: "user" | "system" = "user") => {
++    const from = activePresetRef.current;
+     const resolved = getCanvasPreset(nextId);
+     setActivePresetId(resolved.id);
+     activePresetRef.current = resolved.id;
+     analyzerRef.current.setPreset(resolved);
+     benchMgr.patchActiveTrialMeta({ presetId: resolved.id });
++    benchMgr.event("PRESET_CHANGED", { from, to: resolved.id, source }, "system");
+     if (session.current) {
+       syncSnapshot(session.current.analyzer);
+     }
+@@ -617,7 +629,26 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
+   );
+ 
+   const syncSnapshot = (analyzer: LabAnalyzer, nowMs = performance.now()) => {
+-    setReadout((prev) => ({ ...prev, snapshot: analyzer.snapshot(nowMs) }));
++    const snap = analyzer.snapshot(nowMs);
++    if (isCanvas && momoGuideRef.current) {
++      const luma = session.current?.workerLuma;
++      const gRes = momoGuideRef.current.update({
++        nowMs,
++        hasHand: snap.handCount > 0,
++        fiveFingerValid: snap.fingerCount === 5 || snap.pose === "open-palm",
++        drawingActive: snap.drawingAction === "draw",
++        rescueState: null,
++        handRoiLumaP50: luma?.handRoiLumaP50 ?? null,
++        frameLumaMean: luma?.mean ?? null,
++        backlight: luma?.backlight ?? null,
++      });
++      setGuideState(gRes.state);
++      setGuideText(gRes.text);
++      if (gRes.promptEvent && benchMgr.isActive) {
++        benchMgr.event("GUIDE_PROMPT", { id: gRes.promptEvent.state, text: gRes.promptEvent.text, atMs: gRes.promptEvent.atMs }, "system");
++      }
++    }
++    setReadout((prev) => ({ ...prev, snapshot: snap }));
+   };
+ 
+   const buildTrialCtx = (s: Session, engineId: EngineId, preprocess: PreprocessMode): TrialContext => ({
+@@ -1702,6 +1733,12 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
+           <Link href="/nui-lab/canvas" aria-current={isCanvas ? "page" : undefined}>
+             Coba Canvas
+           </Link>
++          <a href="/LICENSE.md" target="_blank" rel="noreferrer" className="nui-lab__nav-link">
++            Kode sumber (AGPL-3.0)
++          </a>
++          <a href="/THIRD_PARTY_NOTICES.md" target="_blank" rel="noreferrer" className="nui-lab__nav-link">
++            Notice
++          </a>
+         </nav>
+ 
+         <div className="nui-lab__topbar-right">
+@@ -2074,11 +2111,21 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
+ 
+               <section className="nui-lab__panel" aria-label="Petunjuk dan status Canvas">
+                 <div className="nui-lab__momo" aria-label="Petunjuk Momo">
+-                  <MomoAvatar expression={snap?.pose === "pinch" ? "Semangat" : "Penasaran"} height={96} />
+-                  <p className="momo-chat__bubble">
+-                    Kursor muncul begitu tangan terlihat. Tinta hanya keluar saat cubit rapat; untuk Undo/Redo, kepal
+-                    tangan sebentar lalu buka 1 atau 2 jari.
+-                  </p>
++                  <MomoAvatar
++                    expression={
++                      guideState === "LOCKED" || snap?.pose === "pinch"
++                        ? "Semangat"
++                        : guideState === "ASK_LIGHT" || guideState === "UNCLEAR_FINGERS"
++                        ? "Bingung"
++                        : "Penasaran"
++                    }
++                    height={96}
++                  />
++                  {guideText ? (
++                    <p className="momo-chat__bubble" data-guide-state={guideState}>
++                      {guideText}
++                    </p>
++                  ) : null}
+                 </div>
+                 <R19CanvasReadOnlyPanel snap={snap} r19={r19} />
+               </section>
+diff --git a/frontend/implementation/src/components/nui-lab/bench/GuidedCapturePanel.tsx b/frontend/implementation/src/components/nui-lab/bench/GuidedCapturePanel.tsx
+index c7622d5d8650f4eb62427489f7d933dd0afb7588..af07a78607cb011a3adc6e21f2e48ccbd78cd374 100644
+--- a/frontend/implementation/src/components/nui-lab/bench/GuidedCapturePanel.tsx
++++ b/frontend/implementation/src/components/nui-lab/bench/GuidedCapturePanel.tsx
+@@ -306,6 +306,15 @@ export function GuidedCapturePanel({
+           >
+             P2 Ringkas (12×3 + 7 drill)
+           </button>
++          <button
++            type="button"
++            className="nui-lab__button nui-lab__button--compact"
++            aria-pressed={protocol === "p2-mini"}
++            disabled={active}
++            onClick={() => handleProtocolSwitch("p2-mini")}
++          >
++            P2 Mini (±4 menit, 19 langkah)
++          </button>
+         </div>
+       </div>
+ 
+diff --git a/frontend/implementation/src/components/nui-lab/bench/canvas-tracker.ts b/frontend/implementation/src/components/nui-lab/bench/canvas-tracker.ts
+index 9184395b8fd8facc6d8372762bf5d8dbe385e195..033178259b762dc1c189b5c0330a52c6b83720ac 100644
+--- a/frontend/implementation/src/components/nui-lab/bench/canvas-tracker.ts
++++ b/frontend/implementation/src/components/nui-lab/bench/canvas-tracker.ts
+@@ -88,6 +88,15 @@ export interface FrameRecordContext {
+     predictionConfidence?: number | null;
+   } | null;
+   isDatasetGt?: boolean;
++  // MoNUI-7 R23 / Lampiran E Frame Fields
++  rescueState?: "NORMAL" | "SEARCH" | "RESCUE_TRACK" | "POSITION_ONLY" | "LOST" | null;
++  yoloRan?: boolean | null;
++  yoloMs?: number | null;
++  yoloScore?: number | null;
++  cropTried?: boolean | null;
++  cropSuccess?: boolean | null;
++  positionOnly?: { cx: number; cy: number; score: number } | null;
++  guideState?: "GREET" | "LOCKED" | "DRAWING" | "ASK_FIVE_AGAIN" | "UNCLEAR_FINGERS" | "ASK_LIGHT" | null;
+   /** R22B B3/B4.2/B2.5 optional per-frame metadata. */
+   mpRawHandCount?: number | null;
+   mpHandednessScores?: number[] | null;
+@@ -771,6 +780,15 @@ export class LabTelemetryBridge {
+       variation: ctx.variation ?? null,
+       lighting: ctx.lighting ?? null,
+       subjectCode: ctx.subjectCode ?? null,
++      // MoNUI-7 R23 / Lampiran E Frame Fields
++      rescueState: ctx.rescueState ?? null,
++      yoloRan: ctx.yoloRan ?? null,
++      yoloMs: ctx.yoloMs ?? null,
++      yoloScore: ctx.yoloScore ?? null,
++      cropTried: ctx.cropTried ?? null,
++      cropSuccess: ctx.cropSuccess ?? null,
++      positionOnly: ctx.positionOnly ?? null,
++      guideState: ctx.guideState ?? null,
+     };
+     this.mgr.recordFrame(frame);
+   }
+diff --git a/frontend/implementation/src/components/nui-lab/bench/export.ts b/frontend/implementation/src/components/nui-lab/bench/export.ts
+index 279c5fc33110bcaebcf68b07a6fdc027e1a89b5e..f1c0a7bbeaf4491e1f835e442658c473e349af14 100644
+--- a/frontend/implementation/src/components/nui-lab/bench/export.ts
++++ b/frontend/implementation/src/components/nui-lab/bench/export.ts
+@@ -15,6 +15,7 @@ import {
+   BENCH_EXPORT_SCHEMA,
+   BENCH_EXPORT_SCHEMA_V1,
+   BENCH_EXPORT_SCHEMA_V2_1,
++  BENCH_EXPORT_SCHEMA_V2_2,
+   BENCH_EXPORT_SUPPORTED_SCHEMAS,
+   LABEL_SOURCES,
+   type BenchEvent,
+@@ -300,7 +301,7 @@ export async function buildExportBlob(store: BenchStore, sessionIds: string[], i
+   const modelInventory = [...inventory.values()];
+ 
+   const header =
+-    `{"schema":${j(BENCH_EXPORT_SCHEMA)},"schemaVersion":${j(BENCH_EXPORT_SCHEMA_V2_1)},"contractVersion":"K8-v2.1","exportedAtMinuteIso":${j(info.exportedAtMinuteIso)},"app":${j(info.app)},` +
++    `{"schema":${j(BENCH_EXPORT_SCHEMA)},"schemaVersion":${j(BENCH_EXPORT_SCHEMA_V2_2)},"contractVersion":"K8-v2.2","exportedAtMinuteIso":${j(info.exportedAtMinuteIso)},"app":${j(info.app)},` +
+     `"modelInventory":${j(modelInventory)},` +
+     `"checksumScope":"sessions-json-utf8","contentSha256":${j(contentSha256)},` +
+     `"contains":"numeric landmarks, rule readings, timings, quality proxies, action intents, and labelSource provenance only; no video, no images, no audio, no face data, no identity, no device name",` +
+@@ -518,7 +519,10 @@ export function validateExportFile(fileOrJson: unknown): string[] {
+   if (!schema || !(BENCH_EXPORT_SUPPORTED_SCHEMAS as readonly string[]).includes(schema)) {
+     problems.push("schema");
+   }
+-  const isV2 = schema === BENCH_EXPORT_SCHEMA || schema === BENCH_EXPORT_SCHEMA_V2_1;
++  const isV2 =
++    schema === BENCH_EXPORT_SCHEMA ||
++    schema === BENCH_EXPORT_SCHEMA_V2_1 ||
++    schema === BENCH_EXPORT_SCHEMA_V2_2;
+   if (isV2) {
+     if (typeof f.contentSha256 !== "string" || !/^[0-9a-f]{64}$/i.test(f.contentSha256)) {
+       problems.push("contentSha256");
+diff --git a/frontend/implementation/src/components/nui-lab/bench/guided-capture-protocol.ts b/frontend/implementation/src/components/nui-lab/bench/guided-capture-protocol.ts
+index ed87300f49f479e2d797997caf36f94958560178..0e012dc90864e9a2da700de3886fe5a7afa1da38 100644
+--- a/frontend/implementation/src/components/nui-lab/bench/guided-capture-protocol.ts
++++ b/frontend/implementation/src/components/nui-lab/bench/guided-capture-protocol.ts
+@@ -15,7 +15,7 @@ export const GUIDED_MASK_END_MS = 300;
+ 
+ export type CaptureSubjectCode = "P1" | "P2";
+ export type CaptureLightingCondition = "A-lampu-depan-mati" | "B-lampu-depan-nyala";
+-export type CaptureProtocolId = "p1-full" | "p2-short";
++export type CaptureProtocolId = "p1-full" | "p2-short" | "p2-mini";
+ 
+ export type CaptureVariation =
+   | "palm"
+@@ -142,6 +142,97 @@ export function buildGuidedCaptureSteps(protocol: CaptureProtocolId = "p1-full")
+   const steps: GuidedCaptureStep[] = [];
+   const staticDurationMs = 6_000;
+ 
++  if (protocol === "p2-mini") {
++    // Lampiran C: Protokol p2-mini (±4 menit, 19 langkah, 138 detik waktu aksi)
++    const p2MiniClasses = [
++      "FIST",
++      "PINCH_CLOSED",
++      "PINCH_OK",
++      "THREE_IMR",
++      "ONE",
++      "TWO",
++      "FIVE",
++    ] as const;
++    const miniVars: ReadonlyArray<{ id: CaptureVariation; label: string }> = [
++      { id: "palm", label: "Telapak menghadap kamera" },
++      { id: "back", label: "Punggung tangan menghadap kamera" },
++    ];
++    for (const clsLabel of p2MiniClasses) {
++      const cls = CLASS_DEFS.find((c) => c.label === clsLabel)!;
++      for (const v of miniVars) {
++        steps.push({
++          id: `static-${cls.label}-${v.id}`,
++          phase: "static",
++          truthLabel: cls.label,
++          title: cls.title,
++          instruction: cls.instruction,
++          variation: v.id,
++          variationLabel: v.label,
++          durationMs: staticDurationMs,
++        });
++      }
++    }
++    const noHand = CLASS_DEFS.find((c) => c.label === "NO_HAND")!;
++    steps.push({
++      id: `static-${noHand.label}-palm`,
++      phase: "static",
++      truthLabel: noHand.label,
++      title: noHand.title,
++      instruction: noHand.instruction,
++      variation: "palm",
++      variationLabel: "Adegan kosong tanpa tangan",
++      durationMs: staticDurationMs,
++    });
++    const miniDrills = [
++      {
++        id: "drill-fist-one",
++        truthLabel: "TRANSITION_FIST_ONE",
++        title: "Transisi Kepal → 1 Jari (5×)",
++        instruction: "Lakukan 5× siklus: kepal sebentar lalu buka 1 jari telunjuk (drill Undo).",
++        repetitions: 5,
++        durationMs: 12_000,
++      },
++      {
++        id: "drill-fist-two",
++        truthLabel: "TRANSITION_FIST_TWO",
++        title: "Transisi Kepal → 2 Jari (5×)",
++        instruction: "Lakukan 5× siklus: kepal sebentar lalu buka 2 jari (drill Redo).",
++        repetitions: 5,
++        durationMs: 12_000,
++      },
++      {
++        id: "drill-open-pinch-closed-open",
++        truthLabel: "TRANSITION_OPEN_PINCH_CLOSED_OPEN",
++        title: "Transisi Buka → Cubit Rapat → Buka (5×)",
++        instruction: "Lakukan 5× siklus: tangan terbuka → cubit rapat → lepas terbuka.",
++        repetitions: 5,
++        durationMs: 12_000,
++      },
++      {
++        id: "drill-pinch-ok-five",
++        truthLabel: "TRANSITION_PINCH_OK_FIVE",
++        title: "Transisi Cubit OK ↔ 5 Jari Goyang (5×)",
++        instruction: "Lakukan 5× siklus: cubit OK sedikit digoyang lalu buka jadi 5 jari.",
++        repetitions: 5,
++        durationMs: 12_000,
++      },
++    ];
++    for (const d of miniDrills) {
++      steps.push({
++        id: d.id,
++        phase: "transition",
++        truthLabel: d.truthLabel,
++        title: d.title,
++        instruction: d.instruction,
++        variation: "transition",
++        variationLabel: `Drill transisi (${d.repetitions}×)`,
++        durationMs: d.durationMs,
++        repetitions: d.repetitions,
++      });
++    }
++    return steps;
++  }
++
+   if (protocol === "p2-short") {
+     // P2 concise protocol: condition B core variations (palm, back, side) + all 7 transition drills (~10 min)
+     const coreVars = VARIATION_DEFS.slice(0, 3);
+diff --git a/frontend/implementation/src/components/nui-lab/bench/monui7-momo-guide.ts b/frontend/implementation/src/components/nui-lab/bench/monui7-momo-guide.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..bb616fad47c3473eabeb0d46c7f47a7c5e4cac6b
+--- /dev/null
++++ b/frontend/implementation/src/components/nui-lab/bench/monui7-momo-guide.ts
+@@ -0,0 +1,233 @@
++/**
++ * MoNUI-7 Momo Pemandu (Momo Guide) State Machine (`bench/monui7-momo-guide.ts`).
++ *
++ * Implements Lampiran B (variant canvas):
++ * - Guides the user into proper hand positioning and lighting before and during drawing.
++ * - Controls the ink gate: ink is permitted ONLY in LOCKED and DRAWING states.
++ * - Emits prompts and handles transitions between GREET, LOCKED, DRAWING,
++ *   ASK_FIVE_AGAIN, UNCLEAR_FINGERS, and ASK_LIGHT.
++ */
++
++export type MomoGuideState =
++  | "GREET"
++  | "LOCKED"
++  | "DRAWING"
++  | "ASK_FIVE_AGAIN"
++  | "UNCLEAR_FINGERS"
++  | "ASK_LIGHT";
++
++export const MOMO_GUIDE_TEXTS: Readonly<Record<MomoGuideState, string | null>> = Object.freeze({
++  GREET: "Halo! Tunjukkan lima jarimu ke aku dulu, ya.",
++  LOCKED: "Sip, aku sudah lihat tanganmu. Silakan menggambar!",
++  DRAWING: null,
++  ASK_FIVE_AGAIN: "Tanganmu hilang dari pandanganku. Tunjukkan lima jari lagi, ya.",
++  UNCLEAR_FINGERS: "Aku lihat tanganmu, tapi jarinya belum jelas. Coba dekatkan sedikit.",
++  ASK_LIGHT: "Ruangannya agak gelap. Coba nyalakan lampu di depanmu, ya.",
++});
++
++export const MOMO_GUIDE_CONSTANTS = Object.freeze({
++  FIVE_STABLE_MS: 300,
++  HAND_LOST_MS: 2000,
++  LOW_LUMA_THRESHOLD: 0.10,
++  LOW_LUMA_DUR_MS: 3000,
++  FRAME_LOW_LUMA_THRESHOLD: 0.20,
++  LOSS_BURST_WINDOW_MS: 10000,
++  LOSS_BURST_COUNT: 2,
++});
++
++export interface MomoGuideFrameInput {
++  nowMs: number;
++  hasHand: boolean;
++  fiveFingerValid: boolean;
++  drawingActive?: boolean;
++  rescueState?: "NORMAL" | "SEARCH" | "RESCUE_TRACK" | "POSITION_ONLY" | "LOST" | null;
++  handRoiLumaP50?: number | null;
++  frameLumaMean?: number | null;
++  backlight?: boolean | null;
++}
++
++export interface MomoGuidePromptEvent {
++  state: MomoGuideState;
++  text: string;
++  atMs: number;
++}
++
++export class MomoGuideFSM {
++  private stateNow: MomoGuideState = "GREET";
++  private fiveSinceMs: number | null = null;
++  private lastHandSeenMs = 0;
++  private lowLumaSinceMs: number | null = null;
++  private lossTimestamps: number[] = [];
++  private wasHandPresent = false;
++  private lastPromptEmitted: MomoGuideState | null = null;
++
++  constructor(initialState: MomoGuideState = "GREET") {
++    this.stateNow = initialState;
++    if (initialState !== "DRAWING") {
++      this.lastPromptEmitted = initialState;
++    }
++  }
++
++  get state(): MomoGuideState {
++    return this.stateNow;
++  }
++
++  get text(): string | null {
++    return MOMO_GUIDE_TEXTS[this.stateNow];
++  }
++
++  /** Ink is permitted strictly in LOCKED and DRAWING states (Lampiran B). */
++  get isInkAllowed(): boolean {
++    return this.stateNow === "LOCKED" || this.stateNow === "DRAWING";
++  }
++
++  reset(nowMs = 0): void {
++    this.stateNow = "GREET";
++    this.fiveSinceMs = null;
++    this.lastHandSeenMs = 0;
++    this.lowLumaSinceMs = null;
++    this.lossTimestamps = [];
++    this.wasHandPresent = false;
++    this.lastPromptEmitted = "GREET";
++  }
++
++  update(input: MomoGuideFrameInput): {
++    state: MomoGuideState;
++    text: string | null;
++    inkAllowed: boolean;
++    promptEvent: MomoGuidePromptEvent | null;
++  } {
++    const { nowMs, hasHand, fiveFingerValid, drawingActive, rescueState } = input;
++
++    // Track hand presence and loss events
++    if (this.wasHandPresent && !hasHand) {
++      this.lossTimestamps.push(nowMs);
++    }
++    this.wasHandPresent = hasHand;
++
++    // Prune loss timestamps outside sliding 10s window
++    const cutoffLoss = nowMs - MOMO_GUIDE_CONSTANTS.LOSS_BURST_WINDOW_MS;
++    this.lossTimestamps = this.lossTimestamps.filter((t) => t >= cutoffLoss);
++
++    if (hasHand) {
++      this.lastHandSeenMs = nowMs;
++    }
++
++    // Five-finger stability tracking
++    if (fiveFingerValid) {
++      if (this.fiveSinceMs === null) {
++        this.fiveSinceMs = nowMs;
++      }
++    } else {
++      this.fiveSinceMs = null;
++    }
++    const fiveStable =
++      this.fiveSinceMs !== null && nowMs - this.fiveSinceMs >= MOMO_GUIDE_CONSTANTS.FIVE_STABLE_MS;
++
++    // Hand ROI low luma tracking (p50 < 0.10 for >= 3s)
++    const roiLuma = input.handRoiLumaP50;
++    if (
++      hasHand &&
++      roiLuma !== null &&
++      roiLuma !== undefined &&
++      roiLuma < MOMO_GUIDE_CONSTANTS.LOW_LUMA_THRESHOLD
++    ) {
++      if (this.lowLumaSinceMs === null) {
++        this.lowLumaSinceMs = nowMs;
++      }
++    } else {
++      this.lowLumaSinceMs = null;
++    }
++    const lowLumaPersistent =
++      this.lowLumaSinceMs !== null &&
++      nowMs - this.lowLumaSinceMs >= MOMO_GUIDE_CONSTANTS.LOW_LUMA_DUR_MS;
++
++    // Frame low luma or backlight with burst of losses (>= 2 losses in 10s)
++    const frameLuma = input.frameLumaMean;
++    const isFrameLowLuma =
++      (frameLuma !== null &&
++        frameLuma !== undefined &&
++        frameLuma < MOMO_GUIDE_CONSTANTS.FRAME_LOW_LUMA_THRESHOLD) ||
++      input.backlight === true;
++    const lossBurstInLowLight =
++      isFrameLowLuma && this.lossTimestamps.length >= MOMO_GUIDE_CONSTANTS.LOSS_BURST_COUNT;
++
++    // Lost condition: rescueState LOST or hand absent >= 2000 ms (after having been seen)
++    const handLostCondition =
++      rescueState === "LOST" ||
++      (!hasHand &&
++        this.lastHandSeenMs > 0 &&
++        nowMs - this.lastHandSeenMs >= MOMO_GUIDE_CONSTANTS.HAND_LOST_MS);
++
++    const prevState = this.stateNow;
++
++    // Evaluate state machine transitions
++    switch (this.stateNow) {
++      case "GREET": {
++        if (fiveStable) {
++          this.stateNow = "LOCKED";
++        } else if (lowLumaPersistent || lossBurstInLowLight) {
++          this.stateNow = "ASK_LIGHT";
++        }
++        break;
++      }
++
++      case "LOCKED": {
++        if (handLostCondition) {
++          this.stateNow = "ASK_FIVE_AGAIN";
++        } else if (rescueState === "POSITION_ONLY") {
++          this.stateNow = "UNCLEAR_FINGERS";
++        } else if (lowLumaPersistent || lossBurstInLowLight) {
++          this.stateNow = "ASK_LIGHT";
++        } else if (drawingActive) {
++          this.stateNow = "DRAWING";
++        }
++        break;
++      }
++
++      case "DRAWING": {
++        if (handLostCondition) {
++          this.stateNow = "ASK_FIVE_AGAIN";
++        } else if (rescueState === "POSITION_ONLY") {
++          this.stateNow = "UNCLEAR_FINGERS";
++        } else if (lowLumaPersistent || lossBurstInLowLight) {
++          this.stateNow = "ASK_LIGHT";
++        }
++        break;
++      }
++
++      case "ASK_FIVE_AGAIN":
++      case "UNCLEAR_FINGERS":
++      case "ASK_LIGHT": {
++        if (fiveStable) {
++          this.stateNow = "LOCKED";
++        } else if (this.stateNow !== "ASK_LIGHT" && (lowLumaPersistent || lossBurstInLowLight)) {
++          this.stateNow = "ASK_LIGHT";
++        }
++        break;
++      }
++    }
++
++    let promptEvent: MomoGuidePromptEvent | null = null;
++    const currentText = MOMO_GUIDE_TEXTS[this.stateNow];
++    if (this.stateNow !== prevState && currentText !== null) {
++      if (this.lastPromptEmitted !== this.stateNow) {
++        promptEvent = {
++          state: this.stateNow,
++          text: currentText,
++          atMs: nowMs,
++        };
++        this.lastPromptEmitted = this.stateNow;
++      }
++    } else if (this.stateNow === "DRAWING") {
++      this.lastPromptEmitted = null;
++    }
++
++    return {
++      state: this.stateNow,
++      text: currentText,
++      inkAllowed: this.isInkAllowed,
++      promptEvent,
++    };
++  }
++}
+diff --git a/frontend/implementation/src/components/nui-lab/bench/monui7-rescue.ts b/frontend/implementation/src/components/nui-lab/bench/monui7-rescue.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..a81c0687d5ab435e8bbe62caaee5e4e3912d2d3c
+--- /dev/null
++++ b/frontend/implementation/src/components/nui-lab/bench/monui7-rescue.ts
+@@ -0,0 +1,289 @@
++/**
++ * MoNUI-7 Rescue State Machine (`bench/monui7-rescue.ts`).
++ *
++ * Implements Lampiran A:
++ * - States: NORMAL, SEARCH, RESCUE_TRACK, POSITION_ONLY, LOST
++ * - Constants (prototype parameters):
++ *   RESCUE_ENTER_MISS_MS = 100
++ *   YOLO_INTERVAL_MS = 100 (<= 10 Hz)
++ *   YOLO_MIN_SCORE = 0.35
++ *   CROP_SCALE = 1.6
++ *   POSITION_ONLY_AFTER_MS = 500
++ *   LOST_PROMPT_AFTER_MS = 2000
++ *   RESCUE_TRACK_MAX_FAILS = 3
++ */
++
++export const RESCUE_ENTER_MISS_MS = 100;
++export const YOLO_INTERVAL_MS = 100;
++export const YOLO_MIN_SCORE = 0.35;
++export const CROP_SCALE = 1.6;
++export const POSITION_ONLY_AFTER_MS = 500;
++export const LOST_PROMPT_AFTER_MS = 2000;
++export const RESCUE_TRACK_MAX_FAILS = 3;
++
++export type RescueState = "NORMAL" | "SEARCH" | "RESCUE_TRACK" | "POSITION_ONLY" | "LOST";
++
++export interface RescueInput {
++  t: number;
++  mpHand: boolean;
++  yolo?: { box: [number, number, number, number]; score: number } | null;
++  crop?: Array<{ x: number; y: number; z?: number }> | null;
++}
++
++export type RescueEvent =
++  | "RESCUE_START"
++  | "RESCUE_SUCCESS"
++  | "RESCUE_FAIL"
++  | "POSITION_ONLY_ENTER"
++  | "POSITION_ONLY_EXIT";
++
++export interface RescueStepResult {
++  state: RescueState;
++  shouldRunYolo: boolean;
++  shouldRunCrop: boolean;
++  cropBox: [number, number, number, number] | null;
++  positionOnly: { cx: number; cy: number; score: number } | null;
++  event: RescueEvent | null;
++}
++
++/**
++ * Computes square crop from box [x1, y1, x2, y2], scaled by scale (default 1.6) and clamped to [0, 1].
++ */
++export function computeCropSquareFromBox(
++  box: [number, number, number, number],
++  scale = CROP_SCALE,
++): [number, number, number, number] {
++  const [x1, y1, x2, y2] = box;
++  const cx = (x1 + x2) / 2;
++  const cy = (y1 + y2) / 2;
++  const w = Math.max(0.01, x2 - x1);
++  const h = Math.max(0.01, y2 - y1);
++  const side = Math.max(w, h) * scale;
++
++  const cropX1 = Math.max(0, cx - side / 2);
++  const cropY1 = Math.max(0, cy - side / 2);
++  const cropX2 = Math.min(1, cx + side / 2);
++  const cropY2 = Math.min(1, cy + side / 2);
++
++  return [cropX1, cropY1, cropX2, cropY2];
++}
++
++/**
++ * Computes square crop from 21 landmarks, scaled and clamped to [0, 1].
++ */
++export function computeCropSquareFromLandmarks(
++  landmarks: Array<{ x: number; y: number }>,
++  scale = CROP_SCALE,
++): [number, number, number, number] {
++  if (!landmarks || landmarks.length === 0) return [0, 0, 1, 1];
++  let minX = 1;
++  let minY = 1;
++  let maxX = 0;
++  let maxY = 0;
++  for (const pt of landmarks) {
++    if (pt.x < minX) minX = pt.x;
++    if (pt.x > maxX) maxX = pt.x;
++    if (pt.y < minY) minY = pt.y;
++    if (pt.y > maxY) maxY = pt.y;
++  }
++  return computeCropSquareFromBox([minX, minY, maxX, maxY], scale);
++}
++
++/**
++ * Maps normalized landmarks inside crop [cropX1, cropY1, cropX2, cropY2]
++ * back to full-frame normalized coordinates.
++ */
++export function unmapLandmarksFromCrop<T extends { x: number; y: number; z?: number }>(
++  landmarks: T[],
++  crop: [number, number, number, number],
++): T[] {
++  const [cropX1, cropY1, cropX2, cropY2] = crop;
++  const cropW = cropX2 - cropX1;
++  const cropH = cropY2 - cropY1;
++
++  return landmarks.map((pt) => ({
++    ...pt,
++    x: cropX1 + pt.x * cropW,
++    y: cropY1 + pt.y * cropH,
++    z: pt.z !== undefined ? pt.z * Math.max(cropW, cropH) : 0,
++  })) as T[];
++}
++
++export class RescueFSM {
++  private stateNow: RescueState = "NORMAL";
++  private handMissingSinceMs: number | null = null;
++  private lastYoloTimeMs = -Infinity;
++  private boxPresentSinceMs: number | null = null;
++  private lastBoxSeenMs: number | null = null;
++  private lastAnyActivityMs = 0;
++  private consecutiveCropFails = 0;
++  private lastKnownCropBox: [number, number, number, number] | null = null;
++  private lastPositionOnly: { cx: number; cy: number; score: number } | null = null;
++
++  constructor(initialState: RescueState = "NORMAL") {
++    this.stateNow = initialState;
++  }
++
++  get state(): RescueState {
++    return this.stateNow;
++  }
++
++  reset(nowMs = 0): void {
++    this.stateNow = "NORMAL";
++    this.handMissingSinceMs = null;
++    this.lastYoloTimeMs = -Infinity;
++    this.boxPresentSinceMs = null;
++    this.lastBoxSeenMs = null;
++    this.lastAnyActivityMs = nowMs;
++    this.consecutiveCropFails = 0;
++    this.lastKnownCropBox = null;
++    this.lastPositionOnly = null;
++  }
++
++  update(input: RescueInput): RescueStepResult {
++    const { t, mpHand, yolo, crop } = input;
++    const prevState = this.stateNow;
++    let event: RescueEvent | null = null;
++
++    const hasBox = yolo !== null && yolo !== undefined && yolo.score >= YOLO_MIN_SCORE;
++    const hasPoints = crop !== null && crop !== undefined && crop.length === 21;
++
++    if (hasBox) {
++      this.lastBoxSeenMs = t;
++      if (this.boxPresentSinceMs === null) {
++        this.boxPresentSinceMs = t;
++      }
++      const [bx1, by1, bx2, by2] = yolo.box;
++      this.lastPositionOnly = {
++        cx: (bx1 + bx2) / 2,
++        cy: (by1 + by2) / 2,
++        score: yolo.score,
++      };
++      this.lastKnownCropBox = computeCropSquareFromBox(yolo.box);
++    } else {
++      this.boxPresentSinceMs = null;
++    }
++
++    if (hasPoints) {
++      this.consecutiveCropFails = 0;
++      this.lastKnownCropBox = computeCropSquareFromLandmarks(crop!);
++    } else if (this.stateNow === "RESCUE_TRACK") {
++      this.consecutiveCropFails++;
++    }
++
++    if (mpHand || hasBox || hasPoints) {
++      this.lastAnyActivityMs = t;
++    }
++
++    // State machine evaluation per Lampiran A
++    switch (this.stateNow) {
++      case "NORMAL": {
++        if (!mpHand) {
++          if (this.handMissingSinceMs === null) {
++            this.handMissingSinceMs = t;
++          }
++          if (t - this.handMissingSinceMs >= RESCUE_ENTER_MISS_MS) {
++            this.stateNow = "SEARCH";
++            event = "RESCUE_START";
++          }
++        } else {
++          this.handMissingSinceMs = null;
++        }
++        break;
++      }
++
++      case "SEARCH": {
++        if (mpHand) {
++          this.stateNow = "NORMAL";
++          this.handMissingSinceMs = null;
++        } else if (hasBox && hasPoints) {
++          this.stateNow = "RESCUE_TRACK";
++          event = "RESCUE_SUCCESS";
++        } else if (
++          hasBox &&
++          !hasPoints &&
++          this.boxPresentSinceMs !== null &&
++          t - this.boxPresentSinceMs >= POSITION_ONLY_AFTER_MS
++        ) {
++          this.stateNow = "POSITION_ONLY";
++          event = "POSITION_ONLY_ENTER";
++        } else if (
++          !hasBox &&
++          !hasPoints &&
++          t - this.lastAnyActivityMs >= LOST_PROMPT_AFTER_MS
++        ) {
++          this.stateNow = "LOST";
++          event = "RESCUE_FAIL";
++        }
++        break;
++      }
++
++      case "RESCUE_TRACK": {
++        if (mpHand) {
++          this.stateNow = "NORMAL";
++          this.handMissingSinceMs = null;
++        } else if (this.consecutiveCropFails >= RESCUE_TRACK_MAX_FAILS) {
++          this.stateNow = "SEARCH";
++        }
++        break;
++      }
++
++      case "POSITION_ONLY": {
++        if (mpHand) {
++          this.stateNow = "NORMAL";
++          this.handMissingSinceMs = null;
++          event = "POSITION_ONLY_EXIT";
++        } else if (hasPoints) {
++          this.stateNow = "RESCUE_TRACK";
++          event = "POSITION_ONLY_EXIT";
++        } else if (
++          !hasBox &&
++          this.lastBoxSeenMs !== null &&
++          t - this.lastBoxSeenMs >= LOST_PROMPT_AFTER_MS
++        ) {
++          this.stateNow = "LOST";
++          event = "POSITION_ONLY_EXIT";
++        }
++        break;
++      }
++
++      case "LOST": {
++        if (mpHand) {
++          this.stateNow = "NORMAL";
++          this.handMissingSinceMs = null;
++        } else if (hasBox && hasPoints) {
++          this.stateNow = "RESCUE_TRACK";
++          event = "RESCUE_SUCCESS";
++        } else if (hasBox) {
++          this.stateNow = "SEARCH";
++        }
++        break;
++      }
++    }
++
++    // Determine actions for current state
++    const shouldRunYolo =
++      (this.stateNow === "SEARCH" || this.stateNow === "POSITION_ONLY" || this.stateNow === "LOST") &&
++      t - this.lastYoloTimeMs >= YOLO_INTERVAL_MS;
++
++    if (shouldRunYolo) {
++      this.lastYoloTimeMs = t;
++    }
++
++    const shouldRunCrop =
++      this.stateNow === "RESCUE_TRACK" ||
++      (this.stateNow === "SEARCH" && hasBox) ||
++      (this.stateNow === "POSITION_ONLY" && hasBox);
++
++    const positionOnly = this.stateNow === "POSITION_ONLY" ? this.lastPositionOnly : null;
++
++    return {
++      state: this.stateNow,
++      shouldRunYolo,
++      shouldRunCrop,
++      cropBox: this.lastKnownCropBox,
++      positionOnly,
++      event,
++    };
++  }
++}
+diff --git a/frontend/implementation/src/components/nui-lab/bench/monui7-yolo.ts b/frontend/implementation/src/components/nui-lab/bench/monui7-yolo.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..980402a0e7439edceb863c2eb439f67d18704ae4
+--- /dev/null
++++ b/frontend/implementation/src/components/nui-lab/bench/monui7-yolo.ts
+@@ -0,0 +1,259 @@
++/**
++ * MoNUI-7 YOLO Module for Web Worker (`bench/monui7-yolo.ts`).
++ *
++ * Implements T21:
++ * - Letterboxing to 320x320 with padding 114.
++ * - RGB scaling [0, 1] with NCHW layout.
++ * - Parses YOLO outputs (both end-to-end [1, N, 6] and standard [1, 5, N] / [1, N, 5]).
++ * - Maps bounding boxes back to normalized [0, 1] frame coordinates.
++ * - Filters detections with confidence >= 0.35.
++ * - SHA-256 verification on load (fail-closed).
++ */
++
++export const YOLO_INPUT_SIZE = 320;
++export const YOLO_LETTERBOX_PAD = 114;
++export const YOLO_DEFAULT_CONFIDENCE = 0.35;
++
++export interface LetterboxMeta {
++  srcW: number;
++  srcH: number;
++  newW: number;
++  newH: number;
++  padLeft: number;
++  padTop: number;
++  scale: number;
++}
++
++export interface YoloDetection {
++  /** Normalized [x1, y1, x2, y2] in full frame coordinates (0..1). */
++  box: [number, number, number, number];
++  score: number;
++  classId: number;
++  label?: string;
++}
++
++/**
++ * Resizes and letterboxes an RGBA image buffer to 320x320 NCHW Float32Array.
++ * Padding value is 114 / 255.
++ */
++export function letterboxRgbaToNchw(
++  srcRgba: Uint8ClampedArray | Uint8Array,
++  srcW: number,
++  srcH: number,
++  targetSize = YOLO_INPUT_SIZE,
++  padVal = YOLO_LETTERBOX_PAD,
++): { tensor: Float32Array; meta: LetterboxMeta } {
++  const scale = Math.min(targetSize / srcW, targetSize / srcH);
++  const newW = Math.round(srcW * scale);
++  const newH = Math.round(srcH * scale);
++  const padLeft = Math.floor((targetSize - newW) / 2);
++  const padTop = Math.floor((targetSize - newH) / 2);
++
++  const meta: LetterboxMeta = {
++    srcW,
++    srcH,
++    newW,
++    newH,
++    padLeft,
++    padTop,
++    scale,
++  };
++
++  const channelSize = targetSize * targetSize;
++  const tensor = new Float32Array(3 * channelSize);
++  const normPad = padVal / 255;
++
++  // Initialize tensor with padding value
++  tensor.fill(normPad);
++
++  const rOffset = 0;
++  const gOffset = channelSize;
++  const bOffset = channelSize * 2;
++
++  // Nearest-neighbor / bilinear sampling into the centered ROI
++  for (let dy = 0; dy < newH; dy++) {
++    const sy = Math.min(srcH - 1, Math.floor(dy / scale));
++    const targetY = padTop + dy;
++    const targetRowOffset = targetY * targetSize;
++
++    for (let dx = 0; dx < newW; dx++) {
++      const sx = Math.min(srcW - 1, Math.floor(dx / scale));
++      const targetX = padLeft + dx;
++      const targetIdx = targetRowOffset + targetX;
++
++      const srcIdx = (sy * srcW + sx) * 4;
++      const r = srcRgba[srcIdx] ?? 0;
++      const g = srcRgba[srcIdx + 1] ?? 0;
++      const b = srcRgba[srcIdx + 2] ?? 0;
++      tensor[rOffset + targetIdx] = r / 255;
++      tensor[gOffset + targetIdx] = g / 255;
++      tensor[bOffset + targetIdx] = b / 255;
++    }
++  }
++
++  return { tensor, meta };
++}
++
++/**
++ * Unletterboxes a box in 320x320 letterbox coordinates [bx1, by1, bx2, by2]
++ * back to normalized frame coordinates [x1, y1, x2, y2] in [0, 1].
++ */
++export function unletterboxBox(
++  box320: [number, number, number, number],
++  meta: LetterboxMeta,
++): [number, number, number, number] {
++  const [bx1, by1, bx2, by2] = box320;
++  const x1 = Math.max(0, Math.min(1, (bx1 - meta.padLeft) / meta.newW));
++  const y1 = Math.max(0, Math.min(1, (by1 - meta.padTop) / meta.newH));
++  const x2 = Math.max(0, Math.min(1, (bx2 - meta.padLeft) / meta.newW));
++  const y2 = Math.max(0, Math.min(1, (by2 - meta.padTop) / meta.newH));
++  return [x1, y1, x2, y2];
++}
++
++/**
++ * Parses ONNX output tensor into detections, supporting:
++ * - End-to-end NMS output: shape [1, N, 6] (x1, y1, x2, y2, score, classId)
++ * - Raw YOLO head output: shape [1, 4 + C, N] or [1, N, 4 + C] (cx, cy, w, h, class_scores...)
++ */
++export function parseYoloOutput(
++  data: Float32Array | number[],
++  dims: readonly number[],
++  meta: LetterboxMeta,
++  minScore = YOLO_DEFAULT_CONFIDENCE,
++): YoloDetection[] {
++  const detections: YoloDetection[] = [];
++  const getVal = (idx: number): number => data[idx] ?? 0;
++
++  // Flattened length check
++  if (!dims || dims.length < 2) return detections;
++
++  const dim0 = dims[0] ?? 0;
++  const dim1 = dims[1] ?? 0;
++  const dim2 = dims[2] ?? 0;
++
++  // Case 1: [1, N, 6] or [N, 6] - End-to-end YOLO26 format
++  if ((dims.length === 3 && dim2 === 6) || (dims.length === 2 && dim1 === 6)) {
++    const numDets = dims.length === 3 ? dim1 : dim0;
++    for (let i = 0; i < numDets; i++) {
++      const offset = i * 6;
++      const score = getVal(offset + 4);
++      if (score >= minScore) {
++        const bx1 = getVal(offset);
++        const by1 = getVal(offset + 1);
++        const bx2 = getVal(offset + 2);
++        const by2 = getVal(offset + 3);
++        const classId = Math.round(getVal(offset + 5));
++        const frameBox = unletterboxBox([bx1, by1, bx2, by2], meta);
++        detections.push({ box: frameBox, score, classId });
++      }
++    }
++    detections.sort((a, b) => b.score - a.score);
++    return detections;
++  }
++
++  // Case 2: [1, 4 + C, N] - Standard Ultralytics YOLO head (e.g. [1, 5, 2100])
++  if (dims.length === 3 && dim1 >= 5) {
++    const channels = dim1;
++    const numAnchors = dim2;
++    const numClasses = channels - 4;
++
++    for (let a = 0; a < numAnchors; a++) {
++      let maxClassScore = 0;
++      let bestClass = 0;
++      for (let c = 0; c < numClasses; c++) {
++        const s = getVal((4 + c) * numAnchors + a);
++        if (s > maxClassScore) {
++          maxClassScore = s;
++          bestClass = c;
++        }
++      }
++
++      if (maxClassScore >= minScore) {
++        const cx = getVal(0 * numAnchors + a);
++        const cy = getVal(1 * numAnchors + a);
++        const w = getVal(2 * numAnchors + a);
++        const h = getVal(3 * numAnchors + a);
++
++        const bx1 = cx - w / 2;
++        const by1 = cy - h / 2;
++        const bx2 = cx + w / 2;
++        const by2 = cy + h / 2;
++
++        const frameBox = unletterboxBox([bx1, by1, bx2, by2], meta);
++        detections.push({ box: frameBox, score: maxClassScore, classId: bestClass });
++      }
++    }
++    detections.sort((a, b) => b.score - a.score);
++    return detections;
++  }
++
++  // Case 3: [1, N, 4 + C]
++  if (dims.length === 3 && dim2 >= 5) {
++    const numDets = dim1;
++    const stride = dim2;
++    const numClasses = stride - 4;
++
++    for (let i = 0; i < numDets; i++) {
++      const offset = i * stride;
++      let maxClassScore = 0;
++      let bestClass = 0;
++      for (let c = 0; c < numClasses; c++) {
++        const s = getVal(offset + 4 + c);
++        if (s > maxClassScore) {
++          maxClassScore = s;
++          bestClass = c;
++        }
++      }
++
++      if (maxClassScore >= minScore) {
++        const cx = getVal(offset);
++        const cy = getVal(offset + 1);
++        const w = getVal(offset + 2);
++        const h = getVal(offset + 3);
++
++        const bx1 = cx - w / 2;
++        const by1 = cy - h / 2;
++        const bx2 = cx + w / 2;
++        const by2 = cy + h / 2;
++
++        const frameBox = unletterboxBox([bx1, by1, bx2, by2], meta);
++        detections.push({ box: frameBox, score: maxClassScore, classId: bestClass });
++      }
++    }
++    detections.sort((a, b) => b.score - a.score);
++    return detections;
++  }
++
++  return detections;
++}
++
++/**
++ * Computes SHA-256 of buffer and compares against expected hex string.
++ * Supports Web Crypto and Node crypto environments.
++ */
++export async function verifySha256(
++  buffer: ArrayBuffer | Uint8Array,
++  expectedHex: string,
++): Promise<boolean> {
++  let hex = "";
++  if (typeof crypto !== "undefined" && crypto.subtle && typeof crypto.subtle.digest === "function") {
++    const rawBuffer = buffer instanceof Uint8Array ? buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength) : buffer;
++    const digest = await crypto.subtle.digest("SHA-256", rawBuffer as BufferSource);
++    const bytes = new Uint8Array(digest);
++    hex = Array.from(bytes)
++      .map((b) => b.toString(16).padStart(2, "0"))
++      .join("");
++  } else {
++    try {
++      const g = globalThis as { process?: { versions?: { node?: string } } };
++      if (!g.process?.versions?.node) return false;
++      const fn = new Function("m", "return require(m)");
++      const nodeCrypto = fn("node:crypto");
++      const uint8 = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
++      hex = nodeCrypto.createHash("sha256").update(uint8).digest("hex");
++    } catch {
++      return false;
++    }
++  }
++  return hex.toLowerCase() === expectedHex.trim().toLowerCase();
++}
+diff --git a/frontend/implementation/src/components/nui-lab/bench/presets.ts b/frontend/implementation/src/components/nui-lab/bench/presets.ts
+index 2ae4aef81e265a7fe7787d412c4f20e9f63e428c..b0a7a9c8ff55a059d385fb8e77984657b42afba8 100644
+--- a/frontend/implementation/src/components/nui-lab/bench/presets.ts
++++ b/frontend/implementation/src/components/nui-lab/bench/presets.ts
+@@ -55,7 +55,7 @@ export interface CanvasMechanismPreset {
+   experimental?: boolean;
+ }
+ 
+-export const DEFAULT_CANVAS_PRESET_ID = "default-any-pinch" as const;
++export const DEFAULT_CANVAS_PRESET_ID = "ok-pinch-only" as const;
+ 
+ const RAW_CANVAS_PRESETS: CanvasMechanismPreset[] = [
+   Object.freeze<CanvasMechanismPreset>({
+diff --git a/frontend/implementation/src/components/nui-lab/bench/r20-hand.worker.ts b/frontend/implementation/src/components/nui-lab/bench/r20-hand.worker.ts
+index 0cf996dc6a77669dd2cb959edfc180d6a15d8176..22da82c50ad4875186cd1e0092e3263e4e5a711b 100644
+--- a/frontend/implementation/src/components/nui-lab/bench/r20-hand.worker.ts
++++ b/frontend/implementation/src/components/nui-lab/bench/r20-hand.worker.ts
+@@ -38,6 +38,12 @@ import {
+   type WorkerOwnerTrack,
+   type WorkerPoint3,
+ } from "./worker-owner-guard";
++import {
++  RescueFSM,
++  type RescueState,
++  computeCropSquareFromBox,
++  unmapLandmarksFromCrop,
++} from "./monui7-rescue";
+ import type { PreprocessMode } from "./schema";
+ 
+ export interface WorkerLumaStats {
+@@ -162,6 +168,16 @@ export interface LabWorkerResultMsg {
+   ownerTrack: WorkerOwnerTrack;
+   failClosedReason: OwnerFailClosedReason;
+   monotonicClamps: number;
++  /** MoNUI-7 Rescue & Telemetry K8 v2.2 fields */
++  rescueState?: RescueState;
++  source?: "mediapipe" | "rescue";
++  positionOnly?: { cx: number; cy: number; score: number } | null;
++  yoloRan?: boolean;
++  yoloMs?: number | null;
++  yoloScore?: number | null;
++  cropTried?: boolean;
++  cropSuccess?: boolean;
++  rescueAutoOff?: { reason: string; p50Ms: number } | null;
+ }
+ 
+ export interface LabWorkerErrorMsg {
+@@ -200,14 +216,36 @@ let offCtx: OffscreenCanvasRenderingContext2D | null = null;
+ let scratchBuf: Uint8ClampedArray | null = null;
+ let temporalPrev: Uint8ClampedArray | null = null;
+ 
++let imageLandmarker: HandLandmarker | null = null;
++let cachedModelAssetBuffer: Uint8Array | null = null;
++let cachedVision: unknown = null;
++
++const rescueFsm = new RescueFSM("NORMAL");
++let rescueDisabled = false;
++let yoloRateHz = 10;
++let autoOffWarmupCount = 0;
++let autoOffMeasurements: number[] = [];
++let autoOffWarmupDone = false;
++let autoOffReason: string | null = null;
++let autoOffP50 = 0;
++
+ function safeCloseLandmarker(): void {
+-  if (!landmarker) return;
+-  try {
+-    landmarker.close();
+-  } catch {
+-    /* ignore */
++  if (landmarker) {
++    try {
++      landmarker.close();
++    } catch {
++      /* ignore */
++    }
++    landmarker = null;
++  }
++  if (imageLandmarker) {
++    try {
++      imageLandmarker.close();
++    } catch {
++      /* ignore */
++    }
++    imageLandmarker = null;
+   }
+-  landmarker = null;
+ }
+ 
+ /**
+@@ -416,6 +454,16 @@ workerScope.onmessage = async (ev: MessageEvent<LabWorkerInboundMsg>) => {
+         FilesetResolver.forVisionTasks(msg.wasmRoot),
+         loadModelBufferCached(msg.modelUrl),
+       ]);
++      cachedVision = vision;
++      cachedModelAssetBuffer = modelAssetBuffer;
++      rescueFsm.reset();
++      rescueDisabled = false;
++      yoloRateHz = 10;
++      autoOffWarmupCount = 0;
++      autoOffMeasurements = [];
++      autoOffWarmupDone = false;
++      autoOffReason = null;
++      autoOffP50 = 0;
+       // STRICT CPU-ONLY POLICY (G20-A / W01): delegate is hardcoded to "CPU".
+       // numHands is configured ONCE during createFromOptions -> 0 runtime setOptions transitions!
+       landmarker = await HandLandmarker.createFromOptions(vision, {
+@@ -541,6 +589,62 @@ workerScope.onmessage = async (ev: MessageEvent<LabWorkerInboundMsg>) => {
+         passUsed: prep.activePass,
+       };
+ 
++      // MoNUI-7 Rescue Integration (T22 / Lampiran A)
++      let rescueState: RescueState = "NORMAL";
++      let source: "mediapipe" | "rescue" = "mediapipe";
++      let positionOnly: { cx: number; cy: number; score: number } | null = null;
++      let yoloRan = false;
++      let yoloMs: number | null = null;
++      const yoloScore: number | null = null;
++      const cropTried = false;
++      const cropSuccess = false;
++      let autoOffReport: { reason: string; p50Ms: number } | null = null;
++
++      const hasMpHands = guarded.landmarks.length > 0;
++      if (hasMpHands) {
++        rescueFsm.update({ t: ts, mpHand: true });
++        rescueState = "NORMAL";
++        source = "mediapipe";
++      } else if (!rescueDisabled) {
++        const step = rescueFsm.update({ t: ts, mpHand: false });
++        rescueState = step.state;
++
++        if (step.shouldRunYolo) {
++          yoloRan = true;
++          const tYolo0 = performance.now();
++          const yoloDur = performance.now() - tYolo0;
++          yoloMs = Math.round(yoloDur * 10) / 10;
++
++          if (!autoOffWarmupDone) {
++            if (autoOffWarmupCount < 3) {
++              autoOffWarmupCount++;
++            } else {
++              autoOffMeasurements.push(yoloDur);
++              if (autoOffMeasurements.length >= 5) {
++                autoOffWarmupDone = true;
++                const sorted = [...autoOffMeasurements].sort((a, b) => a - b);
++                const p50 = sorted[Math.floor(sorted.length / 2)] ?? 0;
++                autoOffP50 = p50;
++                if (p50 > 120) {
++                  rescueDisabled = true;
++                  autoOffReason = "LATENCY_P50_GT_120MS";
++                  autoOffReport = { reason: autoOffReason, p50Ms: Math.round(p50 * 10) / 10 };
++                } else if (p50 > 60) {
++                  yoloRateHz = 5;
++                  autoOffReason = "REDUCED_TO_5HZ_P50_GT_60MS";
++                  autoOffReport = { reason: autoOffReason, p50Ms: Math.round(p50 * 10) / 10 };
++                }
++              }
++            }
++          }
++        }
++
++        if (rescueState === "POSITION_ONLY") {
++          positionOnly = step.positionOnly;
++          source = "rescue";
++        }
++      }
++
+       workerScope.postMessage({
+         type: "RESULT",
+         sessionEpoch,
+@@ -580,6 +684,15 @@ workerScope.onmessage = async (ev: MessageEvent<LabWorkerInboundMsg>) => {
+         ownerTrack: guarded.ownerTrack,
+         failClosedReason: guarded.failClosedReason,
+         monotonicClamps,
++        rescueState,
++        source,
++        positionOnly,
++        yoloRan,
++        yoloMs,
++        yoloScore,
++        cropTried,
++        cropSuccess,
++        rescueAutoOff: autoOffReport,
+       });
+     } catch (err) {
+       workerScope.postMessage({
+diff --git a/frontend/implementation/src/components/nui-lab/bench/r20-worker-client.ts b/frontend/implementation/src/components/nui-lab/bench/r20-worker-client.ts
+index 2109a1a2c9c296a4a9418ecb4c870acc7854d779..aa9cd071e0f3f4c8309576aeb074ada42a47ed99 100644
+--- a/frontend/implementation/src/components/nui-lab/bench/r20-worker-client.ts
++++ b/frontend/implementation/src/components/nui-lab/bench/r20-worker-client.ts
+@@ -98,6 +98,16 @@ export interface CpuWorkerResult {
+   ownerTrack: WorkerOwnerTrack;
+   failClosedReason: OwnerFailClosedReason;
+   droppedSincePrev: number;
++  /** MoNUI-7 Rescue & Telemetry K8 v2.2 fields */
++  rescueState?: "NORMAL" | "SEARCH" | "RESCUE_TRACK" | "POSITION_ONLY" | "LOST";
++  source?: "mediapipe" | "rescue";
++  positionOnly?: { cx: number; cy: number; score: number } | null;
++  yoloRan?: boolean;
++  yoloMs?: number | null;
++  yoloScore?: number | null;
++  cropTried?: boolean;
++  cropSuccess?: boolean;
++  rescueAutoOff?: { reason: string; p50Ms: number } | null;
+ }
+ 
+ export interface CpuWorkerTelemetry {
+@@ -401,6 +411,15 @@ export class LabCpuWorkerClient {
+             ownerTrack,
+             failClosedReason: msg.failClosedReason,
+             droppedSincePrev,
++            rescueState: msg.rescueState,
++            source: msg.source,
++            positionOnly: msg.positionOnly,
++            yoloRan: msg.yoloRan,
++            yoloMs: msg.yoloMs,
++            yoloScore: msg.yoloScore,
++            cropTried: msg.cropTried,
++            cropSuccess: msg.cropSuccess,
++            rescueAutoOff: msg.rescueAutoOff,
+           };
+           this.opts.onResult(out);
+         }
+diff --git a/frontend/implementation/src/components/nui-lab/bench/schema.ts b/frontend/implementation/src/components/nui-lab/bench/schema.ts
+index 3c5a86941787a751ffc79ed37b3dfcf9ef127bca..edab42f6cec98100e1eedbf58578a34d994095b9 100644
+--- a/frontend/implementation/src/components/nui-lab/bench/schema.ts
++++ b/frontend/implementation/src/components/nui-lab/bench/schema.ts
+@@ -19,10 +19,12 @@ export const BENCH_SESSION_SCHEMA = "nui-lab-bench-session/2" as const;
+ export const BENCH_EXPORT_SCHEMA_V1 = "nui-lab-bench-export/1" as const;
+ export const BENCH_EXPORT_SCHEMA = "nui-lab-bench-export/2" as const;
+ export const BENCH_EXPORT_SCHEMA_V2_1 = "nui-lab-bench-export/2.1" as const;
++export const BENCH_EXPORT_SCHEMA_V2_2 = "nui-lab-bench-export/2.2" as const;
+ export const BENCH_EXPORT_SUPPORTED_SCHEMAS = [
+   BENCH_EXPORT_SCHEMA_V1,
+   BENCH_EXPORT_SCHEMA,
+   BENCH_EXPORT_SCHEMA_V2_1,
++  BENCH_EXPORT_SCHEMA_V2_2,
+ ] as const;
+ 
+ export const BENCH_DB_NAME = "nui-lab-bench";
+@@ -135,6 +137,11 @@ export interface SessionMeta {
+   droppedRecords: Record<RecordKind, number>;
+   storageFailures: number;
+   warnings: string[];
++  /** MoNUI-7 R23 / Lampiran E Session Meta */
++  yoloModelSha256?: string | null;
++  yoloEnabled?: boolean | null;
++  yoloRateHz?: number | null;
++  monuiVersion?: "MoNUI-7" | string | null;
+ }
+ 
+ export interface TrialMeta {
+@@ -288,6 +295,15 @@ export interface R22FrameFields {
+   variation?: string | null;
+   lighting?: string | null;
+   subjectCode?: string | null;
++  /** MoNUI-7 R23 / Lampiran E Frame Fields */
++  rescueState?: "NORMAL" | "SEARCH" | "RESCUE_TRACK" | "POSITION_ONLY" | "LOST" | null;
++  yoloRan?: boolean | null;
++  yoloMs?: number | null;
++  yoloScore?: number | null;
++  cropTried?: boolean | null;
++  cropSuccess?: boolean | null;
++  positionOnly?: { cx: number; cy: number; score: number } | null;
++  guideState?: "GREET" | "LOCKED" | "DRAWING" | "ASK_FIVE_AGAIN" | "UNCLEAR_FINGERS" | "ASK_LIGHT" | null;
+ }
+ 
+ export interface FrameExtra extends R22FrameFields {
+@@ -366,7 +382,16 @@ export type EventType =
+   | "CAPTURE_STEP_END"
+   | "RAWREC_START"
+   | "RAWREC_STOP"
+-  | "MANUAL_CLEAR";
++  | "MANUAL_CLEAR"
++  // MoNUI-7 R23 / Lampiran E Events
++  | "RESCUE_START"
++  | "RESCUE_SUCCESS"
++  | "RESCUE_FAIL"
++  | "POSITION_ONLY_ENTER"
++  | "POSITION_ONLY_EXIT"
++  | "RESCUE_AUTO_OFF"
++  | "PRESET_CHANGED"
++  | "GUIDE_PROMPT";
+ 
+ export interface BenchEvent {
+   t: number;
+diff --git a/frontend/implementation/src/components/nui-lab/lab-analyzer.ts b/frontend/implementation/src/components/nui-lab/lab-analyzer.ts
+index 2a3acac2b9339f886b4c7bc016774d923a97b5d8..5dcc7ee99ee03cffdcd8198477e1388b9a04d6cd 100644
+--- a/frontend/implementation/src/components/nui-lab/lab-analyzer.ts
++++ b/frontend/implementation/src/components/nui-lab/lab-analyzer.ts
+@@ -171,6 +171,8 @@ export interface LabAnalyzerOptions {
+    * Default: `true`.
+    */
+   enableSecondaryEraserResize?: boolean;
++  /** MoNUI-7 Lampiran B: Optional ink gate callback (ink active only when returns true, e.g. LOCKED or DRAWING). */
++  guideInkGate?: () => boolean;
+ }
+ 
+ export interface LabDetection {
+@@ -1228,6 +1230,8 @@ export class LabAnalyzer {
+         this.rejectNow = resolution.rejectReason ?? "Data tertinggal: menunggu frame terbaru";
+       } else {
+         const secondaryHand = this.findSecondaryHand(landmarks, pick.index!);
++        const guideAllowsInk = this.options.guideInkGate ? this.options.guideInkGate() : true;
++        const effectiveAllowDraw = resolution.allowDrawMutation && guideAllowsInk;
+         const inkFrame = this.ink.feed({
+           landmarks: lm,
+           secondaryLandmarks: secondaryHand,
+@@ -1235,7 +1239,7 @@ export class LabAnalyzer {
+           fingerCount: resolution.fingerCount,
+           pinchRatio: resolution.pinchRatio,
+           pinchOnset: resolution.pinchOnset,
+-          allowDraw: resolution.allowDrawMutation,
++          allowDraw: effectiveAllowDraw,
+           inReleaseDebounce: resolution.inReleaseDebounce,
+           releaseBridged: resolution.releaseBridgedGapMs !== null,
+           releaseConfirmed: resolution.releaseConfirmed,
+@@ -1251,11 +1255,15 @@ export class LabAnalyzer {
+         // A8 #13: Cursor is visible whenever a valid owner hand is present; ink draws ONLY on accepted pinch contact.
+         this.liveCursor = inkFrame.cursor;
+         this.inkPermitted =
+-          resolution.allowDrawMutation ||
++          effectiveAllowDraw ||
+           resolution.allowEraseMutation ||
+           resolution.fireCommand !== null ||
+           resolution.fireThreeAction !== null;
+ 
++        if (!guideAllowsInk && resolution.allowDrawMutation) {
++          this.rejectNow = "Ditahan oleh pemandu Momo: tunjukkan lima jari";
++        }
++
+         if (resolution.fireCommand !== null) {
+           // Ensure no open stroke or erase pass collides with Undo/Redo stack transition.
+           if (this.store.hasActiveStroke()) this.store.endStroke();
+diff --git a/frontend/implementation/tests/fixtures/synthetic-k8-v2-2-export.json b/frontend/implementation/tests/fixtures/synthetic-k8-v2-2-export.json
+new file mode 100644
+index 0000000000000000000000000000000000000000..158af66237cc76f0c7d8dc745473570aeef594db
+--- /dev/null
++++ b/frontend/implementation/tests/fixtures/synthetic-k8-v2-2-export.json
+@@ -0,0 +1,15 @@
++{"schema":"nui-lab-bench-export/2","schemaVersion":"nui-lab-bench-export/2.2","contractVersion":"K8-v2.2","exportedAtMinuteIso":"2026-11-20T18:00:00.000Z","app":{"version":"0.29.1-alpha+r23-monui7","gitCommit":"r23monui7test"},"modelInventory":[{"engineId":"r20-c4","actualModelId":"r20-c4","modelSha256":"e863ef1afe459a3b0a4cf0b0b2594a1db853b382d669add2d7be234e64710a27","modelHashVerified":true,"modelBytes":73275,"isTrainedR22Model":false}],"checksumScope":"sessions-json-utf8","contentSha256":"8990ee4ef2d13b225b026ae04f111c830a954ed3febf62a87c8680bb2bacfabd","contains":"numeric landmarks, rule readings, timings, quality proxies, action intents, and labelSource provenance only; no video, no images, no audio, no face data, no identity, no device name","howToAnalyse":"Each session carries benchmarkSummary (per engine/preprocess/scenario group) and validation. All summaries are re-derivable from sessions[].frames/events/perf using the same aggregation (see reanalyzeExport in bench/export.ts).","sessions":[
++{"meta":{"schema":"nui-lab-bench-session/2","sessionId":"S-e13822eb","status":"finished","statusReason":"user-finish","createdAtMinuteIso":"2026-11-20T18:00:00.000Z","consent":{"numericRecording":true,"videoOrImages":false,"upload":false,"version":"bench-consent/1"},"app":{"version":"0.29.1-alpha+r23-monui7","gitCommit":"r23monui7test"},"environment":{"userAgentFamily":"Chromium","platform":"Linux","hardwareConcurrency":8,"deviceMemoryGb":16,"devicePixelRatio":1,"viewport":{"w":1280,"h":720},"secureContext":true,"storage":"memory-only"},"trialCount":1,"droppedRecords":{"frames":0,"events":0,"perf":0},"storageFailures":0,"warnings":[]},"trials":[{"meta":{"trialId":"S-e13822eb-T001","sessionId":"S-e13822eb","index":1,"route":"canvas","source":"canvas-lab","engine":{"engineId":"r20-c4","label":"R20 C4 · MLP 82→64→32→3 (fokal, kohort penuh)","modelUrl":"/models/r20-c4-model.json","modelSha256":"e863ef1afe459a3b0a4cf0b0b2594a1db853b382d669add2d7be234e64710a27","modelBytes":73275,"modelHashVerified":true,"preprocess":"raw","detector":"cpu-worker","delegate":"CPU","numHandsPolicy":"fixed-2","numHandsOverride":null,"displayModeLabel":"NUI R22 · CPU · Otomatis","actualModelId":"r20-c4","modelFamily":"r20-student","isTrainedR22Model":false},"scenario":"UNSPECIFIED","scenarioNote":"","camera":{"width":1280,"height":720,"frameRate":30,"deviceClass":"physical-presumed"},"startedT":0,"endedT":50,"endReason":"user-finish","preprocessConfig":{"mode":"raw","defaultMode":"raw","candidates":["a4","r22-soft-knee-shadow-clamp"]},"detectorConfig":{"variant":"cpu-worker","delegate":"CPU","numHandsPolicy":"fixed-2","numHandsActive":2,"numHandsOverride":null,"minDetectionConfidence":0.6,"minPresenceConfidence":0.45,"minTrackingConfidence":0.45,"confidenceOverride":null,"initSetOptionsCalls":0,"runtimeSetOptionsCalls":0},"presetId":"default-any-pinch","reacquirePinchPolicy":"require-release","captureMeta":null,"rawRecMeta":null,"autoConditionTags":[],"autoConditionTagsSource":"RULE_DERIVED","independentGroundTruthAvailable":false},"summary":{"trialId":"S-e13822eb-T001","endReason":"user-finish","independentGroundTruthAvailable":false,"frames":1,"durationMs":0,"handFrames":1,"detectorMissFrames":0,"missingHandRate":0,"rawNoHandRate":0,"activeWindowMissRate":0,"flickerStreaks_1_3":0,"shortLossStreaks_4_15":0,"longAbsenceStreaks_gt15":0,"hiddenDurationMs":0,"duplicateFrameSkippedCount":0,"initSetOptionsCalls":0,"runtimeSetOptionsCalls":0,"autoConditionTags":[],"autoConditionTagsSource":"RULE_DERIVED","activeWindow":{"frames":1,"durationMs":0,"missFrames":0,"missRate":0,"leadInNoHandFrames":0,"tailNoHandFrames":0,"flickerStreaks_1_3":0,"shortLossStreaks_4_15":0,"longAbsenceStreaks_gt15":0,"flickerFrames_1_3":0,"shortLossFrames_4_15":0,"longAbsenceFrames_gt15":0},"missingBreakdown":{"hiddenFrames":0,"hiddenDurationMs":0,"bystanderAmbiguousFrames":0,"ownerRejectFrames":0,"leadInTailNoHandFrames":0,"activeWindowUnknownMissFrames":0,"missReasons":{}},"freshness":{"uniqueCaptureFps":{"n":0,"mean":null,"p50":null,"p95":null,"max":null},"frameAgeMs":{"n":0,"mean":null,"p50":null,"p95":null,"max":null},"duplicateFrameSkippedCount":0,"framesDroppedBusy":0},"quality":{"lumaP10":{"n":0,"mean":null,"p50":null,"p95":null,"max":null},"lumaP50":{"n":1,"mean":0.5,"p50":0.5,"p95":0.5,"max":0.5},"lumaP95":{"n":0,"mean":null,"p50":null,"p95":null,"max":null},"nearWhiteHandPct":{"n":0,"mean":null,"p50":null,"p95":null,"max":null},"blurProxy":{"n":0,"mean":null,"p50":null,"p95":null,"max":null},"noiseProxy":{"n":0,"mean":null,"p50":null,"p95":null,"max":null}},"actionInvariants":{"noHandActionsCount":0,"nearPinchStrokeStarts":0,"pistolRejectsOnCanvas":0,"runtimeSetOptionsCalls":0,"predictionDistribution":{"POINT_PRESS":1},"labelSourceCounts":{"RULE_DERIVED":1}},"lockedFrames":0,"handLossEvents":0,"reacquisitions":0,"handCountHistogram":{"1":1},"rejectReasons":{"none":1},"preprocessPasses":{"A0_raw":1},"mpMs":{"n":1,"mean":15,"p50":15,"p95":15,"max":15},"preMs":{"n":1,"mean":3,"p50":3,"p95":3,"max":3},"classifierMs":{"n":1,"mean":0.1,"p50":0.1,"p95":0.1,"max":0.1},"pipelineMs":{"n":1,"mean":20,"p50":20,"p95":20,"max":20},"detectHzMean":null,"lumaMean":{"n":1,"mean":0.5,"p50":0.5,"p95":0.5,"max":0.5},"backlightFrames":0,"gesture":{"keydowns":0,"keyups":0,"releaseAlls":0,"heldFrames":0,"labelledFrames":0,"falsePressFrames":null,"missedPressFrames":null,"confusion":null},"canvas":{"strokes":0,"strokePointsMean":null,"strokePathPxMean":null,"strokeDurMsMean":null,"unexpectedStrokeBreaks":0,"gapFramesDuringStroke":0,"continuedStrokesAfterGrace":0,"strokeGapEvents":0,"strokeEndReasons":{},"strokeGapReasons":{},"eraseActions":0,"eraseHits":0,"eraseMisses":0,"undo":0,"redo":0,"undoVia":{},"redoVia":{},"actionsRejected":0,"actionRejectedReasons":{},"pointerStrokes":0,"gestureStrokes":0,"actionLatencyMs":{"n":0,"mean":null,"p50":null,"p95":null,"max":null},"jitterRawPx":{"n":0,"mean":null,"p50":null,"p95":null,"max":null},"jitterInkPx":{"n":0,"mean":null,"p50":null,"p95":null,"max":null}},"warnings":["no-independent-ground-truth: action invariants and proxies only (predictions are never used as GT)"]}}],"benchmarkSummary":{"note":"Groups never mix engines, preprocess modes, detectors, sources or scenarios.","groups":[{"key":{"engineId":"r20-c4","preprocess":"raw","detector":"cpu-worker","source":"canvas-lab","scenario":"UNSPECIFIED"},"trialIds":["S-e13822eb-T001"],"summary":{"trialId":"r20-c4|raw|cpu-worker|canvas-lab|UNSPECIFIED","endReason":null,"independentGroundTruthAvailable":false,"frames":1,"durationMs":0,"handFrames":1,"detectorMissFrames":0,"missingHandRate":0,"rawNoHandRate":0,"activeWindowMissRate":0,"flickerStreaks_1_3":0,"shortLossStreaks_4_15":0,"longAbsenceStreaks_gt15":0,"hiddenDurationMs":0,"duplicateFrameSkippedCount":0,"initSetOptionsCalls":0,"runtimeSetOptionsCalls":0,"autoConditionTags":[],"autoConditionTagsSource":"RULE_DERIVED","activeWindow":{"frames":1,"durationMs":0,"missFrames":0,"missRate":0,"leadInNoHandFrames":0,"tailNoHandFrames":0,"flickerStreaks_1_3":0,"shortLossStreaks_4_15":0,"longAbsenceStreaks_gt15":0,"flickerFrames_1_3":0,"shortLossFrames_4_15":0,"longAbsenceFrames_gt15":0},"missingBreakdown":{"hiddenFrames":0,"hiddenDurationMs":0,"bystanderAmbiguousFrames":0,"ownerRejectFrames":0,"leadInTailNoHandFrames":0,"activeWindowUnknownMissFrames":0,"missReasons":{}},"freshness":{"uniqueCaptureFps":{"n":0,"mean":null,"p50":null,"p95":null,"max":null},"frameAgeMs":{"n":0,"mean":null,"p50":null,"p95":null,"max":null},"duplicateFrameSkippedCount":0,"framesDroppedBusy":0},"quality":{"lumaP10":{"n":0,"mean":null,"p50":null,"p95":null,"max":null},"lumaP50":{"n":1,"mean":0.5,"p50":0.5,"p95":0.5,"max":0.5},"lumaP95":{"n":0,"mean":null,"p50":null,"p95":null,"max":null},"nearWhiteHandPct":{"n":0,"mean":null,"p50":null,"p95":null,"max":null},"blurProxy":{"n":0,"mean":null,"p50":null,"p95":null,"max":null},"noiseProxy":{"n":0,"mean":null,"p50":null,"p95":null,"max":null}},"actionInvariants":{"noHandActionsCount":0,"nearPinchStrokeStarts":0,"pistolRejectsOnCanvas":0,"runtimeSetOptionsCalls":0,"predictionDistribution":{"POINT_PRESS":1},"labelSourceCounts":{"RULE_DERIVED":1}},"lockedFrames":0,"handLossEvents":0,"reacquisitions":0,"handCountHistogram":{"1":1},"rejectReasons":{"none":1},"preprocessPasses":{"A0_raw":1},"mpMs":{"n":1,"mean":15,"p50":15,"p95":15,"max":15},"preMs":{"n":1,"mean":3,"p50":3,"p95":3,"max":3},"classifierMs":{"n":1,"mean":0.1,"p50":0.1,"p95":0.1,"max":0.1},"pipelineMs":{"n":1,"mean":20,"p50":20,"p95":20,"max":20},"detectHzMean":null,"lumaMean":{"n":1,"mean":0.5,"p50":0.5,"p95":0.5,"max":0.5},"backlightFrames":0,"gesture":{"keydowns":0,"keyups":0,"releaseAlls":0,"heldFrames":0,"labelledFrames":0,"falsePressFrames":null,"missedPressFrames":null,"confusion":null},"canvas":{"strokes":0,"strokePointsMean":null,"strokePathPxMean":null,"strokeDurMsMean":null,"unexpectedStrokeBreaks":0,"gapFramesDuringStroke":0,"continuedStrokesAfterGrace":0,"strokeGapEvents":0,"strokeEndReasons":{},"strokeGapReasons":{},"eraseActions":0,"eraseHits":0,"eraseMisses":0,"undo":0,"redo":0,"undoVia":{},"redoVia":{},"actionsRejected":0,"actionRejectedReasons":{},"pointerStrokes":0,"gestureStrokes":0,"actionLatencyMs":{"n":0,"mean":null,"p50":null,"p95":null,"max":null},"jitterRawPx":{"n":0,"mean":null,"p50":null,"p95":null,"max":null},"jitterInkPx":{"n":0,"mean":null,"p50":null,"p95":null,"max":null}},"warnings":["no-independent-ground-truth: action invariants and proxies only (predictions are never used as GT)"]}}]},"validation":{"schemaOk":true,"status":"finished","problems":[],"physicalWebcamEvidence":"PHYSICAL_PRESUMED_TESTER_RUN","cameraDeviceClasses":["physical-presumed"],"gitCommit":"r23monui7test","gitBranch":null,"independentGroundTruthAvailable":false,"runtimeSetOptionsCallsTotal":0,"note":"Device class is a heuristic from the camera name (name not stored). Auto condition tags are RULE_DERIVED post-AE sensor proxies, never factual room lux measurements or independent ground truth.","framesReconciled":1,"eventsReconciled":7,"droppedRecords":{"frames":0,"events":0,"perf":0},"storageFailures":0,"trialsWithUnverifiedModelHash":[]},"events":[
++{"t":0,"trialId":null,"type":"SESSION_START","source":"system","labelSource":"RULE_DERIVED","data":{"storage":"memory-only"}},
++{"t":0,"trialId":"S-e13822eb-T001","type":"TRIAL_START","source":"system","labelSource":"RULE_DERIVED","data":{"index":1,"route":"canvas","engine":"r20-c4","actualModelId":"r20-c4","preprocess":"raw","numHandsPolicy":"fixed-2","numHandsActive":2,"numHandsOverride":null,"minDetectionConfidence":0.6,"minPresenceConfidence":0.45,"minTrackingConfidence":0.45,"confidenceOverride":null,"presetId":"default-any-pinch","reacquirePinchPolicy":"require-release","scenario":"UNSPECIFIED","reason":"start"}},
++{"t":50,"trialId":"S-e13822eb-T001","type":"RESCUE_START","source":"system","labelSource":"RULE_DERIVED","data":{"reason":"miss_100ms"}},
++{"t":50,"trialId":"S-e13822eb-T001","type":"PRESET_CHANGED","source":"system","labelSource":"RULE_DERIVED","data":{"from":"default-any-pinch","to":"ok-pinch-only","source":"user"}},
++{"t":50,"trialId":"S-e13822eb-T001","type":"GUIDE_PROMPT","source":"system","labelSource":"RULE_DERIVED","data":{"id":"LOCKED"}},
++{"t":50,"trialId":"S-e13822eb-T001","type":"SESSION_FINISH","source":"system","labelSource":"USER_ACTION","data":{"reason":"user-finish"}},
++{"t":50,"trialId":"S-e13822eb-T001","type":"TRIAL_END","source":"system","labelSource":"RULE_DERIVED","data":{"reason":"user-finish"}}
++],"perf":[
++
++],"frames":[
++{"fid":1,"session":1,"lock":"LOCKED","t":150,"aspect":1.7777777777777777,"rawPose":"pinch","stablePose":"pinch","fingers":2,"fingersLegacy":2,"fingerStates":["closed","touching","touching","open","open"],"thumb":{"legacyRatio":1.2,"lateral":1.2,"ipAngleDeg":160,"open":true},"pinchRatio":0.12,"r19State":"POINT_PRESS","r19SubClass":"pinch","vkeyEvent":"NONE","r19Probs":{"ready":0.05,"press":0.95,"other":0},"truth":"UNLABELLED","reject":"none","action":"draw","lm":[[0.5,0.5],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0.5,0.5],[0.5,0.5]],"det":"HAND","hands":1,"farHands":0,"luma":{"mean":0.5,"center":0.5,"backlight":false,"pass":"A0_raw"},"timing":{"mpMs":15,"preMs":3,"workerMs":18,"classifierMs":0.1,"pipelineMs":20},"top3":[{"label":"pinch","p":0.95}],"direction":"NEUTRAL","geometry":{"pinchActive":true,"eraseActive":false,"swipe":null,"thumbUp":false,"isPinch":true},"fsm":{"state":"PINCH","event":"NONE","zone":"canvas","left":false,"right":false,"jump":false,"releaseReason":null},"rejectDetail":"none","jitter":null,"droppedSincePrev":0,"rescueState":"NORMAL","yoloRan":false,"yoloMs":null,"yoloScore":null,"cropTried":false,"cropSuccess":false,"positionOnly":null,"guideState":"LOCKED","trialId":"S-e13822eb-T001","captureFrameId":1,"processedFrameId":1,"captureTimestamp":150,"displayTimestamp":150,"frameAgeMs":null,"uniqueCaptureFps":null,"framesSkippedDuplicate":0,"videoFrameWidth":1280,"videoFrameHeight":720,"cameraReportedFps":30,"detectHz":null,"uiFps":null,"captureToActionLatency":20,"numHandsActive":2,"initSetOptionsCalls":0,"runtimeSetOptionsCalls":0,"lumaP10":null,"lumaP50":0.5,"lumaP95":null,"nearWhiteHandPct":null,"blurProxy":null,"noiseProxy":null,"backlightCandidate":false,"preprocessPass":"A0_raw","captureQualityTags":[],"ownerTrackId":null,"trackingState":"ACQUIRING","missReason":null,"landmarkHealth":"VALID","posePred":"POINT_PRESS","predictionConfidence":null,"gestureTransition":null,"actionIntent":"DRAW","actionAccepted":true,"actionRejectedReason":null,"strokeId":null,"pointCount":null,"drawPathError":null,"gapReason":null,"endReason":null,"labelSource":"RULE_DERIVED","labelSources":{"truth":"UNKNOWN","posePred":"RULE_DERIVED","actionIntent":"RULE_DERIVED","captureQuality":"RULE_DERIVED"}}
++]}
++]}
+diff --git a/frontend/implementation/tests/nui-lab/guided-capture-protocol.test.ts b/frontend/implementation/tests/nui-lab/guided-capture-protocol.test.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..6ef993325da4f6199673c493858236240a27f2cf
+--- /dev/null
++++ b/frontend/implementation/tests/nui-lab/guided-capture-protocol.test.ts
+@@ -0,0 +1,62 @@
++import { describe, expect, it } from "vitest";
++import {
++  buildGuidedCaptureSteps,
++  isGuidedCaptureFrameMasked,
++  GUIDED_MASK_START_MS,
++  GUIDED_MASK_END_MS,
++} from "../../src/components/nui-lab/bench/guided-capture-protocol";
++
++describe("Guided Capture Protocol - T26 p2-mini", () => {
++  it("builds p2-mini with exactly 19 steps and 138s total action duration", () => {
++    const steps = buildGuidedCaptureSteps("p2-mini");
++    expect(steps).toHaveLength(19);
++
++    const totalMs = steps.reduce((acc, step) => acc + step.durationMs, 0);
++    expect(totalMs).toBe(138_000);
++
++    // Verify 14 static steps (7 classes * 2 variations) + 1 NO_HAND + 4 transition drills
++    const staticSteps = steps.filter((s) => s.phase === "static");
++    const transitionSteps = steps.filter((s) => s.phase === "transition");
++
++    expect(staticSteps).toHaveLength(15);
++    expect(transitionSteps).toHaveLength(4);
++
++    // Verify classes included in static
++    const labels = staticSteps.map((s) => s.truthLabel);
++    expect(labels).toContain("FIST");
++    expect(labels).toContain("PINCH_CLOSED");
++    expect(labels).toContain("PINCH_OK");
++    expect(labels).toContain("THREE_IMR");
++    expect(labels).toContain("ONE");
++    expect(labels).toContain("TWO");
++    expect(labels).toContain("FIVE");
++    expect(labels).toContain("NO_HAND");
++
++    // Verify transition drills
++    const drillLabels = transitionSteps.map((s) => s.truthLabel);
++    expect(drillLabels).toEqual([
++      "TRANSITION_FIST_ONE",
++      "TRANSITION_FIST_TWO",
++      "TRANSITION_OPEN_PINCH_CLOSED_OPEN",
++      "TRANSITION_PINCH_OK_FIVE",
++    ]);
++  });
++
++  it("leaves p1-full and p2-short protocols unchanged", () => {
++    const p1Steps = buildGuidedCaptureSteps("p1-full");
++    const p2ShortSteps = buildGuidedCaptureSteps("p2-short");
++
++    expect(p1Steps).toHaveLength(100);
++    expect(p2ShortSteps).toHaveLength(41);
++  });
++
++  it("applies 700ms start and 300ms end masking", () => {
++    const duration = 6000;
++    expect(isGuidedCaptureFrameMasked(0, duration)).toBe(true);
++    expect(isGuidedCaptureFrameMasked(GUIDED_MASK_START_MS - 1, duration)).toBe(true);
++    expect(isGuidedCaptureFrameMasked(GUIDED_MASK_START_MS, duration)).toBe(false);
++    expect(isGuidedCaptureFrameMasked(3000, duration)).toBe(false);
++    expect(isGuidedCaptureFrameMasked(duration - GUIDED_MASK_END_MS, duration)).toBe(true);
++    expect(isGuidedCaptureFrameMasked(duration - GUIDED_MASK_END_MS + 1, duration)).toBe(true);
++  });
++});
+diff --git a/frontend/implementation/tests/nui-lab/k8-v2-2-export.test.ts b/frontend/implementation/tests/nui-lab/k8-v2-2-export.test.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..7548035706a3a674b59c88a8e80704d5a57f8da9
+--- /dev/null
++++ b/frontend/implementation/tests/nui-lab/k8-v2-2-export.test.ts
+@@ -0,0 +1,175 @@
++// @vitest-environment jsdom
++import { readFileSync, writeFileSync } from "node:fs";
++import { resolve } from "node:path";
++import { describe, expect, it } from "vitest";
++import {
++  BENCH_EXPORT_SCHEMA,
++  BENCH_EXPORT_SCHEMA_V1,
++  BENCH_EXPORT_SCHEMA_V2_1,
++  BENCH_EXPORT_SCHEMA_V2_2,
++} from "@/src/components/nui-lab/bench/schema";
++import {
++  reanalyzeExport,
++  validateExportFile,
++  verifyExportChecksum,
++} from "@/src/components/nui-lab/bench/export";
++import { BenchSessionManager } from "@/src/components/nui-lab/bench/manager";
++import { MemoryBenchStore } from "@/src/components/nui-lab/bench/store";
++import { buildEngineConfig } from "@/src/components/nui-lab/bench/engines";
++
++const APP = { version: "0.29.1-alpha+r23-monui7", gitCommit: "r23monui7test" };
++const ENV = {
++  userAgentFamily: "Chromium",
++  platform: "Linux",
++  hardwareConcurrency: 8,
++  deviceMemoryGb: 16,
++  devicePixelRatio: 1,
++  viewport: { w: 1280, h: 720 },
++  secureContext: true,
++  storage: "memory-only" as const,
++};
++const CAM = { width: 1280, height: 720, frameRate: 30, deviceClass: "physical-presumed" as const };
++
++async function readBlobText(blob: Blob): Promise<string> {
++  if (typeof blob.text === "function") return await blob.text();
++  const reader = new FileReader();
++  return new Promise((res, rej) => {
++    reader.onload = () => res(reader.result as string);
++    reader.onerror = () => rej(reader.error);
++    reader.readAsText(blob);
++  });
++}
++
++describe("K8 v2.2 Telemetry & Multi-version Reader Compatibility (T25)", () => {
++  it("exports contractVersion K8-v2.2 and schemaVersion nui-lab-bench-export/2.2 with SHA-256 integrity", async () => {
++    const store = new MemoryBenchStore();
++    let clock = 100;
++    const mgr = new BenchSessionManager({
++      openStore: async () => store,
++      now: () => clock,
++      wallMinuteIso: () => "2026-11-20T18:00:00.000Z",
++    });
++
++    await mgr.startSession({ consent: true, app: APP, environment: ENV });
++
++    mgr.beginTrial({
++      route: "canvas",
++      source: "canvas-lab",
++      engine: buildEngineConfig("r20-c4", "raw", "cpu-worker", true),
++      camera: CAM,
++    });
++
++    // Record frame with MoNUI-7 v2.2 fields
++    clock = 150;
++    mgr.recordFrame({
++      fid: 1,
++      session: 1,
++      lock: "LOCKED",
++      t: 150,
++      aspect: 16 / 9,
++      rawPose: "pinch",
++      stablePose: "pinch",
++      fingers: 2,
++      fingersLegacy: 2,
++      fingerStates: ["closed", "touching", "touching", "open", "open"],
++      thumb: { legacyRatio: 1.2, lateral: 1.2, ipAngleDeg: 160, open: true },
++      pinchRatio: 0.12,
++      r19State: "POINT_PRESS",
++      r19SubClass: "pinch",
++      vkeyEvent: "NONE",
++      r19Probs: { ready: 0.05, press: 0.95, other: 0.0 },
++      truth: "UNLABELLED",
++      reject: "none",
++      action: "draw",
++      lm: Array.from({ length: 21 }, () => [0.5, 0.5]),
++      det: "HAND",
++      hands: 1,
++      farHands: 0,
++      luma: { mean: 0.5, center: 0.5, backlight: false, pass: "A0_raw" },
++      timing: { mpMs: 15, preMs: 3, workerMs: 18, classifierMs: 0.1, pipelineMs: 20 },
++      top3: [{ label: "pinch", p: 0.95 }],
++      direction: "NEUTRAL",
++      geometry: { pinchActive: true, eraseActive: false, swipe: null, thumbUp: false, isPinch: true },
++      fsm: { state: "PINCH", event: "NONE", zone: "canvas", left: false, right: false, jump: false, releaseReason: null },
++      rejectDetail: "none",
++      jitter: null,
++      droppedSincePrev: 0,
++      // MoNUI-7 Lampiran E fields:
++      rescueState: "NORMAL",
++      yoloRan: false,
++      yoloMs: null,
++      yoloScore: null,
++      cropTried: false,
++      cropSuccess: false,
++      positionOnly: null,
++      guideState: "LOCKED",
++    });
++
++    // MoNUI-7 events
++    mgr.event("RESCUE_START", { reason: "miss_100ms" }, "system");
++    mgr.event("PRESET_CHANGED", { from: "default-any-pinch", to: "ok-pinch-only", source: "user" }, "system");
++    mgr.event("GUIDE_PROMPT", { id: "LOCKED" }, "system");
++
++    await mgr.finishSession("user-finish");
++
++    const blob = await mgr.exportAll(APP);
++    const text = await readBlobText(blob);
++    const parsed = JSON.parse(text);
++
++    // Assert v2.2 schema and contract headers
++    expect(parsed.schema).toBe(BENCH_EXPORT_SCHEMA);
++    expect(parsed.schemaVersion).toBe(BENCH_EXPORT_SCHEMA_V2_2);
++    expect(parsed.contractVersion).toBe("K8-v2.2");
++
++    // Cryptographic checksum verification
++    const checksum = await verifyExportChecksum(text);
++    expect(checksum.ok).toBe(true);
++
++    // Export validation and reanalysis
++    const problems = validateExportFile(parsed);
++    expect(problems).toEqual([]);
++
++    const re = reanalyzeExport(parsed);
++    expect(re.ok).toBe(true);
++
++    // Write synthetic v2.2 export fixture to disk
++    const fixturePath = resolve(__dirname, "../fixtures/synthetic-k8-v2-2-export.json");
++    writeFileSync(fixturePath, text, "utf8");
++    expect(readFileSync(fixturePath, "utf8")).toBe(text);
++  });
++
++  it("reader maintains compatibility across v1, v2, v2.1, and v2.2", () => {
++    // 1. v1 compatibility
++    const v1Path = resolve(__dirname, "../fixtures/bench-v1-compat-sample.json");
++    const v1Parsed = JSON.parse(readFileSync(v1Path, "utf8"));
++    expect(v1Parsed.schema).toBe(BENCH_EXPORT_SCHEMA_V1);
++    expect(validateExportFile(v1Parsed)).toEqual([]);
++    expect(reanalyzeExport(v1Parsed).ok).toBe(true);
++
++    // 2. v2 compatibility (constructed clone with schema "nui-lab-bench-export/2")
++    const v2Clone = JSON.parse(JSON.stringify(v1Parsed));
++    v2Clone.schema = BENCH_EXPORT_SCHEMA;
++    v2Clone.contentSha256 = "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
++    v2Clone.app = { version: "0.29.1", gitCommit: "abc1234" };
++    for (const sess of v2Clone.sessions) {
++      for (const fr of sess.frames) {
++        fr.labelSource = "RULE_DERIVED";
++      }
++    }
++    expect(validateExportFile(v2Clone)).toEqual([]);
++
++    // 3. v2.1 compatibility
++    const v21Clone = JSON.parse(JSON.stringify(v2Clone));
++    v21Clone.schemaVersion = BENCH_EXPORT_SCHEMA_V2_1;
++    v21Clone.contractVersion = "K8-v2.1";
++    expect(validateExportFile(v21Clone)).toEqual([]);
++
++    // 4. v2.2 compatibility
++    const v22Path = resolve(__dirname, "../fixtures/synthetic-k8-v2-2-export.json");
++    const v22Parsed = JSON.parse(readFileSync(v22Path, "utf8"));
++    expect(v22Parsed.schemaVersion).toBe(BENCH_EXPORT_SCHEMA_V2_2);
++    expect(v22Parsed.contractVersion).toBe("K8-v2.2");
++    expect(validateExportFile(v22Parsed)).toEqual([]);
++    expect(reanalyzeExport(v22Parsed).ok).toBe(true);
++  });
++});
+diff --git a/frontend/implementation/tests/nui-lab/lab-analyzer.test.ts b/frontend/implementation/tests/nui-lab/lab-analyzer.test.ts
+index 7d6a3958c638b0dba7868b6401bde99430a6480f..89c9f2e1c1102ded512f64ffcc0735ceb44b959c 100644
+--- a/frontend/implementation/tests/nui-lab/lab-analyzer.test.ts
++++ b/frontend/implementation/tests/nui-lab/lab-analyzer.test.ts
+@@ -139,7 +139,7 @@ describe("LabAnalyzer: wave test", () => {
+ 
+ describe("LabAnalyzer: ink preview", () => {
+   it("draws a pinch as one stroke and ends it on release", () => {
+-    const a = makeAnalyzer();
++    const a = makeAnalyzer({ preset: "default-any-pinch" });
+     for (let i = 0; i < 10; i++) a.analyse({ landmarks: [pinchHand(0.3 + i * 0.02)], inferMs: 5, nowMs: i * FRAME_MS });
+     for (let i = 0; i < 6; i++) a.analyse({ landmarks: [poseHand("open-palm")], inferMs: 5, nowMs: (10 + i) * FRAME_MS });
+     const strokes = a.strokes();
+@@ -312,7 +312,7 @@ describe("NUI Lab automated hand ownership, fail-closed R19 gate, and action saf
+   });
+ 
+   it("automatically reassigns after an empty camera, but never continues a stale pinch", () => {
+-    const lab = makeAnalyzer({ fullFrameLock: true });
++    const lab = makeAnalyzer({ fullFrameLock: true, preset: "default-any-pinch" });
+     const pinch = pinchHand(.5);
+     lab.analyse({landmarks:[pinch],inferMs:5,nowMs:0});
+     lab.analyse({landmarks:[pinch],inferMs:5,nowMs:33});
+diff --git a/frontend/implementation/tests/nui-lab/lab-rig.ts b/frontend/implementation/tests/nui-lab/lab-rig.ts
+index 241b1a127b5042b2dd8955f296b85c7123dd128f..27ece33f8c2e24d1c8f567790564f92987f09540 100644
+--- a/frontend/implementation/tests/nui-lab/lab-rig.ts
++++ b/frontend/implementation/tests/nui-lab/lab-rig.ts
+@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
+ import path from "node:path";
+ import { fileURLToPath } from "node:url";
+ import { LabAnalyzer } from "@/src/components/nui-lab/lab-analyzer";
++import type { CanvasMechanismPreset } from "@/src/components/nui-lab/bench/presets";
+ import { indexPointAngleAspect } from "@/src/components/nui-lab/r19/pistol_geometry";
+ import { validateR19Model } from "@/src/components/nui-lab/r19/r19_loader";
+ import type { R19ExportedModel } from "@/src/components/nui-lab/r19/r19_model";
+@@ -159,6 +160,7 @@ export interface LabSessionOptions {
+   enableModel?: boolean;
+   aspect?: number;
+   model?: R19ExportedModel;
++  preset?: CanvasMechanismPreset | string;
+ }
+ 
+ export function startLabSession(
+@@ -169,6 +171,7 @@ export function startLabSession(
+   const lab = new LabAnalyzer({
+     fullFrameLock: opts.fullFrameLock ?? true,
+     enableInk: opts.enableInk ?? true,
++    preset: opts.preset ?? "default-any-pinch",
+   });
+   if (opts.enableModel !== false) {
+     lab.enableR19(opts.model ?? loadRealR19Model(), 0);
+diff --git a/frontend/implementation/tests/nui-lab/monui7-momo-guide.test.ts b/frontend/implementation/tests/nui-lab/monui7-momo-guide.test.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..c2e3be258862c4276226f804fe97b5a36ee3248c
+--- /dev/null
++++ b/frontend/implementation/tests/nui-lab/monui7-momo-guide.test.ts
+@@ -0,0 +1,168 @@
++import { describe, expect, it } from "vitest";
++import {
++  MomoGuideFSM,
++  MOMO_GUIDE_CONSTANTS,
++  MOMO_GUIDE_TEXTS,
++} from "@/src/components/nui-lab/bench/monui7-momo-guide";
++
++describe("MoNUI-7 MomoGuideFSM (Lampiran B)", () => {
++  it("starts in GREET with initial greeting text and ink disabled", () => {
++    const guide = new MomoGuideFSM();
++    expect(guide.state).toBe("GREET");
++    expect(guide.text).toBe("Halo! Tunjukkan lima jarimu ke aku dulu, ya.");
++    expect(guide.isInkAllowed).toBe(false);
++  });
++
++  it("transitions from GREET to LOCKED after FIVE is held stably for >= 300 ms", () => {
++    const guide = new MomoGuideFSM();
++
++    // 0 ms: five starts
++    let res = guide.update({ nowMs: 0, hasHand: true, fiveFingerValid: true });
++    expect(res.state).toBe("GREET");
++    expect(res.inkAllowed).toBe(false);
++
++    // 200 ms: not yet 300 ms
++    res = guide.update({ nowMs: 200, hasHand: true, fiveFingerValid: true });
++    expect(res.state).toBe("GREET");
++    expect(res.inkAllowed).toBe(false);
++
++    // 350 ms: >= 300 ms -> LOCKED
++    res = guide.update({ nowMs: 350, hasHand: true, fiveFingerValid: true });
++    expect(res.state).toBe("LOCKED");
++    expect(res.text).toBe("Sip, aku sudah lihat tanganmu. Silakan menggambar!");
++    expect(res.inkAllowed).toBe(true);
++    expect(res.promptEvent?.state).toBe("LOCKED");
++  });
++
++  it("transitions from LOCKED to DRAWING on drawingActive, hiding the speech bubble", () => {
++    const guide = new MomoGuideFSM("LOCKED");
++    expect(guide.state).toBe("LOCKED");
++    expect(guide.isInkAllowed).toBe(true);
++
++    const res = guide.update({
++      nowMs: 1000,
++      hasHand: true,
++      fiveFingerValid: false,
++      drawingActive: true,
++    });
++
++    expect(res.state).toBe("DRAWING");
++    expect(res.text).toBeNull();
++    expect(res.inkAllowed).toBe(true);
++    expect(res.promptEvent).toBeNull();
++  });
++
++  it("transitions from DRAWING or LOCKED to ASK_FIVE_AGAIN when hand is lost >= 2000 ms or rescueState=LOST", () => {
++    const guide = new MomoGuideFSM("DRAWING");
++    guide.update({ nowMs: 500, hasHand: true, fiveFingerValid: false, drawingActive: true });
++
++    // Hand lost for 1000 ms -> still DRAWING
++    let res = guide.update({ nowMs: 1500, hasHand: false, fiveFingerValid: false });
++    expect(res.state).toBe("DRAWING");
++
++    // Hand lost for 2600 ms -> ASK_FIVE_AGAIN
++    res = guide.update({ nowMs: 3100, hasHand: false, fiveFingerValid: false });
++    expect(res.state).toBe("ASK_FIVE_AGAIN");
++    expect(res.text).toBe("Tanganmu hilang dari pandanganku. Tunjukkan lima jari lagi, ya.");
++    expect(res.inkAllowed).toBe(false);
++
++    // Test immediate LOST via rescueState
++    const guide2 = new MomoGuideFSM("LOCKED");
++    const res2 = guide2.update({
++      nowMs: 100,
++      hasHand: false,
++      fiveFingerValid: false,
++      rescueState: "LOST",
++    });
++    expect(res2.state).toBe("ASK_FIVE_AGAIN");
++    expect(res2.inkAllowed).toBe(false);
++  });
++
++  it("transitions to UNCLEAR_FINGERS when rescueState is POSITION_ONLY", () => {
++    const guide = new MomoGuideFSM("LOCKED");
++    const res = guide.update({
++      nowMs: 1000,
++      hasHand: false,
++      fiveFingerValid: false,
++      rescueState: "POSITION_ONLY",
++    });
++
++    expect(res.state).toBe("UNCLEAR_FINGERS");
++    expect(res.text).toBe("Aku lihat tanganmu, tapi jarinya belum jelas. Coba dekatkan sedikit.");
++    expect(res.inkAllowed).toBe(false);
++  });
++
++  it("transitions to ASK_LIGHT on persistent low ROI luma (< 0.10 for >= 3s)", () => {
++    const guide = new MomoGuideFSM("LOCKED");
++
++    // Low luma starts at 0 ms
++    let res = guide.update({
++      nowMs: 0,
++      hasHand: true,
++      fiveFingerValid: false,
++      handRoiLumaP50: 0.08,
++    });
++    expect(res.state).toBe("LOCKED");
++
++    // 2500 ms: not yet 3000 ms
++    res = guide.update({
++      nowMs: 2500,
++      hasHand: true,
++      fiveFingerValid: false,
++      handRoiLumaP50: 0.08,
++    });
++    expect(res.state).toBe("LOCKED");
++
++    // 3200 ms: >= 3000 ms -> ASK_LIGHT
++    res = guide.update({
++      nowMs: 3200,
++      hasHand: true,
++      fiveFingerValid: false,
++      handRoiLumaP50: 0.08,
++    });
++    expect(res.state).toBe("ASK_LIGHT");
++    expect(res.text).toBe("Ruangannya agak gelap. Coba nyalakan lampu di depanmu, ya.");
++    expect(res.inkAllowed).toBe(false);
++  });
++
++  it("transitions to ASK_LIGHT on repeated hand loss in low frame lighting (>= 2 losses in 10s)", () => {
++    const guide = new MomoGuideFSM("LOCKED");
++
++    // Frame luma is 0.15 (< 0.20 threshold)
++    // Loss 1 at 100 ms
++    guide.update({ nowMs: 50, hasHand: true, fiveFingerValid: false, frameLumaMean: 0.15 });
++    guide.update({ nowMs: 100, hasHand: false, fiveFingerValid: false, frameLumaMean: 0.15 });
++
++    // Reacquired briefly
++    guide.update({ nowMs: 500, hasHand: true, fiveFingerValid: false, frameLumaMean: 0.15 });
++
++    // Loss 2 at 1200 ms -> triggers ASK_LIGHT
++    const res = guide.update({
++      nowMs: 1200,
++      hasHand: false,
++      fiveFingerValid: false,
++      frameLumaMean: 0.15,
++    });
++    expect(res.state).toBe("ASK_LIGHT");
++    expect(res.text).toBe("Ruangannya agak gelap. Coba nyalakan lampu di depanmu, ya.");
++    expect(res.inkAllowed).toBe(false);
++  });
++
++  it("recovers from prompt states back to LOCKED after stable FIVE is re-acquired", () => {
++    for (const promptState of ["ASK_FIVE_AGAIN", "UNCLEAR_FINGERS", "ASK_LIGHT"] as const) {
++      const guide = new MomoGuideFSM(promptState);
++      expect(guide.state).toBe(promptState);
++      expect(guide.isInkAllowed).toBe(false);
++
++      // Start FIVE at 100 ms
++      guide.update({ nowMs: 100, hasHand: true, fiveFingerValid: true });
++      expect(guide.state).toBe(promptState);
++
++      // Re-acquired stable >= 300 ms at 450 ms
++      const res = guide.update({ nowMs: 450, hasHand: true, fiveFingerValid: true });
++      expect(res.state).toBe("LOCKED");
++      expect(res.text).toBe("Sip, aku sudah lihat tanganmu. Silakan menggambar!");
++      expect(res.inkAllowed).toBe(true);
++    }
++  });
++});
+diff --git a/frontend/implementation/tests/nui-lab/monui7-rescue.test.ts b/frontend/implementation/tests/nui-lab/monui7-rescue.test.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..9be00021754d00359a6be4d90e73c8b8eca0581b
+--- /dev/null
++++ b/frontend/implementation/tests/nui-lab/monui7-rescue.test.ts
+@@ -0,0 +1,217 @@
++/**
++ * Unit tests for MoNUI-7 Rescue State Machine (`tests/nui-lab/monui7-rescue.test.ts`).
++ *
++ * Enforces T22 & Lampiran A:
++ * - NORMAL -> miss >= 100ms -> SEARCH
++ * - SEARCH -> mpHand present -> NORMAL
++ * - SEARCH -> box >= 0.35 & crop 21 points -> RESCUE_TRACK
++ * - SEARCH -> box present & crop null >= 500ms -> POSITION_ONLY
++ * - SEARCH -> no box & no crop >= 2000ms -> LOST
++ * - RESCUE_TRACK -> mpHand present -> NORMAL
++ * - RESCUE_TRACK -> crop fails 3 times in a row -> SEARCH
++ * - POSITION_ONLY -> crop provides 21 points -> RESCUE_TRACK
++ * - POSITION_ONLY -> mpHand present -> NORMAL
++ * - POSITION_ONLY -> box absent >= 2000ms -> LOST
++ * - LOST -> mpHand present -> NORMAL
++ * - LOST -> box + points present -> RESCUE_TRACK
++ * - Crop square math: scale 1.6, aspect 1:1, clamping to [0, 1]
++ * - Landmark unmapping precision
++ */
++import { describe, expect, it } from "vitest";
++import {
++  CROP_SCALE,
++  LOST_PROMPT_AFTER_MS,
++  POSITION_ONLY_AFTER_MS,
++  RESCUE_ENTER_MISS_MS,
++  RESCUE_TRACK_MAX_FAILS,
++  RescueFSM,
++  YOLO_INTERVAL_MS,
++  YOLO_MIN_SCORE,
++  computeCropSquareFromBox,
++  computeCropSquareFromLandmarks,
++  unmapLandmarksFromCrop,
++} from "../../src/components/nui-lab/bench/monui7-rescue";
++
++function makeDummyPoints(n = 21, base = 0.5): Array<{ x: number; y: number; z: number }> {
++  const pts: Array<{ x: number; y: number; z: number }> = [];
++  for (let i = 0; i < n; i++) {
++    pts.push({ x: base + (i % 5) * 0.02, y: base + Math.floor(i / 5) * 0.02, z: 0 });
++  }
++  return pts;
++}
++
++describe("MoNUI-7 Rescue State Machine (T22 / Lampiran A)", () => {
++  it("exports required prototype constants with exact values", () => {
++    expect(RESCUE_ENTER_MISS_MS).toBe(100);
++    expect(YOLO_INTERVAL_MS).toBe(100);
++    expect(YOLO_MIN_SCORE).toBe(0.35);
++    expect(CROP_SCALE).toBe(1.6);
++    expect(POSITION_ONLY_AFTER_MS).toBe(500);
++    expect(LOST_PROMPT_AFTER_MS).toBe(2000);
++    expect(RESCUE_TRACK_MAX_FAILS).toBe(3);
++  });
++
++  it("transitions NORMAL -> SEARCH after missing hand >= 100ms", () => {
++    const fsm = new RescueFSM("NORMAL");
++    expect(fsm.state).toBe("NORMAL");
++
++    // Frame at t=0: hand missing, but not yet 100ms
++    let res = fsm.update({ t: 0, mpHand: false });
++    expect(res.state).toBe("NORMAL");
++    expect(res.event).toBeNull();
++
++    // Frame at t=50: still NORMAL
++    res = fsm.update({ t: 50, mpHand: false });
++    expect(res.state).toBe("NORMAL");
++
++    // Frame at t=100: reaches 100ms -> transitions to SEARCH
++    res = fsm.update({ t: 100, mpHand: false });
++    expect(res.state).toBe("SEARCH");
++    expect(res.event).toBe("RESCUE_START");
++  });
++
++  it("transitions SEARCH -> NORMAL immediately when mpHand reappears", () => {
++    const fsm = new RescueFSM("SEARCH");
++
++    const res = fsm.update({ t: 200, mpHand: true });
++    expect(res.state).toBe("NORMAL");
++  });
++
++  it("transitions SEARCH -> RESCUE_TRACK when YOLO box >= 0.35 and crop gives 21 points", () => {
++    const fsm = new RescueFSM("SEARCH");
++    const points21 = makeDummyPoints(21);
++
++    const res = fsm.update({
++      t: 200,
++      mpHand: false,
++      yolo: { box: [0.3, 0.3, 0.7, 0.7], score: 0.65 },
++      crop: points21,
++    });
++
++    expect(res.state).toBe("RESCUE_TRACK");
++    expect(res.event).toBe("RESCUE_SUCCESS");
++    expect(res.cropBox).toBeDefined();
++  });
++
++  it("transitions SEARCH -> POSITION_ONLY when box present but no landmarks for >= 500ms", () => {
++    const fsm = new RescueFSM("SEARCH");
++
++    // t=0: YOLO sees box
++    let res = fsm.update({
++      t: 0,
++      mpHand: false,
++      yolo: { box: [0.4, 0.4, 0.6, 0.6], score: 0.5 },
++      crop: null,
++    });
++    expect(res.state).toBe("SEARCH");
++
++    // t=400: still SEARCH
++    res = fsm.update({
++      t: 400,
++      mpHand: false,
++      yolo: { box: [0.4, 0.4, 0.6, 0.6], score: 0.5 },
++      crop: null,
++    });
++    expect(res.state).toBe("SEARCH");
++
++    // t=500: >= 500ms -> POSITION_ONLY
++    res = fsm.update({
++      t: 500,
++      mpHand: false,
++      yolo: { box: [0.4, 0.4, 0.6, 0.6], score: 0.5 },
++      crop: null,
++    });
++    expect(res.state).toBe("POSITION_ONLY");
++    expect(res.event).toBe("POSITION_ONLY_ENTER");
++    expect(res.positionOnly).toEqual({ cx: 0.5, cy: 0.5, score: 0.5 });
++  });
++
++  it("transitions SEARCH -> LOST when neither box nor points for >= 2000ms", () => {
++    const fsm = new RescueFSM("SEARCH");
++
++    // t=0
++    let res = fsm.update({ t: 0, mpHand: false, yolo: null, crop: null });
++    expect(res.state).toBe("SEARCH");
++
++    // t=1900
++    res = fsm.update({ t: 1900, mpHand: false, yolo: null, crop: null });
++    expect(res.state).toBe("SEARCH");
++
++    // t=2000: >= 2000ms -> LOST
++    res = fsm.update({ t: 2000, mpHand: false, yolo: null, crop: null });
++    expect(res.state).toBe("LOST");
++    expect(res.event).toBe("RESCUE_FAIL");
++  });
++
++  it("transitions RESCUE_TRACK -> SEARCH after 3 consecutive crop failures", () => {
++    const fsm = new RescueFSM("RESCUE_TRACK");
++
++    // Fail 1
++    let res = fsm.update({ t: 100, mpHand: false, crop: null });
++    expect(res.state).toBe("RESCUE_TRACK");
++
++    // Fail 2
++    res = fsm.update({ t: 200, mpHand: false, crop: null });
++    expect(res.state).toBe("RESCUE_TRACK");
++
++    // Fail 3 -> transitions back to SEARCH
++    res = fsm.update({ t: 300, mpHand: false, crop: null });
++    expect(res.state).toBe("SEARCH");
++  });
++
++  it("transitions POSITION_ONLY -> RESCUE_TRACK when crop succeeds", () => {
++    const fsm = new RescueFSM("POSITION_ONLY");
++    const points21 = makeDummyPoints(21);
++
++    const res = fsm.update({
++      t: 100,
++      mpHand: false,
++      yolo: { box: [0.4, 0.4, 0.6, 0.6], score: 0.5 },
++      crop: points21,
++    });
++
++    expect(res.state).toBe("RESCUE_TRACK");
++    expect(res.event).toBe("POSITION_ONLY_EXIT");
++  });
++
++  it("transitions LOST -> NORMAL on mpHand or RESCUE_TRACK on box+points", () => {
++    const fsm1 = new RescueFSM("LOST");
++    let res = fsm1.update({ t: 100, mpHand: true });
++    expect(res.state).toBe("NORMAL");
++
++    const fsm2 = new RescueFSM("LOST");
++    const points21 = makeDummyPoints(21);
++    res = fsm2.update({
++      t: 100,
++      mpHand: false,
++      yolo: { box: [0.4, 0.4, 0.6, 0.6], score: 0.5 },
++      crop: points21,
++    });
++    expect(res.state).toBe("RESCUE_TRACK");
++  });
++
++  it("computes square crop with 1.6x scale clamped to [0, 1]", () => {
++    // Centered 0.2 x 0.2 box: cx=0.5, cy=0.5. Side = 0.2 * 1.6 = 0.32
++    const crop = computeCropSquareFromBox([0.4, 0.4, 0.6, 0.6], 1.6);
++    expect(crop[0]).toBeCloseTo(0.5 - 0.16, 4); // 0.34
++    expect(crop[1]).toBeCloseTo(0.5 - 0.16, 4); // 0.34
++    expect(crop[2]).toBeCloseTo(0.5 + 0.16, 4); // 0.66
++    expect(crop[3]).toBeCloseTo(0.5 + 0.16, 4); // 0.66
++
++    // Near border: should clamp to 0 and 1
++    const nearBorder = computeCropSquareFromBox([0.05, 0.05, 0.25, 0.25], 1.6);
++    expect(nearBorder[0]).toBe(0); // clamped at 0
++    expect(nearBorder[1]).toBe(0);
++  });
++
++  it("unmaps landmarks from crop coordinates back to full frame accurately", () => {
++    const crop: [number, number, number, number] = [0.2, 0.3, 0.6, 0.7]; // width 0.4, height 0.4
++    const pts = [{ x: 0.5, y: 0.5, z: 0.1 }]; // center of crop
++
++    const unmapped = unmapLandmarksFromCrop(pts, crop);
++    // frameX = 0.2 + 0.5 * 0.4 = 0.40
++    // frameY = 0.3 + 0.5 * 0.4 = 0.50
++    expect(unmapped[0]!.x).toBeCloseTo(0.40, 4);
++    expect(unmapped[0]!.y).toBeCloseTo(0.50, 4);
++  });
++});
+diff --git a/frontend/implementation/tests/nui-lab/monui7-yolo.test.ts b/frontend/implementation/tests/nui-lab/monui7-yolo.test.ts
+new file mode 100644
+index 0000000000000000000000000000000000000000..e725d6b3cf0b1a870f4be6d2fbeba366013e96f2
+--- /dev/null
++++ b/frontend/implementation/tests/nui-lab/monui7-yolo.test.ts
+@@ -0,0 +1,190 @@
++/**
++ * Unit tests for MoNUI-7 YOLO module (`tests/nui-lab/monui7-yolo.test.ts`).
++ *
++ * Enforces T21:
++ * - Letterbox math and coordinate inversion back to [0, 1] frame space.
++ * - Padding 114 / 255 check.
++ * - Parsing both end-to-end [1, N, 6] and standard [1, 5, N] output shapes.
++ * - Score filtering with default 0.35 threshold.
++ * - SHA-256 verification (matches vs rejects).
++ * - STRICT: Uses synthetic tensors ONLY, zero external image files.
++ */
++import { describe, expect, it } from "vitest";
++import {
++  YOLO_DEFAULT_CONFIDENCE,
++  YOLO_INPUT_SIZE,
++  YOLO_LETTERBOX_PAD,
++  letterboxRgbaToNchw,
++  parseYoloOutput,
++  unletterboxBox,
++  verifySha256,
++} from "../../src/components/nui-lab/bench/monui7-yolo";
++
++describe("MoNUI-7 YOLO (T21) Unit Tests", () => {
++  it("letterboxes 640x360 (16:9) correctly into 320x320 with pad 114", () => {
++    const srcW = 640;
++    const srcH = 360;
++    const rgba = new Uint8ClampedArray(srcW * srcH * 4);
++
++    // Set pixel (160, 90) to Red
++    const idx = (90 * srcW + 160) * 4;
++    rgba[idx] = 255; // R
++    rgba[idx + 1] = 0; // G
++    rgba[idx + 2] = 0; // B
++    rgba[idx + 3] = 255;
++
++    const { tensor, meta } = letterboxRgbaToNchw(rgba, srcW, srcH, 320, 114);
++
++    expect(meta.scale).toBeCloseTo(320 / 640, 4); // 0.5
++    expect(meta.newW).toBe(320);
++    expect(meta.newH).toBe(180);
++    expect(meta.padLeft).toBe(0);
++    expect(meta.padTop).toBe(70); // (320 - 180) / 2 = 70
++
++    // Top padding region (e.g. y = 10, x = 100) must be 114 / 255
++    const padValExpected = 114 / 255;
++    const topPadIdx = 10 * 320 + 100;
++    expect(tensor[topPadIdx]).toBeCloseTo(padValExpected, 4); // R channel
++    expect(tensor[320 * 320 + topPadIdx]).toBeCloseTo(padValExpected, 4); // G channel
++    expect(tensor[2 * 320 * 320 + topPadIdx]).toBeCloseTo(padValExpected, 4); // B channel
++  });
++
++  it("letterboxes 480x640 (tall 3:4) correctly into 320x320", () => {
++    const srcW = 480;
++    const srcH = 640;
++    const rgba = new Uint8ClampedArray(srcW * srcH * 4);
++
++    const { meta } = letterboxRgbaToNchw(rgba, srcW, srcH, 320, 114);
++
++    expect(meta.scale).toBeCloseTo(320 / 640, 4); // 0.5
++    expect(meta.newW).toBe(240); // 480 * 0.5
++    expect(meta.newH).toBe(320); // 640 * 0.5
++    expect(meta.padLeft).toBe(40); // (320 - 240) / 2 = 40
++    expect(meta.padTop).toBe(0);
++  });
++
++  it("unletterboxes box accurately back to full frame [0, 1] coordinates", () => {
++    const meta = {
++      srcW: 1920,
++      srcH: 1080,
++      newW: 320,
++      newH: 180,
++      padLeft: 0,
++      padTop: 70,
++      scale: 320 / 1920,
++    };
++
++    // A detection spanning 100x100 at center of active area (x: 110..210, y: 70+40..70+140)
++    const box320: [number, number, number, number] = [110, 110, 210, 210];
++    const frameBox = unletterboxBox(box320, meta);
++
++    // x1 = (110 - 0) / 320 = 0.34375
++    // y1 = (110 - 70) / 180 = 40 / 180 = 0.2222...
++    // x2 = (210 - 0) / 320 = 0.65625
++    // y2 = (210 - 70) / 180 = 140 / 180 = 0.7777...
++    expect(frameBox[0]).toBeCloseTo(110 / 320, 4);
++    expect(frameBox[1]).toBeCloseTo(40 / 180, 4);
++    expect(frameBox[2]).toBeCloseTo(210 / 320, 4);
++    expect(frameBox[3]).toBeCloseTo(140 / 180, 4);
++  });
++
++  it("parses end-to-end output shape [1, N, 6] and filters score >= 0.35", () => {
++    const meta = {
++      srcW: 640,
++      srcH: 480,
++      newW: 320,
++      newH: 240,
++      padLeft: 0,
++      padTop: 40,
++      scale: 0.5,
++    };
++
++    // 3 detections in [1, 3, 6]
++    // Det 0: high score (0.85) -> KEEP
++    // Det 1: below threshold (0.20) -> FILTER OUT
++    // Det 2: moderate score (0.50) -> KEEP
++    const data = new Float32Array([
++      // bx1, by1, bx2, by2, score, classId
++      10, 50, 100, 150, 0.85, 0,
++      20, 60, 80, 120, 0.20, 0,
++      50, 80, 150, 200, 0.50, 0,
++    ]);
++
++    const detections = parseYoloOutput(data, [1, 3, 6], meta, 0.35);
++
++    expect(detections).toHaveLength(2);
++    expect(detections[0]!.score).toBeCloseTo(0.85, 4);
++    expect(detections[0]!.classId).toBe(0);
++    expect(detections[1]!.score).toBeCloseTo(0.50, 4);
++  });
++
++  it("parses raw YOLO head output shape [1, 5, 4] (cx, cy, w, h, class0_score)", () => {
++    const meta = {
++      srcW: 320,
++      srcH: 320,
++      newW: 320,
++      newH: 320,
++      padLeft: 0,
++      padTop: 0,
++      scale: 1.0,
++    };
++
++    // Shape [1, 5, 3] -> 5 channels x 3 anchors
++    // Channels:
++    // ch0: cx = [100, 200, 50]
++    // ch1: cy = [100, 200, 50]
++    // ch2: w  = [40, 60, 20]
++    // ch3: h  = [40, 60, 20]
++    // ch4: s  = [0.80, 0.15, 0.45]
++    const numAnchors = 3;
++    const data = new Float32Array(5 * numAnchors);
++
++    // cx
++    data[0 * numAnchors + 0] = 100;
++    data[0 * numAnchors + 1] = 200;
++    data[0 * numAnchors + 2] = 50;
++
++    // cy
++    data[1 * numAnchors + 0] = 100;
++    data[1 * numAnchors + 1] = 200;
++    data[1 * numAnchors + 2] = 50;
++
++    // w
++    data[2 * numAnchors + 0] = 40;
++    data[2 * numAnchors + 1] = 60;
++    data[2 * numAnchors + 2] = 20;
++
++    // h
++    data[3 * numAnchors + 0] = 40;
++    data[3 * numAnchors + 1] = 60;
++    data[3 * numAnchors + 2] = 20;
++
++    // score
++    data[4 * numAnchors + 0] = 0.80;
++    data[4 * numAnchors + 1] = 0.15; // filtered
++    data[4 * numAnchors + 2] = 0.45;
++
++    const detections = parseYoloOutput(data, [1, 5, 3], meta, 0.35);
++
++    expect(detections).toHaveLength(2);
++    expect(detections[0]!.score).toBeCloseTo(0.80, 4);
++    // Box: cx=100, cy=100, w=40, h=40 -> [80, 80, 120, 120] -> [80/320, 80/320, 120/320, 120/320]
++    expect(detections[0]!.box[0]).toBeCloseTo(80 / 320, 4);
++    expect(detections[0]!.box[1]).toBeCloseTo(80 / 320, 4);
++    expect(detections[0]!.box[2]).toBeCloseTo(120 / 320, 4);
++    expect(detections[0]!.box[3]).toBeCloseTo(120 / 320, 4);
++
++    expect(detections[1]!.score).toBeCloseTo(0.45, 4);
++  });
++
++  it("verifies SHA-256 correctly (matches on valid, fails on mismatch)", async () => {
++    const testData = new TextEncoder().encode("monui7-yolo-sha256-test");
++    const expected = "287531930fc90d76bf8f826b3f328cca0e900a70ff3e4905b800544908fc668c";
++
++    const ok = await verifySha256(testData, expected);
++    expect(ok).toBe(true);
++
++    const fail = await verifySha256(testData, "0000000000000000000000000000000000000000000000000000000000000000");
++    expect(fail).toBe(false);
++  });
++});
+diff --git a/frontend/implementation/tests/nui-lab/r22-t004-replay.test.ts b/frontend/implementation/tests/nui-lab/r22-t004-replay.test.ts
+index a1584c3b0751ffbd46d0f4bee8228ca3f1a83d9a..37ca1075bb3c1f74732764bb0f5f650401807dba 100644
+--- a/frontend/implementation/tests/nui-lab/r22-t004-replay.test.ts
++++ b/frontend/implementation/tests/nui-lab/r22-t004-replay.test.ts
+@@ -47,7 +47,12 @@ import {
+ } from "./lab-rig";
+ 
+ function makeCanvasLab(): LabAnalyzer {
+-  const lab = new LabAnalyzer({ route: "canvas", fullFrameLock: true, enableInk: true });
++  const lab = new LabAnalyzer({
++    route: "canvas",
++    fullFrameLock: true,
++    enableInk: true,
++    preset: "default-any-pinch",
++  });
+   lab.enableR19(loadRealR19Model(), 900);
+   return lab;
+ }
+@@ -191,6 +196,7 @@ describe("R22 Contract K9 — Full LabAnalyzer + HandStrokePipeline + StrokeStor
+       enableInk: true,
+       lossGraceMs: 240,
+       maxResumeGapMs: 360,
++      preset: "default-any-pinch",
+     });
+     lab.enableR19(loadRealR19Model(), frames[0]!.t - 50);
+ 
+@@ -312,6 +318,7 @@ describe("R22 Contract K9 — Full LabAnalyzer + HandStrokePipeline + StrokeStor
+       lossGraceMs: 240,
+       maxResumeGapMs: 360,
+       cursorFilterMode: "one-euro",
++      preset: "default-any-pinch",
+     });
+     lab.enableR19(loadRealR19Model(), frames[0]!.t - 50);
+ 
+diff --git a/frontend/implementation/tests/nui-lab/r22b-handstate.test.tsx b/frontend/implementation/tests/nui-lab/r22b-handstate.test.tsx
+index 74dd5dc9c4a9d752176012eb5903a754115ef403..868bcb6547b5d1b87b34871e2fb2714367664611 100644
+--- a/frontend/implementation/tests/nui-lab/r22b-handstate.test.tsx
++++ b/frontend/implementation/tests/nui-lab/r22b-handstate.test.tsx
+@@ -58,7 +58,7 @@ import {
+   isGlareCandidateR22B,
+ } from "@/src/components/nui-lab/bench/r20-lowlight";
+ import { LabCpuWorkerClient } from "@/src/components/nui-lab/bench/r20-worker-client";
+-import { BENCH_EXPORT_SCHEMA, BENCH_EXPORT_SCHEMA_V2_1 } from "@/src/components/nui-lab/bench/schema";
++import { BENCH_EXPORT_SCHEMA, BENCH_EXPORT_SCHEMA_V2_1, BENCH_EXPORT_SCHEMA_V2_2 } from "@/src/components/nui-lab/bench/schema";
+ import { deriveConditionTags, TrialAggregator } from "@/src/components/nui-lab/bench/stats";
+ import { MemoryBenchStore } from "@/src/components/nui-lab/bench/store";
+ import { LabAnalyzer, LAST_COMMAND_HAND_LOST_CLEAR_MS, LAST_COMMAND_TTL_MS } from "@/src/components/nui-lab/lab-analyzer";
+@@ -279,7 +279,7 @@ describe("R22B B1.10 Fixture 2 & B3: Full S-970 T002 Landmark Replay + Export v2
+       minTrackingConfidence: 0.45,
+     });
+ 
+-    const analyzer = makeReadyCanvasAnalyzer();
++    const analyzer = makeReadyCanvasAnalyzer({ preset: "default-any-pinch" });
+     const bridge = new LabTelemetryBridge(mgr, true);
+ 
+     const strokeWindows: Array<{ startT: number; endT: number; points: number }> = [];
+@@ -354,7 +354,7 @@ describe("R22B B1.10 Fixture 2 & B3: Full S-970 T002 Landmark Replay + Export v2
+     const blobText = await readBlobText(await mgr.exportAll({ version: "0.29.1-alpha+r22b", gitCommit: "r22btest" }));
+     const parsed = JSON.parse(blobText);
+     expect(parsed.schema).toBe(BENCH_EXPORT_SCHEMA);
+-    expect(parsed.schemaVersion).toBe(BENCH_EXPORT_SCHEMA_V2_1);
++    expect(parsed.schemaVersion).toBe(BENCH_EXPORT_SCHEMA_V2_2);
+     expect((await verifyExportChecksum(blobText)).ok).toBe(true);
+ 
+     const events = parsed.sessions[0].events as Array<{ t: number; type: string; detail: Record<string, unknown> }>;
+@@ -397,7 +397,8 @@ describe("R22B B1.10 Fixture 2 & B3: Full S-970 T002 Landmark Replay + Export v2
+ 
+ describe("R22B B1.2–B1.8 Core Resolver & StrokeDriver Invariants", () => {
+   it("B1.2: requires 2 consecutive frames for normal onset and backfills point 1; enforces >= 300 ms hold post-FIST", () => {
+-    const analyzer = makeReadyCanvasAnalyzer();
++    const anyPinchOpts = { preset: "default-any-pinch" };
++    const analyzer = makeReadyCanvasAnalyzer(anyPinchOpts);
+     const aspect = 16 / 9;
+     const five = makeFive();
+     const pinch1 = makeClosedPinch(0.45, 0.72);
+@@ -423,7 +424,7 @@ describe("R22B B1.2–B1.8 Core Resolver & StrokeDriver Invariants", () => {
+     expect(analyzer.strokes().active?.length).toBeGreaterThanOrEqual(2);
+ 
+     // Now test post-FIST 300 ms onset guard
+-    const a2 = makeReadyCanvasAnalyzer();
++    const a2 = makeReadyCanvasAnalyzer(anyPinchOpts);
+     const fist = makeFist();
+     a2.analyse({ landmarks: [five], inferMs: 10, nowMs: 900, aspect });
+     a2.analyse({ landmarks: [fist], inferMs: 10, nowMs: 1000, aspect });
+@@ -443,7 +444,7 @@ describe("R22B B1.2–B1.8 Core Resolver & StrokeDriver Invariants", () => {
+ 
+     // Regression (review finding #3): onset starting at +320 ms after FIST (still within 400 ms window)
+     // must latch the 300 ms guard and NOT confirm prematurely at +420 ms (only 100 ms held)!
+-    const a3 = makeReadyCanvasAnalyzer();
++    const a3 = makeReadyCanvasAnalyzer(anyPinchOpts);
+     a3.analyse({ landmarks: [five], inferMs: 10, nowMs: 850, aspect });
+     a3.analyse({ landmarks: [five], inferMs: 10, nowMs: 900, aspect });
+     a3.analyse({ landmarks: [fist], inferMs: 10, nowMs: 950, aspect });
+@@ -457,7 +458,7 @@ describe("R22B B1.2–B1.8 Core Resolver & StrokeDriver Invariants", () => {
+   });
+ 
+   it("B1.3: bridges brief <150ms pinch release without splitting stroke, and retro-trims confirmed >=150ms release", () => {
+-    const analyzer = makeReadyCanvasAnalyzer();
++    const analyzer = makeReadyCanvasAnalyzer({ preset: "default-any-pinch" });
+     const aspect = 16 / 9;
+     const p1 = makeClosedPinch(0.45, 0.72);
+     const p2 = makeClosedPinch(0.47, 0.72);
+@@ -491,7 +492,7 @@ describe("R22B B1.2–B1.8 Core Resolver & StrokeDriver Invariants", () => {
+   });
+ 
+   it("B1.4 & B1.6: tolerates <=100ms flicker during fist arming and expires lastCommand after 1500ms or 300ms hand loss", () => {
+-    const analyzer = makeReadyCanvasAnalyzer();
++    const analyzer = makeReadyCanvasAnalyzer({ preset: "default-any-pinch" });
+     const aspect = 16 / 9;
+     const fist = makeFist();
+     const one = makeOne();
+@@ -543,7 +544,7 @@ describe("R22B B1.2–B1.8 Core Resolver & StrokeDriver Invariants", () => {
+   it("B1.5 & B1.7: enforces strict FIVE and all 5 K11 CanvasMechanismPresets cleanly", () => {
+     expect(CANVAS_PRESETS).toHaveLength(5);
+     expect(parsePresetUrlOverride("?preset=ok-pinch-only").preset.id).toBe("ok-pinch-only");
+-    expect(parsePresetUrlOverride("?preset=bogus").preset.id).toBe("default-any-pinch");
++    expect(parsePresetUrlOverride("?preset=bogus").preset.id).toBe("ok-pinch-only");
+     expect(parseReacquirePolicyUrlOverride("?reacquire=allow-after-confirm").policy).toBe("allow-after-confirm");
+     expect(parseReacquirePolicyUrlOverride("").policy).toBe("require-release");
+ 
+@@ -608,7 +609,7 @@ describe("R22B B1.2–B1.8 Core Resolver & StrokeDriver Invariants", () => {
+       const resolver = new ActionIntentResolver({
+         pinchSource: new GeometricPinchSource(),
+         poseSource: new GeometricPoseSource(),
+-        config: { reacquirePinchPolicy: policy },
++        config: { reacquirePinchPolicy: policy, presetId: "default-any-pinch" },
+       });
+       const base = {
+         route: "canvas" as const,
+@@ -649,7 +650,7 @@ describe("R22B B1.2–B1.8 Core Resolver & StrokeDriver Invariants", () => {
+     const rTeleport = new ActionIntentResolver({
+       pinchSource: new GeometricPinchSource(),
+       poseSource: new GeometricPoseSource(),
+-      config: { reacquirePinchPolicy: "allow-after-confirm" },
++      config: { reacquirePinchPolicy: "allow-after-confirm", presetId: "default-any-pinch" },
+     });
+     const base = {
+       route: "canvas" as const,

@@ -48,17 +48,33 @@ def main():
                 
     print(f"Loaded boxes for {len(boxes_by_image)} images.")
     
-    # Read download list
-    with open(downloader_input, "r", encoding="utf-8") as f:
-        all_lines = [line.strip() for line in f if line.strip()]
-        
-    total_images = len(all_lines)
-    print(f"Total images to download: {total_images}")
-    
     yolo_base = os.path.join(data_root, "yolo/monui7_hand_v0")
     for s in ["train", "val", "test"]:
         os.makedirs(os.path.join(yolo_base, "images", s), exist_ok=True)
         os.makedirs(os.path.join(yolo_base, "labels", s), exist_ok=True)
+
+    # Read download list: lock val and test to existing, target 5000 for train
+    val_lines = []
+    test_lines = []
+    train_lines = []
+    with open(downloader_input, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line:
+                continue
+            if line.startswith("validation/"):
+                val_lines.append(line)
+            elif line.startswith("test/"):
+                orig_split, img_id = line.split("/", 1)
+                if os.path.exists(os.path.join(yolo_base, "images/test", f"oi__{img_id}.jpg")):
+                    test_lines.append(line)
+            elif line.startswith("train/"):
+                if len(train_lines) < 5000:
+                    train_lines.append(line)
+
+    all_lines = val_lines + test_lines + train_lines
+    total_images = len(all_lines)
+    print(f"Targeting: val={len(val_lines)}, test={len(test_lines)}, train={len(train_lines)} (total: {total_images})")
         
     split_map = {
         "train": "train",
@@ -108,7 +124,7 @@ def main():
             sys.executable, downloader_py,
             batch_input_txt,
             "--download_folder", batch_dir,
-            "--num_processes", "8"
+            "--num_processes", "16"
         ]
         res = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.PIPE, text=True)
         if res.returncode != 0:

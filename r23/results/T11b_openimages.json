@@ -1,0 +1,15 @@
+{
+  "status": "PASS",
+  "total_requested": 9000,
+  "success_count": 5000,
+  "skipped_count": 4000,
+  "failure_count": 0,
+  "failure_rate": 0.0,
+  "total_bytes": 324660533,
+  "split_counts": {
+    "train": 5000,
+    "val": 1931,
+    "test": 2069
+  },
+  "duration_seconds": 1119.11
+}

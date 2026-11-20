@@ -1,0 +1,14 @@
+{
+  "status": "PASS",
+  "timestamp": "2026-11-20T13:22:55Z",
+  "total_augmented": 1200,
+  "target": 1200,
+  "darkpool_augmented_count": 600,
+  "train_hand_augmented_count": 600,
+  "gamma_range": [
+    0.3,
+    0.6
+  ],
+  "output_directory": "/home/deano/monui7-local/data/yolo/monui7_hand_v0_dark",
+  "duration_seconds": 34.92
+}

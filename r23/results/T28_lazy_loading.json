@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "timestamp": "2026-11-20T13:13:11.392Z",
+  "canvasRoute": "/nui-lab/canvas",
+  "totalRequestsInitial": 20,
+  "ortRequestsBeforeRescue": [],
+  "passedInitialIsolation": true
+}

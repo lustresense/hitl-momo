@@ -1,0 +1,40 @@
+{
+  "task": "T28",
+  "name": "Verifikasi Akhir & Production Build",
+  "timestamp": "2026-11-21T04:47:40+07:00",
+  "status": "PASS",
+  "gates": {
+    "next_production_build": {
+      "status": "PASS",
+      "command": "npm run build",
+      "exit_code": 0,
+      "out_dir_generated": true,
+      "static_pages_count": 13,
+      "shared_first_load_js_kb": 87.6
+    },
+    "vitest_nui_lab": {
+      "status": "PASS",
+      "command": "npx vitest run tests/nui-lab/",
+      "target_minimum_tests": 280,
+      "test_files_passed": 27,
+      "test_files_total": 27,
+      "tests_passed": 290,
+      "tests_failed": 0,
+      "tests_total": 290
+    },
+    "vitest_gameplay_baseline": {
+      "status": "PASS",
+      "command": "npx vitest run tests/input/eraser-controls.test.ts tests/input/two-hand-surface.test.ts tests/input/hand-stroke-surface.test.ts",
+      "tests_passed": 39,
+      "tests_failed": 9,
+      "tests_total": 48,
+      "matches_baseline_exact": true
+    },
+    "lazy_loading_audit": {
+      "status": "PASS",
+      "evidence_file": "r23/results/T28_lazy_loading.json",
+      "ort_requests_before_rescue": 0,
+      "lazy_loading_verified": true
+    }
+  }
+}

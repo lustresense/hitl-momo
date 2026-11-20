@@ -136,17 +136,27 @@ def process_bxr7_train() -> list[dict]:
         print(f"  {tag}: total {len(jpg_entries)} frames, sampled {len(sampled)} frames")
 
         for ze in sampled:
-            raw = rz.fetch_entry_bytes(ze)
-            arr = np.frombuffer(raw, dtype=np.uint8)
-            img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
-            if img is None:
-                continue
-
             parts = ze.filename.strip("/").split("/")
             subfolder = (parts[1] if len(parts) > 2 else "root").replace(" ", "_")
             base_name = parts[-1].replace(" ", "_")
             out_rel = f"bxr7/train/bxr7_{tag}_{subfolder}_{base_name}"
             out_full = os.path.join(DARKPOOL_DIR, out_rel)
+
+            if os.path.exists(out_full) and os.path.getsize(out_full) > 0:
+                records.append({
+                    "file": out_rel,
+                    "source": "bxr7",
+                    "group_id": f"{tag}_{subfolder}",
+                    "split": "train",
+                    "light_tag": "dim_light"
+                })
+                continue
+
+            raw = rz.fetch_entry_bytes(ze)
+            arr = np.frombuffer(raw, dtype=np.uint8)
+            img = cv2.imdecode(arr, cv2.IMREAD_COLOR)
+            if img is None:
+                continue
 
             save_image_le640(img, out_full, max_dim=640, quality=90)
             records.append({
@@ -293,6 +303,24 @@ def process_handgesture_5g() -> list[dict]:
         if fn not in entry_by_name:
             continue
         ze = entry_by_name[fn]
+        cluster_id = f"cluster_{item.get('cluster_id', 'unknown')}"
+        r19_split = item.get("split", "train")
+        split = "test" if r19_split == "test" else "train"
+
+        clean_fn = os.path.basename(fn)
+        out_rel = f"handgesture_5g/{split}/hg5g_{clean_fn}"
+        out_full = os.path.join(DARKPOOL_DIR, out_rel)
+
+        if os.path.exists(out_full) and os.path.getsize(out_full) > 0:
+            records.append({
+                "file": out_rel,
+                "source": "handgesture_5g",
+                "group_id": cluster_id,
+                "split": split,
+                "light_tag": "low_exposure"
+            })
+            continue
+
         raw_bytes = rz.fetch_entry_bytes(ze)
 
         # Correct EXIF orientation
@@ -313,14 +341,6 @@ def process_handgesture_5g() -> list[dict]:
 
         if img is None:
             continue
-
-        cluster_id = f"cluster_{item.get('cluster_id', 'unknown')}"
-        r19_split = item.get("split", "train")
-        split = "test" if r19_split == "test" else "train"
-
-        clean_fn = os.path.basename(fn)
-        out_rel = f"handgesture_5g/{split}/hg5g_{clean_fn}"
-        out_full = os.path.join(DARKPOOL_DIR, out_rel)
 
         save_image_le640(img, out_full, max_dim=640, quality=90)
         records.append({

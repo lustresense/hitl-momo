@@ -1,0 +1,53 @@
+{
+  "revision": "R23",
+  "candidateId": "monui7-r23-wave0",
+  "generatedAtIso": "2026-11-21T04:49:50Z",
+  "policy": "Single branch research-can only (AGENTS.md). App code published as git patch candidate against main@745bb6d; remote code branches deleted per explicit Owner authorization.",
+  "baseMainCommitSha": "745bb6d840793dcab8558f65aef6bfac58807e79",
+  "parentR22BCommitSha": "c6ed50b9b11fc60295752940dae6174ced4d935c",
+  "candidateCommitSha": "57acc5e8770a700da3649f23f14f920062f29703",
+  "verifiedWriteTreeHash": "aed6f04ee5be846ed185128f8e2cfea282e2a0b9",
+  "candidatePatches": [
+    {
+      "path": "r23/candidates/monui7/r23_main-745bb6d_to_57acc5e.patch",
+      "role": "cumulative_dev_patch",
+      "command": "git diff --binary --full-index 745bb6d 57acc5e",
+      "sha256": "0011ae44b5c4e37f60e6c3e8df99913d1e0a97c70eab8173f462924797075ad5",
+      "applyTargetBase": "745bb6d840793dcab8558f65aef6bfac58807e79",
+      "expectedWriteTree": "aed6f04ee5be846ed185128f8e2cfea282e2a0b9"
+    },
+    {
+      "path": "r23/candidates/monui7/r23_incremental_c6ed50b_to_57acc5e.patch",
+      "role": "incremental_review_patch",
+      "command": "git diff --binary --full-index c6ed50b 57acc5e",
+      "sha256": "fa437ed23fd8fd134a5d48baf89610755b557d51efb1aa52cde4587a7bf3481b",
+      "applyTargetBase": "c6ed50b9b11fc60295752940dae6174ced4d935c",
+      "expectedWriteTree": "aed6f04ee5be846ed185128f8e2cfea282e2a0b9"
+    },
+    {
+      "path": "r23/candidates/monui7/APPLY.md",
+      "sha256": "60457fdc6ea607ea27c746d28544597d1331f115b3f84c89a8a6e577b87815d0"
+    }
+  ],
+  "excludedItems": [
+    {
+      "item": "monui7-hand-yolo26n-320.onnx",
+      "category": "model_weights_binary",
+      "sha256": "ee50a5d1e9f195c734f348f0d09eceab354f85b8094e8aefff1a5a9e45099f98",
+      "bytes": 9789312,
+      "reason": "Binary model weights excluded per mandate §6 T29 pending explicit owner approval OA-7. Preserved in $DATA_ROOT/release/ and $BIG_ROOT/backup/runs/."
+    },
+    {
+      "item": "public/ort/*.wasm",
+      "category": "prebuilt_wasm_runtime",
+      "bytes": 92274688,
+      "reason": "WebAssembly runtime binaries generated on-the-fly during build via scripts/copy-ort-wasm.mjs."
+    },
+    {
+      "item": "raw_datasets",
+      "category": "training_and_eval_images",
+      "bytes": 10737418240,
+      "reason": "61,700 images across HaGRID, HANDS v2, OpenImages, and Darkpool preserved in local and remote data pools."
+    }
+  ]
+}

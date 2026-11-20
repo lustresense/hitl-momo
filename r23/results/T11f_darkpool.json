@@ -1,0 +1,32 @@
+{
+  "status": "PASS",
+  "timestamp": "2026-11-20T13:20:30Z",
+  "total_frames": 3121,
+  "total_train": 2662,
+  "total_test": 459,
+  "by_source": {
+    "bxr7": {
+      "train": 962,
+      "test": 156,
+      "total": 1118
+    },
+    "natural_rgb": {
+      "train": 1456,
+      "test": 257,
+      "total": 1713
+    },
+    "handgesture_5g": {
+      "train": 244,
+      "test": 46,
+      "total": 290
+    }
+  },
+  "not_used_sources": {
+    "A6_bisindo_v2": "NOT_USED: Flat Roboflow export lacking folder separation or lighting condition metadata.",
+    "A7_ehg_7": "NOT_USED: Multi-part split tarball archive (.000..003) incompatible with HTTP Range.",
+    "A9_aslad_190k": "NOT_USED: Pre-cropped hand boxes only; full frame interaction context missing.",
+    "A10_depth_d435": "NOT_USED: RGB archive contains intentionally blurred frames (rgb_blur.zip).",
+    "A11_egohands": "SKIP: Roboflow Universe requires authentication and is gated behind Cloudflare Turnstile."
+  },
+  "elapsed_seconds": 1155.03
+}

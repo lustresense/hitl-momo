@@ -7,6 +7,22 @@
 
 ---
 
+## R23-T01 — Worktree Dasar R22B & Baseline Gates (`2026-11-20 WIB`; `KATA-TOOL` / `UNIT_ONLY`)
+
+- **Task & Scope:** Baseline validation on detached worktree `$WORK` (`/home/deano/monui7-local/work`) based on `main@745bb6d` + cumulative patch `r22b_main-745bb6d_to_8f74db4.patch`.
+- **Tree Hash:** `16806cb23382a0655c040b3398903feeeaf0fe7b` (`TREE_OK`).
+- **Local Base Commit:** `R22B_LOCAL_BASE = c6ed50b9b11fc60295752940dae6174ced4d935c` (recorded in `env.sh`, not pushed).
+- **Environment:** Node `v26.13.1` (>= 22), npm `11.20.0`.
+- **Measured Gates:**
+  - `tsc --noEmit`: `0` errors (`PASS`).
+  - `npm run lint`: `0` errors (`PASS`).
+  - NUI Lab Vitest (`tests/nui-lab tests/owner-build-manifest.test.ts`): **23/23 files passed, 264/264 tests passed (`PASS`)**.
+  - Gameplay Baseline Vitest (`tests/input/{hand-stroke-surface,two-hand-surface,eraser-controls}.test.ts`): **39 passed | 9 failed (48 tests) (`PASS` — identical to baseline)**.
+- **Evidence:** [`r23/results/T01_baseline_gates.txt`](r23/results/T01_baseline_gates.txt).
+- **Next Action:** MAIN executes T20 (onnxruntime-web), T23, T26, T27 in `$WORK`; W-DATA executing T02 & T10 in parallel.
+
+---
+
 ## R23-START — Preflight MoNUI-7 (R23), Adoption of Mandate v1.1.0, Two-Tier Storage & Mount Verification (`2026-11-20 WIB`; `KATA-TOOL` / `SOURCE`)
 
 - **Trigger & Governance Decision:** Execution of MoNUI-7 (R23) under mandate [`docs/plan-rev/R23/[WIP] NUI_R23-02_v1.1.0_MANDAT_AGY_MoNUI-7.md`](docs/plan-rev/R23/%5BWIP%5D%20NUI_R23-02_v1.1.0_MANDAT_AGY_MoNUI-7.md). Mandate v1.0.0 was superseded due to missing standalone path specifications and disk constraint; v1.1.0 introduces a two-tier storage model (local NVMe `/home/deano/monui7-local` max 32 GB for fast processing/training, remote Windows Drive D: via SSHFS at `/home/deano/mnt/monui7-data` 1.4 TB for archive/raw data, and read-only `/home/deano/mnt/monui7-owner-in`).

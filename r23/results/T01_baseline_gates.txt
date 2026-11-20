@@ -1,0 +1,969 @@
+=== NODE VERSION ===
+v26.13.1
+=== NPM CI ===
+npm warn deprecated inflight@1.0.6: This module is not supported, and leaks memory. Do not use it. Check out lru-cache if you want a good and tested way to coalesce async requests by a key value, which is much more comprehensive and powerful.
+npm warn deprecated @humanwhocodes/config-array@0.13.0: Use @eslint/config-array instead
+npm warn deprecated rimraf@3.0.2: Rimraf versions prior to v4 are no longer supported
+npm warn deprecated whatwg-encoding@3.1.1: Use @exodus/bytes instead for a more spec-conformant and faster implementation
+npm warn deprecated glob@7.2.3: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated @humanwhocodes/object-schema@2.0.3: Use @eslint/object-schema instead
+npm warn deprecated glob@10.3.10: Old versions of glob are not supported, and contain widely publicized security vulnerabilities, which have been fixed in the current version. Please update. Support for old versions may be purchased (at exorbitant rates) by contacting i@izs.me
+npm warn deprecated eslint@8.57.1: This version is no longer supported. Please see https://eslint.org/version-support for other options.
+
+added 437 packages, and audited 438 packages in 59s
+
+163 packages are looking for funding
+  run `npm fund` for details
+
+20 vulnerabilities (9 moderate, 8 high, 3 critical)
+
+To address issues that do not require attention, run:
+  npm audit fix
+
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+
+Run `npm audit` for details.
+npm warn install-scripts 2 packages have install scripts not yet covered by allowScripts:
+npm warn install-scripts   esbuild@0.21.5 (postinstall: node install.js)
+npm warn install-scripts   unrs-resolver@1.12.2 (postinstall: node postinstall.js)
+npm warn install-scripts
+npm warn install-scripts Run `npm install-scripts ls` to review, or `npm install-scripts approve <pkg>` to allow.
+=== TSC ===
+=== LINT ===
+
+> sketchbook-universe-author-side@0.29.1-alpha lint
+> next lint
+
+
+./src/components/ui/GestureRing.tsx
+128:6  Warning: React Hook useEffect has a missing dependency: 'drainImmediate'. Either include it or remove the dependency array.  react-hooks/exhaustive-deps
+
+info  - Need to disable some ESLint rules? Learn more here: https://nextjs.org/docs/basic-features/eslint#disabling-rules
+=== NUI LAB VITEST ===
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v2.1.9 /home/deano/monui7-local/work/frontend/implementation
+
+(node:2448166) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ tests/nui-lab/bench-recorder.test.ts (11 tests) 192ms
+(node:2448164) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+stderr | tests/nui-lab/nui-lab-page.test.tsx > NUI Lab landing page (/nui-lab) > renders passive readiness, two primary CTAs (Coba Gestur & Coba Canvas), zero engineering selectors, and honest model diagnostics
+Warning: An update to BenchDashboard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at BenchDashboard (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/BenchControls.tsx:105:14)
+    at div
+    at main
+    at NuiLabLanding (/home/deano/monui7-local/work/frontend/implementation/app/nui-lab/page.tsx:17:59)
+
+stderr | tests/nui-lab/nui-lab-page.test.tsx > NUI Lab landing page (/nui-lab) > reports unavailable camera API cleanly on landing when mediaDevices is missing
+Warning: An update to BenchDashboard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at BenchDashboard (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/BenchControls.tsx:105:14)
+    at div
+    at main
+    at NuiLabLanding (/home/deano/monui7-local/work/frontend/implementation/app/nui-lab/page.tsx:17:59)
+
+stderr | tests/nui-lab/nui-lab-page.test.tsx > NuiLabPage camera > does not touch the camera until the owner clicks
+Warning: An update to BenchSessionBar inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at BenchSessionBar (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/BenchControls.tsx:737:3)
+    at header
+    at main
+    at NuiLabPage (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:286:45)
+Warning: An update to NuiLabPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at NuiLabPage (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:286:45)
+
+(node:2448163) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ tests/nui-lab/r22-frame-freshness-and-worker.test.ts (8 tests) 275ms
+stderr | tests/nui-lab/r22b-handstate.test.tsx > R22B B2.5, B4, B7 & UI Contracts > B2 & B8.2: Canvas UI renders preset selector, compositional HUD, r22b version badge, and hides dev panels by default
+Warning: An update to BenchSessionBar inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at BenchSessionBar (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/BenchControls.tsx:737:3)
+    at header
+    at main
+    at NuiLabPage (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:286:45)
+Warning: An update to NuiLabPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at NuiLabPage (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:286:45)
+
+ ✓ tests/nui-lab/r22b-handstate.test.tsx (11 tests) 1105ms
+   ✓ R22B B1.10 Fixture 2 & B3: Full S-970 T002 Landmark Replay + Export v2.1 Verification > produces 0 STROKE_START inside undoWindowMs, >= 5 UNDO each preceded by ARMED_FIST, retains long strokes, and exports valid v2.1 JSON 905ms
+(node:2448264) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+stderr | tests/nui-lab/r22-ui-and-autolabel.test.tsx > U01, U06: Clean Landing Page CTAs & Zero Engineering Selectors > renders only two primary CTAs (Coba Gestur & Coba Canvas) with passive camera check and zero engineering dropdowns
+Warning: An update to BenchDashboard inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at BenchDashboard (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/BenchControls.tsx:105:14)
+    at div
+    at main
+    at NuiLabLanding (/home/deano/monui7-local/work/frontend/implementation/app/nui-lab/page.tsx:17:59)
+
+stderr | tests/nui-lab/r22-ui-and-autolabel.test.tsx > U02, U03, U04: Sticky Left Camera & Independent Right Scroll Layout > structures the DOM with sticky left camera and independent right scroll containers
+Warning: An update to BenchSessionBar inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at BenchSessionBar (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/BenchControls.tsx:737:3)
+    at header
+    at main
+    at NuiLabPage (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:286:45)
+Warning: An update to NuiLabPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at NuiLabPage (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:286:45)
+
+(node:2448285) ExperimentalWarning: localStorage is not available because --localstorage-file was not provided.
+(Use `node --trace-warnings ...` to show where the warning was created)
+ ✓ tests/nui-lab/r22-ui-and-autolabel.test.tsx (11 tests) 250ms
+stderr | tests/nui-lab/bench-ui-flow.test.tsx > NUI Lab R22 zero-friction Benchmark UI flow across routes (/nui-lab -> gesture -> canvas) > consents once on /nui-lab (with zero engineering selectors), auto-records gesture + canvas trials on camera-on, and exports valid JSON & CSV
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at CameraFrameScheduler.sampleLumaGrid (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:584:38)
+    at CameraFrameScheduler.poll (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:351:57)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:213:16
+    at invokeTheCallbackFunction (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26)
+    at runAnimationFrameCallbacks (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/Window.js:664:13)
+    at Timeout._onTimeout (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/Window.js:642:11)
+    at listOnTimeout (node:internal/timers:685:17) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at paintOverlay (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1088:26)
+    at handleUniqueCameraTick (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1451:7)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1661:7
+    at CameraFrameScheduler.emitUniqueFrame (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:545:7)
+    at CameraFrameScheduler.poll (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:394:17)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:213:16
+    at invokeTheCallbackFunction (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26) undefined
+
+stderr | tests/nui-lab/bench-ui-flow.test.tsx > NUI Lab R22 zero-friction Benchmark UI flow across routes (/nui-lab -> gesture -> canvas) > consents once on /nui-lab (with zero engineering selectors), auto-records gesture + canvas trials on camera-on, and exports valid JSON & CSV
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at paintOverlay (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1088:26)
+    at handleUniqueCameraTick (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1451:7)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1661:7
+    at CameraFrameScheduler.emitUniqueFrame (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:545:7)
+    at CameraFrameScheduler.poll (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:394:17)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:213:16
+    at invokeTheCallbackFunction (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26) undefined
+
+stderr | tests/nui-lab/bench-ui-flow.test.tsx > NUI Lab R22 zero-friction Benchmark UI flow across routes (/nui-lab -> gesture -> canvas) > consents once on /nui-lab (with zero engineering selectors), auto-records gesture + canvas trials on camera-on, and exports valid JSON & CSV
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at paintOverlay (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1088:26)
+    at handleUniqueCameraTick (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1451:7)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1661:7
+    at CameraFrameScheduler.emitUniqueFrame (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:545:7)
+    at CameraFrameScheduler.poll (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:394:17)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:213:16
+    at invokeTheCallbackFunction (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26) undefined
+
+stderr | tests/nui-lab/bench-ui-flow.test.tsx > NUI Lab R22 zero-friction Benchmark UI flow across routes (/nui-lab -> gesture -> canvas) > consents once on /nui-lab (with zero engineering selectors), auto-records gesture + canvas trials on camera-on, and exports valid JSON & CSV
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at paintOverlay (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1088:26)
+    at handleUniqueCameraTick (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1451:7)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1661:7
+    at CameraFrameScheduler.emitUniqueFrame (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:545:7)
+    at CameraFrameScheduler.poll (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:394:17)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:213:16
+    at invokeTheCallbackFunction (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26) undefined
+
+stderr | tests/nui-lab/bench-ui-flow.test.tsx > NUI Lab R22 zero-friction Benchmark UI flow across routes (/nui-lab -> gesture -> canvas) > consents once on /nui-lab (with zero engineering selectors), auto-records gesture + canvas trials on camera-on, and exports valid JSON & CSV
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at paintOverlay (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1088:26)
+    at handleUniqueCameraTick (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1451:7)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1661:7
+    at CameraFrameScheduler.emitUniqueFrame (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:545:7)
+    at CameraFrameScheduler.poll (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:394:17)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:213:16
+    at invokeTheCallbackFunction (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26) undefined
+
+stderr | tests/nui-lab/bench-ui-flow.test.tsx > NUI Lab R22 zero-friction Benchmark UI flow across routes (/nui-lab -> gesture -> canvas) > consents once on /nui-lab (with zero engineering selectors), auto-records gesture + canvas trials on camera-on, and exports valid JSON & CSV
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at paintOverlay (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1088:26)
+    at handleUniqueCameraTick (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1451:7)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1661:7
+    at CameraFrameScheduler.emitUniqueFrame (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:545:7)
+    at CameraFrameScheduler.poll (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:394:17)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:213:16
+    at invokeTheCallbackFunction (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26) undefined
+
+stderr | tests/nui-lab/bench-ui-flow.test.tsx > NUI Lab R22 zero-friction Benchmark UI flow across routes (/nui-lab -> gesture -> canvas) > consents once on /nui-lab (with zero engineering selectors), auto-records gesture + canvas trials on camera-on, and exports valid JSON & CSV
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at paintOverlay (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1088:26)
+    at handleUniqueCameraTick (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1451:7)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1661:7
+    at CameraFrameScheduler.emitUniqueFrame (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:545:7)
+    at CameraFrameScheduler.poll (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:394:17)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:213:16
+    at invokeTheCallbackFunction (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26) undefined
+
+stderr | tests/nui-lab/bench-ui-flow.test.tsx > NUI Lab R22 zero-friction Benchmark UI flow across routes (/nui-lab -> gesture -> canvas) > consents once on /nui-lab (with zero engineering selectors), auto-records gesture + canvas trials on camera-on, and exports valid JSON & CSV
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at paintOverlay (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1088:26)
+    at handleUniqueCameraTick (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1451:7)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1661:7
+    at CameraFrameScheduler.emitUniqueFrame (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:545:7)
+    at CameraFrameScheduler.poll (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:394:17)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:213:16
+    at invokeTheCallbackFunction (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26) undefined
+
+stderr | tests/nui-lab/bench-ui-flow.test.tsx > NUI Lab R22 zero-friction Benchmark UI flow across routes (/nui-lab -> gesture -> canvas) > consents once on /nui-lab (with zero engineering selectors), auto-records gesture + canvas trials on camera-on, and exports valid JSON & CSV
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at paintOverlay (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1088:26)
+    at handleUniqueCameraTick (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1451:7)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1661:7
+    at CameraFrameScheduler.emitUniqueFrame (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:545:7)
+    at CameraFrameScheduler.poll (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:394:17)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:213:16
+    at invokeTheCallbackFunction (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26) undefined
+
+stderr | tests/nui-lab/bench-ui-flow.test.tsx > NUI Lab R22 zero-friction Benchmark UI flow across routes (/nui-lab -> gesture -> canvas) > consents once on /nui-lab (with zero engineering selectors), auto-records gesture + canvas trials on camera-on, and exports valid JSON & CSV
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at paintOverlay (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1088:26)
+    at handleUniqueCameraTick (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1451:7)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1661:7
+    at CameraFrameScheduler.emitUniqueFrame (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:545:7)
+    at CameraFrameScheduler.poll (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:394:17)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:213:16
+    at invokeTheCallbackFunction (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26) undefined
+
+stderr | tests/nui-lab/bench-ui-flow.test.tsx > NUI Lab R22 zero-friction Benchmark UI flow across routes (/nui-lab -> gesture -> canvas) > consents once on /nui-lab (with zero engineering selectors), auto-records gesture + canvas trials on camera-on, and exports valid JSON & CSV
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at paintOverlay (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1088:26)
+    at handleUniqueCameraTick (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1451:7)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1661:7
+    at CameraFrameScheduler.emitUniqueFrame (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:545:7)
+    at CameraFrameScheduler.poll (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:394:17)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:213:16
+    at invokeTheCallbackFunction (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26) undefined
+
+stderr | tests/nui-lab/bench-ui-flow.test.tsx > NUI Lab R22 zero-friction Benchmark UI flow across routes (/nui-lab -> gesture -> canvas) > consents once on /nui-lab (with zero engineering selectors), auto-records gesture + canvas trials on camera-on, and exports valid JSON & CSV
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at paintOverlay (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1088:26)
+    at handleUniqueCameraTick (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1451:7)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1661:7
+    at CameraFrameScheduler.emitUniqueFrame (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:545:7)
+    at CameraFrameScheduler.poll (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:394:17)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:213:16
+    at invokeTheCallbackFunction (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26) undefined
+
+stderr | tests/nui-lab/bench-ui-flow.test.tsx > NUI Lab R22 zero-friction Benchmark UI flow across routes (/nui-lab -> gesture -> canvas) > consents once on /nui-lab (with zero engineering selectors), auto-records gesture + canvas trials on camera-on, and exports valid JSON & CSV
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at CameraFrameScheduler.sampleLumaGrid (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:584:38)
+    at CameraFrameScheduler.poll (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:351:57)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:213:16
+    at invokeTheCallbackFunction (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26)
+    at runAnimationFrameCallbacks (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/Window.js:664:13)
+    at Timeout._onTimeout (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/Window.js:642:11)
+    at listOnTimeout (node:internal/timers:685:17) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at paintOverlay (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1088:26)
+    at handleUniqueCameraTick (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1451:7)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1661:7
+    at CameraFrameScheduler.emitUniqueFrame (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:545:7)
+    at CameraFrameScheduler.poll (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:394:17)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:213:16
+    at invokeTheCallbackFunction (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at paintInk (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:706:25)
+    at handleUniqueCameraTick (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1452:7)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1661:7
+    at CameraFrameScheduler.emitUniqueFrame (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:545:7)
+    at CameraFrameScheduler.poll (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:394:17)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:213:16
+    at invokeTheCallbackFunction (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26) undefined
+
+stderr | tests/nui-lab/bench-ui-flow.test.tsx > NUI Lab R22 zero-friction Benchmark UI flow across routes (/nui-lab -> gesture -> canvas) > consents once on /nui-lab (with zero engineering selectors), auto-records gesture + canvas trials on camera-on, and exports valid JSON & CSV
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at paintInk (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:706:25)
+    at onCanvasDown (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:877:5)
+    at HTMLUnknownElement.callCallback (/home/deano/monui7-local/work/frontend/implementation/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+    at innerInvokeEventListeners (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+    at invokeEventListeners (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at paintInk (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:706:25)
+    at onCanvasMove (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:886:5)
+    at HTMLUnknownElement.callCallback (/home/deano/monui7-local/work/frontend/implementation/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+    at innerInvokeEventListeners (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+    at invokeEventListeners (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at paintInk (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:706:25)
+    at onCanvasUp (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:895:5)
+    at HTMLUnknownElement.callCallback (/home/deano/monui7-local/work/frontend/implementation/node_modules/react-dom/cjs/react-dom.development.js:4164:14)
+    at HTMLUnknownElement.callTheUserObjectsOperation (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/EventListener.js:26:30)
+    at innerInvokeEventListeners (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:350:25)
+    at invokeEventListeners (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:286:3)
+    at HTMLUnknownElementImpl._dispatch (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/events/EventTarget-impl.js:233:9) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at paintOverlay (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1088:26)
+    at handleUniqueCameraTick (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1451:7)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1661:7
+    at CameraFrameScheduler.emitUniqueFrame (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:545:7)
+    at CameraFrameScheduler.poll (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:394:17)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:213:16
+    at invokeTheCallbackFunction (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at paintInk (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:706:25)
+    at handleUniqueCameraTick (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1452:7)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:1661:7
+    at CameraFrameScheduler.emitUniqueFrame (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:545:7)
+    at CameraFrameScheduler.poll (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:394:17)
+    at /home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/frame-scheduler.ts:213:16
+    at invokeTheCallbackFunction (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/Function.js:19:26) undefined
+
+ ✓ tests/nui-lab/bench-worker-and-lowlight.test.ts (8 tests) 32ms
+ ✓ tests/nui-lab/bench-ui-flow.test.tsx (1 test) 729ms
+   ✓ NUI Lab R22 zero-friction Benchmark UI flow across routes (/nui-lab -> gesture -> canvas) > consents once on /nui-lab (with zero engineering selectors), auto-records gesture + canvas trials on camera-on, and exports valid JSON & CSV 729ms
+stderr | tests/nui-lab/nui-lab-page.test.tsx > NUI Lab R22 isolated workspaces (Gesture & Canvas) > gesture route (and default variant) displays clean Owner UI, sticky left camera + right scroll panels, zero selectors/manual relock, and zero auto-camera
+Warning: An update to BenchSessionBar inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at BenchSessionBar (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/BenchControls.tsx:737:3)
+    at header
+    at main
+    at NuiLabPage (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:286:45)
+Warning: An update to NuiLabPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at NuiLabPage (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:286:45)
+
+stderr | tests/nui-lab/nui-lab-page.test.tsx > NUI Lab R22 isolated workspaces (Gesture & Canvas) > canvas route exposes drawable canvas, R22 fist-to-1/2 Undo/Redo instructions (no swipe), pointer fallback tools, and zero engineering selectors
+Warning: An update to BenchSessionBar inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at BenchSessionBar (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/BenchControls.tsx:737:3)
+    at header
+    at main
+    at NuiLabPage (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:286:45)
+Warning: An update to NuiLabPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at NuiLabPage (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:286:45)
+
+stderr | tests/nui-lab/wave-shared-rule.test.ts > game and lab agree on the same synthetic sequence > a lone waving hand: same progress every frame and the same detection time
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at probe (/home/deano/monui7-local/work/frontend/implementation/src/camera/gpu-probe.ts:33:53)
+    at Module.readRenderer (/home/deano/monui7-local/work/frontend/implementation/src/camera/gpu-probe.ts:25:24)
+    at Module.createHandLandmarker (/home/deano/monui7-local/work/frontend/implementation/src/camera/hand-landmarker.ts:96:26)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5) undefined
+Error: Not implemented: HTMLCanvasElement.prototype.getContext (without installing the canvas npm package)
+    at module.exports (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/browser/not-implemented.js:9:17)
+    at HTMLCanvasElementImpl.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/nodes/HTMLCanvasElement-impl.js:42:5)
+    at HTMLCanvasElement.getContext (/home/deano/monui7-local/work/frontend/implementation/node_modules/jsdom/lib/jsdom/living/generated/HTMLCanvasElement.js:131:58)
+    at probe (/home/deano/monui7-local/work/frontend/implementation/src/camera/gpu-probe.ts:33:84)
+    at Module.readRenderer (/home/deano/monui7-local/work/frontend/implementation/src/camera/gpu-probe.ts:25:24)
+    at Module.createHandLandmarker (/home/deano/monui7-local/work/frontend/implementation/src/camera/hand-landmarker.ts:96:26)
+    at processTicksAndRejections (node:internal/process/task_queues:104:5) undefined
+
+ ✓ tests/nui-lab/wave-shared-rule.test.ts (8 tests) 34ms
+ ✓ tests/nui-lab/r22-t004-replay.test.ts (13 tests) 307ms
+ ✓ tests/nui-lab/r19-pistol-e2e.test.ts (12 tests) 129ms
+ ✓ tests/nui-lab/lab-analyzer.test.ts (25 tests) 132ms
+stderr | tests/nui-lab/nui-lab-page.test.tsx > NUI Lab developer diagnostics & 0-5 finger readout (gesture route) > lists every row with a dash before any hand is seen, and says diagnostics stay isolated from gameplay
+Warning: An update to BenchSessionBar inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at BenchSessionBar (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/bench/BenchControls.tsx:737:3)
+    at header
+    at main
+    at NuiLabPage (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:286:45)
+Warning: An update to NuiLabPage inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://reactjs.org/link/wrap-tests-with-act
+    at NuiLabPage (/home/deano/monui7-local/work/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx:286:45)
+
+ ✓ tests/nui-lab/lab-r17-e2e.test.ts (12 tests) 203ms
+ ✓ tests/nui-lab/nui-lab-page.test.tsx (24 tests) 4804ms
+   ✓ NuiLabPage detection runs through the shared gate > skips a frame that arrives inside the gap after a slow detection, then detects again 967ms
+   ✓ NUI Lab Virtual Keyboard live activation & safety release > lights up virtual keys on POINT_PRESS and clears on POINT_READY, NO_HAND, visibility hidden, and camera stop 1258ms
+ ✓ tests/nui-lab/lab-metrics.test.ts (20 tests) 19ms
+ ✓ tests/nui-lab/lab-swipe.test.ts (17 tests) 12ms
+ ✓ tests/nui-lab/hand-overlay.test.ts (11 tests) 12ms
+ ✓ tests/nui-lab/lab-hand-lock.test.ts (13 tests) 10ms
+ ✓ tests/nui-lab/r19-loader.test.ts (8 tests) 48ms
+ ✓ tests/nui-lab/r22-temporal.test.ts (3 tests) 20ms
+owner-build-manifest: output must be outside the repository; choose an explicit staging path
+owner-build-manifest: output must be outside the repository; choose an explicit staging path
+owner-build-manifest: output path must be absolute
+ ✓ tests/nui-lab/lab-roles.test.ts (11 tests) 8ms
+owner-build-manifest: output must be outside the repository; choose an explicit staging path
+ ✓ tests/owner-build-manifest.test.ts (4 tests) 307ms
+ ✓ tests/nui-lab/lab-camera.test.ts (6 tests) 6ms
+ ✓ tests/nui-lab/lab-delegate-readouts.test.ts (7 tests) 3ms
+ ✓ tests/nui-lab/lab-recorder.test.ts (20 tests) 3954ms
+   ✓ consent and privacy > caps memory: past MAX_RECORD_FRAMES frames it stops adding and says truncated 3861ms
+
+ Test Files  23 passed (23)
+      Tests  264 passed (264)
+   Start at  18:04:32
+   Duration  9.54s (transform 1.77s, setup 2.09s, collect 3.74s, tests 12.59s, environment 2.71s, prepare 1.28s)
+
+=== GAMEPLAY BASELINE VITEST (EXPECTED 39 PASS, 9 FAIL) ===
+[33mThe CJS build of Vite's Node API is deprecated. See https://vite.dev/guide/troubleshooting.html#vite-cjs-node-api-deprecated for more details.[39m
+
+ RUN  v2.1.9 /home/deano/monui7-local/work/frontend/implementation
+
+ ❯ tests/input/eraser-controls.test.ts (12 tests | 2 failed) 49ms
+   × the eraser ring shows the reach of the eraser on the canvas > while a fist erases, a ring as wide as the current radius is drawn at the knuckles 11ms
+     → expected 0 to be greater than 0
+   × the eraser ring shows the reach of the eraser on the canvas > while the second hand sets the size, the ring carries the size number 5ms
+     → expected [] to include '28'
+ ❯ tests/input/two-hand-surface.test.ts (11 tests | 6 failed) 65ms
+   × two hands: a fist erases and the other hand never draws > a pinching second hand draws nothing while the first hand is a fist 11ms
+     → expected [ { x: 280, y: 165 }, …(10) ] to be null
+   × two hands: a fist erases and the other hand never draws > a fist listed second is still the eraser, and the other hand does not draw 2ms
+     → expected [ { x: 280, y: 165 } ] to be null
+   × two hands: a fist erases and the other hand never draws > widening the second hand's gap grows the radius, closing it shrinks the radius 6ms
+     → expected 28 to be greater than 38
+   × two hands: a fist erases and the other hand never draws > the radius stays inside the min and max bounds with two hands 16ms
+     → expected 28 to be greater than 53.5
+   × two hands: a fist erases and the other hand never draws > the radius moves only while a fist and a second hand are both in view 4ms
+     → expected 28 to be greater than 28
+   × two hands: a fist erases and the other hand never draws > one pass with a changing radius is one undo step that restores the whole line 3ms
+     → expected [ 41, 10 ] to deeply equal [ 41 ]
+ ❯ tests/input/hand-stroke-surface.test.ts (25 tests | 1 failed) 78ms
+   × Hapus tool on: command poses never erase > a split palm under the eraser tool neither erases nor draws 8ms
+     → expected "eraseAt" to not be called at all, but actually been called 8 times
+
+Received: 
+
+  1st eraseAt call:
+
+    Array [
+      Object {
+        "x": 188,
+        "y": 210,
+      },
+      28,
+    ]
+
+  2nd eraseAt call:
+
+    Array [
+      Object {
+        "x": 188,
+        "y": 210,
+      },
+      28,
+    ]
+
+  3rd eraseAt call:
+
+    Array [
+      Object {
+        "x": 188,
+        "y": 210,
+      },
+      28,
+    ]
+
+  4th eraseAt call:
+
+    Array [
+      Object {
+        "x": 188,
+        "y": 210,
+      },
+      28,
+    ]
+
+  5th eraseAt call:
+
+    Array [
+      Object {
+        "x": 188,
+        "y": 210,
+      },
+      28,
+    ]
+
+  6th eraseAt call:
+
+    Array [
+      Object {
+        "x": 188,
+        "y": 210,
+      },
+      28,
+    ]
+
+  7th eraseAt call:
+
+    Array [
+      Object {
+        "x": 188,
+        "y": 210,
+      },
+      28,
+    ]
+
+  8th eraseAt call:
+
+    Array [
+      Object {
+        "x": 188,
+        "y": 210,
+      },
+      28,
+    ]
+
+
+Number of calls: 8
+
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 9 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/input/eraser-controls.test.ts > the eraser ring shows the reach of the eraser on the canvas > while a fist erases, a ring as wide as the current radius is drawn at the knuckles
+AssertionError: expected 0 to be greater than 0
+ ❯ tests/input/eraser-controls.test.ts:140:26
+    138|     for (let i = 0; i < 5; i++) surface.feedHandsForTest([fistHand()],…
+    139|     const rings = (rec.calls["arc"] ?? []).filter((a) => a[2] === ERAS…
+    140|     expect(rings.length).toBeGreaterThan(0);
+       |                          ^
+    141|     // Knuckle centre of the fixture hand: (188, 210) in canvas px.
+    142|     const last = rings[rings.length - 1]!;
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/9]⎯
+
+ FAIL  tests/input/eraser-controls.test.ts > the eraser ring shows the reach of the eraser on the canvas > while the second hand sets the size, the ring carries the size number
+AssertionError: expected [] to include '28'
+ ❯ tests/input/eraser-controls.test.ts:164:60
+    162|     for (let i = 0; i < 4; i++) surface.feedHandsForTest([fistHand()],…
+    163|     surface.feedHandsForTest([fistHand(), handWithGap(0.3)], 1200);
+    164|     expect((rec.calls["fillText"] ?? []).map((a) => a[0])).toContain(S…
+       |                                                            ^
+    165|   });
+    166| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/9]⎯
+
+ FAIL  tests/input/hand-stroke-surface.test.ts > Hapus tool on: command poses never erase > a split palm under the eraser tool neither erases nor draws
+AssertionError: expected "eraseAt" to not be called at all, but actually been called 8 times
+
+Received: 
+
+  1st eraseAt call:
+
+    Array [
+      Object {
+        "x": 188,
+        "y": 210,
+      },
+      28,
+    ]
+
+  2nd eraseAt call:
+
+    Array [
+      Object {
+        "x": 188,
+        "y": 210,
+      },
+      28,
+    ]
+
+  3rd eraseAt call:
+
+    Array [
+      Object {
+        "x": 188,
+        "y": 210,
+      },
+      28,
+    ]
+
+  4th eraseAt call:
+
+    Array [
+      Object {
+        "x": 188,
+        "y": 210,
+      },
+      28,
+    ]
+
+  5th eraseAt call:
+
+    Array [
+      Object {
+        "x": 188,
+        "y": 210,
+      },
+      28,
+    ]
+
+  6th eraseAt call:
+
+    Array [
+      Object {
+        "x": 188,
+        "y": 210,
+      },
+      28,
+    ]
+
+  7th eraseAt call:
+
+    Array [
+      Object {
+        "x": 188,
+        "y": 210,
+      },
+      28,
+    ]
+
+  8th eraseAt call:
+
+    Array [
+      Object {
+        "x": 188,
+        "y": 210,
+      },
+      28,
+    ]
+
+
+Number of calls: 8
+
+ ❯ tests/input/hand-stroke-surface.test.ts:257:28
+    255|       const eraseSpy = vi.spyOn(store, "eraseAt");
+    256|       for (let i = 0; i < 10; i++) surface.feedHandLandmarksForTest(ha…
+    257|       expect(eraseSpy).not.toHaveBeenCalled();
+       |                            ^
+    258|       expect(store.getStrokes().completed.map((s) => s.length)).toEqua…
+    259|       expect(store.getStrokes().active).toBeNull();
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/9]⎯
+
+ FAIL  tests/input/two-hand-surface.test.ts > two hands: a fist erases and the other hand never draws > a pinching second hand draws nothing while the first hand is a fist
+AssertionError: expected [ { x: 280, y: 165 }, …(10) ] to be null
+
+- Expected: 
+null
+
++ Received: 
+Array [
+  Object {
+    "x": 280,
+    "y": 165,
+  },
+  Object {
+    "x": 276,
+    "y": 165,
+  },
+  Object {
+    "x": 269,
+    "y": 165,
+  },
+  Object {
+    "x": 260,
+    "y": 165,
+  },
+  Object {
+    "x": 251,
+    "y": 165,
+  },
+  Object {
+    "x": 241,
+    "y": 165,
+  },
+  Object {
+    "x": 232,
+    "y": 165,
+  },
+  Object {
+    "x": 223,
+    "y": 165,
+  },
+  Object {
+    "x": 214,
+    "y": 165,
+  },
+  Object {
+    "x": 206,
+    "y": 165,
+  },
+  Object {
+    "x": 198,
+    "y": 165,
+  },
+]
+
+ ❯ tests/input/two-hand-surface.test.ts:57:39
+     55|     const { surface, store } = makeSurface();
+     56|     for (let i = 0; i < 12; i++) surface.feedHandsForTest([fist(), pin…
+     57|     expect(store.getStrokes().active).toBeNull();
+       |                                       ^
+     58|     expect(store.getStrokes().completed).toHaveLength(0);
+     59|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/9]⎯
+
+ FAIL  tests/input/two-hand-surface.test.ts > two hands: a fist erases and the other hand never draws > a fist listed second is still the eraser, and the other hand does not draw
+AssertionError: expected [ { x: 280, y: 165 } ] to be null
+
+- Expected: 
+null
+
++ Received: 
+Array [
+  Object {
+    "x": 280,
+    "y": 165,
+  },
+]
+
+ ❯ tests/input/two-hand-surface.test.ts:72:39
+     70|     const { surface, store } = makeSurface();
+     71|     for (let i = 0; i < 6; i++) surface.feedHandsForTest([pinchHand(0.…
+     72|     expect(store.getStrokes().active).toBeNull();
+       |                                       ^
+     73|     expect(store.getStrokes().completed).toHaveLength(0);
+     74|   });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/9]⎯
+
+ FAIL  tests/input/two-hand-surface.test.ts > two hands: a fist erases and the other hand never draws > widening the second hand's gap grows the radius, closing it shrinks the radius
+AssertionError: expected 28 to be greater than 38
+ ❯ tests/input/two-hand-surface.test.ts:90:18
+     88|     for (let i = 5; i <= 30; i++) surface.feedHandsForTest([fist(), sp…
+     89|     const wide = surface.getEraserRadius();
+     90|     expect(wide).toBeGreaterThan(start + 10);
+       |                  ^
+     91|     for (let i = 31; i <= 60; i++) surface.feedHandsForTest([fist(), s…
+     92|     expect(surface.getEraserRadius()).toBeLessThan(start);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/9]⎯
+
+ FAIL  tests/input/two-hand-surface.test.ts > two hands: a fist erases and the other hand never draws > the radius stays inside the min and max bounds with two hands
+AssertionError: expected 28 to be greater than 53.5
+ ❯ tests/input/two-hand-surface.test.ts:100:39
+     98|     for (let i = 5; i <= 155; i++) surface.feedHandsForTest([fist(), s…
+     99|     expect(surface.getEraserRadius()).toBeLessThanOrEqual(ERASER_RADIU…
+    100|     expect(surface.getEraserRadius()).toBeGreaterThan(ERASER_RADIUS_MA…
+       |                                       ^
+    101|     // The second hand leaves, then comes back wide open (new session …
+    102|     for (let i = 156; i <= 157; i++) surface.feedHandsForTest([fist()]…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/9]⎯
+
+ FAIL  tests/input/two-hand-surface.test.ts > two hands: a fist erases and the other hand never draws > the radius moves only while a fist and a second hand are both in view
+AssertionError: expected 28 to be greater than 28
+ ❯ tests/input/two-hand-surface.test.ts:114:19
+    112|     for (let i = 5; i <= 25; i++) surface.feedHandsForTest([fist(), sp…
+    113|     const grown = surface.getEraserRadius();
+    114|     expect(grown).toBeGreaterThan(ERASER_RADIUS_PX);
+       |                   ^
+    115|     // Second hand gone: the last radius is held, even while the fist …
+    116|     for (let i = 26; i <= 35; i++) surface.feedHandsForTest([fist()], …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/9]⎯
+
+ FAIL  tests/input/two-hand-surface.test.ts > two hands: a fist erases and the other hand never draws > one pass with a changing radius is one undo step that restores the whole line
+AssertionError: expected [ 41, 10 ] to deeply equal [ 41 ]
+
+- Expected
++ Received
+
+  Array [
+    41,
++   10,
+  ]
+
+ ❯ tests/input/two-hand-surface.test.ts:144:34
+    142|     // One undo gives back the whole line (the pass is one step); the …
+    143|     expect(store.undo()).toBe(true);
+    144|     expect(strokeLengths(store)).toEqual([41]);
+       |                                  ^
+    145|     expect(store.undo()).toBe(true);
+    146|     expect(store.hasInk()).toBe(false);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/9]⎯
+
+ Test Files  3 failed (3)
+      Tests  9 failed | 39 passed (48)
+   Start at  18:04:42
+   Duration  1.04s (transform 320ms, setup 288ms, collect 680ms, tests 192ms, environment 1.14s, prepare 204ms)
+

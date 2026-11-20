@@ -168,7 +168,7 @@ Syarat alat:
 | ID | Task | Agen | Butuh | Status | Bukti |
 |---|---|---|---|---|---|
 | T00 | Preflight, pindah mandat, env.sh, cek mount | MAIN | — | PASS | r23/results/T00_preflight.txt |
-| T01 | Worktree dasar R22B + gate baseline | MAIN | T00 | TODO | |
+| T01 | Worktree dasar R22B + gate baseline | MAIN | T00 | PASS | r23/results/T01_baseline_gates.txt |
 | T02 | Bukti lisensi | W-DATA | T00 | TODO | |
 | T03 | Registry K7 v1.2 | W-DATA | T02 | TODO | |
 | T10 | Environment data, GPU, disk | W-DATA | T00 | TODO | |

@@ -172,29 +172,29 @@ Syarat alat:
 | T02 | Bukti lisensi | W-DATA | T00 | PASS | r23/registry/LICENSE_NOTES.md |
 | T03 | Registry K7 v1.2 | W-DATA | T02 | PASS | r23/registry/dataset_registry_r23.json |
 | T10 | Environment data, GPU, disk | W-DATA | T00 | PASS | r23/results/T10_env.txt |
-| T11a | HaGRID lewat Range | W-DATA | T02, T10 | TODO | |
-| T11b | Open Images | W-DATA | T10 | TODO | |
-| T11c | IPN (MP4 → frame) | W-DATA | T10 | TODO | |
-| T11d | HANDS lewat Range | W-DATA | T10 | TODO | |
-| T11e | EgoHands (opsional) | W-DATA | T02, T10 | TODO | |
-| T11f | Calon gelap asli (darkpool) | W-DATA | T02, T10 | TODO | |
-| T12 | Tabel inspeksi dataset | W-DATA | T11a–T11f | TODO | |
-| T13 | Validasi label, yaml, backup | W-DATA | T11a, T11b, T11d (T11c dan T11e boleh BLOCKED/SKIP) | TODO | |
-| T15 | Set gelap sintetis v0 | W-DATA | T13 | TODO | |
-| T16 | Negatif v0 (opsional) | W-DATA | T13 | TODO | |
-| T17 | YOLO26n v0 | W-TRAIN | T13, T15, T16 (PASS atau SKIP) | TODO | |
-| T18 | Pseudo-label gelap asli | W-DATA | T17, T11f (OA-4 disetujui) | TODO | |
-| T19 | YOLO26n v1 + serah model | W-TRAIN | T18 | TODO | |
-| T20 | onnxruntime-web | MAIN | T01 | TODO | |
-| T21 | Modul YOLO di worker | MAIN | T20 (langkah 4 butuh ONNX dari T17) | TODO | |
-| T22 | Rescue state machine + integrasi | MAIN | T21 | TODO | |
-| T23 | Default + guard onset + event preset | MAIN | T01 (langkah 3 butuh OA-3) | TODO | |
-| T24 | Momo pemandu | MAIN | T22 | TODO | |
-| T25 | Telemetri K8 v2.2 | MAIN | T22 | TODO | |
-| T26 | Protokol p2-mini | MAIN | T01 | TODO | |
-| T27 | Lisensi AGPL + notice + link source | MAIN | T01 | TODO | |
-| T28 | Gate + build + cek headless | MAIN | T19–T27 | TODO | |
-| T29 | Publikasi patch kandidat | MAIN | T28 | TODO | |
+| T11a | HaGRID lewat Range | W-DATA | T02, T10 | REDO (v1.2.0) | |
+| T11b | Open Images | W-DATA | T10 | REDO (v1.2.0) | |
+| T11c | IPN (MP4 → frame) | W-DATA | T10 | BLOCKED | r23/results/T11c_ipn.json (kuota Google Drive) |
+| T11d | HANDS lewat Range | W-DATA | T10 | PASS | r23/results/T11d_hands.json |
+| T11e | EgoHands (opsional) | W-DATA | T02, T10 | SKIP | ROBOFLOW_AUTH_REQUIRED per §6 |
+| T11f | Calon gelap asli (darkpool) | W-DATA | T02, T10 | PASS | r23/results/T11f_darkpool.json |
+| T12 | Tabel inspeksi dataset | W-DATA | T11a–T11f | PASS | r23/results/T12_dataset_inspection.md |
+| T13 | Validasi label, yaml, backup | W-DATA | T11a, T11b, T11d | REDO (v1.2.0) | |
+| T15 | Set gelap sintetis v0 | W-DATA | T13 | REDO (v1.2.0) | |
+| T16 | Negatif v0 (opsional) | W-DATA | T13 | REDO (v1.2.0) | |
+| T17 | YOLO26n v0 | W-TRAIN | T13, T15, T16 | REDO (v1.2.0) | |
+| T18 | Pseudo-label gelap asli | W-DATA | T17, T11f | TODO (v1.2.0) | |
+| T19 | YOLO26n v1 + serah model | W-TRAIN | T18 | TODO (v1.2.0) | |
+| T20 | onnxruntime-web | MAIN | T01 | PASS | r23/results/T28_final_gates.json |
+| T21 | Modul YOLO di worker | MAIN | T20 | REDO (v1.2.0) | |
+| T22 | Rescue state machine + integrasi | MAIN | T21 | PASS | tests/nui-lab/monui7-rescue.test.ts |
+| T23 | Default + guard onset + event preset | MAIN | T01 | BLOCKED | Langkah 3 BLOCKED (OA-3) |
+| T24 | Momo pemandu | MAIN | T22 | PASS | tests/nui-lab/monui7-momo-guide.test.ts, r23/results/screenshots/ |
+| T25 | Telemetri K8 v2.2 | MAIN | T22 | PASS | tests/nui-lab/k8-v2-2-export.test.ts |
+| T26 | Protokol p2-mini | MAIN | T01 | PASS | tests/nui-lab/guided-capture-protocol.test.ts |
+| T27 | Lisensi AGPL + notice + link source | MAIN | T01 | PASS | LICENSE.md, THIRD_PARTY_NOTICES.md |
+| T28 | Gate + build + cek headless | MAIN | T19–T27 | REDO (v1.2.0) | |
+| T29 | Publikasi patch kandidat | MAIN | T28 | REDO (v1.2.0) | |
 | T30 | Terima data Owner | MAIN | OA-6 | TODO | |
 | T31 | Kalibrasi noise | W-DATA | T30 | TODO | |
 | T32 | YOLO26n v2 (fine-tune Owner) | W-TRAIN | T31 | TODO | |

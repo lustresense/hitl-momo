@@ -1,3 +1,5 @@
+> **JANGAN DI-DEPLOY.** Patch 57acc5e digantikan hasil mandat v1.2.0 (lihat LOG R23-FIX).
+
 # APPLY.md — MoNUI-7 R23 Candidate Patch (`monui7`, Wave 0 Candidate)
 
 - **Candidate ID:** `monui7-r23-wave0`

@@ -1,0 +1,13 @@
+=== DF ===
+Filesystem                                 Size  Used Avail Use% Mounted on
+/dev/sda2                                  126G   84G   37G  70% /
+user_06@10.252.173.211:/mnt/d/monui7-data  1.9T  491G  1.4T  27% /home/deano/mnt/monui7-data
+=== DU LOCAL ===
+11G	/home/deano/monui7-local/data
+4.0K	/home/deano/monui7-local/env.sh
+4.0K	/home/deano/monui7-local/run_eval.sh
+4.0K	/home/deano/monui7-local/train_monui7.sh
+2.3G	/home/deano/monui7-local/work
+=== DISK_OK ===
+free=37G used_agy=13G need=0G
+DISK_OK

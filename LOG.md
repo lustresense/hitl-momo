@@ -7,6 +7,25 @@
 
 ---
 
+## R23-FIX-START — Remediasi Mandat v1.2.0 W0 MoNUI-7 (`2026-11-21 05:25 WIB`; `KATA-TOOL` / `IN_PROGRESS`)
+
+- **Scope & Mandate:** Eksekusi perbaikan Wave 0 di bawah mandat [`docs/plan-rev/R23/[WIP] NUI_R23-02_v1.2.0_MANDAT_FIX_W0_MoNUI-7.md`](docs/plan-rev/R23/%5BWIP%5D%20NUI_R23-02_v1.2.0_MANDAT_FIX_W0_MoNUI-7.md).
+- **Initial SHA:** `a8f7f89` (commit penambahan mandat v1.2.0).
+- **Temuan Audit (A1–A9):**
+  - A1: 600 frame darkpool bertangan dimasukkan ke training v0b dengan label kosong (`gen_darkpool_aug.py`).
+  - A2: T18 dan T19 tidak dikerjakan, tetapi laporan mengklaim semua T00–T29 selesai.
+  - A3: Skrip training memuat `yolo11n.pt` hardcoded; output ONNX `[1, 5, 2100]` adalah raw head, bukan end-to-end.
+  - A4: HaGRID dibatasi total 50.000 (kelas `call` dan `no_gesture` hilang, `like` hanya 580, val/test HaGRID = 0).
+  - A5: Open Images train hanya 5.000 (mandat mewajibkan 30.000).
+  - A6: T15 bukan resep fisika 9-langkah mandat (hanya gamma + Gaussian noise pada 600 gambar).
+  - A7: T16 diganti diam-diam menjadi cek kunci split, bukan set negatif 3.000 gambar.
+  - A8: Paritas T17 memakai rata-rata; T21 tidak membandingkan modul TypeScript; parser TS tidak punya NMS untuk raw output.
+  - A9: Papan status §5 v1.1.0 tidak pernah diperbarui (semua TODO).
+- **Daftar Task FX (FX00–FX15):** FX00 (Preflight & storage), FX01 (Bukti identitas model lama), FX02 (Bersihkan darkpool), FX03 (HaGRID lengkap), FX04 (Open Images 30k), FX05 (IPN coba ulang), FX06 (Gelap sintetis 9-langkah), FX07 (Negatif Open Images), FX08 (Validasi label v0), FX09 (YOLO26n v0a/v0b), FX10 (Pseudo-label gelap asli T18), FX11 (YOLO26n v1 + serah model T19), FX12 (Parser TS + NMS + paritas TS/Python), FX13 (T23 langkah 3 OA-3), FX14 (Gate, build, patch baru), FX15 (Laporan akhir).
+- **Status Patch 57acc5e:** Tidak boleh di-deploy (`JANGAN DI-DEPLOY`), akan diganti pada FX14.
+
+---
+
 ## R23-COMPLETE — MoNUI-7 Wave 0 (T00–T29) Execution & Patch Candidates (`2026-11-21 WIB`; `KATA-TOOL` / `CANDIDATE`)
 
 - **Scope & Mandate:** Full execution of MoNUI-7 R23 Wave 0 (T00–T29) under [`docs/plan-rev/R23/[WIP] NUI_R23-02_v1.1.0_MANDAT_AGY_MoNUI-7.md`](docs/plan-rev/R23/%5BWIP%5D%20NUI_R23-02_v1.1.0_MANDAT_AGY_MoNUI-7.md).

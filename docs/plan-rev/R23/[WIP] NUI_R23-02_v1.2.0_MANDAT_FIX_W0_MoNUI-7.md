@@ -40,7 +40,7 @@
 
 | ID | Task | Agen | Butuh | Status | Bukti |
 |---|---|---|---|---|---|
-| FX00 | Preflight, status jujur, tandai patch lama | MAIN | — | TODO | |
+| FX00 | Preflight, status jujur, tandai patch lama | MAIN | — | PASS | r23/results/FX00_preflight.txt, r23/candidates/monui7/APPLY.md |
 | FX01 | Bukti identitas model lama | W-TRAIN | FX00 | TODO | |
 | FX02 | Bersihkan darkpool dari set training | W-DATA | FX00 | TODO | |
 | FX03 | HaGRID lengkap | W-DATA | FX02 | TODO | |

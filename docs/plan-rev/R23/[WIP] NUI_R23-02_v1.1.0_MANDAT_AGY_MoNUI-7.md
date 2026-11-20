@@ -169,9 +169,9 @@ Syarat alat:
 |---|---|---|---|---|---|
 | T00 | Preflight, pindah mandat, env.sh, cek mount | MAIN | — | PASS | r23/results/T00_preflight.txt |
 | T01 | Worktree dasar R22B + gate baseline | MAIN | T00 | PASS | r23/results/T01_baseline_gates.txt |
-| T02 | Bukti lisensi | W-DATA | T00 | TODO | |
-| T03 | Registry K7 v1.2 | W-DATA | T02 | TODO | |
-| T10 | Environment data, GPU, disk | W-DATA | T00 | TODO | |
+| T02 | Bukti lisensi | W-DATA | T00 | PASS | r23/registry/LICENSE_NOTES.md |
+| T03 | Registry K7 v1.2 | W-DATA | T02 | PASS | r23/registry/dataset_registry_r23.json |
+| T10 | Environment data, GPU, disk | W-DATA | T00 | PASS | r23/results/T10_env.txt |
 | T11a | HaGRID lewat Range | W-DATA | T02, T10 | TODO | |
 | T11b | Open Images | W-DATA | T10 | TODO | |
 | T11c | IPN (MP4 → frame) | W-DATA | T10 | TODO | |

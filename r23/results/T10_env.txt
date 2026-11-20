@@ -1,0 +1,57 @@
+=== Step 1: disk_ok 2 and df -h ===
+free=44G used_agy=3G need=2G
+DISK_OK
+Filesystem                                 Size  Used Avail Use% Mounted on
+/dev/sda2                                  126G   77G   44G  64% /
+user_06@10.252.173.211:/mnt/d/monui7-data  1.9T  489G  1.4T  27% /home/deano/mnt/monui7-data
+
+=== Step 2: nvidia-smi ===
+Fri Nov 20 18:11:38 2026       
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 595.99.02              Driver Version: 595.99.02      CUDA Version: 13.2     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA RTX A5000               Off |   00000000:00:10.0 Off |                  Off |
+| 30%   36C    P8             14W /  230W |      15MiB /  24564MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+|   1  NVIDIA RTX A5000               Off |   00000000:00:11.0 Off |                  Off |
+| 30%   36C    P8             19W /  230W |      15MiB /  24564MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|    0   N/A  N/A          771489      G   /usr/lib/xorg/Xorg                        4MiB |
+|    1   N/A  N/A          771489      G   /usr/lib/xorg/Xorg                        4MiB |
++-----------------------------------------------------------------------------------------+
+index, name, memory.used [MiB], memory.total [MiB]
+0, NVIDIA RTX A5000, 15 MiB, 24564 MiB
+1, NVIDIA RTX A5000, 15 MiB, 24564 MiB
+
+=== Step 3: nproc and free -g ===
+nproc: 4
+               total        used        free      shared  buff/cache   available
+Mem:              11           3           1           0           6           8
+Swap:              3           1           2
+
+=== Step 4: du -xsh /srv/sketchbook/mediapipe-optimize/* ===
+96K	/srv/sketchbook/mediapipe-optimize/docs
+30M	/srv/sketchbook/mediapipe-optimize/r22-dev-deploy
+94M	/srv/sketchbook/mediapipe-optimize/r19-sandbox
+713M	/srv/sketchbook/mediapipe-optimize/r22b-handstate
+713M	/srv/sketchbook/mediapipe-optimize/r22-nui-lab
+1.4G	/srv/sketchbook/mediapipe-optimize/research-can
+1.9G	/srv/sketchbook/mediapipe-optimize/main-r19
+3.6G	/srv/sketchbook/mediapipe-optimize/r18-ux0-sandbox
+8.2G	/srv/sketchbook/mediapipe-optimize/r20-sandbox
+
+=== Step 5: Python and library versions ===
+Python 3.12.3
+mediapipe=0.10.14, cv2=4.11.0, numpy=1.26.4

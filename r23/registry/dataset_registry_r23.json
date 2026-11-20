@@ -1,0 +1,195 @@
+{
+  "schema": "r23-dataset-registry/1",
+  "contract": "K7 v1.2 (proposed)",
+  "updatedAt": "2026-11-20",
+  "policy": {
+    "forbiddenTrainingSources": [
+      "RULE_DERIVED",
+      "MODEL_PREDICTION",
+      "UNKNOWN",
+      "unlabelled-user-telemetry"
+    ],
+    "proposedLabelSources": [
+      "MODEL_PROPOSED_VERIFIED",
+      "SYNTHETIC_GT"
+    ],
+    "pendingOwnerApproval": true,
+    "ownerApprovalReference": "OA-4 (approved 2026-11-20)"
+  },
+  "datasets": [
+    {
+      "id": "A1-hands-v2",
+      "name": "HANDS RGB-D v2",
+      "url": "https://data.mendeley.com/datasets/ndrczc35bt/2",
+      "versionOrDoi": "10.17632/ndrczc35bt.2",
+      "license": "CC BY 4.0",
+      "licenseEvidence": "license_evidence/A1/page.html",
+      "accessDate": "2026-11-20",
+      "roles": [
+        "detector"
+      ],
+      "splitRule": "Subject disjoint (Subject 1-2 train, Subject 3 val, Subject 4-5 test locked OOD)",
+      "status": "READY"
+    },
+    {
+      "id": "A2-ipn-hand",
+      "name": "IPN Hand + HandS",
+      "url": "https://gibranbenitez.github.io/IPN_Hand/",
+      "versionOrDoi": "arXiv:2005.02134",
+      "license": "CC BY 4.0",
+      "licenseEvidence": "license_evidence/A2/web_index.html",
+      "accessDate": "2026-11-20",
+      "roles": [
+        "detector"
+      ],
+      "splitRule": "Person disjoint (19 train, 5 val, 5 test per ipn_person_split.json)",
+      "status": "READY"
+    },
+    {
+      "id": "A3-handgesture-5g",
+      "name": "HandGesture-5G v2",
+      "url": "https://data.mendeley.com/datasets/wj25crzdbm/2",
+      "versionOrDoi": "10.17632/wj25crzdbm.2",
+      "license": "CC BY 4.0",
+      "licenseEvidence": "license_evidence/A3/page.html",
+      "accessDate": "2026-11-20",
+      "roles": [
+        "classifier",
+        "detector"
+      ],
+      "splitRule": "Cluster / capture date disjoint (80% train, 20% test); low exposure stratum only",
+      "status": "READY"
+    },
+    {
+      "id": "A4-natural-rgb-v3",
+      "name": "Natural RGB Hand Gesture Dataset v3",
+      "url": "https://data.mendeley.com/datasets/n66hhk695h/3",
+      "versionOrDoi": "10.17632/n66hhk695h.3",
+      "license": "CC BY 4.0",
+      "licenseEvidence": "license_evidence/A4/page.html",
+      "accessDate": "2026-11-20",
+      "roles": [
+        "classifier",
+        "detector"
+      ],
+      "splitRule": "Participant disjoint (19 train, 4 val, 3 test); dim & backlit strata at 2 fps",
+      "status": "READY"
+    },
+    {
+      "id": "A5-bxr7-v2",
+      "name": "Gesture Recognition and Hand Tracking v2 (bxr7kx84y6)",
+      "url": "https://data.mendeley.com/datasets/bxr7kx84y6/2",
+      "versionOrDoi": "10.17632/bxr7kx84y6.2",
+      "license": "CC BY 4.0",
+      "licenseEvidence": "license_evidence/A5/page.html",
+      "accessDate": "2026-11-20",
+      "roles": [
+        "detector",
+        "test"
+      ],
+      "splitRule": "Session / game disjoint; dim_light_1.zip = locked test; other dim_light = train",
+      "status": "READY"
+    },
+    {
+      "id": "A6-bisindo-v2",
+      "name": "Multimodal BISINDO Corpus v2 (235c78xbmk)",
+      "url": "https://data.mendeley.com/datasets/235c78xbmk/2",
+      "versionOrDoi": "10.17632/235c78xbmk.2",
+      "license": "CC BY 4.0",
+      "licenseEvidence": "license_evidence/A6/page.html",
+      "accessDate": "2026-11-20",
+      "roles": [
+        "detector"
+      ],
+      "splitRule": "Single actor; video/session disjoint 80% train, 20% test; low-light indoor subset",
+      "status": "READY"
+    },
+    {
+      "id": "A7-ehg-7",
+      "name": "EHG-7 Hand Gesture Dataset",
+      "url": "https://zenodo.org/records/16949855",
+      "versionOrDoi": "10.5281/zenodo.16949855",
+      "license": "CC BY 4.0",
+      "licenseEvidence": "license_evidence/A7/doi_meta.html",
+      "accessDate": "2026-11-20",
+      "roles": [
+        "detector",
+        "test"
+      ],
+      "splitRule": "Condition / subject disjoint 80/20",
+      "status": "NOT_USED_MULTIPART_ARCHIVE"
+    },
+    {
+      "id": "A8-open-images-v7",
+      "name": "Open Images Dataset V7 (Human hand)",
+      "url": "https://storage.googleapis.com/openimages/web/factsfigures_v7.html",
+      "versionOrDoi": "Open Images V7",
+      "license": "Annotations CC BY 4.0 / Images CC BY 2.0",
+      "licenseEvidence": "license_evidence/A8/factsfigures_v7.html",
+      "accessDate": "2026-11-20",
+      "roles": [
+        "detector"
+      ],
+      "splitRule": "Official split (train 30k sampled, val <=5k, test <=5k); unrotated non-group boxes",
+      "status": "READY"
+    },
+    {
+      "id": "A9-aslad-190k",
+      "name": "ASLAD-190K (2fgpn5dwgc v2)",
+      "url": "https://data.mendeley.com/datasets/2fgpn5dwgc/2",
+      "versionOrDoi": "10.17632/2fgpn5dwgc.2",
+      "license": "CC BY 4.0",
+      "licenseEvidence": "license_evidence/A9/page.html",
+      "accessDate": "2026-11-20",
+      "roles": [
+        "detector",
+        "test"
+      ],
+      "splitRule": "Person / session disjoint 80/20",
+      "status": "NOT_USED_CROPPED_ONLY"
+    },
+    {
+      "id": "A10-depth-camera-d435",
+      "name": "Hand gesture dataset captured by RealSense Depth Camera D435 (8ffrgcmjkm)",
+      "url": "https://data.mendeley.com/datasets/8ffrgcmjkm/1",
+      "versionOrDoi": "10.17632/8ffrgcmjkm.1",
+      "license": "CC BY 4.0",
+      "licenseEvidence": "license_evidence/A10/page.html",
+      "accessDate": "2026-11-20",
+      "roles": [
+        "detector"
+      ],
+      "splitRule": "Person / session disjoint 80% train, 20% test; dark & cluttered RGB frames",
+      "status": "READY"
+    },
+    {
+      "id": "A11-egohands",
+      "name": "EgoHands Dataset",
+      "url": "https://universe.roboflow.com/brad-dwyer/egohands-public",
+      "versionOrDoi": "Roboflow egohands-public / ICCV 2015",
+      "license": "Academic Research / CC BY 4.0",
+      "licenseEvidence": "license_evidence/A11/iu_page.html",
+      "accessDate": "2026-11-20",
+      "roles": [
+        "detector"
+      ],
+      "splitRule": "All eligible frames into train (max 4,800)",
+      "status": "SKIP_AUTH_REQUIRED"
+    },
+    {
+      "id": "A13-hagrid-v2",
+      "name": "HAnd Gesture Recognition Image Dataset v2 (HaGRID v2)",
+      "url": "https://github.com/hukenovs/hagrid",
+      "versionOrDoi": "arXiv:2412.01508",
+      "license": "Custom Public License (CC BY-SA 4.0 derivative)",
+      "licenseEvidence": "license_evidence/A13/license_en_us.pdf",
+      "accessDate": "2026-11-20",
+      "roles": [
+        "detector",
+        "classifier"
+      ],
+      "splitRule": "Official split (train 3,530 / val 294 / test 294 per gesture across 17 classes)",
+      "status": "READY"
+    }
+  ]
+}

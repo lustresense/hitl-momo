@@ -7,6 +7,25 @@
 
 ---
 
+## R23-T02-T03-T10 — Bukti Lisensi, Registry K7 v1.2 & Environment Data (`2026-11-20 WIB`; `KATA-TOOL` / `OFFLINE_DATASET`)
+
+- **Subagent:** Executed by `W-DATA` (Model: Gemini 3.8 Flash High).
+- **T10 Environment Data (`PASS`):**
+  - Disk: `disk_ok 2` passed (`free=44G, used_agy=3G, need=2G -> DISK_OK`). `$BIG_ROOT` 1.4T available.
+  - GPU: 2× NVIDIA RTX A5000 (24,564 MiB each, Driver 595.99.02, CUDA 13.2).
+  - Python: `3.12.3`, `numpy==1.26.4`, `mediapipe==0.10.14`, `cv2==4.11.0` verified.
+  - Evidence: [`r23/results/T10_env.txt`](r23/results/T10_env.txt), lock file [`r23/scripts/data/requirements-data.lock.txt`](r23/scripts/data/requirements-data.lock.txt).
+- **T02 Bukti Lisensi (`PASS`):**
+  - 12 datasets verified: A1 HANDS (CC BY 4.0), A2 IPN (CC BY 4.0), A3 HG5G (CC BY 4.0), A4 Natural RGB (CC BY 4.0), A5 bxr7 (CC BY 4.0), A6 BISINDO (CC BY 4.0), A7 EHG-7 (CC BY 4.0, archive split), A8 Open Images (CC BY 4.0/2.0), A9 ASLAD-190K (CC BY 4.0, crop-only), A10 D435 (CC BY 4.0), A11 EgoHands (academic), A13 HaGRID (CC BY-SA derivative, no NC, model training permitted).
+  - 3 tools recorded: YOLO26n (AGPL-3.0), onnxruntime-web (MIT), MediaPipe Tasks Vision (Apache-2.0).
+  - Evidence: [`r23/registry/LICENSE_NOTES.md`](r23/registry/LICENSE_NOTES.md).
+- **T03 Dataset Registry K7 v1.2 (`PASS`):**
+  - Schema `r23-dataset-registry/1`, contract `K7 v1.2 (proposed)`.
+  - Evidence: [`r23/registry/dataset_registry_r23.json`](r23/registry/dataset_registry_r23.json).
+- **Next Action:** W-DATA executes T11a–T11f & T12; MAIN executes frontend modules.
+
+---
+
 ## R23-T01 — Worktree Dasar R22B & Baseline Gates (`2026-11-20 WIB`; `KATA-TOOL` / `UNIT_ONLY`)
 
 - **Task & Scope:** Baseline validation on detached worktree `$WORK` (`/home/deano/monui7-local/work`) based on `main@745bb6d` + cumulative patch `r22b_main-745bb6d_to_8f74db4.patch`.

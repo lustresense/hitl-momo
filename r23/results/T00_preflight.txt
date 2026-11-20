@@ -1,0 +1,12 @@
+BIG_OK
+OWNER_OK
+ls: cannot access '/home/deano/mnt/monui7-owner-in/exports': No such file or directory
+/home/deano/mnt/monui7-owner-in:
+total 8
+drwxrwxrwx 1 deano deano 4096 Nov 20 16:20 .
+drwxrwxr-x 4 deano deano 4096 Nov 20 16:19 ..
+Filesystem                                 Size  Used Avail Use% Mounted on
+/dev/sda2                                  126G   73G   48G  61% /
+user_06@10.252.173.211:/mnt/d/monui7-data  1.9T  489G  1.4T  27% /home/deano/mnt/monui7-data
+free=48G used_agy=1G need=0G
+DISK_OK

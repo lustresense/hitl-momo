@@ -7,6 +7,20 @@
 
 ---
 
+## R23-START — Preflight MoNUI-7 (R23), Adoption of Mandate v1.1.0, Two-Tier Storage & Mount Verification (`2026-11-20 WIB`; `KATA-TOOL` / `SOURCE`)
+
+- **Trigger & Governance Decision:** Execution of MoNUI-7 (R23) under mandate [`docs/plan-rev/R23/[WIP] NUI_R23-02_v1.1.0_MANDAT_AGY_MoNUI-7.md`](docs/plan-rev/R23/%5BWIP%5D%20NUI_R23-02_v1.1.0_MANDAT_AGY_MoNUI-7.md). Mandate v1.0.0 was superseded due to missing standalone path specifications and disk constraint; v1.1.0 introduces a two-tier storage model (local NVMe `/home/deano/monui7-local` max 32 GB for fast processing/training, remote Windows Drive D: via SSHFS at `/home/deano/mnt/monui7-data` 1.4 TB for archive/raw data, and read-only `/home/deano/mnt/monui7-owner-in`).
+- **Preflight Baseline:** `RC_START_SHA = c85c60231bd8d5dba2ece4998d1c8e006eb5ac63` on `origin/research-can`.
+- **Checks & Results:**
+  - `mountpoint -q $BIG_ROOT`: `BIG_OK` (`1.9T` total, `1.4T` available).
+  - `mountpoint -q $OWNER_IN`: `OWNER_OK` (read-only).
+  - `disk_ok 0`: `free=48G used_agy=1G need=0G -> DISK_OK`.
+  - Mandate moved to `docs/plan-rev/R23/[WIP] NUI_R23-02_v1.1.0_MANDAT_AGY_MoNUI-7.md`.
+  - Evidence recorded in [`r23/results/T00_preflight.txt`](r23/results/T00_preflight.txt).
+- **Next Action:** Proceed directly to T01 (worktree base R22B + baseline gates).
+
+---
+
 ## R22B-MIGRATE-20261120-02 — Migration of R22 + R22B App Code to `research-can` Patch Candidates (`r22-nui-lab` & `r22b-handstate`), Detached Tree-Hash Verification, Public Removal of `bukti_khusus_owner/` & Remote Code-Branch Deletion (`2026-11-20 WIB`; `KATA-TOOL` / `UNIT_ONLY` / `SOURCE`)
 
 - **Trigger & Governance Decision:** Explicit Owner policy superseding §1 ("Basis dan branch") of [`docs/plan-rev/R22B/[WIP] 02_MANDAT_AGY_R22B.md`](docs/plan-rev/R22B/%5BWIP%5D%2002_MANDAT_AGY_R22B.md): **no code branches in GitHub**; **`research-can` is the sole working and publication branch** under [`AGENTS.md`](AGENTS.md). App code is published as deterministic Git patch candidates against `main@745bb6d840793dcab8558f65aef6bfac58807e79` (`745bb6d`), `docs/plan-rev/R22B/bukti_khusus_owner/` (2 Owner JPG photos) is removed in a standard commit per `AGENTS.md` §5, and remote branches `origin/r22b-handstate` and `origin/r22-nui-lab` are deleted after `research-can` push verification.

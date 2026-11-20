@@ -1,0 +1,39 @@
+{
+  "revision": "R22B",
+  "generatedAtIso": "2026-11-20T03:50:00Z",
+  "codeWorktreeBranch": "r22b-handstate",
+  "codeCommitSha": "8f74db42896fae6428b7050ad3ea092d0237a885",
+  "baseCodeCommitSha": "1bb1a71",
+  "baseResearchCommitSha": "95dc3eab03bb9d57e1607f6a77e0b624be943242",
+  "publishedFiles": [
+    "r22b/contracts/K4_v1.1_TAXONOMY.md",
+    "r22b/registry/dataset_registry_r22b.json",
+    "r22b/scripts/analyze_r22b.py",
+    "r22b/scripts/build_r22b_dataset.py",
+    "r22b/scripts/eval_r22b_baselines.py",
+    "r22b/scripts/replay_lowlight_offline.mjs",
+    "r22b/scripts/run_r22b_qa_audit.mjs",
+    "r22b/results/r22b_b0_vs_b1_baseline.json",
+    "r22b/results/r22b_live_qa_and_perf_audit.json",
+    "r22b/results/R22B_EXECUTION_AND_QA_REPORT.md",
+    "r22b/manifests/published_vs_excluded_manifest.json",
+    "r22b/manifests/SHA256SUMS.txt"
+  ],
+  "excludedCategories": [
+    {
+      "category": "raw_video_and_camera_frames",
+      "reason": "Strict privacy & repo size policy (Rule 8 & AGENTS.md): local ?rawrec=1 WebM clips and simulated Y4M streams are never committed.",
+      "bytesCommitted": 0
+    },
+    {
+      "category": "owner_private_context",
+      "reason": "Strict governance boundary: docs/plan-rev/R22B/bukti_khusus_owner/ and main:contexts/can/research/.context-notforagent/ were never read, opened, or modified.",
+      "bytesCommitted": 0
+    },
+    {
+      "category": "node_modules_and_static_build_outputs",
+      "reason": "Build artifact directory frontend/implementation/out/ and node_modules/ remain local in worktree r22b-handstate.",
+      "bytesCommitted": 0
+    }
+  ]
+}

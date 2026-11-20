@@ -1,0 +1,311 @@
+{
+  "schema": "r22b-live-qa-audit/1",
+  "timestampIso": "2026-11-20T03:34:37.494Z",
+  "fakeCamFile": "/tmp/r22_real_hand_15fps.y4m",
+  "routesAndHydration": [
+    {
+      "route": "/nui-lab",
+      "pageErrors": [],
+      "hydrationErrors": [],
+      "checks": {
+        "versionBadge": "0.29.1-alpha+r22b (r22b-rc)",
+        "presetValue": null,
+        "hasCompositionalHud": false,
+        "hasCapturePanel": false,
+        "hasRawRecPanel": false,
+        "hasCamDevPanel": false
+      }
+    },
+    {
+      "route": "/nui-lab/gesture",
+      "pageErrors": [],
+      "hydrationErrors": [],
+      "checks": {
+        "versionBadge": "0.29.1-alpha+r22b (r22b-rc)",
+        "presetValue": null,
+        "hasCompositionalHud": false,
+        "hasCapturePanel": false,
+        "hasRawRecPanel": false,
+        "hasCamDevPanel": false
+      }
+    },
+    {
+      "route": "/nui-lab/canvas",
+      "pageErrors": [],
+      "hydrationErrors": [],
+      "checks": {
+        "versionBadge": "0.29.1-alpha+r22b (r22b-rc)",
+        "presetValue": "default-any-pinch",
+        "hasCompositionalHud": true,
+        "hasCapturePanel": false,
+        "hasRawRecPanel": false,
+        "hasCamDevPanel": false
+      }
+    },
+    {
+      "route": "/nui-lab/canvas?preset=ok-pinch-only",
+      "pageErrors": [],
+      "hydrationErrors": [],
+      "checks": {
+        "versionBadge": "0.29.1-alpha+r22b (r22b-rc)",
+        "presetValue": "ok-pinch-only",
+        "hasCompositionalHud": true,
+        "hasCapturePanel": false,
+        "hasRawRecPanel": false,
+        "hasCamDevPanel": false
+      }
+    },
+    {
+      "route": "/nui-lab/canvas?capture=1&rawrec=1&camdev=1",
+      "pageErrors": [],
+      "hydrationErrors": [],
+      "checks": {
+        "versionBadge": "0.29.1-alpha+r22b (r22b-rc)",
+        "presetValue": "default-any-pinch",
+        "hasCompositionalHud": true,
+        "hasCapturePanel": true,
+        "hasRawRecPanel": true,
+        "hasCamDevPanel": true
+      }
+    }
+  ],
+  "confidenceBenchmark": {
+    "default_060_045_045": {
+      "url": "http://127.0.0.1:36269/nui-lab/canvas",
+      "pageErrors": [],
+      "consoleErrors": [
+        "INFO: Created TensorFlow Lite XNNPACK delegate for CPU."
+      ],
+      "schema": "nui-lab-bench-export/2",
+      "schemaVersion": "nui-lab-bench-export/2.1",
+      "detectorConfig": {
+        "variant": "cpu-worker",
+        "delegate": "CPU",
+        "numHandsPolicy": "fixed-2",
+        "numHandsActive": 2,
+        "numHandsOverride": null,
+        "minDetectionConfidence": 0.6,
+        "minPresenceConfidence": 0.45,
+        "minTrackingConfidence": 0.45,
+        "confidenceOverride": null,
+        "initSetOptionsCalls": 0,
+        "runtimeSetOptionsCalls": 0
+      },
+      "presetId": "default-any-pinch",
+      "reacquirePinchPolicy": "require-release",
+      "rawRecMeta": null,
+      "rawRecDownloadBytes": null,
+      "frames": 98,
+      "handFrames": 98,
+      "mpMsP50": 66.9,
+      "mpMsP95": 79.13,
+      "pipelineMsP50": 68.85,
+      "pipelineMsP95": 80.86,
+      "runtimeSetOptionsCalls": 0,
+      "hasMpRawHandCount": true,
+      "handednessScoreFrames": 98,
+      "clippedPctP50": 0,
+      "handRoiLumaP50Median": 0.54
+    },
+    "low_050_035_035": {
+      "url": "http://127.0.0.1:36269/nui-lab/canvas?mdc=0.5&mpc=0.35&mtc=0.35",
+      "pageErrors": [],
+      "consoleErrors": [
+        "INFO: Created TensorFlow Lite XNNPACK delegate for CPU."
+      ],
+      "schema": "nui-lab-bench-export/2",
+      "schemaVersion": "nui-lab-bench-export/2.1",
+      "detectorConfig": {
+        "variant": "cpu-worker",
+        "delegate": "CPU",
+        "numHandsPolicy": "fixed-2",
+        "numHandsActive": 2,
+        "numHandsOverride": null,
+        "minDetectionConfidence": 0.5,
+        "minPresenceConfidence": 0.35,
+        "minTrackingConfidence": 0.35,
+        "confidenceOverride": "url:?mdc=0.5&mpc=0.35&mtc=0.35",
+        "initSetOptionsCalls": 0,
+        "runtimeSetOptionsCalls": 0
+      },
+      "presetId": "default-any-pinch",
+      "reacquirePinchPolicy": "require-release",
+      "rawRecMeta": null,
+      "rawRecDownloadBytes": null,
+      "frames": 97,
+      "handFrames": 97,
+      "mpMsP50": 66.8,
+      "mpMsP95": 80.18,
+      "pipelineMsP50": 68.9,
+      "pipelineMsP95": 82.44,
+      "runtimeSetOptionsCalls": 0,
+      "hasMpRawHandCount": true,
+      "handednessScoreFrames": 97,
+      "clippedPctP50": 0,
+      "handRoiLumaP50Median": 0.54
+    }
+  },
+  "rawRecOverheadBenchmark": {
+    "withRawRec": {
+      "url": "http://127.0.0.1:36269/nui-lab/canvas?rawrec=1",
+      "pageErrors": [],
+      "consoleErrors": [
+        "INFO: Created TensorFlow Lite XNNPACK delegate for CPU."
+      ],
+      "schema": "nui-lab-bench-export/2",
+      "schemaVersion": "nui-lab-bench-export/2.1",
+      "detectorConfig": {
+        "variant": "cpu-worker",
+        "delegate": "CPU",
+        "numHandsPolicy": "fixed-2",
+        "numHandsActive": 2,
+        "numHandsOverride": null,
+        "minDetectionConfidence": 0.6,
+        "minPresenceConfidence": 0.45,
+        "minTrackingConfidence": 0.45,
+        "confidenceOverride": null,
+        "initSetOptionsCalls": 0,
+        "runtimeSetOptionsCalls": 0
+      },
+      "presetId": "default-any-pinch",
+      "reacquirePinchPolicy": "require-release",
+      "rawRecMeta": {
+        "enabled": true,
+        "consentGranted": true,
+        "mimeType": "video/webm;codecs=vp8",
+        "startedAtIso": "2026-11-20T03:35:05.346Z",
+        "filename": "nui-rawrec_S-c338f9cc_S-c338f9cc-T001_2026-11-20T03-35-05.webm"
+      },
+      "rawRecDownloadBytes": 362056,
+      "frames": 104,
+      "handFrames": 104,
+      "mpMsP50": 66.25,
+      "mpMsP95": 79.76,
+      "pipelineMsP50": 68.2,
+      "pipelineMsP95": 82.16,
+      "runtimeSetOptionsCalls": 0,
+      "hasMpRawHandCount": true,
+      "handednessScoreFrames": 104,
+      "clippedPctP50": 0,
+      "handRoiLumaP50Median": 0.54
+    },
+    "deltaMpMsP50": -0.65,
+    "deltaMpMsP95": 0.63
+  },
+  "faultInjectionB21": {
+    "pageErrors": [],
+    "beforeStall": {
+      "bannerVisible": false,
+      "bannerText": null,
+      "bannerStalled": false,
+      "overlayDataStale": false,
+      "overlayNonZeroAlphaPixels": 6473
+    },
+    "duringStall": {
+      "bannerVisible": true,
+      "bannerText": "Kamera tersendat (594 ms tanpa hasil baru)",
+      "bannerStalled": true,
+      "overlayDataStale": true,
+      "overlayNonZeroAlphaPixels": 6473
+    },
+    "afterRecovery": {
+      "bannerVisible": false,
+      "bannerText": null,
+      "bannerStalled": false,
+      "overlayDataStale": false,
+      "overlayNonZeroAlphaPixels": 6556
+    },
+    "pass": true
+  },
+  "analyzerLiveCheck": {
+    "file": "/home/deano/.gemini/antigravity-cli/brain/0d54e0c9-5239-431c-8318-eead3c4f9fe9/scratch/r22b_live_default_export.json",
+    "schema": "nui-lab-bench-export/2",
+    "schemaVersion": "nui-lab-bench-export/2.1",
+    "checksum": {
+      "checked": true,
+      "ok": true,
+      "schema": "nui-lab-bench-export/2.1",
+      "actual": "57724d304d9bbc4d5a40819462ccc7ebcc34752b348ea5b815d88d1d315cbdea",
+      "expected": "57724d304d9bbc4d5a40819462ccc7ebcc34752b348ea5b815d88d1d315cbdea"
+    },
+    "sessionsAnalyzed": 1,
+    "sessions": [
+      {
+        "sessionId": "S-afb47c30",
+        "status": "active",
+        "app": {
+          "version": "0.29.1-alpha+r22b",
+          "gitCommit": "r22b-rc1",
+          "gitBranch": "r22b-handstate"
+        },
+        "trialCount": 1,
+        "trials": [
+          {
+            "trialId": "S-afb47c30-T001",
+            "route": "canvas",
+            "presetId": "default-any-pinch",
+            "reacquirePinchPolicy": "require-release",
+            "detectorConfig": {
+              "variant": "cpu-worker",
+              "delegate": "CPU",
+              "numHandsPolicy": "fixed-2",
+              "numHandsActive": 2,
+              "numHandsOverride": null,
+              "minDetectionConfidence": 0.6,
+              "minPresenceConfidence": 0.45,
+              "minTrackingConfidence": 0.45,
+              "confidenceOverride": null,
+              "initSetOptionsCalls": 0,
+              "runtimeSetOptionsCalls": 0
+            },
+            "endReason": "camera-stop",
+            "frames": 98,
+            "rawNoHandRate": 0,
+            "activeWindow": {
+              "frames": 98,
+              "missFrames": 0,
+              "missRateByFrames": 0,
+              "totalMs": 6852,
+              "missMs": 0,
+              "missRateByTime": 0
+            },
+            "lostEpisodesGt500msCount": 0,
+            "lostEpisodesGt1sCount": 0,
+            "lostEpisodes": [],
+            "events": {
+              "strokeStarts": 0,
+              "onsetConfirmed": 0,
+              "onsetBlockedByReason": {},
+              "releaseBridged": 0,
+              "g1BlockedFrames": 0,
+              "undoRedoArmed": 0,
+              "undoTotal": 0,
+              "undoChanged": 0,
+              "undoSuccessRate": null,
+              "redoTotal": 0,
+              "redoChanged": 0,
+              "redoSuccessRate": null,
+              "threeActions": 0
+            },
+            "timing": {
+              "mpMsP50": 66.9,
+              "mpMsP95": 79.13,
+              "pipelineMsP50": 68.85,
+              "pipelineMsP95": 80.86
+            },
+            "lightingProxies": {
+              "clippedPctP50": 0,
+              "clippedPctP95": 0,
+              "handRoiLumaP50Median": 0.5412,
+              "backlightCandidatePct": 0
+            },
+            "groundTruthEvaluation": {
+              "independentGroundTruthAvailable": false,
+              "note": "No unmasked DATASET_GT frames in trial; accuracy intentionally NOT_AVAILABLE (A06/B06/E05)."
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

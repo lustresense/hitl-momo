@@ -1,0 +1,95 @@
+{
+  "schema": "r22b-baseline-eval/1",
+  "datasetId": "weak-s970-t004-v1",
+  "labelSource": "WEAK_REGRESSION_ONLY_NOT_DATASET_GT",
+  "totalFrames": 996,
+  "models": {
+    "B0_rule_R22": "Geometric pinch threshold only (0.20 curled / 0.30 otherwise, no G1' gate)",
+    "B1_rule_R22B_G1prime": "R22B G1' onset gate (OK: mrpExt>=2 -> allow; CLOSED: idxPip>=60 & (thumbOpen || tIdxMcp>=0.33))",
+    "M1_tiny_mlp_82d": "NOT_TESTED (menunggu Owner guided-capture DATASET_GT)",
+    "M1x_tiny_mlp_94d": "NOT_TESTED (menunggu Owner guided-capture DATASET_GT)",
+    "M2_temporal_tcn_gru": "NOT_TESTED (menunggu Owner guided-capture DATASET_GT)"
+  },
+  "buckets": [
+    {
+      "bucket": "S-07ba0cde-T004:PINCH/TOUCH/CLOSED",
+      "total": 198,
+      "b0Allowed": 198,
+      "b0Rate": 1.0,
+      "b1Allowed": 198,
+      "b1Rate": 1.0
+    },
+    {
+      "bucket": "S-07ba0cde-T004:PINCH/TOUCH/None",
+      "total": 6,
+      "b0Allowed": 6,
+      "b0Rate": 1.0,
+      "b1Allowed": 6,
+      "b1Rate": 1.0
+    },
+    {
+      "bucket": "S-970f4cb0-T002:FIST/NONE/None",
+      "total": 44,
+      "b0Allowed": 0,
+      "b0Rate": 0.0,
+      "b1Allowed": 0,
+      "b1Rate": 0.0
+    },
+    {
+      "bucket": "S-970f4cb0-T002:FIST_OR_TRANSITION/NOT_PINCH/None",
+      "total": 13,
+      "b0Allowed": 13,
+      "b0Rate": 1.0,
+      "b1Allowed": 0,
+      "b1Rate": 0.0
+    },
+    {
+      "bucket": "S-970f4cb0-T002:FIVE/OPEN/None",
+      "total": 186,
+      "b0Allowed": 0,
+      "b0Rate": 0.0,
+      "b1Allowed": 0,
+      "b1Rate": 0.0
+    },
+    {
+      "bucket": "S-970f4cb0-T002:ONE/OPEN/None",
+      "total": 110,
+      "b0Allowed": 0,
+      "b0Rate": 0.0,
+      "b1Allowed": 0,
+      "b1Rate": 0.0
+    },
+    {
+      "bucket": "S-970f4cb0-T002:PINCH/TOUCH/CLOSED",
+      "total": 303,
+      "b0Allowed": 303,
+      "b0Rate": 1.0,
+      "b1Allowed": 299,
+      "b1Rate": 0.9868
+    },
+    {
+      "bucket": "S-970f4cb0-T002:PINCH/TOUCH/None",
+      "total": 29,
+      "b0Allowed": 29,
+      "b0Rate": 1.0,
+      "b1Allowed": 24,
+      "b1Rate": 0.8276
+    },
+    {
+      "bucket": "S-970f4cb0-T002:PINCH/TOUCH/OK",
+      "total": 103,
+      "b0Allowed": 103,
+      "b0Rate": 1.0,
+      "b1Allowed": 103,
+      "b1Rate": 1.0
+    },
+    {
+      "bucket": "S-970f4cb0-T002:TRANSITION/NOT_PINCH/None",
+      "total": 4,
+      "b0Allowed": 0,
+      "b0Rate": 0.0,
+      "b1Allowed": 0,
+      "b1Rate": 0.0
+    }
+  ]
+}

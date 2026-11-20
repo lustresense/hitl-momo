@@ -1,0 +1,62 @@
+{
+  "schema": "r22b-dataset-registry/1",
+  "contract": "K7",
+  "updatedAt": "2026-11-20",
+  "policy": {
+    "forbiddenTrainingSources": ["RULE_DERIVED", "MODEL_PREDICTION", "UNKNOWN", "unlabelled-user-telemetry"],
+    "requiredMasking": {
+      "guidedCaptureStartMaskMs": 700,
+      "guidedCaptureEndMaskMs": 300
+    },
+    "personHeldOutRule": "If only 1 subject exists (P1), mark PERSON_HELD_OUT = NOT_AVAILABLE and use session/lighting/variation held-out only. Never claim cross-person generalization without P2."
+  },
+  "datasets": [
+    {
+      "id": "weak-s970-t004-v1",
+      "status": "FROZEN_WEAK_REGRESSION_ONLY",
+      "allowedUse": ["hard-negative-evaluation", "gate-calibration-audit", "regression-test"],
+      "forbiddenUse": ["sole-supervised-training-source", "claiming-independent-gt-accuracy"],
+      "labelSource": "RULE_DERIVED_AND_SPOT_AUDIT",
+      "file": "research-can/docs/plan-rev/R22B/s970_t004_handstate_weaklabels_v1.json",
+      "fixtureCopy": "frontend/implementation/tests/fixtures/s970_t004_handstate_weaklabels_v1.json",
+      "sha256": "bc97a91ced6a3dee2541516715f9b7471741bddc2a57b3668979a4d5ff2c3ba1",
+      "frameCount": 996,
+      "sessions": ["S-970f4cb0-T002", "S-07ba0cde-T004"]
+    },
+    {
+      "id": "s970-t002-landmark-replay-v1",
+      "status": "FROZEN_REPLAY_FIXTURE",
+      "allowedUse": ["end-to-end-canvas-replay-regression", "undo-window-zero-false-stroke-gate"],
+      "forbiddenUse": ["supervised-training"],
+      "labelSource": "USER_ACTION",
+      "file": "research-can/docs/plan-rev/R22B/s970-t002-landmark-replay-v1.json",
+      "fixtureCopy": "frontend/implementation/tests/fixtures/s970-t002-landmark-replay-v1.json",
+      "sha256": "97c16c320850ea90ab6b6f0fc8d99bdab55f7f1c51dd6444c88fddf3fdfdcab5",
+      "frameCount": 1685,
+      "trackedFrames": 1096,
+      "undoWindowMs": [155800, 168000]
+    },
+    {
+      "id": "guided-capture-p1-v1",
+      "status": "NOT_AVAILABLE_PENDING_OWNER_CAPTURE",
+      "allowedUse": ["supervised-training-M1-M1x-M2", "within-person-lighting-variation-split"],
+      "labelSource": "DATASET_GT",
+      "labelProvenance": "guided-capture-v1",
+      "subjectCode": "P1",
+      "conditionsRequired": ["A-lampu-depan-mati", "B-lampu-depan-nyala"],
+      "sha256": null,
+      "note": "Blocked until Owner runs ?capture=1 protocol (~20 min) and supplies numeric JSON export."
+    },
+    {
+      "id": "guided-capture-p2-v1",
+      "status": "NOT_AVAILABLE_PENDING_OWNER_CAPTURE",
+      "allowedUse": ["person-held-out-evaluation"],
+      "labelSource": "DATASET_GT",
+      "labelProvenance": "guided-capture-v1",
+      "subjectCode": "P2",
+      "conditionsRequired": ["B-lampu-depan-nyala"],
+      "sha256": null,
+      "note": "Optional second subject (~10 min). Until present, PERSON_HELD_OUT = NOT_AVAILABLE."
+    }
+  ]
+}

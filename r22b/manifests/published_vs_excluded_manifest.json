@@ -1,38 +1,90 @@
 {
   "revision": "R22B",
-  "generatedAtIso": "2026-11-20T03:50:00Z",
-  "codeWorktreeBranch": "r22b-handstate",
-  "codeCommitSha": "8f74db42896fae6428b7050ad3ea092d0237a885",
-  "baseCodeCommitSha": "1bb1a71",
-  "baseResearchCommitSha": "95dc3eab03bb9d57e1607f6a77e0b624be943242",
-  "publishedFiles": [
-    "r22b/contracts/K4_v1.1_TAXONOMY.md",
-    "r22b/registry/dataset_registry_r22b.json",
-    "r22b/scripts/analyze_r22b.py",
-    "r22b/scripts/build_r22b_dataset.py",
-    "r22b/scripts/eval_r22b_baselines.py",
-    "r22b/scripts/replay_lowlight_offline.mjs",
-    "r22b/scripts/run_r22b_qa_audit.mjs",
-    "r22b/results/r22b_b0_vs_b1_baseline.json",
-    "r22b/results/r22b_live_qa_and_perf_audit.json",
-    "r22b/results/R22B_EXECUTION_AND_QA_REPORT.md",
-    "r22b/manifests/published_vs_excluded_manifest.json",
-    "r22b/manifests/SHA256SUMS.txt"
+  "candidateId": "r22b-handstate",
+  "generatedAtIso": "2026-11-20T05:55:00Z",
+  "policy": "Single branch research-can only (AGENTS.md). App code published as git patch candidate against main@745bb6d; remote code branches deleted per explicit Owner authorization.",
+  "baseMainCommitSha": "745bb6d840793dcab8558f65aef6bfac58807e79",
+  "parentR22CommitSha": "1bb1a71fe46c01522f74bdbf45e812c5590b9ce8",
+  "historicalCandidateCommitSha": "8f74db42896fae6428b7050ad3ea092d0237a885",
+  "verifiedWriteTreeHash": "16806cb23382a0655c040b3398903feeeaf0fe7b",
+  "candidatePatches": [
+    {
+      "path": "r22b/candidates/r22b-handstate/r22b_main-745bb6d_to_8f74db4.patch",
+      "role": "cumulative_dev_patch",
+      "command": "git diff --binary --full-index 745bb6d 8f74db4",
+      "bytes": 2865989,
+      "sha256": "4d677b8f08a8fafb43071428564e6172f6a555ca1970535be9cb44da6e929f19",
+      "applyTargetBase": "745bb6d840793dcab8558f65aef6bfac58807e79",
+      "expectedWriteTree": "16806cb23382a0655c040b3398903feeeaf0fe7b"
+    },
+    {
+      "path": "r22b/candidates/r22b-handstate/r22b_incremental_1bb1a71_to_8f74db4.patch",
+      "role": "incremental_review_patch",
+      "command": "git diff --binary --full-index 1bb1a71 8f74db4",
+      "bytes": 1624784,
+      "sha256": "fd921befab295471f359d92dfe984fac4136c5f74d6fbe102e3952ad933edfad",
+      "applyTargetBase": "1bb1a71fe46c01522f74bdbf45e812c5590b9ce8",
+      "expectedWriteTree": "16806cb23382a0655c040b3398903feeeaf0fe7b"
+    },
+    {
+      "path": "r22b/candidates/r22b-handstate/APPLY.md",
+      "bytes": 2789,
+      "sha256": "536af08cc7485c77c27cd2cbf1fdb7883bb77501bad10143a4aade1f09af6f1e"
+    }
   ],
-  "excludedCategories": [
+  "sourceToPublishedMap": [
     {
-      "category": "raw_video_and_camera_frames",
-      "reason": "Strict privacy & repo size policy (Rule 8 & AGENTS.md): local ?rawrec=1 WebM clips and simulated Y4M streams are never committed.",
+      "localSource": "/srv/sketchbook/mediapipe-optimize/r22b-handstate (diff 745bb6d..8f74db4)",
+      "publishedPath": "r22b/candidates/r22b-handstate/r22b_main-745bb6d_to_8f74db4.patch"
+    },
+    {
+      "localSource": "/srv/sketchbook/mediapipe-optimize/r22b-handstate (diff 1bb1a71..8f74db4)",
+      "publishedPath": "r22b/candidates/r22b-handstate/r22b_incremental_1bb1a71_to_8f74db4.patch"
+    },
+    {
+      "localSource": "DEV reproduction, test gate & build instructions for Ujang",
+      "publishedPath": "r22b/candidates/r22b-handstate/APPLY.md"
+    },
+    {
+      "localSource": "K4 v1.1 compositional HandState taxonomy contract",
+      "publishedPath": "r22b/contracts/K4_v1.1_TAXONOMY.md"
+    },
+    {
+      "localSource": "R22B dataset registry (weak-s970-t004-v1, s970-t002-landmark-replay-v1, pending guided-capture)",
+      "publishedPath": "r22b/registry/dataset_registry_r22b.json"
+    },
+    {
+      "localSource": "R22B analyzer, 94D dataset builder, baseline evaluator, lowlight replay & QA scripts",
+      "publishedPath": "r22b/scripts/{analyze_r22b.py,build_r22b_dataset.py,eval_r22b_baselines.py,replay_lowlight_offline.mjs,run_r22b_qa_audit.mjs}"
+    },
+    {
+      "localSource": "R22B baseline & live browser QA results + execution report",
+      "publishedPath": "r22b/results/{r22b_b0_vs_b1_baseline.json,r22b_live_qa_and_perf_audit.json,R22B_EXECUTION_AND_QA_REPORT.md}"
+    }
+  ],
+  "excludedItems": [
+    {
+      "localPath": "docs/plan-rev/R22B/bukti_khusus_owner/{01_kepal_vs_cubit_per_frame.jpg,02_tangan_hilang_padahal_terlihat.jpg}",
+      "category": "owner_private_camera_frames",
+      "reason": "Removed from public branch per explicit Owner instruction and AGENTS.md §5 (no identifiable camera images in public repo).",
       "bytesCommitted": 0
     },
     {
-      "category": "owner_private_context",
-      "reason": "Strict governance boundary: docs/plan-rev/R22B/bukti_khusus_owner/ and main:contexts/can/research/.context-notforagent/ were never read, opened, or modified.",
+      "localPath": "main:contexts/can/research/.context-notforagent/",
+      "category": "restricted_owner_context",
+      "reason": "Never read, opened, or copied per AGENTS.md §1.",
       "bytesCommitted": 0
     },
     {
+      "localPath": "/srv/sketchbook/mediapipe-optimize/r22b-handstate/frontend/implementation/{node_modules,.next,out}",
       "category": "node_modules_and_static_build_outputs",
-      "reason": "Build artifact directory frontend/implementation/out/ and node_modules/ remain local in worktree r22b-handstate.",
+      "reason": "Build outputs and dependencies remain in local worktree only.",
+      "bytesCommitted": 0
+    },
+    {
+      "localPath": "local ?rawrec=1 WebM test downloads & /tmp/r22_real_hand_15fps.y4m",
+      "category": "raw_video_and_camera_streams",
+      "reason": "Raw/simulated video files excluded per AGENTS.md §5.",
       "bytesCommitted": 0
     }
   ]

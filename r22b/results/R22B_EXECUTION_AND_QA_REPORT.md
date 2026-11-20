@@ -1,11 +1,13 @@
 # R22B — HandState Foundation, Canvas UX Recovery & v2.1 Telemetry Execution & QA Report
 
-- **Branch (`r22b-handstate`):** `8f74db42896fae6428b7050ad3ea092d0237a885` (`8f74db4`, branched from `r22-nui-lab@1bb1a71`, pushed to `origin/r22b-handstate`)
-- **Research Branch (`research-can`):** Base `95dc3eab03bb9d57e1607f6a77e0b624be943242` (`95dc3ea`)
-- **Primary Mandate:** [`docs/plan-rev/R22B/02_MANDAT_AGY_R22B.md`](../docs/plan-rev/R22B/02_MANDAT_AGY_R22B.md) (backed by [`01_BUKTI_DAN_PENALARAN_S970.md`](../docs/plan-rev/R22B/01_BUKTI_DAN_PENALARAN_S970.md) & [`00_BACA_DULU.md`](../docs/plan-rev/R22B/00_BACA_DULU.md))
-- **App Version Badge (`B8.2`):** `0.29.1-alpha+r22b` (`r22b-handstate@8f74db4`)
-- **Student Gameplay / `src/input/**` Isolation:** `0` lines modified in `frontend/implementation/src/input/**`; legacy gameplay suite unchanged at `39/48 PASS, 9/48 FAIL` (identical to `main@745bb6d` and `r22-nui-lab@1bb1a71`).
-- **Deployment Boundary:** Zero deployment, zero container restart, zero Cloudflare/public tunnel (`dev.momominum.tech` and `app.momominum.tech` untouched; Owner instructs Ujang with commit SHA `8f74db42896fae6428b7050ad3ea092d0237a885`).
+- **Governance & Candidate Packaging (Owner Decision 2026-11-20 WIB):** No remote code branches (`origin/r22-nui-lab` and `origin/r22b-handstate` deleted after migration). **`research-can` is the sole active branch.** Application code is published as deterministic Git patch candidates against `main@745bb6d840793dcab8558f65aef6bfac58807e79`:
+  - **R22 Candidate (`r22-nui-lab`):** [`r22/candidates/r22-nui-lab/r22_main-745bb6d_to_1bb1a71.patch`](../../r22/candidates/r22-nui-lab/r22_main-745bb6d_to_1bb1a71.patch) (`1,368,922 B`, SHA-256 `5b88637ddcf9230c793e2d73cd12e56b42f9cb708015fda680d4fa86fb54fef1`, verified `git write-tree` = **`bed64432519e12fa42d927d5e5883df98df3a36c`**) + [`APPLY.md`](../../r22/candidates/r22-nui-lab/APPLY.md).
+  - **R22B Cumulative DEV Candidate (`r22b-handstate`):** [`r22b/candidates/r22b-handstate/r22b_main-745bb6d_to_8f74db4.patch`](../candidates/r22b-handstate/r22b_main-745bb6d_to_8f74db4.patch) (`2,865,989 B`, SHA-256 `4d677b8f08a8fafb43071428564e6172f6a555ca1970535be9cb44da6e929f19`, verified `git write-tree` = **`16806cb23382a0655c040b3398903feeeaf0fe7b`**) + incremental review patch [`r22b_incremental_1bb1a71_to_8f74db4.patch`](../candidates/r22b-handstate/r22b_incremental_1bb1a71_to_8f74db4.patch) (`1,624,784 B`, SHA-256 `fd921befab295471f359d92dfe984fac4136c5f74d6fbe102e3952ad933edfad`) + [`APPLY.md`](../candidates/r22b-handstate/APPLY.md).
+- **Local Snapshot Reference:** `8f74db42896fae6428b7050ad3ea092d0237a885` (`8f74db4`, local worktree `/srv/sketchbook/mediapipe-optimize/r22b-handstate` retained locally without remote branch push)
+- **Primary Mandate:** [`docs/plan-rev/R22B/[WIP] 02_MANDAT_AGY_R22B.md`](../../docs/plan-rev/R22B/%5BWIP%5D%2002_MANDAT_AGY_R22B.md) (backed by [`01_BUKTI_DAN_PENALARAN_S970.md`](../../docs/plan-rev/R22B/01_BUKTI_DAN_PENALARAN_S970.md) & [`00_BACA_DULU.md`](../../docs/plan-rev/R22B/00_BACA_DULU.md))
+- **App Version Badge (`B8.2`):** `0.29.1-alpha+r22b` (`NEXT_PUBLIC_GIT_BRANCH=research-can/r22b-handstate`, `NEXT_PUBLIC_GIT_COMMIT=<SHA research-can>`)
+- **Student Gameplay / `src/input/**` Isolation:** `0` lines modified in `frontend/implementation/src/input/**`; detached-worktree verification from `main@745bb6d` confirmed **`23/23` files (`264/264` tests PASS)** on `npx vitest run tests/nui-lab tests/owner-build-manifest.test.ts` and **`39/48 PASS, 9/48 FAIL`** on legacy gameplay `tests/input/{hand-stroke-surface,two-hand-surface,eraser-controls}.test.ts` (identical to `main@745bb6d`).
+- **Deployment Boundary:** Zero deployment, zero container restart, zero Cloudflare/public tunnel (`dev.momominum.tech` and `app.momominum.tech` untouched; Owner instructs Ujang to follow [`r22b/candidates/r22b-handstate/APPLY.md`](../candidates/r22b-handstate/APPLY.md)).
 
 ---
 

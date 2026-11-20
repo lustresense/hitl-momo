@@ -12,9 +12,12 @@ Angka di mandat ini berasal dari dua sumber itu.
 
 ## 1. Aturan kerja (tidak bisa ditawar)
 
-**Basis dan branch**
-- Base: **`r22-nui-lab@1bb1a71`**, build yang sekarang live di DEV.
-- Buat branch **`r22b-handstate`** di worktree terisolasi. Jangan push ke `main`. Jangan rebase/force-push branch orang lain.
+**Basis dan branch (DIGANTI OLEH KEPUTUSAN OWNER 2026-11-20 WIB)**
+- **Keputusan Owner (menggantikan aturan branch kode sebelumnya):** Tidak ada branch kode (`r22-nui-lab` dan `r22b-handstate` di remote dihapus atas izin eksplisit Owner). Satu-satunya branch kerja dan publikasi di GitHub adalah **`research-can`** (mengikuti `research-can/AGENTS.md` sepenuhnya).
+- Kode aplikasi dipublikasikan sebagai **kandidat patch** terhadap base **`main@745bb6d840793dcab8558f65aef6bfac58807e79`** (`745bb6d`):
+  - Kandidat R22: `r22/candidates/r22-nui-lab/r22_main-745bb6d_to_1bb1a71.patch` (`git write-tree` = `bed64432519e12fa42d927d5e5883df98df3a36c`) + `APPLY.md`.
+  - Kandidat R22B (kumulatif untuk DEV): `r22b/candidates/r22b-handstate/r22b_main-745bb6d_to_8f74db4.patch` (`git write-tree` = `16806cb23382a0655c040b3398903feeeaf0fe7b`) + `r22b_incremental_1bb1a71_to_8f74db4.patch` (untuk review) + `APPLY.md`.
+- Untuk Wave 2 dan seterusnya: kerja dilakukan di worktree lokal detached dari `main@745bb6d` ditambah patch kandidat terakhir (commit lokal boleh, **push branch selain `research-can` dilarang**). Hasil baru dipublikasikan sebagai patch versi baru (`_v2.patch`, dst.) di folder kandidat yang sama tanpa menimpa patch lama.
 
 **Deploy**
 - AGY **tidak deploy**. Tidak boleh membuat tunnel, preview URL, domain, atau container publik.

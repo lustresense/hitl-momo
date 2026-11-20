@@ -1,0 +1,64 @@
+{
+  "revision": "R22",
+  "candidateId": "r22-nui-lab",
+  "generatedAtIso": "2026-11-20T05:55:00Z",
+  "policy": "Single branch research-can only (AGENTS.md). App code published as git patch candidate against main@745bb6d; remote code branches deleted per explicit Owner authorization.",
+  "baseMainCommitSha": "745bb6d840793dcab8558f65aef6bfac58807e79",
+  "historicalCandidateCommitSha": "1bb1a71fe46c01522f74bdbf45e812c5590b9ce8",
+  "verifiedWriteTreeHash": "bed64432519e12fa42d927d5e5883df98df3a36c",
+  "candidatePatches": [
+    {
+      "path": "r22/candidates/r22-nui-lab/r22_main-745bb6d_to_1bb1a71.patch",
+      "command": "git diff --binary --full-index 745bb6d 1bb1a71",
+      "bytes": 1368922,
+      "sha256": "5b88637ddcf9230c793e2d73cd12e56b42f9cb708015fda680d4fa86fb54fef1",
+      "applyTargetBase": "745bb6d840793dcab8558f65aef6bfac58807e79",
+      "expectedWriteTree": "bed64432519e12fa42d927d5e5883df98df3a36c"
+    },
+    {
+      "path": "r22/candidates/r22-nui-lab/APPLY.md",
+      "bytes": 2176,
+      "sha256": "6ac08512bb8e1ae04625a359d39a6acce3e184dde48c8f15d5396055c25d18d3"
+    }
+  ],
+  "sourceToPublishedMap": [
+    {
+      "localSource": "/srv/sketchbook/mediapipe-optimize/r22-nui-lab (diff 745bb6d..1bb1a71)",
+      "publishedPath": "r22/candidates/r22-nui-lab/r22_main-745bb6d_to_1bb1a71.patch"
+    },
+    {
+      "localSource": "DEV reproduction & build instructions for Ujang",
+      "publishedPath": "r22/candidates/r22-nui-lab/APPLY.md"
+    },
+    {
+      "localSource": "/srv/sketchbook/mediapipe-optimize/research-can/r22/{detector,experiments,models,registry,results,scripts,temporal}",
+      "publishedPath": "r22/{detector,experiments,models,registry,results,scripts,temporal}"
+    }
+  ],
+  "excludedItems": [
+    {
+      "localPath": "r22/temporal/__pycache__/curate_real_sequences.cpython-312.pyc",
+      "category": "python_bytecode_cache",
+      "reason": "Generated Python bytecode cache excluded per AGENTS.md §5.",
+      "bytesCommitted": 0
+    },
+    {
+      "localPath": "r22/temporal/curated_sequences_cache.npz",
+      "category": "local_derived_cache",
+      "reason": "Ignored local numpy sequence cache (.gitignore); reproducible via curate_real_sequences.py.",
+      "bytesCommitted": 0
+    },
+    {
+      "localPath": "/srv/sketchbook/mediapipe-optimize/r22-nui-lab/frontend/implementation/{node_modules,.next,out}",
+      "category": "node_modules_and_build_outputs",
+      "reason": "Dependencies and static build artifacts remain in local worktree only.",
+      "bytesCommitted": 0
+    },
+    {
+      "localPath": "/tmp/r22_real_hand_15fps.y4m",
+      "category": "simulated_camera_stream",
+      "reason": "Local raw Y4M test stream excluded per AGENTS.md §5.",
+      "bytesCommitted": 0
+    }
+  ]
+}

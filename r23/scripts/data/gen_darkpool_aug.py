@@ -1,3 +1,4 @@
+# DEPRECATED (R23 v1.2.0): menulis label kosong untuk frame bertangan. Jangan dipakai.
 #!/usr/bin/env python3
 """Generate darkpool and synthetic dark augmentations for MoNUI-7 R23 T15."""
 import glob

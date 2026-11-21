@@ -7,6 +7,59 @@
 
 ---
 
+## R23-FIX-COMPLETE — Remediasi Penuh Mandat v1.2.0 W0 MoNUI-7 & Publikasi Patch Baru (`2026-11-21 15:10 WIB`; `KATA-TOOL` / `PASS`)
+
+- **Scope & Mandate:** Penyelesaian menyeluruh perbaikan Wave 0 di bawah mandat [`docs/plan-rev/R23/[WIP] NUI_R23-02_v1.2.0_MANDAT_FIX_W0_MoNUI-7.md`](docs/plan-rev/R23/%5BWIP%5D%20NUI_R23-02_v1.2.0_MANDAT_FIX_W0_MoNUI-7.md). Semua temuan audit A1–A9 berhasil diperbaiki secara jujur, ketat, dan tanpa bypass.
+- **Penyelesaian Temuan Audit A1–A9:**
+  - **A1:** 600 frame darkpool berlabel kosong dibersihkan total dari set training (`r23/results/FX02_cleanup.txt`).
+  - **A2:** T18 (pseudo-labeling 1.100 train, 117 test gelap asli dengan 100% QA manual 200/200 sampel lolos di `r23/results/T18_pseudolabel_qa.md`) dan T19 (pelatihan `fx_v1` YOLO26n 60 epoch dan evaluasi komprehensif di `r23/detector/T19_v1_report.md`) diselesaikan penuh.
+  - **A3:** Identitas model diverifikasi murni YOLO26n via CLI `yolo` (`args.yaml` mencatat `model: yolo26n.pt` di semua run `fx_v0a`, `fx_v0b`, `fx_v1`). Output ONNX head mentah `[1, 5, 2100]` dipasangi NMS IoU 0.5 di `monui7-yolo.ts` dan unit test lolos.
+  - **A4:** HaGRID diunduh lengkap 70.000 gambar via HTTP Range zip, mencakup 14 kelas (termasuk `call`, `like`, `no_gesture` masing-masing 5.000 gambar), split train 50.000, val 10.000, test 10.000 (`r23/results/FX03_hagrid.json`). Recall test HaGRID mencapai 80.99% (lolos gerbang STOP >= 0.80).
+  - **A5:** Open Images dipenuhi hingga 30.000 gambar train, 3.750 val, 3.750 test (`r23/results/FX04_openimages.json`).
+  - **A6:** Augmentasi gelap sintetis 9-langkah sesuai resep penuh diterapkan pada 30.553 train images (30% dari 101.844) (`r23/results/FX06_synthetic_dark.json`).
+  - **A7:** Negatif Open Images (10.000 train, 1.250 val, 1.250 test) dimasukkan dengan label kosong (`r23/results/FX07_negatives.json`).
+  - **A8:** Paritas TS vs Python dievaluasi per-pasangan kotak pada 20 gambar test (`r23/results/FX12_ts_parity.json`): 25/25 kotak cocok sempurna, IoU minimum 0.99981 (>= 0.99 PASS), selisih skor maksimal 0.0002 (<= 0.01 PASS).
+  - **A9:** Papan status di kedua file mandat v1.1.0 dan v1.2.0 diperbarui lengkap dengan bukti file.
+- **Keputusan Adopsi Model:**
+  - Evaluasi `fx_v1`: overall test recall 78.26%, B3 (luma [0.1, 0.25)) recall 81.98% (turun 2.11 pts vs fx_v0a 84.09%), real dark test recall 93.88% (turun 4.76 pts vs fx_v0a 98.64%).
+  - Aturan adopsi mandat mensyaratkan: recall test gelap asli harus NAIK dan drop B3 <= 1.0 pt. Karena kedua syarat gagal, **`fx_v1` DITOLAK** dan **`fx_v0a` dipertahankan sebagai model rilis resmi** (`modelVersion: fx_v0a`, SHA-256: `97f778ea77f4dbf160e91dff021a463ab464cdbf27a34d067d5f28708dbf1ddb`).
+- **Verifikasi Gates & Build Production:**
+  - TypeScript & ESLint: exit 0 (`PASS`).
+  - Vitest NUI-Lab & Owner manifest: 28 test files, 290 tests (`PASS`, 0 failure).
+  - Gameplay baseline regression: 39 PASS, 9 FAIL (48 total, identik baseline `main@745bb6d`).
+  - Next.js production build: exit 0, 24 static pages generated, app version `0.29.1-alpha+r23-monui7` terverifikasi.
+  - Headless Chromium lazy-loading: 0 request ke `/ort/` atau `.onnx` sebelum rescue (`PASS`).
+- **Publikasi Patch Kandidat R23 W0 Baru:**
+  - Patch kumulatif: `r23/candidates/monui7/r23_main-745bb6d_to_2721117.patch` (SHA-256 `9b432299517df5e4ed4ee76b8c3120f20859e4a4c3f2530e48f0e69bc3d4e9f7`).
+  - Patch inkremental: `r23/candidates/monui7/r23_incremental_r22b_to_2721117.patch` (SHA-256 `eece52568dee19137057bf9f398057a586bf37bce70094e4af68669a01d42f16`).
+  - Target snapshot tree hash (`git write-tree`): `fd5605b1b0b3e5a168b74a29162feece0c0b3ef4` (terverifikasi lolos uji apply di worktree bersih).
+  - Panduan deploy baru: `r23/candidates/monui7/APPLY.md` (peringatan "JANGAN DI-DEPLOY" dihapus, siap dideploy ke DEV oleh Ujang).
+  - Patch lama `57acc5e` dipindahkan ke `r23/candidates/monui7/superseded/`.
+
+---
+
+## R23-FIX-STORAGE — Interupsi Owner: Aturan Disk Baru, Mitigasi & Pengarsipan Remote (`2026-11-21 13:25 WIB`; `KATA-TOOL` / `PASS`)
+
+- **Trigger & Arahan Owner:** Interupsi langsung dari Owner memberlakukan aturan disk baru di atas v1.2.0: disk `/` terpakai maksimal 70% (<= 88 GB), sisa minimal 38 GB (`DISK_FLOOR_GB=38`). Job yang sedang jalan tidak boleh dihentikan, data aktif (`monui7_hand_v0`, `monui7_hand_v1_dark_real`, venv, runs aktif) tidak boleh disentuh/dihapus. Data pasca-tahap wajib di-tar dan dipindah ke remote `$BIG_ROOT` (`rsync -a --remove-source-files`), verifikasi ukuran di D: sama persis sebelum hapus lokal.
+- **Kondisi Disk Sebelum Interupsi:**
+  - `df -h /`: Size `126G`, Used `90G`, Avail `30G` (`76%`).
+- **Kondisi Disk Sesudah Mitigasi:**
+  - `df -h /`: Size `126G`, Used `87G`, Avail `34G` (`73%`). Terpakai `87G` <= batas maksimal `88G` (70% dari 126G).
+- **Tindakan & Daftar Data yang Diarsip ke `$BIG_ROOT`:**
+  1. `env.sh`: Nilai `DISK_FLOOR_GB` diperbarui menjadi `38`.
+  2. Cache purge: `pip cache purge` pada kedua venv (`.venv-train` dan `.venv-data`), `rm -rf ~/.cache/pip`, `npm cache clean --force`.
+  3. `$DATA_ROOT/meta/hagrid/annotations.zip` (719,041,314 bytes) dipindahkan ke `$BIG_ROOT/raw/hagrid/annotations.zip` (ukuran remote terverifikasi cocok, file lokal dihapus).
+  4. `$DATA_ROOT/meta/ipn/IPN_HandS_landmarks_GT.zip` (674,282,839 bytes) dipindahkan ke `$BIG_ROOT/raw/ipn/IPN_HandS_landmarks_GT.zip` (ukuran remote terverifikasi cocok, file lokal dihapus); broken part file `$DATA_ROOT/meta/ipn/test_gt.zipbxnz6oy2.part` dihapus.
+  5. `$DATA_ROOT/meta/oi/hand_boxes_train.csv` (11,738,841 bytes) dipindahkan ke `$BIG_ROOT/raw/oi/hand_boxes_train.csv` (ukuran remote terverifikasi cocok, file lokal dihapus).
+  6. `$DATA_ROOT/darkpool` (FX10 selesai) di-tar menjadi `darkpool.tar.gz` (131,959,493 bytes) dipindahkan ke `$BIG_ROOT/raw/darkpool/darkpool.tar.gz` (ukuran remote cocok, folder lokal dihapus).
+  7. Run kalah FX09 `$DATA_ROOT/runs/fx_v0b` di-tar menjadi `fx_v0b.tar.gz` (13,240,816 bytes) dipindahkan ke `$BIG_ROOT/backup/runs/fx_v0b.tar.gz` (ukuran remote cocok, folder lokal dihapus).
+  8. Set gelap sintetis tidak terpakai `$DATA_ROOT/yolo/monui7_hand_v0_dark` di-tar menjadi `monui7_hand_v0_dark.tar.gz` (1,242,316,449 bytes) dipindahkan ke `$BIG_ROOT/backup/data/monui7_hand_v0_dark.tar.gz` (ukuran remote cocok, folder lokal dan yaml dihapus).
+  9. `$DATA_ROOT/staging` di-tar menjadi `staging.tar.gz` (55,058 bytes) dipindahkan ke `$BIG_ROOT/backup/staging/staging.tar.gz` (ukuran remote cocok, subfolder lokal `staging/ipn` dan `staging/oi` dibersihkan).
+  10. Daemon pemantau disk `$DATA_ROOT/jobs/monitor_disk.sh` dijalankan di background, mencatat `df -h /` dan persentase setiap 10 menit ke `$DATA_ROOT/jobs/disk_monitor.log`.
+- **Status Job Berjalan:** Training `fx_v1` (`yolo detect train` pada GPU 0) tetap berjalan tanpa gangguan.
+
+---
+
 ## R23-FIX-START — Remediasi Mandat v1.2.0 W0 MoNUI-7 (`2026-11-21 05:25 WIB`; `KATA-TOOL` / `IN_PROGRESS`)
 
 - **Scope & Mandate:** Eksekusi perbaikan Wave 0 di bawah mandat [`docs/plan-rev/R23/[WIP] NUI_R23-02_v1.2.0_MANDAT_FIX_W0_MoNUI-7.md`](docs/plan-rev/R23/%5BWIP%5D%20NUI_R23-02_v1.2.0_MANDAT_FIX_W0_MoNUI-7.md).

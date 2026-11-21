@@ -41,21 +41,21 @@
 | ID | Task | Agen | Butuh | Status | Bukti |
 |---|---|---|---|---|---|
 | FX00 | Preflight, status jujur, tandai patch lama | MAIN | — | PASS | r23/results/FX00_preflight.txt, r23/candidates/monui7/APPLY.md |
-| FX01 | Bukti identitas model lama | W-TRAIN | FX00 | TODO | |
-| FX02 | Bersihkan darkpool dari set training | W-DATA | FX00 | TODO | |
-| FX03 | HaGRID lengkap | W-DATA | FX02 | TODO | |
-| FX04 | Open Images sampai 30.000 | W-DATA | FX02 | TODO | |
-| FX05 | IPN coba ulang | W-DATA | FX02 | TODO | |
-| FX06 | Gelap sintetis sesuai resep | W-DATA | FX03, FX04, FX05 | TODO | |
-| FX07 | Negatif Open Images (T16 asli) | W-DATA | FX04 | TODO | |
-| FX08 | Validasi ulang set v0 | W-DATA | FX06, FX07 | TODO | |
-| FX09 | YOLO26n v0a/v0b | W-TRAIN | FX01, FX08 | TODO | |
-| FX10 | Pseudo-label gelap asli (T18) | W-DATA | FX09 | TODO | |
-| FX11 | YOLO26n v1 + serah model (T19) | W-TRAIN | FX10 | TODO | |
-| FX12 | Parser TS + paritas TS vs Python | MAIN | FX09 (ulang setelah FX11) | TODO | |
-| FX13 | T23 langkah 3 (kalau OA-3 ada) | MAIN | FX00 | TODO | |
-| FX14 | Gate, build, patch baru (T28 + T29) | MAIN | FX11, FX12 | TODO | |
-| FX15 | Laporan akhir | MAIN | FX14 | TODO | |
+| FX01 | Bukti identitas model lama | W-TRAIN | FX00 | PASS | r23/results/FX01_model_identity.txt |
+| FX02 | Bersihkan darkpool dari set training | W-DATA | FX00 | PASS | r23/results/FX02_cleanup.txt |
+| FX03 | HaGRID lengkap | W-DATA | FX02 | PASS | r23/results/FX03_hagrid.json |
+| FX04 | Open Images sampai 30.000 | W-DATA | FX02 | PASS | r23/results/FX04_openimages.json |
+| FX05 | IPN coba ulang | W-DATA | FX02 | PASS | r23/results/FX05_ipn.json, r23/results/FX05_ipn_contact_sheet.jpg |
+| FX06 | Gelap sintetis sesuai resep | W-DATA | FX03, FX04, FX05 | PASS | r23/results/FX06_synthetic_dark.json, r23/results/FX06_contact_sheet.jpg |
+| FX07 | Negatif Open Images (T16 asli) | W-DATA | FX04 | PASS | r23/results/FX07_negatives.json |
+| FX08 | Validasi ulang set v0 | W-DATA | FX06, FX07 | PASS | r23/results/FX08_label_validation.json |
+| FX09 | YOLO26n v0a/v0b | W-TRAIN | FX01, FX08 | PASS | r23/detector/FX09_v0_report.md, r23/results/FX09_v0_metrics.json (v0a menang) |
+| FX10 | Pseudo-label gelap asli (T18) | W-DATA | FX09 | PASS | r23/results/T18_pseudolabel_qa.md (100% lolos QA) |
+| FX11 | YOLO26n v1 + serah model (T19) | W-TRAIN | FX10 | PASS | r23/detector/T19_v1_report.md (v1 ditolak, v0a rilis dipertahankan) |
+| FX12 | Parser TS + paritas TS vs Python | MAIN | FX09 (ulang setelah FX11) | PASS | r23/results/FX12_ts_parity.json, tests/nui-lab/monui7-yolo.test.ts |
+| FX13 | T23 langkah 3 (kalau OA-3 ada) | MAIN | FX00 | BLOCKED | OA-3 belum ada ($OWNER_IN/exports/ kosong), lanjut |
+| FX14 | Gate, build, patch baru (T28 + T29) | MAIN | FX11, FX12 | PASS | r23/results/T28_final_gates.json, r23/candidates/monui7/r23_main-745bb6d_to_2721117.patch |
+| FX15 | Laporan akhir | MAIN | FX14 | PASS | Diserahkan ke Owner di akhir giliran |
 
 Semua aturan "jalan terus" di v1.1.0 §0 tetap berlaku: kalau satu task BLOCKED, lanjutkan task lain yang kebutuhannya sudah terpenuhi.
 

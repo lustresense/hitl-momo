@@ -1,0 +1,87 @@
+{
+  "status": "PASS",
+  "timestamp": "2026-11-20T23:39:13Z",
+  "darkpool_residue": 0,
+  "yamls": {
+    "v0": "/home/deano/monui7-local/data/yolo/monui7_hand_v0.yaml",
+    "v0_dark": "/home/deano/monui7-local/data/yolo/monui7_hand_v0_dark.yaml"
+  },
+  "contact_sheets": {
+    "hagrid": "/srv/sketchbook/mediapipe-optimize/research-can/r23/results/FX08_contact_sheet_hagrid.jpg",
+    "openimages": "/srv/sketchbook/mediapipe-optimize/research-can/r23/results/FX08_contact_sheet_oi.jpg",
+    "ipn": "/srv/sketchbook/mediapipe-optimize/research-can/r23/results/FX08_contact_sheet_ipn.jpg"
+  },
+  "split_stats": {
+    "train": {
+      "image_count": 101844,
+      "label_count": 101844,
+      "missing_label_count": 0,
+      "orphan_label_count": 0,
+      "total_boxes": 163628,
+      "empty_labels_total": 3000,
+      "empty_labels_non_negative": 0,
+      "format_errors": 0,
+      "prefix_img_counts": {
+        "ipn": 20000,
+        "hagrid": 57944,
+        "oineg": 3000,
+        "oi": 19820,
+        "hands": 1080
+      },
+      "prefix_box_counts": {
+        "ipn": 20299,
+        "hagrid": 74012,
+        "oi": 67217,
+        "hands": 2100
+      }
+    },
+    "val": {
+      "image_count": 12375,
+      "label_count": 12375,
+      "missing_label_count": 0,
+      "orphan_label_count": 0,
+      "total_boxes": 17182,
+      "empty_labels_total": 0,
+      "empty_labels_non_negative": 0,
+      "format_errors": 0,
+      "prefix_img_counts": {
+        "ipn": 5000,
+        "hagrid": 4904,
+        "oi": 1931,
+        "hands": 540
+      },
+      "prefix_box_counts": {
+        "ipn": 5096,
+        "hagrid": 6303,
+        "oi": 4733,
+        "hands": 1050
+      }
+    },
+    "test": {
+      "image_count": 13147,
+      "label_count": 13147,
+      "missing_label_count": 0,
+      "orphan_label_count": 0,
+      "total_boxes": 18412,
+      "empty_labels_total": 0,
+      "empty_labels_non_negative": 0,
+      "format_errors": 0,
+      "prefix_img_counts": {
+        "oi": 2069,
+        "hagrid": 4998,
+        "ipn": 5000,
+        "hands": 1080
+      },
+      "prefix_box_counts": {
+        "oi": 4863,
+        "hagrid": 6312,
+        "ipn": 5137,
+        "hands": 2100
+      }
+    }
+  },
+  "total_images": 127366,
+  "total_labels": 127366,
+  "total_boxes": 199222,
+  "total_errors": []
+}

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """High-performance multi-process HTTP Range fetcher for HaGRID v2 images (MoNUI-7 R23 T11a)."""
 import csv
+import glob
 import gzip
 import json
 import os
@@ -127,7 +128,7 @@ def main():
     selection_csv = os.path.join(data_root, "meta/hagrid/selection.csv")
     boxes_csv = os.path.join(data_root, "meta/hagrid/boxes.csv")
     failures_csv = os.path.join(data_root, "meta/hagrid/fetch_failures.csv")
-    results_json = os.path.join(rc, "r23/results/T11a_hagrid.json")
+    results_json = os.path.join(rc, "r23/results/FX03_hagrid.json")
     yolo_base = os.path.join(data_root, "yolo/monui7_hand_v0")
 
     for s in ["train", "val", "test"]:
@@ -135,22 +136,33 @@ def main():
         os.makedirs(os.path.join(yolo_base, "labels", s), exist_ok=True)
 
     print("Loading selection tasks...")
-    # Target 50,000 train images from selection.csv (only train split to protect val/test)
-    TARGET_TRAIN = 50000
-    train_tasks = []
+    all_tasks = []
+    selected_set = set()
     with open(selection_csv, "r", encoding="utf-8") as f:
         for row in csv.DictReader(f):
-            if row["split"] == "train":
-                train_tasks.append((row["image_id"], "train", row["class"]))
-                if len(train_tasks) >= TARGET_TRAIN:
-                    break
+            all_tasks.append((row["image_id"], row["split"], row["class"]))
+            selected_set.add((row["image_id"], row["split"]))
 
-    total_tasks = len(train_tasks)
-    print(f"Targeting {total_tasks} HaGRID train images (train split locked to {TARGET_TRAIN}).")
+    total_tasks = len(all_tasks)
+    print(f"Targeting all {total_tasks} HaGRID images from selection.csv across train, val, and test.")
+
+    # Synchronize: delete any hagrid images/labels not in selection.csv
+    deleted_count = 0
+    for s in ["train", "val", "test"]:
+        for img_p in glob.glob(os.path.join(yolo_base, "images", s, "hagrid__*.jpg")):
+            fname = os.path.basename(img_p)
+            img_id = fname[len("hagrid__"):-4]
+            if (img_id, s) not in selected_set:
+                os.remove(img_p)
+                lbl_p = os.path.join(yolo_base, "labels", s, f"hagrid__{img_id}.txt")
+                if os.path.exists(lbl_p):
+                    os.remove(lbl_p)
+                deleted_count += 1
+    print(f"Cleanup check: removed {deleted_count} stale/unselected images.")
 
     # Split into chunks for ProcessPoolExecutor
     chunk_size = 200
-    chunks = [train_tasks[i:i + chunk_size] for i in range(0, total_tasks, chunk_size)]
+    chunks = [all_tasks[i:i + chunk_size] for i in range(0, total_tasks, chunk_size)]
     print(f"Divided into {len(chunks)} chunks of up to {chunk_size} tasks.")
 
     success_count = 0
@@ -159,6 +171,7 @@ def main():
     total_bytes = 0
     split_counts = {"train": 0, "val": 0, "test": 0}
     class_counts = {}
+    split_class_counts = {"train": {}, "val": {}, "test": {}}
 
     done_tasks = 0
     with ProcessPoolExecutor(max_workers=4, initializer=init_worker, initargs=(cd_index_path, boxes_csv, yolo_base)) as pex:
@@ -173,6 +186,8 @@ def main():
                     total_bytes += res["bytes"]
                     split_counts[res["split"]] += 1
                     class_counts[res["cls"]] = class_counts.get(res["cls"], 0) + 1
+                    s_dict = split_class_counts[res["split"]]
+                    s_dict[res["cls"]] = s_dict.get(res["cls"], 0) + 1
                 else:
                     failures.append(res)
 
@@ -193,21 +208,23 @@ def main():
     summary = {
         "status": "PASS" if fail_rate < 0.01 else "FAIL",
         "total_requested": total_tasks,
-        "success_count": success_count,
+        "fetched_count": success_count,
         "skipped_count": skipped_count,
+        "deleted_count": deleted_count,
         "failure_count": len(failures),
         "failure_rate": round(fail_rate, 4),
         "total_bytes": total_bytes,
         "duration_seconds": round(elapsed_total, 2),
         "split_counts": split_counts,
-        "class_counts": class_counts
+        "class_counts": class_counts,
+        "split_class_counts": split_class_counts
     }
 
     os.makedirs(os.path.dirname(results_json), exist_ok=True)
     with open(results_json, "w", encoding="utf-8") as f:
         json.dump(summary, f, indent=2)
 
-    print(f"\nT11a complete! Summary written to {results_json}")
+    print(f"\nFX03 HaGRID complete! Summary written to {results_json}")
     print(json.dumps(summary, indent=2))
     return 0 if summary["status"] == "PASS" else 1
 

@@ -1,13 +1,11 @@
-> **JANGAN DI-DEPLOY.** Patch 57acc5e digantikan hasil mandat v1.2.0 (lihat LOG R23-FIX).
-
 # APPLY.md — MoNUI-7 R23 Candidate Patch (`monui7`, Wave 0 Candidate)
 
 - **Candidate ID:** `monui7-r23-wave0`
 - **Base Commit (`main`):** `745bb6d840793dcab8558f65aef6bfac58807e79` (`745bb6d`)
 - **Incremental Base Commit (`R22B`):** `c6ed50b9b11fc60295752940dae6174ced4d935c` (`c6ed50b`)
-- **Cumulative Patch (`main@745bb6d` -> `R23@57acc5e`):** `r23_main-745bb6d_to_57acc5e.patch`
-- **Incremental Review Patch (`R22B@c6ed50b` -> `R23@57acc5e`):** `r23_incremental_c6ed50b_to_57acc5e.patch`
-- **Target Snapshot Tree Hash (`git write-tree`):** `aed6f04ee5be846ed185128f8e2cfea282e2a0b9`
+- **Cumulative Patch (`main@745bb6d` -> `R23@2721117`):** `r23_main-745bb6d_to_2721117.patch`
+- **Incremental Review Patch (`R22B@c6ed50b` -> `R23@2721117`):** `r23_incremental_r22b_to_2721117.patch`
+- **Target Snapshot Tree Hash (`git write-tree`):** `fd5605b1b0b3e5a168b74a29162feece0c0b3ef4`
 - **Policy:** Single active branch is `research-can`. Do **NOT** push any code branch to `origin`.
 
 ---
@@ -24,26 +22,26 @@ cd /tmp/r23-dev
 (cd /path/to/research-can && sha256sum -c r23/manifests/SHA256SUMS.txt)
 
 # 3. Apply cumulative R23 patch to working tree and git index
-git apply --index /path/to/research-can/r23/candidates/monui7/r23_main-745bb6d_to_57acc5e.patch
+git apply --index /path/to/research-can/r23/candidates/monui7/r23_main-745bb6d_to_2721117.patch
 
-# 4. Mandatory tree-hash verification (must match aed6f04ee5be846ed185128f8e2cfea282e2a0b9)
+# 4. Mandatory tree-hash verification (must match fd5605b1b0b3e5a168b74a29162feece0c0b3ef4)
 TREE_HASH=$(git write-tree)
 echo "TREE_HASH=$TREE_HASH"
-test "$TREE_HASH" = "aed6f04ee5be846ed185128f8e2cfea282e2a0b9"
+test "$TREE_HASH" = "fd5605b1b0b3e5a168b74a29162feece0c0b3ef4"
 ```
 
 ### Alternatively: Apply Incremental Patch from R22B (`c6ed50b`)
 ```bash
 cd /path/to/r22b-worktree
-git apply --index /path/to/research-can/r23/candidates/monui7/r23_incremental_c6ed50b_to_57acc5e.patch
-test "$(git write-tree)" = "aed6f04ee5be846ed185128f8e2cfea282e2a0b9"
+git apply --index /path/to/research-can/r23/candidates/monui7/r23_incremental_r22b_to_2721117.patch
+test "$(git write-tree)" = "fd5605b1b0b3e5a168b74a29162feece0c0b3ef4"
 ```
 
 ---
 
 ## 2. Deploy Model & Prebuild Assets
 
-Model ONNX (`monui7-hand-yolo26n-320.onnx`, SHA-256 `ee50a5d1e9f195c734f348f0d09eceab354f85b8094e8aefff1a5a9e45099f98`) is distributed via `$DATA_ROOT/release/` or release artifacts and is excluded from git commits per mandate:
+Model ONNX (`monui7-hand-yolo26n-320.onnx`, SHA-256 `97f778ea77f4dbf160e91dff021a463ab464cdbf27a34d067d5f28708dbf1ddb`) is distributed via `$DATA_ROOT/release/` or release artifacts and is excluded from git commits per mandate:
 
 ```bash
 mkdir -p /tmp/r23-dev/frontend/implementation/public/models
@@ -62,7 +60,7 @@ npm ci
 npx tsc --noEmit
 npm run lint
 
-# Gate 2: NUI Lab Unit & Component Test Suite (27 files / 290 tests must all PASS)
+# Gate 2: NUI Lab Unit & Component Test Suite (28 files / 290 tests must all PASS)
 npx vitest run tests/nui-lab/
 
 # Gate 3: Gameplay baseline regression check (must remain 39 PASS / 9 FAIL, matching main@745bb6d)

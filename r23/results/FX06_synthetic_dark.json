@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "counts_by_source": {
+    "hagrid": 17383,
+    "oi": 5946,
+    "hands": 324,
+    "ipn": 6000
+  },
+  "total_generated": 29653,
+  "total_failed": 0,
+  "empty_label_count": 0,
+  "params_json_path": "/home/deano/monui7-local/data/yolo/monui7_hand_v0_dark/params.json",
+  "contact_sheet_path": "/srv/sketchbook/mediapipe-optimize/research-can/r23/results/FX06_contact_sheet.jpg",
+  "duration_seconds": 773.26,
+  "notes": "Verified 64-image contact sheet: physics degradations exhibit authentic extreme low-light, Poisson-Gaussian noise, color tinting, motion streaks, and backlight flare with ground-truth hand bounding boxes cleanly preserved. Exactly 0 empty labels."
+}

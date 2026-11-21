@@ -1,0 +1,2 @@
+REMAINING_DARKAUG_DP=0
+drwxrwxr-x 5 deano deano 4096 Nov 20 20:20 /home/deano/monui7-local/data/darkpool

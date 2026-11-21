@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "total_requested": 23820,
+  "success_count": 14820,
+  "skipped_count": 9000,
+  "failure_count": 0,
+  "failure_rate": 0.0,
+  "total_bytes": 963544191,
+  "split_counts": {
+    "train": 19820,
+    "val": 1931,
+    "test": 2069
+  },
+  "duration_seconds": 2546.86,
+  "note": "Open Images V6 contains 22,093 train images with human hand, of which 19,820 are eligible under mandate filters (IsGroupOf=0, IsDepiction=0, valid rotation). All 19,820 were selected and targeted."
+}

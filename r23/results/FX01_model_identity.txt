@@ -1,0 +1,9 @@
+=== ARGS.YAML MODEL CHECK ===
+/tmp/fx01/runs/v0a/args.yaml:model: /home/deano/monui7-local/data/yolo26n.pt
+/tmp/fx01/runs/v0b/args.yaml:model: /home/deano/monui7-local/data/yolo26n.pt
+=== OLD BEST.PT INSPECTION ===
+yaml_file: yolo26n.yaml
+params: 2533886
+=== YOLO26N.PT INSPECTION ===
+yaml_file: yolo26n.yaml
+params: 2572280

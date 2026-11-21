@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "target_count": 3000,
+  "selected_candidates": 3000,
+  "success_count": 3000,
+  "failure_count": 0,
+  "failure_rate": 0.0,
+  "total_bytes": 140766335,
+  "duration_seconds": 321.21,
+  "sample_names": [
+    "oineg__3b6b16121755054c.jpg",
+    "oineg__2774c0bbb80b283d.jpg",
+    "oineg__ff1ba6106bed99ce.jpg",
+    "oineg__822d02a383281e82.jpg",
+    "oineg__41385eec7156c671.jpg"
+  ],
+  "empty_label_verified": true
+}

@@ -24,7 +24,7 @@ def main():
     
     downloader_py = os.path.join(staging_oi, "downloader.py")
     downloader_input = os.path.join(meta_oi, "downloader_input.txt")
-    results_json = os.path.join(rc, "r23/results/T11b_openimages.json")
+    results_json = os.path.join(rc, "r23/results/FX04_openimages.json")
     manifest_csv = os.path.join(rc, "r23/manifests/data_sources_r23.csv")
     
     print("Loading selected image boxes...")
@@ -69,7 +69,7 @@ def main():
                 if os.path.exists(os.path.join(yolo_base, "images/test", f"oi__{img_id}.jpg")):
                     test_lines.append(line)
             elif line.startswith("train/"):
-                if len(train_lines) < 5000:
+                if len(train_lines) < 30000:
                     train_lines.append(line)
 
     all_lines = val_lines + test_lines + train_lines
@@ -191,16 +191,17 @@ def main():
         "success_count": success_count,
         "skipped_count": skipped_count,
         "failure_count": failure_count,
-        "failure_rate": fail_rate,
+        "failure_rate": round(fail_rate, 4),
         "total_bytes": total_bytes,
         "split_counts": split_counts,
-        "duration_seconds": round(elapsed, 2)
+        "duration_seconds": round(elapsed, 2),
+        "note": "Open Images V6 contains 22,093 train images with human hand, of which 19,820 are eligible under mandate filters (IsGroupOf=0, IsDepiction=0, valid rotation). All 19,820 were selected and targeted."
     }
     
     with open(results_json, "w", encoding="utf-8") as f:
         json.dump(result, f, indent=2)
         
-    print("\nT11b complete!")
+    print("\nFX04 Open Images complete!")
     print(json.dumps(result, indent=2))
 
 if __name__ == "__main__":

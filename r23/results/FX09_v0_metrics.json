@@ -1,0 +1,49 @@
+{
+  "task": "FX09",
+  "winner": "fx_v0a",
+  "promotion_rule": "v0b_wins_if_b0_b1_gain_ge_3_and_b3_drop_le_1",
+  "decision": "fx_v0a_wins",
+  "stop_gate_status": "PASS",
+  "parity_status": "PASS",
+  "onnx_model_path": "/home/deano/monui7-local/data/release/monui7-hand-yolo26n-320.onnx",
+  "onnx_sha256": "97f778ea77f4dbf160e91dff021a463ab464cdbf27a34d067d5f28708dbf1ddb",
+  "onnx_output_shape": [1, 5, 2100],
+  "onnx_size_bytes": 9726203,
+  "cpu_latency_p50_ms": 13.82,
+  "cpu_latency_p95_ms": 14.62,
+  "comparison": {
+    "fx_v0a": {
+      "overall_recall": 0.8058,
+      "total_tp": 14837,
+      "total_gt": 18412,
+      "b0_recall": 0.5938,
+      "b1_recall": 0.8138,
+      "b0_b1_pooled_recall": 0.7787,
+      "b2_recall": 0.6203,
+      "b3_recall": 0.8409,
+      "hagrid_recall": 0.9935,
+      "hands_recall": 0.989,
+      "ipn_recall": 0.7543,
+      "oi_recall": 0.5375
+    },
+    "fx_v0b": {
+      "overall_recall": 0.766,
+      "total_tp": 14104,
+      "total_gt": 18412,
+      "b0_recall": 0.5625,
+      "b1_recall": 0.7995,
+      "b0_b1_pooled_recall": 0.7617,
+      "b2_recall": 0.5764,
+      "b3_recall": 0.8003,
+      "hagrid_recall": 0.9891,
+      "hands_recall": 0.9767,
+      "ipn_recall": 0.7333,
+      "oi_recall": 0.4201
+    },
+    "deltas_v0b_minus_v0a": {
+      "overall_recall": -0.0398,
+      "b0_b1_pooled_recall_pts": -1.7,
+      "b3_recall_pts": -4.06
+    }
+  }
+}

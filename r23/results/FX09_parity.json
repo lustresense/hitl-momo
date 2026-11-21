@@ -1,0 +1,17 @@
+{
+  "status": "PASS",
+  "pt_model": "/home/deano/monui7-local/data/runs/fx_v0a/weights/best.pt",
+  "onnx_model": "/home/deano/monui7-local/data/runs/fx_v0a/weights/best.onnx",
+  "onnx_output_shape": [
+    1,
+    5,
+    2100
+  ],
+  "total_test_images": 50,
+  "total_boxes_evaluated": 65,
+  "failed_boxes_count": 0,
+  "min_iou": 1.0,
+  "max_score_diff": 0.0,
+  "all_boxes_pass": true,
+  "failed_boxes": []
+}

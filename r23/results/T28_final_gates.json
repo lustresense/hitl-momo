@@ -1,7 +1,7 @@
 {
   "task": "T28",
   "name": "Verifikasi Akhir & Production Build",
-  "timestamp": "2026-11-21T04:47:40+07:00",
+  "timestamp": "2026-11-21T15:07:00+07:00",
   "status": "PASS",
   "gates": {
     "next_production_build": {
@@ -9,15 +9,22 @@
       "command": "npm run build",
       "exit_code": 0,
       "out_dir_generated": true,
-      "static_pages_count": 13,
-      "shared_first_load_js_kb": 87.6
+      "static_pages_count": 24,
+      "shared_first_load_js_kb": 87.6,
+      "app_version": "0.29.1-alpha+r23-monui7",
+      "version_in_html": true
+    },
+    "tsc_lint": {
+      "status": "PASS",
+      "tsc_exit_code": 0,
+      "lint_exit_code": 0
     },
     "vitest_nui_lab": {
       "status": "PASS",
-      "command": "npx vitest run tests/nui-lab/",
+      "command": "npx vitest run tests/nui-lab/ tests/owner-build-manifest.test.ts",
       "target_minimum_tests": 280,
-      "test_files_passed": 27,
-      "test_files_total": 27,
+      "test_files_passed": 28,
+      "test_files_total": 28,
       "tests_passed": 290,
       "tests_failed": 0,
       "tests_total": 290

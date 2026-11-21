@@ -1,0 +1,11 @@
+{
+  "status": "PASS",
+  "counts_by_split": {
+    "train": 20000,
+    "val": 5000,
+    "test": 5000
+  },
+  "contact_sheet": "/srv/sketchbook/mediapipe-optimize/research-can/r23/results/FX05_ipn_contact_sheet.jpg",
+  "duration_seconds": 1369.36,
+  "note": "IPN Hand 2 fps extraction with GT landmarks and 15% margin."
+}

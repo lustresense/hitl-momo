@@ -1,0 +1,46 @@
+{
+  "model_path": "/home/deano/monui7-local/data/runs/fx_v0a/weights/best.pt",
+  "data_yaml": "/home/deano/monui7-local/data/yolo/monui7_hand_v1_eval_dark.yaml",
+  "conf_threshold": 0.35,
+  "iou_threshold": 0.5,
+  "total_test_images": 117,
+  "total_gt_boxes": 147,
+  "total_tp": 145,
+  "total_fn": 2,
+  "overall_recall": 0.9864,
+  "by_bin": {
+    "B0": {
+      "recall": 0.0,
+      "tp": 0,
+      "fn": 0,
+      "total": 0
+    },
+    "B1": {
+      "recall": 0.9847,
+      "tp": 129,
+      "fn": 2,
+      "total": 131
+    },
+    "B2": {
+      "recall": 1.0,
+      "tp": 16,
+      "fn": 0,
+      "total": 16
+    },
+    "B3": {
+      "recall": 0.0,
+      "tp": 0,
+      "fn": 0,
+      "total": 0
+    }
+  },
+  "by_source": {
+    "darkreal": {
+      "recall": 0.9864,
+      "tp": 145,
+      "fn": 2,
+      "total": 147
+    }
+  },
+  "duration_seconds": 3.39
+}

@@ -1,39 +1,39 @@
 {
   "revision": "R23",
   "candidateId": "monui7-r23-wave0",
-  "generatedAtIso": "2026-11-21T04:49:50Z",
+  "generatedAtIso": "2026-11-21T15:08:00Z",
   "policy": "Single branch research-can only (AGENTS.md). App code published as git patch candidate against main@745bb6d; remote code branches deleted per explicit Owner authorization.",
   "baseMainCommitSha": "745bb6d840793dcab8558f65aef6bfac58807e79",
   "parentR22BCommitSha": "c6ed50b9b11fc60295752940dae6174ced4d935c",
-  "candidateCommitSha": "57acc5e8770a700da3649f23f14f920062f29703",
-  "verifiedWriteTreeHash": "aed6f04ee5be846ed185128f8e2cfea282e2a0b9",
+  "candidateCommitSha": "2721117c649f6e40945d761b1b2844a5855dbdb5",
+  "verifiedWriteTreeHash": "fd5605b1b0b3e5a168b74a29162feece0c0b3ef4",
   "candidatePatches": [
     {
-      "path": "r23/candidates/monui7/r23_main-745bb6d_to_57acc5e.patch",
+      "path": "r23/candidates/monui7/r23_main-745bb6d_to_2721117.patch",
       "role": "cumulative_dev_patch",
-      "command": "git diff --binary --full-index 745bb6d 57acc5e",
-      "sha256": "0011ae44b5c4e37f60e6c3e8df99913d1e0a97c70eab8173f462924797075ad5",
+      "command": "git diff --binary --full-index 745bb6d 2721117",
+      "sha256": "9b432299517df5e4ed4ee76b8c3120f20859e4a4c3f2530e48f0e69bc3d4e9f7",
       "applyTargetBase": "745bb6d840793dcab8558f65aef6bfac58807e79",
-      "expectedWriteTree": "aed6f04ee5be846ed185128f8e2cfea282e2a0b9"
+      "expectedWriteTree": "fd5605b1b0b3e5a168b74a29162feece0c0b3ef4"
     },
     {
-      "path": "r23/candidates/monui7/r23_incremental_c6ed50b_to_57acc5e.patch",
+      "path": "r23/candidates/monui7/r23_incremental_r22b_to_2721117.patch",
       "role": "incremental_review_patch",
-      "command": "git diff --binary --full-index c6ed50b 57acc5e",
-      "sha256": "fa437ed23fd8fd134a5d48baf89610755b557d51efb1aa52cde4587a7bf3481b",
+      "command": "git diff --binary --full-index c6ed50b 2721117",
+      "sha256": "eece52568dee19137057bf9f398057a586bf37bce70094e4af68669a01d42f16",
       "applyTargetBase": "c6ed50b9b11fc60295752940dae6174ced4d935c",
-      "expectedWriteTree": "aed6f04ee5be846ed185128f8e2cfea282e2a0b9"
+      "expectedWriteTree": "fd5605b1b0b3e5a168b74a29162feece0c0b3ef4"
     },
     {
       "path": "r23/candidates/monui7/APPLY.md",
-      "sha256": "60457fdc6ea607ea27c746d28544597d1331f115b3f84c89a8a6e577b87815d0"
+      "sha256": "34dcf807790204983643bbab3b433441365715e49737982828306ed3c669ec67"
     }
   ],
   "excludedItems": [
     {
       "item": "monui7-hand-yolo26n-320.onnx",
       "category": "model_weights_binary",
-      "sha256": "ee50a5d1e9f195c734f348f0d09eceab354f85b8094e8aefff1a5a9e45099f98",
+      "sha256": "97f778ea77f4dbf160e91dff021a463ab464cdbf27a34d067d5f28708dbf1ddb",
       "bytes": 9789312,
       "reason": "Binary model weights excluded per mandate §6 T29 pending explicit owner approval OA-7. Preserved in $DATA_ROOT/release/ and $BIG_ROOT/backup/runs/."
     },
@@ -46,8 +46,8 @@
     {
       "item": "raw_datasets",
       "category": "training_and_eval_images",
-      "bytes": 10737418240,
-      "reason": "61,700 images across HaGRID, HANDS v2, OpenImages, and Darkpool preserved in local and remote data pools."
+      "bytes": 12884901888,
+      "reason": "127,366 images (199,222 bounding boxes) across HaGRID, HANDS v2, OpenImages, and Darkpool preserved in local and remote data pools."
     }
   ]
 }

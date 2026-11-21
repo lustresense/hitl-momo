@@ -122,7 +122,7 @@ def process_chunk(items):
 def main():
     t_start = time.time()
     data_root = os.environ.get("DATA_ROOT", "/home/deano/monui7-local/data")
-    rc = os.environ.get("RC", "/srv/sketchbook/mediapipe-optimize/research-can")
+    rc = os.environ.get("RC", "/srv/sketchbook/research-can")
 
     cd_index_path = os.path.join(data_root, "meta/hagrid/cd_index.json.gz")
     selection_csv = os.path.join(data_root, "meta/hagrid/selection.csv")

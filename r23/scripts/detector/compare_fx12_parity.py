@@ -32,7 +32,7 @@ def main():
     parser = argparse.ArgumentParser(description="Compare Python vs TS Parity")
     parser.add_argument("--py-preds", default="/home/deano/monui7-local/data/qa/fx12/py_preds.json")
     parser.add_argument("--ts-preds", default="/home/deano/monui7-local/data/qa/fx12/ts_preds.json")
-    parser.add_argument("--out-json", default="/srv/sketchbook/mediapipe-optimize/research-can/r23/results/FX12_ts_parity.json")
+    parser.add_argument("--out-json", default="/srv/sketchbook/research-can/r23/results/FX12_ts_parity.json")
     parser.add_argument("--min-iou", type=float, default=0.99)
     parser.add_argument("--max-score-diff", type=float, default=0.01)
     args = parser.parse_args()

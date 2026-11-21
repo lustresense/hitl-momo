@@ -26,7 +26,7 @@ import time
 import cv2
 import numpy as np
 
-RC = "/srv/sketchbook/mediapipe-optimize/research-can"
+RC = "/srv/sketchbook/research-can"
 DATA_ROOT = "/home/deano/monui7-local/data"
 DARKPOOL_ROOT = os.path.join(DATA_ROOT, "darkpool")
 MANIFEST = os.path.join(DARKPOOL_ROOT, "manifest.csv")

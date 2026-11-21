@@ -54,7 +54,7 @@ def decode_predictions(pred_raw, conf_thresh=0.35, iou_thresh=0.70):
 
 def main():
     data_root = os.environ.get("DATA_ROOT", "/home/deano/monui7-local/data")
-    rc = os.environ.get("RC", "/srv/sketchbook/mediapipe-optimize/research-can")
+    rc = os.environ.get("RC", "/srv/sketchbook/research-can")
     
     pt_path = os.path.join(data_root, "runs/v0a/weights/best.pt")
     onnx_path = os.path.join(data_root, "release/monui7-hand-yolo26n-320.onnx")

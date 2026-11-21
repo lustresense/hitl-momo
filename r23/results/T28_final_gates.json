@@ -1,7 +1,9 @@
 {
   "task": "T28",
   "name": "Verifikasi Akhir & Production Build",
-  "timestamp": "2026-11-21T15:07:00+07:00",
+  "timestamp": "2026-11-21T16:45:00+07:00",
+  "candidateCommit": "b4b14f012ab73b7f6267e585d946ac1730a8eebc",
+  "candidateTree": "45cbcac17272f74f16f393fcc7c930f34b966360",
   "status": "PASS",
   "gates": {
     "next_production_build": {
@@ -21,13 +23,13 @@
     },
     "vitest_nui_lab": {
       "status": "PASS",
-      "command": "npx vitest run tests/nui-lab/ tests/owner-build-manifest.test.ts",
+      "command": "npx vitest run tests/nui-lab/",
       "target_minimum_tests": 280,
-      "test_files_passed": 28,
-      "test_files_total": 28,
-      "tests_passed": 290,
+      "test_files_passed": 29,
+      "test_files_total": 29,
+      "tests_passed": 299,
       "tests_failed": 0,
-      "tests_total": 290
+      "tests_total": 299
     },
     "vitest_gameplay_baseline": {
       "status": "PASS",
@@ -42,6 +44,22 @@
       "evidence_file": "r23/results/T28_lazy_loading.json",
       "ort_requests_before_rescue": 0,
       "lazy_loading_verified": true
+    },
+    "hf1_browser_yolo_check": {
+      "status": "PASS",
+      "evidence_file": "r23/results/HF1_browser_yolo_check.json",
+      "onnxRequest200": true,
+      "ortSessionCreatedLog": true,
+      "exportedSessionHasYoloRanFrame": true,
+      "framesWithYoloRan": 50,
+      "totalFrames": 51
+    },
+    "t23_guard_tuning": {
+      "status": "PASS",
+      "evidence_file": "r23/results/T23_guard_tuning.json",
+      "totalEvaluated": 9,
+      "qualifyingCombosCount": 8,
+      "bestCombo": "400x200"
     }
   }
 }

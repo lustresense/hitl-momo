@@ -1,0 +1,40 @@
+{
+  "task": "HF1_BUG3_browser_yolo_check",
+  "timestamp": "2026-11-21T09:47:41.958Z",
+  "status": "PASS",
+  "checks": {
+    "onnxRequest200": {
+      "pass": true,
+      "status": 200,
+      "url": "http://127.0.0.1:45678/models/monui7-hand-yolo26n-320.onnx"
+    },
+    "ortSessionCreatedLog": {
+      "pass": true,
+      "logMatching": "[monui7-yolo] Sesi onnxruntime-web berhasil dibuat. Model verified: 97f778ea77f4dbf160e91dff021a463ab464cdbf27a34d067d5f28708dbf1ddb"
+    },
+    "exportedSessionHasYoloRanFrame": {
+      "pass": true,
+      "totalFrames": 51,
+      "framesWithYoloRan": 50,
+      "sampleFrame": {
+        "fid": 23,
+        "t": 1379,
+        "rescueState": "SEARCH",
+        "yoloRan": true,
+        "yoloMs": 145.9,
+        "yoloScore": null,
+        "cropTried": true,
+        "cropSuccess": false,
+        "positionOnly": null,
+        "guideState": "GREET"
+      }
+    },
+    "sessionMetadata": {
+      "sessionId": "S-9d92b285",
+      "yoloModelSha256": "97f778ea77f4dbf160e91dff021a463ab464cdbf27a34d067d5f28708dbf1ddb",
+      "yoloEnabled": true,
+      "yoloRateHz": 10,
+      "monuiVersion": "MoNUI-7"
+    }
+  }
+}

@@ -43,7 +43,7 @@ import numpy as np
 from PIL import Image
 
 DATA_ROOT = os.environ.get("DATA_ROOT", "/home/deano/monui7-local/data")
-RC = os.environ.get("RC", "/srv/sketchbook/mediapipe-optimize/research-can")
+RC = os.environ.get("RC", "/srv/sketchbook/research-can")
 BIG_ROOT = os.environ.get("BIG_ROOT", "/home/deano/mnt/monui7-data")
 
 DARKPOOL_DIR = os.path.join(DATA_ROOT, "darkpool")

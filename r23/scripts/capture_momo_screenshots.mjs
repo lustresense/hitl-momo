@@ -11,7 +11,7 @@ import { join } from "node:path";
 import { createRequire } from "node:module";
 
 const SANDBOX = "/srv/sketchbook/mediapipe-optimize/r20-sandbox";
-const OUT_DIR = "/srv/sketchbook/mediapipe-optimize/research-can/r23/results/screenshots";
+const OUT_DIR = "/srv/sketchbook/research-can/r23/results/screenshots";
 process.env.PLAYWRIGHT_BROWSERS_PATH = `${SANDBOX}/pw`;
 const req = createRequire(`${SANDBOX}/browser/package.json`);
 const { chromium } = req("playwright");

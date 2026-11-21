@@ -49,7 +49,7 @@ def main():
     
     data_root = os.environ.get("DATA_ROOT", "/home/deano/monui7-local/data")
     big_root = os.environ.get("BIG_ROOT", "/home/deano/mnt/monui7-data")
-    rc = os.environ.get("RC", "/srv/sketchbook/mediapipe-optimize/research-can")
+    rc = os.environ.get("RC", "/srv/sketchbook/research-can")
     
     staging_ipn = os.path.join(data_root, "staging/ipn")
     staging_vids = os.path.join(staging_ipn, "videos")

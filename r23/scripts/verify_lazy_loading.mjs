@@ -14,7 +14,7 @@ import { extname, join } from "node:path";
 
 const SANDBOX = "/srv/sketchbook/mediapipe-optimize/r20-sandbox";
 const OUT_DIR = "/home/deano/monui7-local/work/frontend/implementation/out";
-const REPORT_PATH = "/srv/sketchbook/mediapipe-optimize/research-can/r23/results/T28_lazy_loading.json";
+const REPORT_PATH = "/srv/sketchbook/research-can/r23/results/T28_lazy_loading.json";
 
 process.env.PLAYWRIGHT_BROWSERS_PATH = `${SANDBOX}/pw`;
 const req = createRequire(`${SANDBOX}/browser/package.json`);

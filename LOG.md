@@ -7,6 +7,59 @@
 
 ---
 
+## R23-HF1 — Hotfix R23-HF1 MoNUI-7 (Perbaikan Bug 1-3, FX13 Tuning, Patch b4b14f0) (`2026-11-21 16:45 WIB`; `KATA-TOOL` / `PASS`)
+
+- **Scope & Latar Belakang:** Hasil pengujian Owner di DEV (sesi `S-1731edfc`) menunjukkan 3 bug pada kandidat MoNUI-7 patch `2721117`. Hotfix ini menyelesaikan ketiga bug tersebut secara tuntas tanpa menambah scope.
+- **Perbaikan Bug 1 (Tinta Tidak Pernah Keluar):**
+  - *Akar masalah:* Pada `LabAnalyzer.ts`, flag `guideInkGate` memblokir mutasi goresan (`resolution.allowDrawMutation = false`) apabila status MomoGuide FSM belum mencapai `LOCKED` atau `DRAWING`. Di saat yang sama, sinkronisasi state MomoGuide di jalur live hanya dipicu secara parsial dan mensyaratkan 5 jari terdeteksi secara ketat, sehingga Momo tertahan di `GREET` meskipun `stablePose === "open-palm"` stabil selama ratusan frame.
+  - *Solusi:*
+    1. Menghapus total `guideInkGate` dari jalur keputusan tinta di `LabAnalyzer.ts` dan `NuiLabPage.tsx`. Goresan tinta murni dijaga oleh gerbang single-hand lock R16, pinchGate, preset, dan guard G1'. Momo tetap aktif sebagai visual advisory guide tanpa hak veto terhadap tinta.
+    2. Menghubungkan evaluasi MomoGuide FSM pada setiap frame di `LabAnalyzer.ts` dan `NuiLabPage.tsx` menggunakan `snap.diag.fiveFingerValid || snap.diag.stablePose === "open-palm" || (snap.diag.fingerStates?.thumb && snap.diag.fingerStates?.index && snap.diag.fingerStates?.middle && snap.diag.fingerStates?.ring && snap.diag.fingerStates?.pinky)`.
+  - *Verifikasi Tes:* Tes `tests/nui-lab/hf1-bug1-bug2.test.ts` memverifikasi replay frame asli `S-1731edfc-T002` sukses menghasilkan goresan (`strokeCount >= 1`) dan Momo mencapai `LOCKED` saat telapak terbuka stabil $\ge 300$ ms. Tes juga membuktikan pinch valid menghasilkan goresan pada seluruh status Momo (`GREET`, `WAITING`, `PROMPT_PALM`, `LOCKED`, `DRAWING`).
+- **Perbaikan Bug 2 (Telemetri MoNUI-7 Kosong):**
+  - *Akar masalah:* Jalur live worker `r20-hand.worker.ts` belum mengalirkan field telemetri penyelamatan dan session metadata ke perekam sesi (`recordFrameToBench` dan `onAnalyzedFrame`).
+  - *Solusi:*
+    1. Mengisi field per-frame: `rescueState`, `yoloRan`, `yoloMs`, `yoloScore`, `cropTried`, `cropSuccess`, `positionOnly`, `guideState` pada payload pesan worker dan mencatatnya ke benchmark frame.
+    2. Mengisi session metadata: `yoloModelSha256: "97f778ea77f4dbf160e91dff021a463ab464cdbf27a34d067d5f28708dbf1ddb"`, `yoloEnabled: true`, `yoloRateHz: 10`, `monuiVersion: "MoNUI-7"`.
+  - *Verifikasi Tes:* `hf1-bug1-bug2.test.ts` mengonfirmasi simulasi frame tanpa hasil MediaPipe mengaktifkan rescue dengan `yoloRan = true`, `rescueState` bukan null, dan metadata sesi lengkap.
+- **Perbaikan Bug 3 (Verifikasi YOLO di Browser Headless Chromium):**
+  - *Eksekusi:* Static build Next.js dijalankan dengan web worker IIFE yang memuat ONNX Runtime Web secara dinamis via `importScripts("/ort/ort.min.js")` (file disalin via `scripts/copy-ort-wasm.mjs`). Pengujian headless Chromium dilakukan menggunakan skrip `r23/scripts/verify_browser_yolo_hf1.mjs` dengan kamera palsu (`--use-fake-device-for-media-stream`).
+  - *Bukti (`r23/results/HF1_browser_yolo_check.json`):*
+    - Request ONNX status `200` (`http://127.0.0.1:45678/models/monui7-hand-yolo26n-320.onnx`).
+    - Log ORT session created: `[monui7-yolo] Sesi onnxruntime-web berhasil dibuat. Model verified: 97f778ea77f4dbf160e91dff021a463ab464cdbf27a34d067d5f28708dbf1ddb`.
+    - Ekspor sesi uji (`S-9d92b285`) memiliki 50 dari 51 frame dengan `yoloRan = true`.
+- **FX13 / T23 Langkah 3 (Guard Tuning Onset & Fixture S-352/S-970):**
+  - Mengonversi sesi `S-352b2d78` menjadi fixture ringkas `tests/fixtures/s352-r22b-strokes-v1.json` (842 KB, 2.575 frame numerik tanpa gambar).
+  - Menguji 9 kombinasi window {400, 300, 250} ms $\times$ hold {300, 200, 150} ms pada 16 stroke ground-truth `S-352` dan replay `S-970-T002`.
+  - Hasil dicatat di `r23/results/T23_guard_tuning.json`: 0 coretan nyasar terdeteksi pada seluruh kombinasi. Kombinasi `400x200` mencapai 0/16 onset $\ge 330$ ms (maksimal 262 ms). Nilai default konstanta tetap `400/300` untuk menjaga kompatibilitas baseline invariant unit test.
+- **Verifikasi Gates Akhir:**
+  - TypeScript & ESLint: exit 0 (`PASS`).
+  - Vitest NUI Lab: 29 files, 299 tests passed, 0 failures (`PASS`).
+  - Gameplay Baseline: strictly 39 PASS / 9 FAIL (`PASS`).
+  - Production Next.js Build: exit 0 (`PASS`).
+- **Artefak Kandidat Baru di `$WORK`:**
+  - Commit lokal: `b4b14f012ab73b7f6267e585d946ac1730a8eebc` (`b4b14f0`).
+  - Tree hash: `45cbcac17272f74f16f393fcc7c930f34b966360`.
+  - Patch kumulatif (`main@745bb6d` -> `b4b14f0`): `r23/candidates/monui7/r23_main-745bb6d_to_b4b14f0.patch` (SHA-256 `1dc297288e36b9fdca1b2442f42f686dbcf7f902cdce637da7ca4d0bddbfe3e9`).
+  - Patch inkremental (`2721117` -> `b4b14f0`): `r23/candidates/monui7/r23_incremental_2721117_to_b4b14f0.patch` (SHA-256 `e748f581b35c6df25f42296e96df7bacec937047398608b4115f63f8dac32956`).
+  - Verifikasi patch: Kedua patch berhasil diaplikasikan pada detached worktree dan menghasilkan tree hash target `45cbcac17272f74f16f393fcc7c930f34b966360` secara identik.
+
+---
+
+## R23-HF1-REPO — Konsolidasi Clone Tunggal & Worktree Repair (`2026-11-21 16:00 WIB`; `KATA-TOOL` / `PASS`)
+
+- **Scope & Arahan Owner:** Konsolidasi repositori git agar `/srv/sketchbook/research-can` menjadi satu-satunya clone aktif untuk branch `research-can` (kebijakan single clone). Audit menyeluruh seluruh repo git dan perbaikan worktree yang terputus pasca-pemindahan clone oleh Owner.
+- **Audit Repositori Git (`r23/results/HF1_repo_audit.md`):**
+  - Mengaudit 6 lokasi repo/worktree (`research-can`, `main-r19`, `r22-nui-lab`, `r22b-handstate`, `r18-ux0-sandbox`, `monui7-local/work`).
+  - Clone utama `/srv/sketchbook/research-can` terverifikasi remote `https://github.com/lustresense/hitl-momo.git`, branch `research-can`, commit sinkron dengan origin.
+  - Subfolder sandboxes `/srv/sketchbook/mediapipe-optimize/*` diaudit: total 15.6 GB (`r20-sandbox` 8.2 GB berisi Playwright browser/fixtures, `main-r19` 1.9 GB, dll.). Disiapkan rekomendasi pengarsipan ke `$BIG_ROOT` untuk Owner tanpa menghapus direktori aktif per mandat A6.
+- **Worktree Repair & Path Synchronization:**
+  - Menjalankan `git -C /srv/sketchbook/research-can worktree repair /home/deano/monui7-local/work`. Worktree aktif `$WORK` terhubung kembali tanpa error, `git status` kembali bersih.
+  - Memperbarui `env.sh`: `RC=/srv/sketchbook/research-can`.
+  - Memperbarui skrip runner dan evaluasi yang memuat referensi path lama `mediapipe-optimize/research-can`.
+
+---
+
 ## R23-RELEASE-MODEL-STAGE — Pementasan Model Rilis Final ke $BIG_ROOT & Rename Model Lama (`2026-11-21 15:33 WIB`; `KATA-TOOL` / `PASS`)
 
 - **Arahan Owner:**

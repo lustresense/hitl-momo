@@ -1,17 +1,19 @@
-# APPLY.md — MoNUI-7 R23 Candidate Patch (`monui7`, Wave 0 Candidate)
+# APPLY.md — MoNUI-7 R23 Candidate Patch (`monui7`, HF1 Candidate)
 
-- **Candidate ID:** `monui7-r23-wave0`
+- **Candidate ID:** `monui7-r23-hf1`
 - **Base Commit (`main`):** `745bb6d840793dcab8558f65aef6bfac58807e79` (`745bb6d`)
-- **Incremental Base Commit (`R22B`):** `c6ed50b9b11fc60295752940dae6174ced4d935c` (`c6ed50b`)
-- **Cumulative Patch (`main@745bb6d` -> `R23@2721117`):** `r23_main-745bb6d_to_2721117.patch`
-- **Incremental Review Patch (`R22B@c6ed50b` -> `R23@2721117`):** `r23_incremental_r22b_to_2721117.patch`
-- **Target Snapshot Tree Hash (`git write-tree`):** `fd5605b1b0b3e5a168b74a29162feece0c0b3ef4`
-- **Policy:** Single active branch is `research-can`. Do **NOT** push any code branch to `origin`.
+- **Previous Candidate Commit (`W0`):** `2721117c649f6e40945d761b1b2844a5855dbdb5` (`2721117`)
+- **Current Candidate Commit (`HF1`):** `b4b14f012ab73b7f6267e585d946ac1730a8eebc` (`b4b14f0`)
+- **Cumulative Patch (`main@745bb6d` -> `R23@b4b14f0`):** `r23_main-745bb6d_to_b4b14f0.patch`
+- **Incremental Review Patch (`W0@2721117` -> `HF1@b4b14f0`):** `r23_incremental_2721117_to_b4b14f0.patch`
+- **Target Snapshot Tree Hash (`git write-tree`):** `45cbcac17272f74f16f393fcc7c930f34b966360`
+- **Policy:** Single active clone is `/srv/sketchbook/research-can` (`research-can` branch). Do **NOT** push any code branch to `origin`.
 
 ---
 
 ## 1. Clean Checkout & Patch Application Procedure (For Ujang / DEV)
 
+### Option A: Apply Cumulative Patch from `main@745bb6d`
 ```bash
 # 1. Start from a clean detached checkout/worktree of main@745bb6d
 git fetch origin main research-can
@@ -19,29 +21,29 @@ git worktree add --detach /tmp/r23-dev 745bb6d840793dcab8558f65aef6bfac58807e79
 cd /tmp/r23-dev
 
 # 2. Verify patch SHA-256 checksum from research-can
-(cd /path/to/research-can && sha256sum -c r23/manifests/SHA256SUMS.txt)
+(cd /srv/sketchbook/research-can/r23/candidates/monui7 && sha256sum -c SHA256SUMS.txt)
 
-# 3. Apply cumulative R23 patch to working tree and git index
-git apply --index /path/to/research-can/r23/candidates/monui7/r23_main-745bb6d_to_2721117.patch
+# 3. Apply cumulative R23 HF1 patch to working tree and git index
+git apply --index /srv/sketchbook/research-can/r23/candidates/monui7/r23_main-745bb6d_to_b4b14f0.patch
 
-# 4. Mandatory tree-hash verification (must match fd5605b1b0b3e5a168b74a29162feece0c0b3ef4)
+# 4. Mandatory tree-hash verification (must match 45cbcac17272f74f16f393fcc7c930f34b966360)
 TREE_HASH=$(git write-tree)
 echo "TREE_HASH=$TREE_HASH"
-test "$TREE_HASH" = "fd5605b1b0b3e5a168b74a29162feece0c0b3ef4"
+test "$TREE_HASH" = "45cbcac17272f74f16f393fcc7c930f34b966360"
 ```
 
-### Alternatively: Apply Incremental Patch from R22B (`c6ed50b`)
+### Option B: Apply Incremental Patch from Previous Candidate `W0@2721117`
 ```bash
-cd /path/to/r22b-worktree
-git apply --index /path/to/research-can/r23/candidates/monui7/r23_incremental_r22b_to_2721117.patch
-test "$(git write-tree)" = "fd5605b1b0b3e5a168b74a29162feece0c0b3ef4"
+cd /path/to/r23-w0-worktree
+git apply --index /srv/sketchbook/research-can/r23/candidates/monui7/r23_incremental_2721117_to_b4b14f0.patch
+test "$(git write-tree)" = "45cbcac17272f74f16f393fcc7c930f34b966360"
 ```
 
 ---
 
 ## 2. Deploy Model & Prebuild Assets
 
-Model ONNX (`monui7-hand-yolo26n-320.onnx`, SHA-256 `97f778ea77f4dbf160e91dff021a463ab464cdbf27a34d067d5f28708dbf1ddb`) is distributed via `$BIG_ROOT/release/r23_fx_v0a/` (Windows: `D:\monui7-data\release\r23_fx_v0a\`, WSL: `/mnt/d/monui7-data/release/r23_fx_v0a/`) or release artifacts and is excluded from git commits per mandate:
+Model ONNX (`monui7-hand-yolo26n-320.onnx`, SHA-256 `97f778ea77f4dbf160e91dff021a463ab464cdbf27a34d067d5f28708dbf1ddb`) is distributed via `$BIG_ROOT/release/r23_fx_v0a/` (Windows: `D:\monui7-data\release\r23_fx_v0a\`, WSL: `/mnt/d/monui7-data/release/r23_fx_v0a/`) and is excluded from git commits per mandate:
 
 ```bash
 mkdir -p /tmp/r23-dev/frontend/implementation/public/models
@@ -63,10 +65,10 @@ npm ci
 npx tsc --noEmit
 npm run lint
 
-# Gate 2: NUI Lab Unit & Component Test Suite (28 files / 290 tests must all PASS)
+# Gate 2: NUI Lab Unit & Component Test Suite (29 files / 299 tests must all PASS, 0 failures)
 npx vitest run tests/nui-lab/
 
-# Gate 3: Gameplay baseline regression check (must remain 39 PASS / 9 FAIL, matching main@745bb6d)
+# Gate 3: Gameplay baseline regression check (must remain strictly 39 PASS / 9 FAIL, matching main@745bb6d)
 npx vitest run tests/input/eraser-controls.test.ts tests/input/two-hand-surface.test.ts tests/input/hand-stroke-surface.test.ts
 ```
 
@@ -76,7 +78,7 @@ npx vitest run tests/input/eraser-controls.test.ts tests/input/two-hand-surface.
 
 ```bash
 cd /tmp/r23-dev/frontend/implementation
-RESEARCH_SHA=$(git -C /path/to/research-can rev-parse HEAD)
+RESEARCH_SHA=$(git -C /srv/sketchbook/research-can rev-parse HEAD)
 
 NEXT_PUBLIC_TEST_HOOKS=0 \
 NEXT_PUBLIC_GIT_COMMIT="$RESEARCH_SHA" \

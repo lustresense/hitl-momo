@@ -8,7 +8,7 @@ import time
 def main():
     t_start = time.time()
     data_root = os.environ.get("DATA_ROOT", "/home/deano/monui7-local/data")
-    rc = os.environ.get("RC", "/srv/sketchbook/mediapipe-optimize/research-can")
+    rc = os.environ.get("RC", "/srv/sketchbook/research-can")
     yolo_base = os.path.join(data_root, "yolo/monui7_hand_v0")
     results_json = os.path.join(rc, "r23/results/T16_split_lock.json")
 

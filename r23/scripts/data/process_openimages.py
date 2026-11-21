@@ -15,7 +15,7 @@ def clamp(v, min_v=0.0, max_v=1.0):
 def main():
     t_start = time.time()
     data_root = os.environ.get("DATA_ROOT", "/home/deano/monui7-local/data")
-    rc = os.environ.get("RC", "/srv/sketchbook/mediapipe-optimize/research-can")
+    rc = os.environ.get("RC", "/srv/sketchbook/research-can")
     
     meta_oi = os.path.join(data_root, "meta/oi")
     staging_oi = os.path.join(data_root, "staging/oi")

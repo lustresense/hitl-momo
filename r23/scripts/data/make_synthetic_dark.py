@@ -167,7 +167,7 @@ def main():
     np.random.seed(seed)
     
     data_root = os.environ.get("DATA_ROOT", "/home/deano/monui7-local/data")
-    rc = os.environ.get("RC", "/srv/sketchbook/mediapipe-optimize/research-can")
+    rc = os.environ.get("RC", "/srv/sketchbook/research-can")
     
     v0_train_img = os.path.join(data_root, "yolo/monui7_hand_v0/images/train")
     v0_train_lbl = os.path.join(data_root, "yolo/monui7_hand_v0/labels/train")

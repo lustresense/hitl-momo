@@ -39,7 +39,7 @@ def main():
     np.random.seed(20261120)
 
     data_root = os.environ.get("DATA_ROOT", "/home/deano/monui7-local/data")
-    rc = os.environ.get("RC", "/srv/sketchbook/mediapipe-optimize/research-can")
+    rc = os.environ.get("RC", "/srv/sketchbook/research-can")
 
     darkpool_dir = os.path.join(data_root, "darkpool")
     train_img_dir = os.path.join(data_root, "yolo/monui7_hand_v0/images/train")

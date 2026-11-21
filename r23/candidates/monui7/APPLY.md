@@ -1,12 +1,12 @@
-# APPLY.md — MoNUI-7 R23 Candidate Patch (`monui7`, HF2 Candidate)
+# APPLY.md — MoNUI-7 R23 Candidate Patch (`monui7`, HF2.1 Candidate)
 
-- **Candidate ID:** `monui7-r23-hf2`
+- **Candidate ID:** `monui7-r23-hf2.1`
 - **Base Commit (`main`):** `745bb6d840793dcab8558f65aef6bfac58807e79` (`745bb6d`)
 - **Previous Candidate Commit (`HF1`):** `b4b14f012ab73b7f6267e585d946ac1730a8eebc` (`b4b14f0`)
-- **Current Candidate Commit (`HF2`):** `402ea36c49d2fa93f6445137a0c42c290d516b21` (`402ea36`)
-- **Cumulative Patch (`main@745bb6d` -> `R23@402ea36`):** `r23_main-745bb6d_to_402ea36.patch`
-- **Incremental Review Patch (`HF1@b4b14f0` -> `HF2@402ea36`):** `r23_incremental_b4b14f0_to_402ea36.patch`
-- **Target Snapshot Tree Hash (`git write-tree`):** `927439cd9403a1c7050271dbf7c3903cfd4eb833`
+- **Current Candidate Commit (`HF2.1`):** `35da19afcf221db1c629da72b52007cf8ce167e7` (`35da19a`)
+- **Cumulative Patch (`main@745bb6d` -> `R23@35da19a`):** `r23_main-745bb6d_to_35da19a.patch`
+- **Incremental Review Patch (`HF1@b4b14f0` -> `HF2.1@35da19a`):** `r23_incremental_b4b14f0_to_35da19a.patch`
+- **Target Snapshot Tree Hash (`git write-tree`):** `3811d36beb108a91bb4b960fc66c6830ca04c6b3`
 - **Policy:** Single active clone is `/srv/sketchbook/research-can` (`research-can` branch). Do **NOT** push any code branch to `origin`.
 
 ---
@@ -23,20 +23,20 @@ cd /tmp/r23-dev
 # 2. Verify patch SHA-256 checksum from research-can
 (cd /srv/sketchbook/research-can/r23/candidates/monui7 && sha256sum -c SHA256SUMS.txt)
 
-# 3. Apply cumulative R23 HF2 patch to working tree and git index
-git apply --index /srv/sketchbook/research-can/r23/candidates/monui7/r23_main-745bb6d_to_402ea36.patch
+# 3. Apply cumulative R23 HF2.1 patch to working tree and git index
+git apply --index /srv/sketchbook/research-can/r23/candidates/monui7/r23_main-745bb6d_to_35da19a.patch
 
-# 4. Mandatory tree-hash verification (must match 927439cd9403a1c7050271dbf7c3903cfd4eb833)
+# 4. Mandatory tree-hash verification (must match 3811d36beb108a91bb4b960fc66c6830ca04c6b3)
 TREE_HASH=$(git write-tree)
 echo "TREE_HASH=$TREE_HASH"
-test "$TREE_HASH" = "927439cd9403a1c7050271dbf7c3903cfd4eb833"
+test "$TREE_HASH" = "3811d36beb108a91bb4b960fc66c6830ca04c6b3"
 ```
 
 ### Option B: Apply Incremental Patch from Previous Candidate `HF1@b4b14f0`
 ```bash
 cd /path/to/r23-hf1-worktree
-git apply --index /srv/sketchbook/research-can/r23/candidates/monui7/r23_incremental_b4b14f0_to_402ea36.patch
-test "$(git write-tree)" = "927439cd9403a1c7050271dbf7c3903cfd4eb833"
+git apply --index /srv/sketchbook/research-can/r23/candidates/monui7/r23_incremental_b4b14f0_to_35da19a.patch
+test "$(git write-tree)" = "3811d36beb108a91bb4b960fc66c6830ca04c6b3"
 ```
 
 ---
@@ -65,8 +65,8 @@ npm ci
 npx tsc --noEmit
 npm run lint
 
-# Gate 2: NUI Lab Unit & Component Test Suite (29 files / 304 tests must all PASS, 0 failures)
-npx vitest run tests/nui-lab/
+# Gate 2: NUI Lab Unit & Component Test Suite (30 files / 308 tests must all PASS, 0 failures)
+npx vitest run tests/nui-lab/ tests/owner-build-manifest.test.ts
 
 # Gate 3: Gameplay baseline regression check (must remain strictly 39 PASS / 9 FAIL, matching main@745bb6d)
 npx vitest run tests/input/eraser-controls.test.ts tests/input/two-hand-surface.test.ts tests/input/hand-stroke-surface.test.ts

@@ -7,6 +7,28 @@
 
 ---
 
+## R23-HF2.1 — Remediasi Tipe TypeScript di Tes HF2 (Patch 35da19a) (`2026-11-21 19:53 WIB`; `KATA-TOOL` / `PASS`)
+
+- **Scope & Latar Belakang:** Remediasi penolakan deploy oleh Ujang akibat 8 error `npx tsc --noEmit` yang semuanya berada pada file tes `tests/nui-lab/hf2-erase-resilience.test.ts` (tipe `Landmark` tidak diekspor dari `lab-analyzer` dan akses field private `LabAnalyzer.store`).
+- **Penerapan Aturan Ketat:**
+  - Kode produksi sama sekali tidak diubah (zero production code changes, tidak ada penambahan ekspor tipe atau pelemahan modifier private).
+  - Mengimpor `type { Landmark, StrokeStore }` dari `@/src/input/types` (modul yang memang mengekspor tipe-tipe tersebut).
+  - Menambahkan fungsi helper `isStoreErasing(analyzer: LabAnalyzer): boolean` dengan cast `(analyzer as unknown as { store: StrokeStore }).store.isErasing()` disertai komentar penjelasan sesuai mandat aturan 1.
+- **Hasil 5 Gate Lengkap (Persis Urutan Ujang):**
+  1. `npx tsc --noEmit`: Exit code `0` (0 error).
+  2. `npm run lint`: Exit code `0` (`PASS`).
+  3. `npx vitest run tests/nui-lab/ tests/owner-build-manifest.test.ts`: 30 file lolos, 308 tes lolos, 0 gagal (`PASS`).
+  4. Gameplay regression (`eraser-controls`, `two-hand-surface`, `hand-stroke-surface`): Persis 39 PASS / 9 FAIL (48 total, `PASS`).
+  5. `npm run build`: Exit code `0`, 24 halaman statis tergenerasi sempurna (`PASS`).
+- **Artefak Kandidat Baru:**
+  - Commit lokal `$WORK`: `35da19afcf221db1c629da72b52007cf8ce167e7` (`35da19a`).
+  - Tree hash baru: `3811d36beb108a91bb4b960fc66c6830ca04c6b3`.
+  - Cumulative Patch (`main@745bb6d` -> `35da19a`): `r23/candidates/monui7/r23_main-745bb6d_to_35da19a.patch` (SHA-256 `8de8dd8847054e19cdbe151edee7261ea885e1de43a0670934c3e98cc8e06fb6`).
+  - Incremental Patch (`HF1@b4b14f0` -> `35da19a`): `r23/candidates/monui7/r23_incremental_b4b14f0_to_35da19a.patch` (SHA-256 `531df741b41c3b6f23fd3359b28ad9ea80889666cf2386e6801fcbb60cfb6061`).
+  - Verifikasi: `git apply --check` pada basis `main@745bb6d` dan `b4b14f0` lolos 100% tanpa konflik.
+
+---
+
 ## R23-HF2 — Hotfix R23-HF2 MoNUI-7 (YOLO 5Hz / SEARCH Scheduling, Erase Resilience, Onset 200ms, Patch 402ea36) (`2026-11-21 18:32 WIB`; `KATA-TOOL` / `PASS`)
 
 - **Scope & Latar Belakang:** Hasil pengujian Owner di DEV sesi `S-023fb796` (Windows laptop, 9 core) mengidentifikasi 3 masalah:

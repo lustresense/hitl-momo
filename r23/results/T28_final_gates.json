@@ -1,9 +1,9 @@
 {
   "task": "T28",
-  "name": "Verifikasi Akhir & Production Build (R23-HF2)",
-  "timestamp": "2026-11-21T18:31:00+07:00",
-  "candidateCommit": "402ea36c49d2fa93f6445137a0c42c290d516b21",
-  "candidateTree": "927439cd9403a1c7050271dbf7c3903cfd4eb833",
+  "name": "Verifikasi Akhir & Production Build (R23-HF2.1)",
+  "timestamp": "2026-11-21T19:53:00+07:00",
+  "candidateCommit": "35da19afcf221db1c629da72b52007cf8ce167e7",
+  "candidateTree": "3811d36beb108a91bb4b960fc66c6830ca04c6b3",
   "status": "PASS",
   "gates": {
     "next_production_build": {
@@ -23,13 +23,13 @@
     },
     "vitest_nui_lab": {
       "status": "PASS",
-      "command": "npx vitest run tests/nui-lab/",
+      "command": "npx vitest run tests/nui-lab/ tests/owner-build-manifest.test.ts",
       "target_minimum_tests": 280,
-      "test_files_passed": 29,
-      "test_files_total": 29,
-      "tests_passed": 304,
+      "test_files_passed": 30,
+      "test_files_total": 30,
+      "tests_passed": 308,
       "tests_failed": 0,
-      "tests_total": 304
+      "tests_total": 308
     },
     "vitest_gameplay_baseline": {
       "status": "PASS",

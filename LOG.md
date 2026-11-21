@@ -33,6 +33,9 @@
   - Patch kumulatif: `r23/candidates/monui7/r23_main-745bb6d_to_2721117.patch` (SHA-256 `9b432299517df5e4ed4ee76b8c3120f20859e4a4c3f2530e48f0e69bc3d4e9f7`).
   - Patch inkremental: `r23/candidates/monui7/r23_incremental_r22b_to_2721117.patch` (SHA-256 `eece52568dee19137057bf9f398057a586bf37bce70094e4af68669a01d42f16`).
   - Target snapshot tree hash (`git write-tree`): `fd5605b1b0b3e5a168b74a29162feece0c0b3ef4` (terverifikasi lolos uji apply di worktree bersih).
+- **Pengarsipan Final & Pengurangan Disk Pasca-FX14:**
+  - `$DATA_ROOT/yolo` (12 GB) di-tar ke `$BIG_ROOT/backup/data/r23_final_yolo.tar` (11.564.288.000 bytes, terverifikasi utuh di D:), lalu folder lokal `$DATA_ROOT/yolo` dibersihkan.
+  - `df -h /` pasca-pengarsipan: Size `126G`, Used `76G`, Avail `45G` (`64%`). Bebas 45 GB, terpakai 76 GB jauh di bawah batas maksimal 70% (88 GB).
   - Panduan deploy baru: `r23/candidates/monui7/APPLY.md` (peringatan "JANGAN DI-DEPLOY" dihapus, siap dideploy ke DEV oleh Ujang).
   - Patch lama `57acc5e` dipindahkan ke `r23/candidates/monui7/superseded/`.
 

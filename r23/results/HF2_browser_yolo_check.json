@@ -1,0 +1,37 @@
+{
+  "task": "HF2_browser_yolo_check",
+  "timestamp": "2026-11-21T11:30:56.844Z",
+  "status": "PASS",
+  "defaultCanvasCheck": {
+    "pass": true,
+    "url": "http://127.0.0.1:45679/nui-lab/canvas",
+    "onnxRequest200": true,
+    "ortSessionCreatedLog": true,
+    "totalFrames": 129,
+    "framesWithYoloRan": 1,
+    "meta": {
+      "yoloModelSha256": "97f778ea77f4dbf160e91dff021a463ab464cdbf27a34d067d5f28708dbf1ddb",
+      "yoloEnabled": true,
+      "yoloRateHz": 5,
+      "monuiVersion": "MoNUI-7"
+    },
+    "sampleYoloFrame": {
+      "fid": 4,
+      "t": 1313,
+      "rescueState": "SEARCH",
+      "yoloRan": true,
+      "yoloMs": 165,
+      "yoloScore": null
+    }
+  },
+  "disabledCanvasCheck": {
+    "pass": true,
+    "url": "http://127.0.0.1:45679/nui-lab/canvas?yolo=0",
+    "totalFrames": 152,
+    "framesWithYoloRan": 0,
+    "meta": {
+      "yoloEnabled": false,
+      "yoloRateHz": 5
+    }
+  }
+}

@@ -1,0 +1,3641 @@
+diff --git a/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx b/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx
+index 9045fe9..346fbea 100644
+--- a/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx
++++ b/frontend/implementation/src/components/nui-lab/NuiLabPage.tsx
+@@ -73,6 +73,7 @@ import {
+   parseDetectorConfidenceUrlOverride,
+   parseLabDevUrlFlags,
+   parseNumHandsUrlOverride,
++  parseYoloUrlOverride,
+   type DetectorConfidenceUrlOverride,
+   type LabDevUrlFlags,
+   type NumHandsUrlOverride,
+@@ -685,9 +686,10 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
+   });
+ 
+   const ensureAutoBenchActiveAndOpenTrial = async (s: Session, reason: string) => {
++    const yoloEnabled = parseYoloUrlOverride();
+     await benchMgr.startCameraTrialAuto(
+       buildTrialCtx(s, activeEngineRef.current, activePreprocessRef.current),
+-      { reason },
++      { reason, yoloEnabled },
+     );
+     if (session.current === s && benchMgr.isActive) {
+       telemetryBridgeRef.current.reset();
+@@ -1442,6 +1444,8 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
+             captureFrameId: tick.captureFrameId,
+             captureTimestampMs: tick.captureTimestampMs,
+           });
++        } else if (cur.workerClient.getTelemetry().inFlight > 0) {
++          cur.workerClient.notifyPendingFrame();
+         }
+         return;
+       }
+@@ -1546,6 +1550,7 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
+     const selectedEngine = activeEngineRef.current;
+     const modelLoadPromise = loadModelForEngine(selectedEngine, s.analyzer, stillWanted);
+     if (useWorker) {
++      const yoloEnabled = parseYoloUrlOverride();
+       const workerClient = new LabCpuWorkerClient({
+         wasmRoot: WASM_ROOT,
+         modelUrl: MODEL_URL,
+@@ -1555,6 +1560,7 @@ export function NuiLabPage({ variant = "gesture" }: { variant?: "gesture" | "can
+         minDetectionConfidence: confOverride.minDetectionConfidence,
+         minPresenceConfidence: confOverride.minPresenceConfidence,
+         minTrackingConfidence: confOverride.minTrackingConfidence,
++        yoloEnabled,
+         dynamicOwnerLock: true,
+         auditIntervalFrames: 45,
+         captureWidth: 320,
+diff --git a/frontend/implementation/src/components/nui-lab/bench/action-resolver.ts b/frontend/implementation/src/components/nui-lab/bench/action-resolver.ts
+index 1113e36..be586bf 100644
+--- a/frontend/implementation/src/components/nui-lab/bench/action-resolver.ts
++++ b/frontend/implementation/src/components/nui-lab/bench/action-resolver.ts
+@@ -130,7 +130,7 @@ export const DEFAULT_THREE_ACTION_STABLE_MS = 150;
+ export const DEFAULT_STALE_FRAME_MS = 150;
+ export const DEFAULT_ONSET_CONFIRM_FRAMES = 2;
+ export const DEFAULT_POST_FIST_ONSET_GUARD_WINDOW_MS = 400;
+-export const DEFAULT_POST_FIST_ONSET_HOLD_MS = 300;
++export const DEFAULT_POST_FIST_ONSET_HOLD_MS = 200;
+ export const DEFAULT_RELEASE_DEBOUNCE_MS = 150;
+ export const DEFAULT_REACQUIRE_MAX_GAP_MS = 1500;
+ export const DEFAULT_REACQUIRE_MAX_DIAG_SHARE = 0.12;
+@@ -1693,7 +1693,9 @@ export class ActionIntentResolver {
+     // 5. Missing hand or unlocked owner: separate short NO_HAND detector blink (HOLD_GRACE) vs long loss.
+     const hasValidLandmarks = Boolean(input.landmarks && input.landmarks.length >= 21);
+     if (!hasValidLandmarks || !input.ownerLocked) {
+-      this.resetEraseHold();
++      if (!input.isErasing) {
++        this.resetEraseHold();
++      }
+       this.resetThreeAction();
+       this.resetUndoRedoFsm(true);
+       this.resetOnset();
+@@ -1709,18 +1711,20 @@ export class ActionIntentResolver {
+ 
+       let inLossGrace = false;
+       let lossElapsedMs = 0;
++      const effectiveLossGraceMs = input.isErasing ? 300 : this.config.lossGraceMs;
+ 
+       if (canGrace) {
+         if (this.lossStartedMs === null) this.lossStartedMs = input.nowMs;
+         lossElapsedMs = Math.max(0, input.nowMs - this.lossStartedMs);
+         const totalGapMs = input.nowMs - this.lastTrackedMs!;
+         inLossGrace =
+-          lossElapsedMs <= this.config.lossGraceMs &&
++          lossElapsedMs <= effectiveLossGraceMs &&
+           totalGapMs >= 0 &&
+           totalGapMs <= this.config.maxResumeGapMs;
+       }
+ 
+       if (!inLossGrace) {
++        this.resetEraseHold();
+         if (this.lastLostAtMs === null && this.lastTrackedMs !== null) {
+           this.lastLostAtMs = this.lastTrackedMs;
+           this.lastLostTipNorm = this.lastTrackedTipNorm ? { ...this.lastTrackedTipNorm } : null;
+@@ -1742,10 +1746,13 @@ export class ActionIntentResolver {
+         }
+       }
+ 
++      const isErasingGrace = input.isErasing && inLossGrace;
+       const res = this.baseResolution(input, r19State, {
+-        actionIntent: inLossGrace ? "HOLD_GRACE" : "NEUTRAL",
++        actionIntent: isErasingGrace ? "ERASE" : inLossGrace ? "HOLD_GRACE" : "NEUTRAL",
++        actionAccepted: isErasingGrace ? true : false,
++        allowEraseMutation: isErasingGrace,
+         rejectReason: inLossGrace
+-          ? "Jeda singkat deteksi (menahan goresan)"
++          ? (isErasingGrace ? null : "Jeda singkat deteksi (menahan goresan)")
+           : lockReason === "no-hand"
+             ? "Tangan tidak ditemukan"
+             : lockReason,
+@@ -1781,15 +1788,17 @@ export class ActionIntentResolver {
+       const lossElapsedMs = input.nowMs - this.lossStartedMs;
+       const totalGapMs =
+         this.lastTrackedMs === null ? Infinity : input.nowMs - this.lastTrackedMs;
++      const effectiveGrace = input.isErasing ? 300 : this.config.lossGraceMs;
+       const withinGrace =
+         lossElapsedMs >= 0 &&
+-        lossElapsedMs <= this.config.lossGraceMs &&
++        lossElapsedMs <= effectiveGrace &&
+         totalGapMs >= 0 &&
+         totalGapMs <= this.config.maxResumeGapMs;
+       if (!withinGrace) {
+         this.pinchHeld = false;
+         this.releaseDebounceStartMs = null;
+         this.resetOnset();
++        this.resetEraseHold();
+         if (this.lastLostAtMs === null && this.lastTrackedMs !== null) {
+           this.lastLostAtMs = this.lastTrackedMs;
+           this.lastLostTipNorm = this.lastTrackedTipNorm ? { ...this.lastTrackedTipNorm } : null;
+diff --git a/frontend/implementation/src/components/nui-lab/bench/config.ts b/frontend/implementation/src/components/nui-lab/bench/config.ts
+index 710953b..3116e5e 100644
+--- a/frontend/implementation/src/components/nui-lab/bench/config.ts
++++ b/frontend/implementation/src/components/nui-lab/bench/config.ts
+@@ -221,6 +221,23 @@ export function parseNumHandsUrlOverride(search?: string): NumHandsUrlOverride {
+   };
+ }
+ 
++/**
++ * URL override `?yolo=0` to disable MoNUI-7 YOLO rescue completely (default true / enabled).
++ */
++export function parseYoloUrlOverride(search?: string): boolean {
++  const raw = getSearchString(search);
++  if (!raw) return true;
++  try {
++    const params = new URLSearchParams(raw.startsWith("?") ? raw : `?${raw}`);
++    if (params.get("yolo")?.trim() === "0") {
++      return false;
++    }
++  } catch {
++    /* ignore malformed query strings */
++  }
++  return true;
++}
++
+ export function canUseCpuWorker(): boolean {
+   return (
+     typeof window !== "undefined" &&
+diff --git a/frontend/implementation/src/components/nui-lab/bench/lab-stroke-driver.ts b/frontend/implementation/src/components/nui-lab/bench/lab-stroke-driver.ts
+index 60ab7e3..e234751 100644
+--- a/frontend/implementation/src/components/nui-lab/bench/lab-stroke-driver.ts
++++ b/frontend/implementation/src/components/nui-lab/bench/lab-stroke-driver.ts
+@@ -194,7 +194,11 @@ export class LabStrokeDriver {
+       const inGrace = auth.inLossGrace && !auth.shouldEndOpenOps && this.computeInGrace(nowMs);
+       let changed = this.cursorVisible;
+       let retroTrimmedPoints = 0;
+-      if (!inGrace) {
++      if (inGrace && store.isErasing() && this.lastCursorPt) {
++        this.debug.lastEraseHit = store.eraseAt(this.lastCursorPt, this.options.eraser.radiusCanvasPx());
++        this.debug.eraseFrames++;
++        changed = true;
++      } else if (!inGrace) {
+         retroTrimmedPoints = this.releaseDebouncePts.length;
+         this.releaseDebouncePts = [];
+         changed = this.endOpenOps() || changed;
+@@ -207,7 +211,7 @@ export class LabStrokeDriver {
+         fingerCount: 0,
+         actionAllowed: false,
+         drawing: false,
+-        erasing: false,
++        erasing: store.isErasing(),
+       };
+       return {
+         pose: this.stable,
+@@ -264,11 +268,7 @@ export class LabStrokeDriver {
+     const drawing = auth.allowDraw;
+     const erasing = !drawing && !auth.inReleaseDebounce && auth.allowErase;
+ 
+-    const tipNorm = indexTipNormalized(lm);
+-    const inkPt = this.toCanvas(this.inkSmoother.smooth(tipNorm, nowMs));
+-    let cursorPt: Point = this.options.cursorSmoother
+-      ? this.toCanvas(this.options.cursorSmoother.smooth(tipNorm, nowMs))
+-      : inkPt;
++    let cursorPt: Point;
+     let sizingCss: number | null = null;
+     let backfilledPoints = 0;
+     let retroTrimmedPoints = 0;
+@@ -279,7 +279,12 @@ export class LabStrokeDriver {
+       this.pendingOnsetPts = [];
+       if (store.hasActiveStroke()) store.endStroke();
+       this.drawStreak = 0;
+-      cursorPt = this.toCanvas(this.palmSmoother.smooth(palmCenterNormalized(lm), nowMs));
++      this.inkSmoother.reset();
++      const palmNorm = palmCenterNormalized(lm);
++      cursorPt = this.options.cursorSmoother
++        ? this.toCanvas(this.options.cursorSmoother.smooth(palmNorm, nowMs))
++        : this.toCanvas(this.palmSmoother.smooth(palmNorm, nowMs));
++      this.lastCursorPt = { x: cursorPt.x, y: cursorPt.y };
+       const secondary = auth.secondaryLandmarks;
+       if (secondary && secondary.length >= 21 && this.options.eraser.isFixed?.() !== true) {
+         sizingCss = this.sizeFrom(secondary);
+@@ -293,6 +298,13 @@ export class LabStrokeDriver {
+       this.palmSmoother.reset();
+       if (store.isErasing()) store.endErase();
+ 
++      const tipNorm = indexTipNormalized(lm);
++      const inkPt = this.toCanvas(this.inkSmoother.smooth(tipNorm, nowMs));
++      cursorPt = this.options.cursorSmoother
++        ? this.toCanvas(this.options.cursorSmoother.smooth(tipNorm, nowMs))
++        : inkPt;
++      this.lastCursorPt = { x: cursorPt.x, y: cursorPt.y };
++
+       // Case 1: Active stroke exists -> check fail-closed gap/jump, release debounce, bridging, or normal addPoint.
+       if (store.hasActiveStroke()) {
+         if (drawing) {
+@@ -394,9 +406,10 @@ export class LabStrokeDriver {
+     const sinceTracked = this.lastTrackedMs === null ? Infinity : nowMs - this.lastTrackedMs;
+     if (this.lossStartedMs === null) this.lossStartedMs = nowMs;
+     const sinceLoss = nowMs - this.lossStartedMs;
++    const graceLimitMs = this.options.store.isErasing() ? 300 : this.options.lossGraceMs;
+     return (
+       sinceLoss >= 0 &&
+-      sinceLoss <= this.options.lossGraceMs &&
++      sinceLoss <= graceLimitMs &&
+       sinceTracked >= 0 &&
+       sinceTracked <= this.options.maxResumeGapMs
+     );
+diff --git a/frontend/implementation/src/components/nui-lab/bench/manager.ts b/frontend/implementation/src/components/nui-lab/bench/manager.ts
+index 20197af..d5e90d2 100644
+--- a/frontend/implementation/src/components/nui-lab/bench/manager.ts
++++ b/frontend/implementation/src/components/nui-lab/bench/manager.ts
+@@ -593,7 +593,7 @@ export class BenchSessionManager {
+       warnings: [],
+       yoloModelSha256: opts.yoloModelSha256 !== undefined ? opts.yoloModelSha256 : YOLO_MODEL_SHA256,
+       yoloEnabled: opts.yoloEnabled !== undefined ? opts.yoloEnabled : true,
+-      yoloRateHz: opts.yoloRateHz !== undefined ? opts.yoloRateHz : 10,
++      yoloRateHz: opts.yoloRateHz !== undefined ? opts.yoloRateHz : 5,
+       monuiVersion: opts.monuiVersion !== undefined ? opts.monuiVersion : "MoNUI-7",
+     };
+     this.startPerf = this.deps.now();
+@@ -632,6 +632,8 @@ export class BenchSessionManager {
+       app?: { version: string; gitCommit: string; gitBranch?: string };
+       environment?: SessionMeta["environment"];
+       reason?: string;
++      yoloEnabled?: boolean | null;
++      yoloRateHz?: number | null;
+     },
+   ): Promise<{ started: boolean; sessionId: string | null; trialId: string | null; reason: string }> {
+     if (!this.hasConsent) {
+@@ -647,6 +649,8 @@ export class BenchSessionManager {
+           consent: true,
+           app: opts?.app ?? getAppBuildInfo(),
+           environment: opts?.environment ?? collectNonIdentifyingEnvironment(this.store?.kind ?? "indexeddb"),
++          yoloEnabled: opts?.yoloEnabled,
++          yoloRateHz: opts?.yoloRateHz,
+         });
+       }
+       const trialId = this.beginTrial(ctx, opts?.reason ?? "camera-start");
+diff --git a/frontend/implementation/src/components/nui-lab/bench/monui7-rescue.ts b/frontend/implementation/src/components/nui-lab/bench/monui7-rescue.ts
+index a81c068..ffd0dbc 100644
+--- a/frontend/implementation/src/components/nui-lab/bench/monui7-rescue.ts
++++ b/frontend/implementation/src/components/nui-lab/bench/monui7-rescue.ts
+@@ -14,7 +14,7 @@
+  */
+ 
+ export const RESCUE_ENTER_MISS_MS = 100;
+-export const YOLO_INTERVAL_MS = 100;
++export const YOLO_INTERVAL_MS = 200;
+ export const YOLO_MIN_SCORE = 0.35;
+ export const CROP_SCALE = 1.6;
+ export const POSITION_ONLY_AFTER_MS = 500;
+@@ -28,6 +28,7 @@ export interface RescueInput {
+   mpHand: boolean;
+   yolo?: { box: [number, number, number, number]; score: number } | null;
+   crop?: Array<{ x: number; y: number; z?: number }> | null;
++  hasPendingFrame?: boolean;
+ }
+ 
+ export type RescueEvent =
+@@ -261,9 +262,10 @@ export class RescueFSM {
+       }
+     }
+ 
+-    // Determine actions for current state
++    // Determine actions for current state (R23-HF2: YOLO strictly in SEARCH window, <= 5 Hz, skip if pending frame)
+     const shouldRunYolo =
+-      (this.stateNow === "SEARCH" || this.stateNow === "POSITION_ONLY" || this.stateNow === "LOST") &&
++      this.stateNow === "SEARCH" &&
++      !input.hasPendingFrame &&
+       t - this.lastYoloTimeMs >= YOLO_INTERVAL_MS;
+ 
+     if (shouldRunYolo) {
+diff --git a/frontend/implementation/src/components/nui-lab/bench/r20-hand.worker.ts b/frontend/implementation/src/components/nui-lab/bench/r20-hand.worker.ts
+index 11908e9..4dbffcf 100644
+--- a/frontend/implementation/src/components/nui-lab/bench/r20-hand.worker.ts
++++ b/frontend/implementation/src/components/nui-lab/bench/r20-hand.worker.ts
+@@ -121,6 +121,7 @@ export interface LabWorkerInitMsg {
+   minDetectionConfidence?: number;
+   minPresenceConfidence?: number;
+   minTrackingConfidence?: number;
++  yoloEnabled?: boolean;
+ }
+ 
+ export interface LabWorkerDetectMsg {
+@@ -142,7 +143,15 @@ export interface LabWorkerCloseMsg {
+   sessionEpoch: number;
+ }
+ 
+-export type LabWorkerInboundMsg = LabWorkerInitMsg | LabWorkerDetectMsg | LabWorkerCloseMsg;
++export interface LabWorkerPendingFrameMsg {
++  type: "PENDING_FRAME";
++}
++
++export type LabWorkerInboundMsg =
++  | LabWorkerInitMsg
++  | LabWorkerDetectMsg
++  | LabWorkerCloseMsg
++  | LabWorkerPendingFrameMsg;
+ 
+ export interface LabWorkerReadyMsg {
+   type: "READY";
+@@ -258,7 +267,9 @@ let cachedVision: unknown = null;
+ 
+ const rescueFsm = new RescueFSM("NORMAL");
+ let rescueDisabled = false;
+-let yoloRateHz = 10;
++let yoloEnabled = true;
++let hasPendingCameraFrame = false;
++let yoloRateHz = 5;
+ let autoOffWarmupCount = 0;
+ let autoOffMeasurements: number[] = [];
+ let autoOffWarmupDone = false;
+@@ -534,8 +545,12 @@ workerScope.onmessage = async (ev: MessageEvent<LabWorkerInboundMsg>) => {
+       cachedModelAssetBuffer = modelAssetBuffer;
+       rescueFsm.reset();
+       rescueDisabled = false;
+-      void ensureYoloSession();
+-      yoloRateHz = 10;
++      yoloEnabled = msg.yoloEnabled !== undefined ? msg.yoloEnabled : true;
++      hasPendingCameraFrame = false;
++      if (yoloEnabled) {
++        void ensureYoloSession();
++      }
++      yoloRateHz = 5;
+       autoOffWarmupCount = 0;
+       autoOffMeasurements = [];
+       autoOffWarmupDone = false;
+@@ -576,7 +591,13 @@ workerScope.onmessage = async (ev: MessageEvent<LabWorkerInboundMsg>) => {
+     return;
+   }
+ 
++  if (msg.type === "PENDING_FRAME") {
++    hasPendingCameraFrame = true;
++    return;
++  }
++
+   if (msg.type === "DETECT") {
++    hasPendingCameraFrame = false;
+     const tStart = performance.now();
+     const { bitmap, sessionEpoch, frameId, aspect } = msg;
+     const captureFrameId = msg.captureFrameId ?? frameId;
+@@ -679,14 +700,18 @@ workerScope.onmessage = async (ev: MessageEvent<LabWorkerInboundMsg>) => {
+ 
+       const hasMpHands = guarded.landmarks.length > 0;
+       if (hasMpHands) {
+-        rescueFsm.update({ t: ts, mpHand: true });
++        rescueFsm.update({ t: ts, mpHand: true, hasPendingFrame: hasPendingCameraFrame });
+         rescueState = "NORMAL";
+         source = "mediapipe";
+-      } else if (!rescueDisabled) {
+-        const step = rescueFsm.update({ t: ts, mpHand: false });
++      } else if (!rescueDisabled && yoloEnabled) {
++        const step = rescueFsm.update({
++          t: ts,
++          mpHand: false,
++          hasPendingFrame: hasPendingCameraFrame,
++        });
+         rescueState = step.state;
+ 
+-        if (step.shouldRunYolo) {
++        if (step.shouldRunYolo && !hasPendingCameraFrame) {
+           yoloRan = true;
+           const tYolo0 = performance.now();
+           if (yoloSession && offCtx && offscreen) {
+diff --git a/frontend/implementation/src/components/nui-lab/bench/r20-worker-client.ts b/frontend/implementation/src/components/nui-lab/bench/r20-worker-client.ts
+index aa9cd07..0ac1829 100644
+--- a/frontend/implementation/src/components/nui-lab/bench/r20-worker-client.ts
++++ b/frontend/implementation/src/components/nui-lab/bench/r20-worker-client.ts
+@@ -156,6 +156,7 @@ export interface CpuWorkerClientOptions {
+   auditIntervalFrames?: number;
+   captureWidth?: number;
+   staleThresholdMs?: number;
++  yoloEnabled?: boolean;
+   createWorker?: () => Worker;
+   onResult: (res: CpuWorkerResult) => void;
+   onReleaseAll?: (reason: string) => void;
+@@ -457,6 +458,7 @@ export class LabCpuWorkerClient {
+         minTrackingConfidence: this.opts.minTrackingConfidence,
+         auditIntervalFrames: this.auditIntervalFrames,
+         preprocess: this.preprocess,
++        yoloEnabled: this.opts.yoloEnabled,
+       };
+       w.postMessage(initMsg);
+     });
+@@ -506,6 +508,16 @@ export class LabCpuWorkerClient {
+     this.opts.onReleaseAll?.(reason);
+   }
+ 
++  notifyPendingFrame(): void {
++    if (this.ready && this.worker) {
++      try {
++        this.worker.postMessage({ type: "PENDING_FRAME" });
++      } catch {
++        /* ignore */
++      }
++    }
++  }
++
+   /**
+    * Submits the latest unique video frame if the worker is idle.
+    * Never queues stale frames (`inFlight <= 1`), and when `frameMeta` (`CameraFrameTick`) is supplied,
+@@ -529,6 +541,7 @@ export class LabCpuWorkerClient {
+     if (this.inFlight > 0) {
+       this.framesDroppedBusy++;
+       this.droppedSinceLastResult++;
++      this.notifyPendingFrame();
+       return false;
+     }
+ 
+diff --git a/frontend/implementation/src/components/nui-lab/lab-analyzer.ts b/frontend/implementation/src/components/nui-lab/lab-analyzer.ts
+index 8476aba..210cfbe 100644
+--- a/frontend/implementation/src/components/nui-lab/lab-analyzer.ts
++++ b/frontend/implementation/src/components/nui-lab/lab-analyzer.ts
+@@ -139,8 +139,8 @@ const JITTER_MIN_SAMPLES = 10;
+ /** Jitter is shown in px of a canvas this wide (the same scale the page draws at). */
+ const JITTER_CANVAS_PX = 400;
+ const INK_SIZE = { width: 1280, height: 720 };
+-const DEFAULT_LAB_ERASER_CSS_PX = 16;
+-const LAB_ERASER_CANVAS_SCALE = 2; // 16 CSS px -> 32 canvas px on 1280x720 scratch canvas
++const DEFAULT_LAB_ERASER_CSS_PX = 24;
++const LAB_ERASER_CANVAS_SCALE = 2; // 24 CSS px -> 48 canvas px on 1280x720 scratch canvas (R23-HF2 x1.5 radius)
+ 
+ export interface LabAnalyzerOptions {
+   /** Active NUI Lab route: `"canvas"` disables pistol gating; `"gesture"` runs PistolVirtualKeyFSM. */
+@@ -986,7 +986,7 @@ export class LabAnalyzer {
+           inReleaseDebounce: false,
+           releaseBridged: false,
+           releaseConfirmed: false,
+-          allowErase: false,
++          allowErase: resolution.allowEraseMutation,
+           inLossGrace: resolution.inLossGrace,
+           shouldEndOpenOps: resolution.shouldEndOpenOps,
+           isStale: frameIsStale,
+diff --git a/frontend/implementation/tests/fixtures/s023-t003-erase-segment.json b/frontend/implementation/tests/fixtures/s023-t003-erase-segment.json
+new file mode 100644
+index 0000000..0130296
+--- /dev/null
++++ b/frontend/implementation/tests/fixtures/s023-t003-erase-segment.json
+@@ -0,0 +1,2633 @@
++{
++  "trialId": "S-023fb796-T003",
++  "frames": [
++    {
++      "fid": 502,
++      "t": 190365,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.2671,
++          0.8197
++        ],
++        [
++          0.3222,
++          0.8027
++        ],
++        [
++          0.3734,
++          0.7748
++        ],
++        [
++          0.4147,
++          0.7521
++        ],
++        [
++          0.4486,
++          0.7381
++        ],
++        [
++          0.3456,
++          0.6085
++        ],
++        [
++          0.3772,
++          0.5332
++        ],
++        [
++          0.393,
++          0.4865
++        ],
++        [
++          0.405,
++          0.4426
++        ],
++        [
++          0.3132,
++          0.5803
++        ],
++        [
++          0.3284,
++          0.4803
++        ],
++        [
++          0.3361,
++          0.4196
++        ],
++        [
++          0.3403,
++          0.3678
++        ],
++        [
++          0.2803,
++          0.5785
++        ],
++        [
++          0.28,
++          0.4859
++        ],
++        [
++          0.2795,
++          0.4282
++        ],
++        [
++          0.2804,
++          0.3766
++        ],
++        [
++          0.2472,
++          0.5984
++        ],
++        [
++          0.2325,
++          0.5297
++        ],
++        [
++          0.2253,
++          0.4847
++        ],
++        [
++          0.2216,
++          0.4426
++        ]
++      ]
++    },
++    {
++      "fid": 503,
++      "t": 190429,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.265,
++          0.7848
++        ],
++        [
++          0.3204,
++          0.7638
++        ],
++        [
++          0.3719,
++          0.7383
++        ],
++        [
++          0.4124,
++          0.7265
++        ],
++        [
++          0.4469,
++          0.7213
++        ],
++        [
++          0.341,
++          0.587
++        ],
++        [
++          0.3659,
++          0.4984
++        ],
++        [
++          0.3818,
++          0.4536
++        ],
++        [
++          0.3955,
++          0.4206
++        ],
++        [
++          0.3081,
++          0.5616
++        ],
++        [
++          0.3183,
++          0.4596
++        ],
++        [
++          0.3246,
++          0.3971
++        ],
++        [
++          0.3282,
++          0.3496
++        ],
++        [
++          0.2752,
++          0.5625
++        ],
++        [
++          0.2721,
++          0.4712
++        ],
++        [
++          0.2705,
++          0.4123
++        ],
++        [
++          0.2704,
++          0.3642
++        ],
++        [
++          0.2444,
++          0.583
++        ],
++        [
++          0.2281,
++          0.517
++        ],
++        [
++          0.2199,
++          0.476
++        ],
++        [
++          0.2155,
++          0.4406
++        ]
++      ]
++    },
++    {
++      "fid": 504,
++      "t": 190505,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.2536,
++          0.753
++        ],
++        [
++          0.3105,
++          0.7409
++        ],
++        [
++          0.3602,
++          0.7064
++        ],
++        [
++          0.3967,
++          0.674
++        ],
++        [
++          0.4304,
++          0.6617
++        ],
++        [
++          0.3301,
++          0.5496
++        ],
++        [
++          0.3534,
++          0.4729
++        ],
++        [
++          0.3673,
++          0.4259
++        ],
++        [
++          0.3775,
++          0.3837
++        ],
++        [
++          0.2965,
++          0.5222
++        ],
++        [
++          0.305,
++          0.4277
++        ],
++        [
++          0.3089,
++          0.3705
++        ],
++        [
++          0.3098,
++          0.3229
++        ],
++        [
++          0.2631,
++          0.5228
++        ],
++        [
++          0.2595,
++          0.435
++        ],
++        [
++          0.2544,
++          0.38
++        ],
++        [
++          0.2497,
++          0.3337
++        ],
++        [
++          0.2301,
++          0.5447
++        ],
++        [
++          0.2123,
++          0.4836
++        ],
++        [
++          0.2005,
++          0.4443
++        ],
++        [
++          0.19,
++          0.411
++        ]
++      ]
++    },
++    {
++      "fid": 505,
++      "t": 190570,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.2569,
++          0.7486
++        ],
++        [
++          0.3125,
++          0.7353
++        ],
++        [
++          0.366,
++          0.6989
++        ],
++        [
++          0.407,
++          0.6739
++        ],
++        [
++          0.4404,
++          0.6673
++        ],
++        [
++          0.3333,
++          0.5475
++        ],
++        [
++          0.3571,
++          0.4731
++        ],
++        [
++          0.3715,
++          0.4276
++        ],
++        [
++          0.3847,
++          0.3853
++        ],
++        [
++          0.3005,
++          0.5182
++        ],
++        [
++          0.3101,
++          0.4273
++        ],
++        [
++          0.3162,
++          0.3707
++        ],
++        [
++          0.32,
++          0.3226
++        ],
++        [
++          0.2688,
++          0.5168
++        ],
++        [
++          0.2667,
++          0.4297
++        ],
++        [
++          0.2638,
++          0.3725
++        ],
++        [
++          0.2617,
++          0.3216
++        ],
++        [
++          0.2409,
++          0.5367
++        ],
++        [
++          0.2254,
++          0.4748
++        ],
++        [
++          0.2156,
++          0.4376
++        ],
++        [
++          0.2078,
++          0.4058
++        ]
++      ]
++    },
++    {
++      "fid": 506,
++      "t": 190633,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.2762,
++          0.751
++        ],
++        [
++          0.3312,
++          0.7473
++        ],
++        [
++          0.3844,
++          0.7191
++        ],
++        [
++          0.4242,
++          0.7019
++        ],
++        [
++          0.4549,
++          0.6996
++        ],
++        [
++          0.3602,
++          0.5523
++        ],
++        [
++          0.3894,
++          0.4805
++        ],
++        [
++          0.408,
++          0.4424
++        ],
++        [
++          0.424,
++          0.4134
++        ],
++        [
++          0.3282,
++          0.5197
++        ],
++        [
++          0.3439,
++          0.4267
++        ],
++        [
++          0.3535,
++          0.3715
++        ],
++        [
++          0.3608,
++          0.3298
++        ],
++        [
++          0.2945,
++          0.5113
++        ],
++        [
++          0.2968,
++          0.4226
++        ],
++        [
++          0.2992,
++          0.3716
++        ],
++        [
++          0.3031,
++          0.3313
++        ],
++        [
++          0.2597,
++          0.5206
++        ],
++        [
++          0.2484,
++          0.4525
++        ],
++        [
++          0.244,
++          0.4176
++        ],
++        [
++          0.2424,
++          0.391
++        ]
++      ]
++    },
++    {
++      "fid": 507,
++      "t": 190704,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.2805,
++          0.7512
++        ],
++        [
++          0.3343,
++          0.7382
++        ],
++        [
++          0.3866,
++          0.7154
++        ],
++        [
++          0.4263,
++          0.698
++        ],
++        [
++          0.4588,
++          0.6929
++        ],
++        [
++          0.3624,
++          0.5489
++        ],
++        [
++          0.3939,
++          0.4838
++        ],
++        [
++          0.4132,
++          0.4444
++        ],
++        [
++          0.4299,
++          0.4101
++        ],
++        [
++          0.3323,
++          0.5199
++        ],
++        [
++          0.3516,
++          0.4303
++        ],
++        [
++          0.3624,
++          0.3751
++        ],
++        [
++          0.3705,
++          0.3289
++        ],
++        [
++          0.3005,
++          0.5159
++        ],
++        [
++          0.3049,
++          0.4281
++        ],
++        [
++          0.3066,
++          0.3754
++        ],
++        [
++          0.31,
++          0.3304
++        ],
++        [
++          0.2676,
++          0.5328
++        ],
++        [
++          0.2567,
++          0.4656
++        ],
++        [
++          0.2507,
++          0.4275
++        ],
++        [
++          0.2468,
++          0.3949
++        ]
++      ]
++    },
++    {
++      "fid": 508,
++      "t": 190771,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.2679,
++          0.7303
++        ],
++        [
++          0.322,
++          0.7119
++        ],
++        [
++          0.3704,
++          0.68
++        ],
++        [
++          0.4096,
++          0.6564
++        ],
++        [
++          0.4394,
++          0.6406
++        ],
++        [
++          0.3458,
++          0.531
++        ],
++        [
++          0.3694,
++          0.4585
++        ],
++        [
++          0.386,
++          0.4169
++        ],
++        [
++          0.4011,
++          0.3816
++        ],
++        [
++          0.3134,
++          0.5007
++        ],
++        [
++          0.3259,
++          0.4132
++        ],
++        [
++          0.3359,
++          0.357
++        ],
++        [
++          0.3453,
++          0.3105
++        ],
++        [
++          0.2814,
++          0.489
++        ],
++        [
++          0.2837,
++          0.4036
++        ],
++        [
++          0.2869,
++          0.3507
++        ],
++        [
++          0.2902,
++          0.3074
++        ],
++        [
++          0.2518,
++          0.4898
++        ],
++        [
++          0.2495,
++          0.3949
++        ],
++        [
++          0.2476,
++          0.3281
++        ],
++        [
++          0.2468,
++          0.269
++        ]
++      ]
++    },
++    {
++      "fid": 509,
++      "t": 190834,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.2611,
++          0.7061
++        ],
++        [
++          0.3155,
++          0.696
++        ],
++        [
++          0.3668,
++          0.6666
++        ],
++        [
++          0.4059,
++          0.6403
++        ],
++        [
++          0.4393,
++          0.6277
++        ],
++        [
++          0.3373,
++          0.5123
++        ],
++        [
++          0.3637,
++          0.4407
++        ],
++        [
++          0.3783,
++          0.3961
++        ],
++        [
++          0.3892,
++          0.3561
++        ],
++        [
++          0.3053,
++          0.4838
++        ],
++        [
++          0.3177,
++          0.3909
++        ],
++        [
++          0.324,
++          0.3359
++        ],
++        [
++          0.3263,
++          0.291
++        ],
++        [
++          0.2731,
++          0.4804
++        ],
++        [
++          0.2705,
++          0.395
++        ],
++        [
++          0.2695,
++          0.3439
++        ],
++        [
++          0.2684,
++          0.3004
++        ],
++        [
++          0.2418,
++          0.4979
++        ],
++        [
++          0.2278,
++          0.4358
++        ],
++        [
++          0.2193,
++          0.3984
++        ],
++        [
++          0.2122,
++          0.3648
++        ]
++      ]
++    },
++    {
++      "fid": 510,
++      "t": 190926,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.2764,
++          0.7267
++        ],
++        [
++          0.328,
++          0.7142
++        ],
++        [
++          0.3785,
++          0.6862
++        ],
++        [
++          0.4171,
++          0.6649
++        ],
++        [
++          0.4436,
++          0.6454
++        ],
++        [
++          0.3519,
++          0.5255
++        ],
++        [
++          0.3796,
++          0.4483
++        ],
++        [
++          0.3962,
++          0.4078
++        ],
++        [
++          0.4092,
++          0.3794
++        ],
++        [
++          0.3201,
++          0.4983
++        ],
++        [
++          0.3344,
++          0.4033
++        ],
++        [
++          0.3438,
++          0.344
++        ],
++        [
++          0.3496,
++          0.2974
++        ],
++        [
++          0.2878,
++          0.4941
++        ],
++        [
++          0.2886,
++          0.3974
++        ],
++        [
++          0.2894,
++          0.3377
++        ],
++        [
++          0.2896,
++          0.2907
++        ],
++        [
++          0.2573,
++          0.5075
++        ],
++        [
++          0.2492,
++          0.4227
++        ],
++        [
++          0.2451,
++          0.3674
++        ],
++        [
++          0.2423,
++          0.3205
++        ]
++      ]
++    },
++    {
++      "fid": 511,
++      "t": 190991,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.2839,
++          0.7336
++        ],
++        [
++          0.3387,
++          0.7282
++        ],
++        [
++          0.3917,
++          0.7092
++        ],
++        [
++          0.4317,
++          0.6937
++        ],
++        [
++          0.4679,
++          0.6969
++        ],
++        [
++          0.3722,
++          0.5396
++        ],
++        [
++          0.4032,
++          0.4739
++        ],
++        [
++          0.4214,
++          0.4366
++        ],
++        [
++          0.4365,
++          0.4045
++        ],
++        [
++          0.3418,
++          0.5065
++        ],
++        [
++          0.3604,
++          0.4185
++        ],
++        [
++          0.3703,
++          0.3641
++        ],
++        [
++          0.3765,
++          0.3191
++        ],
++        [
++          0.3093,
++          0.4996
++        ],
++        [
++          0.3136,
++          0.4134
++        ],
++        [
++          0.3148,
++          0.3623
++        ],
++        [
++          0.3169,
++          0.3191
++        ],
++        [
++          0.2751,
++          0.5133
++        ],
++        [
++          0.2646,
++          0.4508
++        ],
++        [
++          0.2599,
++          0.4096
++        ],
++        [
++          0.2576,
++          0.3722
++        ]
++      ]
++    },
++    {
++      "fid": 512,
++      "t": 191053,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.2837,
++          0.7267
++        ],
++        [
++          0.3343,
++          0.7096
++        ],
++        [
++          0.3829,
++          0.6798
++        ],
++        [
++          0.417,
++          0.6586
++        ],
++        [
++          0.444,
++          0.6523
++        ],
++        [
++          0.363,
++          0.5281
++        ],
++        [
++          0.3881,
++          0.4586
++        ],
++        [
++          0.4045,
++          0.4236
++        ],
++        [
++          0.4181,
++          0.398
++        ],
++        [
++          0.3305,
++          0.4985
++        ],
++        [
++          0.346,
++          0.4092
++        ],
++        [
++          0.3568,
++          0.3551
++        ],
++        [
++          0.3648,
++          0.3128
++        ],
++        [
++          0.2968,
++          0.4926
++        ],
++        [
++          0.2999,
++          0.4042
++        ],
++        [
++          0.3027,
++          0.3529
++        ],
++        [
++          0.3065,
++          0.3127
++        ],
++        [
++          0.2624,
++          0.5061
++        ],
++        [
++          0.2541,
++          0.436
++        ],
++        [
++          0.2506,
++          0.3959
++        ],
++        [
++          0.2494,
++          0.3627
++        ]
++      ]
++    },
++    {
++      "fid": 513,
++      "t": 191146,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.263,
++          0.6978
++        ],
++        [
++          0.3117,
++          0.6871
++        ],
++        [
++          0.3608,
++          0.6578
++        ],
++        [
++          0.4007,
++          0.6336
++        ],
++        [
++          0.4342,
++          0.6204
++        ],
++        [
++          0.3385,
++          0.5063
++        ],
++        [
++          0.3653,
++          0.4342
++        ],
++        [
++          0.3808,
++          0.3901
++        ],
++        [
++          0.3937,
++          0.3501
++        ],
++        [
++          0.3073,
++          0.473
++        ],
++        [
++          0.3177,
++          0.3822
++        ],
++        [
++          0.3243,
++          0.3248
++        ],
++        [
++          0.329,
++          0.2783
++        ],
++        [
++          0.2752,
++          0.4689
++        ],
++        [
++          0.274,
++          0.3751
++        ],
++        [
++          0.2718,
++          0.3135
++        ],
++        [
++          0.2715,
++          0.2609
++        ],
++        [
++          0.245,
++          0.4889
++        ],
++        [
++          0.2291,
++          0.4268
++        ],
++        [
++          0.2184,
++          0.3878
++        ],
++        [
++          0.2105,
++          0.3531
++        ]
++      ]
++    },
++    {
++      "fid": 514,
++      "t": 191239,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.2655,
++          0.7
++        ],
++        [
++          0.3172,
++          0.6868
++        ],
++        [
++          0.366,
++          0.6627
++        ],
++        [
++          0.4046,
++          0.6426
++        ],
++        [
++          0.4368,
++          0.6313
++        ],
++        [
++          0.3369,
++          0.5057
++        ],
++        [
++          0.3637,
++          0.4371
++        ],
++        [
++          0.3792,
++          0.3922
++        ],
++        [
++          0.3917,
++          0.3516
++        ],
++        [
++          0.3053,
++          0.4749
++        ],
++        [
++          0.316,
++          0.3823
++        ],
++        [
++          0.3217,
++          0.3246
++        ],
++        [
++          0.325,
++          0.2768
++        ],
++        [
++          0.2735,
++          0.4702
++        ],
++        [
++          0.2704,
++          0.3824
++        ],
++        [
++          0.2671,
++          0.3249
++        ],
++        [
++          0.2653,
++          0.2743
++        ],
++        [
++          0.2442,
++          0.487
++        ],
++        [
++          0.2269,
++          0.4258
++        ],
++        [
++          0.2167,
++          0.3871
++        ],
++        [
++          0.2093,
++          0.3525
++        ]
++      ]
++    },
++    {
++      "fid": 516,
++      "t": 191302,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.2755,
++          0.7267
++        ],
++        [
++          0.3316,
++          0.721
++        ],
++        [
++          0.3839,
++          0.6962
++        ],
++        [
++          0.4237,
++          0.6771
++        ],
++        [
++          0.4567,
++          0.6731
++        ],
++        [
++          0.3657,
++          0.5393
++        ],
++        [
++          0.3974,
++          0.4703
++        ],
++        [
++          0.4158,
++          0.4281
++        ],
++        [
++          0.4302,
++          0.3921
++        ],
++        [
++          0.3358,
++          0.504
++        ],
++        [
++          0.3559,
++          0.4144
++        ],
++        [
++          0.3668,
++          0.3588
++        ],
++        [
++          0.3731,
++          0.3124
++        ],
++        [
++          0.3027,
++          0.4942
++        ],
++        [
++          0.3085,
++          0.4069
++        ],
++        [
++          0.3109,
++          0.3559
++        ],
++        [
++          0.313,
++          0.3124
++        ],
++        [
++          0.2679,
++          0.505
++        ],
++        [
++          0.2601,
++          0.4387
++        ],
++        [
++          0.2558,
++          0.4019
++        ],
++        [
++          0.2526,
++          0.3713
++        ]
++      ]
++    },
++    {
++      "fid": 517,
++      "t": 191370,
++      "actionIntent": "HOLD_GRACE",
++      "actionAccepted": false,
++      "actionRejectedReason": "Jeda singkat deteksi (menahan goresan)",
++      "lm": null
++    },
++    {
++      "fid": 518,
++      "t": 191433,
++      "actionIntent": "ERASE",
++      "actionAccepted": false,
++      "actionRejectedReason": "Telapak hapus butuh stabil >= 160 ms",
++      "lm": [
++        [
++          0.2385,
++          0.6775
++        ],
++        [
++          0.2967,
++          0.6802
++        ],
++        [
++          0.3468,
++          0.6515
++        ],
++        [
++          0.3901,
++          0.6222
++        ],
++        [
++          0.4227,
++          0.6034
++        ],
++        [
++          0.3245,
++          0.4937
++        ],
++        [
++          0.3517,
++          0.4203
++        ],
++        [
++          0.3655,
++          0.3744
++        ],
++        [
++          0.3758,
++          0.3309
++        ],
++        [
++          0.2892,
++          0.4718
++        ],
++        [
++          0.2966,
++          0.3726
++        ],
++        [
++          0.3018,
++          0.3101
++        ],
++        [
++          0.3037,
++          0.2572
++        ],
++        [
++          0.2537,
++          0.4732
++        ],
++        [
++          0.2544,
++          0.3932
++        ],
++        [
++          0.2577,
++          0.3375
++        ],
++        [
++          0.2591,
++          0.2942
++        ],
++        [
++          0.2248,
++          0.4986
++        ],
++        [
++          0.217,
++          0.4531
++        ],
++        [
++          0.2103,
++          0.427
++        ],
++        [
++          0.2048,
++          0.4037
++        ]
++      ]
++    },
++    {
++      "fid": 519,
++      "t": 191508,
++      "actionIntent": "ERASE",
++      "actionAccepted": false,
++      "actionRejectedReason": "Telapak hapus butuh stabil >= 160 ms",
++      "lm": [
++        [
++          0.258,
++          0.7295
++        ],
++        [
++          0.3103,
++          0.7146
++        ],
++        [
++          0.3582,
++          0.6759
++        ],
++        [
++          0.3971,
++          0.6492
++        ],
++        [
++          0.4223,
++          0.6224
++        ],
++        [
++          0.3315,
++          0.5273
++        ],
++        [
++          0.3549,
++          0.4494
++        ],
++        [
++          0.3715,
++          0.394
++        ],
++        [
++          0.3843,
++          0.3524
++        ],
++        [
++          0.2999,
++          0.495
++        ],
++        [
++          0.3095,
++          0.4023
++        ],
++        [
++          0.3167,
++          0.3395
++        ],
++        [
++          0.3226,
++          0.2888
++        ],
++        [
++          0.2687,
++          0.4884
++        ],
++        [
++          0.2698,
++          0.3923
++        ],
++        [
++          0.2711,
++          0.3299
++        ],
++        [
++          0.2718,
++          0.2766
++        ],
++        [
++          0.242,
++          0.5009
++        ],
++        [
++          0.2269,
++          0.425
++        ],
++        [
++          0.2164,
++          0.3725
++        ],
++        [
++          0.2092,
++          0.3253
++        ]
++      ]
++    },
++    {
++      "fid": 520,
++      "t": 191570,
++      "actionIntent": "ERASE",
++      "actionAccepted": false,
++      "actionRejectedReason": "Telapak hapus butuh stabil >= 160 ms",
++      "lm": [
++        [
++          0.2749,
++          0.7426
++        ],
++        [
++          0.3304,
++          0.7458
++        ],
++        [
++          0.3814,
++          0.7268
++        ],
++        [
++          0.4237,
++          0.7123
++        ],
++        [
++          0.4586,
++          0.7082
++        ],
++        [
++          0.3609,
++          0.5611
++        ],
++        [
++          0.3909,
++          0.4887
++        ],
++        [
++          0.4107,
++          0.4455
++        ],
++        [
++          0.428,
++          0.4119
++        ],
++        [
++          0.3305,
++          0.5246
++        ],
++        [
++          0.3486,
++          0.4312
++        ],
++        [
++          0.3598,
++          0.3733
++        ],
++        [
++          0.3676,
++          0.3259
++        ],
++        [
++          0.2974,
++          0.5138
++        ],
++        [
++          0.3024,
++          0.4258
++        ],
++        [
++          0.3049,
++          0.371
++        ],
++        [
++          0.3066,
++          0.3265
++        ],
++        [
++          0.2622,
++          0.5214
++        ],
++        [
++          0.2519,
++          0.4513
++        ],
++        [
++          0.2472,
++          0.4136
++        ],
++        [
++          0.2438,
++          0.3836
++        ]
++      ]
++    },
++    {
++      "fid": 521,
++      "t": 191632,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.2693,
++          0.7511
++        ],
++        [
++          0.3246,
++          0.7394
++        ],
++        [
++          0.3778,
++          0.7148
++        ],
++        [
++          0.421,
++          0.6989
++        ],
++        [
++          0.453,
++          0.7004
++        ],
++        [
++          0.3598,
++          0.5435
++        ],
++        [
++          0.3919,
++          0.4782
++        ],
++        [
++          0.4113,
++          0.4419
++        ],
++        [
++          0.4255,
++          0.4198
++        ],
++        [
++          0.3281,
++          0.5138
++        ],
++        [
++          0.3496,
++          0.4233
++        ],
++        [
++          0.3623,
++          0.3687
++        ],
++        [
++          0.3724,
++          0.3253
++        ],
++        [
++          0.2949,
++          0.5068
++        ],
++        [
++          0.3007,
++          0.4169
++        ],
++        [
++          0.3047,
++          0.3645
++        ],
++        [
++          0.3087,
++          0.3237
++        ],
++        [
++          0.2611,
++          0.5179
++        ],
++        [
++          0.2497,
++          0.4464
++        ],
++        [
++          0.2449,
++          0.4073
++        ],
++        [
++          0.2427,
++          0.378
++        ]
++      ]
++    },
++    {
++      "fid": 522,
++      "t": 191696,
++      "actionIntent": "HOLD_GRACE",
++      "actionAccepted": false,
++      "actionRejectedReason": "Jeda singkat deteksi (menahan goresan)",
++      "lm": null
++    },
++    {
++      "fid": 523,
++      "t": 191761,
++      "actionIntent": "ERASE",
++      "actionAccepted": false,
++      "actionRejectedReason": "Telapak hapus butuh stabil >= 160 ms",
++      "lm": [
++        [
++          0.2342,
++          0.6937
++        ],
++        [
++          0.2901,
++          0.6937
++        ],
++        [
++          0.3422,
++          0.6629
++        ],
++        [
++          0.3876,
++          0.6421
++        ],
++        [
++          0.4242,
++          0.6363
++        ],
++        [
++          0.3197,
++          0.5126
++        ],
++        [
++          0.346,
++          0.4369
++        ],
++        [
++          0.3587,
++          0.3919
++        ],
++        [
++          0.3701,
++          0.3493
++        ],
++        [
++          0.2865,
++          0.4839
++        ],
++        [
++          0.2946,
++          0.3846
++        ],
++        [
++          0.2986,
++          0.3265
++        ],
++        [
++          0.3017,
++          0.2779
++        ],
++        [
++          0.2526,
++          0.4771
++        ],
++        [
++          0.2502,
++          0.3917
++        ],
++        [
++          0.2478,
++          0.3328
++        ],
++        [
++          0.2457,
++          0.2853
++        ],
++        [
++          0.221,
++          0.4899
++        ],
++        [
++          0.2064,
++          0.4309
++        ],
++        [
++          0.1945,
++          0.3943
++        ],
++        [
++          0.1863,
++          0.3633
++        ]
++      ]
++    },
++    {
++      "fid": 524,
++      "t": 191849,
++      "actionIntent": "HOLD_GRACE",
++      "actionAccepted": false,
++      "actionRejectedReason": "Jeda singkat deteksi (menahan goresan)",
++      "lm": null
++    },
++    {
++      "fid": 525,
++      "t": 191910,
++      "actionIntent": "ERASE",
++      "actionAccepted": false,
++      "actionRejectedReason": "Telapak hapus butuh stabil >= 160 ms",
++      "lm": [
++        [
++          0.2691,
++          0.7523
++        ],
++        [
++          0.3253,
++          0.7655
++        ],
++        [
++          0.3785,
++          0.7467
++        ],
++        [
++          0.422,
++          0.733
++        ],
++        [
++          0.4565,
++          0.7358
++        ],
++        [
++          0.3639,
++          0.5845
++        ],
++        [
++          0.3968,
++          0.5107
++        ],
++        [
++          0.4166,
++          0.4684
++        ],
++        [
++          0.4325,
++          0.4307
++        ],
++        [
++          0.3329,
++          0.5455
++        ],
++        [
++          0.3516,
++          0.4504
++        ],
++        [
++          0.3626,
++          0.3916
++        ],
++        [
++          0.3695,
++          0.3409
++        ],
++        [
++          0.2991,
++          0.534
++        ],
++        [
++          0.3052,
++          0.4431
++        ],
++        [
++          0.3078,
++          0.382
++        ],
++        [
++          0.3075,
++          0.3323
++        ],
++        [
++          0.2653,
++          0.5426
++        ],
++        [
++          0.2542,
++          0.4726
++        ],
++        [
++          0.2477,
++          0.4228
++        ],
++        [
++          0.2433,
++          0.3801
++        ]
++      ]
++    },
++    {
++      "fid": 526,
++      "t": 191974,
++      "actionIntent": "ERASE",
++      "actionAccepted": false,
++      "actionRejectedReason": "Telapak hapus butuh stabil >= 160 ms",
++      "lm": [
++        [
++          0.2673,
++          0.7595
++        ],
++        [
++          0.3231,
++          0.7525
++        ],
++        [
++          0.3772,
++          0.7352
++        ],
++        [
++          0.4179,
++          0.726
++        ],
++        [
++          0.4499,
++          0.7209
++        ],
++        [
++          0.362,
++          0.555
++        ],
++        [
++          0.393,
++          0.4794
++        ],
++        [
++          0.41,
++          0.4452
++        ],
++        [
++          0.4232,
++          0.4235
++        ],
++        [
++          0.3278,
++          0.5231
++        ],
++        [
++          0.3458,
++          0.4315
++        ],
++        [
++          0.3565,
++          0.3777
++        ],
++        [
++          0.3643,
++          0.3372
++        ],
++        [
++          0.293,
++          0.5174
++        ],
++        [
++          0.2967,
++          0.4326
++        ],
++        [
++          0.2999,
++          0.3807
++        ],
++        [
++          0.3039,
++          0.3381
++        ],
++        [
++          0.2583,
++          0.531
++        ],
++        [
++          0.2483,
++          0.46
++        ],
++        [
++          0.2433,
++          0.4184
++        ],
++        [
++          0.2421,
++          0.3827
++        ]
++      ]
++    },
++    {
++      "fid": 527,
++      "t": 192037,
++      "actionIntent": "ERASE",
++      "actionAccepted": false,
++      "actionRejectedReason": "Telapak hapus butuh stabil >= 160 ms",
++      "lm": [
++        [
++          0.2542,
++          0.7486
++        ],
++        [
++          0.3108,
++          0.7418
++        ],
++        [
++          0.3631,
++          0.7129
++        ],
++        [
++          0.402,
++          0.6953
++        ],
++        [
++          0.4365,
++          0.6956
++        ],
++        [
++          0.3355,
++          0.5497
++        ],
++        [
++          0.3646,
++          0.4738
++        ],
++        [
++          0.3828,
++          0.431
++        ],
++        [
++          0.3973,
++          0.3946
++        ],
++        [
++          0.304,
++          0.5174
++        ],
++        [
++          0.3176,
++          0.423
++        ],
++        [
++          0.3257,
++          0.3657
++        ],
++        [
++          0.3301,
++          0.3194
++        ],
++        [
++          0.2711,
++          0.5118
++        ],
++        [
++          0.2701,
++          0.4224
++        ],
++        [
++          0.2687,
++          0.369
++        ],
++        [
++          0.2686,
++          0.3222
++        ],
++        [
++          0.238,
++          0.5277
++        ],
++        [
++          0.2204,
++          0.4628
++        ],
++        [
++          0.2094,
++          0.4237
++        ],
++        [
++          0.2012,
++          0.3884
++        ]
++      ]
++    },
++    {
++      "fid": 528,
++      "t": 192099,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.2612,
++          0.7618
++        ],
++        [
++          0.3169,
++          0.753
++        ],
++        [
++          0.37,
++          0.7269
++        ],
++        [
++          0.4132,
++          0.7188
++        ],
++        [
++          0.4487,
++          0.72
++        ],
++        [
++          0.344,
++          0.5592
++        ],
++        [
++          0.3753,
++          0.4816
++        ],
++        [
++          0.3927,
++          0.4386
++        ],
++        [
++          0.4062,
++          0.4055
++        ],
++        [
++          0.311,
++          0.5295
++        ],
++        [
++          0.3268,
++          0.4343
++        ],
++        [
++          0.3372,
++          0.3734
++        ],
++        [
++          0.3435,
++          0.3244
++        ],
++        [
++          0.2776,
++          0.528
++        ],
++        [
++          0.2792,
++          0.4352
++        ],
++        [
++          0.2811,
++          0.3725
++        ],
++        [
++          0.2833,
++          0.3164
++        ],
++        [
++          0.2478,
++          0.5465
++        ],
++        [
++          0.2326,
++          0.4791
++        ],
++        [
++          0.2238,
++          0.438
++        ],
++        [
++          0.218,
++          0.4021
++        ]
++      ]
++    },
++    {
++      "fid": 529,
++      "t": 192162,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.275,
++          0.7733
++        ],
++        [
++          0.3311,
++          0.7779
++        ],
++        [
++          0.3854,
++          0.76
++        ],
++        [
++          0.4262,
++          0.7498
++        ],
++        [
++          0.4599,
++          0.7491
++        ],
++        [
++          0.3662,
++          0.5824
++        ],
++        [
++          0.3989,
++          0.5112
++        ],
++        [
++          0.4187,
++          0.4699
++        ],
++        [
++          0.4347,
++          0.4334
++        ],
++        [
++          0.3343,
++          0.5458
++        ],
++        [
++          0.3551,
++          0.4512
++        ],
++        [
++          0.3684,
++          0.3917
++        ],
++        [
++          0.3767,
++          0.3428
++        ],
++        [
++          0.2995,
++          0.5369
++        ],
++        [
++          0.3052,
++          0.4472
++        ],
++        [
++          0.3076,
++          0.3882
++        ],
++        [
++          0.3097,
++          0.3379
++        ],
++        [
++          0.2629,
++          0.5474
++        ],
++        [
++          0.2527,
++          0.4761
++        ],
++        [
++          0.2471,
++          0.434
++        ],
++        [
++          0.2434,
++          0.398
++        ]
++      ]
++    },
++    {
++      "fid": 530,
++      "t": 192239,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.269,
++          0.7607
++        ],
++        [
++          0.3261,
++          0.7631
++        ],
++        [
++          0.3806,
++          0.7537
++        ],
++        [
++          0.422,
++          0.742
++        ],
++        [
++          0.455,
++          0.7323
++        ],
++        [
++          0.3626,
++          0.5738
++        ],
++        [
++          0.395,
++          0.5024
++        ],
++        [
++          0.4143,
++          0.4604
++        ],
++        [
++          0.4306,
++          0.424
++        ],
++        [
++          0.3304,
++          0.5358
++        ],
++        [
++          0.3532,
++          0.4464
++        ],
++        [
++          0.3666,
++          0.3884
++        ],
++        [
++          0.3758,
++          0.3395
++        ],
++        [
++          0.295,
++          0.5251
++        ],
++        [
++          0.3012,
++          0.4354
++        ],
++        [
++          0.3052,
++          0.3805
++        ],
++        [
++          0.3095,
++          0.3331
++        ],
++        [
++          0.2594,
++          0.5333
++        ],
++        [
++          0.2479,
++          0.4614
++        ],
++        [
++          0.2441,
++          0.4226
++        ],
++        [
++          0.2434,
++          0.3908
++        ]
++      ]
++    },
++    {
++      "fid": 531,
++      "t": 192310,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.2534,
++          0.7662
++        ],
++        [
++          0.3089,
++          0.7562
++        ],
++        [
++          0.3638,
++          0.7289
++        ],
++        [
++          0.4059,
++          0.7116
++        ],
++        [
++          0.4392,
++          0.7083
++        ],
++        [
++          0.3409,
++          0.5664
++        ],
++        [
++          0.373,
++          0.4833
++        ],
++        [
++          0.3904,
++          0.4328
++        ],
++        [
++          0.4054,
++          0.3886
++        ],
++        [
++          0.3071,
++          0.5246
++        ],
++        [
++          0.3241,
++          0.4232
++        ],
++        [
++          0.3357,
++          0.3572
++        ],
++        [
++          0.3446,
++          0.303
++        ],
++        [
++          0.2717,
++          0.5144
++        ],
++        [
++          0.2724,
++          0.409
++        ],
++        [
++          0.2717,
++          0.3395
++        ],
++        [
++          0.2721,
++          0.2804
++        ],
++        [
++          0.24,
++          0.5301
++        ],
++        [
++          0.2204,
++          0.4542
++        ],
++        [
++          0.2064,
++          0.4102
++        ],
++        [
++          0.1962,
++          0.3734
++        ]
++      ]
++    },
++    {
++      "fid": 532,
++      "t": 192373,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.2535,
++          0.7501
++        ],
++        [
++          0.3116,
++          0.7453
++        ],
++        [
++          0.3635,
++          0.7235
++        ],
++        [
++          0.4043,
++          0.7044
++        ],
++        [
++          0.4405,
++          0.7008
++        ],
++        [
++          0.333,
++          0.5456
++        ],
++        [
++          0.363,
++          0.4692
++        ],
++        [
++          0.381,
++          0.4188
++        ],
++        [
++          0.3959,
++          0.372
++        ],
++        [
++          0.2978,
++          0.5105
++        ],
++        [
++          0.3123,
++          0.4079
++        ],
++        [
++          0.3219,
++          0.3454
++        ],
++        [
++          0.3282,
++          0.2917
++        ],
++        [
++          0.2626,
++          0.5055
++        ],
++        [
++          0.2628,
++          0.4101
++        ],
++        [
++          0.2634,
++          0.3516
++        ],
++        [
++          0.265,
++          0.2998
++        ],
++        [
++          0.2291,
++          0.5247
++        ],
++        [
++          0.213,
++          0.4526
++        ],
++        [
++          0.2046,
++          0.4095
++        ],
++        [
++          0.1984,
++          0.371
++        ]
++      ]
++    },
++    {
++      "fid": 533,
++      "t": 192438,
++      "actionIntent": "ERASE",
++      "actionAccepted": true,
++      "actionRejectedReason": null,
++      "lm": [
++        [
++          0.2629,
++          0.7623
++        ],
++        [
++          0.3205,
++          0.7615
++        ],
++        [
++          0.3739,
++          0.7419
++        ],
++        [
++          0.4168,
++          0.7334
++        ],
++        [
++          0.4516,
++          0.7287
++        ],
++        [
++          0.3522,
++          0.5653
++        ],
++        [
++          0.3864,
++          0.4854
++        ],
++        [
++          0.4061,
++          0.4398
++        ],
++        [
++          0.4219,
++          0.404
++        ],
++        [
++          0.3177,
++          0.5303
++        ],
++        [
++          0.336,
++          0.4293
++        ],
++        [
++          0.3497,
++          0.3613
++        ],
++        [
++          0.3585,
++          0.3059
++        ],
++        [
++          0.2821,
++          0.5251
++        ],
++        [
++          0.2839,
++          0.423
++        ],
++        [
++          0.2833,
++          0.3561
++        ],
++        [
++          0.2834,
++          0.298
++        ],
++        [
++          0.2499,
++          0.5401
++        ],
++        [
++          0.2354,
++          0.4652
++        ],
++        [
++          0.2267,
++          0.4192
++        ],
++        [
++          0.2209,
++          0.3802
++        ]
++      ]
++    }
++  ]
++}
+\ No newline at end of file
+diff --git a/frontend/implementation/tests/nui-lab/hf1-bug1-bug2.test.ts b/frontend/implementation/tests/nui-lab/hf1-bug1-bug2.test.ts
+index 72201d7..9832556 100644
+--- a/frontend/implementation/tests/nui-lab/hf1-bug1-bug2.test.ts
++++ b/frontend/implementation/tests/nui-lab/hf1-bug1-bug2.test.ts
+@@ -184,7 +184,7 @@ describe("R23-HF1 Bug 2: MoNUI-7 telemetry fields and session metadata", () => {
+     expect(meta?.yoloModelSha256).toBe(YOLO_MODEL_SHA256);
+     expect(meta?.yoloModelSha256).toBe("97f778ea77f4dbf160e91dff021a463ab464cdbf27a34d067d5f28708dbf1ddb");
+     expect(meta?.yoloEnabled).toBe(true);
+-    expect(meta?.yoloRateHz).toBe(10);
++    expect(meta?.yoloRateHz).toBe(5);
+     expect(meta?.monuiVersion).toBe("MoNUI-7");
+   });
+ 
+diff --git a/frontend/implementation/tests/nui-lab/hf2-erase-resilience.test.ts b/frontend/implementation/tests/nui-lab/hf2-erase-resilience.test.ts
+new file mode 100644
+index 0000000..8246e8b
+--- /dev/null
++++ b/frontend/implementation/tests/nui-lab/hf2-erase-resilience.test.ts
+@@ -0,0 +1,212 @@
++// @vitest-environment jsdom
++/**
++ * R23-HF2 Erase Resilience & Radius Unit & Replay Tests (`tests/nui-lab/hf2-erase-resilience.test.ts`).
++ *
++ * Enforces R23-HF2 Requirements:
++ * 1. When ERASE is active and hand is lost <= 300 ms, erase is continued at last position (like ink grace), then stops if loss > 300 ms.
++ * 2. Erase cursor uses the same One-Euro filter as ink cursor.
++ * 3. Radius hapus x1.5: DEFAULT_LAB_ERASER_CSS_PX = 24 (48 canvas px).
++ * 4. Replay test on erase segment from S-023fb796 (T003): erase does not break across brief losses <= 300 ms.
++ */
++import { readFileSync } from "node:fs";
++import { resolve } from "node:path";
++import { describe, expect, it } from "vitest";
++import { validateR19Model } from "@/src/components/nui-lab/r19/r19_loader";
++import { LabAnalyzer, type Landmark } from "@/src/components/nui-lab/lab-analyzer";
++import { MEDIAN_SKELETONS, placeHand } from "../input/realistic-hands";
++
++const R20_C4_MODEL = validateR19Model(
++  JSON.parse(readFileSync(resolve(process.cwd(), "public/models/r20-c4-model.json"), "utf8")),
++);
++
++function toLandmarks(pairs: Array<[number, number]> | null): Landmark[] | undefined {
++  if (!pairs || pairs.length < 21) return undefined;
++  return pairs.map(([x, y]) => ({ x, y, z: 0 }));
++}
++
++describe("R23-HF2 Erase Resilience & Motion Smoothing", () => {
++  it("enforces eraser radius x1.5 (24 CSS px, 48 canvas px)", () => {
++    const analyzer = new LabAnalyzer({ route: "canvas", fullFrameLock: true, enableInk: true });
++    analyzer.enableR19(R20_C4_MODEL, 0);
++    expect(analyzer.eraserRadiusCanvasPx).toBe(48);
++    const snap = analyzer.snapshot(100);
++    expect(snap.eraserRadiusCanvasPx).toBe(48);
++  });
++
++  it("replays S-023fb796-T003 erase segment without breaking across short losses <= 300ms", () => {
++    const fixturePath = resolve(__dirname, "../fixtures/s023-t003-erase-segment.json");
++    const raw = readFileSync(fixturePath, "utf-8");
++    const fixture = JSON.parse(raw) as {
++      trialId: string;
++      frames: Array<{
++        fid: number;
++        t: number;
++        actionIntent: string;
++        actionAccepted: boolean;
++        actionRejectedReason: string | null;
++        lm: Array<[number, number]> | null;
++      }>;
++    };
++
++    const analyzer = new LabAnalyzer({
++      route: "canvas",
++      fullFrameLock: true,
++      enableInk: true,
++      preset: "default-any-pinch",
++    });
++    analyzer.enableR19(R20_C4_MODEL, 0);
++
++    const aspect = 16 / 9;
++
++    // Add initial stroke to canvas
++    analyzer.beginPointerStroke({ x: 300, y: 300 });
++    analyzer.movePointerStroke({ x: 400, y: 400 });
++    analyzer.endPointerStroke();
++    expect(analyzer.strokes().completed.length).toBe(1);
++
++    // Initial hand entrance: acquire and arm with fist sharing exact wrist and scale as f0Lm, then transition to FIVE
++    const f0Lm = toLandmarks(fixture.frames[0]!.lm)!;
++    const span = Math.hypot((f0Lm[9]!.x - f0Lm[0]!.x) * (16 / 9), f0Lm[9]!.y - f0Lm[0]!.y);
++    const armingFist = placeHand(MEDIAN_SKELETONS.fist, {
++      cx: f0Lm[0]!.x,
++      cy: f0Lm[0]!.y,
++      span,
++      aspect: 16 / 9,
++    });
++    analyzer.analyse({ landmarks: [armingFist], inferMs: 10, nowMs: 190200, aspect });
++    analyzer.analyse({ landmarks: [armingFist], inferMs: 10, nowMs: 190280, aspect });
++
++    let shortLossCount = 0;
++    let postLossReacquireCount = 0;
++    let eraseActiveFrames = 0;
++
++    for (let i = 0; i < fixture.frames.length; i++) {
++      const f = fixture.frames[i]!;
++      const lm = toLandmarks(f.lm);
++      analyzer.analyse({
++        landmarks: lm ? [lm] : [],
++        inferMs: 10,
++        nowMs: f.t,
++        aspect,
++      });
++      const snap = analyzer.snapshot(f.t);
++      const res = snap.actionResolution;
++
++      if (!lm) {
++        // Brief loss frame (fids 517, 522, 524)
++        shortLossCount++;
++        expect(snap.actionIntent).toBe("ERASE");
++        expect(snap.actionAccepted).toBe(true);
++        expect(res.allowEraseMutation).toBe(true);
++        expect(res.inLossGrace).toBe(true);
++        // Store must still be actively erasing during short loss grace!
++        expect(analyzer.store.isErasing()).toBe(true);
++      } else if (i > 0 && !fixture.frames[i - 1]!.lm) {
++        // First frame returning from brief loss (fids 518, 523, 525)
++        // In buggy R23-HF1, these were rejected with "Telapak hapus butuh stabil >= 160 ms"
++        postLossReacquireCount++;
++        expect(snap.actionIntent).toBe("ERASE");
++        expect(snap.actionAccepted).toBe(true);
++        expect(res.allowEraseMutation).toBe(true);
++        expect(analyzer.store.isErasing()).toBe(true);
++      }
++
++      if (analyzer.store.isErasing()) {
++        eraseActiveFrames++;
++      }
++    }
++
++    expect(shortLossCount).toBe(3); // fids 517, 522, 524
++    expect(postLossReacquireCount).toBe(3); // fids 518, 523, 525
++    // Once established at fid 505, erase remains active continuously through fid 533 (27 frames)
++    expect(eraseActiveFrames).toBeGreaterThanOrEqual(27);
++  });
++
++  it("stops erase cleanly when hand loss exceeds 300ms", () => {
++    const fixturePath = resolve(__dirname, "../fixtures/s023-t003-erase-segment.json");
++    const raw = readFileSync(fixturePath, "utf-8");
++    const fixture = JSON.parse(raw);
++
++    const analyzer = new LabAnalyzer({
++      route: "canvas",
++      fullFrameLock: true,
++      enableInk: true,
++    });
++    analyzer.enableR19(R20_C4_MODEL, 0);
++    const aspect = 16 / 9;
++
++    // Establish active erase using frames from fixture after arming
++    const f0Lm = toLandmarks(fixture.frames[0]!.lm)!;
++    const span = Math.hypot((f0Lm[9]!.x - f0Lm[0]!.x) * (16 / 9), f0Lm[9]!.y - f0Lm[0]!.y);
++    const armingFist = placeHand(MEDIAN_SKELETONS.fist, {
++      cx: f0Lm[0]!.x,
++      cy: f0Lm[0]!.y,
++      span,
++      aspect: 16 / 9,
++    });
++    analyzer.analyse({ landmarks: [armingFist], inferMs: 10, nowMs: 190200, aspect });
++    analyzer.analyse({ landmarks: [armingFist], inferMs: 10, nowMs: 190280, aspect });
++
++    for (let i = 0; i < 4; i++) {
++      const f = fixture.frames[i]!;
++      analyzer.analyse({
++        landmarks: [toLandmarks(f.lm)!],
++        inferMs: 10,
++        nowMs: f.t,
++        aspect,
++      });
++    }
++    const lastTrackedT = fixture.frames[3]!.t;
++    expect(analyzer.store.isErasing()).toBe(true);
++
++    // Short loss at 200ms into loss (lastTrackedT + 200ms <= 300ms) -> within 300ms grace -> still erasing
++    analyzer.analyse({ landmarks: [], inferMs: 10, nowMs: lastTrackedT + 30, aspect });
++    analyzer.analyse({ landmarks: [], inferMs: 10, nowMs: lastTrackedT + 200, aspect });
++    expect(analyzer.store.isErasing()).toBe(true);
++
++    // Hand loss exceeds 300ms (lastTrackedT + 350ms > 300ms) -> grace expires, erase stops!
++    analyzer.analyse({ landmarks: [], inferMs: 10, nowMs: lastTrackedT + 350, aspect });
++    expect(analyzer.store.isErasing()).toBe(false);
++  });
++
++  it("applies One-Euro smoothing filter to erase cursor position", () => {
++    const analyzer = new LabAnalyzer({
++      route: "canvas",
++      cursorFilterMode: "one-euro",
++      fullFrameLock: true,
++      enableInk: true,
++    });
++    analyzer.enableR19(R20_C4_MODEL, 0);
++    const aspect = 16 / 9;
++
++    const armingFist = placeHand(MEDIAN_SKELETONS.fist, { cx: 0.5, cy: 0.5, aspect });
++    analyzer.analyse({ landmarks: [armingFist], inferMs: 10, nowMs: 1000, aspect });
++    analyzer.analyse({ landmarks: [armingFist], inferMs: 10, nowMs: 1050, aspect });
++
++    // Initial palm position at cx: 0.5, cy: 0.5 for >= 160ms to establish erase
++    const palm1 = placeHand(MEDIAN_SKELETONS.palm, { cx: 0.5, cy: 0.5, aspect });
++    analyzer.analyse({ landmarks: [palm1], inferMs: 10, nowMs: 1100, aspect });
++    analyzer.analyse({ landmarks: [palm1], inferMs: 10, nowMs: 1150, aspect });
++    analyzer.analyse({ landmarks: [palm1], inferMs: 10, nowMs: 1200, aspect });
++    analyzer.analyse({ landmarks: [palm1], inferMs: 10, nowMs: 1270, aspect });
++    const snap1 = analyzer.snapshot(1270);
++    expect(snap1.actionIntent).toBe("ERASE");
++    expect(snap1.actionAccepted).toBe(true);
++    expect(analyzer.store.isErasing()).toBe(true);
++    expect(snap1.cursor).not.toBeNull();
++    expect(snap1.cursor!.erasing).toBe(true);
++
++    // Shift palm to cx: 0.58 at t=1300ms (jump = 0.08 <= MAX_JUMP 0.15)
++    const palm2 = placeHand(MEDIAN_SKELETONS.palm, { cx: 0.58, cy: 0.5, aspect });
++    analyzer.analyse({ landmarks: [palm2], inferMs: 10, nowMs: 1300, aspect });
++    const snap2 = analyzer.snapshot(1300);
++
++    expect(snap2.cursor).not.toBeNull();
++    expect(snap2.cursor!.erasing).toBe(true);
++    // Palm center normalizes with horizontal camera mirror (1 - x), so moving camera cx 0.5 -> 0.58
++    // moves canvas cursor left (higher camera x -> lower canvas x).
++    // One-Euro filter smooths the cursor: response is between previous x and target raw x (~576 px).
++    expect(snap2.cursor!.x).toBeLessThan(snap1.cursor!.x);
++    expect(snap2.cursor!.x).toBeGreaterThan(570);
++  });
++});
+diff --git a/frontend/implementation/tests/nui-lab/monui7-rescue.test.ts b/frontend/implementation/tests/nui-lab/monui7-rescue.test.ts
+index 9be0002..335e2e5 100644
+--- a/frontend/implementation/tests/nui-lab/monui7-rescue.test.ts
++++ b/frontend/implementation/tests/nui-lab/monui7-rescue.test.ts
+@@ -43,7 +43,7 @@ function makeDummyPoints(n = 21, base = 0.5): Array<{ x: number; y: number; z: n
+ describe("MoNUI-7 Rescue State Machine (T22 / Lampiran A)", () => {
+   it("exports required prototype constants with exact values", () => {
+     expect(RESCUE_ENTER_MISS_MS).toBe(100);
+-    expect(YOLO_INTERVAL_MS).toBe(100);
++    expect(YOLO_INTERVAL_MS).toBe(200);
+     expect(YOLO_MIN_SCORE).toBe(0.35);
+     expect(CROP_SCALE).toBe(1.6);
+     expect(POSITION_ONLY_AFTER_MS).toBe(500);
+@@ -51,6 +51,39 @@ describe("MoNUI-7 Rescue State Machine (T22 / Lampiran A)", () => {
+     expect(RESCUE_TRACK_MAX_FAILS).toBe(3);
+   });
+ 
++  it("schedules YOLO strictly in SEARCH window at 5Hz (200ms) and skips on pending camera frame", () => {
++    const fsm = new RescueFSM("SEARCH");
++
++    // t=0: first tick in SEARCH -> shouldRunYolo is true
++    let res = fsm.update({ t: 0, mpHand: false });
++    expect(res.shouldRunYolo).toBe(true);
++
++    // t=100: < 200ms elapsed -> shouldRunYolo is false (5 Hz limit)
++    res = fsm.update({ t: 100, mpHand: false });
++    expect(res.shouldRunYolo).toBe(false);
++
++    // t=200: >= 200ms elapsed but camera frame pending -> shouldRunYolo is false!
++    res = fsm.update({ t: 200, mpHand: false, hasPendingFrame: true });
++    expect(res.shouldRunYolo).toBe(false);
++
++    // t=210: pending cleared and >= 200ms elapsed -> shouldRunYolo is true
++    res = fsm.update({ t: 210, mpHand: false, hasPendingFrame: false });
++    expect(res.shouldRunYolo).toBe(true);
++
++    // After running at t=210, next run requires >= 410ms
++    res = fsm.update({ t: 300, mpHand: false });
++    expect(res.shouldRunYolo).toBe(false);
++  });
++
++  it("does NOT run YOLO in LOST state", () => {
++    const fsm = new RescueFSM("LOST");
++
++    // In LOST state, shouldRunYolo must always be false
++    const res = fsm.update({ t: 1000, mpHand: false });
++    expect(res.state).toBe("LOST");
++    expect(res.shouldRunYolo).toBe(false);
++  });
++
+   it("transitions NORMAL -> SEARCH after missing hand >= 100ms", () => {
+     const fsm = new RescueFSM("NORMAL");
+     expect(fsm.state).toBe("NORMAL");
+diff --git a/frontend/implementation/tests/nui-lab/r22b-handstate.test.tsx b/frontend/implementation/tests/nui-lab/r22b-handstate.test.tsx
+index 868bcb6..501a00f 100644
+--- a/frontend/implementation/tests/nui-lab/r22b-handstate.test.tsx
++++ b/frontend/implementation/tests/nui-lab/r22b-handstate.test.tsx
+@@ -431,19 +431,19 @@ describe("R22B B1.2–B1.8 Core Resolver & StrokeDriver Invariants", () => {
+     a2.analyse({ landmarks: [fist], inferMs: 10, nowMs: 1080, aspect });
+     a2.analyse({ landmarks: [fist], inferMs: 10, nowMs: 1200, aspect }); // ARMED_FIST
+ 
+-    // Within 400 ms after FIST, pinch for 200 ms (< 300 ms) must stay PENDING / NOT draw
++    // R23-HF2: Updated post-FIST onset hold requirement from 300ms to 200ms per FX13 tuning (0/16 onset >= 330ms, 0 false strokes).
++    // Within 400 ms after FIST, pinch for 100 ms (< 200 ms) must stay PENDING / NOT draw
+     a2.analyse({ landmarks: [pinch1], inferMs: 10, nowMs: 1260, aspect });
+     a2.analyse({ landmarks: [pinch2], inferMs: 10, nowMs: 1360, aspect });
+-    a2.analyse({ landmarks: [pinch2], inferMs: 10, nowMs: 1460, aspect });
+     expect(a2.strokes().active).toBeNull();
+ 
+-    // Once sustained >= 300 ms (1260 -> 1580 ms), onset confirms!
+-    a2.analyse({ landmarks: [pinch2], inferMs: 10, nowMs: 1580, aspect });
+-    expect(a2.snapshot(1580).actionIntent).toBe("DRAW");
++    // Once sustained >= 200 ms (1260 -> 1480 ms), onset confirms!
++    a2.analyse({ landmarks: [pinch2], inferMs: 10, nowMs: 1480, aspect });
++    expect(a2.snapshot(1480).actionIntent).toBe("DRAW");
+     expect(a2.strokes().active).not.toBeNull();
+ 
+     // Regression (review finding #3): onset starting at +320 ms after FIST (still within 400 ms window)
+-    // must latch the 300 ms guard and NOT confirm prematurely at +420 ms (only 100 ms held)!
++    // must latch the 200 ms guard and NOT confirm prematurely at +450 ms (only 130 ms held)!
+     const a3 = makeReadyCanvasAnalyzer(anyPinchOpts);
+     a3.analyse({ landmarks: [five], inferMs: 10, nowMs: 850, aspect });
+     a3.analyse({ landmarks: [five], inferMs: 10, nowMs: 900, aspect });
+@@ -453,8 +453,8 @@ describe("R22B B1.2–B1.8 Core Resolver & StrokeDriver Invariants", () => {
+     a3.analyse({ landmarks: [pinch1], inferMs: 10, nowMs: 1320, aspect }); // +320ms <= 400ms -> latched guarded!
+     a3.analyse({ landmarks: [pinch2], inferMs: 10, nowMs: 1450, aspect }); // +450ms > 400ms, only 130ms held -> MUST NOT draw!
+     expect(a3.strokes().active).toBeNull();
+-    a3.analyse({ landmarks: [pinch2], inferMs: 10, nowMs: 1640, aspect }); // 320ms held >= 300ms -> confirms!
+-    expect(a3.snapshot(1640).actionIntent).toBe("DRAW");
++    a3.analyse({ landmarks: [pinch2], inferMs: 10, nowMs: 1540, aspect }); // 220ms held >= 200ms -> confirms!
++    expect(a3.snapshot(1540).actionIntent).toBe("DRAW");
+   });
+ 
+   it("B1.3: bridges brief <150ms pinch release without splitting stroke, and retro-trims confirmed >=150ms release", () => {
+diff --git a/frontend/implementation/tests/nui-lab/t23-guard-tuning.test.ts b/frontend/implementation/tests/nui-lab/t23-guard-tuning.test.ts
+deleted file mode 100644
+index 59bbdf2..0000000
+--- a/frontend/implementation/tests/nui-lab/t23-guard-tuning.test.ts
++++ /dev/null
+@@ -1,207 +0,0 @@
+-/**
+- * T23 Langkah 3: Guard onset parameter tuning evaluation
+- * Combinations: window in {400, 300, 250} x hold in {300, 200, 150}
+- * Evaluated on s352-r22b-strokes-v1.json (16 strokes) and s970-t002-landmark-replay-v1.json
+- */
+-import { readFileSync, writeFileSync } from "node:fs";
+-import { resolve } from "node:path";
+-import { describe, expect, it } from "vitest";
+-import { LabAnalyzer } from "@/src/components/nui-lab/lab-analyzer";
+-import { validateR19Model } from "@/src/components/nui-lab/r19/r19_loader";
+-import type { Landmark } from "@/src/input/types";
+-
+-const S970_PATH = resolve(process.cwd(), "tests/fixtures/s970-t002-landmark-replay-v1.json");
+-const S352_PATH = resolve(process.cwd(), "tests/fixtures/s352-r22b-strokes-v1.json");
+-const R20_C4_MODEL = validateR19Model(
+-  JSON.parse(readFileSync(resolve(process.cwd(), "public/models/r20-c4-model.json"), "utf8")),
+-);
+-
+-const OUT_PATH = resolve("/srv/sketchbook/research-can/r23/results/T23_guard_tuning.json");
+-
+-interface Frame {
+-  t: number;
+-  aspect: number;
+-  lm: Array<[number, number]> | null;
+-  captureFrameId?: number;
+-  frameAgeMs?: number;
+-  trialId?: string;
+-}
+-
+-function toLandmarks(pairs: Array<[number, number]> | null): Landmark[] | undefined {
+-  if (!pairs || pairs.length < 21) return undefined;
+-  return pairs.map(([x, y]) => ({ x, y, z: 0 }));
+-}
+-
+-interface ComboResult {
+-  windowMs: number;
+-  holdMs: number;
+-  s970FalseStrokes: number;
+-  s352FalseStrokes: number;
+-  s352StrokeCount: number;
+-  s352OnsetsGte330: number;
+-  s352MaxOnsetMs: number;
+-  s352OnsetWaitedMs: number[];
+-  qualifies: boolean;
+-}
+-
+-describe("T23 Langkah 3: Guard Onset Tuning Grid Search", () => {
+-  it("evaluates all 9 combinations and saves r23/results/T23_guard_tuning.json", () => {
+-    const s970Fixture = JSON.parse(readFileSync(S970_PATH, "utf8"));
+-    const s970Frames: Frame[] = s970Fixture.frames;
+-    const [undoStart, undoEnd] = s970Fixture.undoWindowMs as [number, number];
+-
+-    const s352Fixture = JSON.parse(readFileSync(S352_PATH, "utf8"));
+-    const s352Frames: Frame[] = s352Fixture.frames;
+-
+-    const windows = [400, 300, 250];
+-    const holds = [300, 200, 150];
+-
+-    const results: ComboResult[] = [];
+-
+-    for (const w of windows) {
+-      for (const h of holds) {
+-        // 1. Evaluate S-970 T002 for false strokes inside undoWindow
+-        const a970 = new LabAnalyzer({
+-          route: "canvas",
+-          fullFrameLock: true,
+-          enableInk: true,
+-          preset: "default-any-pinch",
+-          resolverConfig: {
+-            postFistOnsetGuardWindowMs: w,
+-            postFistOnsetHoldMs: h,
+-          },
+-        });
+-        a970.enableR19(R20_C4_MODEL, 0);
+-
+-        let s970FalseStrokes = 0;
+-        let prevActive970 = false;
+-
+-        for (const f of s970Frames) {
+-          const lm = toLandmarks(f.lm);
+-          a970.analyse({
+-            landmarks: lm ? [lm] : [],
+-            inferMs: 12,
+-            nowMs: f.t,
+-            aspect: f.aspect,
+-            captureFrameId: f.captureFrameId ?? 1,
+-            frameAgeMs: Math.min(f.frameAgeMs ?? 30, 140),
+-            isStale: false,
+-          });
+-
+-          const snap = a970.snapshot(f.t);
+-          const st = a970.strokes();
+-          const activeNow = Boolean(st.active);
+-          if (activeNow && !prevActive970) {
+-            // Stroke started
+-            if (f.t >= undoStart && f.t <= undoEnd) {
+-              s970FalseStrokes++;
+-            }
+-          }
+-          prevActive970 = activeNow;
+-        }
+-
+-        // 2. Evaluate S-352 (T003 + T004) for onsets and false strokes
+-        // S-352 undo transition window in T003: [213000, 257500]
+-        const a352 = new LabAnalyzer({
+-          route: "canvas",
+-          fullFrameLock: true,
+-          enableInk: true,
+-          preset: "default-any-pinch",
+-          resolverConfig: {
+-            postFistOnsetGuardWindowMs: w,
+-            postFistOnsetHoldMs: h,
+-          },
+-        });
+-        a352.enableR19(R20_C4_MODEL, 0);
+-
+-        const onsets: number[] = [];
+-        let s352FalseStrokes = 0;
+-        let prevActive352 = false;
+-        let currentTrial = "";
+-
+-        const s352UndoWindows: [number, number][] = [
+-          [213000, 222500],
+-          [227000, 232000],
+-          [256500, 257500],
+-        ];
+-
+-        for (const f of s352Frames) {
+-          if (f.trialId && f.trialId !== currentTrial) {
+-            currentTrial = f.trialId;
+-            a352.releaseAll("trial-switch", f.t);
+-            prevActive352 = false;
+-          }
+-
+-          const lm = toLandmarks(f.lm);
+-          a352.analyse({
+-            landmarks: lm ? [lm] : [],
+-            inferMs: 12,
+-            nowMs: f.t,
+-            aspect: f.aspect,
+-            captureFrameId: f.captureFrameId ?? 1,
+-            frameAgeMs: Math.min(f.frameAgeMs ?? 30, 140),
+-            isStale: false,
+-          });
+-
+-          const snap = a352.snapshot(f.t);
+-          if (snap.actionResolution.onsetConfirmedMeta) {
+-            onsets.push(snap.actionResolution.onsetConfirmedMeta.waitedMs);
+-          }
+-
+-          const st = a352.strokes();
+-          const activeNow = Boolean(st.active);
+-          if (activeNow && !prevActive352) {
+-            // Check false strokes inside any undo window
+-            if (currentTrial === "S-352b2d78-T003") {
+-              const inUndo = s352UndoWindows.some(([start, end]) => f.t >= start && f.t <= end);
+-              if (inUndo) {
+-                s352FalseStrokes++;
+-              }
+-            }
+-          }
+-          prevActive352 = activeNow;
+-        }
+-
+-        const onsetsGte330 = onsets.filter((ms) => ms >= 330).length;
+-        const maxOnset = onsets.length > 0 ? Math.max(...onsets) : 0;
+-        const qualifies =
+-          s970FalseStrokes === 0 &&
+-          s352FalseStrokes === 0 &&
+-          onsetsGte330 <= 1;
+-
+-        results.push({
+-          windowMs: w,
+-          holdMs: h,
+-          s970FalseStrokes,
+-          s352FalseStrokes,
+-          s352StrokeCount: onsets.length,
+-          s352OnsetsGte330: onsetsGte330,
+-          s352MaxOnsetMs: maxOnset,
+-          s352OnsetWaitedMs: onsets,
+-          qualifies,
+-        });
+-      }
+-    }
+-
+-    const payload = {
+-      task: "T23_step3_guard_tuning",
+-      evaluatedAt: new Date().toISOString(),
+-      grid: {
+-        windows,
+-        holds,
+-      },
+-      results,
+-      summary: {
+-        totalEvaluated: results.length,
+-        qualifyingCombos: results.filter((r) => r.qualifies).map((r) => `${r.windowMs}x${r.holdMs}`),
+-        bestCombo: results.find((r) => r.qualifies) ?? null,
+-      },
+-    };
+-
+-    writeFileSync(OUT_PATH, JSON.stringify(payload, null, 2), "utf8");
+-    console.log("T23 guard tuning results written to", OUT_PATH);
+-    console.log("Summary:", JSON.stringify(payload.summary));
+-
+-    expect(results.length).toBe(9);
+-  });
+-});

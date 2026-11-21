@@ -7,6 +7,45 @@
 
 ---
 
+## R23-HF2 — Hotfix R23-HF2 MoNUI-7 (YOLO 5Hz / SEARCH Scheduling, Erase Resilience, Onset 200ms, Patch 402ea36) (`2026-11-21 18:32 WIB`; `KATA-TOOL` / `PASS`)
+
+- **Scope & Latar Belakang:** Hasil pengujian Owner di DEV sesi `S-023fb796` (Windows laptop, 9 core) mengidentifikasi 3 masalah:
+  1. Frame dengan `yoloRan = true` memicu degradasi latensi pipeline MediaPipe (p50/p95 119/162 ms vs 68/100 ms tanpa YOLO; data tertinggal 41% vs 6%).
+  2. 491 dari 1.019 eksekusi YOLO terjadi pada status `rescueState = LOST` (tangan sudah lama hilang) dengan tingkat keberhasilan `cropSuccess` hanya 295/1.019.
+  3. Penghapusan sering putus saat tangan digerakkan cepat (motion blur -> landmark drop sementara).
+- **Perbaikan 1 (Penjadwalan YOLO & Pencegahan Perlambatan MediaPipe):**
+  - *SEARCH-Only Restriction:* Di `monui7-rescue.ts`, eksekusi YOLO dibatasi hanya pada status `this.stateNow === "SEARCH"` (100 ms s/d 2 s setelah kehilangan tangan). Pada status `LOST` (> 2 s), YOLO dilarang berjalan sama sekali.
+  - *Rate Limit 5 Hz:* Interval minimum antar inferensi YOLO diubah menjadi `YOLO_INTERVAL_MS = 200` (maksimal 5 Hz) di `monui7-rescue.ts`, `r20-hand.worker.ts`, dan `manager.ts`.
+  - *Prioritas Frame Kamera Baru:* Jika frame kamera baru tiba dan sedang menunggu MediaPipe (`inFlight > 0` / `hasPendingFrame`), worker client mengirim sinyal `PENDING_FRAME` ke worker sehingga inferensi YOLO dilewati pada tick tersebut.
+  - *URL Parameter Switch `?yolo=0`:* Menambahkan parsing parameter `?yolo=0` di `config.ts` dan `NuiLabPage.tsx` untuk menonaktifkan YOLO secara deterministik (default tetap aktif jika tanpa parameter).
+  - *Unit Test:* `tests/nui-lab/monui7-rescue.test.ts` memverifikasi penjadwalan 5 Hz, pembatasan SEARCH-only, penolakan pada status LOST, dan pelewatan saat `hasPendingFrame = true`.
+- **Perbaikan 2 (Hapus Lebih Tahan Gerak & Smoothing Kursor):**
+  - *Loss Grace 300 ms untuk Hapus:* Pada `action-resolver.ts` dan `lab-stroke-driver.ts`, saat `ERASE` aktif dan tangan hilang $\le 300$ ms, aksi hapus diteruskan pada posisi kursor terakhir (`lastCursorPt`, analogi dengan grace tinta) dan baru dihentikan saat jeda melebihi 300 ms (`effectiveLossGraceMs = 300`).
+  - *One-Euro Smoothing pada Kursor Hapus:* Kursor hapus menggunakan adapter One-Euro filter yang sama dengan kursor tinta (`cursorFilterAdapter`). Evaluasi smoother dipisahkan secara eksklusif agar One-Euro filter tidak dievaluasi ganda dalam satu frame.
+  - *Radius Hapus $\times 1.5$:* `DEFAULT_LAB_ERASER_CSS_PX = 24` (48 canvas px) di `lab-analyzer.ts`.
+  - *Replay Segmen Asli S-023fb796-T003:* Fixture asli 31 frame (`tests/fixtures/s023-t003-erase-segment.json`, fids 502-533) direplay di `tests/nui-lab/hf2-erase-resilience.test.ts`: penghapusan tidak terputus pada 3 kali blink kehilangan $\le 300$ ms (fids 517, 522, 524) dan terus aktif sepanjang 27 frame berturut-turut.
+- **Perbaikan 3 (Guard Onset Default 400/200):**
+  - Konstanta default `DEFAULT_POST_FIST_ONSET_HOLD_MS` diubah dari 300 ms menjadi 200 ms di `action-resolver.ts` berdasarkan temuan FX13 (0/16 onset $\ge 330$ ms, 0 goresan nyasar). Unit test `tests/nui-lab/r22b-handstate.test.tsx` disesuaikan dengan penjelasan alasan.
+- **Perbaikan 4 (Pembersihan Skrip Tuning dari Direktori Tes App):**
+  - File `tests/nui-lab/t23-guard-tuning.test.ts` dipindahkan ke `r23/scripts/t23_guard_tuning.ts` agar tes app tidak melakukan operasi I/O penulisan ke path absolut.
+- **Pengujian Headless Chromium (`r23/results/HF2_browser_yolo_check.json`):**
+  - Pengujian Chromium headless dengan fake camera (`verify_browser_yolo_hf2.mjs`):
+    - URL default `/nui-lab/canvas`: ONNX response 200, log sesi ORT terkonfirmasi, `yoloRan = true` pada frame rescue (fid 4, state SEARCH, 165 ms), `yoloRateHz = 5`, `yoloEnabled = true`.
+    - URL `?yolo=0` (`/nui-lab/canvas?yolo=0`): 152 frames, 0 frame dengan `yoloRan = true` (100% false), `yoloEnabled = false`.
+    - Status: `PASS`.
+- **Verifikasi Gates Akhir:**
+  - Vitest NUI Lab: 29 files, 304 tests passed, 0 failures (`PASS`).
+  - Gameplay Baseline: 39 PASS / 9 FAIL (48 tests, persis identik baseline `main@745bb6d`).
+  - Production Next.js Build: 24 static pages, exit code 0 (`PASS`).
+- **Artefak Kandidat Baru di `$WORK`:**
+  - Commit lokal: `402ea36c49d2fa93f6445137a0c42c290d516b21` (`402ea36`).
+  - Tree hash: `927439cd9403a1c7050271dbf7c3903cfd4eb833`.
+  - Cumulative Patch (`main@745bb6d` -> `402ea36`): `r23/candidates/monui7/r23_main-745bb6d_to_402ea36.patch` (SHA-256 `27a7bb2755405c1d992a48d384402af490e6a4553be7e421b761ce8f69f3726d`).
+  - Incremental Patch (`b4b14f0` -> `402ea36`): `r23/candidates/monui7/r23_incremental_b4b14f0_to_402ea36.patch` (SHA-256 `f4345df7b30d9632428beb0163b24a2e20112783d940fa22d3abc9aff845aee0`).
+  - Verifikasi: `git apply --check` pada basis `main@745bb6d` dan `b4b14f0` berhasil 100% tanpa konflik.
+
+---
+
 ## R23-HF1 — Hotfix R23-HF1 MoNUI-7 (Perbaikan Bug 1-3, FX13 Tuning, Patch b4b14f0) (`2026-11-21 16:45 WIB`; `KATA-TOOL` / `PASS`)
 
 - **Scope & Latar Belakang:** Hasil pengujian Owner di DEV (sesi `S-1731edfc`) menunjukkan 3 bug pada kandidat MoNUI-7 patch `2721117`. Hotfix ini menyelesaikan ketiga bug tersebut secara tuntas tanpa menambah scope.

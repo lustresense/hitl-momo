@@ -1,9 +1,9 @@
 {
   "task": "T28",
-  "name": "Verifikasi Akhir & Production Build",
-  "timestamp": "2026-11-21T16:45:00+07:00",
-  "candidateCommit": "b4b14f012ab73b7f6267e585d946ac1730a8eebc",
-  "candidateTree": "45cbcac17272f74f16f393fcc7c930f34b966360",
+  "name": "Verifikasi Akhir & Production Build (R23-HF2)",
+  "timestamp": "2026-11-21T18:31:00+07:00",
+  "candidateCommit": "402ea36c49d2fa93f6445137a0c42c290d516b21",
+  "candidateTree": "927439cd9403a1c7050271dbf7c3903cfd4eb833",
   "status": "PASS",
   "gates": {
     "next_production_build": {
@@ -27,9 +27,9 @@
       "target_minimum_tests": 280,
       "test_files_passed": 29,
       "test_files_total": 29,
-      "tests_passed": 299,
+      "tests_passed": 304,
       "tests_failed": 0,
-      "tests_total": 299
+      "tests_total": 304
     },
     "vitest_gameplay_baseline": {
       "status": "PASS",
@@ -45,14 +45,25 @@
       "ort_requests_before_rescue": 0,
       "lazy_loading_verified": true
     },
-    "hf1_browser_yolo_check": {
+    "hf2_browser_yolo_check": {
       "status": "PASS",
-      "evidence_file": "r23/results/HF1_browser_yolo_check.json",
-      "onnxRequest200": true,
-      "ortSessionCreatedLog": true,
-      "exportedSessionHasYoloRanFrame": true,
-      "framesWithYoloRan": 50,
-      "totalFrames": 51
+      "evidence_file": "r23/results/HF2_browser_yolo_check.json",
+      "defaultCanvasCheck": {
+        "pass": true,
+        "onnxRequest200": true,
+        "ortSessionCreatedLog": true,
+        "totalFrames": 129,
+        "framesWithYoloRan": 1,
+        "yoloEnabled": true,
+        "yoloRateHz": 5
+      },
+      "disabledCanvasCheck": {
+        "pass": true,
+        "url": "/nui-lab/canvas?yolo=0",
+        "totalFrames": 152,
+        "framesWithYoloRan": 0,
+        "yoloEnabled": false
+      }
     },
     "t23_guard_tuning": {
       "status": "PASS",

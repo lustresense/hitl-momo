@@ -7,6 +7,22 @@
 
 ---
 
+## R23-RELEASE-MODEL-STAGE — Pementasan Model Rilis Final ke $BIG_ROOT & Rename Model Lama (`2026-11-21 15:33 WIB`; `KATA-TOOL` / `PASS`)
+
+- **Arahan Owner:**
+  1. Salin `$DATA_ROOT/release/monui7-hand-yolo26n-320.onnx` dan `model_meta.json` ke `$BIG_ROOT/release/r23_fx_v0a/`.
+  2. Baca balik SHA-256 file di `$BIG_ROOT/release/r23_fx_v0a/monui7-hand-yolo26n-320.onnx` wajib cocok dengan `97f778ea77f4dbf160e91dff021a463ab464cdbf27a34d067d5f28708dbf1ddb`.
+  3. Cari model ONNX lama (SHA-256 `ee50a5d1...`) di `$BIG_ROOT`, rename menjadi `OLD_v110_ee50a5d1_monui7-hand-yolo26n-320.onnx`.
+  4. Perbarui `r23/candidates/monui7/APPLY.md` §2 dengan path release D: tersebut.
+- **Hasil Eksekusi:**
+  - File disalin ke `$BIG_ROOT/release/r23_fx_v0a/` (Windows: `D:\monui7-data\release\r23_fx_v0a\`, WSL: `/mnt/d/monui7-data/release/r23_fx_v0a/`).
+  - Baca balik SHA-256: `97f778ea77f4dbf160e91dff021a463ab464cdbf27a34d067d5f28708dbf1ddb` (**VERIFIED MATCH**).
+  - ONNX lama di `$BIG_ROOT/backup/runs/old_r23w0/monui7-hand-yolo26n-320.onnx` (SHA-256 `ee50a5d1...`) telah di-rename menjadi `$BIG_ROOT/backup/runs/old_r23w0/OLD_v110_ee50a5d1_monui7-hand-yolo26n-320.onnx`.
+  - `APPLY.md` §2 diperbarui dengan path deploy model dari `D:\monui7-data\release\r23_fx_v0a\` / `/mnt/d/monui7-data/release/r23_fx_v0a/`.
+  - Manifest checksums (`SHA256SUMS.txt`) dan manifest publikasi diperbarui.
+
+---
+
 ## R23-FIX-COMPLETE — Remediasi Penuh Mandat v1.2.0 W0 MoNUI-7 & Publikasi Patch Baru (`2026-11-21 15:10 WIB`; `KATA-TOOL` / `PASS`)
 
 - **Scope & Mandate:** Penyelesaian menyeluruh perbaikan Wave 0 di bawah mandat [`docs/plan-rev/R23/[WIP] NUI_R23-02_v1.2.0_MANDAT_FIX_W0_MoNUI-7.md`](docs/plan-rev/R23/%5BWIP%5D%20NUI_R23-02_v1.2.0_MANDAT_FIX_W0_MoNUI-7.md). Semua temuan audit A1–A9 berhasil diperbaiki secara jujur, ketat, dan tanpa bypass.

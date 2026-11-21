@@ -41,11 +41,14 @@ test "$(git write-tree)" = "fd5605b1b0b3e5a168b74a29162feece0c0b3ef4"
 
 ## 2. Deploy Model & Prebuild Assets
 
-Model ONNX (`monui7-hand-yolo26n-320.onnx`, SHA-256 `97f778ea77f4dbf160e91dff021a463ab464cdbf27a34d067d5f28708dbf1ddb`) is distributed via `$DATA_ROOT/release/` or release artifacts and is excluded from git commits per mandate:
+Model ONNX (`monui7-hand-yolo26n-320.onnx`, SHA-256 `97f778ea77f4dbf160e91dff021a463ab464cdbf27a34d067d5f28708dbf1ddb`) is distributed via `$BIG_ROOT/release/r23_fx_v0a/` (Windows: `D:\monui7-data\release\r23_fx_v0a\`, WSL: `/mnt/d/monui7-data/release/r23_fx_v0a/`) or release artifacts and is excluded from git commits per mandate:
 
 ```bash
 mkdir -p /tmp/r23-dev/frontend/implementation/public/models
-cp /path/to/monui7-hand-yolo26n-320.onnx /tmp/r23-dev/frontend/implementation/public/models/
+# From WSL:
+cp /mnt/d/monui7-data/release/r23_fx_v0a/monui7-hand-yolo26n-320.onnx /tmp/r23-dev/frontend/implementation/public/models/
+# Or Windows cmd/PowerShell:
+# copy D:\monui7-data\release\r23_fx_v0a\monui7-hand-yolo26n-320.onnx <path_to_worktree>\frontend\implementation\public\models\
 ```
 
 ---

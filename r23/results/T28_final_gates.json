@@ -1,19 +1,19 @@
 {
   "task": "T28",
-  "name": "Verifikasi Akhir & Production Build (R23-HF2.1)",
-  "timestamp": "2026-11-21T19:53:00+07:00",
-  "candidateCommit": "35da19afcf221db1c629da72b52007cf8ce167e7",
-  "candidateTree": "3811d36beb108a91bb4b960fc66c6830ca04c6b3",
+  "name": "Verifikasi Akhir & Production Build (R23B-HF3)",
+  "timestamp": "2026-11-23T00:28:00+07:00",
+  "candidateCommit": "3680cd94eff693690b02614bab162cd4a1f4a3f0",
+  "candidateTree": "fe0b8b6e5d2cb7823db9090b61ac1abfd531dd59",
   "status": "PASS",
   "gates": {
     "next_production_build": {
       "status": "PASS",
-      "command": "npm run build",
+      "command": "NEXT_PUBLIC_APP_VERSION=\"0.29.3-alpha+r23b-monui7-hf3\" npm run build",
       "exit_code": 0,
       "out_dir_generated": true,
       "static_pages_count": 24,
       "shared_first_load_js_kb": 87.6,
-      "app_version": "0.29.1-alpha+r23-monui7",
+      "app_version": "0.29.3-alpha+r23b-monui7-hf3",
       "version_in_html": true
     },
     "tsc_lint": {
@@ -25,11 +25,11 @@
       "status": "PASS",
       "command": "npx vitest run tests/nui-lab/ tests/owner-build-manifest.test.ts",
       "target_minimum_tests": 280,
-      "test_files_passed": 30,
-      "test_files_total": 30,
-      "tests_passed": 308,
+      "test_files_passed": 31,
+      "test_files_total": 31,
+      "tests_passed": 325,
       "tests_failed": 0,
-      "tests_total": 308
+      "tests_total": 325
     },
     "vitest_gameplay_baseline": {
       "status": "PASS",
@@ -44,6 +44,37 @@
       "evidence_file": "r23/results/T28_lazy_loading.json",
       "ort_requests_before_rescue": 0,
       "lazy_loading_verified": true
+    },
+    "hf3_browser_check": {
+      "status": "PASS",
+      "evidence_file": "r23/results/HF3_browser_check.json",
+      "normalFakeCameraCheck": {
+        "pass": true,
+        "appVersion": "0.29.3-alpha+r23b-monui7-hf3",
+        "totalFrames": 73,
+        "cameraActual": {
+          "width": 640,
+          "height": 480,
+          "frameRate": 20,
+          "constraintFallback": true
+        },
+        "exposureControlLocked": true,
+        "targetExposureTimeMs": 30
+      },
+      "darkenedFakeVideoCheck": {
+        "pass": true,
+        "totalFrames": 108,
+        "cameraActual": {
+          "width": 640,
+          "height": 480,
+          "frameRate": 30,
+          "constraintFallback": false
+        },
+        "darkLumaP50Median": 0.0627,
+        "preprocessAutoOnEventsCount": 1,
+        "framesWithA4Preprocess": 103,
+        "autoPreprocessActive": true
+      }
     },
     "hf2_browser_yolo_check": {
       "status": "PASS",

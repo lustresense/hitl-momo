@@ -1,0 +1,253 @@
+{
+  "task": "R23B_HF3_v2pre",
+  "date": "2026-11-23T02:56:00+07:00",
+  "status": "PASS",
+  "preprocess_mode": {
+    "id": "A4_denoise_reinhard320",
+    "alias": "A4v2",
+    "source_ts": "frontend/implementation/src/components/nui-lab/bench/r20-lowlight.ts",
+    "enhance_width": 320,
+    "denoise3x3_luma_threshold": 0.14,
+    "reinhard_target_luma": 0.48
+  },
+  "t_a_pixel_parity": {
+    "status": "PASS",
+    "num_images": 20,
+    "count_meanLuma_lt_0_14_denoise3x3": 9,
+    "count_meanLuma_ge_0_14": 11,
+    "overall_mean_abs_pixel_diff_255": 0.0,
+    "overall_max_abs_pixel_diff_255": 0,
+    "max_mean_luma_diff": 0.0,
+    "exact_channel_match_pct": 100.0
+  },
+  "t_b_dataset": {
+    "status": "PASS",
+    "seed_train": 20261120,
+    "seed_test": 20261121,
+    "v0_orig_train_images": 101844,
+    "v0_val_images": 12375,
+    "v0_test_images": 13147,
+    "a4dark_train_generated": 29653,
+    "a4dark_train_by_source": {
+      "hagrid": 17383,
+      "ipn": 6000,
+      "oi": 5946,
+      "hands": 324
+    },
+    "a4dark_train_pre_luma_lt_0_14": 7381,
+    "a4dark_train_pre_luma_mean": 0.2145,
+    "combined_train_images": 131497,
+    "combined_train_labels": 131497,
+    "dark_a4_test_images": 13147,
+    "corrupt_images": 0
+  },
+  "t_c_training": {
+    "base_model": "fx_v0a",
+    "base_best_pt_sha256": "33457c31d25288ba6c11f853646f2c479d5edbc4bdaea129a6a38fdac16ea808",
+    "selected_run": "hf3_v2pre_run2_cos_lr",
+    "device": "GPU 1 (RTX A5000 24GB, switched from GPU 0 per >70C/75C thermal SOP)",
+    "gpu1_temp_c": {
+      "min": 37,
+      "max": 77,
+      "avg": 72.7,
+      "samples": 105
+    },
+    "epochs_configured": 20,
+    "epochs_completed": 20,
+    "patience": 10,
+    "imgsz": 320,
+    "batch": 128,
+    "seed": 20261120,
+    "workers": 8,
+    "cos_lr": true,
+    "warmup_epochs": 1.0,
+    "close_mosaic": 5,
+    "best_epoch": 16,
+    "best_val_metrics": {
+      "precision": 0.88571,
+      "recall": 0.79997,
+      "mAP50": 0.82534,
+      "mAP50_95": 0.57952,
+      "val_box_loss": 1.23857,
+      "val_cls_loss": 0.83764
+    },
+    "final_epoch20_val_metrics": {
+      "precision": 0.88377,
+      "recall": 0.80319,
+      "mAP50": 0.82547,
+      "mAP50_95": 0.57803
+    },
+    "run1_default_lr_note": {
+      "epochs_completed": 11,
+      "best_epoch": 1,
+      "best_mAP50": 0.82634,
+      "best_mAP50_95": 0.57756,
+      "early_stop_reason": "Default 3-epoch warmup spiked lr/pg0 to 0.028 on Ep 2-3, triggering patience=10 at Ep 11 before decay/close_mosaic"
+    }
+  },
+  "t_d_evaluation": {
+    "protocol": {
+      "conf_threshold": 0.35,
+      "iou_threshold": 0.5,
+      "imgsz": 320,
+      "test_images": 13147,
+      "total_gt_boxes": 18412
+    },
+    "standard_test": {
+      "fx_v0a": {
+        "overall_recall": 0.8058,
+        "tp": 14837,
+        "fn": 3575,
+        "by_bin": {
+          "B0": {"recall": 0.5938, "tp": 95, "total": 160},
+          "B1": {"recall": 0.8138, "tp": 686, "total": 843},
+          "B0_B1_pooled": {"recall": 0.7787, "tp": 781, "total": 1003},
+          "B2": {"recall": 0.6203, "tp": 1640, "total": 2644},
+          "B3": {"recall": 0.8409, "tp": 12416, "total": 14765}
+        },
+        "by_source": {
+          "hagrid": {"recall": 0.9935, "tp": 6271, "total": 6312},
+          "hands": {"recall": 0.9890, "tp": 2077, "total": 2100},
+          "ipn": {"recall": 0.7543, "tp": 3875, "total": 5137},
+          "oi": {"recall": 0.5375, "tp": 2614, "total": 4863}
+        }
+      },
+      "hf3_v2pre": {
+        "overall_recall": 0.8000,
+        "tp": 14729,
+        "fn": 3683,
+        "by_bin": {
+          "B0": {"recall": 0.6000, "tp": 96, "total": 160},
+          "B1": {"recall": 0.8149, "tp": 687, "total": 843},
+          "B0_B1_pooled": {"recall": 0.7807, "tp": 783, "total": 1003},
+          "B2": {"recall": 0.6108, "tp": 1615, "total": 2644},
+          "B3": {"recall": 0.8352, "tp": 12331, "total": 14765}
+        },
+        "by_source": {
+          "hagrid": {"recall": 0.9935, "tp": 6271, "total": 6312},
+          "hands": {"recall": 0.9824, "tp": 2063, "total": 2100},
+          "ipn": {"recall": 0.7417, "tp": 3810, "total": 5137},
+          "oi": {"recall": 0.5316, "tp": 2585, "total": 4863}
+        }
+      },
+      "deltas_pp": {
+        "overall": -0.58,
+        "B0": 0.62,
+        "B1": 0.11,
+        "B0_B1_pooled": 0.20,
+        "B2": -0.95,
+        "B3": -0.57,
+        "hagrid": 0.00,
+        "hands": -0.66,
+        "ipn": -1.26,
+        "oi": -0.59,
+        "drop_le_1pp_gate_pass": true
+      }
+    },
+    "dark_a4_test": {
+      "fx_v0a": {
+        "overall_recall": 0.5786,
+        "tp": 10654,
+        "fn": 7758,
+        "by_pre_a4_bin": {
+          "B0": {"recall": 0.2308, "tp": 447, "total": 1937},
+          "B1": {"recall": 0.4515, "tp": 2297, "total": 5088},
+          "B0_B1_pooled": {"recall": 0.3906, "tp": 2744, "total": 7025},
+          "B2": {"recall": 0.6993, "tp": 5750, "total": 8222},
+          "B3": {"recall": 0.6825, "tp": 2160, "total": 3165}
+        },
+        "by_post_a4_bin": {
+          "B0": {"recall": 0.0, "tp": 0, "total": 0},
+          "B1": {"recall": 0.3427, "tp": 73, "total": 213},
+          "B2": {"recall": 0.4101, "tp": 1589, "total": 3875},
+          "B3": {"recall": 0.6278, "tp": 8992, "total": 14324}
+        },
+        "by_source": {
+          "hagrid": {"recall": 0.8479, "tp": 5352, "total": 6312},
+          "hands": {"recall": 0.5590, "tp": 1174, "total": 2100},
+          "ipn": {"recall": 0.5930, "tp": 3046, "total": 5137},
+          "oi": {"recall": 0.2225, "tp": 1082, "total": 4863}
+        }
+      },
+      "hf3_v2pre": {
+        "overall_recall": 0.6993,
+        "tp": 12875,
+        "fn": 5537,
+        "by_pre_a4_bin": {
+          "B0": {"recall": 0.4326, "tp": 838, "total": 1937},
+          "B1": {"recall": 0.6354, "tp": 3233, "total": 5088},
+          "B0_B1_pooled": {"recall": 0.5795, "tp": 4071, "total": 7025},
+          "B2": {"recall": 0.7774, "tp": 6392, "total": 8222},
+          "B3": {"recall": 0.7621, "tp": 2412, "total": 3165}
+        },
+        "by_post_a4_bin": {
+          "B0": {"recall": 0.0, "tp": 0, "total": 0},
+          "B1": {"recall": 0.6808, "tp": 145, "total": 213},
+          "B2": {"recall": 0.5399, "tp": 2092, "total": 3875},
+          "B3": {"recall": 0.7427, "tp": 10638, "total": 14324}
+        },
+        "by_source": {
+          "hagrid": {"recall": 0.9534, "tp": 6018, "total": 6312},
+          "hands": {"recall": 0.7981, "tp": 1676, "total": 2100},
+          "ipn": {"recall": 0.6889, "tp": 3539, "total": 5137},
+          "oi": {"recall": 0.3377, "tp": 1642, "total": 4863}
+        }
+      },
+      "deltas_pp": {
+        "overall": 12.07,
+        "pre_a4_B0": 20.18,
+        "pre_a4_B1": 18.39,
+        "pre_a4_B0_B1_pooled": 18.89,
+        "pre_a4_B2": 7.81,
+        "pre_a4_B3": 7.96,
+        "post_a4_B1": 33.81,
+        "post_a4_B2": 12.98,
+        "post_a4_B3": 11.49,
+        "hagrid": 10.55,
+        "hands": 23.91,
+        "ipn": 9.59,
+        "oi": 11.52
+      }
+    }
+  },
+  "t_e_export_and_release": {
+    "release_dir": "/home/deano/mnt/monui7-data/release/r23b_hf3_v2pre",
+    "onnx_filename": "monui7-hand-yolo26n-320-hf3-v2pre.onnx",
+    "onnx_size_bytes": 9726210,
+    "onnx_size_mib": 9.28,
+    "opset": 17,
+    "input_shape": [1, 3, 320, 320],
+    "output_shape": [1, 5, 2100],
+    "onnx_sha256_verified_readback": "d1b26943d36b3e294008b52588f81e75c3cd50e27ee50514c572d02222db4e3a",
+    "best_pt_sha256_verified_readback": "62658612a814cdb23eedf3738eb7880f0c138d224ff9cbfd030d9efcc8195a7b",
+    "installed_in_public_models": false,
+    "cpu_proxy_latency_1thread_ms": {
+      "p50": 12.21,
+      "p95": 13.36,
+      "mean": 12.34,
+      "runs": 100
+    },
+    "ts_vs_python_parity_20img": {
+      "passed": true,
+      "images": 20,
+      "py_boxes": 22,
+      "ts_boxes": 22,
+      "min_observed_iou": 0.99976,
+      "max_observed_score_diff": 0.00025
+    },
+    "pt_vs_onnx_parity_50img": {
+      "passed": true,
+      "images": 50,
+      "boxes_evaluated": 64,
+      "failed_boxes": 0,
+      "min_iou": 1.0,
+      "max_score_diff": 0.0
+    }
+  },
+  "disk_cleanup": {
+    "root_partition_after_purge_pct": 64,
+    "root_used_mb": 77727,
+    "root_avail_mb": 45058,
+    "scratch_datasets_purged": true
+  }
+}

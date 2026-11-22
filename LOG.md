@@ -7,6 +7,41 @@
 
 ---
 
+## R23B-HF3 — Low-Light Kamera ("Tajam Dulu, Baru Terang") & Kandidat Detector `hf3_v2pre` (Patch 3680cd9) (`2026-11-23 03:00 WIB`; `KATA-TOOL` / `PASS`)
+
+- **Scope & Dasar:** Hotfix R23B-HF3 berbasis HF2.1 (`35da19a`, tree `3811d36b`) berdasarkan temuan rekaman gelap Owner sesi `S-355cd7c6` (dipindahkan ke `$DATA_ROOT/owner/exports/`, tidak di-commit): T003/T004 gelap turun ke `uniqueCaptureFps` p50 $\approx 7$, `blurProxy` p50 $\approx 54\text{--}63$, `detectHz` p50 $\approx 8$, `lumaP50` $\approx 0.39$ karena shutter AE memanjang; T001/T002 menghasilkan frame hitam (`lumaP50 = 0`, `cameraReportedFps = 60`). Tidak mengubah model YOLO di app (`monui7-hand-yolo26n-320.onnx` tetap SHA `97f778ea…`), aturan cubit, preset, maupun classifier.
+- **Perubahan Aplikasi (1–7):**
+  1. **Constraint Kamera & Fallback (`lab-camera.ts:34-58,87-122`, `NuiLabPage.tsx:743-749,1055-1166`):** `width { ideal: 640 }`, `height { ideal: 480 }`, `frameRate { ideal: 30, min: 24 }`; pada `OverconstrainedError` retry tanpa `min` (`frameRate { ideal: 30 }`) + event `CAMERA_CONSTRAINT_FALLBACK`.
+  2. **Kontrol Exposure Opportunistik (`bench/r20-lowlight.ts:123-141,942-1350`, `NuiLabPage.tsx:1126-1160,1535-1538,1873-1874`):** `probeCameraExposureCapabilities` membaca `exposureMode` & `exposureTime`; `CameraExposureController` mengunci `exposureMode: "manual"` + `exposureTime` terdekat $\le 33.3\text{ ms}$ (mengikuti satuan & rentang capabilities) jika `uniqueCaptureFps < 20` selama $\ge 2\text{ dtk}$ + event `CAMERA_EXPOSURE_LOCKED`; revert ke `continuous` + `CAMERA_EXPOSURE_REVERTED` jika FPS tidak naik dalam `3 dtk` atau `applyConstraints` error; kamera tanpa dukungan dilewati dan dicatat di meta.
+  3. **Pencerah Otomatis Histeresis (`bench/r20-lowlight.ts:1362-1467`, `bench/r20-hand.worker.ts:280,411-440,713-730`, `bench/r20-worker-client.ts:113-120,433-434`, `NuiLabPage.tsx:1508-1522`):** Menggunakan mode existing **`A4v2`** (`applyA4ChromaRecoveryInPlace`, pass `A4_denoise_reinhard320`) berdasarkan audit R20 (`85.42%` recall vs `34.23%` RAW & `8.21%` CLAHE; `dim_g008` `0.0% -> 85.6%`; p50 JS `4.5 ms`) dan ablasi R22 (`71.88%` vs `45.14%` soft-knee di `dim_g008`). Menyala otomatis hanya bila `handRoiLumaP50` (atau `lumaP50` pre-LUT bila ROI belum ada) $< 0.15$ selama $\ge 1\text{ dtk}$, mati bila $> 0.22$ selama $\ge 2\text{ dtk}$, mencatat `preprocessPass` per frame serta event `PREPROCESS_AUTO_ON`/`PREPROCESS_AUTO_OFF`.
+  4. **Meta Sesi (`bench/schema.ts:150-167,419-424`, `bench/manager.ts:561-614,637-705`, `NuiLabPage.tsx:712-741`):** Mencatat `cameraActual` (resolusi & frameRate aktual, `constraintFallback`, `irCameraSkipped`), `cameraCapabilities` (`exposureMode`, rentang `exposureTime`), `exposureControlStatus`, dan `autoPreprocessStatus` tanpa string label perangkat mentah.
+  5. **Hindari Kamera IR (`lab-camera.ts:60-85,125-202`, `NuiLabPage.tsx:594-612,2166-2195`):** Jika $> 1$ kamera, auto-select melewati label `"IR"`/`"Infrared"` (termasuk re-check pasca-izin); pemilih kamera manual `<select aria-label="Pilih kamera">` tetap tersedia.
+  6. **Deteksi Frame Hitam (`bench/r20-lowlight.ts:1479-1534`, `NuiLabPage.tsx:1524-1532,1875-1882,2197-2205`):** `lumaP50 === 0` selama $\ge 2\text{ dtk}$ menampilkan pesan `"Kamera hitam. Cek penutup kamera atau pilih kamera lain."` + event `CAMERA_BLACK`.
+  7. **Momo `ASK_LIGHT` dari FPS Rendah (`bench/monui7-momo-guide.ts:28-43,167-263`, `NuiLabPage.tsx:678-705,1585-1595,1883-1910`):** Memicu `ASK_LIGHT` dengan pesan `"Kameramu melambat karena gelap. Nyalakan lampu di depanmu, ya."` bila `uniqueCaptureFps < 12` selama $\ge 3\text{ dtk}$ setelah langkah 2 dicoba/tidak didukung.
+- **Tes Unit & Fixture Asli (`tests/nui-lab/lab-camera.test.ts`, `tests/nui-lab/hf3-lowlight-camera.test.ts`, `tests/fixtures/s355-lowlight-segment.json` 85 KB):** Mencakup constraint + fallback, exposure lock/revert (mock track + T003/T004), histeresis 0.15/0.22, frame hitam (T001), `ASK_LIGHT` dari FPS (T004), penghindaran IR, dan privasi meta sesi.
+- **Cek Headless Chromium (`r23/scripts/verify_browser_hf3.mjs` -> `r23/results/HF3_browser_check.json`):** `PASS` (`normalPass: true`, `darkPass: true`):
+  - Kamera palsu normal: `cameraActual = 640x480 @ 20 fps` (`constraintFallback: true`), `exposureControlStatus` mengunci `exposureTime` `50 -> 30 ms`, `app.version = "0.29.3-alpha+r23b-monui7-hf3"`.
+  - Video palsu gelap (`Y4M`, median `lumaP50 = 0.0627`): `PREPROCESS_AUTO_ON` terpicu di `t = 1383 ms`, **103/108 frame** memakai `preprocessPass = "A4_denoise_reinhard320"`, `autoPreprocessStatus.active = true`.
+- **Hasil 5 Gate Final (`r23/results/T28_final_gates.json`):**
+  1. `npx tsc --noEmit`: exit `0` (`0` error).
+  2. `npm run lint`: exit `0` (`PASS`).
+  3. `npx vitest run tests/nui-lab/ tests/owner-build-manifest.test.ts`: **31/31 file, 325/325 tes lolos, 0 gagal** (`PASS`).
+  4. Gameplay baseline (`eraser-controls`, `two-hand-surface`, `hand-stroke-surface`): persis **39 PASS / 9 FAIL** (`48` total, `PASS`).
+  5. `NEXT_PUBLIC_APP_VERSION="0.29.3-alpha+r23b-monui7-hf3" npm run build`: exit `0`, 24 halaman statis (`PASS`).
+- **Artefak Patch HF3:**
+  - Commit lokal `$WORK`: `3680cd94eff693690b02614bab162cd4a1f4a3f0` (`3680cd9`), tree hash: `fe0b8b6e5d2cb7823db9090b61ac1abfd531dd59`.
+  - Patch kumulatif (`745bb6d -> 3680cd9`): `r23/candidates/monui7/r23_main-745bb6d_to_3680cd9.patch` (SHA-256 `0bda221ae8e7a5869e658973f078906d78007ff65efe06adec70f82f4de9d778`).
+  - Patch inkremental (`35da19a -> 3680cd9`): `r23/candidates/monui7/r23_incremental_35da19a_to_3680cd9.patch` (SHA-256 `66011d8ca4ff5a194861d0c1ccd362e8387f5646fe9515341431b3747227630b`).
+  - Verifikasi `git apply --index` pada `745bb6d` dan `35da19a` keduanya menghasilkan tree hash identik `fe0b8b6e5d2cb7823db9090b61ac1abfd531dd59`; `sha256sum -c SHA256SUMS.txt` 100% OK.
+- **Training Paralel W-TRAIN (`r23/detector/HF3_v2pre_report.md`, `r23/results/HF3_v2pre_metrics.json` — kandidat ONLY di `$BIG_ROOT/release/r23b_hf3_v2pre/`, TIDAK dipasang di app):**
+  - **T-A (Paritas Python vs TS `A4v2`, 20 gambar):** `0.000000 / 255` mean diff, `0 / 255` max diff (`100%` exact match).
+  - **T-B/T-C:** 131.497 gambar train (`101.844` v0a + `29.653` 30% FX06+A4v2), fine-tune dari `fx_v0a/weights/best.pt` pada GPU 1 (dialihkan dari GPU 0 saat suhu > 70°C), best epoch 16 (`mAP50 = 0.82534`, `mAP50-95 = 0.57952`).
+  - **T-D Test Standar `v0a` (13.147 gambar / 18.412 GT box, IoU $\ge 0.50$, conf $\ge 0.35$):** Overall `80.58% -> 80.00%` (**`-0.58 pp`**, PASS $\le 1$ pp), B0 `59.38% -> 60.00%` (`+0.62 pp`), B1 `81.38% -> 81.49%` (`+0.11 pp`), B2 `62.03% -> 61.08%` (`-0.95 pp`), B3 `84.09% -> 83.52%` (`-0.57 pp`).
+  - **T-D Test Gelap FX06 + `A4v2` (13.147 gambar / 18.412 GT box):** Overall `57.86% -> 69.93%` (**`+12.07 pp`**, +2.221 TP); pre-A4 bins: **B0** `23.08% -> 43.26%` (`+20.18 pp`), **B1** `45.15% -> 63.54%` (`+18.39 pp`), **B0+B1** `39.06% -> 57.95%` (`+18.89 pp`), **B2** `69.93% -> 77.74%` (`+7.81 pp`), **B3** `68.25% -> 76.21%` (`+7.96 pp`).
+  - **T-E ONNX & Paritas:** `monui7-hand-yolo26n-320-hf3-v2pre.onnx` (`9.28 MiB`, SHA-256 `d1b26943d36b3e294008b52588f81e75c3cd50e27ee50514c572d02222db4e3a`), paritas TS vs PyTorch `22/22` box (min IoU `0.99976`, max $\Delta s$ `0.00025`), PyTorch vs ONNX `64/64` box (min IoU `1.0000`, max $\Delta s$ `0.0000`), CPU 1-thread p50 `12.21 ms` / p95 `13.36 ms`. Disk `/` bersih di `64%` (`44G` bebas).
+
+---
+
 ## R23-HF2.1 — Remediasi Tipe TypeScript di Tes HF2 (Patch 35da19a) (`2026-11-21 19:53 WIB`; `KATA-TOOL` / `PASS`)
 
 - **Scope & Latar Belakang:** Remediasi penolakan deploy oleh Ujang akibat 8 error `npx tsc --noEmit` yang semuanya berada pada file tes `tests/nui-lab/hf2-erase-resilience.test.ts` (tipe `Landmark` tidak diekspor dari `lab-analyzer` dan akses field private `LabAnalyzer.store`).

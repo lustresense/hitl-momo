@@ -1,0 +1,106 @@
+{
+  "task": "HF3_browser_check",
+  "timestamp": "2026-11-22T17:27:24.608Z",
+  "status": "PASS",
+  "expectedAppVersion": "0.29.3-alpha+r23b-monui7-hf3",
+  "normalFakeCameraCheck": {
+    "pass": true,
+    "pageErrors": [],
+    "appVersion": "0.29.3-alpha+r23b-monui7-hf3",
+    "totalFrames": 73,
+    "cameraActual": {
+      "width": 640,
+      "height": 480,
+      "frameRate": 20,
+      "deviceClass": "virtual-suspected",
+      "constraintFallback": true,
+      "irCameraSkipped": false
+    },
+    "cameraCapabilities": {
+      "supported": true,
+      "exposureMode": [
+        "manual",
+        "continuous"
+      ],
+      "exposureTime": {
+        "min": 10,
+        "max": 100,
+        "step": 5
+      },
+      "currentExposureMode": "manual",
+      "currentExposureTime": 50,
+      "canLockExposureTime": true
+    },
+    "exposureControlStatus": {
+      "supported": true,
+      "state": "locked_verifying",
+      "attempted": true,
+      "locked": true,
+      "reverted": false,
+      "targetExposureTime": 30,
+      "unit": "ms",
+      "beforeExposureMode": "manual",
+      "beforeExposureTime": 50,
+      "afterExposureMode": "manual",
+      "afterExposureTime": 30,
+      "reason": "locked-awaiting-fps"
+    },
+    "autoPreprocessStatus": {
+      "mode": "A4_denoise_reinhard320",
+      "onThresholdLuma": 0.15,
+      "offThresholdLuma": 0.22,
+      "active": false,
+      "onCount": 0,
+      "offCount": 0,
+      "lastLumaSource": "none",
+      "lastEffectiveLuma": null
+    }
+  },
+  "darkenedFakeVideoCheck": {
+    "pass": true,
+    "pageErrors": [],
+    "totalFrames": 108,
+    "cameraActual": {
+      "width": 640,
+      "height": 480,
+      "frameRate": 30,
+      "deviceClass": "virtual-suspected",
+      "constraintFallback": false,
+      "irCameraSkipped": false
+    },
+    "darkLumaP50Median": 0.0627,
+    "preprocessAutoOnEventsCount": 1,
+    "firstPreprocessAutoOnEvent": {
+      "t": 1383,
+      "trialId": "S-ea41c1e1-T001",
+      "type": "PREPROCESS_AUTO_ON",
+      "source": "system",
+      "labelSource": "RULE_DERIVED",
+      "data": {
+        "pass": "A4_denoise_reinhard320",
+        "effectiveLuma": 0.0627,
+        "lumaSource": "lumaP50"
+      }
+    },
+    "framesWithA4Preprocess": 103,
+    "sampleA4Frame": {
+      "fid": 42,
+      "t": 1446,
+      "lumaP50": 0.0627,
+      "preprocessPass": "A4_denoise_reinhard320",
+      "videoFrameWidth": 640,
+      "videoFrameHeight": 480,
+      "cameraReportedFps": 30
+    },
+    "autoPreprocessStatus": {
+      "mode": "A4_denoise_reinhard320",
+      "onThresholdLuma": 0.15,
+      "offThresholdLuma": 0.22,
+      "active": true,
+      "onCount": 1,
+      "offCount": 0,
+      "lastLumaSource": "lumaP50",
+      "lastEffectiveLuma": 0.0627
+    }
+  }
+}

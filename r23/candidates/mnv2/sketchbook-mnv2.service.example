@@ -1,0 +1,16 @@
+[Unit]
+Description=Sketchbook DEV MobileNetV2 inference
+
+[Service]
+Type=simple
+WorkingDirectory=%h/.cache/r23-model-server
+Environment=MNV2_DIR=%h/.cache/r23-model-server
+Environment=MNV2_PORT=5567
+ExecStart=%h/.cache/r23-model-server/py311/bin/python %h/.cache/r23-model-server/server.py
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target

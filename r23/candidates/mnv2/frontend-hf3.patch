@@ -1,0 +1,118 @@
+diff --git a/frontend/implementation/src/domain/behavior-resolver.ts b/frontend/implementation/src/domain/behavior-resolver.ts
+index 4bfdba7..0ccebfb 100644
+--- a/frontend/implementation/src/domain/behavior-resolver.ts
++++ b/frontend/implementation/src/domain/behavior-resolver.ts
+@@ -8,6 +8,17 @@ export function resolveBehavior(
+   finalLabel: string,
+   level: LevelContext,
+ ): { behavior: ObjectBehavior; resolution: BehaviorResolution } {
++  const diasGroups = {
++    solid: ["ladder", "stairs", "bridge", "bench", "table", "skateboard"],
++    danger: ["cactus", "campfire", "lightning", "saw", "knife", "sword", "snake", "spider"],
++    neutral: ["fence", "zigzag", "line", "cloud", "bucket", "umbrella"],
++  } as const;
++  if (finalLabel.startsWith("mnv2:")) {
++    const label = finalLabel.slice(5);
++    if ((diasGroups.solid as readonly string[]).includes(label)) return { behavior: "solid", resolution: { kind: "solid" } };
++    if ((diasGroups.danger as readonly string[]).includes(label)) return { behavior: "danger", resolution: { kind: "danger" } };
++    if ((diasGroups.neutral as readonly string[]).includes(label)) return { behavior: "neutral", resolution: { kind: "neutral" } };
++  }
+   const mapped = level.behaviorMap[finalLabel];
+   if (mapped === "solid") return { behavior: "solid", resolution: { kind: "solid" } };
+   if (mapped === "danger") return { behavior: "danger", resolution: { kind: "danger" } };
+diff --git a/frontend/implementation/src/domain/events.ts b/frontend/implementation/src/domain/events.ts
+index b36d6a7..43341d6 100644
+--- a/frontend/implementation/src/domain/events.ts
++++ b/frontend/implementation/src/domain/events.ts
+@@ -9,7 +9,7 @@ export type InteractionEvent =
+   | { kind: "prediction_displayed"; levelId: string; labels: string[] }
+   | { kind: "decision_made"; levelId: string; decisionType: "accept" | "correct" | "override"; sourceRank?: 1 | 2 | 3; finalLabel: string }
+   | { kind: "redraw_requested"; levelId: string; from: "evaluation" | "error" | "gameplay" }
+-  | { kind: "gameplay_result"; levelId: string; outcome: "success" | "fail"; behavior: "solid" | "danger" | "unresolved" }
++  | { kind: "gameplay_result"; levelId: string; outcome: "success" | "fail"; behavior: "solid" | "danger" | "neutral" | "unresolved" }
+   | { kind: "cycle_completed"; levelId: string; cyclesUsed: number }
+   /** Student asked for ANOTHER object while the first stays in the world (not a recovery/Redraw). */
+   | { kind: "another_object_requested"; levelId: string }
+diff --git a/frontend/implementation/src/domain/types.ts b/frontend/implementation/src/domain/types.ts
+index 1670bba..bbad564 100644
+--- a/frontend/implementation/src/domain/types.ts
++++ b/frontend/implementation/src/domain/types.ts
+@@ -5,7 +5,7 @@
+  * schema. Partner classifier/backend remain behind interfaces.
+  */
+
+-export type ObjectBehavior = "solid" | "danger" | "unresolved";
++export type ObjectBehavior = "solid" | "danger" | "neutral" | "unresolved";
+
+ /** A single AI prediction candidate. */
+ export interface PredictionCandidate {
+@@ -84,4 +84,5 @@ export interface LevelContext {
+ export type BehaviorResolution =
+   | { kind: "solid" }
+   | { kind: "danger" }
++  | { kind: "neutral" }
+   | { kind: "fallback"; fallbackLabel: string };
+diff --git a/frontend/implementation/src/game/behavior-spawner.ts b/frontend/implementation/src/game/behavior-spawner.ts
+index e5707a4..5b114fd 100644
+--- a/frontend/implementation/src/game/behavior-spawner.ts
++++ b/frontend/implementation/src/game/behavior-spawner.ts
+@@ -35,6 +35,7 @@ export function planSpawn(
+         bridge: { x: scene.gapStartX, y: topY, w: scene.gapWidth, h: GROUND_THICKNESS },
+         hazard: null,
+       };
++    case "neutral":
+     case "unresolved":
+       // Unsupported labels never silently become a solid support.
+       return {
+diff --git a/frontend/implementation/src/game/runtime/creation-renderer.ts b/frontend/implementation/src/game/runtime/creation-renderer.ts
+index c3fc0d2..861d1c4 100644
+--- a/frontend/implementation/src/game/runtime/creation-renderer.ts
++++ b/frontend/implementation/src/game/runtime/creation-renderer.ts
+@@ -72,7 +72,7 @@ export function createCreationRenderer(k: KAPLAYCtx, labelFont: string, isDestro
+       // Hurts only inside the drawing, not on the empty corners of its box.
+       const zone = hazardZone(box.w, box.h);
+       art.use(k.area({ shape: new k.Rect(k.vec2(zone.x, zone.y), zone.w, zone.h) }));
+-    } else if (committed && item.behavior !== "unresolved") {
++    } else if (committed && item.behavior === "solid") {
+       art.use(rectArea(k, box.w, box.h));
+     }
+     if (committed && item.behavior === "solid") art.use(k.body({ isStatic: true }));
+diff --git a/frontend/implementation/src/prediction/label-map.ts b/frontend/implementation/src/prediction/label-map.ts
+index 559f347..59c7f81 100644
+--- a/frontend/implementation/src/prediction/label-map.ts
++++ b/frontend/implementation/src/prediction/label-map.ts
+@@ -34,9 +34,33 @@ export const MODEL_LABEL_MAP: readonly ModelLabelEntry[] = [
+   { modelLabel: "sailboat", displayName: "Perahu layar", gameLabel: null },
+   { modelLabel: "chair", displayName: "Kursi", gameLabel: null },
+   { modelLabel: "mountain", displayName: "Gunung", gameLabel: null },
++
++];
++
++const NEW_MODEL_LABELS: readonly ModelLabelEntry[] = [
++  { modelLabel: "ladder", displayName: "Tangga", gameLabel: "mnv2:ladder" },
++  { modelLabel: "stairs", displayName: "Anak tangga", gameLabel: "mnv2:stairs" },
++  { modelLabel: "bridge", displayName: "Jembatan", gameLabel: "mnv2:bridge" },
++  { modelLabel: "bench", displayName: "Bangku", gameLabel: "mnv2:bench" },
++  { modelLabel: "table", displayName: "Meja", gameLabel: "mnv2:table" },
++  { modelLabel: "skateboard", displayName: "Papan luncur", gameLabel: "mnv2:skateboard" },
++  { modelLabel: "cactus", displayName: "Kaktus", gameLabel: "mnv2:cactus" },
++  { modelLabel: "campfire", displayName: "Api unggun", gameLabel: "mnv2:campfire" },
++  { modelLabel: "lightning", displayName: "Petir", gameLabel: "mnv2:lightning" },
++  { modelLabel: "saw", displayName: "Gergaji", gameLabel: "mnv2:saw" },
++  { modelLabel: "knife", displayName: "Pisau", gameLabel: "mnv2:knife" },
++  { modelLabel: "sword", displayName: "Pedang", gameLabel: "mnv2:sword" },
++  { modelLabel: "snake", displayName: "Ular", gameLabel: "mnv2:snake" },
++  { modelLabel: "spider", displayName: "Laba-laba", gameLabel: "mnv2:spider" },
++  { modelLabel: "fence", displayName: "Pagar", gameLabel: "mnv2:fence" },
++  { modelLabel: "zigzag", displayName: "Zigzag", gameLabel: "mnv2:zigzag" },
++  { modelLabel: "line", displayName: "Garis", gameLabel: "mnv2:line" },
++  { modelLabel: "cloud", displayName: "Awan", gameLabel: "mnv2:cloud" },
++  { modelLabel: "bucket", displayName: "Ember", gameLabel: "mnv2:bucket" },
++  { modelLabel: "umbrella", displayName: "Payung", gameLabel: "mnv2:umbrella" },
+ ];
+
+-const BY_MODEL_LABEL = new Map(MODEL_LABEL_MAP.map((e) => [e.modelLabel, e] as const));
++const BY_MODEL_LABEL = new Map([...MODEL_LABEL_MAP, ...NEW_MODEL_LABELS].map((e) => [e.modelLabel, e] as const));
+
+ /** Matches a model label after trim and lowercasing. Undefined when the model class is not known here. */
+ export function lookupModelLabel(raw: string): ModelLabelEntry | undefined {

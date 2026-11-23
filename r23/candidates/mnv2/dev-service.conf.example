@@ -1,0 +1,5 @@
+[Service]
+WorkingDirectory=%h/projects/sketchbook-dev-r23b-model-server/frontend/implementation/out
+Environment=MNV2_STATIC_DIR=%h/projects/sketchbook-dev-r23b-model-server/frontend/implementation/out
+ExecStart=
+ExecStart=/usr/bin/python3 %h/.cache/r23-model-server/dev-proxy.py

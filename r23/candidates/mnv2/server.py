@@ -79,7 +79,7 @@ class Handler(BaseHTTPRequestHandler):
             body=json.loads(self.rfile.read(n))
             strokes=validate(body['drawing']['strokes'])
             x=rasterize(strokes)
-            if not lock.acquire(blocking=False): return self.reply(503, {'error':'busy'})
+            if not lock.acquire(timeout=2): return self.reply(503, {'error':'busy'})
             try: probs=np.asarray(model(x,training=False))[0]
             finally: lock.release()
             if probs.shape!=(20,) or not np.isfinite(probs).all() or (probs<0).any() or (probs>1).any(): raise ValueError('invalid output')

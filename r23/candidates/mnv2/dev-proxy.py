@@ -7,6 +7,10 @@ from urllib.parse import urlsplit, urlunsplit
 os.chdir(os.environ['MNV2_STATIC_DIR'])
 
 class Handler(SimpleHTTPRequestHandler):
+    extensions_map = {**SimpleHTTPRequestHandler.extensions_map, ".wasm": "application/wasm", ".onnx": "application/octet-stream", ".task": "application/octet-stream"}
+    def list_directory(self, path):
+        self.send_error(403, "Directory listing disabled")
+        return None
     def setup(self):
         super().setup()
         self.connection.settimeout(10)

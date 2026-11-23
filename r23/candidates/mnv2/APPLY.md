@@ -15,3 +15,6 @@ Rollback target HF3: belum diuji untuk kandidat ini. Jangan memindahkan service 
 - Baseline tiga berkas tes input: 39 lulus, 9 gagal, sesuai jumlah HF3. Bukan bukti browser end-to-end.
 - Belum dites: browser gambar ke prediksi dan dampak di game untuk 3 kategori; same-origin tunnel; p90 end-to-end; rollback; ketahanan beban dan keamanan publik.
 - Belum deploy. Admin tidak dikerjakan.
+
+## Event neutral
+Frontend menambahkan nilai `neutral` pada tipe behavior event. Konsumen event eksternal yang mengasumsikan hanya `solid` atau `danger` harus diperbarui untuk menerima `neutral`; objek neutral tidak memiliki collision pijak atau bahaya. Perilaku runtime browser belum diverifikasi.

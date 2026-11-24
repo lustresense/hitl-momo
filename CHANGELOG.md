@@ -46,6 +46,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.29.5-alpha | 2026-11-25 | Dokumen | `(0.29.5-alpha)` |
 | 0.29.4-alpha | 2026-11-25 | Dokumen | `(0.29.4-alpha)` |
 | 0.29.1-alpha | 2026-11-19 | Perbaikan | `(0.29.1-alpha)` |
 | 0.29.0-alpha | 2026-11-19 | Fitur | `(0.29.0-alpha)` |
@@ -134,6 +135,19 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.29.5-alpha — 2026-11-25 — Dokumen
+
+**Sumber:** Owner: lengkapi setup clone main
+
+**Perubahan:**
+- Lengkapi prasyarat dan instalasi SETUP.md, luruskan lokasi model DEV.
+
+**Commit:** commit berjudul `(0.29.5-alpha)`
+
+**Bukti:** Python 3.12 install dan inferensi berhasil; npm ci dan build game/admin lulus; Caddy end-to-end belum diuji
 
 ---
 

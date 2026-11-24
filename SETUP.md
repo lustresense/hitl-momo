@@ -18,16 +18,28 @@ Caddy route: `/api/*`, `/predict`, `/health` ke backend; `/admin*` ke admin; pat
 
 Backend default membaca `weights/model_4_mobilenetv2_best.keras`, dengan label `weights/model_4_mobilenetv2.labels.json` di sebelahnya. `backend/app/inference.py` memakai root repo secara default; `WEIGHTS_DIR` dan `MODEL_FILE` hanya override. Jangan set `WEIGHTS_DIR` ke cache WSL lama di laptop.
 
-SHA-256 model `ecd1638605ecdd61596bb518d80771af444e2698670a2babf16c109ac71d69bc`; JSON `e687804d8498a302065f025f32220dcb984f270684aaae817185877fc8cb0553`. DEV lama masih memakai salinan cache; memindahkan runtime aktif memerlukan perubahan konfigurasi dan restart yang belum dilakukan.
+SHA-256 model `ecd1638605ecdd61596bb518d80771af444e2698670a2babf16c109ac71d69bc`; JSON `e687804d8498a302065f025f32220dcb984f270684aaae817185877fc8cb0553`. DEV aktif membaca model dari `weights/` dalam checkout monorepo.
 
 ## Menjalankan lokal dengan port DEV
 
-Dari root clone branch `ujang-monorepo` di Linux/WSL, siapkan Python, Node/npm dan Caddy sesuai lingkungan. Jalankan proses berikut pada terminal terpisah. Dependencies tertera di `backend/requirements.txt` serta lockfile frontend; kompatibilitas laptop belum diverifikasi.
+Dari terminal Linux atau WSL Ubuntu, clone branch `main` lalu masuk root repo. Prasyarat: Git, Python 3.12 dengan modul venv, Node.js 22 (diuji 22.23.4) beserta npm, dan Caddy 2. Python 3.11 tidak cocok dengan NumPy yang dipatok; Python 3.14 tidak cocok dengan TensorFlow yang dipatok. Pastikan perintah berikut tersedia sebelum lanjut:
+
+```bash
+git --version
+python3.12 --version
+node --version
+npm --version
+caddy version
+git clone https://github.com/lustresense/hitl-momo.git
+cd hitl-momo
+```
+
+Jika Ubuntu belum punya Python 3.12/venv atau Caddy, instal melalui package manager atau dokumentasi resminya sesuai distro. `npm ci` memasang node_modules dari lockfile, tidak perlu disalin dari mesin lain. Jalankan tiap service di terminal terpisah; semua perintah `cd` berikut dimulai dari root repo.
 
 1. Backend:
 
 ```bash
-python3 -m venv .venv
+python3.12 -m venv .venv
 . .venv/bin/activate
 pip install -r backend/requirements.txt
 AI_DIFFICULTY_ENABLED=0 uvicorn backend.app.main:app --host 127.0.0.1 --port 5800
@@ -75,4 +87,4 @@ http://127.0.0.1:5555 {
 
 Jalankan `caddy run --config /path/ke/Caddyfile --adapter caddyfile`, lalu akses `http://127.0.0.1:5555/`. Buat admin lokal sendiri menggunakan `python backend/create_superadmin.py --email <email> --name <nama>`; masukkan password melalui prompt, jangan taruh di repo. Untuk pengujian model, gunakan `/predict` dengan payload yang valid, bukan hanya `/health`.
 
-**Status verifikasi:** instruksi migrasi ini belum diuji end-to-end pada laptop bersih. Isi database, akun, URL publik, state browser, dependency, OS dan build flags dapat memengaruhi hasil. Jangan menyatakan identik hanya karena source dan model sama. Perubahan tunnel/production butuh izin terpisah.
+**Status verifikasi:** clone bersih WSL, Python 3.12, instalasi backend, load dan prediksi model, npm ci serta build game dan admin berhasil. Routing Caddy, login dan alur gameplay pada clone bersih belum diuji end-to-end. Isi database, akun, URL publik, state browser, dependency, OS dan build flags dapat memengaruhi hasil. Jangan menyatakan identik hanya karena source dan model sama. Perubahan tunnel/production butuh izin terpisah.

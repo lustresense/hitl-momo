@@ -1,0 +1,23 @@
+http://:5555 {
+ bind 127.0.0.1
+ encode gzip
+ @stt path /stt-lab /stt-lab/* /api/stt/*
+ handle @stt {
+  reverse_proxy 127.0.0.1:5877
+ }
+ @backend path /api/* /predict /health
+ handle @backend {
+  request_body {
+   max_size 1MB
+  }
+  reverse_proxy 127.0.0.1:5800
+ }
+ handle /admin* {
+  reverse_proxy 127.0.0.1:5802
+ }
+ handle {
+  root * {$GAME_ROOT}
+  try_files {path} {path}.html {path}/index.html /index.html
+  file_server
+ }
+}

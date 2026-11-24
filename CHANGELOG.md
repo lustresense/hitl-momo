@@ -46,6 +46,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.29.6-alpha | 2026-11-25 | Perbaikan | `(0.29.6-alpha)` |
 | 0.29.5-alpha | 2026-11-25 | Dokumen | `(0.29.5-alpha)` |
 | 0.29.4-alpha | 2026-11-25 | Dokumen | `(0.29.4-alpha)` |
 | 0.29.1-alpha | 2026-11-19 | Perbaikan | `(0.29.1-alpha)` |
@@ -135,6 +136,19 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.29.6-alpha — 2026-11-25 — Perbaikan
+
+**Sumber:** Owner: routing DEV dalam repo
+
+**Perubahan:**
+- Tambahkan Caddy DEV portabel sesuai route DEV aktif; dokumentasikan pemakaian dan batas STT.
+
+**Commit:** commit berjudul `(0.29.6-alpha)`
+
+**Bukti:** Caddy validate dan routing diuji lokal terisolasi
 
 ---
 

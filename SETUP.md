@@ -62,29 +62,16 @@ NEXT_BASE_PATH=/admin NEXT_PUBLIC_API_URL=http://127.0.0.1:5555 NEXT_PUBLIC_GAME
 NEXT_BASE_PATH=/admin npm run start -- -p 5802
 ```
 
-4. Siapkan Caddyfile lokal di luar Git: ganti `<ROOT_REPO>` dengan path absolut clone. Jangan ubah konfigurasi tunnel existing secara otomatis.
+4. Jalankan Caddy memakai konfigurasi DEV yang tercatat di repo. Dari root repo:
 
-```caddyfile
-http://127.0.0.1:5555 {
-    encode gzip
-    @backend path /api/* /predict /health
-    handle @backend {
-        request_body {
-            max_size 1MB
-        }
-        reverse_proxy 127.0.0.1:5800
-    }
-    handle /admin* {
-        reverse_proxy 127.0.0.1:5802
-    }
-    handle {
-        root * <ROOT_REPO>/frontend/implementation/out
-        try_files {path} {path}.html {path}/index.html /index.html
-        file_server
-    }
-}
+```bash
+export GAME_ROOT="$(pwd)/frontend/implementation/out"
+caddy validate --config deploy/Caddyfile.dev --adapter caddyfile
+caddy run --config deploy/Caddyfile.dev --adapter caddyfile
 ```
 
-Jalankan `caddy run --config /path/ke/Caddyfile --adapter caddyfile`, lalu akses `http://127.0.0.1:5555/`. Buat admin lokal sendiri menggunakan `python backend/create_superadmin.py --email <email> --name <nama>`; masukkan password melalui prompt, jangan taruh di repo. Untuk pengujian model, gunakan `/predict` dengan payload yang valid, bukan hanya `/health`.
+Buka http://127.0.0.1:5555/. Jalur `/stt-lab` dan `/api/stt/*` diarahkan ke `127.0.0.1:5877`, sama dengan DEV. STT merupakan layanan terpisah dan tidak termasuk clone; tanpa layanan itu jalur STT tidak berfungsi. `deploy/Caddyfile` tetap untuk Docker, jangan ditukar dengan Caddyfile DEV.
+
+Buat admin lokal dari root menggunakan `.venv/bin/python backend/create_superadmin.py --email <email> --name <nama>` dan masukkan password melalui prompt. Data admin dan database tidak ikut clone.
 
 **Status verifikasi:** clone bersih WSL, Python 3.12, instalasi backend, load dan prediksi model, npm ci serta build game dan admin berhasil. Routing Caddy, login dan alur gameplay pada clone bersih belum diuji end-to-end. Isi database, akun, URL publik, state browser, dependency, OS dan build flags dapat memengaruhi hasil. Jangan menyatakan identik hanya karena source dan model sama. Perubahan tunnel/production butuh izin terpisah.

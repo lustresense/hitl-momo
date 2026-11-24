@@ -13,6 +13,10 @@ Repo ini menggabungkan dua pekerjaan yang tadinya terpisah:
 
 Baca **[Panduan setup DEV](SETUP.md)** terlebih dahulu. Panduan itu menjelaskan root monorepo, port 5555/5800/5802, routing, model Dias dan batas reproduksi. STT Lab berada di luar repo dan tidak disertakan.
 
+## Setup dan model DEV
+
+Ikuti [SETUP.md](SETUP.md) untuk menjalankan game, backend, dan admin dari root monorepo. Model Dias dan label tersedia di `weights/`; backend secara default memakai folder tersebut. Database, dependency, build, dan konfigurasi tunnel tidak ikut Git. STT Lab terpisah dan tidak termasuk repo. Clone baru belum terverifikasi end-to-end.
+
 ## Latar belakang
 
 Siswa SMP rentan terjebak **automation bias**: menerima keluaran AI mentah-mentah tanpa menilainya. Sketchbook Universe melatih siswa memahami bahwa AI bersifat probabilistik, bisa ragu, bisa salah, dan tetap butuh keputusan manusia.

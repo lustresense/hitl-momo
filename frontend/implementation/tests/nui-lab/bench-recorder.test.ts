@@ -2,9 +2,27 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { describe, expect, it, vi } from "vitest";
-import { buildEngineConfig, ENGINE_SPECS, fetchEngineModel } from "@/src/components/nui-lab/bench/engines";
-import { buildSummaryCsv, reanalyzeExport, validateExportFile } from "@/src/components/nui-lab/bench/export";
+import {
+  readPersistedBenchConsent,
+  writePersistedBenchConsent,
+} from "@/src/components/nui-lab/bench/config";
+import {
+  AUTO_RUNTIME_UI_LABEL,
+  buildEngineConfig,
+  ENGINE_SPECS,
+  fetchEngineModel,
+  formatHonestEngineDiagnostics,
+} from "@/src/components/nui-lab/bench/engines";
+import { getAppBuildInfo } from "@/src/components/nui-lab/bench/env";
+import {
+  buildSummaryCsv,
+  reanalyzeExport,
+  validateExportFile,
+  verifyExportChecksum,
+} from "@/src/components/nui-lab/bench/export";
 import { BenchSessionManager } from "@/src/components/nui-lab/bench/manager";
+import { BENCH_EXPORT_SCHEMA } from "@/src/components/nui-lab/bench/schema";
+import { TrialAggregator } from "@/src/components/nui-lab/bench/stats";
 import { MemoryBenchStore } from "@/src/components/nui-lab/bench/store";
 import { ChunkWriter } from "@/src/components/nui-lab/bench/writer";
 import { LabTelemetryBridge } from "@/src/components/nui-lab/bench/canvas-tracker";
@@ -322,5 +340,417 @@ describe("BenchSessionManager: consent, missing hands, export round-trip, crash 
       })) as unknown as typeof fetch;
       await expect(fetchEngineModel(engineId, badFetcher)).rejects.toThrow(/SHA-256/);
     }
+  });
+
+  it("R22 zero-friction lifecycle: one-time consent auto-starts trials on camera-on and closes trials on route-switch, tab-hidden, camera-stop, worker-error", async () => {
+    writePersistedBenchConsent(false);
+    const store = new MemoryBenchStore();
+    let clock = 1000;
+    const mgr = new BenchSessionManager({
+      openStore: async () => store,
+      now: () => clock,
+      wallMinuteIso: () => "2026-11-19T12:00:00.000Z",
+      randomId: () => "autolife",
+    });
+
+    const engine = buildEngineConfig("r20-c4", "a4", "cpu-worker", true);
+    expect(engine.displayModeLabel).toBe(AUTO_RUNTIME_UI_LABEL);
+    expect(engine.actualModelId).toBe("r20-c4");
+    expect(engine.isTrainedR22Model).toBe(false);
+    const honest = formatHonestEngineDiagnostics(engine);
+    expect(honest.uiBadge).toBe(AUTO_RUNTIME_UI_LABEL);
+    expect(honest.actualModelId).toBe("r20-c4");
+
+    // Without consent: auto-start MUST refuse and store zero records
+    const denied = await mgr.startCameraTrialAuto({
+      route: "gesture",
+      source: "gesture-lab",
+      engine,
+      camera: CAM,
+    });
+    expect(denied.started).toBe(false);
+    expect(denied.reason).toBe("no-consent");
+    expect(await store.listSessions()).toHaveLength(0);
+
+    // Grant consent once (persisted in localStorage)
+    mgr.grantConsent();
+    expect(readPersistedBenchConsent()).toBe(true);
+
+    const t1Res = await mgr.startCameraTrialAuto({
+      route: "gesture",
+      source: "gesture-lab",
+      engine,
+      camera: CAM,
+    });
+    expect(t1Res.started).toBe(true);
+    expect(t1Res.trialId).toBe("S-autolife-T001");
+    clock += 40;
+    mgr.recordFrame(makeFrame(1, 40, true));
+
+    // Route switch gesture -> canvas closes Trial 1 with endReason="route-switch"
+    mgr.onRouteSwitch("canvas");
+    expect(mgr.hasOpenTrial).toBe(false);
+    const t2Res = await mgr.startCameraTrialAuto({
+      route: "canvas",
+      source: "canvas-lab",
+      engine,
+      camera: CAM,
+    });
+    expect(t2Res.trialId).toBe("S-autolife-T002");
+    clock += 40;
+    mgr.recordFrame(makeFrame(2, 80, true));
+
+    // Tab hidden closes Trial 2 with endReason="tab-hidden"; tab visible resumes a new trial and tracks hiddenDurationMs
+    mgr.onTabHidden();
+    expect(mgr.hasOpenTrial).toBe(false);
+    clock += 2500;
+    const t3Id = mgr.onTabVisible();
+    expect(t3Id).toBe("S-autolife-T003");
+    expect(mgr.getSnapshot().hiddenDurationMs).toBe(2500);
+    clock += 40;
+    mgr.recordFrame(makeFrame(3, 2620, true));
+
+    // Camera stop closes Trial 3 with endReason="camera-stop"
+    mgr.onCameraStop("camera-stop");
+    expect(mgr.hasOpenTrial).toBe(false);
+
+    // Worker error closes Trial 4 with endReason="worker-error"
+    await mgr.startCameraTrialAuto({ route: "gesture", source: "gesture-lab", engine, camera: CAM });
+    mgr.onWorkerError("simulated-wasm-fault");
+    expect(mgr.hasOpenTrial).toBe(false);
+
+    await mgr.finishSession("user-finish");
+    const blobText = await readBlobText(await mgr.exportAll(getAppBuildInfo()));
+    const parsed = JSON.parse(blobText);
+    expect(parsed.schema).toBe(BENCH_EXPORT_SCHEMA);
+    expect(parsed.app.gitCommit).toBe("745bb6d840793dcab8558f65aef6bfac58807e79");
+    expect(parsed.sessions[0].trials.map((t: { meta: { endReason: string } }) => t.meta.endReason)).toEqual([
+      "route-switch",
+      "tab-hidden",
+      "camera-stop",
+      "worker-error",
+    ]);
+    expect((await verifyExportChecksum(blobText)).ok).toBe(true);
+    // Tampering 1 character inside sessions fails checksum verification
+    const tampered = blobText.replace('"S-autolife-T001"', '"S-autolife-X001"');
+    expect((await verifyExportChecksum(tampered)).ok).toBe(false);
+
+    await mgr.deleteAllLocalData();
+    expect(readPersistedBenchConsent()).toBe(false);
+  });
+
+  it("recovers abruptly crashed active sessions as interrupted with closed open trials and never merges distinct sessions", async () => {
+    const store = new MemoryBenchStore();
+    let clock = 500;
+    const mgr1 = new BenchSessionManager({
+      openStore: async () => store,
+      now: () => clock,
+      randomId: () => "crash002",
+      heartbeatStaleMs: 10,
+    });
+    await mgr1.startSession({ consent: true, app: APP, environment: ENV });
+    mgr1.beginTrial({
+      route: "canvas",
+      source: "canvas-lab",
+      engine: buildEngineConfig("r20-c4", "a4", "cpu-worker", true),
+      camera: CAM,
+    });
+    clock += 50;
+    mgr1.recordFrame(makeFrame(1, 50, true));
+    await mgr1.flush();
+    // Abrupt crash: wait for heartbeat stale without calling finishSession or markInterrupted
+    await new Promise((r) => setTimeout(r, 25));
+
+    const mgr2 = new BenchSessionManager({
+      openStore: async () => store,
+      now: () => 2000,
+      randomId: () => "fresh003",
+      heartbeatStaleMs: 10,
+    });
+    await mgr2.init();
+    const prev = mgr2.getSnapshot().previousSessions;
+    expect(prev).toHaveLength(1);
+    expect(prev[0]!.sessionId).toBe("S-crash002");
+    expect(prev[0]!.status).toBe("interrupted");
+
+    // Start a fresh session on mgr2: must NOT merge or double-count crash002 frames
+    await mgr2.startSession({ consent: true, app: APP, environment: ENV });
+    mgr2.beginTrial({
+      route: "gesture",
+      source: "gesture-lab",
+      engine: buildEngineConfig("r20-c4", "a4", "cpu-worker", true),
+      camera: CAM,
+    });
+    mgr2.recordFrame(makeFrame(1, 10, true));
+    await mgr2.finishSession("user-finish");
+
+    const parsed = JSON.parse(await readBlobText(await mgr2.exportAll(APP)));
+    expect(parsed.sessions).toHaveLength(2);
+    const crashed = parsed.sessions.find((s: { meta: { sessionId: string } }) => s.meta.sessionId === "S-crash002");
+    const fresh = parsed.sessions.find((s: { meta: { sessionId: string } }) => s.meta.sessionId === "S-fresh003");
+    expect(crashed.frames).toHaveLength(1);
+    expect(crashed.trials[0].meta.endReason).toBe("interrupted");
+    expect(fresh.frames).toHaveLength(1);
+  });
+
+  it("separates rawNoHandRate vs activeWindowMissRate, counts 1-3 / 4-15 / >15 streaks, derives RULE_DERIVED tags, and refuses self-GT", () => {
+    const agg = new TrialAggregator("T-aw", "camera-stop", "canvas");
+    let t = 0;
+    const pushF = (fid: number, hasHand: boolean, extra: Partial<Parameters<TrialAggregator["addFrame"]>[0]> = {}) => {
+      t += 40;
+      agg.addFrame({
+        ...makeFrame(fid, t, hasHand, "UNLABELLED"),
+        trialId: "T-aw",
+        captureFrameId: fid,
+        processedFrameId: fid,
+        lumaP10: 0.08,
+        lumaP50: 0.24,
+        lumaP95: 0.96,
+        // R22B B7.1: GLARE_CANDIDATE recalibrated to nearWhiteHandPct >= 25% (removed p95 >= 0.94).
+        nearWhiteHandPct: hasHand ? 28.4 : null,
+        blurProxy: 28,
+        noiseProxy: 6.1,
+        framesSkippedDuplicate: fid === 5 ? 3 : 0,
+        runtimeSetOptionsCalls: 0,
+        labelSource: "RULE_DERIVED",
+        labelSources: {
+          truth: "MODEL_PREDICTION", // deliberately invalid GT source — must NEVER be treated as GT!
+          posePred: "RULE_DERIVED",
+          actionIntent: "RULE_DERIVED",
+          captureQuality: "RULE_DERIVED",
+        },
+        ...extra,
+      });
+    };
+
+    let fid = 1;
+    // 4 lead-in no-hand frames (excluded from active window!)
+    for (let i = 0; i < 4; i++) pushF(fid++, false);
+    // Active window starts: 2 hand frames
+    pushF(fid++, true);
+    pushF(fid++, true);
+    // Flicker streak (2 frames <= 3)
+    pushF(fid++, false);
+    pushF(fid++, false);
+    pushF(fid++, true);
+    // Short loss streak (5 frames in 4..15)
+    for (let i = 0; i < 5; i++) pushF(fid++, false);
+    pushF(fid++, true);
+    // Long absence streak (17 frames > 15)
+    for (let i = 0; i < 17; i++) pushF(fid++, false);
+    pushF(fid++, true);
+    // Active window ends here; 10 tail no-hand frames (excluded from active window!)
+    for (let i = 0; i < 10; i++) pushF(fid++, false);
+
+    const s = agg.summary();
+    expect(s.frames).toBe(43);
+    expect(s.rawNoHandRate).toBe(Math.round(((4 + 2 + 5 + 17 + 10) / 43) * 1000) / 1000);
+    expect(s.activeWindow.frames).toBe(29);
+    expect(s.activeWindow.leadInNoHandFrames).toBe(4);
+    expect(s.activeWindow.tailNoHandFrames).toBe(10);
+    expect(s.activeWindow.missFrames).toBe(24);
+    expect(s.activeWindowMissRate).toBe(Math.round((24 / 29) * 1000) / 1000);
+    expect(s.flickerStreaks_1_3).toBe(1);
+    expect(s.shortLossStreaks_4_15).toBe(1);
+    expect(s.longAbsenceStreaks_gt15).toBe(1);
+    expect(s.duplicateFrameSkippedCount).toBe(3);
+    expect(s.runtimeSetOptionsCalls).toBe(0);
+    expect(s.autoConditionTagsSource).toBe("RULE_DERIVED");
+    expect(s.autoConditionTags).toEqual(["BLUR_CANDIDATE", "DIM_CANDIDATE", "GLARE_CANDIDATE", "NOISE_CANDIDATE"]);
+
+    // STRICT A06 / B06 / E05: no independent GT -> MUST NOT emit falsePressFrames: 0 or confusion: {}
+    expect(s.independentGroundTruthAvailable).toBe(false);
+    expect(s.gesture.labelledFrames).toBe(0);
+    expect(s.gesture.falsePressFrames).toBeNull();
+    expect(s.gesture.missedPressFrames).toBeNull();
+    expect(s.gesture.confusion).toBeNull();
+  });
+
+  it("records Canvas B08 events (UNDO/REDO via gesture vs button, 5-finger ERASE, grace STROKE_GAP/STROKE_RESUME, ACTION_REJECTED labelSource) and validates v2 export + privacy", async () => {
+    const store = new MemoryBenchStore();
+    let clock = 100;
+    const mgr = new BenchSessionManager({
+      openStore: async () => store,
+      now: () => clock,
+      randomId: () => "canv22",
+    });
+    await mgr.startSession({ consent: true, app: APP, environment: ENV });
+    mgr.beginTrial({
+      route: "canvas",
+      source: "canvas-lab",
+      engine: buildEngineConfig("r20-c4", "a4", "cpu-worker", true),
+      camera: CAM,
+    });
+
+    const analyzer = new LabAnalyzer({ fullFrameLock: true, enableInk: true });
+    analyzer.enableR19(loadRealR19Model(), clock);
+    const bridge = new LabTelemetryBridge(mgr, true);
+    const hand = pistolSkeleton(0, false, { aspect: 16 / 9 });
+    analyzer.analyse({ landmarks: [hand], inferMs: 18, nowMs: clock, aspect: 16 / 9 });
+    clock += 33;
+    analyzer.analyse({ landmarks: [hand], inferMs: 18, nowMs: clock, aspect: 16 / 9 });
+
+    // Frame 1: active stroke
+    bridge.onAnalyzedFrame(analyzer.snapshot(clock), {
+      frameId: 1,
+      captureFrameId: 10,
+      processedFrameId: 10,
+      captureTimestampMs: clock - 20,
+      displayTimestampMs: clock,
+      uniqueCaptureFps: 15,
+      framesSkippedDuplicateCumulative: 4,
+      runtimeSetOptionsCallsCumulative: 0,
+      nowMs: clock,
+      landmarks: hand,
+      truth: "UNLABELLED",
+      luma: { mean: 0.42, center: 0.4, backlight: false, pass: "A0_raw", p10: 0.12, p50: 0.42, p95: 0.85, nearWhiteHandPct: 1.2, blurProxy: 80, noiseProxy: 2.1 },
+      timing: { mpMs: 18, preMs: 0.5, workerMs: 20, classifierMs: 0.1, pipelineMs: 22 },
+      droppedSincePrev: 0,
+      activeStrokePoints: [{ x: 100, y: 100 }, { x: 110, y: 110 }],
+      completedStrokeCount: 0,
+      actionResolution: {
+        actionIntent: "DRAW",
+        actionAccepted: true,
+        rejectReason: null,
+        labelSource: "RULE_DERIVED",
+        fingerCount: 2,
+        inGrace: false,
+      },
+    });
+
+    // Frame 2: short 99ms detector blink -> stays in grace without STROKE_END (STROKE_GAP)
+    clock += 99;
+    bridge.onAnalyzedFrame(analyzer.snapshot(clock), {
+      frameId: 2,
+      captureFrameId: 11,
+      processedFrameId: 11,
+      captureTimestampMs: clock - 18,
+      displayTimestampMs: clock,
+      uniqueCaptureFps: 15,
+      framesSkippedDuplicateCumulative: 6,
+      runtimeSetOptionsCallsCumulative: 0,
+      nowMs: clock,
+      landmarks: null,
+      truth: "UNLABELLED",
+      luma: { mean: 0.42, center: 0.4, backlight: false, pass: "A0_raw", p10: 0.12, p50: 0.42, p95: 0.85, nearWhiteHandPct: 99, blurProxy: 80, noiseProxy: 2.1 },
+      timing: { mpMs: 18, preMs: 0.5, workerMs: 20, classifierMs: null, pipelineMs: 20 },
+      droppedSincePrev: 0,
+      activeStrokePoints: [{ x: 100, y: 100 }, { x: 110, y: 110 }],
+      completedStrokeCount: 0,
+      actionResolution: {
+        actionIntent: "HOLD_GRACE",
+        actionAccepted: true,
+        rejectReason: null,
+        labelSource: "RULE_DERIVED",
+        inGrace: true,
+        gapReason: "short-blink-grace",
+      },
+    });
+
+    // Frame 3: hand recovers within grace -> STROKE_RESUME!
+    clock += 40;
+    bridge.onAnalyzedFrame(analyzer.snapshot(clock), {
+      frameId: 3,
+      captureFrameId: 12,
+      processedFrameId: 12,
+      captureTimestampMs: clock - 15,
+      displayTimestampMs: clock,
+      uniqueCaptureFps: 15,
+      framesSkippedDuplicateCumulative: 6,
+      runtimeSetOptionsCallsCumulative: 0,
+      nowMs: clock,
+      landmarks: hand,
+      truth: "UNLABELLED",
+      luma: { mean: 0.42, center: 0.4, backlight: false, pass: "A0_raw", p10: 0.12, p50: 0.42, p95: 0.85, nearWhiteHandPct: 0.8, blurProxy: 82, noiseProxy: 2.0 },
+      timing: { mpMs: 16, preMs: 0.5, workerMs: 18, classifierMs: 0.1, pipelineMs: 19 },
+      droppedSincePrev: 0,
+      activeStrokePoints: [{ x: 100, y: 100 }, { x: 110, y: 110 }, { x: 125, y: 125 }],
+      completedStrokeCount: 0,
+      actionResolution: {
+        actionIntent: "DRAW",
+        actionAccepted: true,
+        rejectReason: null,
+        labelSource: "RULE_DERIVED",
+        inGrace: false,
+      },
+    });
+
+    // Frame 4: pinch-release closes stroke cleanly + rejected near-pinch logged
+    clock += 40;
+    bridge.onAnalyzedFrame(analyzer.snapshot(clock), {
+      frameId: 4,
+      captureFrameId: 13,
+      processedFrameId: 13,
+      captureTimestampMs: clock - 15,
+      displayTimestampMs: clock,
+      uniqueCaptureFps: 15,
+      framesSkippedDuplicateCumulative: 6,
+      runtimeSetOptionsCallsCumulative: 0,
+      nowMs: clock,
+      landmarks: hand,
+      truth: "UNLABELLED",
+      luma: { mean: 0.42, center: 0.4, backlight: false, pass: "A0_raw" },
+      timing: { mpMs: 16, preMs: 0.5, workerMs: 18, classifierMs: 0.1, pipelineMs: 19 },
+      droppedSincePrev: 0,
+      activeStrokePoints: null,
+      completedStrokeCount: 1,
+      actionResolution: {
+        actionIntent: "DRAW",
+        actionAccepted: false,
+        rejectReason: "near-pinch-not-touching",
+        labelSource: "RULE_DERIVED",
+        endReason: "pinch-release",
+      },
+    });
+
+    // Gesture UNDO/REDO + button UNDO + 5-finger ERASE events
+    mgr.event("ERASE_START", { fingerCount: 5, latencyMs: 18 }, "gesture", true, "RULE_DERIVED");
+    mgr.event("UNDO", { changed: true, via: "gesture-fist-one", latencyMs: 18 }, "gesture", true, "RULE_DERIVED");
+    mgr.event("REDO", { changed: true, via: "gesture-fist-two", latencyMs: 18 }, "gesture", true, "RULE_DERIVED");
+    bridge.onManualCanvasAction("undo");
+
+    await mgr.finishSession("user-finish");
+    const blobText = await readBlobText(await mgr.exportAll(getAppBuildInfo()));
+    expect(validateExportFile(blobText)).toEqual([]);
+    const parsed = JSON.parse(blobText);
+    expect(reanalyzeExport(parsed).ok).toBe(true);
+
+    const sess = parsed.sessions[0];
+    // Privacy check: Frame 2 had no hand -> nearWhiteHandPct MUST be null (not 99)
+    expect(sess.frames[1].nearWhiteHandPct).toBeNull();
+    expect(sess.frames[1].labelSource).toBe("RULE_DERIVED");
+    const sum = sess.trials[0].summary;
+    expect(sum.canvas.strokes).toBe(1);
+    expect(sum.canvas.strokeGapEvents).toBe(1);
+    expect(sum.canvas.continuedStrokesAfterGrace).toBe(1);
+    expect(sum.canvas.strokeEndReasons["pinch-release"]).toBe(1);
+    expect(sum.canvas.undoVia).toEqual({ "gesture-fist-one": 1, button: 1 });
+    expect(sum.canvas.redoVia).toEqual({ "gesture-fist-two": 1 });
+    expect(sum.canvas.actionRejectedReasons["near-pinch-not-touching"]).toBe(1);
+    expect(sum.duplicateFrameSkippedCount).toBe(6);
+    expect(sum.independentGroundTruthAvailable).toBe(false);
+    expect(sum.gesture.falsePressFrames).toBeNull();
+  });
+
+  it("maintains full v1 reader compatibility on in-repo v1 benchmark export fixture", () => {
+    const fixturePath = resolve(__dirname, "../fixtures/bench-v1-compat-sample.json");
+    const parsed = JSON.parse(readFileSync(fixturePath, "utf8"));
+    expect(parsed.schema).toBe("nui-lab-bench-export/1");
+    expect(validateExportFile(parsed)).toEqual([]);
+    const re = reanalyzeExport(parsed);
+    expect(re.ok).toBe(true);
+    expect(re.mismatches).toEqual([]);
+    const t1 = re.sessions[0]!.trialSummaries["S-v1compat-T001"]!;
+    expect(t1.independentGroundTruthAvailable).toBe(false);
+    expect(t1.frames).toBe(12);
+    expect(t1.handFrames).toBe(5);
+    expect(t1.detectorMissFrames).toBe(7);
+    expect(t1.rawNoHandRate).toBe(0.5);
+    expect(t1.activeWindow.leadInNoHandFrames).toBeGreaterThan(0);
+    expect(t1.activeWindow.tailNoHandFrames).toBeGreaterThan(0);
+    expect(t1.activeWindowMissRate).not.toBeNull();
+    expect(t1.rawNoHandRate).not.toBeNull();
+    expect(t1.activeWindowMissRate!).toBeLessThan(t1.rawNoHandRate!);
+    expect(t1.gesture.falsePressFrames).toBeNull();
   });
 });

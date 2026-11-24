@@ -1,33 +1,61 @@
 "use client";
 
 /**
- * Shared UI components for the NUI Lab Benchmark Session Recorder:
- *  - `BenchDashboard` (used on /nui-lab landing): full configuration, consent, start/finish, export, local delete,
- *    live KPIs, per-trial R19 vs R20 comparison table, and recovered previous sessions from IndexedDB.
- *  - `BenchSessionBar` (used on /nui-lab/gesture, /nui-lab/canvas, /nui-lab/diagnostics): compact always-visible bar
- *    showing active recording state, engine/preprocess/detector switches, scenario/truth labels, finish & download.
+ * Shared UI components for the R22 NUI Lab Auto-Benchmark & Consent Recorder:
+ *  - `BenchDashboard` (used on /nui-lab landing): single persisted numeric telemetry consent checkbox,
+ *    1-click JSON/CSV export, local data deletion, live KPIs, and recovered IndexedDB session summary.
+ *  - `BenchSessionBar` (used on /nui-lab/gesture and /nui-lab/canvas): compact always-visible bar with
+ *    auto-recording status, 1-click consent (only if not yet granted), 1-click JSON/CSV export, and delete.
+ *
+ * Per R22 U06 / B06 / A04: zero engineering dropdowns (no C0/C4/C7, RAW/CLAHE/A4, detector, scenario, or manual GT).
  */
-import { useEffect, useState, useSyncExternalStore } from "react";
-import { getLabBenchConfig, canUseCpuWorker, type LabBenchConfig } from "./config";
-import { ENGINE_IDS, ENGINE_SPECS, PREPROCESS_LABELS } from "./engines";
-import { collectNonIdentifyingEnvironment, getAppBuildInfo } from "./env";
+import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import {
+  getLabBenchConfig,
+  readPersistedBenchConsent,
+  writePersistedBenchConsent,
+  type LabBenchConfig,
+} from "./config";
+import { getAppBuildInfo } from "./env";
 import { getBenchManager, type BenchState, type TrialRow } from "./manager";
-import { SCENARIOS, type EngineId, type PreprocessMode, type Scenario } from "./schema";
-import { TRUTH_LABELS, type TruthLabel } from "../lab-recorder";
 
-const PREPROCESS_MODES: PreprocessMode[] = ["a4", "raw", "clahe"];
+const CONSENT_CHANGE_EVENT = "nui-lab-bench-consent-changed";
 
-export const SCENARIO_LABELS: Record<Scenario, string> = {
-  UNSPECIFIED: "Belum ditentukan",
-  N1_single_room_lamp: "N1 · Lampu ruangan tunggal",
-  N2_laptop_screen_only: "N2 · Cahaya layar laptop saja",
-  N3_backlight_behind_shoulder: "N3 · Backlight di belakang bahu",
-  N4_far_80_100cm: "N4 · Jarak jauh (80–100 cm)",
-  N5_second_person_behind: "N5 · Orang kedua lewat di belakang",
-  N6_scratch_head_face_phone: "N6 · Garuk wajah/kepala & pegang HP (60 dtk)",
-  DAYLIGHT_BASELINE: "Cahaya siang / ruangan terang (baseline)",
-  CUSTOM: "Skenario khusus (isi catatan)",
-};
+export function readPersistedConsent(): boolean {
+  return getBenchManager().hasConsent || readPersistedBenchConsent();
+}
+
+export function writePersistedConsent(granted: boolean): void {
+  const mgr = getBenchManager();
+  if (granted) mgr.grantConsent();
+  else mgr.revokeConsent();
+  writePersistedBenchConsent(granted);
+  if (typeof window !== "undefined") {
+    window.dispatchEvent(new CustomEvent(CONSENT_CHANGE_EVENT, { detail: granted }));
+  }
+}
+
+export function useBenchConsent(): [boolean, (granted: boolean) => void] {
+  const [granted, setGranted] = useState<boolean>(false);
+
+  useEffect(() => {
+    setGranted(readPersistedConsent());
+    const sync = () => setGranted(readPersistedConsent());
+    window.addEventListener(CONSENT_CHANGE_EVENT, sync);
+    window.addEventListener("storage", sync);
+    return () => {
+      window.removeEventListener(CONSENT_CHANGE_EVENT, sync);
+      window.removeEventListener("storage", sync);
+    };
+  }, []);
+
+  const update = useCallback((next: boolean) => {
+    writePersistedConsent(next);
+    setGranted(next);
+  }, []);
+
+  return [granted, update];
+}
 
 export function useBenchLifecycleHooks(): void {
   const mgr = getBenchManager();
@@ -53,7 +81,7 @@ export function useBenchLifecycleHooks(): void {
 export function useBenchState(): BenchState {
   const mgr = getBenchManager();
   useBenchLifecycleHooks();
-  return useSyncExternalStore(mgr.subscribe, mgr.getSnapshot, mgr.getSnapshot);
+  return useSyncExternalStore(mgr.subscribe, mgr.getSnapshot, mgr.getServerSnapshot);
 }
 
 export function useLabBenchConfig(): LabBenchConfig {
@@ -61,7 +89,7 @@ export function useLabBenchConfig(): LabBenchConfig {
   useEffect(() => {
     store.hydrate();
   }, [store]);
-  return useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
+  return useSyncExternalStore(store.subscribe, store.getSnapshot, store.getServerSnapshot);
 }
 
 function triggerBlobDownload(blob: Blob, filename: string): void {
@@ -86,61 +114,41 @@ const fmtBytes = (b: number | null): string => {
   return `${(b / (1024 * 1024)).toFixed(2)} MB`;
 };
 
-function statusBadgeText(st: BenchState): string {
-  if (st.phase === "active") return `MEREKAM · ${st.sessionId}`;
+function statusBadgeText(st: BenchState, consentGranted: boolean): string {
+  if (st.phase === "active") return `MEREKAM OTOMATIS · ${st.sessionId}`;
   if (st.phase === "finished") return `SELESAI · ${st.sessionId}`;
+  if (consentGranted) return "REKAM OTOMATIS SIAP (MENUNGGU KAMERA)";
   if (st.previousSessions.some((s) => s.status === "interrupted")) return "ADA SESI TERPUTUS TERSIMPAN";
-  return "SIAP (BELUM MEREKAM)";
+  return "MENUNGGU PERSETUJUAN LOKAL";
 }
 
 /**
- * Full Benchmark Session Dashboard on `/nui-lab`.
+ * Clean Owner Telemetry & Export Dashboard on `/nui-lab`.
  */
 export function BenchDashboard() {
   const st = useBenchState();
-  const cfg = useLabBenchConfig();
   const mgr = getBenchManager();
-  const cfgStore = getLabBenchConfig();
-  const [consent, setConsent] = useState(false);
+  const [consent, setConsent] = useBenchConsent();
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [noteDraft, setNoteDraft] = useState(st.scenarioNote);
-  const workerSupported = canUseCpuWorker();
-
-  useEffect(() => {
-    setNoteDraft(st.scenarioNote);
-  }, [st.scenarioNote]);
 
   const totalSessionsStored = (st.phase === "active" ? 1 : 0) + st.previousSessions.length;
   const hasExportableData = st.counters.frames > 0 || st.trialCount > 0 || st.previousSessions.length > 0;
+  const effectiveConsent = consent || st.phase === "active";
 
-  const handleStart = async () => {
-    setBusy(true);
-    setFeedback(null);
-    try {
-      const id = await mgr.startSession({
-        consent,
-        app: getAppBuildInfo(),
-        environment: collectNonIdentifyingEnvironment(),
-      });
-      setFeedback(`Sesi benchmark ${id} aktif. Buka Gesture Lab atau Canvas Lab lalu nyalakan kamera untuk merekam otomatis.`);
-    } catch (err) {
-      setFeedback(err instanceof Error ? err.message : String(err));
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  const handleFinish = async () => {
-    setBusy(true);
-    setFeedback(null);
-    try {
-      await mgr.finishSession("finished-by-tester");
-      setFeedback("Sesi benchmark selesai dan disimpan di IndexedDB. Tekan Unduh Semua Hasil Sesi untuk mengekspor.");
-    } catch (err) {
-      setFeedback(err instanceof Error ? err.message : String(err));
-    } finally {
-      setBusy(false);
+  const handleConsentChange = async (checked: boolean) => {
+    setConsent(checked);
+    if (checked) {
+      setFeedback("Persetujuan tersimpan. Perekaman telemetri angka akan berjalan otomatis saat kamera dinyalakan.");
+      if (!mgr.isActive) {
+        try {
+          await mgr.init();
+        } catch {
+          /* ignore */
+        }
+      }
+    } else {
+      setFeedback("Perekaman otomatis dinonaktifkan.");
     }
   };
 
@@ -180,7 +188,7 @@ export function BenchDashboard() {
     try {
       await mgr.deleteAllLocalData();
       setConsent(false);
-      setFeedback("Seluruh data benchmark lokal telah dihapus.");
+      setFeedback("Seluruh data benchmark lokal telah dihapus dan persetujuan direset.");
     } catch (err) {
       setFeedback(err instanceof Error ? err.message : String(err));
     } finally {
@@ -197,12 +205,12 @@ export function BenchDashboard() {
   const overallMissingRate = totalFrames > 0 ? totalMissFrames / totalFrames : null;
 
   return (
-    <section className="nui-lab__panel nui-lab__bench-dash" data-testid="bench-dashboard" aria-label="Dasbor Benchmark NUI Lab">
+    <section className="nui-lab__panel nui-lab__bench-dash" data-testid="bench-dashboard" aria-label="Telemetri Otomatis NUI Lab">
       <div className="nui-lab__info-head">
-        <h2>Sesi Benchmark NUI Lab (R19 vs R20 · CPU-Only)</h2>
+        <h2>Telemetri &amp; Rekaman Otomatis Lokal</h2>
         <span
           className={`nui-lab__pill ${
-            st.phase === "active"
+            st.phase === "active" || effectiveConsent
               ? "nui-lab__pill--ok"
               : st.warnings.length > 0 || st.droppedRecords > 0
                 ? "nui-lab__pill--warn"
@@ -210,159 +218,40 @@ export function BenchDashboard() {
           }`}
           data-testid="bench-status-pill"
         >
-          {statusBadgeText(st)}
+          {statusBadgeText(st, effectiveConsent)}
         </span>
       </div>
 
       <p className="nui-lab__muted">
-        Rekam semua percobaan Gesture Lab dan Canvas Lab secara otomatis dalam satu sesi persisten lokal (IndexedDB).
-        Hanya menyimpan angka landmark, telemetri aturan, dan metrik performa — <strong>tanpa video, gambar, audio, wajah, identitas, atau unggahan server</strong>.
+        Setelah Anda menyetujui sekali, semua percobaan di <strong>Coba Gestur</strong> dan <strong>Coba Canvas</strong>{" "}
+        otomatis tercatat di penyimpanan lokal browser (IndexedDB). Hanya menyimpan data numerik landmark dan metrik
+        performa — <strong>tanpa video, gambar, audio, wajah, identitas, atau unggahan server</strong>.
       </p>
 
-      {/* Preset & Configuration */}
-      <div className="nui-lab__bench-config" data-testid="bench-config-panel">
-        <div className="nui-lab__bench-group">
-          <strong>1. Pilih Engine Model (tidak dicampur antar trial)</strong>
-          <div className="nui-lab__choices" role="group" aria-label="Pilih engine model">
-            {ENGINE_IDS.map((eid: EngineId) => {
-              const spec = ENGINE_SPECS[eid];
-              return (
-                <button
-                  key={eid}
-                  type="button"
-                  className="nui-lab__button"
-                  aria-pressed={cfg.engineId === eid}
-                  data-testid={`bench-engine-${eid}`}
-                  onClick={() => cfgStore.update({ engineId: eid })}
-                >
-                  {spec.short} ({Math.round(spec.bytes / 1024)} KB)
-                </button>
-              );
-            })}
-          </div>
-          <p className="nui-lab__muted">
-            Aktif: <code>{ENGINE_SPECS[cfg.engineId].label}</code> · SHA-256: <code>{ENGINE_SPECS[cfg.engineId].sha256.slice(0, 12)}…</code>
-          </p>
-        </div>
-
-        <div className="nui-lab__bench-group">
-          <strong>2. Mode Preprocessing Cahaya &amp; Detektor CPU</strong>
-          <div className="nui-lab__choices" role="group" aria-label="Mode preprocessing cahaya">
-            {PREPROCESS_MODES.map((pm) => (
-              <button
-                key={pm}
-                type="button"
-                className="nui-lab__button"
-                aria-pressed={cfg.preprocess === pm}
-                data-testid={`bench-preprocess-${pm}`}
-                onClick={() => cfgStore.update({ preprocess: pm })}
-              >
-                {pm.toUpperCase()}
-              </button>
-            ))}
-            <button
-              type="button"
-              className="nui-lab__button"
-              aria-pressed={cfg.detector === "cpu-worker"}
-              disabled={!workerSupported}
-              data-testid="bench-detector-cpu-worker"
-              onClick={() => cfgStore.update({ detector: "cpu-worker" })}
-            >
-              CPU Web Worker (R20)
-            </button>
-            <button
-              type="button"
-              className="nui-lab__button"
-              aria-pressed={cfg.detector === "cpu-main-thread"}
-              data-testid="bench-detector-cpu-main-thread"
-              onClick={() => cfgStore.update({ detector: "cpu-main-thread" })}
-            >
-              CPU Main-Thread
-            </button>
-          </div>
-          <p className="nui-lab__muted">
-            Preprocess: <code>{PREPROCESS_LABELS[cfg.preprocess]}</code> · Delegate: <code>CPU</code>
-          </p>
-        </div>
-
-        <div className="nui-lab__bench-group">
-          <strong>3. Skenario Uji (Matriks N1–N6)</strong>
-          <div className="nui-lab__row">
-            <label>
-              Skenario:{" "}
-              <select
-                value={st.scenario}
-                data-testid="bench-scenario-select"
-                onChange={(e) => mgr.setScenario(e.target.value as Scenario, noteDraft)}
-              >
-                {SCENARIOS.map((sc) => (
-                  <option key={sc} value={sc}>
-                    {SCENARIO_LABELS[sc]}
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Catatan skenario (non-PII):{" "}
-              <input
-                type="text"
-                value={noteDraft}
-                maxLength={80}
-                placeholder="mis. lampu meja 1x, jarak 90cm"
-                data-testid="bench-scenario-note"
-                onChange={(e) => setNoteDraft(e.target.value)}
-                onBlur={() => mgr.setScenario(st.scenario, noteDraft)}
-              />
-            </label>
-          </div>
-        </div>
-      </div>
-
-      {/* Consent & Session Lifecycle Controls */}
       <div className="nui-lab__bench-consent-box">
         <label className="nui-lab__check">
           <input
             type="checkbox"
-            checked={consent || st.phase === "active"}
+            checked={effectiveConsent}
             disabled={st.phase === "active" || busy}
             data-testid="bench-consent"
-            onChange={(e) => setConsent(e.target.checked)}
+            onChange={(e) => void handleConsentChange(e.target.checked)}
           />
           <span>
-            Saya menyetujui perekaman <strong>data numerik lokal</strong> (21 landmark, status aturan gestur/kanvas, dan metrik performa) ke penyimpanan perangkat ini. Tidak merekam video/gambar/audio/wajah dan tidak mengunggah ke server.
+            Saya menyetujui perekaman <strong>data numerik lokal</strong> (21 titik landmark, status gestur/kanvas, dan
+            metrik performa) di perangkat ini. Tidak merekam video/gambar/wajah dan tidak mengunggah ke server.
           </span>
         </label>
 
         <div className="nui-lab__row">
-          {st.phase !== "active" ? (
-            <button
-              type="button"
-              className="nui-lab__button nui-lab__button--primary"
-              disabled={!consent || busy}
-              data-testid="bench-start"
-              onClick={() => void handleStart()}
-            >
-              Mulai Sesi Benchmark
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="nui-lab__button nui-lab__button--primary"
-              disabled={busy}
-              data-testid="bench-finish"
-              onClick={() => void handleFinish()}
-            >
-              Selesaikan Sesi
-            </button>
-          )}
           <button
             type="button"
-            className="nui-lab__button"
+            className="nui-lab__button nui-lab__button--primary"
             disabled={!hasExportableData || busy}
             data-testid="bench-export-json"
             onClick={() => void handleExportJson()}
           >
-            Unduh Semua Hasil Sesi (JSON)
+            Unduh Hasil (JSON)
           </button>
           <button
             type="button"
@@ -376,7 +265,7 @@ export function BenchDashboard() {
           <button
             type="button"
             className="nui-lab__button"
-            disabled={(!hasExportableData && st.phase !== "active") || busy}
+            disabled={(!hasExportableData && st.phase !== "active" && !effectiveConsent) || busy}
             data-testid="bench-delete-all"
             onClick={() => void handleDeleteAll()}
           >
@@ -391,51 +280,64 @@ export function BenchDashboard() {
         )}
       </div>
 
-      {/* Live Telemetry Overview */}
       <dl className="nui-lab__numbers" data-testid="bench-kpis">
         <div className="nui-lab__stat">
           <dt>Penyimpanan lokal</dt>
-          <dd>{st.storage === "indexeddb" ? "IndexedDB (persisten)" : st.storage === "memory-only" ? "Memori saja (non-persisten)" : "Memeriksa…"}</dd>
+          <dd>{st.storage === "indexeddb" ? "IndexedDB (persisten)" : st.storage === "memory-only" ? "Memori saja" : "Memeriksa…"}</dd>
         </div>
         <div className="nui-lab__stat">
           <dt>Trial sesi ini / total sesi</dt>
-          <dd>{st.trialCount} trial · {totalSessionsStored} sesi tersimpan</dd>
+          <dd>
+            {st.trialCount} trial · {totalSessionsStored} sesi tersimpan
+          </dd>
         </div>
         <div className="nui-lab__stat">
           <dt>Catatan tersimpan (frame / event)</dt>
-          <dd>{st.counters.frames} / {st.counters.events} (antrian: {st.storageQueue})</dd>
+          <dd>
+            {st.counters.frames} / {st.counters.events} (antrian: {st.storageQueue})
+          </dd>
         </div>
         <div className="nui-lab__stat">
           <dt>Record dibuang / gagal tulis</dt>
-          <dd>{st.droppedRecords} / {st.storageFailures}</dd>
+          <dd>
+            {st.droppedRecords} / {st.storageFailures}
+          </dd>
         </div>
         <div className="nui-lab__stat">
           <dt>UI FPS / Deteksi Hz (terakhir)</dt>
-          <dd>{fmtNum(st.perfLatest?.uiFps, " FPS")} · {fmtNum(st.perfLatest?.detectHz, " Hz")}</dd>
+          <dd>
+            {fmtNum(st.perfLatest?.uiFps, " FPS")} · {fmtNum(st.perfLatest?.detectHz, " Hz")}
+          </dd>
         </div>
         <div className="nui-lab__stat">
-          <dt>Pipeline p95 / Frame drop / Miss-hand</dt>
+          <dt>Pipeline p95 / Frame drop / No-hand mentah</dt>
           <dd>
-            {fmtNum(st.perfLatest?.pipelineP95Ms, " ms")} · drop {st.perfLatest?.framesDropped ?? 0} · miss {fmtPct(overallMissingRate)}
+            {fmtNum(st.perfLatest?.pipelineP95Ms, " ms")} · drop {st.perfLatest?.framesDropped ?? 0} · {fmtPct(overallMissingRate)}
           </dd>
         </div>
         <div className="nui-lab__stat">
           <dt>Gesture (KEYDOWN / RELEASE_ALL)</dt>
-          <dd>{totalGestureKd} / {totalGestureRel}</dd>
+          <dd>
+            {totalGestureKd} / {totalGestureRel}
+          </dd>
         </div>
         <div className="nui-lab__stat">
           <dt>Canvas (Stroke / Break tak terduga)</dt>
-          <dd>{totalCanvasStrokes} / {totalCanvasBreaks}</dd>
+          <dd>
+            {totalCanvasStrokes} / {totalCanvasBreaks}
+          </dd>
         </div>
         <div className="nui-lab__stat">
           <dt>Pemakaian kuota penyimpanan</dt>
-          <dd>{fmtBytes(st.storageUsageBytes)} / {fmtBytes(st.storageQuotaBytes)}</dd>
+          <dd>
+            {fmtBytes(st.storageUsageBytes)} / {fmtBytes(st.storageQuotaBytes)}
+          </dd>
         </div>
       </dl>
 
       {st.warnings.length > 0 && (
         <div className="nui-lab__r19-alert" role="alert" data-testid="bench-warnings">
-          <strong>Peringatan Sesi / Keselamatan:</strong>
+          <strong>Peringatan Sesi:</strong>
           <ul>
             {st.warnings.map((w, i) => (
               <li key={i}>{w}</li>
@@ -444,42 +346,40 @@ export function BenchDashboard() {
         </div>
       )}
 
-      {/* Per-Trial Comparison Table (never mixes R19 and R20) */}
       {st.trials.length > 0 && (
         <div className="nui-lab__bench-table-wrap">
-          <h3>Ringkasan Per Trial (R19 vs R20 Terpisah)</h3>
+          <h3>Ringkasan Trial Tersimpan</h3>
           <table className="nui-lab__bench-table" data-testid="bench-trials-table">
             <thead>
               <tr>
                 <th>Trial</th>
-                <th>Route</th>
-                <th>Engine</th>
-                <th>Preprocess</th>
-                <th>Skenario</th>
+                <th>Mode</th>
                 <th>Frame</th>
                 <th>Detect Hz</th>
-                <th>Miss-hand</th>
+                <th>Miss Aktif</th>
+                <th>No-hand mentah</th>
                 <th>MP p95</th>
                 <th>Pipe p95</th>
-                <th>KD / RelAll</th>
                 <th>Stroke</th>
+                <th>Alasan Selesai</th>
               </tr>
             </thead>
             <tbody>
               {st.trials.map((t: TrialRow) => (
                 <tr key={t.trialId} data-engine={t.engineId}>
-                  <td><code>{t.trialId.split("-").slice(-1)[0]}</code>{t.open ? " ●" : ""}</td>
+                  <td>
+                    <code>{t.trialId.split("-").slice(-1)[0]}</code>
+                    {t.open ? " ●" : ""}
+                  </td>
                   <td>{t.route}</td>
-                  <td><strong>{t.engineId}</strong></td>
-                  <td>{t.preprocess}</td>
-                  <td>{t.scenario}</td>
                   <td>{t.summary.frames}</td>
                   <td>{fmtNum(t.summary.detectHzMean, " Hz")}</td>
+                  <td>{fmtPct(t.summary.activeWindowMissRate)}</td>
                   <td>{fmtPct(t.summary.missingHandRate)}</td>
                   <td>{fmtNum(t.summary.mpMs.p95, " ms")}</td>
                   <td>{fmtNum(t.summary.pipelineMs.p95, " ms")}</td>
-                  <td>{t.summary.gesture.keydowns} / {t.summary.gesture.releaseAlls}</td>
                   <td>{t.summary.canvas.strokes}</td>
+                  <td>{t.summary.endReason ?? (t.open ? "aktif" : "—")}</td>
                 </tr>
               ))}
             </tbody>
@@ -487,7 +387,6 @@ export function BenchDashboard() {
         </div>
       )}
 
-      {/* Previous Stored Sessions in IndexedDB */}
       {st.previousSessions.length > 0 && (
         <div className="nui-lab__bench-prev" data-testid="bench-prev-sessions">
           <h3>Sesi Tersimpan Sebelumnya (IndexedDB)</h3>
@@ -506,168 +405,66 @@ export function BenchDashboard() {
 }
 
 /**
- * Compact Benchmark Session & Engine Bar rendered at the top of `/nui-lab/gesture`, `/nui-lab/canvas`, and `/nui-lab/diagnostics`.
+ * Compact Automatic Session & Export Bar on `/nui-lab/gesture` and `/nui-lab/canvas`.
+ * Zero engineering selectors (no engine, preprocess, detector, scenario, or manual GT dropdowns).
  */
 export function BenchSessionBar({
-  onConfigChange,
+  onConsentGranted,
 }: {
-  onConfigChange?: (next: LabBenchConfig) => void;
+  onConsentGranted?: () => void;
 }) {
   const st = useBenchState();
-  const cfg = useLabBenchConfig();
   const mgr = getBenchManager();
-  const cfgStore = getLabBenchConfig();
-  const [quickConsent, setQuickConsent] = useState(false);
+  const [consent, setConsent] = useBenchConsent();
   const [busy, setBusy] = useState(false);
-  const workerSupported = canUseCpuWorker();
-
-  const updateCfg = (patch: Partial<LabBenchConfig>) => {
-    cfgStore.update(patch);
-    onConfigChange?.(cfgStore.getSnapshot());
-  };
 
   const hasExport = st.counters.frames > 0 || st.trialCount > 0 || st.previousSessions.length > 0;
+  const effectiveConsent = consent || st.phase === "active";
+
+  const handleToggleConsent = (checked: boolean) => {
+    setConsent(checked);
+    if (checked) {
+      onConsentGranted?.();
+    }
+  };
 
   return (
-    <section className="nui-lab__bench-bar" data-testid="bench-session-bar" aria-label="Kontrol sesi benchmark aktif">
+    <section className="nui-lab__bench-bar" data-testid="bench-session-bar" aria-label="Status perekaman otomatis dan ekspor">
       <div className="nui-lab__bench-bar-row">
         <span
-          className={`nui-lab__pill ${st.phase === "active" ? "nui-lab__pill--ok" : ""}`}
+          className={`nui-lab__pill ${st.phase === "active" || effectiveConsent ? "nui-lab__pill--ok" : ""}`}
           data-testid="bench-bar-status"
         >
           {st.phase === "active"
-            ? `SESI AKTIF ${st.sessionId} · Trial ${st.currentTrialId?.split("-").slice(-1)[0] ?? "menunggu kamera"} · ${st.counters.frames} frame`
-            : "Sesi Benchmark Nonaktif"}
+            ? `REKAM OTOMATIS · ${st.currentTrialId?.split("-").slice(-1)[0] ?? "menunggu kamera"} · ${st.counters.frames} frame`
+            : effectiveConsent
+              ? "Rekam Otomatis Siap (mulai saat kamera aktif)"
+              : "Perekaman Lokal Nonaktif"}
         </span>
 
-        <label className="nui-lab__bench-inline">
-          Engine:{" "}
-          <select
-            value={cfg.engineId}
-            data-testid="bench-bar-engine"
-            onChange={(e) => updateCfg({ engineId: e.target.value as EngineId })}
-          >
-            {ENGINE_IDS.map((eid) => (
-              <option key={eid} value={eid}>
-                {ENGINE_SPECS[eid].short} ({Math.round(ENGINE_SPECS[eid].bytes / 1024)} KB)
-              </option>
-            ))}
-          </select>
-        </label>
+        {!effectiveConsent && (
+          <label className="nui-lab__check nui-lab__check--compact">
+            <input
+              type="checkbox"
+              checked={effectiveConsent}
+              disabled={busy}
+              data-testid="bench-bar-consent"
+              onChange={(e) => handleToggleConsent(e.target.checked)}
+            />
+            <span>Setuju rekam angka landmark lokal (tanpa video/wajah)</span>
+          </label>
+        )}
 
-        <label className="nui-lab__bench-inline">
-          Cahaya:{" "}
-          <select
-            value={cfg.preprocess}
-            data-testid="bench-bar-preprocess"
-            onChange={(e) => updateCfg({ preprocess: e.target.value as PreprocessMode })}
-          >
-            <option value="a4">A4 Adaptif</option>
-            <option value="raw">RAW</option>
-            <option value="clahe">CLAHE 320</option>
-          </select>
-        </label>
-
-        <label className="nui-lab__bench-inline">
-          Detektor:{" "}
-          <select
-            value={cfg.detector}
-            data-testid="bench-bar-detector"
-            onChange={(e) => updateCfg({ detector: e.target.value as LabBenchConfig["detector"] })}
-          >
-            <option value="cpu-worker" disabled={!workerSupported}>
-              CPU Web Worker
-            </option>
-            <option value="cpu-main-thread">CPU Main-Thread</option>
-          </select>
-        </label>
-
-        <label className="nui-lab__bench-inline">
-          Skenario:{" "}
-          <select
-            value={st.scenario}
-            data-testid="bench-bar-scenario"
-            onChange={(e) => mgr.setScenario(e.target.value as Scenario, st.scenarioNote)}
-          >
-            {SCENARIOS.map((sc) => (
-              <option key={sc} value={sc}>
-                {SCENARIO_LABELS[sc]}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label className="nui-lab__bench-inline">
-          Label GT:{" "}
-          <select
-            value={st.truth}
-            data-testid="bench-bar-truth"
-            onChange={(e) => mgr.setTruth(e.target.value as TruthLabel)}
-          >
-            {TRUTH_LABELS.map((tl) => (
-              <option key={tl} value={tl}>
-                {tl}
-              </option>
-            ))}
-          </select>
-        </label>
+        <span className="nui-lab__muted" data-testid="bench-bar-metrics">
+          Trial: {st.trialCount} · Dibuang: {st.droppedRecords}
+          {st.perfLatest ? ` · UI ${st.perfLatest.uiFps} FPS · Det ${st.perfLatest.detectHz} Hz · Pipe p95 ${fmtNum(st.perfLatest.pipelineP95Ms, " ms")}` : ""}
+        </span>
       </div>
 
       <div className="nui-lab__bench-bar-row">
-        {st.phase !== "active" ? (
-          <>
-            <label className="nui-lab__check nui-lab__check--compact">
-              <input
-                type="checkbox"
-                checked={quickConsent}
-                data-testid="bench-bar-consent"
-                onChange={(e) => setQuickConsent(e.target.checked)}
-              />
-              <span>Setuju rekam data numerik lokal (tanpa video/gambar/unggah)</span>
-            </label>
-            <button
-              type="button"
-              className="nui-lab__button"
-              disabled={!quickConsent || busy}
-              data-testid="bench-bar-start"
-              onClick={async () => {
-                setBusy(true);
-                try {
-                  await mgr.startSession({
-                    consent: quickConsent,
-                    app: getAppBuildInfo(),
-                    environment: collectNonIdentifyingEnvironment(),
-                  });
-                } finally {
-                  setBusy(false);
-                }
-              }}
-            >
-              Mulai Sesi Benchmark
-            </button>
-          </>
-        ) : (
-          <button
-            type="button"
-            className="nui-lab__button"
-            disabled={busy}
-            data-testid="bench-bar-finish"
-            onClick={async () => {
-              setBusy(true);
-              try {
-                await mgr.finishSession("finished-by-tester");
-              } finally {
-                setBusy(false);
-              }
-            }}
-          >
-            Selesaikan Sesi
-          </button>
-        )}
-
         <button
           type="button"
-          className="nui-lab__button"
+          className="nui-lab__button nui-lab__button--compact"
           disabled={!hasExport || busy}
           data-testid="bench-bar-export"
           onClick={async () => {
@@ -680,13 +477,44 @@ export function BenchSessionBar({
             }
           }}
         >
-          Unduh Semua Hasil Sesi
+          Unduh Hasil (JSON)
         </button>
 
-        <span className="nui-lab__muted" data-testid="bench-bar-metrics">
-          Trial: {st.trialCount} · Dibuang: {st.droppedRecords} · Antrian: {st.storageQueue}
-          {st.perfLatest ? ` · UI ${st.perfLatest.uiFps} FPS · Det ${st.perfLatest.detectHz} Hz · Pipe p95 ${fmtNum(st.perfLatest.pipelineP95Ms, " ms")}` : ""}
-        </span>
+        <button
+          type="button"
+          className="nui-lab__button nui-lab__button--compact"
+          disabled={!hasExport || busy}
+          data-testid="bench-bar-export-csv"
+          onClick={async () => {
+            setBusy(true);
+            try {
+              const blob = await mgr.exportSummaryCsv();
+              triggerBlobDownload(blob, `nui-lab-benchmark-summary-${st.sessionId ?? "all"}.csv`);
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          Unduh Ringkasan (CSV)
+        </button>
+
+        <button
+          type="button"
+          className="nui-lab__button nui-lab__button--compact"
+          disabled={(!hasExport && st.phase !== "active" && !effectiveConsent) || busy}
+          data-testid="bench-bar-delete"
+          onClick={async () => {
+            setBusy(true);
+            try {
+              await mgr.deleteAllLocalData();
+              setConsent(false);
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          Hapus Data Lokal
+        </button>
       </div>
     </section>
   );

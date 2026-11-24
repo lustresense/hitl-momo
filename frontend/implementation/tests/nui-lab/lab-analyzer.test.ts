@@ -139,7 +139,7 @@ describe("LabAnalyzer: wave test", () => {
 
 describe("LabAnalyzer: ink preview", () => {
   it("draws a pinch as one stroke and ends it on release", () => {
-    const a = makeAnalyzer();
+    const a = makeAnalyzer({ preset: "default-any-pinch" });
     for (let i = 0; i < 10; i++) a.analyse({ landmarks: [pinchHand(0.3 + i * 0.02)], inferMs: 5, nowMs: i * FRAME_MS });
     for (let i = 0; i < 6; i++) a.analyse({ landmarks: [poseHand("open-palm")], inferMs: 5, nowMs: (10 + i) * FRAME_MS });
     const strokes = a.strokes();
@@ -312,7 +312,7 @@ describe("NUI Lab automated hand ownership, fail-closed R19 gate, and action saf
   });
 
   it("automatically reassigns after an empty camera, but never continues a stale pinch", () => {
-    const lab = makeAnalyzer({ fullFrameLock: true });
+    const lab = makeAnalyzer({ fullFrameLock: true, preset: "default-any-pinch" });
     const pinch = pinchHand(.5);
     lab.analyse({landmarks:[pinch],inferMs:5,nowMs:0});
     lab.analyse({landmarks:[pinch],inferMs:5,nowMs:33});

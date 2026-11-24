@@ -15,7 +15,7 @@ import type { R19TelemetryState } from "./lab-metrics";
 export const RECORD_SCHEMA = "nui-landmark-record/1" as const;
 export const MAX_RECORD_FRAMES = 20_000;
 
-/** Ground truth the TESTER says is happening. UNLABELLED frames are kept but must not be used to train. */
+/** Ground truth the TESTER says is happening (R19 canonical list preserved for lab-recorder/1 compatibility). */
 export const TRUTH_LABELS = [
   "POINT_READY",
   "POINT_PRESS",
@@ -31,7 +31,33 @@ export const TRUTH_LABELS = [
   "NO_LANDMARK",
   "UNLABELLED",
 ] as const;
-export type TruthLabel = (typeof TRUTH_LABELS)[number];
+
+/** R22B K4 v1.1 & §7 Guided Capture truth labels accepted by the v2.1 benchmark schema. */
+export const K4V11_TRUTH_LABELS = [
+  "FIST",
+  "ONE",
+  "TWO",
+  "THREE_IMR",
+  "THREE_TIM",
+  "THREE_MRP",
+  "FOUR",
+  "PINCH_CLOSED",
+  "PINCH_OK",
+  "NEAR_PINCH",
+  "NO_HAND",
+  "TRANSITION_FIST_ONE",
+  "TRANSITION_FIST_TWO",
+  "TRANSITION_ONE_FIST",
+  "TRANSITION_OPEN_PINCH_CLOSED_OPEN",
+  "TRANSITION_PINCH_CLOSED_PINCH_OK",
+  "TRANSITION_FIST_PINCH_CLOSED",
+  "TRANSITION_PINCH_OK_FIVE",
+] as const;
+
+export type TruthLabel =
+  | (typeof TRUTH_LABELS)[number]
+  | (typeof K4V11_TRUTH_LABELS)[number]
+  | `TRANSITION_${string}`;
 export type FinalAction = "draw" | "erase" | "undo" | "redo" | "none";
 
 export interface RecordFrame {
@@ -209,7 +235,13 @@ export function validateRecord(file: unknown): string[] {
     if (fr.lm !== null && (fr.lm.length !== 21 || fr.lm.some((p) => p.length !== 2 || !Number.isFinite(p[0]) || !Number.isFinite(p[1])))) {
       problems.push(`frame ${i}: landmarks`);
     }
-    if (!TRUTH_LABELS.includes(fr.truth)) problems.push(`frame ${i}: truth label`);
+    if (
+      !(TRUTH_LABELS as readonly string[]).includes(fr.truth) &&
+      !(K4V11_TRUTH_LABELS as readonly string[]).includes(fr.truth) &&
+      !String(fr.truth).startsWith("TRANSITION_")
+    ) {
+      problems.push(`frame ${i}: truth label`);
+    }
     if (fr.lm === null && fr.action !== "none") problems.push(`frame ${i}: action without a hand`);
     if (fr.r19State !== undefined && !R19_STATES.has(fr.r19State)) problems.push(`frame ${i}: r19State`);
     if (fr.vkeyEvent !== undefined && !VKEY_EVENTS.has(fr.vkeyEvent)) problems.push(`frame ${i}: vkeyEvent`);

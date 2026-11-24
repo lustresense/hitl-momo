@@ -1,31 +1,47 @@
 /**
  * BenchSessionManager — ONE module-level singleton shared by /nui-lab, /nui-lab/gesture, /nui-lab/canvas and
  * /nui-lab/diagnostics (client-side navigation keeps the module alive, so trial history survives route changes; a reload
- * recovers it from IndexedDB and flags the old session as interrupted).
+ * recovers it from IndexedDB and flags the old session as interrupted without merging or double-counting).
  *
- * Hard rules, all covered by tests/nui-lab/bench-*.test.ts:
- *  - nothing is recorded before `startSession({ consent: true })`; consent=false throws and stores nothing;
- *  - every frame handed to `recordFrame` ends up written, queued, or counted in `droppedRecords`;
- *  - a frame without a hand is recorded as DETECTOR_MISS (the caller must still call recordFrame);
- *  - closing the page / crash / camera stop never makes stored data vanish: sessions are flagged interrupted.
+ * R22 Zero-Friction Automatic Lifecycle (B01–B04, B06, E03):
+ *  - Nothing is recorded before explicit numeric telemetry consent (`grantConsent()` or `startSession({ consent: true })`).
+ *  - Once consent is granted (persisted in localStorage), `startCameraTrialAuto(ctx)` automatically starts a session
+ *    (if none active) and opens a trial when the camera turns on — no manual "Mulai Benchmark", scenario, or GT needed!
+ *  - Route switches, tab hidden (`visibilitychange`), `pagehide`, camera stop, and worker errors automatically close
+ *    the active trial with explicit `endReason` so off-tab / off-camera time never pollutes active detection windows.
  */
-import { TrialAggregator } from "./stats";
-import { ChunkWriter } from "./writer";
-import { buildExportBlob, buildSummaryCsv } from "./export";
+import {
+  DEFAULT_MIN_DETECTION_CONFIDENCE,
+  DEFAULT_MIN_PRESENCE_CONFIDENCE,
+  DEFAULT_MIN_TRACKING_CONFIDENCE,
+  readPersistedBenchConsent,
+  writePersistedBenchConsent,
+} from "./config";
+import type { ReacquirePinchPolicy } from "./presets";
+import { DEFAULT_PREPROCESS, PREPROCESS_CANDIDATES } from "./engines";
+import { YOLO_MODEL_SHA256 } from "./monui7-yolo";
+import { collectNonIdentifyingEnvironment, getAppBuildInfo } from "./env";
+import { analyzeBundle, buildExportBlob, buildSummaryCsv, readBundle } from "./export";
+import { deriveConditionTags, TrialAggregator } from "./stats";
 import { openBenchStore, type BenchStore } from "./store";
+import { ChunkWriter } from "./writer";
 import {
   BENCH_SESSION_SCHEMA,
   type BenchEvent,
   type BenchFrame,
+  type BenchFrameInput,
   type BenchRoute,
   type BenchSource,
   type CameraProfile,
   type EngineConfig,
   type EventType,
+  type LabelSource,
+  type LandmarkHealth,
   type PerfSample,
   type Scenario,
   type SessionMeta,
   type SessionStatus,
+  type TrackingState,
   type TrialMeta,
   type TrialSummary,
   type TruthLabel,
@@ -36,6 +52,17 @@ export interface TrialContext {
   source: BenchSource;
   engine: EngineConfig;
   camera: CameraProfile;
+  numHandsActive?: 1 | 2;
+  numHandsOverride?: string | null;
+  minDetectionConfidence?: number;
+  minPresenceConfidence?: number;
+  minTrackingConfidence?: number;
+  confidenceOverride?: string | null;
+  presetId?: string;
+  reacquirePinchPolicy?: ReacquirePinchPolicy;
+  captureMeta?: TrialMeta["captureMeta"];
+  rawRecMeta?: TrialMeta["rawRecMeta"];
+  initSetOptionsCalls?: number;
 }
 
 export interface TrialRow {
@@ -48,12 +75,14 @@ export interface TrialRow {
   preprocess: string;
   detector: string;
   scenario: Scenario;
+  endReason: string | null;
   open: boolean;
   summary: TrialSummary;
 }
 
 export interface BenchState {
   ready: boolean;
+  consentGranted: boolean;
   phase: "idle" | "active" | "finished";
   sessionId: string | null;
   status: SessionStatus | null;
@@ -65,19 +94,53 @@ export interface BenchState {
   trialCount: number;
   trials: TrialRow[];
   counters: { frames: number; events: number; perf: number };
+  hiddenDurationMs: number;
   droppedRecords: number;
   storageFailures: number;
   storageQueue: number;
   warnings: string[];
   perfLatest: PerfSample | null;
-  /** Sessions found in IndexedDB from earlier page loads (stored data the tester can still export or delete). */
-  previousSessions: Array<{ sessionId: string; status: SessionStatus; statusReason: string | null; trialCount: number; createdAtMinuteIso: string }>;
+  /** Sessions found in IndexedDB from earlier page loads (stored data the user can still export or delete). */
+  previousSessions: Array<{
+    sessionId: string;
+    status: SessionStatus;
+    statusReason: string | null;
+    trialCount: number;
+    createdAtMinuteIso: string;
+  }>;
   storageUsageBytes: number | null;
   storageQuotaBytes: number | null;
   lastError: string | null;
 }
 
 const EMPTY_SUMMARY = (id: string): TrialSummary => new TrialAggregator(id).summary();
+
+/** Deterministic SSR/hydration snapshot so client reload with persisted consent never triggers React hydration errors. */
+const SSR_BENCH_STATE: BenchState = Object.freeze({
+  ready: false,
+  consentGranted: false,
+  phase: "idle",
+  sessionId: null,
+  status: null,
+  storage: "unknown",
+  scenario: "UNSPECIFIED",
+  scenarioNote: "",
+  truth: "UNLABELLED",
+  currentTrialId: null,
+  trialCount: 0,
+  trials: [],
+  counters: { frames: 0, events: 0, perf: 0 },
+  hiddenDurationMs: 0,
+  droppedRecords: 0,
+  storageFailures: 0,
+  storageQueue: 0,
+  warnings: [],
+  perfLatest: null,
+  previousSessions: [],
+  storageUsageBytes: null,
+  storageQuotaBytes: null,
+  lastError: null,
+});
 
 export interface ManagerDeps {
   openStore?: () => Promise<BenchStore>;
@@ -87,6 +150,7 @@ export interface ManagerDeps {
   setInterval?: (fn: () => void, ms: number) => unknown;
   clearInterval?: (h: unknown) => void;
   heartbeatStaleMs?: number;
+  initialConsent?: boolean;
 }
 
 const defaultRandomId = (): string => {
@@ -116,6 +180,169 @@ function writeTabActiveSessionId(id: string | null): void {
   }
 }
 
+export function normalizeTrialEndReason(reason: string): string {
+  switch (reason) {
+    case "route-unmount":
+    case "route-switch":
+      return "route-switch";
+    case "tab-hidden":
+    case "browser-hidden":
+      return "tab-hidden";
+    case "pagehide":
+    case "interrupted:pagehide":
+      return "pagehide";
+    case "stop":
+    case "camera-stop":
+    case "camera-stopped":
+    case "stream-ended":
+    case "camera-stream-ended":
+    case "camera-reset":
+      return "camera-stop";
+    case "tracker-error":
+    case "worker-error":
+    case "detector-error":
+      return "worker-error";
+    case "finished-by-tester":
+    case "session-finish":
+    case "user-finish":
+      return "user-finish";
+    default:
+      return reason;
+  }
+}
+
+function normalizeBenchFrame(frame: Omit<BenchFrameInput, "trialId">, trialId: string, trialMeta: TrialMeta): BenchFrame {
+  const hasHand = frame.det === "HAND";
+  const lMean = frame.luma.mean;
+  const lP10 = frame.lumaP10 ?? frame.luma.p10 ?? null;
+  const lP50 = frame.lumaP50 ?? frame.luma.p50 ?? lMean;
+  const lP95 = frame.lumaP95 ?? frame.luma.p95 ?? null;
+  const nwHand = hasHand ? (frame.nearWhiteHandPct ?? frame.luma.nearWhiteHandPct ?? null) : null;
+  const blur = frame.blurProxy ?? frame.luma.blurProxy ?? null;
+  const noise = frame.noiseProxy ?? frame.luma.noiseProxy ?? null;
+  const backlight = Boolean(frame.backlightCandidate ?? frame.luma.backlight);
+  const preprocessPass = frame.preprocessPass ?? frame.luma.pass;
+  const captureQualityTags =
+    frame.captureQualityTags ??
+    deriveConditionTags({
+      lumaP50: lP50,
+      lumaP95: lP95,
+      nearWhiteHandPct: nwHand,
+      blurProxy: blur,
+      noiseProxy: noise,
+      backlight,
+    });
+
+  const trackingState: TrackingState =
+    frame.trackingState ??
+    (hasHand ? (frame.lock === "locked" ? "LOCKED" : "ACQUIRING") : "NO_HAND");
+  const missReason =
+    frame.missReason !== undefined
+      ? frame.missReason
+      : hasHand && trackingState !== "AMBIGUOUS_HOLD"
+        ? null
+        : frame.lock === "ambiguous"
+          ? "ambiguous-two-hands"
+          : "no-hand";
+  const landmarkHealth: LandmarkHealth =
+    frame.landmarkHealth ??
+    (!hasHand
+      ? "MISSING"
+      : trackingState === "AMBIGUOUS_HOLD"
+        ? "AMBIGUOUS"
+        : (frame.frameAgeMs ?? 0) > 150
+          ? "STALE"
+          : "VALID");
+
+  const posePred =
+    frame.posePred ??
+    (frame.r19State !== "NO_HAND" ? frame.r19State : frame.stablePose || "NO_HAND");
+  const maxProb = frame.r19Probs
+    ? Math.max(frame.r19Probs.ready, frame.r19Probs.press, frame.r19Probs.other)
+    : null;
+  const labelSource: LabelSource =
+    frame.labelSource ??
+    (hasHand && frame.r19Probs && trialMeta.route !== "canvas" ? "MODEL_PREDICTION" : "RULE_DERIVED");
+  const truthSource: LabelSource =
+    frame.labelSources?.truth ?? (frame.truth !== "UNLABELLED" ? "USER_ACTION" : "UNKNOWN");
+
+  const actionIntent =
+    frame.actionIntent ??
+    (frame.action !== "none" ? frame.action.toUpperCase() : "NEUTRAL");
+  const actionAccepted = frame.actionAccepted ?? (frame.action !== "none");
+  const actionRejectedReason =
+    frame.actionRejectedReason !== undefined
+      ? frame.actionRejectedReason
+      : actionAccepted
+        ? null
+        : (frame.reject || null);
+
+  return {
+    ...frame,
+    trialId,
+    captureFrameId: frame.captureFrameId ?? frame.fid,
+    processedFrameId: frame.processedFrameId ?? frame.fid,
+    captureTimestamp: frame.captureTimestamp ?? frame.t,
+    displayTimestamp: frame.displayTimestamp ?? frame.t,
+    frameAgeMs: frame.frameAgeMs ?? null,
+    uniqueCaptureFps: frame.uniqueCaptureFps ?? null,
+    framesSkippedDuplicate: frame.framesSkippedDuplicate ?? 0,
+    videoFrameWidth: frame.videoFrameWidth ?? trialMeta.camera.width ?? null,
+    videoFrameHeight: frame.videoFrameHeight ?? trialMeta.camera.height ?? null,
+    cameraReportedFps: frame.cameraReportedFps ?? trialMeta.camera.frameRate ?? null,
+    detectHz: frame.detectHz ?? null,
+    uiFps: frame.uiFps ?? null,
+    captureToActionLatency: frame.captureToActionLatency ?? frame.timing.pipelineMs ?? null,
+    numHandsActive: frame.numHandsActive ?? trialMeta.detectorConfig?.numHandsActive ?? 2,
+    initSetOptionsCalls: frame.initSetOptionsCalls ?? trialMeta.detectorConfig?.initSetOptionsCalls ?? 0,
+    runtimeSetOptionsCalls: frame.runtimeSetOptionsCalls ?? 0,
+    lumaP10: lP10,
+    lumaP50: lP50,
+    lumaP95: lP95,
+    nearWhiteHandPct: nwHand,
+    blurProxy: blur,
+    noiseProxy: noise,
+    backlightCandidate: backlight,
+    preprocessPass,
+    captureQualityTags,
+    ownerTrackId: frame.ownerTrackId !== undefined ? frame.ownerTrackId : (frame.lock === "locked" ? frame.session : null),
+    trackingState,
+    missReason,
+    landmarkHealth,
+    posePred,
+    predictionConfidence: frame.predictionConfidence !== undefined ? frame.predictionConfidence : (labelSource === "MODEL_PREDICTION" ? maxProb : null),
+    gestureTransition: frame.gestureTransition ?? null,
+    actionIntent,
+    actionAccepted,
+    actionRejectedReason,
+    strokeId: frame.strokeId ?? null,
+    pointCount: frame.pointCount ?? null,
+    drawPathError: frame.drawPathError ?? null,
+    gapReason: frame.gapReason ?? null,
+    endReason: frame.endReason ?? null,
+    labelSource,
+    labelSources: frame.labelSources ?? {
+      truth: truthSource,
+      posePred: hasHand && frame.r19Probs && trialMeta.route !== "canvas" ? "MODEL_PREDICTION" : "RULE_DERIVED",
+      actionIntent: "RULE_DERIVED",
+      captureQuality: "RULE_DERIVED",
+    },
+    ...(frame.mpRawHandCount !== undefined ? { mpRawHandCount: frame.mpRawHandCount } : {}),
+    ...(frame.mpHandednessScores !== undefined ? { mpHandednessScores: frame.mpHandednessScores } : {}),
+    ...(frame.pinchGate !== undefined ? { pinchGate: frame.pinchGate } : {}),
+    ...(frame.handState !== undefined ? { handState: frame.handState } : {}),
+    ...(frame.clippedPct !== undefined ? { clippedPct: frame.clippedPct } : {}),
+    ...(frame.handRoiLumaP50 !== undefined ? { handRoiLumaP50: frame.handRoiLumaP50 } : {}),
+    ...(frame.lastRoiLumaP50 !== undefined ? { lastRoiLumaP50: frame.lastRoiLumaP50 } : {}),
+    ...(frame.truthMasked !== undefined ? { truthMasked: frame.truthMasked } : {}),
+    ...(frame.labelProvenance !== undefined ? { labelProvenance: frame.labelProvenance } : {}),
+    ...(frame.captureStep !== undefined ? { captureStep: frame.captureStep } : {}),
+    ...(frame.variation !== undefined ? { variation: frame.variation } : {}),
+    ...(frame.lighting !== undefined ? { lighting: frame.lighting } : {}),
+    ...(frame.subjectCode !== undefined ? { subjectCode: frame.subjectCode } : {}),
+  };
+}
+
 export class BenchSessionManager {
   private store: BenchStore | null = null;
   private writer: ChunkWriter | null = null;
@@ -125,6 +352,9 @@ export class BenchSessionManager {
   private trialMeta: TrialMeta | null = null;
   private agg: TrialAggregator | null = null;
   private ctx: TrialContext | null = null;
+  private suspendedCtx: TrialContext | null = null;
+  private hiddenStartPerf: number | null = null;
+  private hiddenDurationMs = 0;
   private trialRows = new Map<string, TrialRow>();
   private scenario: Scenario = "UNSPECIFIED";
   private scenarioNote = "";
@@ -137,14 +367,15 @@ export class BenchSessionManager {
   private notifyAt = 0;
   private notifyTimer: unknown = null;
   private hbTimer: unknown = null;
-  private lastSummaryPersist = 0;
   private previous: BenchState["previousSessions"] = [];
   private lastError: string | null = null;
   private initPromise: Promise<void> | null = null;
+  private autoStartInFlight: Promise<{ started: boolean; sessionId: string | null; trialId: string | null; reason: string }> | null = null;
   private usage: { usageBytes: number | null; quotaBytes: number | null } = { usageBytes: null, quotaBytes: null };
   private lastUsageCheck = 0;
   private finishedSessionId: string | null = null;
-  private readonly deps: Required<Omit<ManagerDeps, "heartbeatStaleMs">> & { heartbeatStaleMs: number };
+  private consentGranted: boolean;
+  private readonly deps: Required<Omit<ManagerDeps, "heartbeatStaleMs" | "initialConsent">> & { heartbeatStaleMs: number };
 
   constructor(deps: ManagerDeps = {}) {
     this.deps = {
@@ -156,6 +387,7 @@ export class BenchSessionManager {
       clearInterval: deps.clearInterval ?? ((h) => clearInterval(h as ReturnType<typeof setInterval>)),
       heartbeatStaleMs: deps.heartbeatStaleMs ?? 8000,
     };
+    this.consentGranted = deps.initialConsent ?? readPersistedBenchConsent();
     this.snapshot = this.compute();
   }
 
@@ -167,6 +399,7 @@ export class BenchSessionManager {
     };
   };
   getSnapshot = (): BenchState => this.snapshot;
+  getServerSnapshot = (): BenchState => SSR_BENCH_STATE;
 
   private notify(force = false): void {
     const now = this.deps.now();
@@ -193,6 +426,7 @@ export class BenchSessionManager {
     }));
     return {
       ready: this.store !== null,
+      consentGranted: this.consentGranted,
       phase: this.meta?.status === "active" ? "active" : this.finishedSessionId ? "finished" : "idle",
       sessionId: this.meta?.sessionId ?? this.finishedSessionId,
       status: this.meta?.status ?? null,
@@ -204,6 +438,7 @@ export class BenchSessionManager {
       trialCount: rows.length,
       trials: rows,
       counters: { ...this.counters },
+      hiddenDurationMs: Math.round(this.hiddenDurationMs),
       droppedRecords: dropped,
       storageFailures: w?.failures ?? this.meta?.storageFailures ?? 0,
       storageQueue: w?.queuedItems ?? 0,
@@ -221,6 +456,23 @@ export class BenchSessionManager {
     if (this.warnings.length > 20) this.warnings.shift();
     if (this.meta && !this.meta.warnings.includes(msg)) this.meta.warnings.push(msg);
     this.event("STORAGE_WARNING", { message: msg }, "system", false);
+    this.notify(true);
+  }
+
+  // ----------------------------------------------------------------- consent
+  get hasConsent(): boolean {
+    return this.consentGranted || readPersistedBenchConsent();
+  }
+
+  grantConsent(): void {
+    this.consentGranted = true;
+    writePersistedBenchConsent(true, this.deps.wallMinuteIso());
+    this.notify(true);
+  }
+
+  revokeConsent(): void {
+    this.consentGranted = false;
+    writePersistedBenchConsent(false);
     this.notify(true);
   }
 
@@ -249,6 +501,29 @@ export class BenchSessionManager {
             ? "page reloaded or navigated away before the session was finished (recovered on reload)"
             : "page closed, refreshed or crashed before the session was finished (recovered on next load)";
           try {
+            // Also close any trial that was left open at crash/reload time and refresh its summary from chunks.
+            const trials = await this.store.listTrials(s.sessionId);
+            const hasOpenTrial = trials.some((t) => t.meta.endedT === null || t.meta.endReason === null);
+            if (hasOpenTrial) {
+              const bundle = await readBundle(this.store, s.sessionId);
+              for (const t of trials) {
+                if (t.meta.endedT === null || t.meta.endReason === null) {
+                  t.meta.endReason = "interrupted";
+                }
+              }
+              const analysis = analyzeBundle({
+                ...bundle,
+                trials,
+              });
+              for (const t of trials) {
+                if (t.meta.endedT === null) {
+                  const sum = analysis.trialSummaries[t.meta.trialId];
+                  t.meta.endedT = sum ? t.meta.startedT + sum.durationMs : t.meta.startedT;
+                  t.summary = sum ?? t.summary;
+                  await this.store.putTrial(t);
+                }
+              }
+            }
             await this.store.putSession(s);
           } catch (err) {
             this.lastError = err instanceof Error ? err.message : String(err);
@@ -285,11 +560,24 @@ export class BenchSessionManager {
   /** Consent is mandatory. Anything but `true` throws and stores nothing. */
   async startSession(opts: {
     consent: boolean;
-    app: { version: string; gitCommit: string };
+    persistConsent?: boolean;
+    app: { version: string; gitCommit: string; gitBranch?: string };
     environment: SessionMeta["environment"];
+    yoloModelSha256?: string | null;
+    yoloEnabled?: boolean | null;
+    yoloRateHz?: number | null;
+    monuiVersion?: "MoNUI-7" | string | null;
+    cameraActual?: SessionMeta["cameraActual"];
+    cameraCapabilities?: SessionMeta["cameraCapabilities"];
+    exposureControlStatus?: SessionMeta["exposureControlStatus"];
+    autoPreprocessStatus?: SessionMeta["autoPreprocessStatus"];
   }): Promise<string> {
     if (opts.consent !== true) throw new Error("Sesi benchmark butuh persetujuan eksplisit");
     if (this.meta?.status === "active") throw new Error("Sesi benchmark masih aktif");
+    if (opts.persistConsent) {
+      this.consentGranted = true;
+      writePersistedBenchConsent(true, this.deps.wallMinuteIso());
+    }
     await this.init();
     if (!this.store) throw new Error(this.lastError ?? "Penyimpanan lokal tidak bisa dibuka");
     const sessionId = `S-${this.deps.randomId()}`;
@@ -307,12 +595,23 @@ export class BenchSessionManager {
       droppedRecords: { frames: 0, events: 0, perf: 0 },
       storageFailures: 0,
       warnings: [],
+      yoloModelSha256: opts.yoloModelSha256 !== undefined ? opts.yoloModelSha256 : YOLO_MODEL_SHA256,
+      yoloEnabled: opts.yoloEnabled !== undefined ? opts.yoloEnabled : true,
+      yoloRateHz: opts.yoloRateHz !== undefined ? opts.yoloRateHz : 5,
+      monuiVersion: opts.monuiVersion !== undefined ? opts.monuiVersion : "MoNUI-7",
+      ...(opts.cameraActual !== undefined ? { cameraActual: opts.cameraActual } : {}),
+      ...(opts.cameraCapabilities !== undefined ? { cameraCapabilities: opts.cameraCapabilities } : {}),
+      ...(opts.exposureControlStatus !== undefined ? { exposureControlStatus: opts.exposureControlStatus } : {}),
+      ...(opts.autoPreprocessStatus !== undefined ? { autoPreprocessStatus: opts.autoPreprocessStatus } : {}),
     };
     this.startPerf = this.deps.now();
     this.trialIndex = 0;
     this.trialMeta = null;
     this.agg = null;
     this.ctx = null;
+    this.suspendedCtx = null;
+    this.hiddenStartPerf = null;
+    this.hiddenDurationMs = 0;
     this.trialRows.clear();
     this.counters = { frames: 0, events: 0, perf: 0 };
     this.warnings = [];
@@ -325,9 +624,87 @@ export class BenchSessionManager {
     await this.store.putSession(this.meta);
     writeTabActiveSessionId(sessionId);
     this.hbTimer = this.deps.setInterval(() => void this.heartbeat(), 2000);
-    this.event("SESSION_START", { storage: this.store.kind }, "system");
+    this.event("SESSION_START", { storage: this.store.kind }, "system", true, "RULE_DERIVED");
     this.notify(true);
     return sessionId;
+  }
+
+  /**
+   * Zero-friction automatic benchmark entry (B01):
+   * Once numeric consent has been granted, starting the camera automatically opens a session (if needed) and
+   * opens a trial for that route without requiring a manual "Mulai Sesi Benchmark" click.
+   */
+  async startCameraTrialAuto(
+    ctx: TrialContext,
+    opts?: {
+      app?: { version: string; gitCommit: string; gitBranch?: string };
+      environment?: SessionMeta["environment"];
+      reason?: string;
+      yoloEnabled?: boolean | null;
+      yoloRateHz?: number | null;
+      cameraActual?: SessionMeta["cameraActual"];
+      cameraCapabilities?: SessionMeta["cameraCapabilities"];
+      exposureControlStatus?: SessionMeta["exposureControlStatus"];
+      autoPreprocessStatus?: SessionMeta["autoPreprocessStatus"];
+    },
+  ): Promise<{ started: boolean; sessionId: string | null; trialId: string | null; reason: string }> {
+    if (!this.hasConsent) {
+      return { started: false, sessionId: null, trialId: null, reason: "no-consent" };
+    }
+    if (this.autoStartInFlight) {
+      return this.autoStartInFlight;
+    }
+    this.autoStartInFlight = (async () => {
+      await this.init();
+      if (!this.isActive) {
+        await this.startSession({
+          consent: true,
+          app: opts?.app ?? getAppBuildInfo(),
+          environment: opts?.environment ?? collectNonIdentifyingEnvironment(this.store?.kind ?? "indexeddb"),
+          yoloEnabled: opts?.yoloEnabled,
+          yoloRateHz: opts?.yoloRateHz,
+          cameraActual: opts?.cameraActual,
+          cameraCapabilities: opts?.cameraCapabilities,
+          exposureControlStatus: opts?.exposureControlStatus,
+          autoPreprocessStatus: opts?.autoPreprocessStatus,
+        });
+      } else if (opts) {
+        this.patchSessionMeta({
+          ...(opts.cameraActual !== undefined ? { cameraActual: opts.cameraActual } : {}),
+          ...(opts.cameraCapabilities !== undefined ? { cameraCapabilities: opts.cameraCapabilities } : {}),
+          ...(opts.exposureControlStatus !== undefined ? { exposureControlStatus: opts.exposureControlStatus } : {}),
+          ...(opts.autoPreprocessStatus !== undefined ? { autoPreprocessStatus: opts.autoPreprocessStatus } : {}),
+        });
+      }
+      const trialId = this.beginTrial(ctx, opts?.reason ?? "camera-start");
+      return {
+        started: trialId !== null,
+        sessionId: this.meta?.sessionId ?? null,
+        trialId,
+        reason: opts?.reason ?? "camera-start",
+      };
+    })();
+    try {
+      return await this.autoStartInFlight;
+    } finally {
+      this.autoStartInFlight = null;
+    }
+  }
+
+  /** R23B-HF3: Update active session metadata (cameraActual, cameraCapabilities, exposure & preprocess status). */
+  patchSessionMeta(
+    patch: Partial<
+      Pick<
+        SessionMeta,
+        "cameraActual" | "cameraCapabilities" | "exposureControlStatus" | "autoPreprocessStatus"
+      >
+    >,
+  ): void {
+    if (!this.meta || this.meta.status !== "active") return;
+    Object.assign(this.meta, patch);
+    if (this.store) {
+      void this.store.putSession(this.meta).catch(() => undefined);
+    }
   }
 
   get isActive(): boolean {
@@ -355,7 +732,11 @@ export class BenchSessionManager {
 
   private async persistOpenTrialSummary(): Promise<void> {
     if (!this.store || !this.trialMeta || !this.agg) return;
-    await this.store.putTrial({ meta: this.trialMeta, summary: this.agg.summary() });
+    const sum = this.agg.summary();
+    this.trialMeta.autoConditionTags = sum.autoConditionTags;
+    this.trialMeta.autoConditionTagsSource = "RULE_DERIVED";
+    this.trialMeta.independentGroundTruthAvailable = sum.independentGroundTruthAvailable;
+    await this.store.putTrial({ meta: { ...this.trialMeta }, summary: sum });
   }
 
   private t(): number {
@@ -366,8 +747,9 @@ export class BenchSessionManager {
   /** Start a trial (closing the open one). The camera page calls this when the camera starts or its config changes. */
   beginTrial(ctx: TrialContext, reason = "start"): string | null {
     if (!this.meta || this.meta.status !== "active" || !this.store) return null;
-    if (this.trialMeta) this.closeTrial("replaced:" + reason);
+    if (this.trialMeta) this.closeTrial(normalizeTrialEndReason("replaced:" + reason));
     this.ctx = ctx;
+    this.suspendedCtx = null;
     const index = ++this.trialIndex;
     const trialId = `${this.meta.sessionId}-T${String(index).padStart(3, "0")}`;
     this.trialMeta = {
@@ -383,8 +765,33 @@ export class BenchSessionManager {
       startedT: this.t(),
       endedT: null,
       endReason: null,
+      preprocessConfig: {
+        mode: ctx.engine.preprocess,
+        defaultMode: DEFAULT_PREPROCESS,
+        candidates: [...PREPROCESS_CANDIDATES],
+      },
+      detectorConfig: {
+        variant: ctx.engine.detector,
+        delegate: ctx.engine.delegate,
+        numHandsPolicy: ctx.engine.numHandsPolicy,
+        numHandsActive: ctx.numHandsActive ?? (ctx.engine.numHandsPolicy === "fixed-1" ? 1 : 2),
+        numHandsOverride: ctx.numHandsOverride ?? ctx.engine.numHandsOverride ?? null,
+        minDetectionConfidence: ctx.minDetectionConfidence ?? DEFAULT_MIN_DETECTION_CONFIDENCE,
+        minPresenceConfidence: ctx.minPresenceConfidence ?? DEFAULT_MIN_PRESENCE_CONFIDENCE,
+        minTrackingConfidence: ctx.minTrackingConfidence ?? DEFAULT_MIN_TRACKING_CONFIDENCE,
+        confidenceOverride: ctx.confidenceOverride ?? null,
+        initSetOptionsCalls: ctx.initSetOptionsCalls ?? 0,
+        runtimeSetOptionsCalls: 0,
+      },
+      presetId: ctx.presetId ?? "default-any-pinch",
+      reacquirePinchPolicy: ctx.reacquirePinchPolicy ?? "require-release",
+      captureMeta: ctx.captureMeta ?? null,
+      rawRecMeta: ctx.rawRecMeta ?? null,
+      autoConditionTags: [],
+      autoConditionTagsSource: "RULE_DERIVED",
+      independentGroundTruthAvailable: false,
     };
-    this.agg = new TrialAggregator(trialId);
+    this.agg = new TrialAggregator(trialId, null, ctx.route);
     this.meta.trialCount = index;
     this.trialRows.set(trialId, {
       trialId,
@@ -396,36 +803,165 @@ export class BenchSessionManager {
       preprocess: ctx.engine.preprocess,
       detector: ctx.engine.detector,
       scenario: this.scenario,
+      endReason: null,
       open: true,
       summary: EMPTY_SUMMARY(trialId),
     });
     void this.persistOpenTrialSummary().catch((e) => this.warn(`Gagal menyimpan trial: ${String(e)}`));
-    this.event("TRIAL_START", { index, route: ctx.route, engine: ctx.engine.engineId, preprocess: ctx.engine.preprocess, scenario: this.scenario, reason }, "system");
+    this.event(
+      "TRIAL_START",
+      {
+        index,
+        route: ctx.route,
+        engine: ctx.engine.engineId,
+        actualModelId: ctx.engine.actualModelId ?? ctx.engine.engineId,
+        preprocess: ctx.engine.preprocess,
+        numHandsPolicy: ctx.engine.numHandsPolicy,
+        numHandsActive: ctx.numHandsActive ?? (ctx.engine.numHandsPolicy === "fixed-1" ? 1 : 2),
+        numHandsOverride: ctx.numHandsOverride ?? ctx.engine.numHandsOverride ?? null,
+        minDetectionConfidence: ctx.minDetectionConfidence ?? DEFAULT_MIN_DETECTION_CONFIDENCE,
+        minPresenceConfidence: ctx.minPresenceConfidence ?? DEFAULT_MIN_PRESENCE_CONFIDENCE,
+        minTrackingConfidence: ctx.minTrackingConfidence ?? DEFAULT_MIN_TRACKING_CONFIDENCE,
+        confidenceOverride: ctx.confidenceOverride ?? null,
+        presetId: ctx.presetId ?? "default-any-pinch",
+        reacquirePinchPolicy: ctx.reacquirePinchPolicy ?? "require-release",
+        scenario: this.scenario,
+        reason,
+      },
+      "system",
+      true,
+      "RULE_DERIVED",
+    );
     this.notify(true);
     return trialId;
   }
 
-  /** Close the open trial and persist its final summary. Idempotent. */
+  /** Close the open trial and persist its final summary with canonical `endReason`. Idempotent. */
   endTrial(reason: string): void {
     if (!this.trialMeta) return;
-    this.closeTrial(reason);
+    this.closeTrial(normalizeTrialEndReason(reason));
     this.notify(true);
+  }
+
+  /** R22B: Update active trial metadata (presetId, reacquirePinchPolicy, captureMeta, rawRecMeta) cleanly. */
+  patchActiveTrialMeta(
+    patch: Partial<Pick<TrialMeta, "presetId" | "reacquirePinchPolicy" | "captureMeta" | "rawRecMeta">>,
+  ): void {
+    if (!this.trialMeta) return;
+    Object.assign(this.trialMeta, patch);
+    if (this.ctx) {
+      if (patch.presetId !== undefined) this.ctx.presetId = patch.presetId;
+      if (patch.reacquirePinchPolicy !== undefined) this.ctx.reacquirePinchPolicy = patch.reacquirePinchPolicy;
+      if (patch.captureMeta !== undefined) this.ctx.captureMeta = patch.captureMeta;
+      if (patch.rawRecMeta !== undefined) this.ctx.rawRecMeta = patch.rawRecMeta;
+    }
+    void this.persistOpenTrialSummary().catch(() => undefined);
+  }
+
+  /** Route transition helper (B02): emits ROUTE_CHANGE and closes open trial with `"route-switch"`. */
+  onRouteSwitch(toRoute?: BenchRoute): void {
+    this.suspendedCtx = null;
+    if (this.isActive && toRoute) {
+      this.event("ROUTE_CHANGE", { to: toRoute }, "system", false, "RULE_DERIVED");
+    }
+    if (this.trialMeta) {
+      this.endTrial("route-switch");
+    }
+  }
+
+  /** Tab hidden helper (B03/E03): closes open trial with `"tab-hidden"` so off-tab periods never enter active windows. */
+  onTabHidden(): void {
+    if (!this.isActive) return;
+    if (this.hiddenStartPerf === null) {
+      this.hiddenStartPerf = this.deps.now();
+    }
+    this.event("VISIBILITY_HIDDEN", {}, "system", false, "RULE_DERIVED");
+    if (this.trialMeta) {
+      this.suspendedCtx = this.ctx;
+      this.endTrial("tab-hidden");
+    }
+    void this.writer?.flush(1500).catch(() => undefined);
+  }
+
+  /** Flushes any buffered records to the underlying store (useful before expected idle gaps or in crash tests). */
+  async flush(timeoutMs = 2000): Promise<void> {
+    if (this.writer) {
+      await this.writer.flush(timeoutMs);
+    }
+    if (this.trialMeta) {
+      await this.persistOpenTrialSummary();
+    }
+  }
+
+  /** Tab visible helper (B03/E03): records `hiddenDurationMs` and optionally opens a fresh trial if camera is still ON. */
+  onTabVisible(resumeCtx?: TrialContext | null): string | null {
+    if (!this.isActive) {
+      this.hiddenStartPerf = null;
+      this.suspendedCtx = null;
+      return null;
+    }
+    const hiddenDur =
+      this.hiddenStartPerf !== null ? Math.max(0, Math.round(this.deps.now() - this.hiddenStartPerf)) : 0;
+    this.hiddenStartPerf = null;
+    this.hiddenDurationMs += hiddenDur;
+    const ctxToUse = resumeCtx !== undefined ? resumeCtx : this.suspendedCtx;
+    this.suspendedCtx = null;
+    let nextTrialId: string | null = null;
+    if (ctxToUse && !this.trialMeta) {
+      nextTrialId = this.beginTrial(ctxToUse, "tab-visible");
+    }
+    this.event("VISIBILITY_VISIBLE", { hiddenDurationMs: hiddenDur }, "system", true, "RULE_DERIVED");
+    return nextTrialId;
+  }
+
+  /** Camera stop helper (B03): closes open trial with `"camera-stop"` (or `"worker-error"`). */
+  onCameraStop(reason = "camera-stop"): void {
+    this.suspendedCtx = null;
+    this.hiddenStartPerf = null;
+    if (!this.isActive) return;
+    const canonical = normalizeTrialEndReason(reason);
+    this.event("CAMERA_STOP", { reason: canonical }, "system", false, "RULE_DERIVED");
+    if (this.trialMeta) {
+      this.endTrial(canonical);
+    }
+  }
+
+  /** Worker/detector failure helper (B03): emits DETECTOR_ERROR and closes trial with `"worker-error"`. */
+  onWorkerError(message: string): void {
+    this.suspendedCtx = null;
+    if (!this.isActive) return;
+    this.event("DETECTOR_ERROR", { message }, "system", false, "RULE_DERIVED");
+    if (this.trialMeta) {
+      this.endTrial("worker-error");
+    }
   }
 
   private closeTrial(reason: string): void {
     if (!this.trialMeta || !this.agg) return;
     const meta = this.trialMeta;
+    const canonicalReason = normalizeTrialEndReason(reason);
     meta.endedT = this.t();
-    meta.endReason = reason;
-    this.event("TRIAL_END", { reason }, "system");
+    meta.endReason = canonicalReason;
+    this.agg.setEndReason(canonicalReason);
+    this.event("TRIAL_END", { reason: canonicalReason }, "system", false, "RULE_DERIVED");
     const summary = this.agg.summary();
+    meta.autoConditionTags = summary.autoConditionTags;
+    meta.autoConditionTagsSource = "RULE_DERIVED";
+    meta.independentGroundTruthAvailable = summary.independentGroundTruthAvailable;
+    if (meta.detectorConfig) {
+      meta.detectorConfig.initSetOptionsCalls = summary.initSetOptionsCalls;
+      meta.detectorConfig.runtimeSetOptionsCalls = summary.runtimeSetOptionsCalls;
+    }
     const row = this.trialRows.get(meta.trialId);
     if (row) {
       row.open = false;
+      row.endReason = canonicalReason;
       row.summary = summary;
     }
     const store = this.store;
-    if (store) void store.putTrial({ meta: { ...meta }, summary }).catch((e) => this.warn(`Gagal menyimpan ringkasan trial: ${String(e)}`));
+    if (store) {
+      void store.putTrial({ meta: { ...meta }, summary }).catch((e) => this.warn(`Gagal menyimpan ringkasan trial: ${String(e)}`));
+    }
     this.trialMeta = null;
     this.agg = null;
   }
@@ -437,12 +973,12 @@ export class BenchSessionManager {
     return this.trialMeta?.trialId ?? null;
   }
 
-  /** The tester picked another scenario: a new trial with the same engine/route starts so groups stay clean. */
+  /** The tester picked another scenario (legacy/diagnostics): a new trial with the same engine/route starts. */
   setScenario(s: Scenario, note = ""): void {
     if (this.scenario === s && this.scenarioNote === note) return;
     this.scenario = s;
     this.scenarioNote = note;
-    this.event("SCENARIO_CHANGE", { scenario: s, note }, "system");
+    this.event("SCENARIO_CHANGE", { scenario: s, note }, "system", true, "USER_ACTION");
     if (this.trialMeta && this.ctx) this.beginTrial(this.ctx, "scenario-change");
     else this.notify(true);
   }
@@ -450,7 +986,7 @@ export class BenchSessionManager {
   setTruth(label: TruthLabel): void {
     if (this.truth === label) return;
     this.truth = label;
-    this.event("LABEL_CHANGE", { label }, "system");
+    this.event("LABEL_CHANGE", { label }, "system", true, "USER_ACTION");
     this.notify(true);
   }
   get currentTruth(): TruthLabel {
@@ -462,9 +998,9 @@ export class BenchSessionManager {
 
   // ----------------------------------------------------------------- records
   /** Returns false when nothing was recorded (no session / trial). A recorded-but-dropped frame is counted, not hidden. */
-  recordFrame(frame: Omit<BenchFrame, "trialId"> & { trialId?: string }): boolean {
+  recordFrame(frame: Omit<BenchFrameInput, "trialId"> & { trialId?: string }): boolean {
     if (!this.meta || this.meta.status !== "active" || !this.writer || !this.trialMeta || !this.agg) return false;
-    const full = { ...frame, trialId: this.trialMeta.trialId } as BenchFrame;
+    const full = normalizeBenchFrame(frame, this.trialMeta.trialId, this.trialMeta);
     this.agg.addFrame(full);
     this.counters.frames++;
     this.writer.push("frames", full);
@@ -472,16 +1008,33 @@ export class BenchSessionManager {
     return true;
   }
 
-  event(type: EventType, data?: BenchEvent["data"], source: BenchEvent["source"] = "gesture", notify = true): void {
+  event(
+    type: EventType,
+    data?: BenchEvent["data"],
+    source: BenchEvent["source"] = "gesture",
+    notify = true,
+    labelSource?: LabelSource,
+  ): void {
     if (!this.meta || this.meta.status !== "active" || !this.writer) return;
-    const e: BenchEvent = { t: this.t(), trialId: this.trialMeta?.trialId ?? null, type, source, ...(data ? { data } : {}) };
+    const resolvedSource: LabelSource =
+      labelSource ?? (source === "pointer" ? "USER_ACTION" : "RULE_DERIVED");
+    const e: BenchEvent = {
+      t: this.t(),
+      trialId: this.trialMeta?.trialId ?? null,
+      type,
+      source,
+      labelSource: resolvedSource,
+      ...(data ? { data } : {}),
+    };
     this.agg?.addEvent(e);
     this.counters.events++;
     this.writer.push("events", e);
     if (notify) this.notify();
   }
 
-  recordPerf(p: Omit<PerfSample, "trialId" | "t" | "storageQueue" | "droppedRecords"> & Partial<Pick<PerfSample, "trialId" | "t">>): void {
+  recordPerf(
+    p: Omit<PerfSample, "trialId" | "t" | "storageQueue" | "droppedRecords"> & Partial<Pick<PerfSample, "trialId" | "t">>,
+  ): void {
     if (!this.meta || this.meta.status !== "active" || !this.writer) return;
     const w = this.writer.stats();
     const sample: PerfSample = {
@@ -491,6 +1044,9 @@ export class BenchSessionManager {
       storageQueue: w.queuedItems,
       droppedRecords: w.dropped.frames + w.dropped.events + w.dropped.perf,
     };
+    if (sample.trialId && sample.trialId === this.trialMeta?.trialId) {
+      this.agg?.addPerf(sample);
+    }
     this.perfLatest = sample;
     this.counters.perf++;
     this.writer.push("perf", sample);
@@ -503,10 +1059,13 @@ export class BenchSessionManager {
   }
 
   // ----------------------------------------------------------------- end of session
-  async finishSession(reason = "finished-by-tester"): Promise<void> {
+  async finishSession(reason = "user-finish"): Promise<void> {
     if (!this.meta || this.meta.status !== "active" || !this.store || !this.writer) return;
-    this.event("SESSION_FINISH", { reason }, "system", false);
-    if (this.trialMeta) this.closeTrial("session-finish");
+    const canonical = normalizeTrialEndReason(reason);
+    this.event("SESSION_FINISH", { reason: canonical }, "system", false, "USER_ACTION");
+    if (this.trialMeta) this.closeTrial(canonical === "user-finish" ? "user-finish" : canonical);
+    this.suspendedCtx = null;
+    this.hiddenStartPerf = null;
     let flushError: string | null = null;
     try {
       await this.writer.flush();
@@ -542,8 +1101,12 @@ export class BenchSessionManager {
   /** Best-effort (pagehide/unload): mark the session interrupted. Data already written stays; nothing is deleted. */
   markInterrupted(reason: string): void {
     if (!this.meta || this.meta.status !== "active" || !this.store) return;
-    this.event("SESSION_INTERRUPTED", { reason }, "system", false);
-    if (this.trialMeta) this.closeTrial("interrupted:" + reason);
+    this.event("SESSION_INTERRUPTED", { reason }, "system", false, "RULE_DERIVED");
+    if (this.trialMeta) {
+      this.closeTrial(reason === "pagehide" ? "pagehide" : "interrupted:" + reason);
+    }
+    this.suspendedCtx = null;
+    this.hiddenStartPerf = null;
     this.meta.status = "interrupted";
     this.meta.statusReason = reason;
     const w = this.writer?.stats();
@@ -564,7 +1127,7 @@ export class BenchSessionManager {
     this.meta.statusReason = null;
     this.meta.heartbeatEpochMs = Date.now();
     this.hbTimer ??= this.deps.setInterval(() => void this.heartbeat(), 2000);
-    this.event("SESSION_START", { resumedFromBfcache: true }, "system");
+    this.event("SESSION_START", { resumedFromBfcache: true }, "system", true, "RULE_DERIVED");
     void this.store.putSession(this.meta).catch(() => undefined);
     this.notify(true);
   }
@@ -575,7 +1138,13 @@ export class BenchSessionManager {
     const sessions = await this.store.listSessions();
     this.previous = sessions
       .sort((a, b) => (a.createdAtMinuteIso < b.createdAtMinuteIso ? 1 : -1))
-      .map((s) => ({ sessionId: s.sessionId, status: s.status, statusReason: s.statusReason, trialCount: s.trialCount, createdAtMinuteIso: s.createdAtMinuteIso }));
+      .map((s) => ({
+        sessionId: s.sessionId,
+        status: s.status,
+        statusReason: s.statusReason,
+        trialCount: s.trialCount,
+        createdAtMinuteIso: s.createdAtMinuteIso,
+      }));
   }
 
   /** Every stored session (current + previous page loads). */
@@ -585,8 +1154,8 @@ export class BenchSessionManager {
     return (await this.store.listSessions()).map((s) => s.sessionId);
   }
 
-  /** The single "Unduh Semua Hasil Sesi" artefact. Flushes the live writer first so the file includes the latest records. */
-  async exportAll(app: { version: string; gitCommit: string }): Promise<Blob> {
+  /** The single "Unduh Hasil" artefact. Flushes the live writer first so the file includes the latest records. */
+  async exportAll(app: { version: string; gitCommit: string; gitBranch?: string } = getAppBuildInfo()): Promise<Blob> {
     await this.init();
     if (!this.store) throw new Error("Penyimpanan lokal tidak tersedia");
     if (this.writer) {
@@ -614,7 +1183,7 @@ export class BenchSessionManager {
     return new Blob([await buildSummaryCsv(this.store, await this.allSessionIds())], { type: "text/csv" });
   }
 
-  /** Explicit user action only. Deletes every stored session, including the live one (which is then aborted). */
+  /** Explicit user action only. Deletes every stored session, including the live one, and clears consent. */
   async deleteAllLocalData(): Promise<void> {
     await this.init();
     if (this.meta) {
@@ -627,6 +1196,11 @@ export class BenchSessionManager {
     }
     await this.store?.deleteAll();
     writeTabActiveSessionId(null);
+    writePersistedBenchConsent(false);
+    this.consentGranted = false;
+    this.suspendedCtx = null;
+    this.hiddenStartPerf = null;
+    this.hiddenDurationMs = 0;
     this.trialRows.clear();
     this.counters = { frames: 0, events: 0, perf: 0 };
     this.previous = [];

@@ -145,73 +145,86 @@ describe("high-five (five fingers, thumb out) erases locally and the store reall
   });
 });
 
-describe("Undo / Redo by swipe in the lab: motion, the store's own answer, no ghost actions", () => {
-  /** Park a command pose at (x, y), hold it still to arm SafeSwipeGuard (>= 220 ms), then swipe >= 2 palm-scales. */
+describe("Undo / Redo by Fist -> 1/2 fingers in the lab (R22 K3, swipe removed): the store's own answer, no ghost actions", () => {
+  /** Arm with stable FIST (>= 150 ms) then confirm with 1 finger (Undo) or 2 fingers (Redo) (>= 150 ms). */
+  const fistTransition = (r: Rig, target: "one" | "two_up", x = 0.5, y = 0.6) => {
+    r.glide(NEUTRAL, x, y);
+    r.hold(NEUTRAL, 3);
+    r.hold(cls("fist"), 7); // 6 intervals * 33 ms = 198 ms >= 150 ms -> ARMED_FIST
+    r.hold(cls(target), 7); // 6 intervals * 33 ms = 198 ms >= 150 ms -> fires ONCE -> FIRED
+  };
+  /** Legacy swipe helper kept to prove swipe no longer triggers Undo/Redo on Canvas (C12). */
   const swipe = (r: Rig, c: RealisticClass, x: number, y: number, dx: number, frames = 8) => {
     r.glide(NEUTRAL, x, y);
     r.hold(NEUTRAL, 3);
     r.hold(cls(c), 8);
     for (let i = 1; i <= frames; i++) r.put(cls(c), x + (dx * i) / frames, y);
   };
-  // Raw x increasing = hand moves to user's LEFT on mirrored preview (palmCenterNormalized.x decreases -> dx < 0 = undo).
   const UNDO_LEFT_DX = 0.42;
   const REDO_RIGHT_DX = -0.42;
 
-  it("one-finger swipe left undoes the last stroke, two-finger swipe right redoes it, and the HUD shows the store's answer", () => {
+  it("fist -> 1 finger undoes the last stroke once, fist -> 2 fingers redoes it once, and the HUD shows the store's answer", () => {
     const r = rig();
     drawStroke(r, 0.62, 0.38, 0.5);
     expect(diag(r).strokes.completed).toBe(1);
 
-    swipe(r, "one", 0.3, 0.6, UNDO_LEFT_DX);
+    fistTransition(r, "one", 0.5, 0.6);
+    // Holding 1 finger longer must NOT fire a second Undo (edge-triggered anti-repeat).
+    r.hold(cls("one"), 15);
     let d = diag(r);
-    expect(d.lastCommand).toMatchObject({ kind: "undo", changed: true, via: "swipe" });
+    expect(d.lastCommand).toMatchObject({ kind: "undo", changed: true, via: "fist-transition" });
     expect(d.strokes.completed).toBe(0);
+    expect(d.commandCount).toBe(1);
 
-    r.hold(NEUTRAL, 32); // wait out the 900 ms cooldown in a neutral hand
-    swipe(r, "two_up", 0.7, 0.6, REDO_RIGHT_DX);
+    r.hold(NEUTRAL, 20); // wait out the 500 ms cooldown
+    fistTransition(r, "two_up", 0.5, 0.6);
+    r.hold(cls("two_up"), 15);
     d = diag(r);
-    expect(d.lastCommand).toMatchObject({ kind: "redo", changed: true, via: "swipe" });
+    expect(d.lastCommand).toMatchObject({ kind: "redo", changed: true, via: "fist-transition" });
     expect(d.strokes.completed).toBe(1);
     expect(d.commandCount).toBe(2);
   });
 
   it("Undo with nothing to undo is reported as a no-op (changed=false), not as a success", () => {
     const r = rig();
-    swipe(r, "one", 0.3, 0.6, UNDO_LEFT_DX);
-    expect(diag(r).lastCommand).toMatchObject({ kind: "undo", changed: false });
+    fistTransition(r, "one", 0.5, 0.6);
+    expect(diag(r).lastCommand).toMatchObject({ kind: "undo", changed: false, via: "fist-transition" });
   });
 
-  it("holding one finger or two fingers still for 2 s sends nothing in swipe mode", () => {
+  it("holding or swiping one finger or two fingers without prior FIST sends nothing (swipe removed)", () => {
     const r = rig();
     drawStroke(r, 0.62, 0.38, 0.5);
     r.glide(NEUTRAL, 0.5, 0.6);
     r.hold(cls("one"), 60);
     r.hold(NEUTRAL, 4);
     r.hold(cls("two_up"), 60);
+    swipe(r, "one", 0.3, 0.6, UNDO_LEFT_DX);
+    swipe(r, "two_up", 0.7, 0.6, REDO_RIGHT_DX);
     const d = diag(r);
-    expect(d.commandMode).toBe("swipe");
+    expect(d.commandMode).toBe("fist-transition");
     expect(d.commandCount).toBe(0);
     expect(d.strokes.completed).toBe(1);
   });
 
-  it("fail-closed mode (unloaded R19 model) blocks swipe undo/redo and ink completely", () => {
+  it("fail-closed mode (unloaded R19 model) blocks fist-transition undo/redo and ink completely", () => {
     const r = rig({ enableModel: false });
     r.lab.beginPointerStroke({ x: 100, y: 100 });
     r.lab.movePointerStroke({ x: 200, y: 100 });
     r.lab.endPointerStroke();
     expect(diag(r).strokes.completed).toBe(1);
 
-    swipe(r, "one", 0.3, 0.6, UNDO_LEFT_DX);
+    fistTransition(r, "one", 0.5, 0.6);
     expect(diag(r).lastCommand).toBeNull();
     expect(diag(r).commandCount).toBe(0);
     expect(diag(r).strokes.completed).toBe(1);
   });
 
-  it("a swipe never draws, erases or moves ink", () => {
+  it("a swipe or fist-transition command never draws, erases or moves ink", () => {
     const r = rig();
     drawStroke(r, 0.62, 0.38, 0.3);
     const before = strokePoints(r.lab);
     swipe(r, "two_up", 0.7, 0.75, REDO_RIGHT_DX);
+    fistTransition(r, "two_up", 0.5, 0.75); // nothing on redo stack -> no-op, must not touch ink
     expect(strokePoints(r.lab)).toBe(before);
     expect(r.lab.strokes().active).toBeNull();
   });

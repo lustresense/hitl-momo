@@ -12,3 +12,8 @@ coverage/
 docs/stage-visual-reference/*.log
 docs/stage-visual-reference/*gates.json
 docs/stage-visual-reference/serve_export.py
+
+# MoNUI-7 R23 exclusions (models and wasm generated via prebuild)
+public/models/*.onnx
+public/ort/
+

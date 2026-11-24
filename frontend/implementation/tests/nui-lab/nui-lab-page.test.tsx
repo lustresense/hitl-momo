@@ -1,12 +1,16 @@
 // @vitest-environment jsdom
+import { readFileSync } from "node:fs";
+import { resolve } from "node:path";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { DelegateInfo } from "@/src/camera/hand-landmarker";
 import { getInferenceStats, resetInferenceSchedulerForTest } from "@/src/camera/inference-scheduler";
 import { resetFaceDetectorForTest } from "@/src/camera/face-anchor";
+import { getLabBenchConfig, writePersistedBenchConsent } from "@/src/components/nui-lab/bench/config";
+import { resetBenchManagerForTest } from "@/src/components/nui-lab/bench/manager";
 import { FaceDetector } from "@mediapipe/tasks-vision";
 import { MEDIAN_SKELETONS, placeHand } from "../input/realistic-hands";
-import { loadRealR19Model, pistolSkeleton } from "./lab-rig";
+import { pistolSkeleton } from "./lab-rig";
 
 const mocks = vi.hoisted(() => {
   const defaultDelegate: DelegateInfo = {
@@ -41,7 +45,6 @@ vi.mock("@/src/camera/hand-landmarker", async (importOriginal) => ({
 
 // The face model is the second MediaPipe model; the page reaches it through FaceAnchor, which loads it once.
 vi.mock("@mediapipe/tasks-vision", async (importOriginal) => ({
-  ...(await importOriginal<typeof import("@/src/camera/hand-landmarker")>()),
   ...((await importOriginal<typeof import("@mediapipe/tasks-vision")>()) as object),
   FilesetResolver: { forVisionTasks: vi.fn(async () => ({})) },
   FaceDetector: { createFromOptions: vi.fn(async () => mocks.faceDetector) },
@@ -56,18 +59,25 @@ vi.mock("@/src/camera/frame-source", async (importOriginal) => ({
 import NuiLabLanding from "@/app/nui-lab/page";
 import { NuiLabPage } from "@/src/components/nui-lab/NuiLabPage";
 
-const REAL_R19_MODEL = loadRealR19Model();
+const R20_C4_RAW = readFileSync(resolve(process.cwd(), "public/models/r20-c4-model.json"));
+const R19_C0_RAW = readFileSync(resolve(process.cwd(), "public/models/r19-pistol-model.json"));
 
 function stubRealModelFetch(spy?: ReturnType<typeof vi.fn>) {
   const fn = vi.fn(async (input: RequestInfo | URL) => {
     const url = typeof input === "string" ? input : input instanceof URL ? input.toString() : input.url;
     spy?.(url);
-    if (url.includes("r19-pistol-model.json")) {
+    const buf = url.includes("r19-pistol-model.json")
+      ? R19_C0_RAW
+      : url.includes("r20-c4-model.json")
+        ? R20_C4_RAW
+        : null;
+    if (buf) {
       return {
         ok: true,
         status: 200,
         statusText: "OK",
-        json: async () => REAL_R19_MODEL,
+        arrayBuffer: async () => buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength),
+        json: async () => JSON.parse(buf.toString("utf8")),
       } as unknown as Response;
     }
     return {
@@ -104,9 +114,11 @@ function setDocumentHidden(hidden: boolean) {
 }
 
 /** A video whose frame only changes when the test moves the clock: one call = one new camera frame. */
-function fakeVideo(video: HTMLVideoElement) {
+function fakeVideo(video: HTMLVideoElement, width = 1280, height = 720) {
   let time = 0.1;
   Object.defineProperty(video, "readyState", { configurable: true, get: () => 4 });
+  Object.defineProperty(video, "videoWidth", { configurable: true, get: () => width });
+  Object.defineProperty(video, "videoHeight", { configurable: true, get: () => height });
   Object.defineProperty(video, "currentTime", {
     configurable: true,
     get: () => time,
@@ -156,6 +168,9 @@ beforeEach(() => {
   mocks.faceDetector.detectForVideo.mockImplementation(() => ({ detections: [] }));
   resetFaceDetectorForTest();
   resetInferenceSchedulerForTest();
+  writePersistedBenchConsent(false);
+  resetBenchManagerForTest(null);
+  getLabBenchConfig().resetForTest({ engineId: "r20-c4", preprocess: "a4", detector: "cpu-main-thread" });
   setDocumentHidden(false);
   stubRealModelFetch();
 });
@@ -163,26 +178,33 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
+  writePersistedBenchConsent(false);
+  resetBenchManagerForTest(null);
   setMediaDevices(undefined);
   setDocumentHidden(false);
 });
 
 describe("NUI Lab landing page (/nui-lab)", () => {
-  it("renders passive readiness and links to /nui-lab/gesture and /nui-lab/canvas without calling getUserMedia or linking legacy diagnostics", () => {
+  it("renders passive readiness, two primary CTAs (Coba Gestur & Coba Canvas), zero engineering selectors, and honest model diagnostics", () => {
     const getUserMedia = vi.fn(async () => fakeStream().stream);
     setMediaDevices({ getUserMedia });
     render(<NuiLabLanding />);
 
     expect(screen.getByTestId("nui-lab-landing")).toBeTruthy();
-    expect(screen.getByTestId("nui-lab-engine-info").textContent).toContain("R19 G4 Hybrid");
+    expect(screen.getByTestId("nui-lab-status-badge").textContent).toContain("NUI R22 · CPU · Otomatis");
+    expect(screen.getByTestId("nui-lab-engine-info").textContent).toContain("R20 C4");
     expect(screen.getByTestId("nui-lab-camera-readiness").getAttribute("data-camera-api")).toBe("available");
     expect(getUserMedia).not.toHaveBeenCalled();
 
-    const gestureLink = screen.getByRole("link", { name: /Gesture Detection Lab/i });
-    const canvasLink = screen.getByRole("link", { name: /Canvas Lab/i });
+    const gestureLink = screen.getByRole("link", { name: /Coba Gestur/i });
+    const canvasLink = screen.getByRole("link", { name: /Coba Canvas/i });
     expect(gestureLink.getAttribute("href")).toBe("/nui-lab/gesture");
     expect(canvasLink.getAttribute("href")).toBe("/nui-lab/canvas");
     expect(document.querySelector('a[href="/nui-lab/diagnostics"]')).toBeNull();
+    expect(screen.queryByTestId("bench-engine-r19-c0")).toBeNull();
+    expect(screen.queryByTestId("bench-engine-r20-c4")).toBeNull();
+    expect(screen.queryByTestId("bench-scenario-select")).toBeNull();
+    expect(screen.queryByTestId("bench-start")).toBeNull();
     expect(screen.queryByTestId("lab-experiment-toggle")).toBeNull();
     expect(screen.queryByTestId("lab-r18-toggle")).toBeNull();
     expect(screen.queryByTestId("lab-r18-metrics")).toBeNull();
@@ -214,12 +236,11 @@ describe("NuiLabPage camera", () => {
     render(<NuiLabPage />);
     expect(getUserMedia).not.toHaveBeenCalled();
     expect(mocks.createHandLandmarker).not.toHaveBeenCalled();
-    // With the camera off the wave test still tells the owner what to do.
     expect(screen.getByText(/Belum diuji/)).toBeTruthy();
     expect(screen.getByTestId("r19-model-status").getAttribute("data-state")).toBe("unloaded");
   });
 
-  it("starts the camera on click, loads the R19 model and the hand model", async () => {
+  it("starts the camera on click, loads the classifier model and the hand model", async () => {
     const getUserMedia = vi.fn(async () => fakeStream().stream);
     setMediaDevices({ getUserMedia });
     render(<NuiLabPage />);
@@ -266,7 +287,7 @@ describe("NuiLabPage delegate readouts", () => {
   it("shows the CPU engine and why, for a browser without a GPU", async () => {
     mocks.delegateInfo = { ...mocks.defaultDelegate, delegate: "CPU", reason: "software-renderer" };
     await startCamera();
-    await waitFor(() => expect(stat("Mesin (GPU/CPU)")).toBe("CPU (tanpa GPU)"));
+    await waitFor(() => expect(stat("Delegate aktif")).toBe("CPU (tanpa GPU)"));
     expect(stat("Alasan mesin")).toBe("Tidak ada GPU, browser memakai renderer perangkat lunak");
     expect(stat("Status pindah mesin")).toBe("tidak ada pindah");
   });
@@ -274,7 +295,7 @@ describe("NuiLabPage delegate readouts", () => {
   it("shows the switch to CPU after the GPU was measured too slow", async () => {
     mocks.delegateInfo = { ...mocks.defaultDelegate, delegate: "CPU", reason: "slow-gpu", switchState: "switched" };
     await startCamera();
-    await waitFor(() => expect(stat("Mesin (GPU/CPU)")).toBe("CPU (GPU lambat)"));
+    await waitFor(() => expect(stat("Delegate aktif")).toBe("CPU (GPU lambat)"));
     expect(stat("Alasan mesin")).toBe("GPU terlalu lambat, pindah ke CPU");
     expect(stat("Status pindah mesin")).toBe("sudah pindah ke CPU");
   });
@@ -283,13 +304,12 @@ describe("NuiLabPage delegate readouts", () => {
     mocks.delegateInfo = { ...mocks.defaultDelegate, switchState: "failed", switchError: "boom" };
     await startCamera();
     await waitFor(() => expect(stat("Status pindah mesin")).toBe("gagal pindah ke CPU, tetap pakai GPU (boom)"));
-    expect(stat("Mesin (GPU/CPU)")).toBe("GPU");
+    expect(stat("Delegate aktif")).toBe("GPU");
   });
 });
 
 describe("NuiLabPage detection runs through the shared gate", () => {
   it("skips a frame that arrives inside the gap after a slow detection, then detects again", async () => {
-    // 200 ms detection: the busy cap (50 %) makes the next start wait about 400 ms.
     mocks.landmarker.detectForVideo.mockImplementation(() => {
       busyWait(200);
       return { landmarks: [] };
@@ -380,7 +400,6 @@ describe("NuiLabPage detection runs through the shared gate", () => {
 
 describe("NuiLabPage face and wave rule", () => {
   it("shows the player's face and the numbers that decide the hand, once a face is in view", async () => {
-    // Face box 128 x 120 px at (256, 96): 0.2 of the frame wide, centred on x = 0.5.
     mocks.faceDetector.detectForVideo.mockImplementation(() => ({
       detections: [{ boundingBox: { originX: 256, originY: 96, width: 128, height: 120 } }],
     }));
@@ -397,12 +416,12 @@ describe("NuiLabPage face and wave rule", () => {
     await waitFor(
       () => {
         clock.nextFrame();
-        expect(stat("Wajah pemain")).toBe("ada, 20% lebar frame");
+        expect(stat("Wajah pemain")).toBe("ada, 20%");
       },
       { timeout: 4000, interval: 25 },
     );
-    expect(stat("Tangan ditolak")).toBe("jauh 0 · wajah 0 · di luar area 0");
-    expect(stat("Pembalikan lambaian")).toBe("0 dari 2");
+    expect(stat("Tangan ditolak")).toBe("jauh 0 · wajah 0 · luar 0");
+    expect(screen.getByText(/Pembalikan: 0 dari 2/)).toBeTruthy();
   });
 
   it("says the face is not seen when the face model finds none", async () => {
@@ -425,26 +444,40 @@ describe("NuiLabPage face and wave rule", () => {
   });
 });
 
-describe("NUI Lab R19 G4 Hybrid isolated workspaces (Gesture & Canvas)", () => {
-  it("gesture route (and default variant) displays R19 G4 Hybrid UI with zero R17/R18 toggles and zero auto-camera request", () => {
+describe("NUI Lab R22 isolated workspaces (Gesture & Canvas)", () => {
+  it("gesture route (and default variant) displays clean Owner UI, sticky left camera + right scroll panels, zero selectors/manual relock, and zero auto-camera", () => {
     const getUserMedia = vi.fn(async () => fakeStream().stream);
     setMediaDevices({ getUserMedia });
-    render(<NuiLabPage />);
+    const { container } = render(<NuiLabPage />);
 
     expect(screen.getByTestId("nui-lab-gesture")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Gesture Detection Lab" })).toBeTruthy();
-    expect(screen.getByRole("link", { name: "Canvas Lab" }).getAttribute("href")).toBe("/nui-lab/canvas");
+    expect(screen.getByRole("link", { name: "Coba Canvas" }).getAttribute("href")).toBe("/nui-lab/canvas");
     expect(document.querySelector('a[href="/nui-lab/diagnostics"]')).toBeNull();
+    expect(container.querySelectorAll("video")).toHaveLength(1);
+    expect(screen.getByTestId("nui-lab-camera-panel")).toBeTruthy();
+    expect(screen.getByTestId("nui-lab-right-panel")).toBeTruthy();
+    expect(screen.getByTestId("frame-sync-badge")).toBeTruthy();
+    expect(screen.getByTestId("gesture-finger-count")).toBeTruthy();
+    expect(screen.getByTestId("low-glare-toggle")).toBeTruthy();
+
+    expect(screen.queryByTestId("lab-relock-hand")).toBeNull();
+    expect(screen.queryByTestId("bench-bar-engine")).toBeNull();
+    expect(screen.queryByTestId("bench-bar-preprocess")).toBeNull();
+    expect(screen.queryByTestId("bench-bar-detector")).toBeNull();
+    expect(screen.queryByTestId("bench-bar-scenario")).toBeNull();
+    expect(screen.queryByTestId("bench-bar-truth")).toBeNull();
+    expect(screen.queryByTestId("lab-recorder-truth")).toBeNull();
     expect(screen.queryByTestId("lab-experiment-toggle")).toBeNull();
     expect(screen.queryByTestId("lab-r18-toggle")).toBeNull();
     expect(screen.queryByTestId("lab-r18-metrics")).toBeNull();
-    expect(screen.queryByText(/Mode diagnostik lama/i)).toBeNull();
 
-    expect(screen.getByTestId("r19-engine-badge").textContent).toContain("R19 G4 Hybrid");
+    expect(screen.getByTestId("r19-engine-badge").textContent).toContain("NUI R22 · CPU · Otomatis");
+    expect(screen.getByTestId("nui-lab-honest-model-info").textContent).toContain("r20-c4");
     expect(screen.getByTestId("r19-model-status").getAttribute("data-state")).toBe("unloaded");
     expect(screen.getByTestId("r19-state-badge")).toBeTruthy();
     expect(screen.getByTestId("r19-probs").textContent).toMatch(
-      /Probabilitas Softmax Terkalibrasi MLP R19 \(bukan confidence MediaPipe\)/i,
+      /Probabilitas Softmax Terkalibrasi MLP \(bukan confidence MediaPipe\)/i,
     );
     expect(screen.getByTestId("r19-direction")).toBeTruthy();
     expect(screen.getByTestId("r19-fingers")).toBeTruthy();
@@ -459,21 +492,25 @@ describe("NUI Lab R19 G4 Hybrid isolated workspaces (Gesture & Canvas)", () => {
 
     expect(getUserMedia).not.toHaveBeenCalled();
     expect(screen.queryByLabelText("Kanvas gambar NUI")).toBeNull();
-    expect(screen.getAllByTestId("lab-relock-hand")).toHaveLength(1);
     expect(document.querySelectorAll(".nui-lab__pose")).toHaveLength(7);
     expect(screen.getByRole("button", { name: "Mulai uji lambaian" })).toBeTruthy();
   });
 
-  it("canvas route exposes drawable canvas, pointer fallback tools, read-only R19 panel, and zero R17/R18 toggles", () => {
+  it("canvas route exposes drawable canvas, R22 fist-to-1/2 Undo/Redo instructions (no swipe), pointer fallback tools, and zero engineering selectors", () => {
     const getUserMedia = vi.fn(async () => fakeStream().stream);
     setMediaDevices({ getUserMedia });
-    render(<NuiLabPage variant="canvas" />);
+    const { container } = render(<NuiLabPage variant="canvas" />);
     expect(screen.getByTestId("nui-lab-canvas")).toBeTruthy();
     expect(screen.getByRole("heading", { name: "Canvas NUI Lab" })).toBeTruthy();
-    expect(screen.queryByTestId("lab-experiment-toggle")).toBeNull();
-    expect(screen.queryByTestId("lab-r18-toggle")).toBeNull();
-    expect(screen.queryByTestId("lab-r18-metrics")).toBeNull();
-    expect(screen.getByTestId("r19-engine-badge")).toBeTruthy();
+    expect(container.querySelectorAll("video")).toHaveLength(1);
+    expect(screen.getByTestId("nui-lab-camera-panel")).toBeTruthy();
+    expect(screen.getByTestId("nui-lab-right-panel")).toBeTruthy();
+    expect(screen.getByTestId("canvas-undo-redo-fsm")).toBeTruthy();
+    expect(screen.queryByText(/Swipe Undo/i)).toBeNull();
+    expect(screen.queryByText(/Swipe Redo/i)).toBeNull();
+    expect(screen.queryByTestId("bench-bar-engine")).toBeNull();
+    expect(screen.queryByTestId("bench-bar-truth")).toBeNull();
+    expect(screen.getByTestId("r19-engine-badge").textContent).toContain("NUI R22 · CPU · Otomatis");
 
     const canvas = screen.getByLabelText("Kanvas gambar NUI") as HTMLCanvasElement;
     expect(canvas.width).toBe(1280);
@@ -489,6 +526,9 @@ describe("NUI Lab R19 G4 Hybrid isolated workspaces (Gesture & Canvas)", () => {
     fireEvent.click(screen.getByRole("button", { name: "Redo" }));
     fireEvent.click(screen.getByRole("button", { name: "Bersihkan kanvas" }));
     expect(getUserMedia).not.toHaveBeenCalled();
+
+    fireEvent.click(screen.getByTestId("low-glare-toggle"));
+    expect(screen.getByTestId("nui-lab-canvas").getAttribute("data-low-glare")).toBe("true");
   });
 });
 
@@ -620,7 +660,6 @@ describe("NUI Lab fail-closed model loading & retry", () => {
     const retryBtn = screen.getByTestId("r19-retry-model");
     expect(retryBtn).toBeTruthy();
 
-    // Feed frames while model is in error state -> zero fallback, all virtual keys remain inactive
     for (let i = 0; i < 6; i++) {
       clock.nextFrame();
     }
@@ -630,7 +669,6 @@ describe("NUI Lab fail-closed model loading & retry", () => {
     expect(screen.getByTestId("r19-vkey-right").getAttribute("data-active")).toBe("false");
     expect(screen.getByTestId("r19-state-badge").getAttribute("data-r19-state")).toBe("NO_HAND");
 
-    // Retry with working model -> recovers to ready and removes alert
     stubRealModelFetch();
     await act(async () => {
       fireEvent.click(retryBtn);
@@ -657,30 +695,29 @@ describe("NUI Lab fail-closed model loading & retry", () => {
       fireEvent.click(screen.getByRole("button", { name: "Nyalakan kamera" }));
     });
     await waitFor(() => expect(screen.getByTestId("r19-model-status").getAttribute("data-state")).toBe("error"));
-    expect(screen.getByTestId("r19-model-error").textContent).toMatch(/Gagal membaca JSON model R19/);
+    expect(screen.getByTestId("r19-model-error").textContent).toMatch(/Gagal membaca JSON model/);
     expect(screen.getByTestId("r19-retry-model")).toBeTruthy();
   });
 });
 
-describe("NUI Lab developer diagnostics (gesture route)", () => {
+describe("NUI Lab developer diagnostics & 0-5 finger readout (gesture route)", () => {
   const ids = [
     "aspect", "pose-raw", "fingers", "thumb-legacy", "thumb-lateral", "thumb-ip", "five-valid", "armed", "hand-status",
     "pipeline", "erase-hit", "strokes", "command-mode", "last-command", "command-count",
-    "swipe-phase", "swipe-travel", "swipe-speed", "swipe-cancel",
   ];
   const cell = (id: string) => screen.getByTestId(`lab-diag-${id}`).querySelector("dd")?.textContent ?? "";
 
-  it("lists every row with a dash before any hand is seen, and says the diagnostics are test-only", () => {
+  it("lists every row with a dash before any hand is seen, and says diagnostics stay isolated from gameplay", () => {
     setMediaDevices({ getUserMedia: vi.fn(async () => fakeStream().stream) });
     render(<NuiLabPage variant="gesture" />);
     for (const id of ids) expect(screen.getByTestId(`lab-diag-${id}`)).toBeTruthy();
     expect(cell("aspect")).toBe("—");
     expect(cell("fingers")).toBe("—");
     expect(cell("hand-status")).toBe("—");
-    expect(screen.getByTestId("lab-diag").textContent).toMatch(/kandidat uji, bukan keputusan gameplay siswa produksi/);
+    expect(screen.getByTestId("lab-diag").textContent).toMatch(/tidak mengubah gameplay siswa produksi/);
   });
 
-  it("passes the real video aspect to the analyzer and shows the new count next to the legacy one for the same frame", async () => {
+  it("passes the real video aspect to the analyzer and displays 4 fingers clearly in both gesture readout and diagnostics", async () => {
     const four = placeHand(MEDIAN_SKELETONS.four, { aspect: 4 / 3, cx: 0.5, cy: 0.7 });
     mocks.landmarker.detectForVideo.mockImplementation(() => ({ landmarks: [four] as never[] }));
     const { stream } = fakeStream();
@@ -706,120 +743,21 @@ describe("NUI Lab developer diagnostics (gesture route)", () => {
       },
       { timeout: 4000, interval: 25 },
     );
+    expect(screen.getByTestId("gesture-finger-count").textContent).toContain("4 / 5 jari");
     expect(cell("thumb-legacy")).toMatch(/→ terbuka$/);
     expect(cell("thumb-lateral")).toMatch(/→ tertutup$/);
     expect(cell("five-valid")).toBe("tidak");
-    expect(cell("command-mode")).toBe("geser (uji)");
-  });
-});
-
-describe("NUI Lab local landmark recorder (RD-02 + R19 truth labels)", () => {
-  const start = () => screen.getByTestId("lab-recorder-start") as HTMLButtonElement;
-
-  it("starts locked on gesture route: no consent, no camera, no recording", () => {
-    setMediaDevices({ getUserMedia: vi.fn(async () => fakeStream().stream) });
-    render(<NuiLabPage variant="gesture" />);
-    expect(start().disabled).toBe(true);
-    expect(screen.getByTestId("lab-recorder-status").textContent).toMatch(/^Tidak merekam · 0 frame/);
-    fireEvent.click(screen.getByTestId("lab-recorder-consent"));
-    expect(start().disabled).toBe(true); // consent alone is not enough: the camera is off
-    expect((screen.getByTestId("lab-recorder-download") as HTMLButtonElement).disabled).toBe(true);
-
-    const options = Array.from((screen.getByTestId("lab-recorder-truth") as HTMLSelectElement).options).map((o) => o.value);
-    expect(options).toEqual(expect.arrayContaining(["POINT_PRESS", "DORSAL_RIGHT_LEFT", "FIVE"]));
+    expect(cell("command-mode")).toBe("Kepal → 1/2 jari (R22)");
   });
 
-  it("records R19 truth labels (POINT_PRESS, DORSAL_RIGHT_LEFT, FIVE) after consent + start, downloads a valid file without extra network calls, and discards cleanly", async () => {
-    const pressRight = pistolSkeleton(0, true, { aspect: 16 / 9 });
-    const dorsalLeft = pistolSkeleton(180, true, { aspect: 16 / 9, dorsal: true, mirror: true });
-    let currentLm = pressRight;
-    mocks.landmarker.detectForVideo.mockImplementation(() => ({ landmarks: [currentLm] as never[] }));
-
-    const { stream } = fakeStream();
-    setMediaDevices({ getUserMedia: vi.fn(async () => stream) });
-    const blobs: Blob[] = [];
-    const create = vi.fn((b: Blob) => { blobs.push(b); return "blob:test"; });
-    Object.defineProperty(URL, "createObjectURL", { configurable: true, value: create });
-    Object.defineProperty(URL, "revokeObjectURL", { configurable: true, value: vi.fn() });
-    const clickSpy = vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(() => undefined);
-    const readBlob = (b: Blob) => new Promise<string>((res, rej) => { const r = new FileReader(); r.onload = () => res(String(r.result)); r.onerror = () => rej(r.error); r.readAsText(b); });
-    const fetchSpy = vi.fn();
-    stubRealModelFetch(fetchSpy);
-
-    const { container } = render(<NuiLabPage variant="gesture" />);
-    const video = container.querySelector("video") as HTMLVideoElement;
-    const clock = fakeVideo(video);
-    sizedVideo(video, 1280, 720);
+  it("shows human-friendly Indonesian error alert on camera permission denied (U10)", async () => {
+    const err = Object.assign(new Error("Permission denied"), { name: "NotAllowedError" });
+    setMediaDevices({ getUserMedia: vi.fn(async () => { throw err; }) });
+    render(<NuiLabPage variant="canvas" />);
     await act(async () => {
       fireEvent.click(screen.getByRole("button", { name: "Nyalakan kamera" }));
     });
-    await waitFor(() => expect(screen.getByTestId("r19-model-status").getAttribute("data-state")).toBe("ready"));
-    fetchSpy.mockClear();
-
-    await waitFor(() => expect(start().disabled).toBe(true), { timeout: 2000 }); // consent still missing
-    fireEvent.click(screen.getByTestId("lab-recorder-consent"));
-    await waitFor(() => expect(start().disabled).toBe(false), { timeout: 4000 });
-
-    const recordedCount = () => {
-      const m = (screen.getByTestId("lab-recorder-status").textContent ?? "").match(/(\d+)\s+frame/);
-      return m ? Number(m[1]) : 0;
-    };
-
-    fireEvent.change(screen.getByTestId("lab-recorder-truth"), { target: { value: "POINT_PRESS" } });
-    fireEvent.click(start());
-    await waitFor(
-      () => {
-        clock.nextFrame();
-        expect(recordedCount()).toBeGreaterThanOrEqual(2);
-      },
-      { timeout: 4000, interval: 25 },
-    );
-
-    const afterPress = recordedCount();
-    currentLm = dorsalLeft;
-    fireEvent.change(screen.getByTestId("lab-recorder-truth"), { target: { value: "DORSAL_RIGHT_LEFT" } });
-    await waitFor(
-      () => {
-        clock.nextFrame();
-        expect(recordedCount()).toBeGreaterThanOrEqual(afterPress + 2);
-      },
-      { timeout: 4000, interval: 25 },
-    );
-
-    const afterDorsal = recordedCount();
-    currentLm = placeHand(MEDIAN_SKELETONS.palm, { aspect: 16 / 9, cx: 0.5, cy: 0.7 });
-    fireEvent.change(screen.getByTestId("lab-recorder-truth"), { target: { value: "FIVE" } });
-    await waitFor(
-      () => {
-        clock.nextFrame();
-        expect(recordedCount()).toBeGreaterThanOrEqual(afterDorsal + 2);
-      },
-      { timeout: 4000, interval: 25 },
-    );
-
-    await act(async () => {
-      fireEvent.click(screen.getByTestId("lab-recorder-stop"));
-    });
-    const status = screen.getByTestId("lab-recorder-status").textContent ?? "";
-    expect(status).toMatch(/^Tidak merekam · [1-9]/);
-    fireEvent.click(screen.getByTestId("lab-recorder-download"));
-    expect(create).toHaveBeenCalledTimes(1);
-    const file = JSON.parse(await readBlob(blobs[0]!));
-    expect(clickSpy).toHaveBeenCalledTimes(1);
-    expect(file.schema).toBe("nui-landmark-record/1");
-    expect(file.mode).toBe("r19-g4-hybrid");
-    expect(file.consent).toBe(true);
-    expect(file.frames.length).toBeGreaterThanOrEqual(6);
-    const recordedLabels = new Set(file.frames.map((f: { truth: string }) => f.truth));
-    expect(recordedLabels.has("POINT_PRESS")).toBe(true);
-    expect(recordedLabels.has("DORSAL_RIGHT_LEFT")).toBe(true);
-    expect(recordedLabels.has("FIVE")).toBe(true);
-    expect(file.frames[0].lm).toHaveLength(21);
-    expect("r19State" in file.frames[0]).toBe(true);
-    expect("vkeyEvent" in file.frames[0]).toBe(true);
-    expect(fetchSpy).not.toHaveBeenCalled();
-
-    fireEvent.click(screen.getByTestId("lab-recorder-discard"));
-    expect(screen.getByTestId("lab-recorder-status").textContent).toMatch(/· 0 frame/);
+    await waitFor(() => expect(screen.getByTestId("camera-error-status").getAttribute("role")).toBe("alert"));
+    expect(screen.getByTestId("camera-error-status").textContent).toMatch(/Izin kamera ditolak/i);
   });
 });

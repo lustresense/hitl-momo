@@ -84,7 +84,7 @@ Kepemilikan: `frontend/implementation/` milik Can. `backend/`, `weights/`, `trai
 
 ## Menjalankan di lokal (tanpa Docker)
 
-Semua perintah dari root repo. Empat proses terpisah: backend, game, dashboard.
+Semua perintah dari root repo. Tiga proses terpisah: backend, game, dan dashboard.
 
 **1. Backend** (port 8000):
 

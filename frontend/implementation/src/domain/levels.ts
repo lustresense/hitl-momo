@@ -159,7 +159,7 @@ const STAGE_1: LevelDefinition = makeLevel({
   stageEmphasis: "Pahami alur dasar: gambar → tebakan AI → keputusanmu → konsekuensi.",
   behaviorMap: DIAS_BEHAVIOR,
   vocabulary: DIAS_CATALOG.map((item) => item.labelId),
-  catalog: DIAS_CATALOG,
+  catalog: DIAS_CATALOG.filter(({ labelId }) => ["tangga", "jembatan", "bangku", "papan luncur"].includes(labelId)),
   summary: {
     gameplay: "Kamu berhasil membuat jalur untuk {character} menyeberangi celah!",
     literacy: "AI hanya menebak. Kamu yang memutuskan.",
@@ -183,7 +183,7 @@ const STAGE_2: LevelDefinition = makeLevel({
   },
   behaviorMap: DIAS_BEHAVIOR,
   vocabulary: DIAS_CATALOG.map((item) => item.labelId),
-  catalog: DIAS_CATALOG,
+  catalog: DIAS_CATALOG.filter(({ labelId }) => ["anak tangga", "tangga", "meja", "bangku"].includes(labelId)),
   summary: {
     gameplay: "Kamu berhasil menemukan jalan ke halaman atas!",
     literacy: "Bandingkan ketiga tebakan. Persen tinggi belum tentu benar.",
@@ -210,7 +210,7 @@ const STAGE_3: LevelDefinition = makeLevel({
   },
   behaviorMap: DIAS_BEHAVIOR,
   vocabulary: DIAS_CATALOG.map((item) => item.labelId),
-  catalog: DIAS_CATALOG,
+  catalog: DIAS_CATALOG.filter(({ labelId }) => ["jembatan", "tangga", "kaktus", "awan"].includes(labelId)),
   summary: {
     gameplay: "Kamu berhasil keluar dari Lorong Kabut!",
     literacy: "Persen tinggi tidak menjamin benar. Periksa gambar dan akibatnya.",

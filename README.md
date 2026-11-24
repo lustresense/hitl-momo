@@ -9,6 +9,10 @@ Repo ini menggabungkan dua pekerjaan yang tadinya terpisah:
 
 > **Status: integrasi, belum rilis.** Alur kelas dari ujung ke ujung sudah jalan dan diuji. Build image Docker belum terbukti, dan perubahan kontrak antara game dan backend belum disetujui Can dan Dias. Lihat [Yang terbukti dan yang belum](#yang-terbukti-dan-yang-belum).
 
+## Migrasi DEV ke laptop
+
+Baca **[Panduan migrasi DEV](docs/DEV-MIGRATION.md)** terlebih dahulu. Panduan itu menjelaskan root monorepo, port 5555/5800/5802, routing, model Dias dan batas reproduksi. STT Lab berada di luar repo dan tidak disertakan.
+
 ## Latar belakang
 
 Siswa SMP rentan terjebak **automation bias**: menerima keluaran AI mentah-mentah tanpa menilainya. Sketchbook Universe melatih siswa memahami bahwa AI bersifat probabilistik, bisa ragu, bisa salah, dan tetap butuh keputusan manusia.
@@ -95,7 +99,7 @@ python backend/create_superadmin.py --email guru@contoh.test --name "Guru Uji"  
 AI_DIFFICULTY_ENABLED=1 uvicorn backend.app.main:app --host 127.0.0.1 --port 8000
 ```
 
-Database dibuat di `backend/data/momo.sqlite` (ubah dengan `MOMO_DB_PATH`). Model: `weights/model_4_mobilenetv2_best.keras` (ubah dengan `MODEL_PATH`).
+Database dibuat di `backend/data/momo.sqlite` (ubah dengan `MOMO_DB_PATH`). Model: `weights/model_4_mobilenetv2_best.keras` (ubah dengan `WEIGHTS_DIR` dan `MODEL_FILE`).
 
 **2. Game** (port 3000), prediksi dari backend sungguhan:
 
@@ -184,7 +188,7 @@ Backend (env saat menjalankan):
 
 | Variabel | Arti | Bawaan |
 |---|---|---|
-| `MODEL_PATH` | file model Keras | `weights/model_4_mobilenetv2_best.keras` |
+| `WEIGHTS_DIR` / `MODEL_FILE` | direktori dan nama file model Keras | `weights/model_4_mobilenetv2_best.keras` |
 | `MOMO_DB_PATH` | file SQLite | `backend/data/momo.sqlite` |
 | `CORS_ORIGINS` | origin browser yang boleh memanggil API, dipisah koma | `localhost` port 3344, 3002, 3000 |
 | `AI_DIFFICULTY_ENABLED` | `1` = kesulitan AI per level berlaku (atur di `/admin/kesulitan`) | `0` di kode, `1` di `docker-compose.yml` |

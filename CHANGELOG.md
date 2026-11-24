@@ -1,3 +1,7 @@
+## Unreleased - migrasi DEV
+
+- Sertakan model Dias DEV dan label dalam weights; dokumentasikan routing dan migrasi.
+
 # CHANGELOG — Sketchbook Universe Engineering
 
 Satu-satunya changelog engineering yang aktif. **Entri terbaru ada di atas.** Riwayat lama (versi 0.0.x, sebelum monorepo) ada di `docs/history/can/implementation-CHANGELOG.md` dan tidak diubah. Arsip changelog sebelum skema versi ada di lampiran paling bawah.

@@ -10,7 +10,7 @@ Sumber terakhir yang dimigrasikan: `MuhammadDias/HITL` @ `94120d46f4dcd59dd16a2f
 |---|---|---|
 | API FastAPI | `backend/app/` | `main.py` (`/health`, `/predict`), `classroom.py` (`/api/join`, `/api/submissions`, outcome), `dashboard.py` (`/api/auth`, `/api/schools`, `/api/classes`, `/api/settings/difficulty`), `difficulty.py`, `db.py` (SQLite), `inference.py` (Keras), `auth.py`, `passwords.py`, `reports.py` |
 | Dashboard admin | `frontend/admin/` | Next.js, base path `/admin`, port 3002. Halaman `/admin/kesulitan` (superadmin) |
-| Model | `weights/` | 6 file Keras/H5, identik dengan repo Dias. Default `model_4_mobilenetv2_best.keras` (kategori lama, tanpa `.labels.json`) |
+| Model | `weights/` | Model DEV `model_4_mobilenetv2_best.keras` dan `model_4_mobilenetv2.labels.json`; default backend membaca `weights/` repo. Lihat `docs/DEV-MIGRATION.md`. |
 | Training manual | `train/` | `01`–`08` (Custom CNN, EfficientNet-B0, SqueezeNet, MobileNetV2, ResNet-18, SketchNN), `compare_models.py`, `evaluate_model.py`, `evaluate_legacy_models.py`, `train_all_models.sh`, `train_in_docker.sh`, `evaluate_in_docker.sh` |
 | Konfigurasi | `config.py` (20 kategori baru + `LABELS_ID` + `LEGACY_CATEGORIES`), `utils.py`, `requirements.txt`, `run-all.py` | |
 | Tes | `tests/integration/` (kontrak, kesulitan, `verify_backend.py`), `backend/tests/blackbox.py`, `backend/tests/run_tests_in_docker.sh` | |
@@ -38,14 +38,14 @@ python backend/tests/blackbox.py --base http://127.0.0.1:8000 --email <email> --
 cd frontend/admin && npm ci && npm run dev    # http://localhost:3002/admin
 ```
 
-Variabel penting: `MODEL_PATH` (default model MobileNetV2), `MOMO_DB_PATH`, `CORS_ORIGINS`, `AI_DIFFICULTY_ENABLED` (kode default `0`; `docker-compose.yml` dan `.env.example` menyalakan `1`. Untuk uvicorn lokal set manual), `PREDICTION_SEND_CONTEXT` (build game, default `1` sejak 0.29.0-alpha).
+Variabel penting: `WEIGHTS_DIR` dan `MODEL_FILE` (default model MobileNetV2), `MOMO_DB_PATH`, `CORS_ORIGINS`, `AI_DIFFICULTY_ENABLED` (kode default `0`; `docker-compose.yml` dan `.env.example` menyalakan `1`. Untuk uvicorn lokal set manual), `PREDICTION_SEND_CONTEXT` (build game, default `1` sejak 0.29.0-alpha).
 
-**Memakai model hasil retrain:** taruh `<nama>.keras` dan `<nama>.labels.json` (dibuat oleh script training) di `weights/`, set `MODEL_PATH`. Backend memeriksa jumlah output = jumlah label. Label yang dikirim ke game ikut berubah, jadi butuh koordinasi dengan Can (`levels.ts`).
+**Memakai model hasil retrain:** taruh `<nama>.keras` dan `<nama>.labels.json` (dibuat oleh script training) di `weights/`, set `WEIGHTS_DIR` dan `MODEL_FILE`. Backend memeriksa jumlah output = jumlah label. Label yang dikirim ke game ikut berubah, jadi butuh koordinasi dengan Can (`levels.ts`).
 
 ## Yang belum diverifikasi
 
 - Build image Docker, training ulang, model selain default, deployment.
-- Model retrain `*.labels.json` belum ada di repo (lihat K2 di laporan migrasi).
+- Model DEV dan JSON label disertakan pada branch ini; verifikasi runtime laptop tetap diperlukan.
 
 ## Risiko yang masih ada
 

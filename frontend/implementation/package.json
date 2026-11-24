@@ -1,10 +1,11 @@
 {
   "name": "sketchbook-universe-author-side",
   "private": true,
-  "version": "0.29.1-alpha",
+  "version": "0.29.3-alpha+r23b-monui7-hf3",
   "private_note": "CAN(USER)-owned application side. Frontend-only Next.js static export; partner classifier/backend remain behind client adapters.",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node scripts/copy-ort-wasm.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -19,6 +20,7 @@
     "gsap": "^3.15.0",
     "kaplay": "^3001.0.0",
     "next": "^14.2.35",
+    "onnxruntime-web": "1.31.1",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

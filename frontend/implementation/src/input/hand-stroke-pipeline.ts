@@ -72,6 +72,51 @@ export interface HandPipelineOptions {
   aspect?(): number;
   /** Owner NUI Lab only: prevent an action until the new hand released that gesture. */
   canPerformAction?(rawPose: HandPose, fingerCount: number): boolean;
+  /** Owner NUI Lab only: configurable grace window (ms) for brief detector blinks. Default: LOSS_GRACE_MS (150 ms). */
+  lossGraceMs?: number;
+  /**
+   * Owner NUI Lab only: anchor for measuring loss grace.
+   * Default `"last-tracked"` keeps legacy student gameplay identical; `"loss-start"` measures from the first lost frame.
+   */
+  lossGraceAnchor?: "last-tracked" | "loss-start";
+  /** Owner NUI Lab only: hard upper bound (ms) on total unobserved gap (`nowMs - lastTrackedMs`) when resuming a stroke. */
+  maxResumeGapMs?: number;
+  /** Owner NUI Lab only: max jump share of canvas width allowed to resume a stroke after a blink. Default: 0.12. */
+  maxResumeJumpShare?: number;
+  /** Owner NUI Lab only: optional separate cursor smoother hook (C15) so cursor smoothing stays independent from ink. */
+  cursorSmoother?: {
+    smooth(p: { x: number; y: number }, nowMs: number): { x: number; y: number };
+    reset(): void;
+  };
+}
+
+/**
+ * Owner NUI Lab only (Contract K3 / C02): external single-authority input from `ActionIntentResolver`.
+ * Guarantees `HandStrokePipeline` NEVER mutates `StrokeStore` when the resolver rejects an action.
+ */
+export interface ResolvedHandAuthority {
+  /** Primary owner landmarks, or undefined when missing/untracked. */
+  landmarks: Landmark[] | undefined;
+  /** Optional non-crossing secondary hand for eraser radius sizing while owner erases (B07/C16); never draws. */
+  secondaryLandmarks?: Landmark[] | null;
+  /** Canonical pose from single PoseSource. */
+  pose: HandPose;
+  /** Canonical finger count (0..5) from single PoseSource. */
+  fingerCount: number;
+  /** Canonical pinch ratio from single PinchSource (drives cursor near vs hover visual state only). */
+  pinchRatio: number | null;
+  /** Sole authorization to draw ink this frame. */
+  allowDraw: boolean;
+  /** Sole authorization to erase ink this frame. */
+  allowErase: boolean;
+  /** True while holding an open stroke across a short blink without mutating StrokeStore. */
+  inLossGrace: boolean;
+  /** True when the resolver requires immediate fail-closed closure of open stroke/erase ops. */
+  shouldEndOpenOps: boolean;
+  /** True when the frame is stale (C15): StrokeStore MUST NOT mutate. */
+  isStale?: boolean;
+  /** Frame timestamp in ms. */
+  nowMs: number;
 }
 
 /** What the last tracked frame decided, for the owner-only lab diagnostics. Not used by any game screen. */
@@ -96,6 +141,7 @@ export class HandStrokePipeline {
   private drawStreak = 0;
   private prevRaw: HandPose = "none";
   private lastTrackedMs: number | null = null;
+  private lossStartedMs: number | null = null;
   private lostFrames = 0;
   private cursorVisible = false;
   /** Index-tip position of the drawing hand on the last tracked frame; picks between two pinching hands. */
@@ -168,15 +214,126 @@ export class HandStrokePipeline {
     this.stable = "none";
     this.prevRaw = "none";
     this.lastTrackedMs = null;
+    this.lossStartedMs = null;
     this.lostFrames = 0;
     this.cursorVisible = false;
     this.lastInk = null;
     this.sizer.end();
     this.inkSmoother.reset();
     this.palmSmoother.reset();
+    this.options.cursorSmoother?.reset();
     this.options.onPose?.("none", nowMs);
     const status: HandInputStatus = { kind: "tracking-lost" };
     return { pose: "none", status, cursor: null, changed };
+  }
+
+  /**
+   * Owner NUI Lab only (Contract K3 / C02): consumes canonical decisions from `ActionIntentResolver`.
+   * Never mutates `StrokeStore` when the resolver rejects an action or marks a frame stale.
+   */
+  feedResolved(auth: ResolvedHandAuthority): HandFrame {
+    const { store } = this.options;
+    const { nowMs } = auth;
+
+    if (auth.isStale) {
+      return this.done(
+        {
+          pose: this.stable,
+          status: { kind: "ready" },
+          cursor: null,
+          changed: false,
+        },
+        nowMs,
+      );
+    }
+
+    const lm = auth.landmarks;
+    if (!lm || lm.length < 21) {
+      this.sizer.end();
+      const frame = this.lostResolved(nowMs, auth.inLossGrace && !auth.shouldEndOpenOps);
+      return this.done(frame, nowMs);
+    }
+
+    if (auth.shouldEndOpenOps) {
+      this.sizer.end();
+      const changed = this.endOpenOps() || this.cursorVisible;
+      this.prevRaw = "none";
+      this.stable = this.vote("none");
+      this.inkSmoother.reset();
+      this.palmSmoother.reset();
+      this.options.cursorSmoother?.reset();
+      this.cursorVisible = false;
+      this.lossStartedMs = null;
+      return this.done(
+        { pose: this.stable, status: { kind: "tracking-lost" }, cursor: null, changed },
+        nowMs,
+      );
+    }
+
+    const resumed = this.lostFrames > 0;
+    const gapSinceTracked = this.lastTrackedMs === null ? 0 : nowMs - this.lastTrackedMs;
+    this.lostFrames = 0;
+    this.lastTrackedMs = nowMs;
+    this.lossStartedMs = null;
+
+    this.prevRaw = auth.pose;
+    this.stable = this.vote(auth.pose);
+
+    const drawing = auth.allowDraw;
+    const erasing = !drawing && auth.allowErase;
+
+    const tipNorm = indexTipNormalized(lm);
+    const inkPt = this.toCanvas(this.inkSmoother.smooth(tipNorm, nowMs));
+    this.lastInk = inkPt;
+    let cursorPt: Point = this.options.cursorSmoother
+      ? this.toCanvas(this.options.cursorSmoother.smooth(tipNorm, nowMs))
+      : inkPt;
+    let sizingCss: number | null = null;
+
+    if (erasing) {
+      if (store.hasActiveStroke()) store.endStroke();
+      this.drawVotes = [];
+      this.drawStreak = 0;
+      cursorPt = this.toCanvas(this.palmSmoother.smooth(palmCenterNormalized(lm), nowMs));
+      // Secondary-hand eraser radius sizing ONLY while primary owner is actively erasing (B07/C16).
+      const secondary = auth.secondaryLandmarks;
+      if (secondary && secondary.length >= 21 && this.options.eraser.isFixed?.() !== true) {
+        sizingCss = this.sizeFrom(secondary);
+      } else {
+        this.sizer.end();
+      }
+      this.debug.lastEraseHit = store.eraseAt(cursorPt, this.options.eraser.radiusCanvasPx());
+      this.debug.eraseFrames++;
+    } else {
+      this.sizer.end();
+      this.palmSmoother.reset();
+      if (store.isErasing()) store.endErase();
+      this.updateStrokeResolved(drawing, inkPt, resumed, gapSinceTracked);
+    }
+
+    const ratio = auth.pinchRatio ?? 1;
+    const state: CursorState = drawing ? "drawing" : ratio <= 0.5 ? "near" : "hover";
+    this.debug = {
+      ...this.debug,
+      raw: auth.pose,
+      stable: this.stable,
+      fingerCount: auth.fingerCount,
+      actionAllowed: drawing || erasing,
+      drawing,
+      drawStreak: this.drawStreak,
+      erasing,
+    };
+    const status: HandInputStatus = drawing ? { kind: "drawing" } : { kind: "ready" };
+    this.cursorVisible = true;
+    return this.done(
+      {
+        pose: this.stable,
+        status,
+        cursor: { x: cursorPt.x, y: cursorPt.y, state, erasing, sizingCss },
+        changed: true,
+      },
+      nowMs,
+    );
   }
 
   private done(frame: HandFrame, nowMs: number): HandFrame {
@@ -227,6 +384,7 @@ export class HandStrokePipeline {
     const resumed = this.lostFrames > 0;
     this.lostFrames = 0;
     this.lastTrackedMs = nowMs;
+    this.lossStartedMs = null;
 
     this.prevRaw = raw;
     this.stable = this.vote(raw);
@@ -288,19 +446,90 @@ export class HandStrokePipeline {
     };
   }
 
+  private computeInGrace(nowMs: number): boolean {
+    const graceMs = this.options.lossGraceMs ?? LOSS_GRACE_MS;
+    const sinceTracked = this.lastTrackedMs === null ? Infinity : nowMs - this.lastTrackedMs;
+    if (this.options.lossGraceAnchor === "loss-start") {
+      if (this.lossStartedMs === null) this.lossStartedMs = nowMs;
+      const sinceLoss = nowMs - this.lossStartedMs;
+      const withinMaxGap =
+        this.options.maxResumeGapMs === undefined ||
+        (sinceTracked >= 0 && sinceTracked <= this.options.maxResumeGapMs);
+      return sinceLoss >= 0 && sinceLoss <= graceMs && withinMaxGap;
+    }
+    return sinceTracked >= 0 && sinceTracked <= graceMs;
+  }
+
   private lost(nowMs: number): HandFrame {
     this.lostFrames++;
     this.prevRaw = "none";
     this.stable = this.vote("none");
     this.inkSmoother.reset();
     this.palmSmoother.reset();
-    const sinceTracked = this.lastTrackedMs === null ? Infinity : nowMs - this.lastTrackedMs;
-    const inGrace = sinceTracked >= 0 && sinceTracked <= LOSS_GRACE_MS;
+    this.options.cursorSmoother?.reset();
+    const inGrace = this.computeInGrace(nowMs);
     let changed = this.cursorVisible;
     if (!inGrace) changed = this.endOpenOps() || changed;
     this.cursorVisible = false;
     const status: HandInputStatus = { kind: "tracking-lost" };
     return { pose: this.stable, status, cursor: null, changed };
+  }
+
+  private lostResolved(nowMs: number, allowGrace: boolean): HandFrame {
+    this.lostFrames++;
+    this.prevRaw = "none";
+    this.stable = this.vote("none");
+    this.inkSmoother.reset();
+    this.palmSmoother.reset();
+    this.options.cursorSmoother?.reset();
+    const inGrace = allowGrace && this.computeInGrace(nowMs);
+    let changed = this.cursorVisible;
+    if (!inGrace) {
+      changed = this.endOpenOps() || changed;
+    }
+    this.cursorVisible = false;
+    const status: HandInputStatus = { kind: "tracking-lost" };
+    return { pose: this.stable, status, cursor: null, changed };
+  }
+
+  private updateStrokeResolved(drawing: boolean, pt: Point, resumed: boolean, gapSinceTracked: number): void {
+    const { store } = this.options;
+    this.drawStreak = drawing ? this.drawStreak + 1 : 0;
+    this.drawVotes.push(drawing);
+    if (this.drawVotes.length > VOTE_WINDOW) this.drawVotes.shift();
+
+    if (!store.hasActiveStroke()) {
+      if (drawing && this.drawStreak >= DRAW_START_FRAMES) {
+        store.beginStroke();
+        store.addPoint(pt);
+        this.drawVotes = new Array<boolean>(DRAW_START_FRAMES).fill(true);
+      }
+      return;
+    }
+
+    if (drawing) {
+      const last = store.lastActivePoint();
+      const gapExceeded =
+        this.options.maxResumeGapMs !== undefined && gapSinceTracked > this.options.maxResumeGapMs;
+      const jumpExceeded =
+        last !== null && Math.hypot(pt.x - last.x, pt.y - last.y) > this.jumpLimit();
+      if (gapExceeded || (resumed && jumpExceeded)) {
+        // Fail-closed on teleport or excessive gap: close the old stroke without drawing across,
+        // and require fresh onset confirmation before starting a new stroke (C05/B04).
+        store.endStroke();
+        this.drawVotes = [true];
+        this.drawStreak = 1;
+        return;
+      }
+      store.addPoint(pt);
+      return;
+    }
+
+    const releaseVotes = this.drawVotes.filter((v) => !v).length;
+    if (releaseVotes >= DRAW_RELEASE_FRAMES) {
+      store.endStroke();
+      this.drawVotes = [];
+    }
   }
 
   /** Closes an open stroke and an open eraser pass; true when either was open. */
@@ -366,7 +595,8 @@ export class HandStrokePipeline {
   }
 
   private jumpLimit(): number {
-    return JUMP_SHARE_OF_WIDTH * this.options.size().width;
+    const share = this.options.maxResumeJumpShare ?? JUMP_SHARE_OF_WIDTH;
+    return share * this.options.size().width;
   }
 
   private toCanvas(p: { x: number; y: number }): Point {

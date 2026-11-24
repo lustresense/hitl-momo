@@ -4,11 +4,12 @@
  */
 import type { CameraProfile, SessionMeta } from "./schema";
 
-export const LAB_APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "0.27.0-alpha";
-export const LAB_GIT_COMMIT = process.env.NEXT_PUBLIC_GIT_COMMIT ?? "main-0.27.0-alpha-r20lab";
+export const LAB_APP_VERSION = process.env.NEXT_PUBLIC_APP_VERSION ?? "0.29.1-alpha+r22b";
+export const LAB_GIT_COMMIT = process.env.NEXT_PUBLIC_GIT_COMMIT ?? "745bb6d840793dcab8558f65aef6bfac58807e79";
+export const LAB_GIT_BRANCH = process.env.NEXT_PUBLIC_GIT_BRANCH ?? "r22b-handstate";
 
-export function getAppBuildInfo(): { version: string; gitCommit: string } {
-  return { version: LAB_APP_VERSION, gitCommit: LAB_GIT_COMMIT };
+export function getAppBuildInfo(): { version: string; gitCommit: string; gitBranch: string } {
+  return { version: LAB_APP_VERSION, gitCommit: LAB_GIT_COMMIT, gitBranch: LAB_GIT_BRANCH };
 }
 
 function coarseBrowserFamily(ua: string): string {

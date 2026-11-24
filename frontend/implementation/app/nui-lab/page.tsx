@@ -2,8 +2,15 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { BenchDashboard } from "@/src/components/nui-lab/bench/BenchControls";
-import { DEFAULT_R19_MODEL_URL } from "@/src/components/nui-lab/r19/r19_loader";
+import { BenchDashboard, useLabBenchConfig } from "@/src/components/nui-lab/bench/BenchControls";
+import {
+  AUTO_RUNTIME_UI_LABEL,
+  DEFAULT_PREPROCESS,
+  ENGINE_SPECS,
+  PREPROCESS_CANDIDATES,
+  formatHonestEngineDiagnostics,
+} from "@/src/components/nui-lab/bench/engines";
+import { getAppBuildInfo } from "@/src/components/nui-lab/bench/env";
 import "@/src/components/nui-lab/NuiLabPage.css";
 
 type CameraApiReadiness = "checking" | "available" | "unavailable";
@@ -11,6 +18,15 @@ type CameraApiReadiness = "checking" | "available" | "unavailable";
 /** Static-export NUI Lab landing. Passively inspects navigator.mediaDevices without ever calling getUserMedia(). */
 export default function NuiLabLanding() {
   const [cameraApi, setCameraApi] = useState<CameraApiReadiness>("checking");
+  const cfg = useLabBenchConfig();
+  const buildInfo = getAppBuildInfo();
+  const activeSpec = ENGINE_SPECS[cfg.engineId];
+  const diag = formatHonestEngineDiagnostics({
+    engineId: cfg.engineId,
+    modelSha256: activeSpec.sha256,
+    modelHashVerified: false,
+    isTrainedR22Model: activeSpec.isTrainedR22Model,
+  });
 
   useEffect(() => {
     document.title = "NUI Lab · Sketchbook Universe";
@@ -21,93 +37,148 @@ export default function NuiLabLanding() {
 
   const readinessCopy =
     cameraApi === "checking"
-      ? "Memeriksa ketersediaan API kamera browser secara pasif..."
+      ? "Memeriksa kesiapan kamera browser..."
       : cameraApi === "available"
-        ? "API kamera tersedia (navigator.mediaDevices siap). Izin kamera belum diminta."
-        : "API kamera (navigator.mediaDevices.getUserMedia) tidak tersedia di browser atau konteks ini.";
+        ? "Kamera siap dipakai. Izin baru diminta setelah Anda menekan Nyalakan kamera."
+        : "Kamera tidak tersedia di browser atau konteks ini. Anda tetap dapat memakai mouse atau sentuh di Canvas.";
 
   return (
     <main className="nui-lab nui-lab--landing" data-testid="nui-lab-landing">
       <div className="nui-lab__landing">
-        <p className="nui-lab__eyebrow">SKETCHBOOK UNIVERSE / NUI LAB</p>
-        <h1>NUI Lab</h1>
-        <p className="nui-lab__lede">
-          Ruang uji diagnostik kamera, MediaPipe Hands, dan gestur R19. Halaman ini terpisah dari alur onboarding
-          dan gameplay siswa produksi.
-        </p>
-
-        <div className="nui-lab__landing-meta">
-          <section className="nui-lab__info-card" data-testid="nui-lab-engine-info" aria-label="Informasi engine aktif">
-            <div className="nui-lab__info-head">
-              <span className="nui-lab__landing-count">ENGINE AKTIF</span>
-              <span className="nui-lab__pill nui-lab__pill--warn">Webcam Fisik: NOT_TESTED</span>
-            </div>
-            <strong>R19 G4 Hybrid &amp; Kandidat R20 (CPU-Only)</strong>
-            <p className="nui-lab__muted">
-              Baseline: <code>R19 C0 (82-&gt;96-&gt;48-&gt;3)</code> · Kandidat: <code>R20 C4 (82-&gt;64-&gt;32-&gt;3)</code> &amp; <code>R20 C7 Distilasi</code>
-            </p>
-            <p className="nui-lab__muted">
-              Model baseline: <code>{DEFAULT_R19_MODEL_URL}</code> · R20 C4: <code>/models/r20-c4-model.json</code>
-            </p>
-            <p className="nui-lab__muted">
-              Status uji webcam fisik saat ini: <strong>NOT_TESTED</strong>. Hasil NUI Lab adalah diagnostik lokal,
-              bukan bukti validasi webcam nyata maupun keputusan gameplay produksi.
-            </p>
-          </section>
-
-          <section
-            className="nui-lab__info-card"
-            data-testid="nui-lab-camera-readiness"
-            aria-label="Kesiapan API kamera"
-            data-camera-api={cameraApi}
-          >
-            <div className="nui-lab__info-head">
-              <span className="nui-lab__landing-count">KESIAPAN KAMERA</span>
-              <span
-                className={`nui-lab__pill ${
-                  cameraApi === "available"
-                    ? "nui-lab__pill--ok"
-                    : cameraApi === "unavailable"
-                      ? "nui-lab__pill--err"
-                      : ""
-                }`}
-              >
-                {cameraApi === "checking" ? "MEMERIKSA" : cameraApi === "available" ? "API SIAP" : "TIDAK TERSEDIA"}
-              </span>
-            </div>
-            <strong>Pemeriksaan Pasif Browser</strong>
-            <p className="nui-lab__muted" role="status">
-              {readinessCopy}
-            </p>
-            <p className="nui-lab__muted">
-              Kamera hanya diminta saat Anda menekan tombol <strong>Nyalakan kamera (ON)</strong> di dalam halaman
-              eksperimen. Halaman ringkasan ini tidak pernah memanggil <code>getUserMedia()</code>.
-            </p>
-          </section>
-        </div>
-
-        <div className="nui-lab__landing-grid">
-          <Link className="nui-lab__landing-card" href="/nui-lab/gesture">
-            <span className="nui-lab__landing-count">01 / DETEKSI &amp; TELEMETRI R19</span>
-            <strong>Gesture Detection Lab</strong>
-            <span>
-              Uji klasifikasi R19 G4 Hybrid (POINT_READY, POINT_PRESS, OTHER), tombol virtual LEFT / JUMP / RIGHT,
-              probabilitas MLP, arah telunjuk, status jari, hand lock, dan perekam angka landmark.
+        <header className="nui-lab__landing-header">
+          <div className="nui-lab__landing-badges">
+            <span className="nui-lab__eyebrow">SKETCHBOOK UNIVERSE / NUI LAB</span>
+            <span className="nui-lab__pill nui-lab__pill--ok" data-testid="nui-lab-status-badge">
+              {AUTO_RUNTIME_UI_LABEL}
             </span>
-            <span className="nui-lab__landing-open">Buka Gesture Detection Lab</span>
-          </Link>
-          <Link className="nui-lab__landing-card" href="/nui-lab/canvas">
-            <span className="nui-lab__landing-count">02 / KANVAS GAMBAR NUI</span>
-            <strong>Canvas Lab</strong>
-            <span>
-              Gambar dengan cubit (pinch), hapus 5 jari, swipe kiri/kanan (undo/redo), uji stroke smoothing,
-              penghapus, dan fallback mouse/sentuh dengan pemantauan R19 read-only.
+            <span className="nui-lab__pill" data-testid="nui-lab-version-badge">
+              {buildInfo.version} ({buildInfo.gitCommit.slice(0, 7)})
             </span>
-            <span className="nui-lab__landing-open">Buka Canvas Lab</span>
+          </div>
+          <h1>NUI Lab</h1>
+          <p className="nui-lab__lede">
+            Pilih pengalaman yang ingin langsung dicoba. Sistem berjalan otomatis di CPU perangkat Anda tanpa perlu
+            mengatur model, pencahayaan, atau label teknis.
+          </p>
+        </header>
+
+        <section className="nui-lab__landing-grid" aria-label="Pilihan utama NUI Lab">
+          <Link className="nui-lab__landing-card nui-lab__cta-card" href="/nui-lab/gesture" data-testid="cta-try-gesture">
+            <span className="nui-lab__landing-count">01 / UJI KONTROL GESTUR</span>
+            <strong>Coba Gestur</strong>
+            <span>
+              Uji kontrol arah telunjuk dan jempol (Kiri, Lompat, Kanan, dan kombo diagonal) serta pembacaan langsung
+              0–5 jari terbuka.
+            </span>
+            <span className="nui-lab__landing-open">Buka Coba Gestur →</span>
           </Link>
-        </div>
+          <Link className="nui-lab__landing-card nui-lab__cta-card" href="/nui-lab/canvas" data-testid="cta-try-canvas">
+            <span className="nui-lab__landing-count">02 / KANVAS GAMBAR TANGAN</span>
+            <strong>Coba Canvas</strong>
+            <span>
+              Cubit rapat untuk menggambar, buka telapak 5 jari untuk menghapus, serta kepal lalu 1 atau 2 jari untuk
+              Undo dan Redo.
+            </span>
+            <span className="nui-lab__landing-open">Buka Coba Canvas →</span>
+          </Link>
+        </section>
+
+        <section
+          className="nui-lab__info-card nui-lab__readiness-card"
+          data-testid="nui-lab-camera-readiness"
+          aria-label="Kesiapan kamera browser"
+          data-camera-api={cameraApi}
+        >
+          <div className="nui-lab__info-head">
+            <strong>Kesiapan Kamera Perangkat</strong>
+            <span
+              className={`nui-lab__pill ${
+                cameraApi === "available"
+                  ? "nui-lab__pill--ok"
+                  : cameraApi === "unavailable"
+                    ? "nui-lab__pill--err"
+                    : ""
+              }`}
+            >
+              {cameraApi === "checking" ? "MEMERIKSA" : cameraApi === "available" ? "SIAP" : "TIDAK TERSEDIA"}
+            </span>
+          </div>
+          <p className="nui-lab__muted" role="status">
+            {readinessCopy}
+          </p>
+        </section>
 
         <BenchDashboard />
+
+        <details className="nui-lab__diagnostics-details" data-testid="nui-lab-diagnostics-details">
+          <summary>Rincian Runtime &amp; Diagnostik Internal</summary>
+          <div className="nui-lab__info-card nui-lab__diagnostics-card" data-testid="nui-lab-engine-info">
+            <div className="nui-lab__info-head">
+              <span className="nui-lab__landing-count">MODEL &amp; RUNTIME NYATA</span>
+              <span className="nui-lab__pill nui-lab__pill--warn">Webcam Fisik: NOT_TESTED</span>
+            </div>
+            <p className="nui-lab__muted">
+              Lencana UI <code>{diag.uiBadge}</code> merujuk ke runtime otomatis berikut: {diag.honestyNote}
+            </p>
+            <dl className="nui-lab__numbers">
+              <div className="nui-lab__stat">
+                <dt>Model aktif nyata</dt>
+                <dd>{activeSpec.label}</dd>
+              </div>
+              <div className="nui-lab__stat">
+                <dt>ID model / URL</dt>
+                <dd>
+                  <code>{activeSpec.engineId}</code> · <code>{activeSpec.modelUrl}</code>
+                </dd>
+              </div>
+              <div className="nui-lab__stat">
+                <dt>SHA-256 tersemat</dt>
+                <dd>
+                  <code>{activeSpec.sha256}</code>
+                </dd>
+              </div>
+              <div className="nui-lab__stat">
+                <dt>Detektor &amp; delegate</dt>
+                <dd>
+                  <code>{cfg.detector === "cpu-worker" ? "CPU Web Worker" : "CPU Main-Thread"}</code> · MediaPipe
+                  HandLandmarker (VIDEO · default <code>fixed-2</code>)
+                </dd>
+              </div>
+              <div className="nui-lab__stat">
+                <dt>Preprocessing aktif &amp; kandidat</dt>
+                <dd>
+                  <code>{cfg.preprocess}</code> (default: <code>{DEFAULT_PREPROCESS}</code> · kandidat:{" "}
+                  <code>{PREPROCESS_CANDIDATES.join(", ")}</code>)
+                </dd>
+              </div>
+              <div className="nui-lab__stat">
+                <dt>Versi build &amp; branch</dt>
+                <dd>
+                  <code>{buildInfo.version}</code> · <code>{buildInfo.gitBranch}@{buildInfo.gitCommit.slice(0, 7)}</code>
+                </dd>
+              </div>
+            </dl>
+          </div>
+        </details>
+
+        <footer className="nui-lab__landing-footer" style={{ marginTop: "2rem", paddingTop: "1rem", borderTop: "1px solid var(--nui-border, #333)", fontSize: "0.85rem", opacity: 0.85, display: "flex", gap: "1rem" }}>
+          <a
+            href="https://github.com/lustresense/hitl-momo"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="nui-lab__source-link"
+          >
+            Kode sumber (AGPL-3.0)
+          </a>
+          <a
+            href="https://github.com/lustresense/hitl-momo/blob/main/THIRD_PARTY_NOTICES.md"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="nui-lab__notices-link"
+          >
+            Third-Party Notices
+          </a>
+        </footer>
       </div>
     </main>
   );

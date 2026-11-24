@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { LabAnalyzer } from "@/src/components/nui-lab/lab-analyzer";
+import type { CanvasMechanismPreset } from "@/src/components/nui-lab/bench/presets";
 import { indexPointAngleAspect } from "@/src/components/nui-lab/r19/pistol_geometry";
 import { validateR19Model } from "@/src/components/nui-lab/r19/r19_loader";
 import type { R19ExportedModel } from "@/src/components/nui-lab/r19/r19_model";
@@ -159,6 +160,7 @@ export interface LabSessionOptions {
   enableModel?: boolean;
   aspect?: number;
   model?: R19ExportedModel;
+  preset?: CanvasMechanismPreset | string;
 }
 
 export function startLabSession(
@@ -169,6 +171,7 @@ export function startLabSession(
   const lab = new LabAnalyzer({
     fullFrameLock: opts.fullFrameLock ?? true,
     enableInk: opts.enableInk ?? true,
+    preset: opts.preset ?? "default-any-pinch",
   });
   if (opts.enableModel !== false) {
     lab.enableR19(opts.model ?? loadRealR19Model(), 0);

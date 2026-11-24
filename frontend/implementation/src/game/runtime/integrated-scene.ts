@@ -94,6 +94,22 @@ class IntegratedScene {
     this.sceneScale = (1.1 * geometry.world.width) / geometry.source.width;
     this.creations = new Map((o.creations ?? []).map((item) => [item.id, cloneCreation(item)]));
     this.pending = createPendingCreation(o, geometry);
+    // Find the nearest legal initial footprint without changing the placement rules.
+    const initial = this.pending;
+    const box = footprintOf(initial);
+    const maxX = Math.floor(geometry.world.width - box.w);
+    const maxY = Math.floor(geometry.world.height - box.h);
+    let best: { x: number; y: number; distance: number } | null = null;
+    const committed = [...this.creations.values()].map(asBox);
+    for (let y = 0; y <= maxY; y++) {
+      for (let x = 0; x <= maxX; x++) {
+        const distance = (x - initial.x) ** 2 + (y - initial.y) ** 2;
+        if ((!best || distance < best.distance) && integratedPlacementAllowed({ ...box, x, y }, geometry, committed, initial.id)) {
+          best = { x, y, distance };
+        }
+      }
+    }
+    if (best) this.pending = { ...initial, x: best.x, y: best.y };
 
     const fit = () => fitIntegratedViewport(k, o.canvas);
     fit();

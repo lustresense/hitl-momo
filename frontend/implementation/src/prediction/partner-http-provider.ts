@@ -31,6 +31,7 @@ export interface PartnerHttpPredictionProviderOptions {
    * Not used for the model's classes: those are judged by the label map.
    */
   vocabulary?: readonly string[];
+  diasLabels?: boolean;
   /**
    * "allow" (default): a label the label map does not know is shown as sent, with no gameLabel.
    * "reject": such a label fails with PredictionError "out-of-vocabulary".
@@ -179,6 +180,7 @@ export class PartnerHttpPredictionProvider implements PredictionProvider {
 
   /** Model class -> Top-3 shown to students. Order and confidence are the model's, untouched. */
   private toTop3(raw: PredictionResult["candidates"]): Top3 {
+    if (this.options.diasLabels) return raw.map((c) => ({ ...c, modelLabel: c.label, gameLabel: c.label })) as Top3;
     const unknown: string[] = [];
     const mapped: PredictionCandidate[] = raw.map((c) => {
       const entry = lookupModelLabel(c.label);

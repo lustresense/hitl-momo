@@ -188,9 +188,12 @@ export const api = {
   },
 };
 
-/** <img> cannot send headers, so the image endpoint accepts ?token=. */
-export function submissionImageUrl(id: number): string {
-  return `${API_URL}/api/submissions/${id}/image.png?token=${encodeURIComponent(getToken() ?? "")}`;
+export async function submissionImageBlob(id: number, signal?: AbortSignal): Promise<Blob> {
+  const res = await fetch(`${API_URL}/api/submissions/${id}/image.png`, {
+    headers: { authorization: `Bearer ${getToken() ?? ""}` }, signal,
+  });
+  if (!res.ok) throw new ApiError(res.status, `Gambar gagal (${res.status}).`);
+  return res.blob();
 }
 
 export function classLink(joinToken: string): string {

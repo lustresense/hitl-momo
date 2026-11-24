@@ -5,7 +5,7 @@
  * schema. Partner classifier/backend remain behind interfaces.
  */
 
-export type ObjectBehavior = "solid" | "danger" | "unresolved";
+export type ObjectBehavior = "solid" | "danger" | "neutral" | "unresolved";
 
 /** A single AI prediction candidate. */
 export interface PredictionCandidate {
@@ -84,4 +84,5 @@ export interface LevelContext {
 export type BehaviorResolution =
   | { kind: "solid" }
   | { kind: "danger" }
+  | { kind: "neutral" }
   | { kind: "fallback"; fallbackLabel: string };

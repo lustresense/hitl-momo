@@ -9,7 +9,7 @@ export type InteractionEvent =
   | { kind: "prediction_displayed"; levelId: string; labels: string[] }
   | { kind: "decision_made"; levelId: string; decisionType: "accept" | "correct" | "override"; sourceRank?: 1 | 2 | 3; finalLabel: string }
   | { kind: "redraw_requested"; levelId: string; from: "evaluation" | "error" | "gameplay" }
-  | { kind: "gameplay_result"; levelId: string; outcome: "success" | "fail"; behavior: "solid" | "danger" | "unresolved" }
+  | { kind: "gameplay_result"; levelId: string; outcome: "success" | "fail"; behavior: "solid" | "danger" | "neutral" | "unresolved" }
   | { kind: "cycle_completed"; levelId: string; cyclesUsed: number }
   /** Student asked for ANOTHER object while the first stays in the world (not a recovery/Redraw). */
   | { kind: "another_object_requested"; levelId: string }

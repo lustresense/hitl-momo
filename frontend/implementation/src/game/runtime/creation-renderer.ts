@@ -72,7 +72,7 @@ export function createCreationRenderer(k: KAPLAYCtx, labelFont: string, isDestro
       // Hurts only inside the drawing, not on the empty corners of its box.
       const zone = hazardZone(box.w, box.h);
       art.use(k.area({ shape: new k.Rect(k.vec2(zone.x, zone.y), zone.w, zone.h) }));
-    } else if (committed && item.behavior !== "unresolved") {
+    } else if (committed && item.behavior === "solid") {
       art.use(rectArea(k, box.w, box.h));
     }
     if (committed && item.behavior === "solid") art.use(k.body({ isStatic: true }));

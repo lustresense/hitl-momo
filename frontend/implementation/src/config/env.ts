@@ -170,6 +170,8 @@ export function createPredictionProvider(
       return new PartnerHttpPredictionProvider({
         endpoint,
         timeoutMs: env.predictionTimeoutMs,
+        diasLabels: true,
+        vocabulary: providerVocabulary(level),
         // The model speaks English class names; the label map judges them, not the level vocabulary.
         outOfVocabulary: env.predictionOutOfVocabulary,
         extraHeaders: headers.headers,

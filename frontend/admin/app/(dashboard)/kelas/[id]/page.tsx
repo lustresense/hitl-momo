@@ -17,7 +17,7 @@ import {
   classLink,
   DECISION_LABEL,
   downloadExport,
-  submissionImageUrl,
+  submissionImageBlob,
   type ClassDetail,
   type Decision,
   type Submission,
@@ -269,12 +269,21 @@ export default function ClassDetailPage() {
 }
 
 function SubmissionCard({ sub }: { sub: Submission }) {
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  useEffect(() => {
+    const abort = new AbortController();
+    let url: string | null = null;
+    submissionImageBlob(sub.id, abort.signal).then((blob) => {
+      if (!abort.signal.aborted) { url = URL.createObjectURL(blob); setImageUrl(url); }
+    }).catch(() => {});
+    return () => { abort.abort(); if (url) URL.revokeObjectURL(url); };
+  }, [sub.id]);
   const pickedIndex =
     sub.decision_type === "accept" ? 0 : sub.decision_type === "correct" && sub.source_rank ? sub.source_rank - 1 : -1;
   return (
     <div className="shot">
       {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img src={submissionImageUrl(sub.id)} alt={`Gambar ${sub.student_name}, ${levelName(sub.level_id)}`} loading="lazy" />
+      {imageUrl && <img src={imageUrl} alt={`Gambar ${sub.student_name}, ${levelName(sub.level_id)}`} loading="lazy" />}
       <div className="meta">
         <div className="row" style={{ justifyContent: "space-between" }}>
           <span className="who">{sub.student_number}. {sub.student_name}</span>

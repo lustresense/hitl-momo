@@ -11,6 +11,7 @@ export function resolveBehavior(
   const mapped = level.behaviorMap[finalLabel];
   if (mapped === "solid") return { behavior: "solid", resolution: { kind: "solid" } };
   if (mapped === "danger") return { behavior: "danger", resolution: { kind: "danger" } };
+  if (mapped === "neutral") return { behavior: "neutral", resolution: { kind: "neutral" } };
 
   // Controlled fallback for unresolved labels (FR-09): the object becomes an
   // inert placeholder platform so the cycle can continue without dead ends.

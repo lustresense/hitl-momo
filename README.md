@@ -9,9 +9,9 @@ Repo ini menggabungkan dua pekerjaan yang tadinya terpisah:
 
 > **Status: integrasi, belum rilis.** Alur kelas dari ujung ke ujung sudah jalan dan diuji. Build image Docker belum terbukti, dan perubahan kontrak antara game dan backend belum disetujui Can dan Dias. Lihat [Yang terbukti dan yang belum](#yang-terbukti-dan-yang-belum).
 
-## Migrasi DEV ke laptop
+## Setup DEV di laptop
 
-Baca **[Panduan migrasi DEV](docs/DEV-MIGRATION.md)** terlebih dahulu. Panduan itu menjelaskan root monorepo, port 5555/5800/5802, routing, model Dias dan batas reproduksi. STT Lab berada di luar repo dan tidak disertakan.
+Baca **[Panduan setup DEV](SETUP.md)** terlebih dahulu. Panduan itu menjelaskan root monorepo, port 5555/5800/5802, routing, model Dias dan batas reproduksi. STT Lab berada di luar repo dan tidak disertakan.
 
 ## Latar belakang
 

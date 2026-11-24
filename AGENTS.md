@@ -2,9 +2,9 @@
 
 This is the universal starting point for **Codex, Claude Code, Antigravity, Ujang, other coding agents, and humans**. This is **one product** with two owner scopes. The folder `contexts/` is the **Owner Context Registry**, not an archive or a second application. Read the applicable owner SOP **in full**, including its linked Markdown files. Do not assume nested files or chat history were automatically loaded by your tool.
 
-## Migrasi dan runtime DEV
+## Setup dan runtime DEV
 
-Untuk menjalankan atau memigrasikan DEV, baca `README.md` dan `docs/DEV-MIGRATION.md` sebelum bertindak. Model Dias dan label tersedia di `weights/`; default backend adalah path relatif root repo. Jangan menganggap layanan, model, database, atau build aktif sama hanya dari commit Git. Jangan membaca atau memindahkan secret dan data siswa. STT Lab eksternal tidak termasuk snapshot ini.
+Untuk menjalankan atau memigrasikan DEV, baca `README.md` dan `SETUP.md` sebelum bertindak. Model Dias dan label tersedia di `weights/`; default backend adalah path relatif root repo. Jangan menganggap layanan, model, database, atau build aktif sama hanya dari commit Git. Jangan membaca atau memindahkan secret dan data siswa. STT Lab eksternal tidak termasuk snapshot ini.
 
 ## Routing, always before substantial work
 

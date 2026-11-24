@@ -1,4 +1,4 @@
-# Migrasi DEV monorepo
+# Setup DEV monorepo
 
 ## Scope dan batas
 Snapshot ini berisi source game, admin, backend serta model dan label Dias DEV. Root repo sama untuk semua komponen; prosesnya berbeda. STT Lab saat ini layanan eksperimen terpisah di VM dan **tidak termasuk** snapshot ini. Clone tidak membawa database, user admin, secret, konfigurasi Cloudflare atau build hasil mesin lain. Kesamaan runtime tidak dijamin sampai diuji di laptop tujuan.

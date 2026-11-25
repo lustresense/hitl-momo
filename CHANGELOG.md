@@ -46,6 +46,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.30.1-alpha | 2026-11-25 | Dokumen | `(0.30.1-alpha)` |
 | 0.30.0-alpha | 2026-11-25 | Fitur | `(0.30.0-alpha)` |
 | 0.29.6-alpha | 2026-11-25 | Perbaikan | `(0.29.6-alpha)` |
 | 0.29.5-alpha | 2026-11-25 | Dokumen | `(0.29.5-alpha)` |
@@ -137,6 +138,19 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.30.1-alpha — 2026-11-25 — Dokumen
+
+**Sumber:** Dias 2026-11-25
+
+**Perubahan:**
+- AGENTS.md: identitas commit git MuhammadDias (noreply), tanpa atribusi Claude di commit/PR
+
+**Commit:** commit berjudul `(0.30.1-alpha)`
+
+**Bukti:** docs-only; bump_version --check ok
 
 ---
 

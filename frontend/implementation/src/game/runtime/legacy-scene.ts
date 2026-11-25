@@ -6,7 +6,7 @@ import type { KAPLAYCtx } from "kaplay";
 import { isLegalPlacement, worldOutcome } from "../placement-rules";
 import { worldViewport } from "../world-viewport";
 import { releaseEngine } from "./engine";
-import type { GameOutcome, KaplayGameHandle, KaplayGameOptions } from "./types";
+import type { DirectionInput, GameOutcome, KaplayGameHandle, KaplayGameOptions } from "./types";
 
 export function createLegacyScene(
   k: KAPLAYCtx,
@@ -40,7 +40,7 @@ export function createLegacyScene(
   let settled = false;
   let destroyed = false;
   let x = scene.gapStartX - 10;
-  let input = { left: false, right: false, jump: false };
+  let input: DirectionInput = { left: false, right: false, jump: false };
   let objectBody = false;
   k.setGravity(1600);
   for (const seg of [
@@ -194,7 +194,7 @@ export function createLegacyScene(
     o.canvas.dataset.objectX = String(Math.round(x));
     o.canvas.dataset.objectCount = "1";
     if (phase !== "gameplay" || settled) return;
-    player.move((Number(Boolean(input.right)) - Number(Boolean(input.left))) * 200, 0);
+    player.move((Number(Boolean(input.right)) - Number(Boolean(input.left))) * 200 * Math.max(0, Math.min(1, input.speed ?? 1)), 0);
     if (input.jump && player.isGrounded?.()) player.jump(520);
     const result = worldOutcome({
       phase,
@@ -216,7 +216,7 @@ export function createLegacyScene(
     setInput(i) {
       input =
         phase === "gameplay" && !settled
-          ? { left: Boolean(i?.left), right: Boolean(i?.right), jump: Boolean(i?.jump) }
+          ? { left: Boolean(i?.left), right: Boolean(i?.right), jump: Boolean(i?.jump), speed: i.speed }
           : { left: false, right: false, jump: false };
     },
     onFallComplete() {

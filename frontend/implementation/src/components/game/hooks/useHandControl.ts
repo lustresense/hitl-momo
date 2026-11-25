@@ -31,7 +31,7 @@ interface UseHandControlOptions {
   input: GameplayInput;
   /** Always points at the newest props (the driver callbacks outlive renders). */
   latest: MutableRefObject<GameStageProps>;
-  movePlacementToHandCursor: (cursor: { x: number; y: number }) => void;
+  movePlacementToHandCursor: (cursor: { x: number; y: number } | null, pinched?: boolean) => void;
   /** The hand reader could not start or crashed: GameStage switches the stage to fallback (R13). */
   onHandFailed: () => void;
 }
@@ -101,7 +101,9 @@ export function useHandControl({
           const playing = latest.current.phase === "gameplay";
           if (!playing) joystick.reset();
           const cursor = frame.cursor ? {x:frame.cursor.x*innerWidth,y:frame.cursor.y*innerHeight} : null;
-          const reading = playing ? joystick.feed(cursor,frame.pinched,performance.now()) : frame.input;
+          const reading = playing ? joystick.feed(cursor,frame.pinched,performance.now()) : {...frame.input,speed:0};
+          input.setHandSpeed(reading.speed);
+          if (playing) movePlacementToHandCursor(null,false);
           arbiter.dispatch({
             type: "hand-frame",
             frame: {
@@ -112,13 +114,14 @@ export function useHandControl({
             },
           });
           if (!frame.tracked) {
+            movePlacementToHandCursor(null,false);
             sendCombinedInput();
             return;
           }
           if (latest.current.phase === "gameplay") {
             sendCombinedInput();
-          } else if (latest.current.phase === "placing" && frame.cursor && frame.pinched) {
-            movePlacementToHandCursor(frame.cursor);
+          } else if (latest.current.phase === "placing") {
+            movePlacementToHandCursor(frame.cursor,frame.pinched);
           }
         },
       });
@@ -131,6 +134,8 @@ export function useHandControl({
       cancelled = true;
       void driver?.stop();
       publishSteerAngle(null);
+      input.setHandSpeed(0);
+      movePlacementToHandCursor(null,false);
       sendCombinedInput();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps

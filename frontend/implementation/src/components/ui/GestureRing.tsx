@@ -16,6 +16,7 @@
  */
 import { useEffect, useRef, useState, type KeyboardEvent, type ReactNode } from "react";
 import { useInputMode } from "../../hooks/useHandGesture";
+import { useDwell } from "../../hooks/useDwell";
 import { Icon } from "./Icon";
 import "./GestureRing.css";
 
@@ -54,7 +55,6 @@ export const GESTURE_RING_DRAIN_RATIO = 0.5;
 const PULSE_MS = 450;
 
 export function GestureRing({
-  active,
   holdMs,
   onConfirm,
   label,
@@ -71,12 +71,15 @@ export function GestureRing({
 }: GestureRingProps) {
   const mode = useInputMode();
   const [pressing, setPressing] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [fallbackProgress, setProgress] = useState(0);
   const [pulse, setPulse] = useState(false);
 
   const inert = disabled || locked;
   // The physical hold: a pose or a press. It arms and releases the latch even while the ring is inert.
-  const raw = active || pressing;
+  const targetRef = useRef<HTMLButtonElement>(null);
+  const camera = useDwell({ref:targetRef,onActivate:onConfirm,dwellMs:holdMs,enabled:!inert,targetMode:"any"});
+  const progress = mode === "camera" ? camera.progress : fallbackProgress;
+  const raw = mode === "fallback" && pressing;
   const rawRef = useRef(raw);
   rawRef.current = raw;
   const inertRef = useRef(inert);
@@ -91,6 +94,7 @@ export function GestureRing({
   const pulseTimer = useRef<number | null>(null);
 
   useEffect(() => {
+    if (mode !== "fallback") return;
     let raf = 0;
     let last: number | null = null;
     const tick = (now: number) => {
@@ -125,7 +129,7 @@ export function GestureRing({
       if (pulseTimer.current !== null) window.clearTimeout(pulseTimer.current);
       pulseTimer.current = null;
     };
-  }, []);
+  }, [mode, drainImmediate]);
 
   useEffect(() => {
     if (disabled) setPressing(false);
@@ -139,7 +143,7 @@ export function GestureRing({
   const onKeyDown = (e: KeyboardEvent<HTMLButtonElement>) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      if (!inert) setPressing(true);
+      if (mode === "fallback" && !inert) setPressing(true);
     }
   };
   const onKeyUp = (e: KeyboardEvent<HTMLButtonElement>) => {
@@ -162,6 +166,7 @@ export function GestureRing({
 
   return (
     <button
+      ref={targetRef}
       type="button"
       className={classes}
       data-testid={testId}
@@ -175,7 +180,7 @@ export function GestureRing({
       aria-expanded={expanded}
       onPointerDown={(e) => {
         e.preventDefault();
-        if (!inert) setPressing(true);
+        if (mode === "fallback" && !inert) setPressing(true);
       }}
       onPointerUp={stop}
       onPointerLeave={stop}
@@ -198,7 +203,7 @@ export function GestureRing({
             transform={`rotate(-90 ${VIEW / 2} ${VIEW / 2})`}
           />
         </svg>
-        <span className="gesture-ring__icon">{icon}</span>
+        <span className="gesture-ring__icon">{mode === "camera" ? <Icon name="gesture-pinch" size={30} /> : icon}</span>
         {locked && (
           <span className="gesture-ring__lock">
             <Icon name="lock" size={14} stroke={2.6} />

@@ -40,6 +40,9 @@ export function usePlacement({
   const dragging = useRef(false);
   // True while the student holds the object by a pinch (see usePlacementGrab). Only then does the hand move it.
   const grabbing = useRef(false);
+  const dragAnchor = useRef<{x:number;y:number;ox:number;oy:number}|null>(null);
+  const lastPosition = useRef({x:position,y:placementY});
+  lastPosition.current = {x:position,y:placementY};
   // The box of the object being placed. Objects take the size of their drawing, so the live size comes from the
   // scene's telemetry (already turned for a quarter turn); the level's plank is only the fallback before it exists.
   const readBox = () => {
@@ -59,6 +62,7 @@ export function usePlacement({
   latest.current = { geometry, readBox, phase };
 
   function movePlacement(x: number, y: number = 320) {
+    lastPosition.current = {x,y};
     setPosition(x);
     setPlacementY(y);
     const valid = controllerRef.current?.setPlacement(x, y) ?? false;
@@ -92,28 +96,25 @@ export function usePlacement({
    * Hand: `cursor` is normalised (0..1) over the canvas. The object follows only while it is grabbed (the ring
    * filled and the pinch is still held); a pinch that merely passes over the stage moves nothing.
    */
-  function movePlacementToHandCursor(cursor: { x: number; y: number }) {
-    if (!grabbing.current || latest.current.phase !== "placing") return;
-    const { geometry: geo, readBox: box } = latest.current;
-    const { w, h } = box();
+  function movePlacementToHandCursor(cursor: {x:number;y:number} | null, pinched = true) {
+    if (!pinched || !cursor || latest.current.phase !== "placing") {
+      dragAnchor.current = null; grabbing.current = false; return;
+    }
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
-    const x = cursor.x * rect.width;
-    const y = cursor.y * rect.height;
-    const point = geo
-      ? clientToPhysics(
-          { x, y },
-          { left: 0, top: 0, width: rect.width, height: rect.height },
-          geo,
-        )
-      : screenToWorld(x, y, worldViewport(rect.width, rect.height));
-    movePlacement(point.x - w / 2, point.y - h / 2);
+    const x = cursor.x * innerWidth, y = cursor.y * innerHeight;
+    const {geometry:geo} = latest.current;
+    const toWorld=(cx:number,cy:number)=>geo ? clientToPhysics({x:cx,y:cy},rect,geo) : screenToWorld(cx-rect.left,cy-rect.top,worldViewport(rect.width,rect.height));
+    if (!dragAnchor.current) {
+      dragAnchor.current = {x,y,ox:lastPosition.current.x,oy:lastPosition.current.y}; return;
+    }
+    const anchor=dragAnchor.current;
+    if (!grabbing.current && Math.hypot(x-anchor.x,y-anchor.y)<12) return;
+    grabbing.current=true;
+    const origin=toWorld(anchor.x,anchor.y), point=toWorld(x,y);
+    movePlacement(anchor.ox+point.x-origin.x,anchor.oy+point.y-origin.y);
   }
-
-  /** Grab on or off. Synchronous, so the hand frame that follows already obeys it. */
-  function setGrabbing(holding: boolean) {
-    grabbing.current = holding;
-  }
+  function setGrabbing(holding:boolean) { grabbing.current=holding; if(!holding)dragAnchor.current=null; }
 
   const canvasPointerHandlers = {
     onPointerDown(event: PointerEvent<HTMLCanvasElement>) {

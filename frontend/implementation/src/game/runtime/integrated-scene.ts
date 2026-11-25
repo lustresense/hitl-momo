@@ -185,7 +185,7 @@ class IntegratedScene {
   private setInput(i: DirectionInput): void {
     this.input =
       this.phase === "gameplay" && !this.settled
-        ? { left: Boolean(i?.left), right: Boolean(i?.right), jump: Boolean(i?.jump) }
+        ? { left: Boolean(i?.left), right: Boolean(i?.right), jump: Boolean(i?.jump), speed: i.speed }
         : noInput();
   }
 

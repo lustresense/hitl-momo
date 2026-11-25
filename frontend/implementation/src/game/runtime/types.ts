@@ -8,7 +8,7 @@ import type { TurnDirection } from "./creations";
 
 export type GameOutcome = "success" | "fail";
 export type GamePhase = "falling" | "placing" | "gameplay";
-export type DirectionInput = { left: boolean; right: boolean; jump: boolean };
+export type DirectionInput = { left: boolean; right: boolean; jump: boolean; speed?: number };
 /** Any positioned object of the scene (platform, hazard, creation art). */
 export type SceneObject = GameObj<PosComp>;
 

@@ -6,7 +6,7 @@ export class GameController {
  this.unmount();const generation=this.generation;const {createKaplayGame}=await import("./kaplay-runtime");if(this.generation!==generation)return;
  const handle=await createKaplayGame({canvas,level,behavior,finalLabel,drawingInput,onOutcome,onFallComplete,onCommitPlacement,onReposition,...options});if(this.generation!==generation){handle.destroy();return;}this.handle=handle;
  }
- setInput(i:{left:boolean;right:boolean;jump:boolean}){this.handle?.setInput(i);}
+ setInput(i:{left:boolean;right:boolean;jump:boolean;speed?:number}){this.handle?.setInput(i);}
  onFallComplete(){this.handle?.onFallComplete();}
  setPlacement(x:number,y:number):boolean{return this.handle?.setPlacement(x,y)??false;}
  commitPlacementAt(x:number,y:number):boolean{return this.handle?.commitPlacementAt(x,y)??false;}

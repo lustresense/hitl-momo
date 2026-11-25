@@ -7,3 +7,8 @@ No npm/typecheck/browser/physical webcam runtime available here. Tests added but
 
 ## Second checkpoint
 Student drawing now uses a viewport-aligned pinch-only driver, five native React tools with the five exact SVG paths from R8.3, reversible wipe, and camera-only pointer gate. The stage routes the anchored pinch joystick to the existing arbiter and KAPLAY GameController; speed is computed but the current controller accepts only direction booleans, so variable speed and joystick overlay remain pending. Direction buttons and stage canvas mouse handlers are fallback-only. Tutorial and ending-specific control flows, complete pointer audit, C gesture placement/ribbon/sticker, and visual regression remain pending. Existing tutorial tool usage requirements have not been migrated. No build or tests executed.
+
+### Checkpoint 3
+- Routed shared GestureRing camera actions (including existing HITL choices) through R8.3 target selection; manual pointer/keyboard remains fallback.
+- Removed legacy exploration rings from gameplay to avoid competing with joystick. Placement has relative pinch-drag (12px threshold) and 1500ms stationary confirm; current shared ring cancellation threshold is still 26px, which must be reconciled. Existing world collision, rotation, visual fall and layout are not yet R8.3 equivalent.
+- Analog joystick speed now passes through GameController into existing integrated and legacy KAPLAY movement. No live validation.

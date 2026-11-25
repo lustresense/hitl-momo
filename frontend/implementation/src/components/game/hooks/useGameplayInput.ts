@@ -34,6 +34,7 @@ export interface GameplayInput {
   /** Directions the hand alone is giving right now; drives the on-screen "hand is pointing here" highlight. */
   handDirs: DirectionKey[];
   arbiter: InputArbiter;
+  setHandSpeed: (speed:number)=>void;
   /** Push the merged keyboard/button/hand state to the game. */
   sendCombinedInput: () => void;
   /** Release every manually held key/pointer (keeps hand input). */
@@ -49,6 +50,7 @@ export function useGameplayInput({ controllerRef, phase, mode }: UseGameplayInpu
   const [handDirs, setHandDirs] = useState<DirectionKey[]>([]);
   // Last published hand set, so per-frame updates only re-render when the set actually changes.
   const handDirsKey = useRef("");
+  const handSpeed = useRef(0);
   const keys = useRef(neutralInput());
   const heldPointers = useRef(new Map<number, DirectionKey>());
   const arbiterRef = useRef<InputArbiter | null>(null);
@@ -87,6 +89,7 @@ export function useGameplayInput({ controllerRef, phase, mode }: UseGameplayInpu
       left: Boolean(combined.left || override.left),
       right: Boolean(combined.right || override.right),
       jump: Boolean(combined.jump || override.jump),
+      speed: modeRef.current === "camera" && !override.left && !override.right ? handSpeed.current : 1,
     });
   }
 
@@ -145,6 +148,7 @@ export function useGameplayInput({ controllerRef, phase, mode }: UseGameplayInpu
     heldDirs,
     handDirs,
     arbiter,
+    setHandSpeed: speed=>{handSpeed.current=speed;},
     sendCombinedInput,
     releaseManualInput,
     pressPointer,

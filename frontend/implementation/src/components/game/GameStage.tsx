@@ -11,7 +11,6 @@ import { useInputMode } from "@/src/hooks/useHandGesture";
 import { StageWorld } from "../stage-preview/StageWorld";
 import { ControlGuide } from "./ControlGuide";
 import { CreationShortcuts } from "./CreationShortcuts";
-import { ExplorationRings } from "./ExplorationRings";
 import { FailOverlay } from "./FailOverlay";
 import { GameplayControls } from "./GameplayControls";
 import { InputStatusChip } from "./InputStatusChip";
@@ -24,10 +23,8 @@ import { useGameController } from "./hooks/useGameController";
 import { useGameplayInput, useKeyboardInput } from "./hooks/useGameplayInput";
 import { useHandControl } from "./hooks/useHandControl";
 import { usePlacement } from "./hooks/usePlacement";
-import { usePlacementGrab, useStagePose } from "./hooks/usePlacementGesture";
 import { useSharedStreamLive } from "./hooks/useSharedStreamLive";
 import { useStageActions } from "./hooks/useStageActions";
-import { gestureFor, stageGestureMode } from "./placement-gesture";
 import type { GameStageProps, InputMode } from "./game-stage-types";
 import styles from "./game-stage.module.css";
 
@@ -103,25 +100,6 @@ export function GameStage(props: GameStageProps) {
     onCreateAnotherObject: props.onCreateAnotherObject,
   });
 
-  // Hand actions of the object: placing (MODE_GAMEPLAY_PLACEMENT) or playing (MODE_GAMEPLAY_EXPLORATION_CAM).
-  // The pose comes from the reader's stable vote, never from a raw finger count (the thumb is counted there too).
-  const stageMode = stageGestureMode(phase, outcome);
-  const handActions = mode === "camera" && stageMode !== null;
-  const pose = useStagePose(handActions);
-  const gesture = handActions ? gestureFor(stageMode, pose) : null;
-  // A grab is a pinch held for its ring, then followed until let go. Releasing in exploration places the object.
-  const grab = usePlacementGrab({
-    pose,
-    onHoldChange: placement.setGrabbing,
-    onDrop: (commit) => {
-      if (commit) actions.confirmPlacement();
-    },
-  });
-  useEffect(() => {
-    if (stageMode === null) grab.cancel();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [stageMode]);
-
   // Play-phase guide: opens when play starts, closes by itself or at the first movement.
   const guide = useControlGuide({
     active: phase === "gameplay" && !outcome && ready,
@@ -145,34 +123,17 @@ export function GameStage(props: GameStageProps) {
         />
       </div>
       {error && <p role="alert">{error}</p>}
-      {integrated && (props.creations?.length ?? 0) > 0 && phase === "gameplay" && !outcome && (
+      {mode === "fallback" && integrated && (props.creations?.length ?? 0) > 0 && phase === "gameplay" && !outcome && (
         <CreationShortcuts creations={props.creations ?? []} onSelect={actions.selectCreation} />
       )}
 
       {phase === "placing" && !error && (
         <PlacementControls
           mode={mode}
-          gesture={gesture}
-          holding={grab.holding}
           confirmDisabled={!ready || !placement.legal}
           placementError={placement.placementError}
           onConfirm={actions.confirmPlacement}
-          onGrab={() => grab.begin(false)}
           onRedraw={actions.drawAgain}
-        />
-      )}
-
-      {phase === "gameplay" && !outcome && mode === "camera" && (
-        <ExplorationRings
-          gesture={gesture}
-          onMove={() => {
-            // Picking the object up goes back to placing (the same route as "Geser objek" in the bar); release places it.
-            actions.reposition();
-            grab.begin(true);
-          }}
-          onRotate={(dir) => {
-            actions.rotateCreation(dir);
-          }}
         />
       )}
 

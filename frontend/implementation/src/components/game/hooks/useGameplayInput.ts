@@ -134,6 +134,7 @@ export function useGameplayInput({ controllerRef, phase, mode }: UseGameplayInpu
   }, [phase]);
 
   useEffect(() => {
+    releaseManualInput();
     sendCombinedInput();
     if (mode !== "camera") return;
     const id = window.setInterval(() => {

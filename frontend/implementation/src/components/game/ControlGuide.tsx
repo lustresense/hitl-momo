@@ -19,11 +19,11 @@ const COPY: Record<InputMode, { title: string; sentence: Record<DirectionKey, st
   camera: {
     title: "Pakai tanganmu",
     sentence: {
-      left: "Telunjuk mendatar ke kiri, Thinman jalan ke kiri.",
-      right: "Telunjuk mendatar ke kanan, Thinman jalan ke kanan.",
-      jump: "Telunjuk tegak ke atas untuk lompat. Miring ke kiri atau kanan untuk lompat sambil jalan.",
+      left: "Cubit, tahan, lalu geser ke kiri.",
+      right: "Cubit, tahan, lalu geser ke kanan.",
+      jump: "Cubit sebentar lalu lepas, atau sentil ke atas saat mencubit.",
     },
-    note: "Telunjuk turun ke bawah, Thinman berhenti.",
+    note: "Lepas cubitan untuk berhenti.",
   },
   fallback: {
     title: "Pakai keyboard atau tombol",
@@ -59,7 +59,7 @@ export function ControlGuide({ mode, onClose }: ControlGuideProps) {
           className="control-guide__close"
           data-testid="control-guide-close"
           aria-label="Tutup panduan"
-          onClick={onClose}
+          onClick={()=>{if(mode==="fallback")onClose();}}
         >
           <Icon name="close" size={18} stroke={3} />
         </button>
@@ -69,7 +69,7 @@ export function ControlGuide({ mode, onClose }: ControlGuideProps) {
           <li key={card.dir} className="control-guide__card" data-testid={`guide-card-${card.dir}`}>
             <span className="control-guide__art">
               {mode === "camera" ? (
-                <PointingHand flip={card.dir === "right"} up={card.dir === "jump"} />
+                <Icon name="gesture-pinch" size={48} />
               ) : (
                 <Icon name={card.fallbackIcon} size={30} stroke={3} />
               )}

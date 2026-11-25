@@ -8,6 +8,7 @@ import { resolveCharacterDisplayName } from "@/src/config/character-tokens";
 import type { GameController } from "@/src/game/game-controller";
 import { getStageGeometry } from "@/src/game/stage-geometry";
 import { useInputMode } from "@/src/hooks/useHandGesture";
+import { reportTrackerFailed } from "@/src/input/input-mode";
 import { StageWorld } from "../stage-preview/StageWorld";
 import { ControlGuide } from "./ControlGuide";
 import { CreationShortcuts } from "./CreationShortcuts";
@@ -81,7 +82,7 @@ export function GameStage(props: GameStageProps) {
     input,
     latest,
     movePlacementToHandCursor: placement.movePlacementToHandCursor,
-    onHandFailed: () => setHandFailed(true),
+    onHandFailed: () => {setHandFailed(true);reportTrackerFailed();},
   });
   const actions = useStageActions({
     controllerRef,

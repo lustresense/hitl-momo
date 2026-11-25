@@ -183,7 +183,11 @@ export class HandDrawingDriver {
   private watchVisibility(): void {
     if (typeof document === "undefined" || this.onVisibility) return;
     this.onVisibility = () => {
-      if (document.hidden) this.apply(this.pipeline.reset(performance.now()));
+      if (document.hidden) {
+        this.r83Down=false;this.r83Armed=false;this.r83Ink=false;
+        publishHand({cursor:null,source:"drawing"});
+        this.apply(this.pipeline.reset(performance.now()));
+      }
     };
     document.addEventListener("visibilitychange", this.onVisibility);
   }

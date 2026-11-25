@@ -153,7 +153,10 @@ export class DrawingSurface {
       return { kind: "idle" };
     }
     if (!this.handDriver) {
-      if (!this.video) return { kind: "error", reason: "camera-unavailable" };
+      if (!this.video) {
+        if (this.options.r83Viewport) reportTrackerFailed();
+        return { kind: "error", reason: "camera-unavailable" };
+      }
       try {
         this.handDriver = new HandDrawingDriver({
           canvas: this.canvas,
@@ -185,6 +188,7 @@ export class DrawingSurface {
       } catch {
         // Any construction failure falls back to pointer without restart.
         await this.stopHand();
+        if (this.options.r83Viewport) reportTrackerFailed();
         this.attachPointer();
         const status: HandInputStatus = { kind: "error", reason: "tracker-error", message: messageFor("tracker-error") };
         this.publishStatus(status);

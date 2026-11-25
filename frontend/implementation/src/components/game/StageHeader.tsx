@@ -6,6 +6,7 @@
  * stays a small secondary button: the hand reaches "Gambar lagi" through the fail screen and the sticker.
  */
 import { Icon, type IconName } from "../ui/Icon";
+import { DwellButton } from "../ui/DwellButton";
 import { ThinmanArt } from "../ui/ThinmanArt";
 import "../ui/nui-actions.css";
 import type { HumanDecision } from "@/src/domain/types";
@@ -52,14 +53,14 @@ export function StageHeader({ characterName, decision, onDrawAgain, mode = "fall
         </span>
       </div>
       <div className="hud-actions">
-        <button
+        <DwellButton targetMode="point" dwellMs={2000}
           className={quiet ? "nb-btn nb-btn--ghost btn-small nui-header-action is-quiet" : "nb-btn nb-btn--primary nui-header-action"}
-          data-testid="btn-draw-again"
-          onClick={onDrawAgain}
+          testId="btn-draw-again"
+          onActivate={onDrawAgain}
         >
           <Icon name="pencil" size={quiet ? 16 : 20} />
           Gambar lagi
-        </button>
+        </DwellButton>
       </div>
     </div>
   );

@@ -124,7 +124,7 @@ export function GameplayControls({
           </button>
         </>
       )}
-      <button
+      {!camera && <button
         type="button"
         className="nb-btn btn-small gameplay-controls__help"
         data-testid="btn-control-guide"
@@ -133,7 +133,7 @@ export function GameplayControls({
         onClick={onToggleGuide}
       >
         <GuideHelpIcon />
-      </button>
+      </button>}
     </div>
   );
 }

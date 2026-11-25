@@ -7,6 +7,7 @@ import { useCallback, useEffect, useRef, useState, type RefObject } from "react"
 import { DrawingSurface } from "@/src/input";
 import type { InputModeId } from "@/src/input/types";
 import type { HandPose } from "@/src/input/hand-gesture";
+import { getInputMode } from "@/src/input/input-mode";
 
 
 /** A real change of the drawing, reported once per action (never for a gesture that did nothing). */
@@ -28,6 +29,7 @@ export function useDrawingSurface({ canvasRef, surfaceOut, initialMode, active, 
   const [inputMode, setInputMode] = useState<InputModeId>(initialMode);
   const [hasInk, setHasInk] = useState(false);
   const [handPose, setHandPose] = useState<HandPose>("none");
+  const activeRef = useRef(active);activeRef.current=active;
   const toolRef = useRef(onToolUsed);
   toolRef.current = onToolUsed;
 
@@ -103,7 +105,7 @@ export function useDrawingSurface({ canvasRef, surfaceOut, initialMode, active, 
   const switchMode = useCallback(
     async (next: InputModeId) => {
       const surface = surfaceOut.current;
-      if (!surface) return;
+      if (!surface || (next === "pointer" && activeRef.current && getInputMode() === "camera")) return;
       setInputMode(next);
       await surface.setMode(next);
     },
@@ -126,7 +128,7 @@ export function useDrawingSurface({ canvasRef, surfaceOut, initialMode, active, 
   useEffect(() => {
     const onMode = (event: Event) => {
       const next = (event as CustomEvent<InputModeId>).detail;
-      if (active && (next === "pointer" || next === "hand")) {
+      if (active && (next === "hand" || (next === "pointer" && getInputMode() === "fallback"))) {
         setInputMode(next);
         void surfaceOut.current?.setMode(next);
       }

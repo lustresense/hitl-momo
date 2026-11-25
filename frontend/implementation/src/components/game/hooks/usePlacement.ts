@@ -2,6 +2,7 @@
  * Placement state of the world stage: where the pending object sits, whether that spot is legal,
  * and how pointer drags / hand pinches / test hooks move it.
  */
+import { isDrag } from "@/src/input/r83/target-selection";
 import { useRef, useState, type MutableRefObject, type PointerEvent } from "react";
 import type { LevelDefinition } from "@/src/domain/levels";
 import { env } from "@/src/config/env";
@@ -109,7 +110,7 @@ export function usePlacement({
       dragAnchor.current = {x,y,ox:lastPosition.current.x,oy:lastPosition.current.y}; return;
     }
     const anchor=dragAnchor.current;
-    if (!grabbing.current && Math.hypot(x-anchor.x,y-anchor.y)<12) return;
+    if (!grabbing.current && !isDrag(anchor,{x,y})) return;
     grabbing.current=true;
     const origin=toWorld(anchor.x,anchor.y), point=toWorld(x,y);
     movePlacement(anchor.ox+point.x-origin.x,anchor.oy+point.y-origin.y);

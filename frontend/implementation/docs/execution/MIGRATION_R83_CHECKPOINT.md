@@ -1,0 +1,6 @@
+# R8.3 migration checkpoint (partial, STATIC_ONLY)
+Source: Owner's sketchbook-universe-sandbox-r8.3.zip, MAP.md revision 8.3 and shared/hand.js.
+Base main: 1f24110028547221f029edf34d1527123d544969.
+This commit ports the shared A/B/D confirmation target system to the existing hand cursor store, uses it in the existing React ring components, removes silent pointer confirmation there, and makes the drawing submit a pointed pinch-hold. It does not replace MediaPipe or the real prediction/backend flow.
+Not yet migrated: rule C joystick/drag/ribbon/flick, drawing tools and cursor art, full cover/name flow (STT not present in baseline), CSS/art/icons, gameplay colliders/placement, recap/ending, other direct pointer handlers. Existing screen copy and legacy gestures outside these components remain. No claim of visual parity or global pointer lock.
+No npm/typecheck/browser/physical webcam runtime available here. Tests added but not executed. Existing legacy tests expect old behavior; reconcile during full migration. No version bump: partial development checkpoint; no changes to shared backend/admin, deployment or main.

@@ -11,7 +11,8 @@
  * no thumb once, so a thumb carried over from the previous screen cannot confirm the next one.
  */
 import { useEffect, useRef, useState, type KeyboardEvent, type PointerEvent } from "react";
-import { useHandGesture, useInputMode } from "../../hooks/useHandGesture";
+import { useInputMode } from "../../hooks/useHandGesture";
+import { useDwell } from "../../hooks/useDwell";
 import { Icon } from "./Icon";
 
 export interface ThumbConfirmProps {
@@ -29,6 +30,7 @@ export interface ThumbConfirmProps {
    * does not start a second tracker. When given, this ring never acquires the shared tracker.
    */
   externalThumbUp?: boolean;
+  targetMode?: "any" | "point";
 }
 
 const R = 30;
@@ -39,22 +41,22 @@ export const THUMB_DRAIN_RATIO = 0.5;
 export function ThumbConfirm({
   holdMs,
   onConfirm,
-  label = "Tahan jempol",
+  label = "Cubit dan tahan",
   disabled = false,
   className,
   testId = "thumb-confirm",
-  externalThumbUp,
+  targetMode = "any",
 }: ThumbConfirmProps) {
   const mode = useInputMode();
-  // The hook is always called; with an external thumb it is simply inactive (no shared tracker).
-  const gesture = useHandGesture(!disabled && mode === "camera" && externalThumbUp === undefined);
-  const thumbUp = externalThumbUp ?? gesture.thumbUp;
+  const targetRef = useRef<HTMLDivElement>(null);
+  const camera = useDwell({ref:targetRef,onActivate:onConfirm,dwellMs:holdMs,enabled:!disabled,targetMode});
   const [pressing, setPressing] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [fallbackProgress, setProgress] = useState(0);
+  const progress = mode === "camera" ? camera.progress : fallbackProgress;
   const [pulse, setPulse] = useState(false);
 
   // A press counts in both modes: in camera mode it is the silent fallback, in fallback mode it is the only input.
-  const holding = !disabled && (mode === "camera" ? thumbUp || pressing : pressing);
+  const holding = !disabled && (mode === "camera" ? camera.progress > 0 : pressing);
   const holdingRef = useRef(holding);
   holdingRef.current = holding;
   const onConfirmRef = useRef(onConfirm);
@@ -65,7 +67,7 @@ export function ThumbConfirm({
   const latchedRef = useRef(true);
 
   useEffect(() => {
-    if (disabled) return;
+    if (disabled || mode !== "fallback") return;
     let raf = 0;
     let last: number | null = null;
     const tick = (now: number) => {
@@ -96,7 +98,7 @@ export function ThumbConfirm({
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [disabled, holdMs]);
+  }, [disabled, holdMs, mode]);
 
   useEffect(() => {
     if (disabled) setPressing(false);
@@ -137,7 +139,7 @@ export function ThumbConfirm({
   const face = (
     <span className="thumb-confirm__face">
       {ring}
-      <span className="thumb-confirm__thumb"><Icon name="thumb-up" size={30} /></span>
+      <span className="thumb-confirm__thumb"><Icon name="gesture-pinch" size={30} /></span>
     </span>
   );
   const classes = [
@@ -163,19 +165,11 @@ export function ThumbConfirm({
       <div
         {...common}
         role="progressbar"
-        tabIndex={disabled ? undefined : 0}
         aria-label={label}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={pct}
-        onPointerDown={press}
-        onPointerUp={stop}
-        onPointerLeave={stop}
-        onPointerCancel={stop}
-        onBlur={stop}
-        onKeyDown={onKeyDown}
-        onKeyUp={onKeyUp}
-        onContextMenu={(e) => e.preventDefault()}
+        ref={targetRef}
       >
         {face}
         <span className="thumb-confirm__label">{label}</span>

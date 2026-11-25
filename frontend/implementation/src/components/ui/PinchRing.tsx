@@ -9,7 +9,8 @@
  * the previous screen.
  */
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { useHandGesture, useInputMode } from "../../hooks/useHandGesture";
+import { useInputMode } from "../../hooks/useHandGesture";
+import { useDwell } from "../../hooks/useDwell";
 import { Icon } from "./Icon";
 import "./PinchRing.css";
 
@@ -23,6 +24,7 @@ export interface PinchRingProps {
   disabled?: boolean;
   className?: string;
   testId?: string;
+  targetMode?: "any" | "point";
 }
 
 const R = 28;
@@ -31,14 +33,16 @@ const CIRC = 2 * Math.PI * R;
 const DRAIN_RATIO = 0.5;
 const PULSE_MS = 450;
 
-export function PinchRing({ holdMs, onConfirm, label = "Cubit & tahan", disabled = false, className, testId = "pinch-ring" }: PinchRingProps) {
+export function PinchRing({ holdMs, onConfirm, label = "Cubit & tahan", disabled = false, className, testId = "pinch-ring", targetMode = "any" }: PinchRingProps) {
   const mode = useInputMode();
-  const gesture = useHandGesture(!disabled && mode === "camera");
+  const targetRef = useRef<HTMLDivElement>(null);
+  const camera = useDwell({ref:targetRef,onActivate:onConfirm,dwellMs:holdMs,enabled:!disabled,targetMode});
   const [pressing, setPressing] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const [fallbackProgress, setProgress] = useState(0);
+  const progress = mode === "camera" ? camera.progress : fallbackProgress;
   const [pulse, setPulse] = useState(false);
 
-  const holding = !disabled && (mode === "camera" ? gesture.pinch : pressing);
+  const holding = !disabled && (mode === "camera" ? camera.progress > 0 : pressing);
   const holdingRef = useRef(holding);
   holdingRef.current = holding;
   const onConfirmRef = useRef(onConfirm);
@@ -49,7 +53,7 @@ export function PinchRing({ holdMs, onConfirm, label = "Cubit & tahan", disabled
   const pulseTimer = useRef<number | null>(null);
 
   useEffect(() => {
-    if (disabled) return;
+    if (disabled || mode !== "fallback") return;
     let raf = 0;
     let last: number | null = null;
     const tick = (now: number) => {
@@ -80,7 +84,7 @@ export function PinchRing({ holdMs, onConfirm, label = "Cubit & tahan", disabled
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [disabled, holdMs]);
+  }, [disabled, holdMs, mode]);
 
   useEffect(() => {
     if (disabled) setPressing(false);
@@ -131,7 +135,7 @@ export function PinchRing({ holdMs, onConfirm, label = "Cubit & tahan", disabled
 
   if (mode === "camera") {
     return (
-      <div {...common} role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}>
+      <div ref={targetRef} {...common} role="progressbar" aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={pct}>
         {face}
         <span className="pinch-ring__label">{label}</span>
       </div>

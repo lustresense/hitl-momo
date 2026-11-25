@@ -92,3 +92,7 @@
 .dwell-btn.dwell-btn--bare .dwell-btn__text {
   position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
 }
+
+/* R8.3: target highlight, no pointer cursor needed for A/B. */
+.r83-nui-lit{outline:3px solid currentColor;outline-offset:4px;}
+.r83-nui-dim{opacity:.55;}

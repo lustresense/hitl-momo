@@ -31,6 +31,7 @@ export interface DwellButtonProps {
   tone?: "accent" | "cue";
   /** The parent draws the frame (border, face, shadow); this button is only the hit target. */
   bare?: boolean;
+  targetMode?: "any" | "point";
 }
 
 const R = 17;
@@ -52,13 +53,14 @@ export const DwellButton = forwardRef<HTMLButtonElement, DwellButtonProps>(funct
     iconOnly = false,
     tone,
     bare = false,
+    targetMode = "any",
   },
   forwardedRef,
 ) {
   const ref = useRef<HTMLButtonElement>(null);
   // Callers (a dialog's focus on open) get the real button through the same ref.
   useImperativeHandle(forwardedRef, () => ref.current as HTMLButtonElement);
-  const { mode, progress } = useDwell({ ref, onActivate, dwellMs, enabled: !disabled });
+  const { mode, progress } = useDwell({ ref, onActivate, dwellMs, enabled: !disabled, targetMode });
   const name = label ?? (typeof children === "string" ? children : undefined);
   const classes = [
     "dwell-btn",
@@ -87,7 +89,7 @@ export const DwellButton = forwardRef<HTMLButtonElement, DwellButtonProps>(funct
       aria-expanded={expanded}
       title={title}
       disabled={disabled}
-      onClick={() => onActivate()}
+      onClick={() => { if (mode === "fallback" && !disabled) onActivate(); }}
     >
       <span className="dwell-btn__ring" aria-hidden="true">
         {mode === "camera" && (

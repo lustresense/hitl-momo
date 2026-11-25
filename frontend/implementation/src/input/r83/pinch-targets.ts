@@ -30,7 +30,7 @@ function candidates(): Candidate<Target>[] {
     if (!el?.isConnected || el.closest('[hidden],[aria-hidden="true"],[inert]')) continue;
     if (el instanceof HTMLButtonElement && el.disabled) continue;
     const r = el.getBoundingClientRect();
-    if (!r.width || !r.height || getComputedStyle(el).visibility !== "visible") continue;
+    if (!r.width || !r.height || r.right<=0 || r.bottom<=0 || r.left>=innerWidth || r.top>=innerHeight || getComputedStyle(el).visibility !== "visible") continue;
     // Ignore elements covered by another screen or modal. Offscreen targets are not active.
     const x = Math.max(0, Math.min(innerWidth-1,r.left+r.width/2));
     const y = Math.max(0, Math.min(innerHeight-1,r.top+r.height/2));

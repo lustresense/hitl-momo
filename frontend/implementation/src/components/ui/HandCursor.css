@@ -1,17 +1,3 @@
-/* HandCursor: the fingertip dot. Yellow fill and a thick ink ring keep it visible on paper, sky and dark drawings.
-   Portalled to <body> so no transformed ancestor can move it off the fingertip. */
-.hand-cursor {
-  position: fixed;
-  z-index: 2147483000;
-  left: 0;
-  top: 0;
-  box-sizing: border-box;
-  width: 28px;
-  height: 28px;
-  margin: -14px 0 0 -14px;
-  border-radius: 50%;
-  background: #ffd23f;
-  border: 4px solid var(--nb-ink, #111111);
-  box-shadow: 0 0 0 2px var(--nb-paper, #fffaf0);
-  pointer-events: none;
-}
+/* Source: ZIP shared/hand.css, outside-paper cursor. */
+.hand-cursor{position:fixed;left:0;top:0;width:28px;height:28px;box-sizing:border-box;margin:-14px 0 0 -14px;z-index:10000;pointer-events:none;border:3px solid var(--nb-ink,#1d1d1b);border-radius:50%;background:color-mix(in srgb,var(--nb-paper,#fffaf0) 55%,transparent);box-shadow:0 0 0 2px var(--nb-paper,#fffaf0);transition:transform .12s,background-color .12s,border-color .12s}
+.hand-cursor.is-pinch{transform:scale(.45);background:var(--nb-orange,#ef7a37);border-color:var(--nb-orange,#ef7a37)}

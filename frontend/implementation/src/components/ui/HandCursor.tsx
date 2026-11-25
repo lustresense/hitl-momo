@@ -31,10 +31,15 @@ function HandCursorDot() {
   const sample = useHandCursor();
   const cursor = sample?.cursor ?? null;
   if (mode !== "camera" || !cursor) return null;
+  const screen = document.querySelector("#screen-drawing[data-drawing-active='true']");
+  if (!screen || screen.getAttribute("data-focus") !== "off") return null;
   const x = cursor.x * window.innerWidth;
   const y = cursor.y * window.innerHeight;
+  const canvas = screen.querySelector("canvas");
+  const top = document.elementFromPoint(x,y);
+  if (top === canvas) return null;
   return createPortal(
-    <div className="hand-cursor" data-hand-cursor="" aria-hidden="true" style={{ left: x, top: y, pointerEvents: "none" }} />,
+    <div className={`hand-cursor${sample?.pinch ? " is-pinch" : ""}`} data-hand-cursor="" aria-hidden="true" style={{ left: x, top: y, pointerEvents: "none" }} />,
     document.body,
   );
 }

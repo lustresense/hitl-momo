@@ -62,6 +62,7 @@ export interface DrawingScreenProps {
   active?: boolean;
   phase?: "drawing" | "predicting" | "evaluating" | "prediction-error";
   prediction?: PredictionResult | null;
+  drawingInput?: DrawingInput | null;
   errorDetail?: string | null;
   predictionMode?: "mock" | "partner";
   onAccept?: () => void;
@@ -95,6 +96,7 @@ export function DrawingScreen({
   active = true,
   phase = "drawing",
   prediction = null,
+  drawingInput = null,
   errorDetail = null,
   predictionMode = "mock",
   onAccept = () => void 0,
@@ -150,7 +152,7 @@ export function DrawingScreen({
   const { companionRef, momoLayout } = useMomoCompanionLayout();
 
   const focus = useCanvasFocus(showCanvasFocus && active && phase === "drawing" && !introCovers, level.levelId);
-  const inkBlocked = focus.open || introCovers || stamped;
+  const inkBlocked = phase !== "drawing" || focus.open || introCovers || stamped || missionOpen;
   // The canvas takes no ink while it is covered or a sticker waits on it: no stroke, eraser pass, undo or redo,
   // a hand pinch included. The hand reader keeps running; only the drawing is gated (DrawingSurface.setInkEnabled).
   // The optional call lets a surface double without the method keep the gate open.
@@ -278,6 +280,7 @@ export function DrawingScreen({
             <MomoGuessChat
               phase={phase as "evaluating" | "prediction-error"}
               prediction={prediction}
+              drawingInput={drawingInput}
               errorDetail={errorDetail}
               predictionMode={predictionMode}
               level={level}

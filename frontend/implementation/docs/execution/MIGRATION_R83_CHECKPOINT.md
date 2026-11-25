@@ -12,3 +12,6 @@ Student drawing now uses a viewport-aligned pinch-only driver, five native React
 - Routed shared GestureRing camera actions (including existing HITL choices) through R8.3 target selection; manual pointer/keyboard remains fallback.
 - Removed legacy exploration rings from gameplay to avoid competing with joystick. Placement has relative pinch-drag (12px threshold) and 1500ms stationary confirm; current shared ring cancellation threshold is still 26px, which must be reconciled. Existing world collision, rotation, visual fall and layout are not yet R8.3 equivalent.
 - Analog joystick speed now passes through GameController into existing integrated and legacy KAPLAY movement. No live validation.
+
+## Checkpoint 4: direct sandbox visual port
+HITL rows, thumbnail, single-stage override, 2 s label decisions, 1 s action decisions and badge CSS use sandbox guess.js/level.css/hand.css. Actual controller callbacks and provider confidence remain intact. Removed legacy canvas focus stage for student route; updated toolbar styles and outside-sheet cursor. Font declarations exist but exact font payload is not installed. Camera PIP hand, pen artwork, ring positioning, cover/name flow, tutorial, ribbon pull, ending, fall effects, collider and route parity remain incomplete. No merge to main ever, per Owner instruction. STATIC_ONLY.

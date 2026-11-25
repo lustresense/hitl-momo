@@ -6,7 +6,8 @@
  * Momo herself never decides.
  */
 import { useEffect } from "react";
-import type { PredictionResult } from "@/src/domain/types";
+import { getInputMode } from "@/src/input/input-mode";
+import type { DrawingInput, PredictionResult } from "@/src/domain/types";
 import type { LevelDefinition } from "@/src/domain/levels";
 import { DecisionPanel } from "../decision/DecisionPanel";
 import { PredictionErrorActions } from "./PredictionErrorActions";
@@ -14,6 +15,7 @@ import { PredictionErrorActions } from "./PredictionErrorActions";
 export interface MomoGuessChatProps {
   phase: "predicting" | "evaluating" | "prediction-error";
   prediction: PredictionResult | null;
+  drawingInput?: DrawingInput | null;
   errorDetail?: string | null;
   predictionMode: "mock" | "partner";
   level: LevelDefinition;
@@ -24,11 +26,11 @@ export interface MomoGuessChatProps {
   onRetry: () => void;
 }
 
-export function MomoGuessChat({ phase, prediction, errorDetail, predictionMode, level, onAccept, onCorrect, onOverride, onRedraw, onRetry }: MomoGuessChatProps) {
+export function MomoGuessChat({ phase, prediction, drawingInput, errorDetail, predictionMode, level, onAccept, onCorrect, onOverride, onRedraw, onRetry }: MomoGuessChatProps) {
   // Esc returns to drawing without committing.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onRedraw();
+      if (getInputMode() === "fallback" && e.key === "Escape") onRedraw();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -45,12 +47,9 @@ export function MomoGuessChat({ phase, prediction, errorDetail, predictionMode, 
   if (phase !== "evaluating" || !prediction) return null;
 
   return (
-    <div className="momo-guess" role="group" aria-label="Tiga tebakan Momo dan keputusanmu" data-testid="popup-evaluating">
-      <h3 className="momo-guess__title">Tebakan Momo</h3>
-      <span className="visually-hidden" data-testid="prediction-source">
-        {predictionMode === "mock" ? "Demo: tebakan simulasi" : "Model partner"}
-      </span>
-      <DecisionPanel prediction={prediction} level={level} onAccept={onAccept} onCorrect={onCorrect} onOverride={onOverride} onRedraw={onRedraw} />
+    <div className="momo-guess r83-guess" role="group" aria-label="Tiga tebakan Momo dan keputusanmu" data-testid="popup-evaluating">
+      <div className="g-head"><b>Tebakan Momo</b><span className="k-chip" data-testid="prediction-source">{predictionMode === "mock" ? "Demo: tebakan simulasi" : "Model AI"}</span></div>
+      <DecisionPanel drawingInput={drawingInput} prediction={prediction} level={level} onAccept={onAccept} onCorrect={onCorrect} onOverride={onOverride} onRedraw={onRedraw} />
     </div>
   );
 }

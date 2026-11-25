@@ -63,9 +63,11 @@ export function DrawingFlowScreen({
       feedback={controller?.feedback ?? null}
       surfaceOut={surfaceRef}
       active={phase === "drawing"}
+      showCanvasFocus={false}
       stamp={stamp}
       phase={phase}
       prediction={controller?.prediction ?? null}
+      drawingInput={controller?.drawingInput ?? null}
       errorDetail={controller?.errorDetail ?? null}
       predictionMode={providerMode}
       onAccept={() => ignoreRefusedTransition(() => controller?.decideAccept())}

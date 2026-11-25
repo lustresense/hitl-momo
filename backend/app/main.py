@@ -11,7 +11,7 @@ from .db import get_db, init_db
 from .difficulty import apply_difficulty, difficulty_enabled, effective_difficulty
 from .inference import load_model, predict_from_drawing, predict_probs
 
-app = FastAPI(title="Momo Backend", version="0.29.6-alpha")
+app = FastAPI(title="Momo Backend", version="0.30.0-alpha")
 app.include_router(dashboard.router)
 app.include_router(classroom.router)
 
@@ -43,9 +43,9 @@ def startup_event():
 MAX_PREDICT_POINTS = 20_000  # same cap as a classroom submission; /predict has no auth
 
 
-# Per-level AI difficulty (Dias, migrated from MuhammadDias/HITL@94120d4). OFF by default:
-# it changes the Top-3 the student sees, which is a product decision not yet approved by
-# Can/Dias. While off, /predict ignores levelId and returns exactly the pre-migration contract.
+# Per-level AI difficulty (Dias, migrated from MuhammadDias/HITL@94120d4). ON by default since
+# 0.30.0-alpha (levels agreed by Can + Dias 2026-11-19). AI_DIFFICULTY_ENABLED=0 turns it off;
+# while off, /predict ignores levelId and returns exactly the pre-migration contract.
 AI_DIFFICULTY_ENABLED = difficulty_enabled()
 
 

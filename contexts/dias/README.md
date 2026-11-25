@@ -38,7 +38,7 @@ python backend/tests/blackbox.py --base http://127.0.0.1:8000 --email <email> --
 cd frontend/admin && npm ci && npm run dev    # http://localhost:3002/admin
 ```
 
-Variabel penting: `WEIGHTS_DIR` dan `MODEL_FILE` (default model MobileNetV2), `MOMO_DB_PATH`, `CORS_ORIGINS`, `AI_DIFFICULTY_ENABLED` (kode default `0`; `docker-compose.yml` dan `.env.example` menyalakan `1`. Untuk uvicorn lokal set manual), `PREDICTION_SEND_CONTEXT` (build game, default `1` sejak 0.29.0-alpha).
+Variabel penting: `WEIGHTS_DIR` dan `MODEL_FILE` (default model MobileNetV2), `MOMO_DB_PATH`, `CORS_ORIGINS`, `AI_DIFFICULTY_ENABLED` (default `1` di kode sejak 0.30.0-alpha, juga di `docker-compose.yml` dan `.env.example`; set `0` untuk mematikan), `PREDICTION_SEND_CONTEXT` (build game, default `1` sejak 0.29.0-alpha).
 
 **Memakai model hasil retrain:** taruh `<nama>.keras` dan `<nama>.labels.json` (dibuat oleh script training) di `weights/`, set `WEIGHTS_DIR` dan `MODEL_FILE`. Backend memeriksa jumlah output = jumlah label. Label yang dikirim ke game ikut berubah, jadi butuh koordinasi dengan Can (`levels.ts`).
 

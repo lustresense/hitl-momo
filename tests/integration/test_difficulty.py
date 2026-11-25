@@ -34,7 +34,9 @@ def client():
 def test_flag_follows_env(monkeypatch):
     from backend.app.difficulty import difficulty_enabled
     monkeypatch.delenv("AI_DIFFICULTY_ENABLED", raising=False)
-    assert difficulty_enabled() is False  # code default; docker-compose turns it on
+    assert difficulty_enabled() is True  # code default on since 0.30.0-alpha
+    monkeypatch.setenv("AI_DIFFICULTY_ENABLED", "0")
+    assert difficulty_enabled() is False
     monkeypatch.setenv("AI_DIFFICULTY_ENABLED", "1")
     assert difficulty_enabled() is True
 

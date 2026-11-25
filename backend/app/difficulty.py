@@ -17,9 +17,9 @@ from typing import Dict, List, Optional, Tuple
 
 # Level ids and names as used by the game (frontend/implementation/src/domain/levels.ts).
 LEVELS: List[Tuple[str, str]] = [
-    ("stage-1-foundation", "Bab 1 · Jembatan Pertama"),
-    ("stage-2-ambiguity", "Bab 2 · Menara Lipatan"),
-    ("stage-3-validation", "Bab 3 · Lorong Kabut Penghapus"),
+    ("stage-1-foundation", "Level 1 · Jembatan Pertama"),
+    ("stage-2-ambiguity", "Level 2 · Menara Lipatan"),
+    ("stage-3-validation", "Level 3 · Lorong Kabut Penghapus"),
 ]
 # Easy -> hard. Enabled per Can + Dias agreement 2026-11-19; a superadmin can change or switch
 # off each level in /admin/kesulitan (a saved row always overrides these defaults).
@@ -59,8 +59,8 @@ MAX_SWAP_PROBABILITY = 0.6   # chance the look-alike takes rank 1 at d = 1
 
 
 def difficulty_enabled() -> bool:
-    """Feature flag. Off by default: changing the Top-3 a student sees needs Can + Dias approval."""
-    return os.getenv("AI_DIFFICULTY_ENABLED", "0").strip().lower() in {"1", "true", "yes", "on"}
+    """Feature flag. ON by default since 0.30.0-alpha (Dias); set AI_DIFFICULTY_ENABLED=0 to disable."""
+    return os.getenv("AI_DIFFICULTY_ENABLED", "1").strip().lower() in {"1", "true", "yes", "on"}
 
 
 # ---------------------------------------------------------------- settings storage

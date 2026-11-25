@@ -57,7 +57,7 @@ export default function DifficultyPage() {
     <div className="stack">
       <div className="page-head">
         <div>
-          <h1>Kesulitan AI per level</h1>
+          <h1>Level Kesulitan</h1>
           <p>
             Model tetap sama; backend mengaburkan tebakannya sesuai level yang sedang dimainkan, supaya murid harus
             memeriksa, bukan sekadar percaya. Berlaku untuk semua kelas (versi beta).
@@ -111,7 +111,7 @@ export default function DifficultyPage() {
       )}
       {settings.active && (
         <div className="alert alert-ok">
-          Aktif di backend. Murid baru terdampak setelah game mengirim level yang dimainkan (menunggu Can).
+          Aktif di backend. Tebakan yang dilihat murid mengikuti pengaturan level yang sedang dimainkan.
         </div>
       )}
       {notice && <div className="alert alert-ok">{notice}</div>}

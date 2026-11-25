@@ -195,7 +195,7 @@ Backend (env saat menjalankan):
 | `WEIGHTS_DIR` / `MODEL_FILE` | direktori dan nama file model Keras | `weights/model_4_mobilenetv2_best.keras` |
 | `MOMO_DB_PATH` | file SQLite | `backend/data/momo.sqlite` |
 | `CORS_ORIGINS` | origin browser yang boleh memanggil API, dipisah koma | `localhost` port 3344, 3002, 3000 |
-| `AI_DIFFICULTY_ENABLED` | `1` = kesulitan AI per level berlaku (atur di `/admin/kesulitan`) | `0` di kode, `1` di `docker-compose.yml` |
+| `AI_DIFFICULTY_ENABLED` | `1` = kesulitan AI per level berlaku (atur di `/admin/kesulitan`) | `1` (kode dan `docker-compose.yml`, sejak 0.30.0-alpha); `0` mematikan |
 
 Game (env **saat build**, nilainya tertanam di file statis dan terlihat siapa pun):
 

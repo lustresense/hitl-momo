@@ -1,5 +1,10 @@
 # NOW.md — Status integrasi bersama
 
+## 2026-11-25 — Level kesulitan aktif secara default (0.30.0-alpha, branch `claude/quirky-ritchie-2plv9r`, belum deploy)
+- Permintaan Dias: DEV `/admin/kesulitan` menampilkan "belum aktif" karena uvicorn DEV dijalankan dengan `AI_DIFFICULTY_ENABLED=0` (SETUP.md). Kode default flag sekarang `1`; SETUP.md tidak lagi mematikannya. Server DEV perlu restart backend tanpa `=0` agar berlaku.
+- Admin: menu "Kesulitan AI" → "Level Kesulitan", judul halaman "Level Kesulitan", nama level "Bab N" → "Level N" (label dari backend; `level_id` dan game tidak berubah).
+- Bukti: `pytest tests/integration` 21/21 (dengan dan tanpa env), admin `tsc` PASS. Restart server DEV, deploy, browser: `NOT_TESTED`.
+
 ## 2026-11-19 — Project berjalan end-to-end setelah migrasi Dias (0.29.1-alpha, di `main`, belum deploy)
 - E2E kelas penuh di browser 19/19 dengan model asli dan kesulitan AI per level aktif. Cek label di `classroom-e2e.mjs` sekarang lewat `label-map.ts`.
 - `vitest` game penuh: 2299 lulus, 22 gagal. Ke-22 tes itu sudah gagal di `68a7d9a` (pra-migrasi), di area kamera/penghapus Can.

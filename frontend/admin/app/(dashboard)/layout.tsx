@@ -15,7 +15,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       ? [
           { href: "/sekolah", label: "Sekolah" },
           { href: "/kelas", label: "Semua Kelas" },
-          { href: "/kesulitan", label: "Kesulitan AI" },
+          { href: "/kesulitan", label: "Level Kesulitan" },
         ]
       : [{ href: "/kelas", label: "Kelas Saya" }];
 

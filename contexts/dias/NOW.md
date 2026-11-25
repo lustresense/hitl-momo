@@ -9,7 +9,7 @@
 | Backend: join, submission (token, idempoten), outcome, auth | PASS | `pytest tests/integration` 20/20, `verify_backend.py` 20/20 |
 | Inferensi model asli | PASS (`REAL_MODEL`, MobileNetV2 default) | `verify_backend.py` |
 | Black-box Dias lewat HTTP (uvicorn lokal) | 10/10 | `backend/tests/blackbox.py` |
-| Kesulitan AI per level | **AKTIF** (kesepakatan Can + Dias 2026-11-19, 0.29.0-alpha): backend flag ON, game mengirim `levelId`, default Bab 1/2/3 = 0/40/70 aktif; superadmin bisa mengubah di `/admin/kesulitan` | `tests/integration` 20/20 (flag on & off), uji HTTP uvicorn flag on |
+| Kesulitan AI per level | **AKTIF** (kesepakatan Can + Dias 2026-11-19, 0.29.0-alpha): backend flag ON, game mengirim `levelId`, default Bab 1/2/3 = 0/40/70 aktif; superadmin bisa mengubah di `/admin/kesulitan` (menu "Level Kesulitan"). Sejak 0.30.0-alpha flag default ON di kode juga, jadi uvicorn DEV tanpa env ikut aktif | `tests/integration` 20/20 (flag on & off), uji HTTP uvicorn flag on |
 | Dashboard build (termasuk `/kesulitan`) | PASS | `tsc` 0, `next build` |
 | Script training 6 arsitektur + evaluasi | Dimigrasikan, **tidak dijalankan** | — |
 | Docker image build | NOT_TESTED | — |

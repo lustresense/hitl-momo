@@ -42,7 +42,7 @@ Jika Ubuntu belum punya Python 3.12/venv atau Caddy, instal melalui package mana
 python3.12 -m venv .venv
 . .venv/bin/activate
 pip install -r backend/requirements.txt
-AI_DIFFICULTY_ENABLED=0 uvicorn backend.app.main:app --host 127.0.0.1 --port 5800
+uvicorn backend.app.main:app --host 127.0.0.1 --port 5800
 ```
 
 2. Game, build satu origin lokal:

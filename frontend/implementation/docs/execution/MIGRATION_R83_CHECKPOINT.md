@@ -18,3 +18,6 @@ HITL rows, thumbnail, single-stage override, 2 s label decisions, 1 s action dec
 
 ## Checkpoint 5
 Ported ribbon nearest-by-X selection and pinch pull to existing GSAP ribbon geometry, removed redundant level confirm ring, added sticker upward flick plus R8.3 proportions and ring order, and canvas pencil/eraser cursor SVG paths. Added Next static aliases /p2-kartu, /p3-pilih-bab, /p6-penutup; ending still uses existing CenterOfPage, not sandbox pond artwork. Sticker ring positioning is a responsive approximation, not the sandbox's dynamic pinBeside geometry. Fonts, complete cover/voice join, tutorial and ending, all route transitions, joystick overlay, colliders and runtime parity remain pending. No merge or deploy. Classroom join contract requires both number and name; do not fabricate an attendance number or silently change Dias' API. STATIC_ONLY.
+
+### Tutorial interaction checkpoint
+Card 1 uses the anchored pinch joystick engine, card 3 has five pointed tools and reversible clear. Practice pointer input is restricted to fallback; manual drawing mode switch hidden while camera works. Tutorial eraser cursor radius is provisional and visual layout/animation parity remains unverified. No build, webcam, or pixel comparison has run.

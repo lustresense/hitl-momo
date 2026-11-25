@@ -9,7 +9,7 @@ export type TutorialMoment = "deal" | "walk" | "walk-done" | "safety" | "gesture
 export type TutorialHintIcon = "gesture-pinch" | "gesture-point-right" | "arrow-right" | "bulb" | "thumb-up";
 
 /** The four practice tools of card 3, in the order the card shows them. */
-export const TUTORIAL_PRACTICE_TOOLS = ["draw", "erase", "undo", "redo"] as const;
+export const TUTORIAL_PRACTICE_TOOLS = ["draw", "erase", "undo", "redo", "clear"] as const;
 export type TutorialPracticeTool = (typeof TUTORIAL_PRACTICE_TOOLS)[number];
 
 export function tutorialCardCopy(index: 0 | 1 | 2, name: string): { title: string; copy: string; cta: string; holdMs: 1000 | 2000 } {
@@ -25,10 +25,10 @@ export function tutorialCardCopy(index: 0 | 1 | 2, name: string): { title: strin
     };
   }
   return {
-    title: "Coba gestur tanganmu",
-    copy: "Coret di kanvas, lalu coba hapus, mundur, dan maju. Tiap gestur yang kamu coba akan tercentang.",
-    cta: "Mulai Bab 1",
-    holdMs: 2000,
+    title: "Latihan kursor dan alat",
+    copy: "Di kertas, kursormu jadi pensil. Cubit, tahan, lalu geser buat menggambar. Coba juga Hapus, Mundur, Maju, dan Bersihkan: tunjuk tombolnya, lalu cubit. Tiap alat yang kamu coba akan tercentang.",
+    cta: "Pilih level",
+    holdMs: 1000,
   };
 }
 
@@ -37,16 +37,16 @@ export function tutorialHint(index: 0 | 1 | 2, camera: boolean, practiceDone: bo
   if (index === 0) {
     if (!camera) return { icon: "arrow-right", text: "Tarik Thinman ke kanan sampai menyentuh bendera." };
     return practiceDone
-      ? { icon: "thumb-up", text: "Baca dulu, lalu angkat jempolmu." }
-      : { icon: "gesture-point-right", text: "Arahkan telunjuk ke kanan untuk jalan, ke atas untuk lompat." };
+      ? { icon: "gesture-pinch", text: "Cubit dan tahan di mana aja untuk lanjut." }
+      : { icon: "gesture-pinch", text: "Cubit, lalu geser ke kanan untuk jalan. Cubit sebentar untuk lompat." };
   }
   if (index === 1) {
     return practiceDone
-      ? { icon: "thumb-up", text: camera ? "Angkat jempolmu untuk lanjut." : "Tahan tombol untuk lanjut." }
+      ? { icon: "gesture-pinch", text: camera ? "Cubit dan tahan di mana aja untuk lanjut." : "Tahan tombol untuk lanjut." }
       : { icon: "bulb", text: "Baca dulu penjelasannya." };
   }
   return camera
-    ? { icon: "gesture-pinch", text: "Cubit untuk coret, lima jari untuk hapus, satu jari untuk mundur, dua jari untuk maju." }
+    ? { icon: "gesture-pinch", text: "Kursornya jadi pensil. Cubit, tahan, geser untuk menggambar. Alat: tunjuk, lalu cubit." }
     : { icon: "gesture-pinch", text: "Coret pakai mouse, lalu coba tiap alat di kanan." };
 }
 
@@ -58,7 +58,7 @@ export function tutorialStep(moment: TutorialMoment, characterName: string, came
     case "walk":
       return {
         mood: "Semangat",
-        lines: [camera ? `Arahkan telunjuk ke kanan untuk jalan, ke atas untuk lompat.` : `Tarik ${characterName} ke kanan sampai menyentuh bendera.`],
+        lines: [camera ? `Cubit, lalu geser ke kanan untuk jalan. Cubit sebentar untuk lompat.` : `Tarik ${characterName} ke kanan sampai menyentuh bendera.`],
       };
     case "walk-done":
       return { mood: "Senang", lines: [`Mantap, ${characterName} sampai!`, "Baca dulu sebentar, ya."] };
@@ -68,10 +68,10 @@ export function tutorialStep(moment: TutorialMoment, characterName: string, came
       return {
         mood: "Semangat",
         lines: camera
-          ? ["Coret kanvasnya pakai cubit.", "Coba hapus, mundur, dan maju juga."]
-          : ["Coret kanvasnya pakai mouse.", "Coba hapus, mundur, dan maju lewat tombol di kanan."],
+          ? ["Coret kanvasnya pakai cubit.", "Coba semuanya: Hapus cuma menghapus bagian yang kamu gosok, Bersihkan mengosongkan kertas."]
+          : ["Coret kanvasnya pakai mouse.", "Coba hapus, mundur, maju, dan bersihkan lewat tombol di kanan."],
       };
     case "gesture-done":
-      return { mood: "Senang", lines: ["Kamu sudah siap!", camera ? "Tahan jempolmu buat mulai Bab 1." : "Tahan tombolnya buat mulai Bab 1."] };
+      return { mood: "Senang", lines: ["Kamu sudah siap!", camera ? "Cubit dan tahan di mana aja buat memilih level." : "Tahan tombolnya buat mulai Bab 1."] };
   }
 }

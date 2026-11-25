@@ -10,7 +10,7 @@ import type { HandPose } from "@/src/input/hand-gesture";
 
 
 /** A real change of the drawing, reported once per action (never for a gesture that did nothing). */
-export type DrawingToolUsed = "draw" | "erase" | "undo" | "redo";
+export type DrawingToolUsed = "draw" | "erase" | "undo" | "redo" | "clear";
 
 interface UseDrawingSurfaceOptions {
   canvasRef: RefObject<HTMLCanvasElement>;

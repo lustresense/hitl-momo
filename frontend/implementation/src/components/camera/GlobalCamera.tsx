@@ -651,7 +651,7 @@ export function GlobalCamera({ mode, modelUrl, onWave, recessed = false }: Globa
             </div>
           )}
 
-          {recessed && (
+          {recessed && inputMode === "fallback" && (
             <div className="global-camera-mode-switch" role="group" aria-label="Mode input gambar">
               <button type="button" className="mode-btn" data-input-mode="pointer" aria-pressed={drawingInputMode === "pointer"} onClick={() => { setDrawingInputMode("pointer"); setStatusNote(""); window.dispatchEvent(new CustomEvent("drawing-input-mode", { detail: "pointer" })); }}>Pointer</button>
               <button type="button" className="mode-btn" data-input-mode="hand" aria-pressed={drawingInputMode === "hand"} onClick={() => { setDrawingInputMode("hand"); setStatusNote(""); window.dispatchEvent(new CustomEvent("drawing-input-mode", { detail: "hand" })); }}>Tangan</button>

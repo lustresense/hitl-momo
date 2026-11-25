@@ -14,7 +14,9 @@ import { Icon, type IconName } from "../ui/Icon";
 import { MomoGuide } from "../momo/MomoGuide";
 import { ThinmanArt } from "../ui/ThinmanArt";
 import { useHandGesture, useInputMode } from "@/src/hooks/useHandGesture";
-import { steerFromAngle, steerInput, type DirectionInput, type SteerZone } from "@/src/input/gameplay-gesture";
+import { PinchJoystick, type JoystickReading } from "@/src/input/r83/pinch-joystick";
+import { R83PracticeTool } from "./R83PracticeTool";
+import { R83CanvasCursor } from "../drawing/R83CanvasCursor";
 import { renderCharacterASideSvg } from "@/src/game/character/character-a-svg";
 import { walkT } from "@/src/game/character/pose-math";
 import { tutorialCardCopy, tutorialHint, tutorialStep, TUTORIAL_PRACTICE_TOOLS, type TutorialMoment } from "@/src/domain/tutorial-script";
@@ -73,8 +75,8 @@ function WalkPlayground({ onComplete, live, keys }: WalkPlaygroundProps) {
   const posRef = useRef(14);
   const doneRef = useRef(false);
   const dragRef = useRef(false);
-  const steerZoneRef = useRef<SteerZone | null>(null);
-  const controlRef = useRef<DirectionInput>({ left: false, right: false, jump: false });
+  const joystick = useRef(new PinchJoystick());
+  const controlRef = useRef<JoystickReading>({left:false,right:false,jump:false,speed:0});
   const heldJumpRef = useRef(false);
   const [jumpKey, setJumpKey] = useState(0);
   const completeRef = useRef(onComplete);
@@ -103,17 +105,11 @@ function WalkPlayground({ onComplete, live, keys }: WalkPlaygroundProps) {
     return ((event.clientX - rect.left) / rect.width) * 100;
   };
 
-  // Card 1 uses exactly the gameplay's angle zones. Pinch is no longer a secret steering path.
-  useEffect(() => {
-    const pointing = hand.pose === "one-finger" || hand.fingerCount === 1;
-    if (!live || doneRef.current || hand.pinch || !pointing || hand.angle == null) {
-      steerZoneRef.current = null;
-      controlRef.current = { left: false, right: false, jump: false };
-      return;
-    }
-    steerZoneRef.current = steerFromAngle(hand.angle, steerZoneRef.current);
-    controlRef.current = steerInput(steerZoneRef.current);
-  }, [live, hand.angle, hand.pinch, hand.pose, hand.fingerCount]);
+  useEffect(()=>{
+    if(!live||doneRef.current){joystick.current.reset();controlRef.current={left:false,right:false,jump:false,speed:0};return;}
+    const point=hand.cursor?{x:hand.cursor.x*innerWidth,y:hand.cursor.y*innerHeight}:null;
+    controlRef.current=joystick.current.feed(point,hand.pinch,performance.now());
+  },[live,hand.cursor,hand.pinch]);
 
   // Continuous motion while held, including a jump on an upward/diagonal pointing edge.
   useEffect(() => {
@@ -128,7 +124,7 @@ function WalkPlayground({ onComplete, live, keys }: WalkPlaygroundProps) {
       lastTime = now;
       if (!doneRef.current) {
         const input = controlRef.current;
-        const dx = tutorialWalkDelta(input, dt);
+        const dx = tutorialWalkDelta(input, dt) * input.speed;
         if (dx !== 0) place(posRef.current + dx);
         if (input.jump && !heldJumpRef.current) {
           heldJumpRef.current = true;
@@ -167,7 +163,7 @@ function WalkPlayground({ onComplete, live, keys }: WalkPlaygroundProps) {
     <div
       className={`tut-scene tut-walk${done ? " is-complete" : ""}`}
       onPointerDown={(event) => {
-        if (doneRef.current) return;
+        if (!keys || doneRef.current) return;
         dragRef.current = true;
         try {
           event.currentTarget.setPointerCapture(event.pointerId);
@@ -177,7 +173,7 @@ function WalkPlayground({ onComplete, live, keys }: WalkPlaygroundProps) {
         place(percentOf(event));
       }}
       onPointerMove={(event) => {
-        if (dragRef.current) place(percentOf(event));
+        if (keys && dragRef.current) place(percentOf(event));
       }}
       onPointerUp={() => {
         dragRef.current = false;
@@ -190,7 +186,7 @@ function WalkPlayground({ onComplete, live, keys }: WalkPlaygroundProps) {
       <div className={`tut-handhint${moved ? " is-gone" : ""}`} aria-hidden="true">
         <Icon name="arrow-left" size={26} stroke={3} />
         <span className="tut-handhint__hand">
-          <Icon name="gesture-point-up" size={48} />
+          <Icon name="gesture-pinch" size={48} />
         </span>
         <Icon name="arrow-right" size={26} stroke={3} />
       </div>
@@ -277,10 +273,11 @@ function SafetyPlayground() {
 
 /* ---------- Practice page 3: gesture practice on the real drawing surface ---------- */
 const TOOLS: Array<{ id: (typeof TUTORIAL_PRACTICE_TOOLS)[number]; icon: IconName; label: string; aria: string }> = [
-  { id: "draw", icon: "gesture-pinch", label: "Coret", aria: "Coret, gestur cubit" },
-  { id: "erase", icon: "gesture-five", label: "Hapus", aria: "Hapus, gestur lima jari" },
-  { id: "undo", icon: "gesture-one", label: "Mundur", aria: "Mundur satu goresan, gestur satu jari" },
-  { id: "redo", icon: "gesture-two", label: "Maju", aria: "Maju satu goresan, gestur dua jari" },
+  { id: "draw", icon: "gesture-pinch", label: "Pensil", aria: "Pensil" },
+  { id: "erase", icon: "gesture-five", label: "Hapus", aria: "Hapus" },
+  { id: "undo", icon: "gesture-one", label: "Mundur", aria: "Mundur satu goresan" },
+  { id: "redo", icon: "gesture-two", label: "Maju", aria: "Maju satu goresan" },
+  { id: "clear", icon: "gesture-pinch", label: "Bersihkan", aria: "Bersihkan kanvas" },
 ];
 
 interface DrawPlaygroundProps {
@@ -290,14 +287,17 @@ interface DrawPlaygroundProps {
   onTool(tool: Tool): void;
   onUndo(): void;
   onRedo(): void;
+  onClear(): void;
+  enabled: boolean;
 }
 
 /** The canvas itself draws through DrawingSurface (pointer or hand); this page only shows the canvas and the tools. */
-function DrawPlayground({ canvasRef, tool, used, onTool, onUndo, onRedo }: DrawPlaygroundProps) {
+function DrawPlayground({ canvasRef, tool, used, onTool, onUndo, onRedo, onClear, enabled }: DrawPlaygroundProps) {
   const act = (id: (typeof TOOLS)[number]["id"]) => {
     if (id === "draw" || id === "erase") onTool(id);
     else if (id === "undo") onUndo();
-    else onRedo();
+    else if (id === "redo") onRedo();
+    else onClear();
   };
   return (
     <div className="tut-scene tut-draw">
@@ -309,17 +309,12 @@ function DrawPlayground({ canvasRef, tool, used, onTool, onUndo, onRedo }: DrawP
           </span>
         )}
       </div>
+      <R83CanvasCursor enabled={enabled} erasing={tool === "erase"} radius={20}/>
       <div className="tut-tools" role="toolbar" aria-label="Latihan gestur">
         {TOOLS.map((t) => {
           const active = (t.id === "draw" && tool === "draw") || (t.id === "erase" && tool === "erase");
           return (
-            <button key={t.id} type="button" className={`nb-tool tut-tool${active ? " is-active" : ""}${used[t.id] ? " is-used" : ""}`} data-tool={t.id} aria-label={t.aria} aria-pressed={t.id === "draw" || t.id === "erase" ? active : undefined} onClick={() => act(t.id)}>
-              <Icon name={t.icon} size={30} stroke={2} />
-              <span className="nb-tool__label">{t.label}</span>
-              <span className="tut-tool__tick" aria-hidden="true">
-                <Icon name="check" size={12} stroke={4} />
-              </span>
-            </button>
+            <R83PracticeTool key={t.id} id={t.id} label={t.label} aria={t.aria} active={active} used={!!used[t.id]} enabled={enabled} onSelect={()=>act(t.id)}/>
           );
         })}
       </div>
@@ -381,11 +376,9 @@ export function TutorialBrochure({ onStart, characterDisplayName }: TutorialBroc
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const surfaceRef = useRef<DrawingSurface | null>(null);
-  const drawing = useDrawingSurface({ canvasRef, surfaceOut: surfaceRef, initialMode: inputMode === "camera" ? "hand" : "pointer", active: open === 2, onToolUsed, fixedEraser: true });
+  const drawing = useDrawingSurface({ canvasRef, surfaceOut: surfaceRef, initialMode: "pointer", active: open === 2, onToolUsed, fixedEraser: true });
   const { switchMode, undo, redo } = drawing;
-  useEffect(() => {
-    switchMode(inputMode === "camera" ? "hand" : "pointer");
-  }, [inputMode, switchMode]);
+
 
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => getPrefersReducedMotion());
   useEffect(() => subscribePrefersReducedMotion(setPrefersReducedMotion), []);
@@ -642,7 +635,7 @@ export function TutorialBrochure({ onStart, characterDisplayName }: TutorialBroc
                 }}
                 className="tut-play play-panel"
               >
-                {i === 0 && <WalkPlayground onComplete={onWalkComplete} live={camera && open === 0 && !gate.practiceDone} keys={open === 0} />}
+                {i === 0 && <WalkPlayground onComplete={onWalkComplete} live={camera && open === 0 && !gate.practiceDone} keys={!camera && open === 0} />}
                 {i === 1 && <SafetyPlayground />}
                 {i === 2 && (
                   <DrawPlayground
@@ -655,6 +648,8 @@ export function TutorialBrochure({ onStart, characterDisplayName }: TutorialBroc
                     }}
                     onUndo={() => undo()}
                     onRedo={() => redo()}
+                    onClear={() => { if(surfaceRef.current?.wipe()) mark("clear"); }}
+                    enabled={open === 2}
                   />
                 )}
               </section>

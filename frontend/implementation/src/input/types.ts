@@ -192,6 +192,17 @@ export class StrokeStore {
     return false;
   }
 
+  /** R8.3: clear the page as one reversible history operation. */
+  wipe(): boolean {
+    if (this.hasActiveStroke()) this.endStroke();
+    if (this.isErasing()) this.endErase();
+    if (!this.strokes.length) return false;
+    this.beginErase();
+    this.strokes = [];
+    this.endErase();
+    return true;
+  }
+
   clear(): void {
     if (this.strokes.length > 0) {
       this.undone.push(...this.strokes);

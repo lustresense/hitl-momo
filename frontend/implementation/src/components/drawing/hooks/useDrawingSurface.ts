@@ -7,7 +7,7 @@ import { useCallback, useEffect, useRef, useState, type RefObject } from "react"
 import { DrawingSurface } from "@/src/input";
 import type { InputModeId } from "@/src/input/types";
 import type { HandPose } from "@/src/input/hand-gesture";
-import { createGestureCommander } from "../gesture-commands";
+
 
 /** A real change of the drawing, reported once per action (never for a gesture that did nothing). */
 export type DrawingToolUsed = "draw" | "erase" | "undo" | "redo";
@@ -45,24 +45,17 @@ export function useDrawingSurface({ canvasRef, surfaceOut, initialMode, active, 
     };
 
     // Shared mapping: pinch draws, all-five palm erases, one finger undoes, two fingers redoes. Fist is inert.
-    const commander = createGestureCommander();
+
     const surface: DrawingSurface = new DrawingSurface(canvas, video, {
       initialMode,
       fixedEraser,
+      r83Viewport: true,
       onInkChange: setHasInk,
       onStatusChange: (status) => {
         // Tracking stopped or lost: a pose seen earlier is no longer true, so a held thumb cannot confirm later.
         if (status.kind !== "ready" && status.kind !== "drawing") setPose("none");
       },
-      onPose: (pose, nowMs) => {
-        setPose(pose);
-        const action = commander.feed(pose, nowMs);
-        if (action === "undo") {
-          if (surface.undo()) toolRef.current?.("undo");
-        } else if (action === "redo") {
-          if (surface.redo()) toolRef.current?.("redo");
-        }
-      },
+      onPose: (pose) => setPose(pose),
     });
     surfaceOut.current = surface;
 

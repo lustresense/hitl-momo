@@ -39,6 +39,7 @@ export interface HandDriverOptions {
   onPose?: (pose: HandPose, nowMs: number) => void;
   /** Eraser setting owned by the surface (the fist, the Hapus tool and the two-hand sizer share it). */
   eraser?: EraserControl;
+  r83Viewport?: boolean;
 }
 
 export class HandDrawingDriver {
@@ -52,6 +53,9 @@ export class HandDrawingDriver {
   /** Clock time of the last frame sent through the pipeline (camera frame or lost report). */
   private lastFedMs = 0;
   private readonly pipeline: HandStrokePipeline;
+  private r83Down = false;
+  private r83Armed = false;
+  private r83Ink = false;
   /** Bumped by every start()/stop(); an async start whose token is stale must not touch state. */
   private generation = 0;
   private unsubscribeStream: (() => void) | null = null;
@@ -65,6 +69,11 @@ export class HandDrawingDriver {
       size: () => ({ width: options.canvas.width, height: options.canvas.height }),
       eraser: options.eraser ?? fixedEraserControl(options.canvas, ERASER_RADIUS_PX),
       onPose: options.onPose,
+      r83PinchOnly: options.r83Viewport,
+      mapPoint: options.r83Viewport ? (p) => {
+        const r = options.canvas.getBoundingClientRect();
+        return {x:(p.x*innerWidth-r.left)*options.canvas.width/Math.max(1,r.width), y:(p.y*innerHeight-r.top)*options.canvas.height/Math.max(1,r.height)};
+      } : undefined,
     });
   }
 
@@ -226,6 +235,7 @@ export class HandDrawingDriver {
   private process(hands: Landmark[][] | undefined, nowMs: number): void {
     this.lastFedMs = nowMs;
     const near = hands?.filter((h) => h && isLargeEnough(h));
+    if (this.options.r83Viewport) { this.processR83(near, nowMs); return; }
     const frame = this.pipeline.feedHands(near, nowMs);
     this.apply(frame);
     const hand = cursorHandOf(near);
@@ -236,6 +246,30 @@ export class HandDrawingDriver {
       pinch: frame.pose === "pinch",
       source: "drawing",
     });
+  }
+
+  /** Keep the viewport cursor live outside the sheet, but never draw a pinch started on a UI control. */
+  private processR83(hands: Landmark[][] | undefined, now: number): void {
+    const hand = cursorHandOf(hands);
+    const cursor = hand ? indexTipNormalized(hand) : null;
+    const pose = classifyHandPose(hand, {pinchHeld:this.r83Down});
+    const pinched = pose === "pinch";
+    publishHand({cursor,pose,pinch:pinched,thumbUp:false,source:"drawing"});
+    if (!hand || !cursor) {
+      this.r83Down=false; this.r83Armed=false; this.r83Ink=false;
+      this.apply(this.pipeline.reset(now)); return;
+    }
+    const x=cursor.x*innerWidth, y=cursor.y*innerHeight;
+    const r=this.options.canvas.getBoundingClientRect();
+    const top=document.elementFromPoint?.(x,y);
+    const onSheet=x>=r.left && x<=r.right && y>=r.top && y<=r.bottom && (!top || top===this.options.canvas);
+    if (!pinched) {this.r83Down=false;this.r83Armed=true;this.r83Ink=false;}
+    else if (!this.r83Down) {this.r83Down=true;this.r83Ink=this.r83Armed&&onSheet;this.r83Armed=false;}
+    if (!onSheet) this.r83Ink=false;
+    if (!onSheet || (pinched && !this.r83Ink)) {
+      const frame=this.pipeline.reset(now); this.apply({...frame,status:{kind:"ready"}}); return;
+    }
+    this.apply(this.pipeline.feedHands([hand],now));
   }
 
   /** Reports one frame: status, cursor, and a redraw only when the canvas changed. */

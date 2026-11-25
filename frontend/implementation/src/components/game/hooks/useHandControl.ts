@@ -7,6 +7,7 @@ import type { GameplayHandDriver, GameplayStatus } from "@/src/input/gameplay-ha
 import type { GameplayInput } from "./useGameplayInput";
 import type { GameStageProps, InputMode, StageOutcome, StagePhase } from "../game-stage-types";
 import { publishSteerAngle } from "../steer-reading";
+import { PinchJoystick } from "@/src/input/r83/pinch-joystick";
 
 const PREPARING_CAMERA = "Menyiapkan kamera";
 
@@ -57,6 +58,7 @@ export function useHandControl({
     sendCombinedInput();
     if (!readerWanted) return;
     let cancelled = false;
+    const joystick = new PinchJoystick();
     let driver: GameplayHandDriver | null = null;
     // A fresh start opts in again after an earlier camera revoke (arbiter R5).
     arbiter.dispatch({ type: "camera", status: "ok" });
@@ -96,13 +98,17 @@ export function useHandControl({
           if (cancelled) return;
           // The dial reads the finger angle; no direction (no hand, flat finger) shows as "not read".
           publishSteerAngle(frame.tracked ? frame.angle : null);
+          const playing = latest.current.phase === "gameplay";
+          if (!playing) joystick.reset();
+          const cursor = frame.cursor ? {x:frame.cursor.x*innerWidth,y:frame.cursor.y*innerHeight} : null;
+          const reading = playing ? joystick.feed(cursor,frame.pinched,performance.now()) : frame.input;
           arbiter.dispatch({
             type: "hand-frame",
             frame: {
               tracked: frame.tracked,
               cursor: frame.cursor ? { x: frame.cursor.x, y: frame.cursor.y } : null,
               pinched: frame.pinched,
-              input: frame.input,
+              input: {left:reading.left,right:reading.right,jump:reading.jump},
             },
           });
           if (!frame.tracked) {

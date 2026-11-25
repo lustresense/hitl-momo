@@ -63,6 +63,9 @@ export interface HandPipelineOptions {
   store: StrokeStore;
   /** Canvas size in px, read every frame so resizes apply at once. */
   size(): { width: number; height: number };
+  /** R8.3 student mode, opt-in so NUI lab calibration remains unchanged. */
+  r83PinchOnly?: boolean;
+  mapPoint?(p: {x:number;y:number}): Point;
   /** Eraser radius shared with the surface: the fist, the Hapus tool and the two-hand sizer all use it. */
   eraser: EraserControl;
   onPose?(pose: HandPose, nowMs: number): void;
@@ -390,7 +393,7 @@ export class HandStrokePipeline {
     this.stable = this.vote(raw);
     const fingerCount = this.fingers(lm);
     const actionAllowed = this.options.canPerformAction?.(raw, fingerCount) ?? true;
-    const drawing = raw === "pinch" && actionAllowed;
+    const drawing = raw === "pinch" && actionAllowed && !(this.options.r83PinchOnly && store.eraserMode);
     // With the Hapus tool on, any pose erases under the cursor except the commands: a thumbs-up
     // confirmation, undo or redo must never cut the drawing, and an open palm is no tool at all.
     // Only a full five-finger palm erases, regardless of the old game/tutorial distinction.
@@ -400,8 +403,9 @@ export class HandStrokePipeline {
     const command =
       raw === "thumb-up" || raw === "two-fingers" || raw === "one-finger" || raw === "three-fingers" || raw === "split-palm";
     // An explicit eraser tool may erase on pinch, but a fist is never an erase backdoor.
-    const erasing = actionAllowed && ((isErasePose && !drawing)
-      || (store.eraserMode && !command && raw !== "fist"));
+    const erasing = this.options.r83PinchOnly
+      ? actionAllowed && store.eraserMode && raw === "pinch"
+      : actionAllowed && ((isErasePose && !drawing) || (store.eraserMode && !command && raw !== "fist"));
 
     const ink = this.toCanvas(this.inkSmoother.smooth(indexTipNormalized(lm), nowMs));
     this.lastInk = ink;
@@ -411,7 +415,7 @@ export class HandStrokePipeline {
       if (store.hasActiveStroke()) store.endStroke();
       this.drawVotes = [];
       this.drawStreak = 0;
-      if (isErasePose) {
+      if (isErasePose && !this.options.r83PinchOnly) {
         cursor = this.toCanvas(this.palmSmoother.smooth(palmCenterNormalized(lm), nowMs));
       }
       this.debug.lastEraseHit = store.eraseAt(cursor, this.options.eraser.radiusCanvasPx());
@@ -600,6 +604,7 @@ export class HandStrokePipeline {
   }
 
   private toCanvas(p: { x: number; y: number }): Point {
+    if (this.options.mapPoint) return this.options.mapPoint(p);
     const { width, height } = this.options.size();
     return mapToCanvas(p, width, height);
   }

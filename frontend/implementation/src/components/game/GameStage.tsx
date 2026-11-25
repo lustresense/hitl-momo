@@ -141,7 +141,7 @@ export function GameStage(props: GameStageProps) {
           className={integrated ? styles.canvas : "game-canvas"}
           data-testid="game-canvas"
           aria-label={`Dunia ${characterName} 2D`}
-          {...placement.canvasPointerHandlers}
+          {...(mode === "fallback" ? placement.canvasPointerHandlers : {})}
         />
       </div>
       {error && <p role="alert">{error}</p>}

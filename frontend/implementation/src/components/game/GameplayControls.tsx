@@ -12,7 +12,7 @@ import { Icon, type IconName } from "../ui/Icon";
 import type { TurnDirection } from "@/src/game/runtime/creations";
 import { DirectionButton } from "./DirectionButton";
 import { GuideHelpIcon } from "./ControlGuide";
-import { SteerDial } from "./SteerDial";
+
 import type { DirectionKey, InputMode } from "./game-stage-types";
 import "./gameplay-guide.css";
 
@@ -76,7 +76,7 @@ export function GameplayControls({
   return (
     <div className="stage-floating-controls" data-testid="gameplay-controls" data-input-mode={mode}>
       <div className="gameplay-controls__row">
-        {DIRECTION_BUTTONS.map((button) => (
+        {!camera && DIRECTION_BUTTONS.map((button) => (
           <DirectionButton
             key={button.dir}
             {...button}
@@ -88,7 +88,7 @@ export function GameplayControls({
             onRelease={onRelease}
           />
         ))}
-        {camera && <SteerDial />}
+
       </div>
       <span className="gameplay-controls__sep" aria-hidden="true" />
       {!camera && (

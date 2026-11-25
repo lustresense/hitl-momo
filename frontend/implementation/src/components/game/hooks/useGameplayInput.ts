@@ -67,9 +67,9 @@ export function useGameplayInput({ controllerRef, phase, mode }: UseGameplayInpu
   }
 
   function sendCombinedInput() {
-    const held = [...heldPointers.current.values()];
+    const held = modeRef.current === "fallback" ? [...heldPointers.current.values()] : [];
     for (const dir of DIRECTIONS) {
-      arbiter.dispatch({ type: "key", dir, down: Boolean(keys.current[dir]) });
+      arbiter.dispatch({ type: "key", dir, down: modeRef.current === "fallback" && Boolean(keys.current[dir]) });
       arbiter.dispatch({ type: "button", dir, down: held.includes(dir) });
     }
     arbiter.dispatch({ type: "set-hand-enabled", enabled: modeRef.current === "camera" });
@@ -105,6 +105,7 @@ export function useGameplayInput({ controllerRef, phase, mode }: UseGameplayInpu
   }
 
   function pressPointer(pointerId: number, dir: DirectionKey) {
+    if (modeRef.current !== "fallback") return;
     heldPointers.current.set(pointerId, dir);
     syncActiveDirs();
     sendCombinedInput();
@@ -117,6 +118,7 @@ export function useGameplayInput({ controllerRef, phase, mode }: UseGameplayInpu
   }
 
   function setKey(dir: DirectionKey | undefined, down: boolean) {
+    if (modeRef.current !== "fallback") return;
     if (dir) keys.current[dir] = down;
     syncActiveDirs();
     sendCombinedInput();

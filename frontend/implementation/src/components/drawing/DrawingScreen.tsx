@@ -193,11 +193,12 @@ export function DrawingScreen({
       data-idle-prompt={idlePrompting ? "on" : "off"}
     >
       <DrawingToolbar
-        enabled={phase === "drawing"}
+        enabled={drawingLive}
         erasing={erasing}
         onErasingChange={setErasing}
         onUndo={() => surfaceOut.current?.undo()}
         onRedo={() => surfaceOut.current?.redo()}
+        onClear={() => surfaceOut.current?.wipe()}
         eraserSize={eraserSize}
         onEraserSizeChange={(px) => setEraserSize(surfaceOut.current?.setEraserRadius(px) ?? px)}
       />
@@ -213,6 +214,7 @@ export function DrawingScreen({
             iconOnly
             tone="accent"
             className="nb-iconbtn nui-corner-btn mission-hint-btn"
+            targetMode={drawingLive ? "point" : "any"}
             testId="btn-mission-hint"
             label="Petunjuk Misi"
             title="Petunjuk misi"
@@ -227,7 +229,8 @@ export function DrawingScreen({
           iconOnly
           dwellMs={1800}
           className="nb-iconbtn nui-corner-btn drawing-exit"
-          label="Keluar Bab"
+          targetMode={drawingLive ? "point" : "any"}
+          label="Keluar Level"
           title="Keluar level"
           disabled={missionOpen}
           onActivate={onExit}

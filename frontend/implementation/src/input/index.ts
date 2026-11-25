@@ -6,6 +6,7 @@ import { HandStrokePipeline, type HandCursor, type HandFrame } from "./hand-stro
 import { ERASER_RADIUS_PX, ERASER_SIZE_STEP_PX, clampEraserRadius, eraserRadiusCanvasPx, type EraserControl } from "./eraser";
 import { mapToCanvas, type HandPose } from "./hand-gesture";
 import { PointSmoother } from "./smoothing";
+import { getInputMode, reportTrackerFailed } from "./input-mode";
 import { DRAWING_MODE_EVENT, HAND_STATUS_EVENT, messageFor } from "../camera/messages";
 
 // N1 public API for the screens: finger count, stable vote, and the single gesture router.
@@ -29,6 +30,8 @@ export interface DrawingSurfaceOptions {
    * do not change it. Off by default: the level canvas keeps the resizable eraser.
    */
   fixedEraser?: boolean;
+  /** Student R8.3 canvas: viewport-aligned pinch and camera-exclusive input. */
+  r83Viewport?: boolean;
 }
 
 /**
@@ -52,6 +55,7 @@ class GatedStrokeStore extends StrokeStore {
   override eraseAt(p: StrokePoint, radius: number): boolean {
     return this.inkOpen() && super.eraseAt(p, radius);
   }
+  override wipe(): boolean { return this.inkOpen() && super.wipe(); }
   override undo(): boolean {
     return this.inkOpen() && super.undo();
   }
@@ -94,7 +98,7 @@ export class DrawingSurface {
    * point to the hand's stroke or end it on release. The pointer driver stays attached in hand mode for this.
    */
   private readonly guardPointer = (e: Event) => {
-    if (this.handPinching) {
+    if (this.handPinching || (this.options.r83Viewport && getInputMode() === "camera")) {
       e.stopImmediatePropagation();
       return;
     }
@@ -105,6 +109,7 @@ export class DrawingSurface {
   /** Mouse wheel over the canvas sizes the eraser while the Hapus tool is on; otherwise the page scrolls. */
   private readonly onWheel = (e: WheelEvent) => {
     // A fixed eraser leaves the wheel to the page: nothing to size, so no scroll is taken over.
+    if (this.options.r83Viewport && getInputMode() === "camera") return;
     if (!this.store.eraserMode || this.options.fixedEraser || e.deltaY === 0) return;
     e.preventDefault();
     this.nudgeEraser(e.deltaY < 0 ? ERASER_SIZE_STEP_PX : -ERASER_SIZE_STEP_PX);
@@ -112,6 +117,7 @@ export class DrawingSurface {
 
   /** `[` and `]` size the eraser while the Hapus tool is on, unless the student is typing or using a shortcut. */
   private readonly onKey = (e: KeyboardEvent) => {
+    if (this.options.r83Viewport && getInputMode() === "camera") return;
     if (!this.store.eraserMode || this.options.fixedEraser || e.ctrlKey || e.metaKey || e.altKey || isTypingTarget(e.target)) return;
     const step = e.key === "[" ? -ERASER_SIZE_STEP_PX : e.key === "]" ? ERASER_SIZE_STEP_PX : 0;
     if (step === 0) return;
@@ -154,6 +160,7 @@ export class DrawingSurface {
           video: this.video,
           store: this.store,
           modelUrl: this.options.modelUrl ?? "/models/hand_landmarker.task",
+          r83Viewport: this.options.r83Viewport,
           onStatus: (s) => {
             this.updateHandCursorFromStatus(s);
             this.publishStatus(s);
@@ -226,6 +233,7 @@ export class DrawingSurface {
     this.handDriver = null;
     try { await d?.stop(); } catch { /* best-effort */ }
     this.cursor = null;
+    if (this.options.r83Viewport) reportTrackerFailed();
     this.setHandPinching(false);
     this.attachPointer();
     this.render();
@@ -386,6 +394,11 @@ export class DrawingSurface {
 
   isEmpty(): boolean {
     return !this.store.hasInk();
+  }
+
+  wipe(): boolean {
+    const changed = this.store.wipe();
+    this.render(); this.reportInkChange(); return changed;
   }
 
   clear(): void {

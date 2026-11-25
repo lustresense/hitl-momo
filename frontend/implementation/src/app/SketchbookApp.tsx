@@ -133,10 +133,12 @@ export function SketchbookApp() {
   /** R9: Level 3 won -> the closing replaces the usual return to the level list. */
   const wonFinalRef = useRef(false);
   const [endingOpen, setEndingOpen] = useState(false);
+  useEffect(()=>{const sync=()=>setEndingOpen(window.location.pathname==="/p6-penutup");sync();window.addEventListener("popstate",sync);return()=>window.removeEventListener("popstate",sync);},[]);
   const leaveLevel = useCallback(() => {
     session.exitToLevels();
     if (wonFinalRef.current) {
       wonFinalRef.current = false;
+      window.history.replaceState(null,"","/p6-penutup");
       setEndingOpen(true);
     }
   }, [session]);
@@ -238,7 +240,7 @@ export function SketchbookApp() {
         }
         style={{ "--handoff-delay": `${handoff.delayMs}ms`, "--handoff-leave": `${handoff.leaveMs}ms` } as CSSProperties}
       >
-      {!isCameraCover && (
+      {!isCameraCover && !endingOpen && (
         <>
           {onboarding === "number" && (
             <StudentRulerSelector classStatus={classStatus} onConfirm={(selectedNumber) => void confirmStudentNumber(selectedNumber)} />

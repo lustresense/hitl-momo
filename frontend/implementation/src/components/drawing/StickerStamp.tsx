@@ -11,10 +11,10 @@ import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import type { DrawingInput, ObjectBehavior } from "@/src/domain/types";
 import { generateSketchDataUri } from "@/src/game/sketch-renderer";
-import { MODE_CANVAS_STAMP_READY, actionFor } from "@/src/input/gesture-mode";
 import type { HandPose } from "@/src/input/hand-gesture";
-import { Icon } from "../ui/Icon";
-import { FingerGlyph, GestureRing } from "../ui/GestureRing";
+import { ThumbConfirm } from "../ui/ThumbConfirm";
+import { useInputMode } from "../../hooks/useHandGesture";
+import { useR83Flick } from "../../hooks/useR83Flick";
 import "./StickerStamp.css";
 
 /** A held pose (or press) that throws the sticker or sends the student back to drawing. */
@@ -26,7 +26,7 @@ const THROW_TRAVEL = 0.6;
 
 /** Momo's line while the sticker waits on the canvas. */
 export function stampMomoLine(label: string): string {
-  return `${label} sudah jadi stiker! Tahan jempol kalau mau dilempar ke dunia, atau telapak terbuka kalau mau gambar lagi.`;
+  return `${label} sudah jadi stiker! Cubit, lalu **sentil ke atas** buat melemparnya ke dunia. Kalau mau ulang, dekatkan tangan ke **Gambar lagi** dan tahan.`;
 }
 
 export interface StickerStampProps {
@@ -48,15 +48,14 @@ function prefersReducedMotion(): boolean {
     : false;
 }
 
-export function StickerStamp({ label, behavior, drawingInput, pose, onThrow, onRedraw }: StickerStampProps) {
+export function StickerStamp({ label, behavior, drawingInput, onThrow, onRedraw }: StickerStampProps) {
   const sheetRef = useRef<HTMLDivElement>(null);
   const [throwing, setThrowing] = useState(false);
   const onThrowRef = useRef(onThrow);
   onThrowRef.current = onThrow;
 
-  const action = actionFor(MODE_CANVAS_STAMP_READY, pose);
-  const throwActive = action === "throw";
-  const redrawActive = action === "redraw";
+  const mode=useInputMode();
+  useR83Flick(mode==="camera"&&!throwing,()=>setThrowing(true));
 
   // REV-09: Animasi transisi pembentukan stiker (stempel jatuh, pop & tilt)
   useEffect(() => {
@@ -65,8 +64,8 @@ export function StickerStamp({ label, behavior, drawingInput, pose, onThrow, onR
       if (!reduce) {
         gsap.fromTo(
           sheetRef.current,
-          { scale: 1.28, y: -45, opacity: 0, rotation: -4 },
-          { scale: 1, y: 0, opacity: 1, rotation: -1.5, duration: 0.65, ease: "back.out(1.8)" }
+          { scale: .3, y: 0, opacity: 0, rotation: -14 },
+          { scale: 1, y: 0, opacity: 1, rotation: 0, duration: .7, ease: "back.out(1.7)" }
         );
       } else {
         gsap.set(sheetRef.current, { rotation: -1.5 });
@@ -95,7 +94,7 @@ export function StickerStamp({ label, behavior, drawingInput, pose, onThrow, onR
     };
   }, [throwing]);
 
-  const src = generateSketchDataUri(drawingInput, { width: 380, height: 240, behavior, label, pixelScale: 3 });
+  const src = generateSketchDataUri(drawingInput, { width: 380, height: 240, behavior, label, pixelScale: 3, frame: "none" });
 
   return (
     <div className="sticker-stamp" data-testid="sticker-stamp" data-state={throwing ? "throwing" : "ready"}>
@@ -109,24 +108,8 @@ export function StickerStamp({ label, behavior, drawingInput, pose, onThrow, onR
       </div>
       {!throwing && (
         <div className="sticker-stamp__actions">
-          <GestureRing
-            testId="btn-redraw-sticker"
-            className="sticker-stamp__redraw"
-            label="Gambar lagi"
-            active={redrawActive}
-            holdMs={STAMP_HOLD_MS}
-            onConfirm={onRedraw}
-            icon={<FingerGlyph count={5} size={28} />}
-          />
-          <GestureRing
-            testId="btn-throw-sticker"
-            className="sticker-stamp__throw"
-            label="Lempar"
-            active={throwActive}
-            holdMs={STAMP_HOLD_MS}
-            onConfirm={() => setThrowing(true)}
-            icon={<Icon name="thumb-up" size={28} />}
-          />
+          <ThumbConfirm testId="btn-throw-sticker" className="sticker-stamp__throw" label="Lempar" holdMs={STAMP_HOLD_MS} onConfirm={()=>setThrowing(true)}/>
+          <ThumbConfirm testId="btn-redraw-sticker" className="sticker-stamp__redraw" label="Gambar lagi" holdMs={STAMP_HOLD_MS} onConfirm={onRedraw}/>
         </div>
       )}
     </div>

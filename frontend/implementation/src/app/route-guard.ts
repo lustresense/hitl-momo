@@ -7,6 +7,7 @@ export type AppRouteResolution =
   | { kind: "levels"; notice: string | null }
   | { kind: "tutorial" }
   | { kind: "number" }
+  | { kind: "ending" }
   | { kind: "camera" };
 
 const LOCKED_LEVEL_NOTICE = "Bab ini masih terkunci. Selesaikan bab sebelumnya dulu ya.";
@@ -48,8 +49,9 @@ export function resolveAppRoute(path: string, isLevelUnlocked: (stage: number) =
     if (!isLevelUnlocked(stage)) return { kind: "levels", notice: LOCKED_LEVEL_NOTICE };
     return { kind: "canvas", level };
   }
-  if (path === "/levels") return { kind: "levels", notice: null };
-  if (path === "/onboarding/card") return { kind: "tutorial" };
+  if (path === "/p6-penutup") return {kind:"ending"};
+  if (path === "/levels" || path === "/p3-pilih-bab") return { kind: "levels", notice: null };
+  if (path === "/onboarding/card" || path === "/p2-kartu") return { kind: "tutorial" };
   if (path === "/onboarding/number") return { kind: "number" };
   return { kind: "camera" };
 }

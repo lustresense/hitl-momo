@@ -470,7 +470,7 @@ export class DrawingSurface {
       ctx.stroke();
     }
 
-    if (this.cursor) {
+    if (this.cursor && !(this.options.r83Viewport && getInputMode() === "camera")) {
       const { x, y, state } = this.cursor;
       const cssW = this.canvas.clientWidth || (this.canvas.width / (window.devicePixelRatio || 1)) || this.canvas.width;
       const scale = this.canvas.width / (cssW || 1);

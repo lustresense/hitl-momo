@@ -100,6 +100,8 @@ export function useRouteSync(route: RouteState, session: LevelSession, view: Lev
       } else if (resolved.kind === "number") {
         setRouteNotice(null);
         setOnboarding("number");
+      } else if (resolved.kind === "ending") {
+        setOnboarding("levels");
       } else if (resolved.kind === "tutorial") {
         setOnboarding("tutorial");
       } else {

@@ -18,6 +18,8 @@ import "../ui/nui-actions.css";
 import { ERASER_RADIUS_PX } from "@/src/input/eraser";
 import { MomoGuessChat } from "../prediction/MomoGuessChat";
 import { DrawingActions } from "./DrawingActions";
+import { R83CanvasCursor } from "./R83CanvasCursor";
+import "./r83-cursor.css";
 import { DrawingToolbar } from "./DrawingToolbar";
 import { useDrawingSurface } from "./hooks/useDrawingSurface";
 import { useHandGesture, useInputMode } from "@/src/hooks/useHandGesture";
@@ -324,6 +326,7 @@ export function DrawingScreen({
         aria-label="Kanvas menggambar"
         data-testid="draw-canvas"
       />
+      <R83CanvasCursor enabled={drawingLive} erasing={erasing} radius={eraserSize}/>
       {stamp && (
         <StickerStamp
           label={stamp.label}

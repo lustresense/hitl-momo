@@ -1,0 +1,4 @@
+/* R8.3 shared/hand.css, nearest ribbon highlight. */
+.bm-ribbon.r83-ribbon-lit .bm-badge{background:var(--nb-orange,#ef7a37);color:var(--nb-ink,#1d1d1b);transform:scale(1.15)}
+.bm-ribbon.r83-ribbon-lit .bm-notches{opacity:1}
+.bm-ribbon.r83-ribbon-lit .bm-name{text-decoration:underline 3px var(--nb-orange,#ef7a37);text-underline-offset:4px}

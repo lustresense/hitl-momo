@@ -17,12 +17,10 @@ import type { LevelDefinition } from "@/src/domain/levels";
 import { consumeFreshUnlock, isStageCompleted, nextStageToPlay } from "@/src/app/level-progress";
 import { useHandReaderLive } from "@/src/hooks/useHandCursor";
 import { useHandGesture, useInputMode } from "@/src/hooks/useHandGesture";
-import { MODE_LEVEL_SELECT, actionFor } from "@/src/input/gesture-mode";
 import type { HandPose } from "@/src/input/hand-gesture";
-import { FingerGlyph, GestureRing } from "../ui/GestureRing";
 import { Icon } from "../ui/Icon";
-import { ThumbConfirm } from "../ui/ThumbConfirm";
-import { usePageThumb } from "./use-page-thumb";
+import { useRibbonPinch } from "./useRibbonPinch";
+import "./r83-ribbon.css";
 import "./level-nui.css";
 
 export interface LevelRibbonBookmarkProps {
@@ -43,9 +41,9 @@ const TAIL = 44;
 const SHADOW = 7;
 /** Offset of each ribbon's shadow; the ribbon's svg is this much wider than the ribbon. */
 export const RIBBON_SHADOW = SHADOW;
-/** Narrowest ribbon that keeps the longest label readable: "Lorong Kabut Penghapus" (Bab 3), longest word "Penghapus". Not measured in a browser. */
+/** Narrowest ribbon that keeps the longest label readable: "Lorong Kabut Penghapus" (Level 3), longest word "Penghapus". Not measured in a browser. */
 export const MIN_RIBBON_W = 84;
-/** Width of the "Mulai Bab n" thumb pill under the next ribbon (ThumbConfirm, 14px text). It can be wider than a ribbon. */
+/** Width of the "Mulai Level n" thumb pill under the next ribbon (ThumbConfirm, 14px text). It can be wider than a ribbon. */
 export const THUMB_PILL_W = 124;
 /** Below this ribbon width the CSS inset of the label (36px) leaves too little room, so the label gets 8px. */
 const NARROW_RIBBON_W = 120;
@@ -85,7 +83,7 @@ export function shelfLayout(count: number, viewportWidth: number, viewportHeight
   };
   const perRow = widestInRow(count) >= MIN_RIBBON_W ? count : Math.min(count, 2);
   const rows = Math.ceil(count / perRow);
-  const h = Math.round(rows > 1 ? clamp(viewportHeight * 0.42, 250, 330) : clamp(viewportHeight * 0.58, 290, 470));
+  const h = Math.round(rows > 1 ? clamp(viewportHeight * 0.42, 250, 330) : Math.max(250, Math.min(clamp(viewportHeight * 0.58, 290, 470), viewportHeight - 450)));
   const w = Math.round(Math.min(184, h * 0.4, widestInRow(perRow)));
   return { w, h, perRow };
 }
@@ -230,24 +228,18 @@ function Bookmark({ level, state, isNext, dims, unlocking, paused, camera, pose,
     });
   }, [launch, onNotch, paint, restLength]);
 
-  const begin = (event: React.PointerEvent<HTMLButtonElement>) => {
-    if (event.pointerType === "mouse" && event.button !== 0) return;
+  const beginPull = (y:number,id:number) => {
     if (busy.current || drag.current) return;
     gsap.killTweensOf(lenState.current);
-    drag.current = { startY: event.clientY, raw: 0, id: event.pointerId, notch: 0, armed: false };
+    drag.current = { startY: y, raw: 0, id, notch: 0, armed: false };
     suppressClick.current = false;
-    try {
-      event.currentTarget.setPointerCapture?.(event.pointerId);
-    } catch {
-      /* capture may be refused */
-    }
     btnRef.current?.classList.add("is-pulling");
   };
 
-  const move = (event: React.PointerEvent<HTMLButtonElement>) => {
+  const movePull = (y:number,id:number) => {
     const d = drag.current;
-    if (!d || d.id !== event.pointerId) return;
-    d.raw = Math.max(0, event.clientY - d.startY);
+    if (!d || d.id !== id) return;
+    d.raw = Math.max(0, y - d.startY);
     if (d.raw > 4) suppressClick.current = true;
     const pull = locked
       ? Math.min(d.raw * LOCK_RESIST, LOCK_MAX)
@@ -272,17 +264,12 @@ function Bookmark({ level, state, isNext, dims, unlocking, paused, camera, pose,
     }
   };
 
-  const end = (event: React.PointerEvent<HTMLButtonElement>, cancelled: boolean) => {
+  const endPull = (id:number,cancelled:boolean) => {
     const d = drag.current;
-    if (!d || d.id !== event.pointerId) return;
+    if (!d || d.id !== id) return;
     drag.current = null;
     btnRef.current?.classList.remove("is-pulling", "is-armed");
     if (btnRef.current) delete btnRef.current.dataset.notch;
-    try {
-      event.currentTarget.releasePointerCapture?.(event.pointerId);
-    } catch {
-      /* already released */
-    }
     const len = lenState.current;
     if (locked) {
       gsap.to(len, { length: restLength, duration: 0.5, ease: "elastic.out(1, 0.5)", onUpdate: () => paint(len.length) });
@@ -297,6 +284,7 @@ function Bookmark({ level, state, isNext, dims, unlocking, paused, camera, pose,
   };
 
   const click = () => {
+    if (camera || paused) return;
     if (suppressClick.current) {
       suppressClick.current = false;
       return;
@@ -309,34 +297,17 @@ function Bookmark({ level, state, isNext, dims, unlocking, paused, camera, pose,
     autoPull();
   };
 
-  // The finger ring of this bab: 1, 2 or 3 fingers, read through the one router. A locked bab's ring never fills.
-  const fingers: 1 | 2 | 3 | undefined = FINGERS_FOR_STAGE[level.stage];
-  const pickActive = fingers !== undefined && !paused && actionFor(MODE_LEVEL_SELECT, pose) === `level-${level.stage}`;
-  // The next ribbon's 2 s thumb follows a page reader's thumbs-up when one is live, else the shared tracker.
-  const pageThumb = usePageThumb();
+  useRibbonPinch(btnRef,camera&&!paused,{begin:beginPull,move:movePull,end:endPull});
+  const begin=(e:React.PointerEvent<HTMLButtonElement>)=>{if(camera||paused||e.button!==0)return;beginPull(e.clientY,e.pointerId);try{e.currentTarget.setPointerCapture(e.pointerId)}catch{}};
+  const move=(e:React.PointerEvent<HTMLButtonElement>)=>{if(!camera&&!paused)movePull(e.clientY,e.pointerId);};
+  const end=(e:React.PointerEvent<HTMLButtonElement>,cancelled:boolean)=>{endPull(e.pointerId,cancelled);try{e.currentTarget.releasePointerCapture(e.pointerId)}catch{}};
 
   const name = stageName(level);
-  const label = `Bab ${level.stage}, ${name}${locked ? ", terkunci" : state === "done" ? ", sudah selesai" : ""}`;
+  const label = `Level ${level.stage}, ${name}${locked ? ", terkunci" : state === "done" ? ", sudah selesai" : ""}`;
 
   return (
     <div ref={slotRef} className={`bm-slot bm-${state}${isNext ? " is-next" : ""}${unlocking ? " is-unlocking" : ""}`} data-stage={level.stage}>
       <span className="bm-ring-clip" aria-hidden="true" />
-      {camera && fingers !== undefined && (
-        <div className="bm-pick bm-pick--top">
-          <GestureRing
-            active={pickActive}
-            holdMs={BAB_RING_HOLD_MS}
-            onConfirm={autoPull}
-            label={locked ? `Bab ${level.stage} terkunci` : `Pilih Bab ${level.stage}`}
-            icon={<FingerGlyph count={fingers} size={26} />}
-            locked={locked}
-            disabled={paused}
-            testId={`level-pick-${level.stage}`}
-          >
-            {locked ? (level.stage > 1 ? `Selesaikan Bab ${level.stage - 1} dulu` : "Belum bisa dipilih") : HOLD_TEXT[fingers]}
-          </GestureRing>
-        </div>
-      )}
       <button
         ref={btnRef}
         type="button"
@@ -354,7 +325,7 @@ function Bookmark({ level, state, isNext, dims, unlocking, paused, camera, pose,
         onPointerCancel={(e) => end(e, true)}
         onClick={click}
         onKeyDown={(event) => {
-          if (event.key !== "Enter" && event.key !== " ") return;
+          if (camera || paused || (event.key !== "Enter" && event.key !== " ")) return;
           event.preventDefault();
           if (locked) onLockedTug(level);
           else autoPull();
@@ -367,7 +338,7 @@ function Bookmark({ level, state, isNext, dims, unlocking, paused, camera, pose,
           <path className="bm-stitch" d={stitchPath(dims.w, restLength)} />
         </svg>
         <span className="bm-content">
-          <span className="bm-tag">Bab</span>
+          <span className="bm-tag">Level</span>
           <span className="bm-number">{level.stage}</span>
           <span className="bm-name" style={dims.w < NARROW_RIBBON_W ? { maxWidth: dims.w - 8 } : undefined}>
             {name}
@@ -377,7 +348,7 @@ function Bookmark({ level, state, isNext, dims, unlocking, paused, camera, pose,
           </span>
         </span>
         <span className="bm-ring" aria-hidden="true">
-          {camera && fingers !== undefined ? <FingerGlyph count={fingers} size={20} /> : <Icon name="arrow-down" size={20} stroke={3.2} />}
+          <Icon name="pull-down" size={20} stroke={2.6} />
         </span>
         <span className="bm-notches" aria-hidden="true">
           {Array.from({ length: NOTCHES_TO_ARM }, (_, i) => (
@@ -387,17 +358,6 @@ function Bookmark({ level, state, isNext, dims, unlocking, paused, camera, pose,
         </span>
       </button>
 
-      {isNext && (
-        <ThumbConfirm
-          holdMs={2000}
-          onConfirm={launch}
-          label={`Mulai Bab ${level.stage}`}
-          className="bm-thumb"
-          testId={`level-thumb-${level.stage}`}
-          disabled={paused}
-          externalThumbUp={pageThumb}
-        />
-      )}
     </div>
   );
 }
@@ -445,7 +405,7 @@ export function LevelRibbonBookmark({ levels, onSelectLevel, isLevelUnlocked, pa
   }, []);
 
   const onLockedTug = useCallback((level: LevelDefinition) => {
-    setStatus(`Selesaikan Bab ${level.stage - 1} dulu`);
+    setStatus(`Selesaikan Level ${level.stage - 1} dulu`);
   }, []);
 
   useEffect(() => {
@@ -455,7 +415,7 @@ export function LevelRibbonBookmark({ levels, onSelectLevel, isLevelUnlocked, pa
   }, [status]);
 
   return (
-    <section className="level-ribbon-page bm-page" aria-label="Pilih bab cerita">
+    <section className="level-ribbon-page bm-page" aria-label="Pilih level cerita">
       <div className="bm-brand">
         <span className="bm-brand__mark" aria-hidden="true" />
         Sketchbook Universe
@@ -493,7 +453,7 @@ export function LevelRibbonBookmark({ levels, onSelectLevel, isLevelUnlocked, pa
       <div className="bm-foot">
         <h2 className="bm-title">
           <Icon name={allDone ? "star" : "pull-down"} size={26} stroke={2.8} fill={allDone ? "currentColor" : "none"} />
-          {allDone ? "Semua bab selesai" : "Pilih bab"}
+          {allDone ? "Semua level selesai" : "Pilih level"}
         </h2>
         <div className="bm-status" role="status" aria-live="polite">
           {status && (

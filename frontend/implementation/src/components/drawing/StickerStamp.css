@@ -1,90 +1,9 @@
-/* StickerStamp (S1, REVISI §18A): the decided drawing as a paper sticker over the sky canvas. The sticker is centred
-   by its place wrapper; gsap owns the transform of the sheet, so the sheet carries none in CSS. Colours are the NUI
-   tokens with fallbacks; the label is 4.5:1 or better on the paper face. */
-.sticker-stamp {
-  position: absolute;
-  inset: 0;
-  z-index: 90;
-  pointer-events: none;
-}
-
-.sticker-stamp__place {
-  position: absolute;
-  left: 50%;
-  top: 42%;
-  width: min(380px, 72vw);
-  transform: translate(-50%, -50%);
-}
-
-.sticker-stamp__sheet {
-  position: relative;
-  padding: 18px 14px 12px;
-  background: #fffdf6;
-  border: 4px solid #ffffff;
-  outline: var(--nb-border, 2.5px) solid var(--nb-ink, #111111);
-  border-radius: 12px;
-  box-shadow: 0 0 0 2px var(--nb-ink, #111111), 5px 7px 0 rgba(17, 17, 17, 0.22);
-  transform-origin: 50% 50%;
-  will-change: transform;
-}
-
-/* The strip of tape across the top edge, as on the enter popup. */
-.sticker-stamp__tape {
-  position: absolute;
-  top: -12px;
-  left: 50%;
-  width: 96px;
-  height: 22px;
-  transform: translateX(-50%) rotate(-3deg);
-  background: rgba(240, 212, 135, 0.9);
-  border: 1px solid rgba(17, 17, 17, 0.25);
-}
-
-.sticker-stamp__art {
-  display: block;
-  width: 100%;
-  height: auto;
-  aspect-ratio: 380 / 240;
-  object-fit: contain;
-}
-
-.sticker-stamp__label {
-  margin: 8px 0 0;
-  text-align: center;
-  font-weight: 800;
-  font-size: 18px;
-  line-height: 1.2;
-  color: var(--nb-ink, #111111);
-}
-
-/* REV-10: Ring konfirmasi Lempar terpusat di bawah kanvas */
-.sticker-stamp__actions {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: 24px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 20px;
-  pointer-events: auto;
-}
-
-.sticker-stamp__redraw { width: 220px; flex: 0 0 auto; }
-.sticker-stamp__throw { width: 260px; flex: 0 0 auto; }
-
-@media (max-width: 640px) {
-  .sticker-stamp__actions {
-    left: 16px;
-    right: 16px;
-    bottom: 176px;
-    flex-direction: column;
-    align-items: stretch;
-  }
-  .sticker-stamp__redraw,
-  .sticker-stamp__throw { width: 100%; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sticker-stamp__sheet { will-change: auto; }
-}
+/* R8.3 shared/level/level.css: sticker proportions and ring stack. */
+.sticker-stamp{position:absolute;inset:0;z-index:90;pointer-events:none}
+.sticker-stamp__place{position:absolute;left:calc(50% + 18vw);top:46%;width:min(46vh,38vw,440px);aspect-ratio:1.25;transform:translate(-50%,-50%)}
+.sticker-stamp__sheet{position:absolute;inset:0;background:#fffaf0;border:4px solid var(--nb-ink);border-radius:18px;box-shadow:8px 8px 0 var(--nb-ink)}
+.sticker-stamp__tape{position:absolute;left:50%;top:-16px;width:96px;height:30px;margin-left:-48px;background:rgba(240,212,135,.92);border:2.5px solid var(--nb-ink);transform:rotate(-3deg)}
+.sticker-stamp__art{position:absolute;left:12%;top:14%;width:76%;height:62%;object-fit:contain;display:block}
+.sticker-stamp__label{position:absolute;left:0;right:0;bottom:12px;margin:0;text-align:center;font-weight:900;font-size:clamp(20px,2.2vw,30px);letter-spacing:-.02em}
+.sticker-stamp__actions{position:absolute;left:min(88%,calc(50% + 18vw + min(23vh,19vw,220px) + 90px));top:46%;transform:translate(-50%,-50%);display:flex;flex-direction:column;gap:14px;align-items:center;pointer-events:auto}
+@media(max-width:640px){.sticker-stamp__place{left:60%;width:min(42vh,60vw,440px)}.sticker-stamp__actions{left:80%;top:76%;flex-direction:row}}

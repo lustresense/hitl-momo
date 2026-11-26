@@ -1,5 +1,16 @@
 # REVISIONS — daftar revisi Owner dan progresnya
 
+## R-R83 — 2026-11-26 — Migrasi UI r8.3 · Versi: 0.32.1-alpha
+| ID | Pekerjaan | Status | Bukti / next step |
+|---|---|---|---|
+| R-R83-01 | UI r8.3 jadi tampilan bawaan, nama panggilan tanpa penggaris | SELESAI | D-20261126-01 |
+| R-R83-02 | "Lewati" per adegan seperti sandbox + Alt+Q; hasil tidak disimpan | SELESAI | D-20261126-02 |
+| R-R83-03 | Saklar tampil/sembunyi (admin, skrip, panduan) | SELESAI; klik halaman admin NOT_TESTED | `docs/SKIP_BUTTON.md`; sisi Dias perlu review |
+| R-R83-04 | Revisi lanjutan Owner (Momo, Thinman HD, taruh benda, kontrol, ring ending) | DICATAT, belum dikerjakan | dikumpulkan di luar repo |
+| R-R83-05 | Uji webcam dan gestur fisik | NOT_TESTED | wajib sebelum uji siswa |
+
+Bukti gabungan (kode di `64248dc`): tsc 0 error; lint 0 warning; unit tanpa kegagalan baru (38 kegagalan bawaan main; satu tes tampilan lama tidak stabil saat jalan paralel); tes backend 21/21; E2E r83-flow 42/42 (sebelum Alt+Q); telusur penuh hanya dengan Alt+Q sampai ending; cek data skip vs manual dengan model asli. Webcam fisik, klik halaman admin, dan E2E tampilan lama: NOT_TESTED.
+
 ## R17-NUI — 2026-11-17 — REV4 NUI Lab lima/tiga jari, pinch, swipe, R&D (0.24.0-alpha, UNIT + DATASET)
 | ID | Pekerjaan | Status | Bukti / next step |
 |---|---|---|---|

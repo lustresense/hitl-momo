@@ -1,5 +1,17 @@
 # Run guide
 
+## UI r8.3 (0.32.0-alpha)
+```bash
+# backend, dari folder backend/ (CORS_ORIGINS harus memuat alamat game)
+CORS_ORIGINS=http://localhost:3000,http://localhost:3002 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
+# game, dari frontend/implementation
+npm run build:local      # partner mode, API 127.0.0.1:8000, alat dev aktif; sajikan ./out di :3000
+npm run build            # build biasa: tampilan r8.3, tombol Lewati mengikuti saklar
+```
+- E2E r8.3: `node e2e/r83/r83-flow.mjs` (build dengan `NEXT_PUBLIC_UI_R83=1 NEXT_PUBLIC_TEST_HOOKS=1 NEXT_PUBLIC_DEV_TOOLS=1 NEXT_PUBLIC_SKIP_BUTTON=0 NEXT_PUBLIC_PREDICTION_MODE=mock`).
+- E2E tampilan lama (bagian di bawah) sekarang harus di-build dengan `NEXT_PUBLIC_UI_R83=0`.
+- Saklar tombol Lewati: `docs/SKIP_BUTTON.md` di folder utama repo.
+
 Requirements: Node ≥ 20 (frontend Dockerfile saat ini menggunakan node:20-alpine), a Chromium for E2E (`CHROMIUM_PATH`, or `/opt/pw-browsers/chromium`), ffmpeg compatible with playwright-core only if you want video.
 
 ```bash

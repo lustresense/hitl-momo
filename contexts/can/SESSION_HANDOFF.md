@@ -1,3 +1,11 @@
+# CAN Agent Session Checkpoint — 2026-11-26
+
+- Di-push ke `main` 2026-11-26 atas perintah Owner, versi `0.32.1-alpha` (commit game `64248dc`). `main` sebelum migrasi tersimpan di branch `backup/main-sebelum-r83`.
+- Commit lokal `c8a9cfb`, `f115612`, dan `9b6b0f2` ternyata memiliki tree rusak (entri folder ganda, file admin dan kontrak hilang dari commit; file di disk utuh). Commit itu tidak di-push; riwayat disusun ulang dari index dan dicocokkan dengan disk. Sebelum push, periksa isi commit, bukan hanya `git status`.
+- Keputusan baru: D-20261126-01 (tampilan r8.3) dan D-20261126-02 (Lewati).
+- Bukti: tsc 0 error; lint 0 warning; unit tanpa kegagalan baru (38 kegagalan bawaan main; satu tes tampilan lama tidak stabil saat jalan paralel); tes backend 21/21; E2E r83-flow 42/42 (sebelum Alt+Q); telusur penuh hanya dengan Alt+Q sampai ending; cek data skip vs manual dengan model asli. Webcam fisik, klik halaman admin, dan E2E tampilan lama: NOT_TESTED.
+- Masih terbuka: revisi Owner yang sedang dikumpulkan, review Dias untuk perubahan backend, backup database sebelum deploy, uji webcam.
+
 # CAN Agent Session Checkpoint — 2026-11-19
 
 This is a short portable handoff for switching Codex, Claude Code and Antigravity accounts. It is **not** a decision log. Always read root `AGENTS.md` and `contexts/can/AGENTS.md`, then check `git branch --show-current`, `git rev-parse HEAD` and `git status --short` before using this snapshot.

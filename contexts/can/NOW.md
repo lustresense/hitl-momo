@@ -1,5 +1,12 @@
 # NOW.md — Status integrasi bersama
 
+## 2026-11-26 — Migrasi UI r8.3 (0.32.1-alpha, di-push ke `main` 2026-11-26)
+- Tampilan bawaan: r8.3 (nama panggilan, tanpa penggaris). "Lewati" mengikuti sandbox, Alt+Q, saklar admin/skrip.
+- `origin/main` 0.30.3-alpha sudah digabung. Kode terakhir `64248dc`.
+- Bukti: tsc 0 error; lint 0 warning; unit tanpa kegagalan baru (38 kegagalan bawaan main; satu tes tampilan lama tidak stabil saat jalan paralel); tes backend 21/21; E2E r83-flow 42/42 (sebelum Alt+Q); telusur penuh hanya dengan Alt+Q sampai ending; cek data skip vs manual dengan model asli. Webcam fisik, klik halaman admin, dan E2E tampilan lama: NOT_TESTED.
+- Masalah yang diketahui: siswa yang membuka tab baru tercatat sebagai siswa baru (kelas bisa "penuh"); join bernomor dengan `client_id` yang sama membalas HTTP 500 (hanya bisa terjadi dari tampilan lama atau klien API, tampilan r8.3 tidak mengirim nomor).
+- Berikutnya: revisi Owner yang sedang dikumpulkan, review Dias, uji webcam.
+
 ## 2026-11-19 — NUI Lab Persistent Benchmark Recorder + R20 C4/C7 CPU Worker Integration (0.27.0-alpha, UNIT 210/210, E2E PASS, BUILD 24/24, WEBCAM NOT_TESTED)
 - **Upgrade Recorder (`/nui-lab*`):** Ekstensi kompatibel `lab-recorder.ts` (`src/components/nui-lab/bench/`) dengan gerbang consent numerik eksplisit, IndexedDB + batched `ChunkWriter`, perekaman otomatis multi-trial lintas `/nui-lab`, `/nui-lab/gesture`, `/nui-lab/canvas`, dan `/nui-lab/diagnostics`, recovery `interrupted` saat reload/crash, peringatan kuota + counter `droppedRecords`/`storageFailures`, pemisahan label `pointer` vs `gesture`, label GT manual (`UNLABELLED` default), dashboard perbandingan terpisah per konfigurasi, serta ekspor 1 klik JSON (`nui-lab-bench-export/1`) + CSV & hapus data lokal di browser. Zero gambar/video/audio/identitas/upload.
 - **Engine NUI Lab (CPU-only & Fail-Closed SHA-256):** Pemilih eksplisit `R19 C0` (`122,768 B`, baseline), `R20 C4` (`73,275 B`, student utama), dan `R20 C7 distilled` (`73,138 B`, pembanding) beserta mode `RAW` / `CLAHE` / `A4` (`A4v2` chroma-preserving Reinhard + motion-gated EMA + separable median-5) dan Web Worker `HandLandmarker` CPU-only (`delegate: "CPU"`, `CacheStorage` dedup, `WorkerOwnerGuard` anti-bystander).

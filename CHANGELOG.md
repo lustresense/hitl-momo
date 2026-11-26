@@ -46,6 +46,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.32.1-alpha | 2026-11-26 | Dokumen | `(0.32.1-alpha)` |
 | 0.32.0-alpha | 2026-11-26 | Fitur | `(0.32.0-alpha)` |
 | 0.31.0-alpha | 2026-11-26 | Fitur | `(0.31.0-alpha)` |
 | 0.30.3-alpha | 2026-11-26 | Dokumen | `(0.30.3-alpha)` |
@@ -142,6 +143,20 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.32.1-alpha — 2026-11-26 — Dokumen
+
+**Sumber:** Owner 2026-11-26 (versi dipecah per perubahan)
+
+**Perubahan:**
+- Keputusan D-20261126-01 (tampilan r8.3) dan D-20261126-02 (Lewati); dokumen CAN, README, arsitektur, dan panduan jalan diselaraskan.
+- Seluruh isi workspace yang dilacak ikut dipublikasikan, termasuk log tes dan screenshot bukti.
+
+**Commit:** commit berjudul `(0.32.1-alpha)`
+
+**Bukti:** STATIC_ONLY; field versi konsisten.
 
 ---
 

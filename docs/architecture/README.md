@@ -53,8 +53,8 @@ sequenceDiagram
     participant A as Dashboard guru
 
     G->>B: GET /api/join/{token}
-    B-->>G: nama kelas dan nomor absen yang terpakai
-    G->>B: POST /api/join/{token}/students (nomor, nama)
+    B-->>G: nama kelas (dan daftar nomor yang terpakai)
+    G->>B: POST /api/join/{token}/students (nama panggilan, client_id)
     B->>DB: simpan siswa dan SHA-256 token sesi
     B-->>G: student_session_token (berlaku 8 jam)
     G->>B: POST /predict (stroke gambar)
@@ -131,7 +131,7 @@ erDiagram
 
 | Hal | Perilaku saat ini |
 |---|---|
-| Siswa bergabung | Lewat nomor absen dalam kelas. **Tidak ada rahasia per siswa.** Siapa pun yang memegang link kelas bisa bergabung sebagai nomor mana pun, termasuk nomor yang sudah dipakai teman |
+| Siswa bergabung | Dengan nama panggilan; server memberi nomor otomatis (1 sampai jumlah siswa). `client_id` membuat muat ulang di tab yang sama tidak membuat siswa baru, tetapi tab baru tercatat sebagai siswa baru. Join bernomor masih diterima (tampilan lama). **Tidak ada rahasia per siswa.** Siapa pun yang memegang link kelas bisa bergabung |
 | Token siswa | Acak 32 byte, hanya SHA-256-nya disimpan, berlaku 8 jam. Wajib untuk submission dan outcome |
 | Pemeriksaan kepemilikan | Token harus milik siswa dan kelas yang disebut di request (401 bila token tidak valid atau habis, 403 bila bukan miliknya, 404 untuk outcome milik siswa lain) |
 | Guru dan admin | Login email dan password, token Bearer. Token disimpan mentah di tabel `sessions` (belum di-hash) |

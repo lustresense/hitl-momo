@@ -32,6 +32,7 @@ Untuk menjalankan atau memigrasikan DEV, baca `README.md` dan `SETUP.md` sebelum
 | DIAS | `contexts/dias/AGENTS.md`, `contexts/dias/README.md`, `contexts/dias/NOW.md`, owner-specific source/tests |
 | Shared | `README.md`, `NOW.md`, `docs/architecture/README.md`, `contracts/README.md`, `contracts/API_INVENTORY.md` |
 | Engineering versions | Root `VERSION`, root `CHANGELOG.md`, `scripts/bump_version.py` |
+| Show / hide the game's "Lewati" (skip) button | `docs/SKIP_BUTTON.md`: flip the switch (`python scripts/skip_button.py on|off`, or admin dashboard). Do not delete the button code. |
 
 Canonical paths in this table are relative to repository root. Documents are **read on demand in the order required by the owner SOP**, not indiscriminately all stuffed into a model prompt. `WORKING_STATE.md` in a ChatGPT project is not automatically synced to this repo. Account switching does not transfer unsaved chat context; Git evidence and the session handoff are the portable source.
 

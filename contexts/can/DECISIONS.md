@@ -48,6 +48,9 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 
 | Area | Keputusan aktif | Status |
 |---|---|---|
+| Identitas siswa di game | Nama panggilan diketik di layar muat; tanpa penggaris nomor absen (D-20261126-01). | Aktif |
+| Tampilan dan gestur yang berlaku | UI r8.3: cincin cubit-tahan, pilih dengan mendekatkan tangan, kursor pensil di kanvas, kendali Thinman dengan cubit-geser (D-20261126-01). Webcam fisik NOT_TESTED. | Aktif |
+| Tombol Lewati | Alat dev dan demo; disembunyikan saat pengujian siswa; hasilnya tidak disimpan (D-20261126-02). | Aktif |
 | Identitas proyek | Satu sistem PA terpadu untuk literasi kecerdasan buatan siswa SMP; bukan dua aplikasi terpisah. Nama internal/IP: **Sketchbook Universe**. | Aktif |
 | Judul/branding | "Escape the Sketchbook" tidak dipakai sebagai judul formal. Judul formal final tetap mengikuti dokumen/MIS terbaru yang disetujui. | Aktif |
 | Pengguna sasaran | Siswa SMP kelas 7–9. | Aktif |
@@ -75,11 +78,11 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 | Isi tutorial Kartu 3 | **Canvas \& gesture**: pengguna mencoba Coret, Hapus, Undo, dan Redo melalui live canvas interaktif pada prototype onboarding. | Aktif |
 | Arah visual tutorial | Gunakan prinsip **less is more** dan hindari tampilan generik/"AI soft": prioritaskan ilustrasi dan interaksi; kurangi badge, box dekoratif, copy berulang, rounded container, gradient, dan ornamentasi yang tidak punya fungsi. | Aktif |
 | Onboarding camera / cover visual | Onboarding camera diposisikan secara visual sebagai **cover dari Sketchbook Universe**. Karena fungsi tersebut, layar onboarding camera boleh menggunakan **dominasi hijau secara keseluruhan** sebagai treatment khusus cover dan tidak harus mengikuti treatment paper/dotted pada tutorial. Dominasi hijau ini tidak otomatis menjadi background global untuk page lain. | Aktif |
-| Copy \& kontras tutorial | Copy tutorial prototype onboarding dan aturan kontras panel guide dikunci sesuai spesifikasi pengguna saat ini. Judul: **Kenalin Stickman**, **Pijakan Aman vs Bahaya**, **Tes Coret \& Gestur Jarimu**. CTA: **Lanjut**, **Lanjut**, **Mulai Level 1**. Teks utama panel kiri menggunakan hitam solid berkontras tinggi pada latar hijau. | Aktif |
+| Copy \& kontras tutorial | (Judul dan CTA diganti D-20261126-01.) Copy tutorial prototype onboarding dan aturan kontras panel guide dikunci sesuai spesifikasi pengguna saat ini. Judul: **Kenalin Stickman**, **Pijakan Aman vs Bahaya**, **Tes Coret \& Gestur Jarimu**. CTA: **Lanjut**, **Lanjut**, **Mulai Level 1**. Teks utama panel kiri menggunakan hitam solid berkontras tinggi pada latar hijau. | Aktif |
 | Evaluasi | Gunakan log untuk menggambarkan pola keputusan yang teramati. Jangan mengklaim perubahan psikologis/kognitif atau hasil pre/post tanpa rancangan dan bukti evaluasi yang sah. | Aktif |
 | Metodologi | Fishbone: Concept, Design, Material Collecting, Assembly, User Testing, Distribution. | Aktif |
 | Sistem visual | Warna oranye/hijau, dots di belakang, outline dan bayangan yang ada sekarang **dikunci Owner**. "Anti-slop" = perbaikan detail, bukan ganti palet/tipografi (D-20261105-01). | Aktif |
-| Pemicu bangun Momo di cover | Kamera berawal OFF; setelah siswa menyalakan kamera dan stream benar-benar bisa diputar, Momo bangun kaget, kamera morph ke PIP dan perkenalan dilanjutkan lewat bubble; jempol mengantar ke penggaris. Wave bukan lagi syarat membuka cover. Jika izin/stream gagal, tidak boleh membangunkan Momo palsu dan fallback pointer tetap tersedia. (D-20261115-03, merevisi bagian wake D-20261110-04.) | Aktif (source 0.18.1-alpha, runtime belum diuji) |
+| Pemicu bangun Momo di cover | Kamera berawal OFF; setelah siswa menyalakan kamera dan stream benar-benar bisa diputar, Momo bangun kaget, kamera morph ke PIP dan perkenalan dilanjutkan lewat bubble; jempol mengantar ke penggaris (bagian ini diganti D-20261126-01: cincin cubit-tahan menuju tiga kartu). Wave bukan lagi syarat membuka cover. Jika izin/stream gagal, tidak boleh membangunkan Momo palsu dan fallback pointer tetap tersedia. (D-20261115-03, merevisi bagian wake D-20261110-04.) | Aktif (source 0.18.1-alpha, runtime belum diuji) |
 | Ikon visual gestur | Ilustrasi tangan SVG khusus yang menerangkan aksi dengan jelas, bukan ikon generik yang salah arti, sesuai instruksi Owner 15 November 2026 (D-20261115-01). Warna dan sistem visual yang sudah dikunci tetap berlaku. | Aktif (desain), belum diuji pengguna |
 | Alur keputusan HITL di UI | Terima/Pilih lain/Bukan semua langsung berlaku (tanpa tombol "Wujudkan Objek"); lalu tawaran "Masukkan ke dunia" (D-20261105-02). Sejak 2026-11-11: gambar menjadi stiker lalu "Lempar" (D-20261110-08); submission dikirim saat cincin keputusan penuh (D-20261111-01). | Aktif |
 | Ringkasan level | Pop-up di dalam dunia game dengan Momo yang merayakan, bukan layar penuh (D-20261105-04). | Aktif |
@@ -104,6 +107,7 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 
 | Item lama | Perlakuan |
 |---|---|
+| Penggaris nomor absen sebagai cara siswa masuk | Diganti nama panggilan (D-20261126-01). |
 | "Escape the Sketchbook" sebagai nama/judul formal | Jangan gunakan. Hanya boleh disebut sebagai riwayat bila pengguna meminta. |
 | Momo sebagai karakter yang dapat menggambar/menciptakan objek | Salah. Pencipta objek adalah pengguna/Illustrator. |
 | Chatbot, LLM/RAG/NLP, voice assistant, atau percakapan bebas sebagai fitur inti | Di luar scope inti saat ini. |
@@ -116,6 +120,7 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 
 | Periode | Perubahan/penegasan | Status sekarang |
 |---|---|---|
+| 2026-11-26 | Tampilan r8.3 ditetapkan berlaku (D-20261126-01) dan aturan tombol Lewati (D-20261126-02). | Aktif |
 | Awal perumusan | Konsep berkembang menjadi sistem literasi AI berbasis simulasi interaktif dan HITL untuk SMP. | Dipertahankan |
 | Pengembangan lore | Dunia Sketchbook Universe dikunci sebagai payung IP; pengguna/Illustrator adalah kreator, Momo bukan kreator. | Dipertahankan |
 | Penyatuan scope | Peran frontend/interaksi dan model/backend dipisah per orang, tetapi alurnya tetap satu sistem terpadu. | Dipertahankan |
@@ -126,14 +131,37 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 
 ## Entri Perubahan Terbaru
 
-### D-20261116-01 — Aktif (keputusan eksplisit Owner 2026-11-16, M-036) — Objek siswa memakai kotak gambarnya sendiri; hanya tiga bab; satu kata "Bab"
+### D-20261126-02 — Aktif (instruksi eksplisit Owner 2026-11-26) — Tombol "Lewati" sebagai alat dev dan demo
+- **Keputusan:** "Lewati" di game mengikuti perilaku sandbox r8.3 (satu tekanan menyelesaikan satu adegan). Alt+Q sama dengan menekan tombolnya. Tombol dan shortcut dapat ditampilkan atau disembunyikan lewat satu saklar (halaman admin atau `scripts/skip_button.py`, panduan `docs/SKIP_BUTTON.md`). Harus disembunyikan saat pengujian ke siswa. Gambar contoh, jawaban otomatis, dan hasil menang yang dibuat "Lewati" tidak dikirim ke server.
+- **Mengubah:** tidak mencabut D-20261110-03; animasi cerita tidak dipersingkat bagi siswa.
+- **Bukti keputusan:** instruksi Owner 2026-11-26: “meskipun skip2nya kea sandbox ... kalo udah mau dijadiin testing tinggal hapus tombol skip aja”, “di admin jg adain tombol skip disable atau engga”, “hasil skip gausah dikirim database”, “pake shortcut aja alt q”.
+- **Teknis:** `CHANGELOG.md` root 0.32.0-alpha.
+
+### D-20261126-01 — Aktif (instruksi eksplisit Owner 2026-11-26) — Tampilan r8.3 menjadi bentuk yang berlaku
+- **Keputusan:** tampilan dan interaksi game pada 0.32.0-alpha (hasil migrasi sandbox r8.3) berlaku, menggantikan keputusan lama yang bertentangan:
+  1. UI r8.3 adalah tampilan bawaan. Tampilan lama hanya untuk pembanding (`NEXT_PUBLIC_UI_R83=0`).
+  2. Siswa masuk dengan nama panggilan yang diketik di layar muat. Penggaris nomor absen tidak dipakai.
+  3. Konfirmasi memakai cincin cubit-tahan, termasuk "Tebak Gambarku" (tahan 2 detik) untuk selesai menggambar.
+  4. Pilihan (Top-3, layar gagal) dipilih dengan mendekatkan tangan lalu cubit-tahan; level dipilih dengan cubit lalu tarik pita. Hitungan jari tidak dipakai.
+  5. Di kanvas ada kursor pensil: cubit-tahan-geser untuk menggambar; alat dipilih dengan tunjuk lalu cubit.
+  6. Stiker dilempar dengan sentil ke atas atau cincin "Lempar"; benda digeser dengan cubit-geser; cubit-tahan diam = "Taruh di sini"; putar lewat roda mouse atau tombol R.
+  7. Thinman dikendalikan dengan cubit lalu geser kanan/kiri; cubit cepat atau sentil ke atas untuk lompat; keyboard panah dan Spasi.
+  8. Tiga kartu tutorial: "Kenalin Thinman", "Aman atau bahaya", "Latihan kursor"; jeda baca mengikuti `CARD_READ_MS` (3,3 detik).
+  9. Istilah di antarmuka siswa: "Level", bukan "Bab".
+- **Mengubah:** D-20261110-05 (dicabut); D-20261110-02, -07, -09 (direvisi); D-20261110-04, -06, -08, D-20261115-03, D-20261116-01 (direvisi sebagian: gestur, konfirmasi menuju penggaris, jeda baca, judul kartu, istilah "Bab"); menjawab D-20261115-02.
+- **Tetap berlaku:** tiga level (D-20261110-01); data dikirim saat keputusan Top-3 (D-20261111-01); Momo bangun setelah kamera siap (D-20261115-03); animasi cerita tidak dipersingkat bagi siswa (D-20261110-03); kotak objek mengikuti gambar (D-20261116-01); loop Accept / Correct / Override.
+- **Bukti keputusan:** instruksi Owner 2026-11-26: “yaudah ubah sesuai perubahan sekarang, yang sekarang itu yang fix ... wip sekarang ini fix di decisions”.
+- **Batas bukti:** ini keputusan desain, bukan bukti uji. Webcam dan gestur tangan fisik NOT_TESTED. Revisi yang masih dikumpulkan belum menjadi keputusan.
+- **Teknis:** `CHANGELOG.md` root 0.32.0-alpha.
+
+### D-20261116-01 — Aktif, istilah "Bab" direvisi D-20261126-01 (keputusan eksplisit Owner 2026-11-16, M-036) — Objek siswa memakai kotak gambarnya sendiri; hanya tiga bab; satu kata "Bab"
 - **Keputusan:** (1) Collider objek siswa adalah kotak gambarnya sendiri: gambar dipertahankan proporsinya dan diperbesar sampai memenuhi kotak terbesar bab, sehingga yang dilihat siswa sama dengan yang diinjak Thinman. Owner memilih "opsi 1" dan menolak opsi gambar dipipihkan ke papan 130 x 20. (2) Objek tidak boleh menimpa titik awal Thinman atau bendera. (3) Objek bahaya (duri) melukai hanya di dalam gambarnya. (4) Papan petunjuk akhir bab hanya satu panah tanpa papan "Bab N selesai": Bab 1 dan 2 "Lanjut ke Bab 2/3", Bab 3 "Menuju Pusat Halaman". (5) Hanya tiga bab; pratinjau 01/03 sampai 03/03; semua teks siswa memakai kata **Bab**, bukan Level.
 - **Batas:** fisika (jalan 130, lompat 520, gravitasi 1600, badan 24 x 40), geometri tanah (terikat art), minimal 2 objek per bab dan "satu objek saja tidak pernah cukup" tidak berubah. Ukuran maksimal per bab ada di `frontend/implementation/src/game/object-limits.ts` dan boleh disetel bila tes keterselesaian menuntut.
 - **Mengubah:** ukuran hitbox objek pada praktik PRD 0.0.16 K2 (semua objek papan 80 x 12 satuan sumber) dan D-20261110-08 hanya pada ukuran hitbox. Alur stiker, "Lempar", "Taruh di sini" tidak berubah. Tidak mencabut D-20261115-03.
 - **Teknis:** `CHANGELOG.md` root 0.19.0-alpha; `frontend/implementation/docs/execution/gameplay/README.md`.
 - **Bukti:** browser (mock, mouse+keyboard) perjalanan Bab 1-3 PASS, recovery 16/16, finish 12/12, route 15/15; unit tsc bersih, tes game 371 lulus; kamera fisik NOT_TESTED. Rincian REVISIONS R16-01..R16-10.
 
-### D-20261115-03 — Aktif (keputusan eksplisit Owner 2026-11-15) — Wake Momo dari kamera siap, bukan wave
+### D-20261115-03 — Aktif, bagian penggaris direvisi D-20261126-01 (keputusan eksplisit Owner 2026-11-15) — Wake Momo dari kamera siap, bukan wave
 - **Keputusan:** pilihan B dari PRD REV-B04-004 diterapkan sebagai pengganti *wave-gated cover*. Siswa masuk ke cover dengan kamera OFF dan Momo tidur. Saat siswa menyalakan kamera, Momo baru bangun setelah browser memperoleh stream kamera dan playback video berhasil. Kemudian animasi kaget, kamera mengecil ke PIP, Momo ke tengah, dialog perkenalan bubble, dan konfirmasi jempol menuju penggaris tetap.
 - **Batas:** klik toggle saja, permission ditolak, stream tidak playable, atau request yang kedaluwarsa tidak boleh membangunkan Momo. Fallback tanpa kamera yang sudah ada dipertahankan. Momo boleh melakukan animasi sayap menyapa; yang dihapus adalah **kewajiban siswa melakukan waving hand untuk membangunkan Momo**.
 - **Bukti keputusan:** instruksi langsung Owner terbaru setelah implementasi 0.18.0-alpha, “wavinghand diganti” dan “PRD LU INI YANG LU IMPLEMENT”, dalam rangka GAS REV-B04. PRD sebelumnya mengusulkan A/B bersyarat; Owner sekarang memilih B.
@@ -147,7 +175,7 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 - Dampak: tutorial, toolbar, penggaris, cincin gestur, kontrol objek; tidak mengubah model/DB.
 - Teknis: `CHANGELOG.md` root versi 0.17.0-alpha, commit cebbaa4, `frontend/implementation/src/components/ui/GestureGlyph.tsx` dan pemakainya. Bukti STATIC_ONLY, belum ada uji pemahaman siswa.
 
-### D-20261115-02 — Belum dikunci (konflik keputusan dan kode) — Mapping gestur Card 1/Card 3
+### D-20261115-02 — Selesai, dijawab D-20261126-01 (sebelumnya Belum dikunci, konflik keputusan dan kode) — Mapping gestur Card 1/Card 3
 - Fakta source: `gesture-mode.ts` pada commit cebbaa4 memakai Card 3 cubit→Coret, telapak lima jari→Hapus, satu jari→Undo, dua jari→Redo; Card 1 memakai sudut telunjuk. Kanvas utama masih menerima fist untuk Hapus.
 - Konflik: D-20261110-06 sudah Aktif mengatur cubit-drag Card 1; D-20261110-07 sudah Aktif menyebut redo telapak di kanvas. Perubahan source tidak otomatis mencabut entri yang disetujui Owner.
 - Bukti: Owner memberi paket revisi REV-B03 dan meminta implementasi; hasil code hanya STATIC_ONLY. Tidak ada persetujuan pengganti yang cukup eksplisit untuk secara diam-diam merevisi dua ID tersebut.
@@ -164,7 +192,7 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 - Keputusan: produk hanya Level 1–3. Level 4 "Pembuktian" yang ditambahkan AI pada 2026-11-09 dihapus. Kuis/survei bukan level.
 - Mengubah: tidak ada entri lama (Level 4 tidak pernah dikunci).
 
-### D-20261110-02 — Aktif (disetujui Owner 2026-11-11: "semua") — Selesai gambar dengan jempol, bukan auto-ask
+### D-20261110-02 — Direvisi oleh D-20261126-01 (sebelumnya disetujui Owner 2026-11-11: "semua") — Selesai gambar dengan jempol, bukan auto-ask
 - Teknis: `CHANGELOG.md` (root monorepo), bagian "Can — Student Game: restorasi dan NUI"; cabang `claude-monorepo`.
 - Bukti: big prompt dan REVISI-NUI-PA Owner 2026-11-10; persetujuan Owner 2026-11-11.
 - Keputusan: Momo diam selama menggambar. Tebakan dan Top-3 hanya setelah siswa menahan jempol "selesai". Setelah 10 detik diam, Momo bertanya dan indikator jempol menyala; tidak menebak otomatis.
@@ -176,36 +204,36 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 - Keputusan: durasi animasi kartu, buka buku, Momo, kamera kembali ke nilai `9f9d35d`; tutup kartu 1,0 s, jeda 1,1 s. `prefers-reduced-motion` mengurangi amplitudo, tidak memotong durasi cerita.
 - Mengubah: praktik di kode (`timeScale(6)`, fade 0,2 s) dan nilai `8520cda`.
 
-### D-20261110-04 — Direvisi sebagian oleh D-20261115-03 (sebelumnya disetujui Owner 2026-11-11: "semua") — Cover: riwayat lambaian dan PIP kiri bawah
+### D-20261110-04 — Direvisi sebagian oleh D-20261115-03 dan D-20261126-01 (sebelumnya disetujui Owner 2026-11-11: "semua") — Cover: riwayat lambaian dan PIP kiri bawah
 - Teknis: `CHANGELOG.md` (root monorepo), bagian "Can — Student Game: restorasi dan NUI"; cabang `claude-monorepo`.
 - Bukti: big prompt dan REVISI-NUI-PA Owner 2026-11-10; persetujuan Owner 2026-11-11.
 - Keputusan: kamera besar di tengah cover; lambaian (dengan cincin progres) membangunkan Momo; kartu kamera mengecil ke PIP KIRI BAWAH; Momo terbang ke tengah; teks "Lambaikan tanganmu" dihapus; cerita "Aku Momo, gambar satu-satunya yang hidup ..."; jempol "Aku mengerti" membuka buku.
 - Mengubah: D-20261105-19 (kamera menyala membangunkan Momo), copy cover lama, bypass morph `be7c8b2` (sekarang satu morph cover→PIP diizinkan).
 
-### D-20261110-05 — Aktif (disetujui Owner 2026-11-11: "semua") — Penggaris
+### D-20261110-05 — Dicabut oleh D-20261126-01 (sebelumnya disetujui Owner 2026-11-11: "semua") — Penggaris
 - Teknis: `CHANGELOG.md` (root monorepo), bagian "Can — Student Game: restorasi dan NUI"; cabang `claude-monorepo`.
 - Bukti: big prompt dan REVISI-NUI-PA Owner 2026-11-10; persetujuan Owner 2026-11-11.
 - Keputusan: hanya angka + penggaris; mulai nomor 1; fokus Momo di tengah dengan latar gelap lalu Momo ke kanan; pertanyaan hanya setelah digeser; pegangan 48×70; cubit+geser; jempol 2 s.
 
-### D-20261110-06 — Aktif (disetujui Owner 2026-11-11: "semua") — Tiga kartu
+### D-20261110-06 — Direvisi sebagian oleh D-20261126-01 (sebelumnya disetujui Owner 2026-11-11: "semua") — Tiga kartu
 - Teknis: `CHANGELOG.md` (root monorepo), bagian "Can — Student Game: restorasi dan NUI"; cabang `claude-monorepo`.
 - Bukti: big prompt dan REVISI-NUI-PA Owner 2026-11-10; persetujuan Owner 2026-11-11.
 - Keputusan: kartu 1 seret Thinman dengan cubit sampai bendera (bukan auto-jalan); jeda baca 10 detik dengan cincin jempol terkunci yang menunjukkan progres; kartu 3 semua alat dicoba dengan tangan; penghapus ukuran tetap di tutorial.
 - Mengubah: D-20261105-23 (cincin), praktik 2026-11-09 (PinchRing sebagai tombol lanjut).
 
-### D-20261110-07 — Aktif (disetujui Owner 2026-11-11: "semua") — Gestur menurut mode (tanpa kursor)
+### D-20261110-07 — Direvisi oleh D-20261126-01 (sebelumnya disetujui Owner 2026-11-11: "semua") — Gestur menurut mode (tanpa kursor)
 - Teknis: `CHANGELOG.md` (root monorepo), bagian "Can — Student Game: restorasi dan NUI"; cabang `claude-monorepo`.
 - Bukti: big prompt dan REVISI-NUI-PA Owner 2026-11-10; persetujuan Owner 2026-11-11.
 - Keputusan: router mode tunggal (`src/input/gesture-mode.ts`). Pilih bab 1/2/3 jari; Top-3 1/2/3 jari, telapak = Bukan ini, cubit = Gambar lagi; layar gagal 1/2/3 jari; kanvas hanya cubit menggores; redo = telapak terbuka atau terbelah; semua aksi dengan cincin progres.
 - Mengubah: pilih-dengan-melayang (dwell kursor) 2026-11-09 untuk layar-layar ini.
 
-### D-20261110-08 — Aktif (disetujui Owner 2026-11-11: "semua") — Stiker dan "Lempar"
+### D-20261110-08 — Direvisi sebagian oleh D-20261126-01 (sebelumnya disetujui Owner 2026-11-11: "semua") — Stiker dan "Lempar"
 - Teknis: `CHANGELOG.md` (root monorepo), bagian "Can — Student Game: restorasi dan NUI"; cabang `claude-monorepo`.
 - Bukti: big prompt dan REVISI-NUI-PA Owner 2026-11-10; persetujuan Owner 2026-11-11.
 - Keputusan: setelah keputusan HITL, gambar siswa menjadi stiker di kanvas; "Lempar" (jempol) menjatuhkannya ke dunia; "Gambar lagi" (telapak). Penempatan: "Taruh di sini" (jempol), "Geser objek" (cubit), "Putar" 90° (telapak).
 - Mengubah: D-20261105-02 (tawaran "Masukkan ke dunia").
 
-### D-20261110-09 — Aktif (disetujui Owner 2026-11-11: "semua") — Kontrol Thinman dengan sudut telunjuk
+### D-20261110-09 — Direvisi oleh D-20261126-01 (sebelumnya disetujui Owner 2026-11-11: "semua") — Kontrol Thinman dengan sudut telunjuk
 - Teknis: `CHANGELOG.md` (root monorepo), bagian "Can — Student Game: restorasi dan NUI"; cabang `claude-monorepo`.
 - Bukti: big prompt dan REVISI-NUI-PA Owner 2026-11-10; persetujuan Owner 2026-11-11.
 - Keputusan: ~90° lompat; 45–75° lompat+kanan; 105–135° lompat+kiri; horizontal jalan. Bar bawah mode kamera tanpa label keyboard.

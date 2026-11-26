@@ -1,5 +1,17 @@
 # Actual architecture (derived from source, not from proposals)
 
+## UI r8.3 (0.32.0-alpha) — tampilan bawaan
+| Bagian | File | Tugas |
+|---|---|---|
+| Pemilih tampilan | `src/app/SketchbookApp.tsx`, `next.config.mjs` | `NEXT_PUBLIC_UI_R83` bawaan `1`; `0` = tampilan lama |
+| Shell dan state | `src/app/R83SketchbookShell.tsx`, `src/app/hooks/useR83AppState.ts` | rute, sesi kelas (nama panggilan), serah terima antar layar |
+| Layar | `src/features/{cover,tutorial,level-select,canvas,world,ending,shared}` | satu folder per layar |
+| Input tangan | `src/nui/` | cubit, tarik, joystick, cincin |
+| Lewati | `src/features/shared/R83SkipBar.tsx`, `src/config/skip-button.ts` | satu bilah per adegan, Alt+Q; saklar: admin > bawaan build |
+| Data hasil skip | `src/app/hooks/useLevelSession.ts` | percobaan yang disentuh "Lewati" tidak dikirim |
+
+Bagian di bawah ini menjelaskan arsitektur tampilan lama dan lapisan bersama (domain, prediksi, events, runtime game).
+
 Static-export Next.js 14 app (no server code) + React 18 + KAPLAY 3001 (gameplay canvas only) + `@mediapipe/tasks-vision` (hand input). Everything partner-specific is a client adapter.
 
 ## Layers and where they live

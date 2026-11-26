@@ -75,3 +75,23 @@ The following research datasets are utilized in training and evaluating MoNUI-7 
 - **Repository:** [https://github.com/hukenovs/hagrid](https://github.com/hukenovs/hagrid)
 - **License:** Custom Open Public License (CC BY-SA 4.0 Derivative, ShareAlike)
 - **Attribution:** A. Kapitanov et al., "HaGRID -- HAnd Gesture Recognition Image Dataset", 2022-2024.
+
+---
+
+## 3. Fonts
+
+The following fonts are self-hosted locally in `frontend/implementation/public/fonts/` (decoded from sandbox r8.3, without external CDN requests):
+
+### Bowlby One (`BowlbyOne-Regular.woff2`)
+- **Designer / Author:** Vernon Adams
+- **License:** SIL Open Font License 1.1 (OFL-1.1) — [https://openfontlicense.org/](https://openfontlicense.org/)
+- **File:** `frontend/implementation/public/fonts/BowlbyOne-Regular.woff2` (21536 B)
+- **SHA-256:** `e2f3c84b26df8512d2cda4a9595e278e67b3efc86c5866b0a89ac45a16625e35`
+- **Notice:** Self-hosted from sandbox r8.3 without CDN under the terms of the SIL Open Font License, Version 1.1.
+
+### Hanken Grotesk Variable (`HankenGrotesk-Variable.woff2`)
+- **Designer / Author:** Hanken Design Co. (Alfredo Marco Pradil)
+- **License:** SIL Open Font License 1.1 (OFL-1.1) — [https://openfontlicense.org/](https://openfontlicense.org/)
+- **File:** `frontend/implementation/public/fonts/HankenGrotesk-Variable.woff2` (34704 B)
+- **SHA-256:** `e9201eddf1d41d0b62253295d869ce3cf65768f7102b797f02c7f8c876b4a9d5`
+- **Notice:** Self-hosted from sandbox r8.3 without CDN under the terms of the SIL Open Font License, Version 1.1.

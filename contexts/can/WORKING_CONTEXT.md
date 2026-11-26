@@ -1,5 +1,10 @@
 # Working Context
 
+### 2026-11-26 — UI r8.3 (0.32.0-alpha)
+- Shell: `src/app/R83SketchbookShell.tsx`, layar di `src/features/`, NUI di `src/nui/`. Tampilan lama tetap ada di `SketchbookApp.tsx` dan hanya aktif bila `NEXT_PUBLIC_UI_R83=0`.
+- Build untuk dicoba di laptop: `npm run build:local`. Backend harus hidup; kalau mati, layar tebakan menampilkan kode `unknown`.
+- Webcam fisik NOT_TESTED.
+
 ### 2026-11-16 — NUI Lab auto-reacquire & diagnostics eksperimen 0.22.0-alpha (STATIC_ONLY)
 - Source `main` diperluas: `lab-hand-lock.ts`, `lab-analyzer.ts`, NUI Lab UI, opsi `experimentalRobust` di classifier/pipeline tanpa mengubah default game. Prioritas adalah hand tracking kontinu, auto-release saat tidak ada tangan, dan rearm tindakan pasca-acquire baru.
 - Aturan lab baru menggunakan 2 sample kamera tanpa hand dan jeda 300ms sebelum melepaskan pemilik lama; jika background hand tetap terlihat, lock tidak dipromosikan. Parameter prototype; perlu tes kamera depan/crowd/distraksi.

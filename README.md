@@ -125,7 +125,7 @@ cd frontend/admin && npm ci
 NEXT_PUBLIC_API_URL=http://localhost:8000 NEXT_PUBLIC_GAME_URL=http://localhost:3000 npm run dev
 ```
 
-**4. Coba alur kelas:** buka `http://localhost:3002/login`, masuk dengan akun tadi, buat sekolah lalu kelas, salin link kelas (bentuknya `<GAME_URL>/?kelas=<token>`), buka di tab lain, pilih nomor absen, gambar, dan putuskan. Jawaban muncul di halaman kelas di dashboard.
+**4. Coba alur kelas:** buka `http://localhost:3002/login`, masuk dengan akun tadi, buat sekolah lalu kelas, salin link kelas (bentuknya `<GAME_URL>/?kelas=<token>`), buka di tab lain, isi nama panggilan, gambar, dan putuskan. Jawaban muncul di halaman kelas di dashboard.
 
 Origin `localhost:3000` dan `localhost:3002` sudah ada di daftar CORS bawaan backend. Untuk origin lain, isi `CORS_ORIGINS`.
 

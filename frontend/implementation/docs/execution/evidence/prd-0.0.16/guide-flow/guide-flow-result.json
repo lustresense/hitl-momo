@@ -1,0 +1,80 @@
+{
+  "ok": true,
+  "checks": [
+    {
+      "name": "cover: Momo is asleep before anything is pressed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "cover: no camera means the 'Bangunkan Momo' button is shown",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "cover: the button wakes Momo",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "cover: she introduces herself",
+      "ok": true,
+      "detail": "Aku Momo, gambar satu-satunya "
+    },
+    {
+      "name": "cover: she asks you to take the character to its place",
+      "ok": true,
+      "detail": "Yuk, antar dia "
+    },
+    {
+      "name": "cover: the 1 s thumb opens the book to the ruler",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "ruler: Momo asks for the number in the focus phase",
+      "ok": true,
+      "detail": "Sebelum kita masuk, pilih nomor absenmu"
+    },
+    {
+      "name": "ruler: after a move the question appeared and the 2 s thumb confirmed",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "tutorial: Momo introduces the cards",
+      "ok": true,
+      "detail": "Ada tiga kartu"
+    },
+    {
+      "name": "tutorial: walk to the flag, card 1/2 (1 s) and card 3 (2 s) thumbs",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "levels: Momo points at Bab 1",
+      "ok": true,
+      "detail": "Pilih Bab 1"
+    },
+    {
+      "name": "levels: the 2 s ribbon thumb opens the level intro",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "intro: the 1 s thumb lifts Momo through the clouds to the canvas",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "canvas: 'Mulai Menggambar' closes the focus backdrop",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "name": "no page errors",
+      "ok": true,
+      "detail": ""
+    }
+  ]
+}

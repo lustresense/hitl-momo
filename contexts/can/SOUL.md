@@ -5,6 +5,8 @@
 
 File ini terdiri dari dua bagian. **Bagian A** berisi instruksi proyek (section 0–8). **Bagian B** berisi Tone of Voice (section T1–T18). Tidak ada file lain yang perlu dibaca untuk gaya respons.
 
+Konteks produk aktif 2026-11-26 mengikuti `DECISIONS.md` D-20261126-01 s.d. -06: R8.3, nama panggilan diketik di DreamLoader, STT/penggaris dicabut, Momo text bubble, tiga kartu, pemisahan NUI lab, dan tiga tingkat interaksi. Perubahan ring berbasis kursor adalah keputusan desain, bukan bukti runtime; tools kanvas tidak diubah. Rujuk ledger untuk detail; aturan kerja/TOV tetap.
+
 ---
 
 # BAGIAN A — INSTRUKSI PROYEK

@@ -4,7 +4,7 @@ This is the universal starting point for **Codex, Claude Code, Antigravity, Ujan
 
 ## Setup dan runtime DEV
 
-Untuk menjalankan atau memigrasikan DEV, baca `README.md` dan `SETUP.md` sebelum bertindak. Model Dias dan label tersedia di `weights/`; default backend adalah path relatif root repo. Jangan menganggap layanan, model, database, atau build aktif sama hanya dari commit Git. Jangan membaca atau memindahkan secret dan data siswa. STT Lab eksternal tidak termasuk snapshot ini.
+Untuk menjalankan atau memigrasikan DEV, baca `README.md` dan `SETUP.md` sebelum bertindak. Model Dias dan label tersedia di `weights/`; default backend adalah path relatif root repo. Jangan menganggap layanan, model, database, atau build aktif sama hanya dari commit Git. Jangan membaca atau memindahkan secret dan data siswa. STT Lab eksternal tidak termasuk snapshot ini dan bukan backlog produk (D-20261126-03). Untuk CAN, baca keputusan D-20261126-01 s.d. -06 sebelum menafsirkan sisa kode legacy/lab atau riwayat sebagai instruksi aktif; keputusan desain bukan bukti implementasi.
 
 ## Routing, always before substantial work
 

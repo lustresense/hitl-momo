@@ -1,7 +1,8 @@
 # NOW.md — Status integrasi bersama
 
 ## 2026-11-26 — Migrasi UI r8.3 (0.32.1-alpha, di-push ke `main` 2026-11-26)
-- Tampilan bawaan: r8.3 (nama panggilan, tanpa penggaris). "Lewati" mengikuti sandbox, Alt+Q, saklar admin/skrip.
+- Tampilan bawaan: r8.3 (nama panggilan diketik di DreamLoader, tanpa penggaris/STT). "Lewati" mengikuti sandbox, Alt+Q, saklar admin/skrip.
+- Keputusan D-20261126-03 s.d. -06 disetujui Owner: identitas tanpa STT, onboarding/tutorial, pemisahan NUI produk/lab, tiga tingkat interaksi. Revisi mekanisme ring berbasis kursor belum terbukti dikerjakan; tools kanvas tetap. Source main yang diaudit `4c71664`, versi 0.32.1-alpha; tidak ada pengujian ulang atau deploy dalam rekonsiliasi dokumentasi ini.
 - `origin/main` 0.30.3-alpha sudah digabung. Kode terakhir `64248dc`.
 - Bukti: tsc 0 error; lint 0 warning; unit tanpa kegagalan baru (38 kegagalan bawaan main; satu tes tampilan lama tidak stabil saat jalan paralel); tes backend 21/21; E2E r83-flow 42/42 (sebelum Alt+Q); telusur penuh hanya dengan Alt+Q sampai ending; cek data skip vs manual dengan model asli. Webcam fisik, klik halaman admin, dan E2E tampilan lama: NOT_TESTED.
 - Masalah yang diketahui: siswa yang membuka tab baru tercatat sebagai siswa baru (kelas bisa "penuh"); join bernomor dengan `client_id` yang sama membalas HTTP 500 (hanya bisa terjadi dari tampilan lama atau klien API, tampilan r8.3 tidak mengirim nomor).

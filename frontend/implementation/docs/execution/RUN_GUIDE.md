@@ -1,6 +1,7 @@
 # Run guide
 
-## UI r8.3 (0.32.0-alpha)
+## UI r8.3 (baseline 0.32.1-alpha)
+Nama panggilan diketik di DreamLoader; tidak memerlukan STT Lab atau penggaris. Uji tiga kartu dan NUI produk sesuai D-20261126-01/-03/-04/-05; uji ring sesuai -06 setelah revisi source tersedia, tanpa mengubah tools kanvas. Bagian run lama di bawah hanya untuk legacy/lab atau komponen bersama yang masih relevan.
 ```bash
 # backend, dari folder backend/ (CORS_ORIGINS harus memuat alamat game)
 CORS_ORIGINS=http://localhost:3000,http://localhost:3002 python -m uvicorn app.main:app --host 127.0.0.1 --port 8000
@@ -59,7 +60,7 @@ Kasus negatif wajib adalah permission denied, browser tanpa kamera, video playba
 
 ## NUI Lab integrated into main 0.21.0-alpha (2026-11-16)
 - Entry pages in the existing Next.js static-export build are `/nui-lab`, `/nui-lab/gesture`, `/nui-lab/canvas`, `/nui-lab/diagnostics`. No branch-specific deployment configuration needed if Ujang deploys `main`.
-- Source and gesture action mapping are shared with the game: pinch Coret, five extended fingers Hapus (not fist), 1-finger Undo, 2-finger Redo. Lab has full-frame hand lock and manual relock; webcam browser testing not yet run.
+- Historical 0.21.0-alpha mapping (pinch Coret, five extended fingers Hapus, 1-finger Undo, 2-finger Redo) is retained as lab/legacy evidence, not R8.3 product mapping (D-20261126-05). Lab had full-frame hand lock and manual relock; webcam browser testing was not run at that snapshot.
 - Use `NUILAB_MAIN_HANDOFF_2026-11-16.md` for static export, deep-link, build, device permission and hard-case validation. Status at source push: STATIC_ONLY / NOT_TESTED.
 
 ## NUI Lab 0.22.0-alpha (P0-P2 Auto-Lock source only, 2026-11-16)

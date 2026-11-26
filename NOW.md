@@ -1,7 +1,7 @@
 # NOW.md — Status integrasi bersama
 
 ## 2026-11-26 — Migrasi UI game r8.3 (0.31.0 sampai 0.32.1-alpha, di-push ke `main`, belum deploy)
-- Game: tampilan r8.3 jadi bawaan. Join memakai nama panggilan; server memberi nomor otomatis dan menerima `client_id` (opsional).
+- Game: tampilan r8.3 jadi bawaan. Join memakai nama panggilan yang diketik di DreamLoader; server memberi nomor otomatis dan menerima `client_id` (opsional). STT dan penggaris bukan alur produk (D-20261126-03). D-20261126-04/-05/-06 menegaskan tutorial R8.3, pemisahan lab dan tiga tingkat interaksi; revisi ring kursor belum terbukti terimplementasi. Rekonsiliasi ini tidak mengubah kode, runtime, atau status review Dias.
 - Backend (sisi Dias, PERLU REVIEW): join tanpa nomor, role `superadmin/admin` menjadi `admin/guru` (migrasi otomatis saat start, ada backup `.pre-role-migration-*.bak` dan `backend/rollback_user_roles.py`), penyesuaian muat model Keras, endpoint `/api/settings/skip-button`, CORS `PUT`.
 - **Sebelum deploy: backup database server.**
 - Bukti: tes backend 21/21; detail game di `contexts/can/NOW.md`. Diagram sistem di `contexts/dias/design/` masih menunjukkan nomor absen.

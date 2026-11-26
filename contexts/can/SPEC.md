@@ -1,6 +1,6 @@
 # SPEC Template — Sketchbook Universe
 
-> Copy ke `SPEC-<feature-name>.md` untuk setiap feature baru.
+> Copy ke `SPEC-<feature-name>.md` untuk setiap feature baru. Template ini bukan spesifikasi fitur aktif. Untuk R8.3 gunakan D-20261126-01 s.d. -06; jangan menjadikan STT, penggaris, mapping legacy/lab, atau revisi ring yang belum teruji sebagai fitur berjalan.
 
 ---
 

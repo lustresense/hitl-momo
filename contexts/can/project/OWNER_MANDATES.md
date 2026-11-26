@@ -5,6 +5,7 @@ Aturan pakai: setiap instruksi baru Owner ditambahkan di atas (nomor berikutnya;
 
 | ID | Tanggal | Mandat (kata-kata Owner) | Status | Bukti / rujukan |
 |---|---|---|---|---|
+| M-046 | 2026-11-26 | "SETUJUI D-20261126-03"; "SETUJUI D-20261126-04"; "SETUJUI D-20261126-05"; "SETUJUI D-20261126-06"; "Terapkan hanya keputusan yang disetujui pada draft dokumentasi. Jangan push sebelum gw izinkan." Kemudian Owner memberi izin publikasi: "push buruan taruh ke github dah pokoknya". | Persetujuan dan izin push dokumentasi tercatat; bukan izin deploy atau perubahan kode | DECISIONS.md D-20261126-03 s.d. -06 |
 | M-045 | 2026-11-26 | "semua yang ada di workspace gw lokal laptop ini push ke main semua perubahannya! jadi dipake di device lain bisa sama"; "yang b dong tiap perubahan itu gede, apalagi migrasi"; "semua harus atasnama lustresense". | Selesai | versi 0.31.0, 0.32.0, 0.32.1; branch `backup/main-sebelum-r83` |
 | M-044 | 2026-11-26 | "yaudah ubah sesuai perubahan sekarang, yang sekarang itu yang fix ... wip sekarang ini fix di decisions"; "jangan dulu eksekusi push". | Selesai | `DECISIONS.md` D-20261126-01 |
 | M-043 | 2026-11-26 | "hasil skip gausah dikirim database"; "pake shortcut aja alt q gitu kek biar gw bisa skip buat percobaannya". | Selesai | `DECISIONS.md` D-20261126-02 |

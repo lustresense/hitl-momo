@@ -1,7 +1,7 @@
 # Setup DEV monorepo
 
 ## Scope dan batas
-Snapshot ini berisi source game, admin, backend serta model dan label Dias DEV. Root repo sama untuk semua komponen; prosesnya berbeda. STT Lab saat ini layanan eksperimen terpisah di VM dan **tidak termasuk** snapshot ini. Clone tidak membawa database, user admin, secret, konfigurasi Cloudflare atau build hasil mesin lain. Kesamaan runtime tidak dijamin sampai diuji di laptop tujuan.
+Snapshot ini berisi source game, admin, backend serta model dan label Dias DEV. Root repo sama untuk semua komponen; prosesnya berbeda. STT Lab adalah eksperimen eksternal yang **tidak termasuk** snapshot ini; STT dibatalkan dari alur produk (D-20261126-03), sehingga tidak perlu diaktifkan untuk menjalankan game R8.3. Routing lama tetap didokumentasikan sebagai keadaan konfigurasi, bukan tugas integrasi. Clone tidak membawa database, user admin, secret, konfigurasi Cloudflare atau build hasil mesin lain. Kesamaan runtime tidak dijamin sampai diuji di laptop tujuan.
 
 ## Routing DEV teramati di WSL
 

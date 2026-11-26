@@ -11,7 +11,7 @@ Repo ini menggabungkan dua pekerjaan yang tadinya terpisah:
 
 ## Setup DEV di laptop
 
-Baca **[Panduan setup DEV](SETUP.md)** terlebih dahulu. Panduan itu menjelaskan root monorepo, port 5555/5800/5802, routing, model Dias dan batas reproduksi. STT Lab berada di luar repo dan tidak disertakan.
+Baca **[Panduan setup DEV](SETUP.md)** terlebih dahulu. Panduan itu menjelaskan root monorepo, port 5555/5800/5802, routing, model Dias dan batas reproduksi. STT Lab berada di luar repo dan tidak disertakan; STT untuk nama siswa dibatalkan dari produk (D-20261126-03).
 
 ## Setup dan model DEV
 
@@ -153,21 +153,20 @@ docker compose config -q   # valid (sudah diuji)
 docker compose up -d --build   # BELUM DIUJI: lingkungan pengujian tidak punya daemon Docker
 ```
 
-## Kontrol gestur di game
+## Kontrol interaksi game R8.3
 
-Mode kamera memakai satu pembaca tangan (MediaPipe) per layar. Mode fallback memakai mouse, sentuh, dan keyboard.
+Baseline source main 0.32.1-alpha; keputusan pengendali [DECISIONS.md](contexts/can/DECISIONS.md) D-20261126-01, -03 s.d. -06. Nama panggilan diketik di DreamLoader, tanpa STT atau penggaris. Momo memandu dengan text bubble; tiga kartu tutorial mendahului permainan.
 
-| Gestur | Fungsi |
+| Interaksi | Desain yang berlaku |
 |---|---|
-| Cubit (jempol + telunjuk) | Coret di kanvas. Di tutorial: cincin cubit untuk maju |
-| Kepal | Hapus sebagian goresan. Tangan kedua mencubit untuk mengatur ukuran penghapus |
-| Dua jari | Mundur (undo) |
-| Telapak terbelah | Maju (redo) |
-| Jempol, tahan 2 detik | Selesai gambar. Baru setelah itu model menebak dan Top-3 muncul |
-| Telunjuk melayang di tombol ±1,2 detik | Memilih (Top-3, keputusan, layar gagal, sudut layar, Tebak, misi) |
-| Gameplay: telunjuk di sepertiga kiri atau kanan, cubit tahan | Thinman ke kiri, ke kanan, lompat |
+| Tingkat 1 | Langsung cubit-tahan untuk satu aksi |
+| Tingkat 2 | Arahkan tangan ke zona pilihan, lalu cubit-tahan |
+| Tingkat 3 | Arahkan kursor ke target ring dan tahan untuk konfirmasi; revisi mekanisme/ikon/copy ring belum terbukti dikerjakan |
+| Kanvas dan alat | Cubit-tahan-geser untuk gambar; tunjuk lalu cubit untuk alat Pensil, Hapus, Mundur, Maju, Bersihkan. Tools tidak berubah oleh D-20261126-06 |
+| Selesai gambar | Tebak Gambarku, ring 2 detik pada baseline D-20261126-01, baru model menebak |
+| Gameplay | Cubit-geser kiri/kanan, cubit cepat atau sentil ke atas untuk lompat; keyboard sebagai fallback sesuai baseline |
 
-Semua ini baru terbukti dengan landmark sintetis dan test hook. Belum diuji dengan kamera fisik. Ambang gestur adalah tebakan awal dan perlu kalibrasi.
+Mapping hitungan jari, pistol dan eksperimen lama tidak berlaku sebagai kontrol produk R8.3. Jangan menyamakan desain ring yang disetujui dengan implementasi aktual. Webcam fisik NOT_TESTED; ambang prototype perlu verifikasi.
 
 ## Test
 

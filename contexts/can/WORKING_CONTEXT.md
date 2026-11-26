@@ -1,6 +1,8 @@
 # Working Context
 
-### 2026-11-26 — UI r8.3 (0.32.0-alpha)
+### 2026-11-26 — UI r8.3 (baseline 0.32.1-alpha; main 4c71664)
+- Nama: `DreamLoader.tsx` → `useR83AppState.ts` → `R83SketchbookShell.tsx` dengan `skipNameStep`. STT provider lama masih stub `unavailable`, route DEV tersisa; eksperimen eksternal bukan dependency/backlog produk (D-20261126-03).
+- Desain D-20261126-04/-05/-06 mengunci onboarding, pemisahan lab dan tiga tingkat interaksi; revisi ring kursor belum terbukti dikerjakan. Tools kanvas tetap. Bagian lama merupakan riwayat, bukan mapping aktif game.
 - Shell: `src/app/R83SketchbookShell.tsx`, layar di `src/features/`, NUI di `src/nui/`. Tampilan lama tetap ada di `SketchbookApp.tsx` dan hanya aktif bila `NEXT_PUBLIC_UI_R83=0`.
 - Build untuk dicoba di laptop: `npm run build:local`. Backend harus hidup; kalau mati, layar tebakan menampilkan kode `unknown`.
 - Webcam fisik NOT_TESTED.

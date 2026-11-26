@@ -2,6 +2,8 @@
 
 The folder `contexts/` is the **Owner Context Registry**. Do not rename it casually: all agents route via root `AGENTS.md` to `contexts/can/AGENTS.md` or `contexts/dias/AGENTS.md`. This file maps references and authority; **it is not a second decision ledger**.
 
+R8.3 reconciliation: D-20261126-03 through -06 control the approved product changes. Current `main` is the implementation reference, not an automatic approval of every behavior or residue. STT stub, DEV route, legacy gesture paths and lab history do not supersede decisions. Report approved design separately from verified implementation.
+
 | Need | Source, in priority order |
 |---|---|
 | Current user task / permission | Most recent direct user instruction; current Git branch, SHA and working tree. Historic branch directives cannot authorize future auto-merge |

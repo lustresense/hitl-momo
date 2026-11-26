@@ -1,6 +1,6 @@
 # Sketchbook Universe — Author-Side Implementation
 
-**DEV BUILD.** Vertical slice author-side sesuai `PRD_SKETCHBOOK_UNIVERSE_v1.0.md` (lihat `.ops/inbox/rnd/`). Banner "DEV / MOCK" selalu tampil: prediksi berasal dari **mock provider**, bukan model partner.
+**Baseline aktif:** R8.3, Next.js static export 0.32.1-alpha. Baca [SETUP.md](../../SETUP.md) dan [Run guide](docs/execution/RUN_GUIDE.md) untuk konfigurasi aktual. Nama panggilan diketik saat DreamLoader, tanpa STT/penggaris; kontrol dan ring mengacu D-20261126-01 s.d. -06. Bagian berikut adalah riwayat vertical slice author-side lama (DEV/MOCK, Vite); bukan panduan menjalankan R8.3 atau bukti provider prediksi saat ini.
 
 ## Run
 

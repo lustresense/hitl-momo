@@ -26,9 +26,9 @@ Thinman setengah hidup. Matanya mengikuti Momo, tapi tubuhnya kaku. Dia tidak bi
 
 Cahaya muncul di langit halaman. Seseorang membuka buku: **ilustrator baru, yaitu siswa.** Garis yang digambar siswa tidak menguap. Garis itu solid.
 
-Momo yang tadinya tidur bangun saat ilustrator baru melambai. Dia menyapa dengan satu sayap: "Halo! Aku Momo." Dia bercerita singkat: dia bisa menebak tapi tidak bisa menggambar, dan temannya, Thinman, hanyalah garis tipis yang belum selesai. "Ayo ikut aku masuk ke dunia Sketchbook!"
+Siswa sudah mengetik nama panggilan di DreamLoader. Momo yang tadinya tidur bangun setelah kamera siap dan video dapat diputar. Dia menyapa dengan satu sayap melalui text bubble: "Halo! Aku Momo." Dia bercerita singkat: dia bisa menebak tapi tidak bisa menggambar, dan temannya, Thinman, hanyalah garis tipis yang belum selesai. "Ayo ikut aku masuk ke dunia Sketchbook!"
 
-Siswa memilih nomor absennya dengan penggaris, mencoba tiga kartu panduan (mengajak Thinman jalan, mengenali benda padat dan benda berbahaya, mencoba gestur), lalu memilih bab pertama.
+Siswa melanjutkan ke tiga kartu panduan (Kenalin Thinman, Pijakan aman, atau bahaya, Latihan kursor dan alat), lalu memilih level pertama. Tidak ada penggaris, wave-gate, atau kenalan ulang dengan mikrofon (D-20261126-03/-04).
 
 ## Babak 4: Perjalanan ke Pusat Halaman (Level 1, 2, 3)
 

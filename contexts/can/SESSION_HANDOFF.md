@@ -2,7 +2,7 @@
 
 - Di-push ke `main` 2026-11-26 atas perintah Owner, versi `0.32.1-alpha` (commit game `64248dc`). `main` sebelum migrasi tersimpan di branch `backup/main-sebelum-r83`.
 - Commit lokal `c8a9cfb`, `f115612`, dan `9b6b0f2` ternyata memiliki tree rusak (entri folder ganda, file admin dan kontrak hilang dari commit; file di disk utuh). Commit itu tidak di-push; riwayat disusun ulang dari index dan dicocokkan dengan disk. Sebelum push, periksa isi commit, bukan hanya `git status`.
-- Keputusan baru: D-20261126-01 (tampilan r8.3) dan D-20261126-02 (Lewati).
+- Keputusan baru: D-20261126-01 (tampilan r8.3), -02 (Lewati), -03 (nama ketik tanpa STT/penggaris), -04 (onboarding/tutorial), -05 (pemisahan NUI produk/lab), -06 (tiga tingkat interaksi). Empat keputusan terakhir telah disetujui Owner; revisi ring kursor belum terbukti diimplementasikan. Jangan lanjutkan STT hanya karena stub/routing tersisa. Rekonsiliasi dokumentasi berdasarkan main `4c71664`; tidak ada perubahan kode atau deploy.
 - Bukti: tsc 0 error; lint 0 warning; unit tanpa kegagalan baru (38 kegagalan bawaan main; satu tes tampilan lama tidak stabil saat jalan paralel); tes backend 21/21; E2E r83-flow 42/42 (sebelum Alt+Q); telusur penuh hanya dengan Alt+Q sampai ending; cek data skip vs manual dengan model asli. Webcam fisik, klik halaman admin, dan E2E tampilan lama: NOT_TESTED.
 - Masih terbuka: revisi Owner yang sedang dikumpulkan, review Dias untuk perubahan backend, backup database sebelum deploy, uji webcam.
 

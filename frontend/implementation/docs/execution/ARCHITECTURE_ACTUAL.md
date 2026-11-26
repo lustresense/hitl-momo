@@ -1,6 +1,8 @@
 # Actual architecture (derived from source, not from proposals)
 
-## UI r8.3 (0.32.0-alpha) — tampilan bawaan
+## UI r8.3 (baseline 0.32.1-alpha) — tampilan bawaan
+
+Identitas aktif: `src/components/onboarding/DreamLoader.tsx` → `src/app/hooks/useR83AppState.ts` → `R83SketchbookShell.tsx` (`skipNameStep`). Provider STT di `src/features/cover/name/providers/stt-lab.ts` masih stub; route eksternal DEV bukan dependency produk (D-20261126-03). Keputusan -04/-05/-06 membedakan onboarding aktif, lab/legacy dan tiga tingkat interaksi. Perilaku ring baru adalah desain disetujui, bukan klaim implementasi. Tools kanvas tetap; webcam fisik NOT_TESTED.
 | Bagian | File | Tugas |
 |---|---|---|
 | Pemilih tampilan | `src/app/SketchbookApp.tsx`, `next.config.mjs` | `NEXT_PUBLIC_UI_R83` bawaan `1`; `0` = tampilan lama |

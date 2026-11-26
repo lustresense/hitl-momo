@@ -1,7 +1,7 @@
 # Project Memory — Durable Bootstrap
 
-## 2026-11-26 — Tampilan r8.3 berlaku (0.32.0-alpha)
-Siswa masuk dengan nama panggilan, tanpa penggaris. Gestur utama cubit. "Lewati" (juga Alt+Q) hanya alat dev dan demo: sembunyikan saat uji siswa, hasilnya tidak disimpan. Keputusan: D-20261126-01 dan -02.
+## 2026-11-26 — R8.3 (baseline 0.32.1-alpha)
+Nama panggilan diketik di DreamLoader, tanpa penggaris/STT. Momo text bubble dan tiga kartu. Cubit sebagai gestur utama; mapping lama milik lab/legacy. Tiga tingkat interaksi: langsung cubit, zona pilihan, kursor; ring kursor diarahkan dan ditahan (desain disetujui, implementasi revisi belum terbukti; tools kanvas tetap). "Lewati" (juga Alt+Q) hanya alat dev dan demo: sembunyikan saat uji siswa, hasilnya tidak disimpan. Keputusan: D-20261126-01 s.d. -06. Bagian lebih lama di bawah adalah snapshot historis dan tidak dapat menghidupkan kembali opsi yang telah dibatalkan.
 
 ## 2026-11-16 — NUI Lab P0–P2 auto-lock eksperimen 0.22.0-alpha
 Mandat M-039. Lab: jika kamera tanpa kandidat beberapa frame maka auto-release, satu kandidat baru yang stabil auto-lock tanpa klik; hands ambiguous menahan aksi. Bukan identifikasi manusia/biometrik. Cursor terpisah dari gate tinta dan mode eksperimen lab menguji pinch telunjuk terlipat/tiga-jari, dengan diagnostik ratio+reason. Game default dan mapping tetap. Bukti 12 V8 synthetic tests saja, belum npm/browser/webcam. Training dataset P3/P4 belum dilaksanakan.

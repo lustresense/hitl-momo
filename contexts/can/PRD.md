@@ -1,7 +1,7 @@
 # PRD: Sketchbook Universe — PA AI Literacy Platform (2026-10-21)
 
-> **Source of truth**: Existing comprehensive docs (CHANGELOG, DESIGN_RESEARCH, BAB_4, etc.) + reality check.
-> **Status**: Initial PRD konsolidasi dari dokumentasi yang sudah ada.
+> **Source of truth**: `DECISIONS.md` dan source aktual untuk implementasi. `CHANGELOG.md` root adalah riwayat teknis.
+> **Status**: PRD konsolidasi 2026-10-21; bagian historis yang bertentangan tidak berlaku. Baseline produk R8.3: nama panggilan diketik di DreamLoader, tanpa STT/penggaris, Momo text bubble, tiga kartu tutorial, cubit sebagai gestur utama, pemisahan lab, tiga tingkat interaksi dan ring sesuai D-20261126-01 s.d. -06. Tools kanvas tidak diubah; revisi ring kursor belum terbukti terimplementasi. Detail lain tidak diganti oleh rekonsiliasi ini.
 
 ---
 

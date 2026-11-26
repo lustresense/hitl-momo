@@ -5,15 +5,15 @@ Berkas ini (dulu bernama `CHANGELOG.md`) adalah **catatan keputusan PA/produk da
 | Berkas | Isi |
 |---|---|
 | `DECISIONS.md` (ini) | Keputusan Owner: Aktif, Direvisi, Dicabut, Belum dikunci, Riset. Sumber kebenaran keputusan. |
-| `implementation/CHANGELOG.md` | Setiap perubahan di dalam folder `implementation/` (kode, test, e2e, aset runtime, struktur folder), per versi. |
+| `CHANGELOG.md` (root repository) | Catatan rilis teknis monorepo per versi; rujukan `implementation/CHANGELOG.md` di riwayat lama hanya referensi historis. |
 | `project/OWNER_MANDATES.md` | Instruksi Owner dalam kata-kata Owner, berurutan. |
 | `NOW.md` | Keadaan paling baru dalam satu halaman. |
 
-**Hubungan `DECISIONS.md` dan `implementation/CHANGELOG.md`:**
-- Keputusan Owner masuk ke sini. Kebanyakan keputusan Owner mengubah `implementation/` (teknis, folder, kode). Keputusan seperti itu **wajib** menyebut versi changelog yang mengerjakannya, contoh: "Teknis: `implementation/CHANGELOG.md` 0.0.15".
+**Hubungan `DECISIONS.md` dan `CHANGELOG.md` root:**
+- Keputusan Owner masuk ke sini. Kebanyakan keputusan Owner mengubah `implementation/` (teknis, folder, kode). Keputusan seperti itu **wajib** menyebut versi changelog yang mengerjakannya, contoh: "Teknis: `CHANGELOG.md` root 0.32.0-alpha".
 - Setiap entri changelog **wajib** menyebut ID keputusan yang melatarinya, contoh: "Decision: D-20261105-19". Jadi dari keputusan bisa dilacak ke perubahan teknis, dan dari perubahan teknis ke keputusannya.
 - Perubahan teknis tanpa keputusan baru dari Owner (perbaikan bug, refactor, test) cukup di changelog, tetap ditulis "Decision: -" atau ID keputusan lama yang dijalankan.
-- Keputusan yang tidak menyentuh `implementation/` (dokumen, aset di `academic/`, `project/`, alur kerja seperti push) hanya dicatat di sini, ditulis "Teknis: tidak ada".
+- Keputusan PA yang tidak menyentuh kode dicatat di sini dengan "Teknis: tidak ada". Mandat alur kerja seperti push dicatat di `project/OWNER_MANDATES.md`, bukan sebagai keputusan PA.
 
 ## Cara pakai
 
@@ -46,10 +46,13 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 
 ## Keputusan Aktif
 
+> Rekonsiliasi 2026-11-26: D-20261126-03 s.d. -06 disetujui Owner melalui chat. Baseline implementasi `main` 4c716641c2dc089f58cb4ee0637c52221f96a1c5, versi 0.32.1-alpha. Rekonsiliasi dokumentasi ini diizinkan untuk dipublikasikan oleh Owner pada 2026-11-26. Keputusan desain tidak membuktikan implementasi atau runtime; bagian historis dibaca sesuai tanggal, dan tidak mengaktifkan kembali ketentuan yang telah direvisi/dicabut.
+
 | Area | Keputusan aktif | Status |
 |---|---|---|
-| Identitas siswa di game | Nama panggilan diketik di layar muat; tanpa penggaris nomor absen (D-20261126-01). | Aktif |
-| Tampilan dan gestur yang berlaku | UI r8.3: cincin cubit-tahan, pilih dengan mendekatkan tangan, kursor pensil di kanvas, kendali Thinman dengan cubit-geser (D-20261126-01). Webcam fisik NOT_TESTED. | Aktif |
+| Identitas siswa di game | Nama panggilan diketik di DreamLoader; tanpa STT, penggaris nomor absen, atau sesi kenalan ulang melalui mikrofon (D-20261126-01, -03). Backend dapat memberi nomor internal tanpa input siswa. | Aktif |
+| Tampilan dan gestur yang berlaku | UI r8.3: cubit sebagai gestur utama; pilihan melalui zona tangan, kursor di kanvas, kendali Thinman dengan cubit-geser (D-20261126-01, -05). Tiga tingkat interaksi dan ring sesuai D-20261126-06. Webcam fisik NOT_TESTED. | Aktif |
+| Tiga tingkat interaksi | (1) langsung cubit-tahan; (2) arahkan tangan ke zona pilihan, lalu cubit-tahan; (3) arahkan kursor dan tahan pada target ring. Ikon/petunjuk dan mekanisme ring mengikuti tingkat; tools kanvas tidak diubah. | Aktif (desain; revisi implementasi belum terbukti) |
 | Tombol Lewati | Alat dev dan demo; disembunyikan saat pengujian siswa; hasilnya tidak disimpan (D-20261126-02). | Aktif |
 | Identitas proyek | Satu sistem PA terpadu untuk literasi kecerdasan buatan siswa SMP; bukan dua aplikasi terpisah. Nama internal/IP: **Sketchbook Universe**. | Aktif |
 | Judul/branding | "Escape the Sketchbook" tidak dipakai sebagai judul formal. Judul formal final tetap mengikuti dokumen/MIS terbaru yang disetujui. | Aktif |
@@ -73,16 +76,16 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 | Urutan desain | Matangkan user flow terlebih dahulu, lalu turunkan input–process–output dan design system. | Aktif |
 | Presentasi vs buku | Buku PA boleh memuat flow/detail teknis lebih lengkap. PPT/paper harus menampilkan metodologi, desain sistem, dan diagram yang ringkas serta terbaca. | Aktif |
 | Onboarding tutorial | Onboarding awal menggunakan **tiga kartu tutorial berurutan**: kartu masuk sebagai stack → menyebar 1–2–3 → kartu aktif flip → membuka menjadi **brosur bifold**. Brosur memakai **panel kiri sebagai guide** dan **panel kanan sebagai visual/interaktif playground**. | Aktif |
-| Isi tutorial Kartu 1 | **Stickman/navigation**: pengguna menggerakkan Stickman ke kiri/kanan menuju target sebagai pengenalan kontrol pada tutorial. | Aktif |
-| Isi tutorial Kartu 2 | **Aman vs Bahaya**: tutorial memperkenalkan semantik gameplay **Solid/Aman** dibanding **Danger/Sobek** melalui benda padat seperti balok/tangga dan benda tajam seperti duri/pisau. | Aktif |
-| Isi tutorial Kartu 3 | **Canvas \& gesture**: pengguna mencoba Coret, Hapus, Undo, dan Redo melalui live canvas interaktif pada prototype onboarding. | Aktif |
+| Isi tutorial Kartu 1 | **Kenalin Thinman**: cubit lalu geser untuk berjalan ke bendera; cubit cepat atau sentil ke atas untuk lompat sesuai kontrol r8.3. Nama karakter pada copy dapat mengikuti parameter/konfig. | Aktif |
+| Isi tutorial Kartu 2 | **Pijakan aman, atau bahaya**: perkenalkan Solid/Aman dan Danger/Sobek dengan contoh benda padat (balok/tangga) dan duri; bukan pisau (D-20261105-24, D-20261126-04). | Aktif |
+| Isi tutorial Kartu 3 | **Latihan kursor dan alat**: kursor pensil; cubit-tahan-geser menggambar; lima alat Pensil, Hapus, Mundur, Maju, Bersihkan. Hapus bersifat lokal, Bersihkan mengosongkan kanvas. Pilih alat dengan tunjuk lalu cubit; tidak diubah oleh D-20261126-06. | Aktif |
 | Arah visual tutorial | Gunakan prinsip **less is more** dan hindari tampilan generik/"AI soft": prioritaskan ilustrasi dan interaksi; kurangi badge, box dekoratif, copy berulang, rounded container, gradient, dan ornamentasi yang tidak punya fungsi. | Aktif |
 | Onboarding camera / cover visual | Onboarding camera diposisikan secara visual sebagai **cover dari Sketchbook Universe**. Karena fungsi tersebut, layar onboarding camera boleh menggunakan **dominasi hijau secara keseluruhan** sebagai treatment khusus cover dan tidak harus mengikuti treatment paper/dotted pada tutorial. Dominasi hijau ini tidak otomatis menjadi background global untuk page lain. | Aktif |
-| Copy \& kontras tutorial | (Judul dan CTA diganti D-20261126-01.) Copy tutorial prototype onboarding dan aturan kontras panel guide dikunci sesuai spesifikasi pengguna saat ini. Judul: **Kenalin Stickman**, **Pijakan Aman vs Bahaya**, **Tes Coret \& Gestur Jarimu**. CTA: **Lanjut**, **Lanjut**, **Mulai Level 1**. Teks utama panel kiri menggunakan hitam solid berkontras tinggi pada latar hijau. | Aktif |
+| Copy \& kontras tutorial | Copy R8.3 pada `frontend/implementation/src/domain/copy/tutorial.ts`: **Kenalin Thinman** (nama dari parameter), **Pijakan aman, atau bahaya**, **Latihan kursor dan alat**. CTA: **Lanjut**, **Lanjut**, **Pilih level**. Jeda baca `CARD_READ_MS` 3,3 detik (D-20261126-01, -04); kontras mengikuti sistem visual yang berlaku. | Aktif |
 | Evaluasi | Gunakan log untuk menggambarkan pola keputusan yang teramati. Jangan mengklaim perubahan psikologis/kognitif atau hasil pre/post tanpa rancangan dan bukti evaluasi yang sah. | Aktif |
 | Metodologi | Fishbone: Concept, Design, Material Collecting, Assembly, User Testing, Distribution. | Aktif |
 | Sistem visual | Warna oranye/hijau, dots di belakang, outline dan bayangan yang ada sekarang **dikunci Owner**. "Anti-slop" = perbaikan detail, bukan ganti palet/tipografi (D-20261105-01). | Aktif |
-| Pemicu bangun Momo di cover | Kamera berawal OFF; setelah siswa menyalakan kamera dan stream benar-benar bisa diputar, Momo bangun kaget, kamera morph ke PIP dan perkenalan dilanjutkan lewat bubble; jempol mengantar ke penggaris (bagian ini diganti D-20261126-01: cincin cubit-tahan menuju tiga kartu). Wave bukan lagi syarat membuka cover. Jika izin/stream gagal, tidak boleh membangunkan Momo palsu dan fallback pointer tetap tersedia. (D-20261115-03, merevisi bagian wake D-20261110-04.) | Aktif (source 0.18.1-alpha, runtime belum diuji) |
+| Pemicu bangun Momo di cover | Kamera OFF; Momo bangun setelah stream kamera benar-benar playable, morph ke PIP, lanjut panduan text bubble dan cincin cubit-tahan menuju tiga kartu. Nama sudah diisi di DreamLoader; tidak ada penggaris, STT atau syarat wave. Jika izin/stream gagal, jangan membangunkan Momo palsu; fallback pointer yang telah berlaku dipertahankan. (D-20261115-03, D-20261126-01/-03/-04.) | Aktif (webcam fisik NOT_TESTED) |
 | Ikon visual gestur | Ilustrasi tangan SVG khusus yang menerangkan aksi dengan jelas, bukan ikon generik yang salah arti, sesuai instruksi Owner 15 November 2026 (D-20261115-01). Warna dan sistem visual yang sudah dikunci tetap berlaku. | Aktif (desain), belum diuji pengguna |
 | Alur keputusan HITL di UI | Terima/Pilih lain/Bukan semua langsung berlaku (tanpa tombol "Wujudkan Objek"); lalu tawaran "Masukkan ke dunia" (D-20261105-02). Sejak 2026-11-11: gambar menjadi stiker lalu "Lempar" (D-20261110-08); submission dikirim saat cincin keputusan penuh (D-20261111-01). | Aktif |
 | Ringkasan level | Pop-up di dalam dunia game dengan Momo yang merayakan, bukan layar penuh (D-20261105-04). | Aktif |
@@ -99,15 +102,17 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 | Login/history | Notulensi menggeser rancangan dari session-only menuju identitas/login bila progres dan returning-user history harus disimpan. Mekanisme login, ID, durasi sesi, dan penyimpanan final harus mengikuti dokumen/repo terbaru; jangan memilih sendiri. |
 | Manipulasi kesalahan AI | Gagasan menurunkan confidence, memaksa prediksi salah, atau membuat jebakan automation-bias pernah dibahas, tetapi belum boleh disebut keputusan final atau persetujuan dosen tanpa rancangan evaluasi dan konfirmasi terbaru. |
 | Kontrol karakter | Kiri/kanan/lompat pernah disarankan dalam eksplorasi. Status aktual harus mengikuti prototype dan desain gameplay terbaru. |
-| Implementasi gesture/camera tutorial | Riwayat ikon lama adalah 🤏 Coret, ✊ Hapus, ✌️ Undo, 🖐️ Redo. **Jangan pakai baris lama untuk menjelaskan gesture Card 3 saat ini**. Kode 0.17.0-alpha memakai cubit Coret, telapak lima jari Hapus, satu jari Undo, dua jari Redo; Card 1 memakai sudut telunjuk. Ketidakselarasan dengan D-20261110-06/07 dicatat pada D-20261115-02 (Belum dikunci); uji kamera nyata belum ada. |
-| Cakupan kontrol Stickman | Gerak kiri/kanan Stickman pada Kartu 1 adalah interaksi tutorial aktif, tetapi **belum cukup bukti** untuk menyimpulkan kontrol karakter gameplay global hanya kiri/kanan atau mencakup lompat. |
+| Implementasi gesture/camera tutorial | Konflik lama D-20261115-02 diselesaikan D-20261126-01 dan -05. Mapping hitungan jari/pistol bukan kontrol produk R8.3. Parameter stabilitas dan uji webcam fisik masih perlu dibuktikan; jangan menyamakan status riset NUI Lab dengan keputusan produk. |
+| Cakupan kontrol Thinman | Baseline kontrol global mengikuti D-20261126-01: cubit-geser kiri/kanan dan cubit cepat/sentil ke atas untuk lompat. Revisi 360 derajat masih terpisah, belum disetujui dalam rekonsiliasi ini. |
 | Detail proposal | Struktur bab, judul final, daftar referensi, nama lengkap pembimbing, dan status persetujuan mengikuti dokumen resmi terbaru, bukan template/backup AI. |
 
 ## Keputusan yang Dicabut atau Tidak Boleh Dihidupkan Lagi
 
 | Item lama | Perlakuan |
 |---|---|
-| Penggaris nomor absen sebagai cara siswa masuk | Diganti nama panggilan (D-20261126-01). |
+| Penggaris nomor absen sebagai cara siswa masuk | Dicabut dari R8.3; diganti nama panggilan (D-20261126-01/-03). |
+| Speech-to-text (STT) untuk nama siswa | Dicabut sebagai opsi produk (D-20261126-03). Bukan backlog integrasi; stub/route/lab eksternal tidak menjadi mandat implementasi. Tidak ada klaim STT pernah disahkan sebagai keputusan tersendiri. |
+| Mapping hitungan jari/pistol sebagai kontrol produk R8.3 | Digantikan oleh D-20261126-01/-05. Riwayat NUI Lab tetap tersimpan, tidak berlaku otomatis untuk game. |
 | "Escape the Sketchbook" sebagai nama/judul formal | Jangan gunakan. Hanya boleh disebut sebagai riwayat bila pengguna meminta. |
 | Momo sebagai karakter yang dapat menggambar/menciptakan objek | Salah. Pencipta objek adalah pengguna/Illustrator. |
 | Chatbot, LLM/RAG/NLP, voice assistant, atau percakapan bebas sebagai fitur inti | Di luar scope inti saat ini. |
@@ -120,6 +125,7 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 
 | Periode | Perubahan/penegasan | Status sekarang |
 |---|---|---|
+| 2026-11-26 | Rekonsiliasi nama tanpa STT, onboarding, pemisahan NUI lab, dan tiga tingkat interaksi (D-20261126-03 s.d. -06; disetujui Owner). | Aktif (desain; revisi kode tidak dikerjakan) |
 | 2026-11-26 | Tampilan r8.3 ditetapkan berlaku (D-20261126-01) dan aturan tombol Lewati (D-20261126-02). | Aktif |
 | Awal perumusan | Konsep berkembang menjadi sistem literasi AI berbasis simulasi interaktif dan HITL untuk SMP. | Dipertahankan |
 | Pengembangan lore | Dunia Sketchbook Universe dikunci sebagai payung IP; pengguna/Illustrator adalah kreator, Momo bukan kreator. | Dipertahankan |
@@ -131,13 +137,43 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 
 ## Entri Perubahan Terbaru
 
+### D-20261126-06 — Aktif (disetujui Owner 2026-11-26) — Tiga tingkat interaksi
+- **Keputusan:** bedakan tiga tingkat: (1) langsung cubit-tahan di mana saja untuk satu aksi; (2) arahkan tangan ke zona pilihan di layar, lalu cubit-tahan; (3) arahkan kursor ke target ring dan tahan untuk konfirmasi. Ikon, teks petunjuk, dan mekanisme ring wajib sesuai tingkat. Untuk ring berbasis kursor, arahkan kursor dan tahan, bukan mewajibkan cubit sebagai konfirmasi. Tools kanvas yang sudah ada dikecualikan dan tidak diubah. Cubit-geser untuk manipulasi benda/pita/Thinman tetap mekanika yang berlaku; bukan tingkat konfirmasi keempat.
+- **Mengubah:** memperinci D-20261126-01 (interaksi dan konfirmasi); tidak menetapkan posisi rotate, pemilihan ulang objek, kendali 360 derajat, atau parameter ambang baru.
+- **Bukti:** transkrip AGY 26 November 2026 17:13:27 WIB, step 566: “ring confirmnya itu harus sesuai sama interaksinya ... yang pake cursor ya cursor kea arahkan kursor ke sini dan tahan, bukan pinch gitu ... 3 level interaksi, langsung pinch, arahkan layar, sama cursor”; `SETUJUI D-20261126-06` pada chat ini.
+- **Dampak:** desain interaksi seluruh layar, ring, badge, ikon dan copy. Revisi implementasi dicatat di REVISIONS.md; tidak diklaim selesai.
+- **Teknis:** baseline 0.32.1-alpha (`main` 4c71664); tidak ada perubahan kode dalam rekonsiliasi dokumentasi ini. Webcam fisik NOT_TESTED.
+
+### D-20261126-05 — Aktif (disetujui Owner 2026-11-26) — Pisahkan NUI produk dan eksperimen lab
+- **Keputusan:** R8.3 memakai cubit sebagai gestur utama sesuai D-20261126-01 dan tiga tingkat D-20261126-06. Mapping hitungan jari, pistol, dan eksperimen lama bukan kontrol produk aktif; tetap sebagai riwayat riset NUI Lab. Tools kanvas tidak diubah oleh keputusan ini.
+- **Mengubah:** D-20261110-07/-09 dan konflik D-20261115-02 telah digantikan D-20261126-01; penegasan pemisahan produk dari eksperimen.
+- **Bukti:** D-20261126-01 pada main dan source `frontend/implementation/src/nui/`; `SETUJUI D-20261126-05` pada chat ini.
+- **Dampak:** desain NUI, spesifikasi interaksi dan pembacaan arsip riset. Tidak menghapus kode lab atau legacy.
+- **Teknis:** baseline 0.32.1-alpha, tidak ada perubahan kode. Webcam fisik NOT_TESTED.
+
+### D-20261126-04 — Aktif (disetujui Owner 2026-11-26) — Rekonsiliasi onboarding dan tutorial R8.3
+- **Keputusan:** pertahankan Momo sebagai pemandu text bubble, bangun setelah kamera siap, tiga kartu tutorial. Nama sudah diisi saat DreamLoader (D-20261126-03); dari cover lanjut ke tutorial dengan cincin cubit-tahan, tanpa penggaris, wave-gated cover, atau jempol konfirmasi lama. Tutorial memakai copy R8.3: Kenalin Thinman (nama dari parameter), Pijakan aman, atau bahaya, Latihan kursor dan alat; CTA Lanjut, Lanjut, Pilih level. Kartu 2 memakai duri, bukan pisau. Kartu 3 mempertahankan lima alat yang ada. Durasi baca mengikuti D-20261126-01; detail ring sesuai D-20261126-06.
+- **Mengubah:** D-20261105-19/-23, D-20261110-04/-06, D-20261115-03 hanya pada bagian yang bertentangan. D-20261105-24 sudah mencabut pisau; tidak mencabut lore, visual, animasi atau peran pemandu yang masih berlaku.
+- **Bukti:** D-20261126-01, D-20261105-24, source `src/domain/copy/tutorial.ts`; `SETUJUI D-20261126-04` pada chat ini.
+- **Dampak:** onboarding, UI/UX, tutorial, diagram flow, dokumentasi PA.
+- **Teknis:** baseline 0.32.1-alpha, tidak ada perubahan kode. Webcam fisik NOT_TESTED.
+
+### D-20261126-03 — Aktif (disetujui Owner 2026-11-26) — Identitas siswa tanpa STT
+- **Keputusan:** siswa mengetik nama panggilan di DreamLoader. STT untuk input nama dibatalkan dari produk, tidak menjadi backlog integrasi. Penggaris nomor absen dan sesi kenalan ulang lewat mikrofon tidak dipakai pada R8.3. Backend boleh mengalokasikan nomor internal tanpa meminta input siswa. Nama tetap dipakai untuk personalisasi text bubble Momo.
+- **Mengubah:** mempertegas D-20261126-01 (identitas); D-20261105-19 pada alur kenalan; D-20261110-05 tetap Dicabut. Tidak mengarang ID persetujuan STT historis.
+- **Bukti:** transkrip AGY 26 November 2026: “gajadi pake speech to text, jadi langsung masuk aja ke card”; source `DreamLoader.tsx`, `R83SketchbookShell.tsx`, `useR83AppState.ts`, `backend/app/classroom.py`; `SETUJUI D-20261126-03` pada chat ini.
+- **Dampak:** identitas, onboarding, proposal dan diagram sistem. Tidak mengubah kontrak/backend Dias atau menghapus stub/route/model lab secara fisik.
+- **Teknis:** `main` 4c71664, 0.32.1-alpha. Provider `src/features/cover/name/providers/stt-lab.ts` masih mengembalikan `unavailable`; route DEV ada, service eksternal tidak termasuk snapshot. Jalur normal nama sudah ada di source. Bukan bukti deploy atau pengujian webcam.
+
 ### D-20261126-02 — Aktif (instruksi eksplisit Owner 2026-11-26) — Tombol "Lewati" sebagai alat dev dan demo
 - **Keputusan:** "Lewati" di game mengikuti perilaku sandbox r8.3 (satu tekanan menyelesaikan satu adegan). Alt+Q sama dengan menekan tombolnya. Tombol dan shortcut dapat ditampilkan atau disembunyikan lewat satu saklar (halaman admin atau `scripts/skip_button.py`, panduan `docs/SKIP_BUTTON.md`). Harus disembunyikan saat pengujian ke siswa. Gambar contoh, jawaban otomatis, dan hasil menang yang dibuat "Lewati" tidak dikirim ke server.
 - **Mengubah:** tidak mencabut D-20261110-03; animasi cerita tidak dipersingkat bagi siswa.
 - **Bukti keputusan:** instruksi Owner 2026-11-26: “meskipun skip2nya kea sandbox ... kalo udah mau dijadiin testing tinggal hapus tombol skip aja”, “di admin jg adain tombol skip disable atau engga”, “hasil skip gausah dikirim database”, “pake shortcut aja alt q”.
 - **Teknis:** `CHANGELOG.md` root 0.32.0-alpha.
 
-### D-20261126-01 — Aktif (instruksi eksplisit Owner 2026-11-26) — Tampilan r8.3 menjadi bentuk yang berlaku
+### D-20261126-01 — Aktif, diperinci D-20261126-03 s.d. -06 — Tampilan r8.3 menjadi bentuk yang berlaku
+> **Status rekonsiliasi 2026-11-26:** Identitas, tutorial, pemisahan lab dan tiga tingkat mengikuti D-20261126-03 s.d. -06. Bagian lain tetap berlaku.
+
 - **Keputusan:** tampilan dan interaksi game pada 0.32.0-alpha (hasil migrasi sandbox r8.3) berlaku, menggantikan keputusan lama yang bertentangan:
   1. UI r8.3 adalah tampilan bawaan. Tampilan lama hanya untuk pembanding (`NEXT_PUBLIC_UI_R83=0`).
   2. Siswa masuk dengan nama panggilan yang diketik di layar muat. Penggaris nomor absen tidak dipakai.
@@ -155,13 +191,17 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 - **Teknis:** `CHANGELOG.md` root 0.32.0-alpha.
 
 ### D-20261116-01 — Aktif, istilah "Bab" direvisi D-20261126-01 (keputusan eksplisit Owner 2026-11-16, M-036) — Objek siswa memakai kotak gambarnya sendiri; hanya tiga bab; satu kata "Bab"
+> **Status rekonsiliasi 2026-11-26:** Istilah Bab dalam riwayat ini sudah diganti Level oleh D-20261126-01; keputusan collider tetap aktif.
+
 - **Keputusan:** (1) Collider objek siswa adalah kotak gambarnya sendiri: gambar dipertahankan proporsinya dan diperbesar sampai memenuhi kotak terbesar bab, sehingga yang dilihat siswa sama dengan yang diinjak Thinman. Owner memilih "opsi 1" dan menolak opsi gambar dipipihkan ke papan 130 x 20. (2) Objek tidak boleh menimpa titik awal Thinman atau bendera. (3) Objek bahaya (duri) melukai hanya di dalam gambarnya. (4) Papan petunjuk akhir bab hanya satu panah tanpa papan "Bab N selesai": Bab 1 dan 2 "Lanjut ke Bab 2/3", Bab 3 "Menuju Pusat Halaman". (5) Hanya tiga bab; pratinjau 01/03 sampai 03/03; semua teks siswa memakai kata **Bab**, bukan Level.
 - **Batas:** fisika (jalan 130, lompat 520, gravitasi 1600, badan 24 x 40), geometri tanah (terikat art), minimal 2 objek per bab dan "satu objek saja tidak pernah cukup" tidak berubah. Ukuran maksimal per bab ada di `frontend/implementation/src/game/object-limits.ts` dan boleh disetel bila tes keterselesaian menuntut.
 - **Mengubah:** ukuran hitbox objek pada praktik PRD 0.0.16 K2 (semua objek papan 80 x 12 satuan sumber) dan D-20261110-08 hanya pada ukuran hitbox. Alur stiker, "Lempar", "Taruh di sini" tidak berubah. Tidak mencabut D-20261115-03.
 - **Teknis:** `CHANGELOG.md` root 0.19.0-alpha; `frontend/implementation/docs/execution/gameplay/README.md`.
 - **Bukti:** browser (mock, mouse+keyboard) perjalanan Bab 1-3 PASS, recovery 16/16, finish 12/12, route 15/15; unit tsc bersih, tes game 371 lulus; kamera fisik NOT_TESTED. Rincian REVISIONS R16-01..R16-10.
 
-### D-20261115-03 — Aktif, bagian penggaris direvisi D-20261126-01 (keputusan eksplisit Owner 2026-11-15) — Wake Momo dari kamera siap, bukan wave
+### D-20261115-03 — Aktif, sebagian direvisi D-20261126-01/-04 — Wake Momo dari kamera siap, bukan wave
+> **Status rekonsiliasi 2026-11-26:** Bagian jempol, penggaris dan mapping lama di bawah hanya riwayat; wake saat kamera siap tetap berlaku.
+
 - **Keputusan:** pilihan B dari PRD REV-B04-004 diterapkan sebagai pengganti *wave-gated cover*. Siswa masuk ke cover dengan kamera OFF dan Momo tidur. Saat siswa menyalakan kamera, Momo baru bangun setelah browser memperoleh stream kamera dan playback video berhasil. Kemudian animasi kaget, kamera mengecil ke PIP, Momo ke tengah, dialog perkenalan bubble, dan konfirmasi jempol menuju penggaris tetap.
 - **Batas:** klik toggle saja, permission ditolak, stream tidak playable, atau request yang kedaluwarsa tidak boleh membangunkan Momo. Fallback tanpa kamera yang sudah ada dipertahankan. Momo boleh melakukan animasi sayap menyapa; yang dihapus adalah **kewajiban siswa melakukan waving hand untuk membangunkan Momo**.
 - **Bukti keputusan:** instruksi langsung Owner terbaru setelah implementasi 0.18.0-alpha, “wavinghand diganti” dan “PRD LU INI YANG LU IMPLEMENT”, dalam rangka GAS REV-B04. PRD sebelumnya mengusulkan A/B bersyarat; Owner sekarang memilih B.
@@ -176,12 +216,16 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 - Teknis: `CHANGELOG.md` root versi 0.17.0-alpha, commit cebbaa4, `frontend/implementation/src/components/ui/GestureGlyph.tsx` dan pemakainya. Bukti STATIC_ONLY, belum ada uji pemahaman siswa.
 
 ### D-20261115-02 — Selesai, dijawab D-20261126-01 (sebelumnya Belum dikunci, konflik keputusan dan kode) — Mapping gestur Card 1/Card 3
+> **Status rekonsiliasi 2026-11-26:** Konflik historis sudah dijawab D-20261126-01/-05. Tidak menjadi pekerjaan membuka ulang mapping lama.
+
 - Fakta source: `gesture-mode.ts` pada commit cebbaa4 memakai Card 3 cubit→Coret, telapak lima jari→Hapus, satu jari→Undo, dua jari→Redo; Card 1 memakai sudut telunjuk. Kanvas utama masih menerima fist untuk Hapus.
 - Konflik: D-20261110-06 sudah Aktif mengatur cubit-drag Card 1; D-20261110-07 sudah Aktif menyebut redo telapak di kanvas. Perubahan source tidak otomatis mencabut entri yang disetujui Owner.
 - Bukti: Owner memberi paket revisi REV-B03 dan meminta implementasi; hasil code hanya STATIC_ONLY. Tidak ada persetujuan pengganti yang cukup eksplisit untuk secara diam-diam merevisi dua ID tersebut.
 - Dampak: copy tutorial, icon, tes gesture dan perilaku. Tindak lanjut: audit/SETUJUI perubahan keputusan secara eksplisit sebelum mengubah status D-20261110-06/07.
 
 ### D-20261111-01 — Aktif (instruksi eksplisit Owner 2026-11-11) — Data dikirim saat keputusan Top-3
+> **Status rekonsiliasi 2026-11-26:** Waktu pengiriman keputusan HITL tetap aktif; mapping hitungan jari dalam riwayat ini diganti D-20261126-01/-05/-06.
+
 - Keputusan: submission ke backend dikirim saat siswa memilih di Top-3 (gestur 1/2/3, atau 4 = override) dan cincin konfirmasi penuh. Cincin itu sudah cukup sebagai konfirmasi; tidak ada konfirmasi tambahan dan tidak menunggu "Lempar". Gestur 5 (gambar lagi) tidak mengirim.
 - Teknis: tidak ada perubahan; kode sudah begini (`src/app/state-machine.ts` `applyDecision` → `SubmissionAdapter.handleDecisionApplied`).
 - Juga dikonfirmasi Owner 2026-11-11: nama tokoh tetap **Thinman** (dengan H), bukan "Tinman" dari brief. Label map model Dias ditunda, Dias yang menyesuaikan.
@@ -245,21 +289,27 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 - Keputusan: Thinman masuk portal dan hidup; Momo memberi pesan singkat tentang AI; rekap benda, tebakan, keputusan, jumlah, tanpa skor; kuis hanya bila flag admin menyala (kontrak usulan ke Dias).
 - Mengubah: D-20261105-15 (penutup masih RISET) — butuh `SETUJUI D-20261105-15` atau entri ini.
 
-### D-20261105-24 — Aktif (cerita dan teknis, dikerjakan di 0.0.16) (instruksi eksplisit Owner, M-020) — IP story disesuaikan dan PRD 0.0.16 diperluas
+### D-20261105-24 — Direvisi sebagian, lore dan bagian yang tidak digantikan tetap aktif — IP story disesuaikan dan PRD 0.0.16 diperluas
+> **Status rekonsiliasi 2026-11-26:** Pisau sudah dicabut oleh entri ini. Top-3 sambil menggambar diganti D-20261110-02 dan D-20261126-01; gumaman tidak boleh dianggap prediksi model. Alur gestur lama mengikuti D-20261126-04/-05/-06.
+
 - Teknis: `implementation/CHANGELOG.md` 0.0.16.
 - Keputusan/ubahannya: storyline awal Owner disimpan dan disesuaikan di `project/storyline.md`: Momo = layang-layang, Stickman = **Thinman** (masukan dosen), Escape the Sketchbook = **Sketchbook Universe** (semesta halaman; tujuan tetap Thinman hidup sendiri seperti Momo). **Gameplay sekarang fix**; cerita yang menyesuaikan. Benda bahaya cukup duri; siswa tidak menggambar benda tajam (kata "pisau" dihapus dari tutorial; mengubah baris "Isi tutorial Kartu 2"). PRD 0.0.16 ditambah R11-R18: Top-3 di chat Momo dengan tebakan sambil menggambar; ikon gestur menggambar dari Figma Owner (`design/visual/drawing-gestures/`); mode kamera full NUI tanpa tombol, tombol hanya kalau kamera tidak bisa; Momo makin halu per level lewat Kabut Penghapus (L3: kabut menutup muka Momo); bendera menjadi papan petunjuk jalan; Momo menunjuk dengan sayap dan lega saat pertama dikoreksi; asal-usul Momo di cover. Penutup Pusat Halaman + overview pilihan + easter egg: arah disetujui (menggantikan status RISET D-20261105-15 untuk arahnya).
 - Mengubah entri lama: D-20261105-15 (arah penutup disetujui), D-20261027-01 (Kabut Penghapus dipakai sebagai dasar animasi), baris "Isi tutorial Kartu 2" (tanpa pisau), PRD R1/R4 (tanpa webcam: ada mode cadangan).
 - Bukti: instruksi Owner 2026-11-07 (M-020); 4 SVG dari Figma Owner.
 - Alasan status: implementasi menunggu `SETUJUI PRD 0.0.16`. Pertanyaan terbuka: pemetaan ikon gestur, panel opening.
 
-### D-20261105-23 — Aktif (dikerjakan di 0.0.16) — PRD Revisi 0.0.16 (Momo, jempol, buku, penutup)
+### D-20261105-23 — Direvisi sebagian, detail lama historis — PRD Revisi 0.0.16 (Momo, jempol, buku, penutup)
+> **Status rekonsiliasi 2026-11-26:** Wave, penggaris, jempol dan tebakan sambil menggambar bukan instruksi aktif. Lihat D-20261115-03, D-20261110-02, D-20261126-01/-03/-04/-05/-06; bagian lain tidak dicabut otomatis.
+
 - Teknis: `implementation/CHANGELOG.md` 0.0.16.
 - Keputusan/ubahannya: feedback Owner atas video full run dijadikan satu rencana: `project/PRD_REVISI_0.0.16.md`. Isi: lambaian (bukan kamera nyala) yang membangunkan Momo; transisi buka buku semi 3D (kanan bawah ke kiri atas); penggaris tanpa tombol, Momo menanyakan angka yang dipilih; semua jempol punya cincin progres (2 detik konfirmasi, 1 detik percakapan) dengan deteksi jempol nyata; Thinman tutorial pakai animasi jalan; pita mental ke atas lalu buku membuka ke dunia, kembali = buku menutup; Thinman lebih pelan; panel tebakan dan HUD sekunder dikecilkan ("Gambar lagi" tetap); video bukti wajib memperlihatkan Momo terbang ke kanvas di langit dan mode gambar; penutup L3 (A + B) digabung ke PRD ini tetapi tetap RISET (D-20261105-15). Jawaban Owner 2026-11-07: Terima = jempol 2 detik, gestur Pilih lain dan Bukan semua harus diriset (R4b); tanpa webcam tidak didukung (wajib NUI); Thinman lebih pelan dengan syarat Level 1 minimal butuh 2 gambar; Momo mengarahkan benda yang bisa digambar tanpa memaksa (R10, choice architecture).  Jawaban kedua: daftar benda dan minimal gambar cukup dummy untuk partner; IT memakai katalog level saat ini (K1) dan minimal 2 gambar per level (K2).
 - Mengubah entri lama: akan mengubah D-20261105-19 (cover: kamera nyala tidak lagi membangunkan Momo) dan D-20261105-13 (masuk level) setelah disetujui.
 - Bukti: instruksi Owner 2026-11-07 (M-019).
 - Status: Owner menyuruh eksekusi (2026-11-08) dan dites sebelum di-push. Belum dikerjakan: riset gestur Pilih lain/Bukan semua (R4b, Ujang), kontrol telunjuk Thinman (Ujang), video showcase (dibatalkan Owner untuk hemat token), panel opening (R17 tetap kalimat Momo saja), kartu benda pilihan siswa belum diteruskan ke halaman gambar, pertanyaan tebakan belum tertutup otomatis saat siswa menggambar lagi.
 
-### D-20261105-19 — Aktif (instruksi eksplisit Owner, M-016) — Momo memandu setiap halaman, dimulai dari cover
+### D-20261105-19 — Direvisi sebagian, Momo sebagai pemandu tetap aktif — Momo memandu setiap halaman, dimulai dari cover
+> **Status rekonsiliasi 2026-11-26:** Peran pemandu tiap halaman tetap berlaku. Wave, jempol menuju penggaris dan kenalan mikrofon digantikan D-20261126-01/-03/-04.
+
 - Teknis: `implementation/CHANGELOG.md` 0.0.15 (Added, Changed).
 - Keputusan/ubahannya: **Momo memandu semua sesi dan halaman**, bukan hanya di dalam level. **Cover (kamera):** Momo tidur di cover (mata tertutup, Zzz). Kamera menyala = Momo bangun kaget (loncat dan kepak), lalu menyapa dengan satu sayap (dada-dada), menyebut dirinya, lalu memandu ke langkah berikutnya: "pilih nomor absenmu pakai penggaris" dengan satu isyarat jempol. **Alasan kamera menyala = bangun:** NUI belum ada; kelak yang membangunkan Momo adalah lambaian tangan (pelacak lambaian tetap jalan; lambaian sekarang berarti "lanjut"). **Halaman berikutnya:** penggaris (Momo menjelaskan, dan bingung kalau nomor sudah diambil), tutorial tiga kartu (Momo mengikuti apa yang dilakukan siswa: ajak Thinman jalan, lalu "Thinman sampai", lalu pijakan aman dan bahaya, lalu coret dan mundur, lalu "kamu sudah siap"), daftar level (menunjuk bab terbaru yang terbuka), lalu cerita intro, halaman gambar, dunia, menang dan gagal yang sudah dipandu Momo (D-20261105-12/13). Momo tetap tampilan saja: tidak menerima input, tidak memutuskan, tidak membuat objek (invarian lore). Gaya: chat satu bubble per giliran, tanpa teks dalam kurung (D-20261105-14). Sayap tetap menempel saat menyapa (D-20261105-17): hanya ujung sayap kiri yang naik-turun.
 - Mengubah entri lama: memperluas D-20261105-12/13 (Momo sebagai pemandu) ke cover, penggaris, tutorial, dan daftar level; menggantikan teks panduan statis cover yang hanya berupa judul dan subteks.
@@ -267,6 +317,8 @@ Aturan: AI tidak boleh mengganti keputusan master hanya karena satu notulensi, j
 - Dampak: copy Momo di `implementation/src/domain/guide-script.ts` (placeholder seperti lainnya; suara final belum dikunci). Layout HP 390 px untuk cover masih kasar (bubble menutup sebagian kartu kamera).
 
 ### D-20261105-18 — Rekap klasifikasi percakapan sesi 2026-11-05 (Owner minta diklasifikasikan sendiri)
+> **Status rekonsiliasi 2026-11-26:** REKAP HISTORIS tanggal 2026-11-05. Label Aktif/Terbuka di tabel berikut adalah status pada tanggal tersebut, bukan status sekarang. Penggaris, wave, hitungan jari dan ketiadaan model tidak boleh dipulihkan sebagai keadaan aktif.
+
 - Teknis: tidak ada (rekap).
 Satu tabel supaya AI lain tahu mana yang sudah keputusan, mana yang masih riset, dan di mana jejaknya. Detail tiap butir ada di entri yang ditunjuk; tabel ini tidak mengubah status apa pun.
 
@@ -314,6 +366,8 @@ Satu tabel supaya AI lain tahu mana yang sudah keputusan, mana yang masih riset,
 - Dampak: semua UI. Label "Mode demo: tebakan masih simulasi" tetap satu pita dan dihapus saat model asli tersedia (`implementation/src/config/demo.ts`).
 
 ### D-20261105-13 — Aktif (instruksi eksplisit Owner, M-012/M-013) — Masuk level dan cerita
+> **Status rekonsiliasi 2026-11-26:** Pertahankan bagian cerita dan masuk level yang tidak bertentangan; penggaris/jempol atau kontrol lama dalam riwayat mengikuti D-20261126-01/-03/-04/-05/-06.
+
 - Teknis: `implementation/CHANGELOG.md` 0.0.14.
 - Keputusan/ubahannya: level dipilih dengan **menarik pita bookmark** (mouse untuk prototype; gestur jempol untuk NUI nanti). Pita tertarik, berbunyi "tek-tek" per takik, bergoyang, lalu halaman dunia Thinman jatuh. Momo datang dan bercerita (Thinman harus mencapai tujuan supaya bisa jalan sendiri tanpa bantuanmu), lalu Momo terbang ke atas dan kamera mengikutinya melewati awan ke **halaman gambar di langit** (halaman gambar sendiri tanpa awan). Pada masuk berikutnya ke level yang sama dalam satu sesi, intro tidak diulang. Petunjuk misi dibuka lewat ikon dan disampaikan Momo sebagai chat dengan ikon benda dan tombol jempol "Mulai Menggambar", tanpa tombol Lewati, tanpa kotak, hanya satu Momo di layar.
 - Mengubah entri lama: D-20261101-01 (usulan "petunjuk misi oleh sistem, bukan ucapan Momo", status belum aktif) **tidak dipakai**; instruksi Owner terbaru menempatkan cerita dan petunjuk pada Momo. Lore Momo tetap: Momo hanya bercerita/menebak, tidak memutuskan dan tidak menggambar.
@@ -321,6 +375,8 @@ Satu tabel supaya AI lain tahu mana yang sudah keputusan, mana yang masih riset,
 - Dampak: alur level, onboarding cerita, komponen `LevelIntro`, `LevelRibbonBookmark`, `MissionBriefing`.
 
 ### D-20261105-12 — Aktif (instruksi eksplisit Owner, M-012/M-013) — Momo sebagai chat, akhir level, progres
+> **Status rekonsiliasi 2026-11-26:** Peran Momo text bubble dan bagian yang tidak diganti tetap aktif; isyarat konfirmasi lama mengikuti D-20261126-01/-04/-06.
+
 - Teknis: `implementation/CHANGELOG.md` 0.0.14.
 - Keputusan/ubahannya: semua ucapan Momo tampil seperti chat: avatar Momo dan **satu bubble per giliran** (saling menggantikan, tanpa label nama "Momo"); hanya petunjuk misi yang menampilkan semua baris sekaligus. Saat menang, **tidak ada kartu dan tidak ada tombol Lanjut/Pilih level**: Momo mengucapkan selamat di dunia yang digelapkan, lalu aplikasi langsung kembali ke pilih level (isyarat jempol untuk mempercepat). Saat gagal: Momo chat satu-satu (belum berhasil, alasan) lalu tiga aksi ikon. Menang Level N langsung membuka Level N+1 (progres ditulis saat kemenangan tampil); pita yang baru terbuka menampilkan animasi membuka kunci.
 - Mengubah entri lama: **Direvisi** D-20261105-04 (kartu "Selamat, berhasil!" dengan Lanjut / Pilih level diganti chat Momo + kembali otomatis ke pilih level).
@@ -536,6 +592,8 @@ Tambahkan paling atas di bawah bagian ini ketika ada keputusan baru.
 # Lampiran: riwayat keputusan dari project GPT (diimpor 2026-11-05)
 
 Sumber: `CHANGELOG.md` project GPT Owner, versi `v2026.11.05-audit.7` (dasar `v2026.11.02-audit.6`). Diimpor **tanpa menghapus apa pun**: baris tabel yang belum ada ditambahkan ke tabel di atas, dan seluruh riwayat bernomor 1-14 beserta aturan prosedurnya ditambahkan di bawah ini apa adanya (hanya nama berkas `CHANGELOG.md` menjadi `DECISIONS.md`, `INSTRUCTION.md` menjadi `SOUL.md`; level heading digeser satu tingkat). ID `D-...` tidak diubah. Berkas `implementation/CHANGELOG.md` TIDAK sama dengan ini (itu catatan rilis teknis).
+
+> **Arsip impor:** bagian berikut dipertahankan sebagai riwayat. Status dan aturan historis yang bertentangan dengan D-20261126-01 s.d. -06 tidak berlaku lagi. Keputusan yang tidak digantikan tetap mengikuti status dan bukti aslinya.
 
 ## Peta konflik dan aturan baca (yang lebih baru berlaku, yang lama tetap tersimpan)
 

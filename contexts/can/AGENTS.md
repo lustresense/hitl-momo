@@ -4,6 +4,8 @@
 
 ## Mandatory bootstrap (before planning, code edits, or delegation)
 
+For R8.3, resolve D-20261126-01 through -06 against the actual current source. Typed nickname in DreamLoader; no product STT or ruler. Do not reopen old finger-count/pistol mappings from lab/history. Three interaction levels are approved design; cursor-confirmation revisions are not proof of implemented behavior, and canvas tools are excluded. Use existing decision approval and verification rules; no extra permission to edit or push.
+
 1. Read `contexts/can/SOUL.md`, **Part A and Part B**. This is CAN's one working and tone policy, including Cermin Jujur, anti-hallucination and document governance. **No `SOUL-SESSION.md`** is needed.
 2. Read `contexts/can/DECISIONS.md` and distinguish **Aktif**, **Direvisi**, **Dicabut**, **Belum dikunci** and proposals. New code or AI suggestions do not approve PA features. Read `contexts/can/SOURCE_OF_TRUTH.md` for evidence hierarchy and correct monorepo paths.
 3. Read live work context: `contexts/can/NOW.md`, root `NOW.md`, `contexts/can/REVISIONS.md`, `contexts/can/project/OWNER_MANDATES.md`, `contexts/can/WORKING_CONTEXT.md`, `contexts/can/PROJECT_MEMORY.md`, and the current checkpoint `contexts/can/SESSION_HANDOFF.md`. These are snapshots, **verify** against current Git SHA and actual code/tests before treating them as runtime truth.

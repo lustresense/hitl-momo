@@ -120,54 +120,54 @@ def badge(s, txt):
 
 # ====================================================================== Phase 1
 def phase1():
-    s = Svg(900, 2330)
+    s = Svg(900, 2380)
     badge(s, "#1")
     s.text(450, 150, "Fase 1 · Membuat input", size=22, weight=700)
     cx = 560
-    t0 = s.term(cx, 240, "Mulai / Splash Screen", w=240)
-    d1 = s.dec(cx, 420, "Dibuka lewat\nlink kelas?")
-    pj = s.proc(cx, 620, "Pilih nomor absen\n+ isi nama\n(token sesi siswa)", w=250, h=110)
-    pf = s.proc(230, 620, "Mode bebas\n(keputusan tidak\ndikirim ke server)", w=230, h=110)
-    pm = s.proc(cx, 800, "Momo menyapa\n+ arahan singkat", w=250)
-    pl = s.proc(cx, 960, "Pilih / lanjut level\n(Level 1 – 3)", w=250)
-    tp = s.term(230, 1110, "Fase 3: level\nbelum selesai", "pink", w=220, h=90)
-    pr = s.proc(cx - 100, 1250, "Level dan rintangan\nditampilkan", w=250)
-    pu = s.proc(cx - 100, 1410, "Siswa memahami\nobjek yang dibutuhkan", w=250)
-    tg = s.term(150, 1550, "Fase 2 / 3:\nGambar ulang", "green", w=210, h=90)
-    pd = s.proc(cx - 210, 1700, "Menggambar objek di kanvas\n(jari + MediaPipe\natau mouse/sentuh)", w=290, h=120)
-    pk = s.proc(cx - 210, 1880, "Kirim gambar\n(Tanya Momo)", w=250)
-    d2 = s.dec(cx - 210, 2060, "Kanvas\nkosong?", w=220, h=150)
-    t2 = s.term(cx - 210, 2250, "Fase 2", "yellow", w=200)
+    t0 = s.term(cx, 240, "Mulai: kamera aktif", w=240)
+    p1 = s.proc(cx, 390, "Lambaikan tangan\nke kamera (atau lewati)", w=260)
+    p2 = s.proc(cx, 540, "Pilih nomor absen\n(penggaris)", w=260)
+    d1 = s.dec(cx, 730, "Dibuka lewat\nlink kelas?")
+    pj = s.proc(cx, 930, "Daftar ke kelas\n(token sesi siswa)", w=250)
+    pf = s.proc(230, 930, "Mode bebas\n(keputusan tidak\ndikirim ke server)", w=230, h=110)
+    pm = s.proc(cx, 1100, "Kartu tutorial\nbersama Momo", w=250)
+    pl = s.proc(cx, 1260, "Pilih level\n(terbuka berurutan)", w=250)
+    pi = s.proc(cx, 1420, "Pengenalan misi level\n(objek yang dibutuhkan)", w=270)
+    tg = s.term(190, 1570, "Gambar ulang /\nobjek berikutnya\n(dari Fase 2 / 3)", "green", w=230, h=100)
+    pd = s.proc(450, 1740, "Menggambar objek di kanvas\n(jari + MediaPipe\natau mouse/sentuh)", w=290, h=120)
+    pk = s.proc(450, 1920, "Selesai menggambar\n(kirim ke Momo)", w=250)
+    d2 = s.dec(450, 2100, "Ada\ngoresan?", w=220, h=150)
+    t2 = s.term(450, 2290, "Fase 2", "yellow", w=200)
 
-    down(s, t0, d1)
-    s.arrow([bot(d1), top(pj)], label="Ya", lpos=(cx, 535))
-    s.arrow([left(d1), (230, 420), top(pf)], label="Tidak", lpos=(330, 420))
+    down(s, t0, p1)
+    down(s, p1, p2)
+    down(s, p2, d1)
+    s.arrow([bot(d1), top(pj)], label="Ya", lpos=(cx, 845))
+    s.arrow([left(d1), (230, 730), top(pf)], label="Tidak", lpos=(330, 730))
     down(s, pj, pm)
-    s.arrow([bot(pf), (230, 800), left(pm)])
+    s.arrow([bot(pf), (230, 1100), left(pm)])
     down(s, pm, pl)
-    s.arrow([bot(pl), (cx, 1160), (pr["x"] + 40, 1160), (pr["x"] + 40, top(pr)[1] - 4)])
-    s.arrow([bot(tp), (230, 1160), (pr["x"] - 40, 1160), (pr["x"] - 40, top(pr)[1] - 4)])
-    down(s, pr, pu)
-    s.arrow([bot(pu), (pu["x"], 1600), (pd["x"] + 40, 1600), (pd["x"] + 40, top(pd)[1] - 4)])
-    s.arrow([bot(tg), (150, 1600), (pd["x"] - 40, 1600), (pd["x"] - 40, top(pd)[1] - 4)])
+    down(s, pl, pi)
+    s.arrow([bot(pi), (cx, 1630), (pd["x"] + 40, 1630), (pd["x"] + 40, top(pd)[1] - 4)])
+    s.arrow([bot(tg), (190, 1650), (pd["x"] - 40, 1650), (pd["x"] - 40, top(pd)[1] - 4)])
     down(s, pd, pk)
     down(s, pk, d2)
-    s.arrow([bot(d2), top(t2)], label="Tidak", lpos=(d2["x"], 2160))
-    s.arrow([right(d2), (720, 2060), (720, 1700), right(pd)], label="Ya: Momo minta\nmenggambar dulu", lpos=(720, 1880))
+    s.arrow([bot(d2), top(t2)], label="Ya", lpos=(450, 2200))
+    s.arrow([right(d2), (760, 2100), (760, 1740), right(pd)], label="Tidak: Momo minta\nmenggambar dulu", lpos=(760, 1920))
     return s
 
 
 # ====================================================================== Phase 2
 def phase2():
-    s = Svg(1240, 2000)
+    s = Svg(1240, 2100)
     badge(s, "#2")
     s.text(620, 150, "Fase 2 · Keputusan siswa (HITL)", size=22, weight=700)
     cx = 620
     t0 = s.term(cx, 240, "Dari Fase 1", "orange", w=220)
     pp = s.proc(cx, 400, "Backend memprediksi gambar\nPOST /predict + levelId\n(MobileNetV2)", w=300, h=110)
     d0 = s.dec(cx, 590, "Prediksi\nberhasil?", w=230, h=150)
-    pe = s.proc(1010, 590, "Pesan gagal dari Momo\n(coba lagi atau\ngambar ulang)", w=260, h=110)
-    tr = s.term(1010, 780, "Fase 1:\nGambar ulang", "green", w=210, h=90)
+    pe = s.proc(1010, 590, "Pesan gagal\ndari Momo", w=230)
+    tr = s.term(1010, 790, "Fase 1:\nGambar ulang", "green", w=210, h=90)
     pk = s.proc(cx, 790, "Level kesulitan diterapkan\n(diatur superadmin\ndi Level Kesulitan)", w=300, h=110)
     pt = s.proc(cx, 960, "Momo menampilkan\nTop-3 + confidence", w=280)
     dk = s.dec(cx, 1170, "Keputusan\nsiswa", w=250, h=170)
@@ -175,13 +175,15 @@ def phase2():
     pc = s.proc(470, 1440, "Label akhir\n= Top-2 / Top-3", w=220)
     po = s.proc(770, 1440, "Label akhir\n= label pilihan siswa", w=230)
     tg = s.term(1070, 1440, "Fase 1:\nGambar ulang", "green", w=210, h=90)
-    ps = s.proc(cx - 150, 1640, "Simpan keputusan\noutbox → POST /api/submissions\n(hanya mode kelas)", w=340, h=110)
-    t3 = s.term(cx - 150, 1840, "Fase 3", "red", w=200)
+    ps = s.proc(470, 1640, "Simpan keputusan\noutbox → POST /api/submissions\n(hanya mode kelas)", w=340, h=110)
+    pl = s.proc(470, 1810, "Lempar stiker gambar\nke dunia game", w=280)
+    t3 = s.term(470, 1980, "Fase 3", "red", w=200)
 
     down(s, t0, pp)
     down(s, pp, d0)
-    s.arrow([right(d0), (left(pe)[0] - 4, 590)], label="Tidak", lpos=(800, 590))
-    down(s, pe, tr)
+    s.arrow([right(d0), (left(pe)[0] - 4, 590)], label="Tidak", lpos=(820, 590))
+    s.arrow([bot(pe), top(tr)], label="Gambar ulang", lpos=(1010, 690))
+    s.arrow([top(pe), (1010, 400), (right(pp)[0] + 4, 400)], label="Coba lagi (gambar sama)", lpos=(1010, 470))
     s.arrow([bot(d0), top(pk)], label="Ya", lpos=(cx, 690))
     down(s, pk, pt)
     down(s, pt, dk)
@@ -193,50 +195,59 @@ def phase2():
     ym = 1555
     for n in (pa, pc, po):
         s.arrow([bot(n), (n["x"], ym), (ps["x"] + (n["x"] - pc["x"]) / 6, ym), (ps["x"] + (n["x"] - pc["x"]) / 6, top(ps)[1] - 4)])
-    down(s, ps, t3)
+    down(s, ps, pl)
+    down(s, pl, t3)
     s.text(1040, 1560, "Gambar ulang = jalur pemulihan,\nbukan pilihan HITL ke-4", size=15, color="#777")
     return s
 
 
 # ====================================================================== Phase 3
 def phase3():
-    s = Svg(1200, 2360)
+    s = Svg(1240, 2400)
     badge(s, "#3")
-    s.text(560, 150, "Fase 3 · Konsekuensi di gameplay", size=22, weight=700)
-    cx = 560
+    s.text(620, 150, "Fase 3 · Konsekuensi di gameplay", size=22, weight=700)
+    cx = 620
     t0 = s.term(cx, 240, "Dari Fase 2", "red", w=220)
-    pj = s.proc(cx, 400, "Objek jatuh dan\nditempatkan di dunia game", w=280)
-    db = s.dec(cx, 610, "Perilaku\nobjek", w=230, h=160)
-    pdg = s.proc(190, 860, "Objek membahayakan\n(Danger)", w=240)
-    pn = s.proc(cx, 860, "Objek tidak membantu\n(Unresolved)", w=240)
-    ps = s.proc(930, 860, "Objek membantu\nstickman (Solid)", w=240)
-    pf = s.proc(375, 1060, "Outcome: gagal\nMomo memberi umpan balik", w=300)
-    tg = s.term(375, 1250, "Fase 1:\nGambar ulang", "green", w=210, h=90)
-    pg = s.proc(930, 1060, "Stickman bergerak\n(gameplay 2D, KAPLAY)", w=260)
-    dh = s.dec(930, 1270, "Rintangan\nterlewati?", w=230, h=160)
-    po = s.proc(930, 1490, "Kirim outcome\nPATCH /api/submissions/{id}/outcome\n(hanya mode kelas)", w=400, h=110)
-    dl = s.dec(930, 1720, "Level\nselesai?", w=220, h=150)
-    tp = s.term(620, 1960, "Fase 1: level\nbelum selesai", "pink", w=220, h=90)
-    tf = s.term(930, 1960, "Ringkasan level\n(refleksi)", "plain", w=240, h=90)
-    td = s.term(930, 2150, "Selesai / level berikutnya", "plain", w=290, h=80)
+    pj = s.proc(cx, 390, "Objek jatuh ke\ndunia game", w=260)
+    pp = s.proc(cx, 550, "Siswa menempatkan /\nmenggeser objek", w=260)
+    db = s.dec(cx, 760, "Perilaku\nobjek", w=230, h=160)
+    xs = (170, 470, 770, 1070)
+    pdg = s.proc(xs[0], 1020, "Danger\n(membahayakan)", w=230)
+    pn = s.proc(xs[1], 1020, "Neutral\n(tidak membantu)", w=230)
+    pu = s.proc(xs[2], 1020, "Unresolved\n(label tak dikenal\ndi level ini)", w=230, h=110)
+    ps = s.proc(xs[3], 1020, "Solid\n(membantu stickman)", w=230)
+    pg = s.proc(cx, 1230, "Stickman bergerak\n(gameplay 2D, KAPLAY)", w=280)
+    dh = s.dec(cx, 1430, "Rintangan\nterlewati?", w=230, h=160)
+    pf = s.proc(250, 1430, "Outcome: gagal\nMomo memberi umpan balik", w=300)
+    tg = s.term(250, 1620, "Fase 1: gambar ulang\n(level yang sama)", "green", w=260, h=90)
+    pok = s.proc(cx, 1640, "Outcome: berhasil", w=260, h=80)
+    dl = s.dec(cx, 1830, "Level\nselesai?", w=220, h=150)
+    tn = s.term(990, 1830, "Fase 1: gambar\nobjek berikutnya", "green", w=240, h=90)
+    d3 = s.dec(cx, 2050, "Level 3?", w=200, h=140)
+    pr = s.term(250, 2050, "Ringkasan level\n→ daftar level", "plain", w=250, h=90)
+    pe = s.term(cx, 2250, "Penutup cerita (ending)", "plain", w=290, h=80)
 
     down(s, t0, pj)
-    down(s, pj, db)
-    s.arrow([left(db), (190, 610), top(pdg)], label="Danger", lpos=(300, 610))
-    s.arrow([bot(db), top(pn)], label="Unresolved", lpos=(cx, 750))
-    s.arrow([right(db), (930, 610), top(ps)], label="Solid", lpos=(820, 610))
-    s.arrow([bot(pdg), (190, 960), (335, 960), (335, top(pf)[1] - 4)])
-    s.arrow([bot(pn), (cx, 960), (415, 960), (415, top(pf)[1] - 4)])
-    down(s, pf, tg)
-    down(s, ps, pg)
+    down(s, pj, pp)
+    down(s, pp, db)
+    yb = 900
+    s.arrow([bot(db), (cx, yb)], head=False)
+    for n, x in zip((pdg, pn, pu, ps), xs):
+        s.arrow([(cx, yb), (x, yb), (x, top(n)[1] - 4)])
+    ym = 1130
+    for n, x in zip((pdg, pn, pu, ps), xs):
+        tx = cx + (x - cx) / 8
+        s.arrow([bot(n), (x, ym), (tx, ym), (tx, top(pg)[1] - 4)])
     down(s, pg, dh)
-    s.arrow([left(dh), (700, 1270), (700, 1060), (right(pf)[0] + 4, 1060)], label="Tidak", lpos=(700, 1170))
-    s.arrow([bot(dh), top(po)], label="Ya", lpos=(930, 1380))
-    down(s, po, dl)
-    s.arrow([left(dl), (620, 1720), top(tp)], label="Belum", lpos=(700, 1720))
-    s.arrow([bot(dl), top(tf)], label="Ya", lpos=(930, 1850))
-    down(s, tf, td)
-    s.text(375, 1400, "Outcome gagal juga dikirim\nke server (mode kelas)", size=15, color="#777")
+    s.arrow([left(dh), (right(pf)[0] + 4, 1430)], label="Tidak", lpos=(450, 1430))
+    down(s, pf, tg)
+    s.arrow([bot(dh), top(pok)], label="Ya", lpos=(cx, 1540))
+    down(s, pok, dl)
+    s.arrow([right(dl), (left(tn)[0] - 4, 1830)], label="Belum", lpos=(800, 1830))
+    s.arrow([bot(dl), top(d3)], label="Ya", lpos=(cx, 1940))
+    s.arrow([left(d3), (right(pr)[0] + 4, 2050)], label="Tidak", lpos=(450, 2050))
+    s.arrow([bot(d3), top(pe)], label="Ya", lpos=(cx, 2160))
+    s.text(990, 1500, "Setiap outcome (berhasil / gagal)\ndikirim ke server:\nPATCH /api/submissions/{id}/outcome\n(hanya mode kelas)", size=15, color="#777")
     return s
 
 
@@ -327,7 +338,7 @@ def system():
         ("Kamera", "gerakan jari\n(MediaPipe Hands)"),
         ("Kanvas", "goresan gambar\n(jari / mouse / sentuh)"),
         ("Keputusan siswa", "Accept / Correct /\nOverride (+ Gambar ulang)"),
-        ("Akses kelas", "link kelas +\nnomor absen + nama"),
+        ("Akses kelas", "link kelas +\nnomor absen"),
         ("Pengaturan admin", "kelas, sekolah,\nlevel kesulitan"),
     ]):
         card(65, 220 + i * 178, 250, 150, t, sub)
@@ -345,7 +356,7 @@ def system():
         card(1160 + i * 205, 215, 190, 185, t, sub)
     # Layer 3 - green
     panel(700, 500, 800, 230, "LAYER 3 · KEPUTUSAN (HITL)", "#dbf5df", "#78d08a")
-    for i, (t, sub) in enumerate([("Decision resolver", "Accept / Correct /\nOverride → label akhir"), ("Pemetaan objek", "label → Solid /\nDanger / Unresolved"), ("Gambar ulang", "jalur pemulihan,\nkembali ke kanvas")]):
+    for i, (t, sub) in enumerate([("Decision resolver", "Accept / Correct /\nOverride → label akhir"), ("Pemetaan objek", "label → Solid / Danger /\nNeutral / Unresolved"), ("Gambar ulang", "jalur pemulihan,\nkembali ke kanvas")]):
         card(720 + i * 260, 525, 240, 185, t, sub)
     # Layer 4 (Dias) - blue
     panel(420, 820, 1360, 260, "LAYER 4 · DATA & DASHBOARD (Dias)", "#dcecff", "#7fb2f0")
@@ -365,7 +376,7 @@ def system():
         ("Prototipe literasi AI", "simulasi berlevel\nuntuk siswa SMP"),
         ("Hasil gameplay", "berhasil / gagal\nper percobaan"),
         ("Dashboard guru", "jawaban & gambar\nper siswa"),
-        ("Data keputusan", "Accept/Correct/Override\nuntuk analisis pola"),
+        ("Data keputusan", "Accept/Correct/Override\nsiap diekspor untuk analisis"),
     ]):
         card(1885, 230 + i * 215, 250, 180, t, sub)
 

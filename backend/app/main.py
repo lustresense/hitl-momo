@@ -11,7 +11,7 @@ from .db import get_db, init_db
 from .difficulty import apply_difficulty, difficulty_enabled, effective_difficulty
 from .inference import load_model, predict_from_drawing, predict_probs
 
-app = FastAPI(title="Momo Backend", version="0.30.2-alpha")
+app = FastAPI(title="Momo Backend", version="0.30.3-alpha")
 app.include_router(dashboard.router)
 app.include_router(classroom.router)
 

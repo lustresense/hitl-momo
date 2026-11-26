@@ -171,7 +171,13 @@ export interface CpuWorkerClientOptions {
   onReleaseAll?: (reason: string) => void;
   onWorkerRestart?: (reason: string, attempt: number) => void;
   onError?: (err: string) => void;
+  onProgress?: (stage: "warming") => void;
 }
+
+type WorkerCallbacks = Pick<
+  CpuWorkerClientOptions,
+  "onResult" | "onReleaseAll" | "onWorkerRestart" | "onError" | "onProgress"
+>;
 
 export type SubmitFrameMeta = Pick<CameraFrameTick, "captureFrameId" | "captureTimestampMs">;
 
@@ -214,6 +220,7 @@ export class LabCpuWorkerClient {
   private readonly dimRecoveryLuma?: number;
   private readonly auditIntervalFrames: number;
   private readonly staleThresholdMs: number;
+  private callbacks: WorkerCallbacks;
   private dispatchTimes = new Map<
     number,
     { t0: number; dispatchMs: number; captureFrameId: number; captureTimestampMs: number }
@@ -221,6 +228,13 @@ export class LabCpuWorkerClient {
   private visibilityHandler: (() => void) | null = null;
 
   constructor(private readonly opts: CpuWorkerClientOptions) {
+    this.callbacks = {
+      onResult: opts.onResult,
+      onReleaseAll: opts.onReleaseAll,
+      onWorkerRestart: opts.onWorkerRestart,
+      onError: opts.onError,
+      onProgress: opts.onProgress,
+    };
     this.preprocess = opts.preprocess;
     this.captureWidth = opts.captureWidth ?? 320;
     this.dynamicOwnerLock = opts.dynamicOwnerLock ?? true;
@@ -231,6 +245,10 @@ export class LabCpuWorkerClient {
     this.dimRecoveryLuma = opts.dimRecoveryLuma;
     this.auditIntervalFrames = opts.auditIntervalFrames ?? 45;
     this.staleThresholdMs = opts.staleThresholdMs ?? STALE_FRAME_THRESHOLD_MS;
+  }
+
+  setCallbacks(next: Partial<WorkerCallbacks>): void {
+    this.callbacks = { ...this.callbacks, ...next };
   }
 
   setPreprocess(mode: PreprocessMode): void {
@@ -283,6 +301,10 @@ export class LabCpuWorkerClient {
           this.staleFramesDiscarded++;
           return;
         }
+        if (msg.type === "PROGRESS") {
+          this.callbacks.onProgress?.(msg.stage);
+          return;
+        }
         if (msg.type === "READY") {
           this.ready = true;
           this.lastError = null;
@@ -300,7 +322,7 @@ export class LabCpuWorkerClient {
           this.inFlight = 0;
           this.lastError = `[${msg.stage}] ${msg.message}`;
           this.triggerReleaseAll(`worker-${msg.stage}-error`);
-          this.opts.onError?.(this.lastError);
+          this.callbacks.onError?.(this.lastError);
           if (!settled) {
             settled = true;
             clearTimeout(timeoutId);
@@ -308,7 +330,7 @@ export class LabCpuWorkerClient {
           } else if (msg.stage === "detect") {
             void this.handleWorkerCrash(`detect-error:${msg.message}`).catch((err) => {
               this.lastError = err instanceof Error ? err.message : String(err);
-              this.opts.onError?.(this.lastError);
+              this.callbacks.onError?.(this.lastError);
             });
           }
           return;
@@ -433,7 +455,7 @@ export class LabCpuWorkerClient {
             autoPreprocessTransition: msg.autoPreprocessTransition,
             autoPreprocessStatus: msg.autoPreprocessStatus,
           };
-          this.opts.onResult(out);
+          this.callbacks.onResult(out);
         }
       };
 
@@ -442,7 +464,7 @@ export class LabCpuWorkerClient {
         const detail = ev.message || "Worker runtime error";
         this.lastError = detail;
         this.triggerReleaseAll("worker-onerror");
-        this.opts.onError?.(detail);
+        this.callbacks.onError?.(detail);
         if (!settled) {
           settled = true;
           clearTimeout(timeoutId);
@@ -450,7 +472,7 @@ export class LabCpuWorkerClient {
         } else {
           void this.handleWorkerCrash(`onerror:${detail}`).catch((err) => {
             this.lastError = err instanceof Error ? err.message : String(err);
-            this.opts.onError?.(this.lastError);
+            this.callbacks.onError?.(this.lastError);
           });
         }
       };
@@ -480,7 +502,7 @@ export class LabCpuWorkerClient {
     if (this.workerRestarts >= MAX_AUTO_RESTARTS) {
       this.ready = false;
       this.lastError = `Worker berhenti setelah ${MAX_AUTO_RESTARTS}x restart (${reason})`;
-      this.opts.onError?.(this.lastError);
+      this.callbacks.onError?.(this.lastError);
       return;
     }
     await this.restartWorker(reason);
@@ -491,7 +513,7 @@ export class LabCpuWorkerClient {
     if (this.closed) return;
     this.workerRestarts++;
     this.triggerReleaseAll(`worker-restart:${reason}`);
-    this.opts.onWorkerRestart?.(reason, this.workerRestarts);
+    this.callbacks.onWorkerRestart?.(reason, this.workerRestarts);
     this.terminateWorkerOnly();
     await this.spawnWorker();
   }
@@ -516,7 +538,7 @@ export class LabCpuWorkerClient {
   private triggerReleaseAll(reason: string): void {
     this.releaseAllCount++;
     this.lastReleaseReason = reason;
-    this.opts.onReleaseAll?.(reason);
+    this.callbacks.onReleaseAll?.(reason);
   }
 
   notifyPendingFrame(): void {

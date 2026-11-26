@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>P2 · Kartu tutorial</title>
+<link rel="stylesheet" href="../shared/fonts.css"><link rel="stylesheet" href="../shared/tokens.css"><link rel="stylesheet" href="../shared/layout.css"><link rel="stylesheet" href="../shared/kartu/kartu.css">
+<link rel="stylesheet" href="../shared/bold.css"><link rel="stylesheet" href="../shared/lc.css"><link rel="stylesheet" href="../shared/hand.css"><script src="../shared/lc.js"></script>
+</head><body>
+<script src="../shared/gsap.min.js"></script>
+<script src="../shared/glyphs.js"></script>
+<script src="../shared/sketch.js"></script>
+<script src="../shared/thinman.js"></script><script src="../shared/thinrig.js"></script>
+<script src="../shared/momo-art.js"></script>
+<script src="../shared/momo.js"></script>
+<script src="../shared/ready.js"></script>
+<script src="../shared/icons.js"></script><script src="../shared/hand.js"></script><script src="../shared/ui.js"></script>
+<script src="../shared/kartu/kartu.js"></script>
+<script>
+const fromName = /[?&]from=name/.test(location.search);
+SU.mount({ at: 'mid', title: 'Kartu tutorial' });
+if (fromName) {
+  const mobile = innerWidth < 700;
+  Object.assign(SU.momo().pose, {
+    x: innerWidth * (mobile ? .81 : .86),
+    y: mobile ? Math.max(100, innerHeight * .12) : Math.max(152, innerHeight * .238),
+    s: mobile ? .69 : .88,
+    r: 0,
+  });
+}
+SU.run(SU.kartuScene({ fromName })).then(function () { SU.go('bab'); });
+</script>
+</body></html>

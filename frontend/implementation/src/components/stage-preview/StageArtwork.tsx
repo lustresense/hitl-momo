@@ -7,6 +7,7 @@ interface StageArtworkProps {
   scene: SceneIndex;
   className?: string;
   gameplay?: boolean;
+  nextStageLabel?: string;
 }
 
 function ArtworkDefinitions({ prefix }: { prefix: string }) {
@@ -86,8 +87,17 @@ function fitLength(text: string, size: number): number | undefined {
  * (0,0) like the flag, the post is 54 units high, so the physics goal rect in stage-geometry stays unchanged. The arrow
  * hangs to the left of the post and points right, so it stays inside the art even on the right edge.
  */
-function Signpost({ level, transform }: { level: 1 | 2 | 3; transform: string }) {
-  const { small, big } = SIGNPOST_TEXT[level];
+function Signpost({
+  level,
+  transform,
+  nextStageLabel,
+}: {
+  level: 1 | 2 | 3;
+  transform: string;
+  nextStageLabel?: string;
+}) {
+  const { small, big: defaultBig } = SIGNPOST_TEXT[level];
+  const big = nextStageLabel ?? defaultBig;
   return (
     <g data-asset-role="goal-preview" data-goal-kind="signpost" transform={transform}>
       <path d="M0 0V-54" stroke="#1e2126" strokeWidth="3.5" strokeLinecap="round" />
@@ -102,7 +112,17 @@ function Signpost({ level, transform }: { level: 1 | 2 | 3; transform: string })
   );
 }
 
-function SceneLayers({ scene, prefix, gameplay }: { scene: SceneIndex; prefix: string; gameplay: boolean }) {
+function SceneLayers({
+  scene,
+  prefix,
+  gameplay,
+  nextStageLabel,
+}: {
+  scene: SceneIndex;
+  prefix: string;
+  gameplay: boolean;
+  nextStageLabel?: string;
+}) {
   switch (scene) {
     case 0:
       return (
@@ -149,7 +169,7 @@ function SceneLayers({ scene, prefix, gameplay }: { scene: SceneIndex; prefix: s
           <path d="M170 325l12-34l22-10l10 44M205 306l14-28l20 6l6 36M235 325l24-30l24 6l8 24M290 318l10-24l22 14" />
         </g>
         {!gameplay && <use data-asset-role="character-preview" href={`#${prefix}-man`} transform="translate(42 198) scale(1.1)" />}
-        <Signpost level={1} transform="translate(458 192)" />
+        <Signpost level={1} transform="translate(458 192)" nextStageLabel={nextStageLabel} />
         </>
       );
     case 2:
@@ -177,7 +197,7 @@ function SceneLayers({ scene, prefix, gameplay }: { scene: SceneIndex; prefix: s
           <path d="M349 140V325M366 140V325M349 162h17M349 186h17M349 210h17M349 234h17M349 258h17M349 282h17M349 306h17" />
         </g>
         {!gameplay && <use data-asset-role="character-preview" href={`#${prefix}-man`} transform="translate(77 190) scale(1.1)" />}
-        <Signpost level={2} transform="translate(379 66)" />
+        <Signpost level={2} transform="translate(379 66)" nextStageLabel={nextStageLabel} />
         </>
       );
     case 3:
@@ -198,14 +218,14 @@ function SceneLayers({ scene, prefix, gameplay }: { scene: SceneIndex; prefix: s
         </g>
         <rect x="132" y="282" width="236" height="43" fill={`url(#${prefix}-spk)`} />
         {!gameplay && <use data-asset-role="character-preview" href={`#${prefix}-man`} transform="translate(48 198) scale(1.1)" />}
-        <Signpost level={3} transform="translate(436 160)" />
+        <Signpost level={3} transform="translate(436 160)" nextStageLabel={nextStageLabel} />
         </>
       );
   }
 }
 
 /** Inline vector port; useId scopes every definition and reference per mount. */
-export function StageArtwork({ scene, className, gameplay = false }: StageArtworkProps) {
+export function StageArtwork({ scene, className, gameplay = false, nextStageLabel }: StageArtworkProps) {
   const id = useId();
   const prefix = `stage-${id.replace(/[^a-zA-Z0-9_-]/g, (character) => `_${character.codePointAt(0)!.toString(16)}_`)}`;
   const title = STAGE_SCENES[scene].title;
@@ -220,7 +240,7 @@ export function StageArtwork({ scene, className, gameplay = false }: StageArtwor
     >
       <title id={`${prefix}-title`}>{title}</title>
       <ArtworkDefinitions prefix={prefix} />
-      <SceneLayers scene={scene} prefix={prefix} gameplay={gameplay} />
+      <SceneLayers scene={scene} prefix={prefix} gameplay={gameplay} nextStageLabel={nextStageLabel} />
     </svg>
   );
 }

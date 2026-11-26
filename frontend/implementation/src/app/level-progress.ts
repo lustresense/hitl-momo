@@ -66,6 +66,18 @@ export function consumeFreshUnlock(): number | null {
   return stage;
 }
 
+/** Clear all persisted stage progress so the next child on a shared device starts fresh. */
+export function resetLevelProgress(): void {
+  freshUnlock = null;
+  try {
+    if (typeof window !== "undefined") {
+      window.localStorage.removeItem(COMPLETED_STAGES_KEY);
+    }
+  } catch {
+    /* storage disabled */
+  }
+}
+
 /** First stage that is open but not yet won: where the student should go next. */
 export function nextStageToPlay(stages: number[]): number | null {
   return stages.find((stage) => isLevelUnlocked(stage) && !isStageCompleted(stage)) ?? null;

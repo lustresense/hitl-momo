@@ -21,6 +21,10 @@ export interface GameplayScreenProps {
   onBackToLevels: () => void;
   /** The level was won (after progress is recorded). */
   onWon?: () => void;
+  /** Aktifkan alat dev/skipbar demo (default false). */
+  readonly devTools?: boolean;
+  /** r8.3: hasil bermain percobaan ini dibuat oleh "Lewati" sehingga tidak boleh dikirim ke server. */
+  readonly onDemoAttempt?: (attemptId: string) => void;
 }
 
 export function GameplayScreen({

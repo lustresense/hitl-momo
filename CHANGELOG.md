@@ -46,6 +46,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.32.0-alpha | 2026-11-26 | Fitur | `(0.32.0-alpha)` |
 | 0.31.0-alpha | 2026-11-26 | Fitur | `(0.31.0-alpha)` |
 | 0.30.3-alpha | 2026-11-26 | Dokumen | `(0.30.3-alpha)` |
 | 0.30.2-alpha | 2026-11-26 | Dokumen | `(0.30.2-alpha)` |
@@ -141,6 +142,21 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.32.0-alpha — 2026-11-26 — Fitur
+
+**Sumber:** Owner 2026-11-26 (versi dipecah per perubahan)
+
+**Perubahan:**
+- UI r8.3 (migrasi sandbox) menjadi tampilan bawaan: nama panggilan, tanpa penggaris. Tampilan lama lewat NEXT_PUBLIC_UI_R83=0.
+- Tombol Lewati mengikuti sandbox (satu tekanan satu adegan, termasuk kanvas) dan bisa dijalankan dengan Alt+Q; percobaan yang disentuh Lewati tidak dikirim ke server.
+- npm run build:local untuk mencoba di laptop; perbaikan penutupan kartu tutorial.
+
+**Commit:** commit berjudul `(0.32.0-alpha)`
+
+**Bukti:** tsc 0; lint 0; vitest tanpa kegagalan baru (38 bawaan main); E2E r83-flow 42/42 (sebelum Alt+Q); telusur penuh hanya dengan Alt+Q sampai ending; cek data skip vs manual dengan model asli. Webcam fisik NOT_TESTED.
 
 ---
 

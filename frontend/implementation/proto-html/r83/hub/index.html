@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sketchbook Universe · Sandbox</title>
+<link rel="stylesheet" href="../shared/fonts.css"><link rel="stylesheet" href="../shared/tokens.css">
+<style>
+body{overflow:auto;background:var(--nb-bg);min-height:100%;background-image:radial-gradient(circle at 1px 1px,rgba(49,45,38,.16) 1px,transparent 1.2px);background-size:22px 22px}
+main{max-width:min(1100px,94vw);margin:0 auto;padding:clamp(24px,6vh,64px) 0}
+h1{margin:0 0 6px;font-size:clamp(28px,3.6vw,46px);font-weight:900;letter-spacing:-.03em}
+p.lead{margin:0 0 26px;font-weight:700;font-size:16px;max-width:70ch;line-height:1.45}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,300px),1fr));gap:18px}
+.part{position:relative;display:grid;gap:8px;padding:18px 18px 16px;background:#fffaf0;border:4px solid var(--nb-ink);border-radius:20px;box-shadow:8px 8px 0 var(--nb-ink);color:var(--nb-ink);text-decoration:none;transition:transform .15s}
+.part:hover:not(.off){transform:translate(-2px,-2px)}.part:active:not(.off){transform:translate(4px,4px);box-shadow:4px 4px 0 var(--nb-ink)}
+.part b{font-size:20px;font-weight:900;letter-spacing:-.02em}.part span{font-weight:700;font-size:14px;line-height:1.4}
+.part i{justify-self:start;font-style:normal;font-weight:900;font-size:13px;padding:5px 12px;border:2.5px solid var(--nb-ink);border-radius:999px;background:var(--nb-orange)}
+.part.off{opacity:.55;background:#e9e4d5;box-shadow:4px 4px 0 var(--nb-ink)}.part.off i{background:#fff}
+.note{margin-top:28px;padding:14px 16px;border:2.5px dashed var(--nb-ink);border-radius:14px;font-weight:700;font-size:14px;line-height:1.5;background:rgba(255,250,240,.7)}
+button.reset{margin-top:14px}
+</style><link rel="stylesheet" href="../shared/bold.css"></head><body><main>
+<h1>Sketchbook Universe · Sandbox</h1>
+<p class="lead">Satu bagian = satu halaman. Tiap bagian jalan sendiri, dan tombol <b>Menu</b> di bawah selalu kembali ke sini. Progres (nama, level terbuka, rekap) dibawa lewat penyimpanan browser dan parameter URL.</p>
+<div class="grid">
+<a class="part" href="../index.html"><b>Loading · route /</b><span>Momo Dream: Momo terbang ke awan, lalu iris menutup dan bar progres jadi bubble Momo; pindah ke /onboarding/cam</span><i>Buka</i></a>
+<a class="part" href="../onboarding/cam/index.html"><b>Cover · route /onboarding/cam</b><span>Kamera, Momo bangun, cubit-tahan Ayo!, buka buku, kenalan: cubit-tahan Mulai bicara, sebut nama (STT simulasi), pilih Ya / Ulangi</span><i>Buka</i></a>
+<a class="part" href="../p2-kartu/index.html"><b>P2 · Kartu tutorial</b><span>Tiga kartu panduan: deal, kipas, buka, flip, stempel</span><i>Buka</i></a>
+<a class="part" href="../p3-pilih-bab/index.html"><b>P3 · Pilih level</b><span>Tiga pita level menggantung dari spiral buku</span><i>Buka</i></a>
+<a class="part" href="../level1/index.html"><b>Level 1 · /level1</b><span>Intro Momo + spotlight, kamera naik lewat awan, lalu lempar, jatuh, taruh, main, menang (setelah /canvas1)</span><i>Buka</i></a>
+<a class="part" href="../canvas1/index.html"><b>Canvas 1 · /canvas1</b><span>Langit: gambar, tebakan di chat Momo, stiker, Lempar (lanjut ke /level1?fase=falling)</span><i>Buka</i></a>
+<a class="part" href="../level2/index.html"><b>Level 2 · /level2</b><span>Menara Lipatan (stage 16:9 di tengah, seperti repo)</span><i>Buka</i></a>
+<a class="part" href="../canvas2/index.html"><b>Canvas 2 · /canvas2</b><span>Langit untuk Level 2</span><i>Buka</i></a>
+<a class="part" href="../level3/index.html"><b>Level 3 · /level3</b><span>Lorong Kabut Penghapus (full-width)</span><i>Buka</i></a>
+<a class="part" href="../canvas3/index.html"><b>Canvas 3 · /canvas3</b><span>Langit untuk Level 3</span><i>Buka</i></a>
+<a class="part" href="../p6-penutup/index.html"><b>Penutup</b><span>Thinman terjun payung, kolam tinta, rekap, kembali ke sampul</span><i>Buka</i></a>
+</div>
+<div class="note"><b>r8.3 · satu gestur: cubit.</b> Mouse = tangan di depan kamera; posisinya tampil di kartu kamera kiri bawah. <b>Tahan klik = cubit-tahan</b>, <b>tahan lalu geser = tarik</b>, lepas klik = lepas cubit. Empat aturan: <b>A</b> satu pilihan = cubit dan tahan di mana aja sampai ring penuh; <b>B</b> beberapa pilihan = yang paling dekat tangan menyala, cubit dan tahan; <b>C</b> gerakin = Thinman pakai joystick dari titik awal cubit (geser kanan/kiri, cubit sebentar atau sentil ke atas = lompat), benda ikut gerak tangan, pita level ditarik ke bawah; <b>D</b> kanvas = satu-satunya tempat ada kursor (pensil / bulatan hapus), alat dipilih dengan tunjuk lalu cubit. Ring 1 detik, keputusan 2 detik (nama, Tebak Gambarku, label tebakan, Kembali ke sampul). Tombol <b>H</b> = kursor mouse biasa. Lewati / Menu dan gerbang izin tetap mouse (untuk guru). Desktop saja (1280×720 sampai 2560×1440).
+<br><button class="nb-btn reset" id="reset">Reset progres</button></div>
+</main>
+<script>document.getElementById('reset').onclick=function(){try{localStorage.removeItem('su.state')}catch(e){};this.textContent='Progres direset'};</script>
+</body></html>

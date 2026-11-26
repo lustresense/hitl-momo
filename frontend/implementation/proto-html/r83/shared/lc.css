@@ -1,0 +1,295 @@
+/* r4: gaya "Polo Factory" untuk SEMUA permukaan UI: fill + bayangan lembut, tanpa outline, radius yang itu-itu saja, satu pola tombol (label kiri + kapsul panah kanan),
+   kata kunci = chip gelap. Warna HANYA dari token repo (tokens.css) dengan peran yang sama seperti di repo:
+     oranye = aktif / utama,  ink = gelap (kapsul, chip, baris terpilih),  leaf = tone pucat,  hijau = progres,  kuning = sorot,  paper/putih = permukaan.
+   Tidak ada hue baru. Tint dibuat dengan color-mix dari token itu.
+   OBJEK tidak disentuh: pita level, penggaris dan isi buku, dunia level (latar, benda, Thinman, papan, bendera), kanvas gambar dan goresan, stiker hasil gambar, Momo, logo, wordmark, awan loader.
+   Border dibuat transparan (bukan dihapus) supaya ukuran dan posisi tiap kontrol sama dengan r3.1. Dimuat paling akhir di setiap halaman. */
+
+:root{
+  --lc-ink:var(--nb-ink);
+  --lc-pill:#fff;
+  --lc-soft:var(--nb-leaf-soft);
+  --lc-tone:color-mix(in srgb,var(--nb-leaf) 42%,#fff);                  /* pucat: tombol mati, trek, chip tenang */
+  --lc-mute:color-mix(in srgb,var(--nb-ink) 70%,transparent);   /* teks sekunder: >=4,5:1 di putih, leaf-soft, dan tone */
+  --lc-sh:0 1px 2px rgba(55,31,13,.10),0 12px 24px -12px rgba(55,31,13,.34);
+  --lc-sh-sm:0 1px 2px rgba(55,31,13,.10),0 7px 14px -9px rgba(55,31,13,.32);
+  --nb-ring-track:color-mix(in srgb,var(--nb-ink) 22%,transparent);
+  --lc-line:color-mix(in srgb,var(--nb-orange-deep) 55%,var(--nb-ink));            /* garis dunia/objek: cokelat hangat, bukan hitam */
+  --lc-deep-green:color-mix(in srgb,var(--nb-green-press) 70%,var(--nb-ink));      /* tepi tonal Momo (hijau tua sehue) */
+  --lc-deep-orange:color-mix(in srgb,var(--nb-orange-deep) 72%,var(--nb-ink));     /* tepi tonal sayap, ekor, pita */
+}
+
+/* ---------- 1. tombol: satu gestur. Label kiri, kapsul panah kanan. Utama = oranye (peran repo). ---------- */
+.nb-btn{font-family:var(--font-body);font-weight:800;font-size:14px;letter-spacing:.04em;text-transform:uppercase;gap:14px;
+  padding-right:10px;color:var(--lc-ink);background:var(--lc-pill);border-color:transparent;border-radius:14px;box-shadow:var(--lc-sh-sm);
+ 
+  transition:transform .14s ease,box-shadow .14s ease,background .16s ease,color .16s ease}
+.nb-btn::after{content:"\2197";display:grid;place-items:center;flex:none;width:30px;height:30px;border-radius:50%;background:var(--lc-ink);color:var(--nb-paper);
+  font:800 15px/1 var(--font-body);letter-spacing:0;text-transform:none}
+.nb-btn:hover:not(:disabled){transform:translateY(-1px)}
+.nb-btn:active:not(:disabled){transform:translateY(1px) scale(.985);box-shadow:0 1px 2px rgba(55,31,13,.14)}
+.nb-btn.primary{background:var(--nb-orange);box-shadow:var(--lc-sh-sm)}
+.nb-btn.ghost{background:var(--lc-tone);box-shadow:none;border-style:solid}
+.nb-btn.ghost::after{display:none}
+.nb-btn:disabled{background:var(--lc-tone);color:var(--lc-mute);box-shadow:none;opacity:1;transform:none}
+.nb-btn:disabled::after{background:color-mix(in srgb,var(--nb-ink) 12%,#fff);color:var(--lc-mute)}
+#skip,#replay,#sk-hub,.dream-skip-btn{text-transform:none;letter-spacing:0}
+#skip::after,#replay::after{display:none}
+
+/* ---------- 2. bubble Momo: putih, tanpa outline, ekor ikut warna; kata kunci = chip gelap ---------- */
+#gate,#bubble,#su-bubble,#book-inside-bubble{background:var(--nb-leaf)!important;}
+#su-bubble,#bubble,#gate,#book-inside-bubble{border-color:transparent!important;border-radius:22px!important;box-shadow:var(--lc-sh)!important;color:var(--lc-ink)}
+#gate::after,#bubble::after,#gate[data-side]::after,#su-bubble::after,#book-inside-bubble::after,#su-bubble[data-side]::after{background:var(--nb-leaf)!important;border-color:transparent!important}
+#su-bubble,#bubble #dialog,#gate-mumble,#book-inside-bubble{font-weight:600!important}
+#su-bubble strong,#bubble #dialog strong{background:var(--lc-ink)!important;color:var(--nb-paper);font-weight:700;padding:1px 8px 2px;border-radius:8px;-webkit-box-decoration-break:clone;box-decoration-break:clone}
+.gate-note{border-color:transparent!important;background:var(--lc-soft)!important;border-radius:14px!important}
+.gate-note__title{color:var(--lc-mute);letter-spacing:.14em}
+.gate-check{font-weight:700}
+.gate-check .box{border-color:transparent;border-radius:8px;background:var(--lc-tone);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--nb-ink) 58%,transparent)}   /* batas kotak >=3:1 */
+.gate-check input:checked+.box{background:var(--nb-orange);box-shadow:none}
+.gate-go{justify-content:space-between;padding-left:18px}
+#gate[data-state="2"] .gate-go{color:var(--lc-ink)}
+#cam-nudge{border-color:transparent;border-radius:16px;box-shadow:var(--lc-sh);background:var(--nb-leaf)}
+
+/* ---------- 3. cincin jempol: cakram putih, cincin tipis, label pill ---------- */
+.thumb-confirm__face,.pinch-ring__face{background:var(--lc-pill);border-color:transparent;box-shadow:var(--lc-sh)}
+.thumb-confirm__track,.pinch-ring__track{stroke-width:5}
+.thumb-confirm__fill,.pinch-ring__fill{stroke-width:5}
+.thumb-confirm__label,.pinch-ring__label{border-color:transparent;background:var(--nb-leaf);box-shadow:var(--lc-sh-sm)}   /* ukuran teks label sama dengan r3.1: label ini ikut menentukan lebar dan tinggi slot pita di layar kecil */
+.thumb-confirm.is-holding .thumb-confirm__face{box-shadow:0 0 0 6px color-mix(in srgb,var(--nb-yellow) 75%,transparent),var(--lc-sh)}
+.thumb-confirm.is-holding .thumb-confirm__label{background:var(--lc-ink);color:var(--nb-paper)}
+.thumb-confirm__thumb svg{width:30px;height:30px;display:block}                /* ikon jempol di cincin sandbox tidak punya ukuran */
+.pinch-help__rail{border-top-color:color-mix(in srgb,var(--nb-ink) 24%,transparent)}
+
+/* ---------- 4. chrome kecil: bar Lewati/Menu, hint, chip ---------- */
+#skipbar{border-color:transparent;border-radius:999px;background:var(--nb-leaf);box-shadow:var(--lc-sh)}
+#sk-label{font-weight:700;letter-spacing:.06em;color:var(--lc-mute)}
+#skip{border-radius:999px;background:var(--lc-pill);color:var(--lc-ink);box-shadow:none}
+#sk-momo{border-color:transparent;border-radius:999px;background:var(--lc-tone)}
+#su-hint{border-color:transparent;border-radius:16px;background:var(--nb-leaf);box-shadow:var(--lc-sh-sm);font-weight:600}
+.k-kicker,.k-chip{border-color:transparent;border-radius:999px;box-shadow:var(--lc-sh-sm);background:var(--lc-pill)}
+.k-chip.good{background:var(--lc-tone)}.k-chip.warn{background:color-mix(in srgb,var(--nb-yellow) 55%,#fff)}.k-chip.bad{background:color-mix(in srgb,var(--nb-orange) 28%,#fff)}
+.dream-skip-btn{border-color:transparent;background:var(--lc-pill);box-shadow:var(--lc-sh-sm)}
+
+/* ---------- 5. toolbar gambar: satu pill putih, tool aktif = oranye (peran repo) ---------- */
+.tut-tools,.nb-toolbar{background:var(--nb-leaf);border-color:transparent;border-radius:30px;box-shadow:var(--lc-sh)}
+.nb-tool{background:transparent;border-color:transparent;border-radius:22px;font-weight:700}
+.nb-tool:hover{background:color-mix(in srgb,var(--nb-leaf-soft) 70%,transparent)}
+.nb-tool.is-active{background:var(--nb-orange)}
+.tut-tool__tick{border-color:transparent;box-shadow:var(--lc-sh-sm)}
+.nb-iconbtn{background:var(--nb-leaf);border-color:transparent;border-radius:999px;box-shadow:var(--lc-sh-sm)}
+.nb-iconbtn:hover{background:var(--nb-leaf-soft)}
+.nb-iconbtn:active{transform:scale(.96);box-shadow:0 1px 2px rgba(55,31,13,.14)}
+
+/* ---------- 6. tiga tebakan Momo: terpilih = isi gelap ---------- */
+.t3-row{background:var(--lc-pill);border-color:transparent;border-radius:14px;box-shadow:var(--lc-sh-sm)}
+.t3-row.pick:hover:not(:disabled){background:var(--lc-soft)}
+.t3-row.sel{background:var(--lc-ink);color:var(--nb-paper);box-shadow:var(--lc-sh)}
+.t3-rank{border-color:transparent;background:var(--lc-tone);color:var(--lc-ink)}
+.t3-bar{border-color:transparent;background:var(--lc-tone)}
+.t3-row.sel .t3-bar{background:color-mix(in srgb,var(--nb-paper) 24%,transparent)}
+.t3-bar i{background:var(--nb-orange)}
+
+/* ---------- 7. kartu: info/misi, tutorial, rekap penutup. Bentuk, radius, dan animasi kartu tidak diubah. ---------- */
+.fc{border-color:transparent;border-radius:28px;box-shadow:var(--lc-sh)}
+.tut-face,.tut-play{border-color:transparent;box-shadow:var(--lc-sh)}
+.tut-front__done,.tut-win{border-color:transparent;box-shadow:var(--lc-sh-sm)}
+.tut-steps i{border-color:transparent;background:var(--lc-pill);box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--nb-ink) 18%,transparent)}
+.tut-steps i.is-now{background:var(--nb-orange);box-shadow:none}.tut-steps i.is-done{background:var(--nb-green);box-shadow:none}
+.tut-back .tut-gesture{border-color:transparent;background:var(--lc-pill);box-shadow:var(--lc-sh-sm)}
+.tut-zone__badge{border-color:transparent;box-shadow:var(--lc-sh-sm)}
+.tut-handhint__hand{border-color:transparent;background:var(--lc-pill);box-shadow:var(--lc-sh)}
+.ending-recap{border-color:transparent;border-radius:30px;box-shadow:var(--lc-sh);background:color-mix(in srgb,var(--nb-paper) 94%,transparent)}
+.ending-recap__counts li{border-color:transparent;border-radius:999px;background:var(--lc-soft)}
+.ending-recap__card{border-color:transparent;border-radius:16px;box-shadow:var(--lc-sh-sm)}
+.rc{border-style:solid;border-color:transparent;background:color-mix(in srgb,var(--nb-leaf) 30%,#fff)}
+.rc-slot{border-style:solid;border-color:transparent;background:var(--lc-tone)}
+.rc-slot.on,.rc-fly{border-color:transparent;background:var(--lc-pill);box-shadow:var(--lc-sh-sm)}
+
+/* ---------- 8. cover: kartu kamera, toggle, select. Orange tetap (peran repo), tanpa outline. ---------- */
+.camera-prototype-root .camera-widget-card.toggle-card:not(.pip){border-color:transparent!important;box-shadow:0 9px 0 0 var(--nb-orange),var(--lc-sh)!important}   /* lip oranye: menutup ujung ekor Momo yang tadinya tertutup bayangan keras */
+.camera-prototype-root .camera-widget-card.toggle-card.morphing,.camera-prototype-root .camera-widget-card.toggle-card.on{box-shadow:var(--lc-sh)!important}
+.camera-prototype-root .toggle-card:not(.pip)::before,.camera-prototype-root .toggle-card:not(.pip)::after{display:none!important}
+.camera-prototype-root .cam-badge{border-color:transparent;background:var(--lc-pill)}
+.camera-prototype-root .camera-select{border-color:transparent;border-radius:14px;background:var(--lc-pill);box-shadow:none;color:var(--nb-green-press)}
+.camera-prototype-root .camera-select:disabled{-webkit-text-fill-color:var(--nb-green-press)}
+.camera-prototype-root .toggle-card.morphing{box-shadow:var(--lc-sh)}
+.camera-prototype-root .toggle-card.pip,.camera-prototype-root .toggle-card.pip.on,#cam-pip{border-color:transparent;box-shadow:var(--lc-sh)}
+
+/* ---------- 9. loader di route /: bar putih tanpa outline, isi oranye datar, label Hanken. Awan, langit, dan Momo tidak disentuh. ---------- */
+.dream-shared{border-color:transparent;box-shadow:var(--lc-sh);background-color:var(--lc-pill)}
+.dream-bar-ui{border-color:transparent;background:var(--lc-pill)}
+.dream-bar-fill{background:var(--nb-orange);border-right-color:transparent}
+.dream-bar-text{font-family:var(--font-body);font-weight:800;letter-spacing:.04em;text-shadow:none}
+
+/* ---------- 10. kontras (WCAG AA) ---------- */
+.nb-btn:focus-visible,.nb-tool:focus-visible,.nb-iconbtn:focus-visible,.t3-row:focus-visible{outline:3px solid var(--nb-green-press);outline-offset:3px}
+
+/* ---------- 11. sisa neobrutalism: stiker hasil gambar, judul kartu ---------- */
+.sticker .sheet{border-color:transparent;background:var(--lc-pill);box-shadow:var(--lc-sh)}
+.sticker .tape{border-color:transparent;box-shadow:var(--lc-sh-sm)}
+.k-title,.guide-title,.g-head b,.ending-recap__chapter,.sticker .lab,.rc-title{font-family:var(--font-body)!important;font-weight:800!important;letter-spacing:-.01em!important}   /* satu keluarga huruf; Bowlby tinggal untuk wordmark dan angka */
+
+/* ---------- 12. Momo: TANPA stroke. Yang ada hanya badan (muka), sayap oranye, dan ekor hijau tua (warna tepi yang dulu). Bentuk dan ekspresi sama. ---------- */
+#momo .sleep-breath>path[fill="#2e0d06"],#momo .wing-left>path[fill="#2e0d06"],#momo .wing-right>path[fill="#2e0d06"],
+#dr-mg>g:not([id])>path[fill="#2e0d06"],#dr-wl>path[fill="#2e0d06"],#dr-wr>path[fill="#2e0d06"]{display:none}   /* loader: hanya outline badan; ekor dan pita (#dr-tail) tetap */
+#momo .tail-twirl path,#momo .tail-twirl circle,#momo .momo-bow path,#dr-tail path{fill:var(--lc-deep-green)}
+#momo path[fill="#b5da93"],#dr-momo path[fill="#b5da93"]{fill:url(#lc-body) #b5da93}
+#momo path[fill="#e4551b"],#dr-momo path[fill="#e4551b"]{fill:url(#lc-wing) #e4551b}
+/* sayap oranye ditebalkan dengan warnanya sendiri (bukan garis gelap): ukuran sayap kira-kira sama seperti saat masih bertepi, tapi isinya oranye penuh */
+#momo .sleep-breath>path[fill="#e4551b"]:nth-of-type(3),#momo .sleep-breath>path[fill="#e4551b"]:nth-of-type(4),#momo .wing-left>path[fill="#e4551b"],#momo .wing-right>path[fill="#e4551b"],
+#dr-mg>g:not([id])>path[fill="#e4551b"]:nth-of-type(3),#dr-mg>g:not([id])>path[fill="#e4551b"]:nth-of-type(4),#dr-wl>path[fill="#e4551b"],#dr-wr>path[fill="#e4551b"]{stroke:url(#lc-wing) #e4551b;stroke-width:46;stroke-linejoin:round}
+#momo path[fill="#380c02"],#momo ellipse[fill="#380c02"],#momo path[fill="#380C02"],#momo ellipse[fill="#380C02"],#dr-momo path[fill="#380c02"]{fill:var(--lc-deep-green)}
+#momo [stroke="#380C02"],#momo [stroke="#2E0D06"]{stroke:var(--lc-deep-green)}
+#momo{filter:drop-shadow(0 2px 2px rgba(30,60,15,.40)) drop-shadow(0 12px 14px rgba(30,60,15,.32))}   /* tanpa stroke: bayangan dekat menegaskan tepi, bayangan lebar memisahkan dari ground */
+#dr-momo{filter:drop-shadow(0 2px 2px rgba(30,60,15,.40)) drop-shadow(0 12px 14px rgba(30,60,15,.30))}
+#sk-momo{display:none}                                                        /* chip A/B "Momo bold" (neobrutalism) dibuang */
+
+/* ---------- 13. penggaris: oranye bergradien, tanpa outline, bayangan lembut. Skala, tick, dan jarum sama. ---------- */
+#ruler-body{background:linear-gradient(180deg,#f39a64 0%,var(--nb-orange) 52%,#e0672a 100%)!important;border-color:color-mix(in srgb,var(--nb-orange) 55%,var(--nb-orange-deep))!important;border-radius:24px!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.38),var(--lc-sh)!important}
+.ruler-tick{border-left-color:color-mix(in srgb,var(--nb-ink) 82%,var(--nb-orange))}
+#ruler-needle{background:var(--nb-ink);border-radius:3px;box-shadow:0 0 0 2px rgba(255,250,240,.85),0 6px 12px -4px rgba(55,31,13,.4)}
+.ruler-tick.demo-mark::after{border-color:transparent;box-shadow:0 0 0 5px var(--nb-yellow),var(--lc-sh-sm)}
+#ruler-page .ruler-heading,#ruler-readout{font-family:var(--font-body)!important;font-weight:800!important;letter-spacing:-.025em!important}
+#ruler-readout{filter:drop-shadow(0 8px 10px rgba(55,31,13,.16))!important}
+
+/* ---------- 14. pita level (booklist): isi bergradien, tanpa outline, bayangan lembut. Bentuk, ukuran, goyangan, dan tarikan sama. ---------- */
+.bm-outer--shadow{display:none}
+.bm-outer--body{fill:url(#lc-rib-or) #ef7a37;stroke:color-mix(in srgb,var(--nb-orange) 55%,var(--nb-orange-deep));stroke-width:2;stroke-linejoin:round}   /* tepi tonal 2px: >=3:1 terhadap kertas */
+.bm-done .bm-outer--body{fill:url(#lc-rib-gr) #7fbf4a;stroke:color-mix(in srgb,#7fbf4a 50%,var(--nb-green-press))}
+.bm-locked .bm-outer--body{fill:url(#lc-rib-lk) #cfc9bb;stroke:#948c78}
+.bm-shape{filter:drop-shadow(0 12px 12px rgba(55,31,13,.24))}
+.bm-stitch{stroke:rgba(255,250,240,.55)}
+.bm-locked .bm-stitch{stroke:rgba(55,31,13,.22)}
+.bm-ring-clip{border-color:transparent;box-shadow:var(--lc-sh-sm)}
+.bm-badge{border-color:transparent;box-shadow:var(--lc-sh-sm)}
+.bm-ring{border-color:transparent;box-shadow:var(--lc-sh-sm)}
+.bm-notches i{border-color:transparent;box-shadow:inset 0 0 0 1.5px rgba(55,31,13,.22)}
+.bm-hint__hand{border-color:transparent;box-shadow:var(--lc-sh)}
+.bm-binding i{border-color:transparent;background:linear-gradient(90deg,#fff 0 38%,#dcd7c8 38% 100%);box-shadow:0 6px 8px -5px rgba(55,31,13,.34)}
+.bm-number,.bm-title,.bm-tag{font-family:var(--font-body)!important;font-weight:800!important}
+
+/* ---------- 15. kartu tutorial: sambungan dua halaman rata (tanpa takik), tidak ada garis putih di tepi panel ---------- */
+.tut-back{border-radius:20px 0 0 20px}
+.tut-play{box-sizing:border-box;border:0;border-radius:0 20px 20px 0;background-color:color-mix(in srgb,var(--nb-orange) 11%,var(--nb-paper))}   /* tinggi sama dengan kartu kiri: dua halaman lurus, tidak ada garis putih */
+.tut-play::before{width:22px;background:linear-gradient(90deg,rgba(55,31,13,.13),transparent)}   /* lipatan brosur */
+.tut-draw__paper{border-color:transparent;background-color:#fff;box-shadow:var(--lc-sh-sm)}
+
+/* ---------- 16. dunia level: garis hitam-biru jadi cokelat hangat. Bentuk, warna isi, dan posisi sama. ---------- */
+.art-svg [stroke="#1e2126"]{stroke:var(--lc-line)}
+.art-svg [fill="#1e2126"]{fill:var(--lc-line)}
+.olabel{border-color:transparent;box-shadow:var(--lc-sh-sm)}
+
+/* ---------- 17. cover r8: kertas krem bertitik (sama dengan canvas), jilid spiral di atas, wordmark hijau tua di bawah. Isi atas: Momo + kartu kamera + bubble. ---------- */
+#stage{background-color:var(--nb-paper);background-image:radial-gradient(circle at 1px 1px,rgba(49,45,38,.16) 1px,transparent 1.2px);background-size:22px 22px}
+#stage::before,#stage::after{display:none}
+html.boot{background-color:var(--nb-paper);background-image:radial-gradient(circle at 1px 1px,rgba(49,45,38,.16) 1px,transparent 1.2px);background-size:22px 22px}
+#cover-hero h1{color:var(--lc-deep-green)!important;text-shadow:none!important}
+#cover-hero p{color:var(--lc-deep-green)!important}
+@media (min-width:900px){
+  #cover-hero h1{line-height:.98!important}
+  #cover-hero h1:not(.h2){order:1}
+  #cover-hero h1.h2{order:2}
+  #cover-hero p{order:3;margin:calc(var(--fs)*.17) 0 0!important}
+}
+
+/* ---------- 18. panel gagal di level: isinya (chip, judul, tombol) sekarang ada DI DALAM bubble Momo ---------- */
+.fail-ask{display:grid;gap:8px;justify-items:start;margin-top:10px}
+.fail-ask .k-title{margin:0;font-size:var(--nb-h2);line-height:1.05}
+.fail-ask .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+
+/* ---------- 19. tekstur kertas autentik & grid dots ---------- */
+:root {
+  --su-paper-texture: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScyMDAnIGhlaWdodD0nMjAwJyB2aWV3Qm94PScwIDAgMjAwIDIwMCc+PGcgZmlsbD0nJTIzNmI1MzM1JyBvcGFjaXR5PScwLjA2Jz48Y2lyY2xlIGN4PScxMjUnIGN5PScxODgnIHI9JzI2Jy8+PGNpcmNsZSBjeD0nMTU3JyBjeT0nNDgnIHI9JzQyJy8+PGNpcmNsZSBjeD0nMTAyJyBjeT0nMTI0JyByPSc0MicvPjxjaXJjbGUgY3g9JzEzMScgY3k9JzU3JyByPSczNycvPjxjaXJjbGUgY3g9Jzc5JyBjeT0nNDAnIHI9JzMyJy8+PGNpcmNsZSBjeD0nMTg1JyBjeT0nMTYwJyByPSczNicvPjxjaXJjbGUgY3g9JzE0NCcgY3k9JzI2JyByPSc0MScvPjxjaXJjbGUgY3g9JzE4NycgY3k9JzE2NScgcj0nMjUnLz48L2c+PGcgZmlsbD0nJTIzMmExODBhJyBvcGFjaXR5PScwLjA5Jz48Y2lyY2xlIGN4PScxMjEuNScgY3k9JzEzLjInIHI9JzEnLz48Y2lyY2xlIGN4PScxMzUuMicgY3k9Jzk2LjcnIHI9JzAuOCcvPjxjaXJjbGUgY3g9JzE5OS4xJyBjeT0nMTE5LjMnIHI9JzAuNCcvPjxjaXJjbGUgY3g9JzYuOCcgY3k9Jzk0LjQnIHI9JzAuNCcvPjxjaXJjbGUgY3g9JzExMC4zJyBjeT0nMzkuNycgcj0nMC43Jy8+PGNpcmNsZSBjeD0nMzguNScgY3k9Jzg2LjcnIHI9JzAuNicvPjxjaXJjbGUgY3g9JzEzOC43JyBjeT0nNjQuOScgcj0nMC44Jy8+PGNpcmNsZSBjeD0nMTEwLjgnIGN5PSc0My43JyByPScwLjUnLz48Y2lyY2xlIGN4PScxNDguNicgY3k9JzUxLjcnIHI9JzAuNycvPjxjaXJjbGUgY3g9JzE5My43JyBjeT0nMTMwLjEnIHI9JzAuNCcvPjxjaXJjbGUgY3g9JzQ0LjknIGN5PScxMzcuOScgcj0nMC41Jy8+PC9nPjwvc3ZnPg==");
+}
+
+/* Cover (sampul) memiliki tekstur kertas abu-abu autentik */
+#stage {
+  background-color: var(--nb-paper) !important;
+  background-image: var(--su-paper-texture), radial-gradient(circle at 1px 1px, rgba(49, 45, 38, .18) 1.1px, transparent 1.5px) !important;
+  background-size: 200px 200px, 22px 22px !important;
+}
+
+#stage::after {
+  display: block !important;
+  background-image: var(--su-paper-texture), radial-gradient(circle at 1px 1px, rgba(49, 45, 38, .18) 1.1px, transparent 1.5px) !important;
+  background-size: 200px 200px, 22px 22px !important;
+  opacity: .55 !important;
+}
+
+/* All pages after cover: Strictly cream paper with clean dot grid */
+.paper, .paperfull, .cam-screen, #ruler-page, #book, .tut-draw__paper, html.boot, #app, body {
+  background-color: var(--nb-paper) !important;
+  background-image: radial-gradient(circle at 1px 1px, rgba(49, 45, 38, .20) 1.1px, transparent 1.5px) !important;
+  background-size: 22px 22px !important;
+}
+
+#lc-paper-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  mix-blend-mode: normal;   /* r8.3 perf: tile statis, tanpa blend (lihat lc.js) */
+  opacity: .32;
+  overflow: hidden;
+}
+
+/* ---------- 20. visual sound-wave equalizer nama / mic ---------- */
+.sound-wave {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 48px;
+  margin: 4px 0 10px;
+}
+
+.sound-wave.is-active,
+#name-card.is-listening .sound-wave,
+.name-mic.is-listening ~ .sound-wave,
+#name-card:has(.name-mic.is-listening) .sound-wave {
+  display: flex !important;
+}
+
+.sound-wave .bar {
+  display: block;
+  width: 5px;
+  background: var(--nb-green, #4a8c1f);
+  border-radius: 999px;
+  transform-origin: center center;
+  animation: suWavePulse 0.75s ease-in-out infinite alternate;
+}
+
+.sound-wave .bar.b1, .sound-wave .b1 { height: 8px; animation-delay: 0.05s; }
+.sound-wave .bar.b2, .sound-wave .b2 { height: 14px; animation-delay: 0.15s; }
+.sound-wave .bar.b3, .sound-wave .b3 { height: 22px; animation-delay: 0.25s; }
+.sound-wave .bar.b4, .sound-wave .b4 { height: 30px; animation-delay: 0.10s; }
+.sound-wave .bar.b5, .sound-wave .b5 { height: 36px; animation-delay: 0.35s; }
+.sound-wave .bar.b6, .sound-wave .b6 { height: 26px; animation-delay: 0.20s; }
+.sound-wave .bar.b7, .sound-wave .b7 { height: 38px; animation-delay: 0.00s; }
+.sound-wave .bar.b8, .sound-wave .b8 { height: 24px; animation-delay: 0.30s; }
+.sound-wave .bar.b9, .sound-wave .b9 { height: 34px; animation-delay: 0.12s; }
+.sound-wave .bar.b10, .sound-wave .b10 { height: 28px; animation-delay: 0.28s; }
+.sound-wave .bar.b11, .sound-wave .b11 { height: 18px; animation-delay: 0.08s; }
+.sound-wave .bar.b12, .sound-wave .b12 { height: 12px; animation-delay: 0.22s; }
+.sound-wave .bar.b13, .sound-wave .b13 { height: 6px; animation-delay: 0.18s; }
+
+@keyframes suWavePulse {
+  0% {
+    height: 6px;
+    transform: scaleY(0.4);
+    opacity: 0.75;
+  }
+  50% {
+    height: 38px;
+    transform: scaleY(1.1);
+    opacity: 1;
+  }
+  100% {
+    height: 12px;
+    transform: scaleY(0.5);
+    opacity: 0.8;
+  }
+}

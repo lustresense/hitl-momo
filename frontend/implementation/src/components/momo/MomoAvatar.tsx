@@ -19,34 +19,46 @@ export interface MomoAvatarProps {
   /** Change this number to make Momo point with a wing toward `pointSide` (R16). */
   pointKey?: number;
   pointSide?: "left" | "right";
+  /** Optional eye gaze offset in art units (`null` resets). */
+  gaze?: { x: number; y: number } | null;
   className?: string;
   label?: string;
 }
 
 /** The Owner's animated Momo as a React slot. Purely visual: no input, no decisions, no object creation. */
-export function MomoAvatar({ expression, height = 64, trackMotion = false, flapKey = 0, waveKey = 0, sleeping = false, fog = 0, pointKey = 0, pointSide = "right", className, label = "Momo" }: MomoAvatarProps) {
+export function MomoAvatar({ expression, height = 64, trackMotion = false, flapKey = 0, waveKey = 0, sleeping = false, fog = 0, pointKey = 0, pointSide = "right", gaze = null, className, label = "Momo" }: MomoAvatarProps) {
   const host = useRef<HTMLSpanElement>(null);
   const engine = useRef<MomoEngine | null>(null);
   const expressionRef = useRef(expression);
   expressionRef.current = expression;
+  const sleepingRef = useRef(sleeping);
+  sleepingRef.current = sleeping;
 
   useEffect(() => {
     if (!host.current) return;
     const e = new MomoEngine(host.current, { trackMotion });
-    e.set(expressionRef.current, true);
+    if (sleepingRef.current) e.set("Ngantuk", true);
+    else e.set(expressionRef.current, true);
     engine.current = e;
     return () => { e.destroy(); engine.current = null; };
   }, [trackMotion]);
 
   // Going from asleep to awake plays the eyelid blinks first (wake), then the expression; otherwise set it at once.
   const wasSleeping = useRef(false);
+  const didInitialSleep = useRef(false);
   useEffect(() => {
     const e = engine.current;
-    if (sleeping) e?.sleep();
-    else if (wasSleeping.current) e?.wake(expression);
-    else e?.set(expression);
+    if (sleeping) {
+      e?.sleep(!didInitialSleep.current);
+      didInitialSleep.current = true;
+    } else if (wasSleeping.current) {
+      e?.wake(expression);
+    } else {
+      e?.set(expression);
+    }
     wasSleeping.current = sleeping;
   }, [expression, sleeping, trackMotion]);
+  useEffect(() => { engine.current?.setGaze(gaze); }, [gaze]);
   useEffect(() => { if (flapKey > 0) engine.current?.flap(); }, [flapKey]);
   useEffect(() => { engine.current?.setFog(fog); }, [fog, trackMotion]);
   useEffect(() => { if (pointKey > 0) engine.current?.point(pointSide); }, [pointKey, pointSide]);

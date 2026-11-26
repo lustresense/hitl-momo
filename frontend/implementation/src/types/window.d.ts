@@ -3,6 +3,7 @@
  * They are installed ONLY when NEXT_PUBLIC_TEST_HOOKS=1 (see env.testHooksEnabled) and are never present in production builds.
  */
 import type { GameController } from "@/src/game/game-controller";
+import type { SkbNuiHook } from "@/src/nui/sources/test-source";
 import type { MockPredictionProvider } from "@/src/prediction/mock-prediction-provider";
 
 declare global {
@@ -19,6 +20,8 @@ declare global {
     __skbMock?: MockPredictionProvider;
     /** Extra hooks registered by the drawing screen (e.g. the live DrawingSurface). */
     __skbTestHooks?: Record<string, unknown>;
+    /** Synthetic NUI input hook for r8.3 Vitest & E2E (installed only when NEXT_PUBLIC_TEST_HOOKS=1). */
+    __skbNui?: SkbNuiHook;
   }
 }
 

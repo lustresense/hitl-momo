@@ -1,0 +1,569 @@
+/*
+ * r8.3 NUI visual layer: ring, badge, legend, pencil/eraser cursor, nui-pip-hand, joystick.
+ * Ported verbatim from proto-html/r83/shared/hand.css:1-88, scoped under [data-ui="r83"].
+ */
+
+/* ---------- hand.css:4-7 (hide native cursor in hand-sim & hand-live, keep chrome native) ---------- */
+html.hand-sim [data-ui="r83"],
+html.hand-sim [data-ui="r83"] *,
+html.hand-live [data-ui="r83"],
+html.hand-live [data-ui="r83"] *,
+[data-ui="r83"].hand-sim,
+[data-ui="r83"].hand-sim *,
+[data-ui="r83"].hand-live,
+[data-ui="r83"].hand-live * {
+  cursor: none !important;
+}
+
+html.hand-sim [data-ui="r83"] #stage[data-phase="sleep"],
+html.hand-sim [data-ui="r83"] #stage[data-phase="sleep"] *,
+html.hand-sim [data-ui="r83"] #stage[data-phase="gate"],
+html.hand-sim [data-ui="r83"] #stage[data-phase="gate"] *,
+html.hand-sim [data-ui="r83"] #stage[data-phase="camera-on"],
+html.hand-sim [data-ui="r83"] #stage[data-phase="camera-on"] *,
+html.hand-sim [data-ui="r83"] #dream,
+html.hand-sim [data-ui="r83"] #dream *,
+html.hand-sim [data-ui="r83"] #skipbar,
+html.hand-sim [data-ui="r83"] #skipbar *,
+html.hand-sim [data-ui="r83"] #gate,
+html.hand-sim [data-ui="r83"] #gate *,
+html.hand-sim [data-ui="r83"] #replay,
+html.hand-sim [data-ui="r83"] .name-typelink,
+html.hand-sim [data-ui="r83"] #name-type,
+html.hand-sim [data-ui="r83"] #name-type *,
+html.hand-sim [data-ui="r83"] [data-nui-off],
+html.hand-sim [data-ui="r83"] [data-nui-off] *,
+html.hand-live [data-ui="r83"] #stage[data-phase="sleep"],
+html.hand-live [data-ui="r83"] #stage[data-phase="sleep"] *,
+html.hand-live [data-ui="r83"] #stage[data-phase="gate"],
+html.hand-live [data-ui="r83"] #stage[data-phase="gate"] *,
+html.hand-live [data-ui="r83"] #stage[data-phase="camera-on"],
+html.hand-live [data-ui="r83"] #stage[data-phase="camera-on"] *,
+html.hand-live [data-ui="r83"] #dream,
+html.hand-live [data-ui="r83"] #dream *,
+html.hand-live [data-ui="r83"] #skipbar,
+html.hand-live [data-ui="r83"] #skipbar *,
+html.hand-live [data-ui="r83"] #gate,
+html.hand-live [data-ui="r83"] #gate *,
+html.hand-live [data-ui="r83"] #replay,
+html.hand-live [data-ui="r83"] .name-typelink,
+html.hand-live [data-ui="r83"] #name-type,
+html.hand-live [data-ui="r83"] #name-type *,
+html.hand-live [data-ui="r83"] [data-nui-off],
+html.hand-live [data-ui="r83"] [data-nui-off] *,
+[data-ui="r83"].hand-sim #stage[data-phase="sleep"],
+[data-ui="r83"].hand-sim #stage[data-phase="sleep"] *,
+[data-ui="r83"].hand-sim #stage[data-phase="gate"],
+[data-ui="r83"].hand-sim #stage[data-phase="gate"] *,
+[data-ui="r83"].hand-sim #stage[data-phase="camera-on"],
+[data-ui="r83"].hand-sim #stage[data-phase="camera-on"] *,
+[data-ui="r83"].hand-sim #dream,
+[data-ui="r83"].hand-sim #dream *,
+[data-ui="r83"].hand-sim #skipbar,
+[data-ui="r83"].hand-sim #skipbar *,
+[data-ui="r83"].hand-sim #gate,
+[data-ui="r83"].hand-sim #gate *,
+[data-ui="r83"].hand-sim #replay,
+[data-ui="r83"].hand-sim .name-typelink,
+[data-ui="r83"].hand-sim #name-type,
+[data-ui="r83"].hand-sim #name-type *,
+[data-ui="r83"].hand-sim [data-nui-off],
+[data-ui="r83"].hand-sim [data-nui-off] *,
+[data-ui="r83"].hand-live #stage[data-phase="sleep"],
+[data-ui="r83"].hand-live #stage[data-phase="sleep"] *,
+[data-ui="r83"].hand-live #stage[data-phase="gate"],
+[data-ui="r83"].hand-live #stage[data-phase="gate"] *,
+[data-ui="r83"].hand-live #stage[data-phase="camera-on"],
+[data-ui="r83"].hand-live #stage[data-phase="camera-on"] *,
+[data-ui="r83"].hand-live #dream,
+[data-ui="r83"].hand-live #dream *,
+[data-ui="r83"].hand-live #skipbar,
+[data-ui="r83"].hand-live #skipbar *,
+[data-ui="r83"].hand-live #gate,
+[data-ui="r83"].hand-live #gate *,
+[data-ui="r83"].hand-live #replay,
+[data-ui="r83"].hand-live .name-typelink,
+[data-ui="r83"].hand-live #name-type,
+[data-ui="r83"].hand-live #name-type *,
+[data-ui="r83"].hand-live [data-nui-off],
+[data-ui="r83"].hand-live [data-nui-off] * {
+  cursor: auto !important;
+}
+
+html.hand-sim [data-ui="r83"] #stage[data-phase="sleep"] button:not(:disabled),
+html.hand-sim [data-ui="r83"] #stage[data-phase="sleep"] label,
+html.hand-sim [data-ui="r83"] #stage[data-phase="gate"] button:not(:disabled),
+html.hand-sim [data-ui="r83"] #stage[data-phase="gate"] label,
+html.hand-sim [data-ui="r83"] #stage[data-phase="gate"] select:not(:disabled),
+html.hand-sim [data-ui="r83"] #stage[data-phase="camera-on"] button:not(:disabled),
+html.hand-sim [data-ui="r83"] #stage[data-phase="camera-on"] select:not(:disabled),
+html.hand-sim [data-ui="r83"] #camera.pip .toggle-switch,
+html.hand-sim [data-ui="r83"] #cam-pip button,
+html.hand-sim [data-ui="r83"] #skipbar button,
+html.hand-sim [data-ui="r83"] #gate button:not(:disabled),
+html.hand-sim [data-ui="r83"] #gate label,
+html.hand-sim [data-ui="r83"] #replay,
+html.hand-sim [data-ui="r83"] .name-typelink,
+html.hand-sim [data-ui="r83"] #name-type button,
+html.hand-live [data-ui="r83"] #stage[data-phase="sleep"] button:not(:disabled),
+html.hand-live [data-ui="r83"] #stage[data-phase="sleep"] label,
+html.hand-live [data-ui="r83"] #stage[data-phase="gate"] button:not(:disabled),
+html.hand-live [data-ui="r83"] #stage[data-phase="gate"] label,
+html.hand-live [data-ui="r83"] #stage[data-phase="gate"] select:not(:disabled),
+html.hand-live [data-ui="r83"] #stage[data-phase="camera-on"] button:not(:disabled),
+html.hand-live [data-ui="r83"] #stage[data-phase="camera-on"] select:not(:disabled),
+html.hand-live [data-ui="r83"] #camera.pip .toggle-switch,
+html.hand-live [data-ui="r83"] #cam-pip button,
+html.hand-live [data-ui="r83"] #skipbar button,
+html.hand-live [data-ui="r83"] #gate button:not(:disabled),
+html.hand-live [data-ui="r83"] #gate label,
+html.hand-live [data-ui="r83"] #replay,
+html.hand-live [data-ui="r83"] .name-typelink,
+html.hand-live [data-ui="r83"] #name-type button,
+[data-ui="r83"].hand-sim #stage[data-phase="sleep"] button:not(:disabled),
+[data-ui="r83"].hand-sim #stage[data-phase="sleep"] label,
+[data-ui="r83"].hand-sim #stage[data-phase="gate"] button:not(:disabled),
+[data-ui="r83"].hand-sim #stage[data-phase="gate"] label,
+[data-ui="r83"].hand-sim #stage[data-phase="gate"] select:not(:disabled),
+[data-ui="r83"].hand-sim #stage[data-phase="camera-on"] button:not(:disabled),
+[data-ui="r83"].hand-sim #stage[data-phase="camera-on"] select:not(:disabled),
+[data-ui="r83"].hand-sim #camera.pip .toggle-switch,
+[data-ui="r83"].hand-sim #cam-pip button,
+[data-ui="r83"].hand-sim #skipbar button,
+[data-ui="r83"].hand-sim #gate button:not(:disabled),
+[data-ui="r83"].hand-sim #gate label,
+[data-ui="r83"].hand-sim #replay,
+[data-ui="r83"].hand-sim .name-typelink,
+[data-ui="r83"].hand-sim #name-type button,
+[data-ui="r83"].hand-live #stage[data-phase="sleep"] button:not(:disabled),
+[data-ui="r83"].hand-live #stage[data-phase="sleep"] label,
+[data-ui="r83"].hand-live #stage[data-phase="gate"] button:not(:disabled),
+[data-ui="r83"].hand-live #stage[data-phase="gate"] label,
+[data-ui="r83"].hand-live #stage[data-phase="gate"] select:not(:disabled),
+[data-ui="r83"].hand-live #stage[data-phase="camera-on"] button:not(:disabled),
+[data-ui="r83"].hand-live #stage[data-phase="camera-on"] select:not(:disabled),
+[data-ui="r83"].hand-live #camera.pip .toggle-switch,
+[data-ui="r83"].hand-live #cam-pip button,
+[data-ui="r83"].hand-live #skipbar button,
+[data-ui="r83"].hand-live #gate button:not(:disabled),
+[data-ui="r83"].hand-live #gate label,
+[data-ui="r83"].hand-live #replay,
+[data-ui="r83"].hand-live .name-typelink,
+[data-ui="r83"].hand-live #name-type button {
+  cursor: pointer !important;
+}
+
+html.hand-sim [data-ui="r83"] #stage[data-phase="sleep"] #camera.locked .toggle-switch,
+html.hand-sim [data-ui="r83"] #stage[data-phase="gate"] #camera.locked .toggle-switch,
+html.hand-sim [data-ui="r83"] #gate button:disabled,
+html.hand-live [data-ui="r83"] #stage[data-phase="sleep"] #camera.locked .toggle-switch,
+html.hand-live [data-ui="r83"] #stage[data-phase="gate"] #camera.locked .toggle-switch,
+html.hand-live [data-ui="r83"] #gate button:disabled,
+[data-ui="r83"].hand-sim #stage[data-phase="sleep"] #camera.locked .toggle-switch,
+[data-ui="r83"].hand-sim #stage[data-phase="gate"] #camera.locked .toggle-switch,
+[data-ui="r83"].hand-sim #gate button:disabled,
+[data-ui="r83"].hand-live #stage[data-phase="sleep"] #camera.locked .toggle-switch,
+[data-ui="r83"].hand-live #stage[data-phase="gate"] #camera.locked .toggle-switch,
+[data-ui="r83"].hand-live #gate button:disabled {
+  cursor: not-allowed !important;
+}
+
+/* ---------- hand.css:10-27 (kursor kanvas D: ring, pensil, hapus) ---------- */
+[data-ui="r83"] {
+  /* ikon Owner apa adanya: Pencil Fine (no. 14) dan Eraser (no. 11), garis 2.6, warna tinta game */
+  --sk-pencil: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='none' stroke='%231d1d1b' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M32.5 9.8a3.2 3.2 0 0 1 4.5 0l1.2 1.2a3.2 3.2 0 0 1 0 4.5L17.8 36 9.5 38.5l2.5-8.3L32.5 9.8Z'/%3E%3Cpath d='m28.5 13.8 5.7 5.7'/%3E%3Cpath d='m25.5 16.8 5.7 5.7'/%3E%3C/svg%3E");
+  --sk-eraser: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 48 48' fill='none' stroke='%231d1d1b' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M27.3 11.2a4 4 0 0 1 5.7 0l4.8 4.8a4 4 0 0 1 0 5.7L22.5 37a4 4 0 0 1-5.7 0l-4.8-4.8a4 4 0 0 1 0-5.7l15.3-15.3Z'/%3E%3Cpath d='m20 18.5 10.5 10.5'/%3E%3Cpath d='M10 38h7.5'/%3E%3C/svg%3E");
+}
+
+[data-ui="r83"] #hand-cursor {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  z-index: 10000;
+  pointer-events: none;
+  display: none;
+}
+
+[data-ui="r83"] #hand-cursor .hc-ring {
+  position: absolute;
+  left: -14px;
+  top: -14px;
+  width: 28px;
+  height: 28px;
+  box-sizing: border-box;
+  border-radius: 50%;
+  border: 3px solid var(--nb-ink, #1d1d1b);
+  background: color-mix(in srgb, var(--nb-paper, #fffaf0) 55%, transparent);
+  box-shadow: 0 0 0 2px var(--nb-paper, #fffaf0);
+  transition: transform .12s, background-color .12s, border-color .12s;
+}
+
+[data-ui="r83"] #hand-cursor.is-pinch .hc-ring {
+  transform: scale(.45);
+  background: var(--nb-orange, #ef7a37);
+  border-color: var(--nb-orange, #ef7a37);
+}
+
+[data-ui="r83"] #hand-cursor.is-lost .hc-ring,
+[data-ui="r83"] #hand-cursor[data-frozen="true"] .hc-ring {
+  border-color: #9a968c;
+  background: transparent;
+  opacity: .55;
+}
+
+[data-ui="r83"] #hand-cursor.is-lost .r83-cursor-pencil,
+[data-ui="r83"] #hand-cursor.is-lost .r83-cursor-eraser,
+[data-ui="r83"] #hand-cursor[data-frozen="true"] .r83-cursor-pencil,
+[data-ui="r83"] #hand-cursor[data-frozen="true"] .r83-cursor-eraser {
+  color: #9a968c !important;
+  border-color: #9a968c !important;
+  filter: grayscale(1);
+  opacity: .55;
+}
+
+html.hand-sim [data-ui="r83"] .sk-cursor,
+html.hand-live [data-ui="r83"] .sk-cursor,
+[data-ui="r83"].hand-sim .sk-cursor,
+[data-ui="r83"].hand-live .sk-cursor {
+  border: 0 !important;
+  background: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  margin: 0 !important;
+  overflow: visible;
+}
+
+html.hand-sim [data-ui="r83"] .sk-cursor::before,
+html.hand-live [data-ui="r83"] .sk-cursor::before,
+[data-ui="r83"].hand-sim .sk-cursor::before,
+[data-ui="r83"].hand-live .sk-cursor::before {
+  content: "";
+  position: absolute;
+  left: -7px;
+  top: -29px;
+  width: 36px;
+  height: 36px;
+  background: var(--sk-pencil) no-repeat center / contain;
+}
+
+html.hand-sim [data-ui="r83"] .sk-cursor.erase::before,
+html.hand-live [data-ui="r83"] .sk-cursor.erase::before,
+[data-ui="r83"].hand-sim .sk-cursor.erase::before,
+[data-ui="r83"].hand-live .sk-cursor.erase::before {
+  left: -22px;
+  top: -22px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: 2.5px dashed var(--nb-ink, #1d1d1b);
+  box-sizing: border-box;
+  background: color-mix(in srgb, var(--nb-paper, #fffaf0) 45%, transparent) var(--sk-eraser) no-repeat center / 28px 28px;
+}
+
+html.hand-sim [data-ui="r83"] .sk-cursor.down::before,
+html.hand-live [data-ui="r83"] .sk-cursor.down::before,
+[data-ui="r83"].hand-sim .sk-cursor.down::before,
+[data-ui="r83"].hand-live .sk-cursor.down::before {
+  filter: drop-shadow(0 0 0 var(--nb-orange, #ef7a37));
+}
+
+html.hand-sim [data-ui="r83"] .sk-cursor.erase.down::before,
+html.hand-live [data-ui="r83"] .sk-cursor.erase.down::before,
+[data-ui="r83"].hand-sim .sk-cursor.erase.down::before,
+[data-ui="r83"].hand-live .sk-cursor.erase.down::before {
+  border-style: solid;
+  border-color: var(--nb-orange, #ef7a37);
+}
+
+/* ---------- hand.css:29-32 (tangan di kartu kamera) ---------- */
+[data-ui="r83"] .nui-pip-hand {
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  margin: -13px 0 0 -13px;
+  z-index: 5;
+  pointer-events: none;
+  color: #f1efe8;
+  transition: opacity .2s;
+}
+
+[data-ui="r83"] .nui-pip-hand svg {
+  width: 26px;
+  height: 26px;
+  display: block;
+}
+
+[data-ui="r83"] .nui-pip-hand.is-pinch {
+  color: #fff;
+}
+
+/* ---------- hand.css:34-54 (target: nyala, ditahan, lencana, keterangan aturan) ---------- */
+[data-ui="r83"] .nui-target {
+  transition: box-shadow .15s, outline-color .15s;
+}
+
+[data-ui="r83"] .nui-target[data-nui="B"].nui-lit:not(.thumb-confirm) {
+  outline: 3px solid var(--nb-orange, #ef7a37);
+  outline-offset: 3px;
+}
+
+[data-ui="r83"] .nui-target[data-nui="D"].nui-point-hover:not(.thumb-confirm) {
+  outline: 3px solid var(--nb-orange, #ef7a37);
+  outline-offset: 2px;
+}
+
+[data-ui="r83"] .nui-target[data-nui="D"].nui-point-hover:not(.thumb-confirm):not(.is-active) {
+  background: color-mix(in srgb, var(--nb-leaf-soft) 85%, transparent);
+}
+
+[data-ui="r83"] .thumb-confirm.nui-target[data-nui="B"].nui-lit .thumb-confirm__face,
+[data-ui="r83"] .thumb-confirm.nui-target[data-nui="D"].nui-point-hover .thumb-confirm__face {
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--nb-orange, #ef7a37) 45%, transparent), var(--lc-sh, 0 2px 8px rgba(0, 0, 0, .18));
+}
+
+[data-ui="r83"] .thumb-confirm.nui-target[data-nui="B"]:not(.nui-lit) {
+  opacity: .62;
+}
+
+[data-ui="r83"] .nui-target.nui-holding:not(.thumb-confirm) {
+  transform: scale(.98);
+}
+
+[data-ui="r83"] .thumb-confirm.nui-holding .thumb-confirm__face {
+  transform: scale(.94);
+}
+
+[data-ui="r83"] .nui-badge {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  width: 34px;
+  height: 34px;
+  margin-top: -17px;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(.8);
+  transition: opacity .15s, transform .15s;
+}
+
+[data-ui="r83"] .nui-badge svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+[data-ui="r83"] .nui-badge .t {
+  fill: var(--nb-paper, #fffaf0);
+  stroke: color-mix(in srgb, var(--nb-ink, #1d1d1b) 25%, transparent);
+  stroke-width: 4;
+}
+
+[data-ui="r83"] .nui-badge .f {
+  fill: none;
+  stroke: var(--nb-green, #4a8c1f);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+[data-ui="r83"] .nui-badge .i {
+  position: absolute;
+  inset: 7px;
+  color: var(--nb-ink, #1d1d1b);
+}
+
+[data-ui="r83"] .nui-badge .i svg {
+  width: 100%;
+  height: 100%;
+}
+
+[data-ui="r83"] .nui-lit > .nui-badge,
+[data-ui="r83"] .nui-holding > .nui-badge,
+[data-ui="r83"] .nui-point-hover > .nui-badge {
+  opacity: 1;
+  transform: none;
+}
+
+[data-ui="r83"] .thumb-confirm[data-nui] .thumb-confirm__label::after {
+  display: block;
+  font-weight: 600;
+  font-size: 11px;
+  line-height: 1.25;
+  opacity: .8;
+}
+
+[data-ui="r83"] .thumb-confirm[data-nui="A"] .thumb-confirm__label::after {
+  content: "cubit dan tahan di mana aja";
+}
+
+[data-ui="r83"] .thumb-confirm[data-nui="B"] .thumb-confirm__label::after {
+  content: "dekatkan tangan ke sini";
+}
+
+[data-ui="r83"] .thumb-confirm[data-nui="B"].nui-lit .thumb-confirm__label::after {
+  content: "cubit dan tahan";
+}
+
+[data-ui="r83"] .thumb-confirm[data-nui="D"] .thumb-confirm__label::after {
+  content: "tunjuk, cubit, tahan";
+}
+
+/* ---------- hand.css:56-61 (joystick tuntun C) ---------- */
+[data-ui="r83"] .nui-joy {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9990;
+  display: none;
+  overflow: visible;
+}
+
+[data-ui="r83"] .nui-joy.on {
+  display: block;
+}
+
+[data-ui="r83"] .nui-joy .a {
+  fill: color-mix(in srgb, var(--nb-paper, #fffaf0) 50%, transparent);
+  stroke: var(--nb-ink, #1d1d1b);
+  stroke-width: 2.5;
+  stroke-dasharray: 5 5;
+}
+
+[data-ui="r83"] .nui-joy .l {
+  stroke: var(--nb-orange, #ef7a37);
+  stroke-width: 4;
+  stroke-linecap: round;
+}
+
+[data-ui="r83"] .nui-joy .k {
+  fill: var(--nb-orange, #ef7a37);
+  stroke: var(--nb-paper, #fffaf0);
+  stroke-width: 2.5;
+}
+
+/* ---------- hand.css:63-67 (keterangan simulasi di atas kartu kamera) ---------- */
+[data-ui="r83"] #hand-legend {
+  position: fixed;
+  left: clamp(16px, 1.6vw, 24px);
+  bottom: calc(clamp(14px, 2.6vh, 30px) + clamp(120px, 10.4vw, 190px) * 0.8 + 20px);
+  z-index: 9998;
+  max-width: 310px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  background: var(--nb-ink, #1d1d1b);
+  color: var(--nb-paper, #fffaf0);
+  font: 600 12.5px/1.45 "Hanken Grotesk", system-ui, sans-serif;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, .22);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .3s;
+}
+
+[data-ui="r83"] #hand-legend.on {
+  opacity: 1;
+}
+
+[data-ui="r83"] #hand-legend b {
+  color: var(--nb-yellow, #f6c945);
+  font-weight: 800;
+}
+
+/* ---------- hand.css:69-74 (nama di sampul) ---------- */
+[data-ui="r83"] .name-card {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+}
+
+[data-ui="r83"] .name-type {
+  display: none;
+  gap: 8px;
+  align-items: center;
+}
+
+[data-ui="r83"] .name-type.on {
+  display: flex;
+}
+
+[data-ui="r83"] .name-type input {
+  font: 700 18px/1 "Hanken Grotesk", system-ui, sans-serif;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 2px solid var(--nb-ink, #1d1d1b);
+  width: 220px;
+  background: #fff;
+}
+
+[data-ui="r83"] .name-sim {
+  font: 700 12px/1.3 "Hanken Grotesk", system-ui, sans-serif;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--nb-yellow, #f6c945);
+}
+
+/* ---------- hand.css:76-88 (kanvas, reduced-motion, pilih level, kartu 3, tebakan) ---------- */
+[data-ui="r83"] .nb-tool[data-t="clear"] .g {
+  color: var(--nb-ink, #1d1d1b);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="r83"] #hand-cursor .hc-ring,
+  [data-ui="r83"] .nui-badge,
+  [data-ui="r83"] .nui-target {
+    transition: none;
+  }
+}
+
+[data-ui="r83"] .bm-ribbon.nui-lit .bm-badge {
+  background: var(--nb-orange, #ef7a37);
+  color: var(--nb-ink, #1d1d1b);
+  transform: scale(1.15);
+}
+
+[data-ui="r83"] .bm-ribbon.nui-lit .bm-notches {
+  opacity: 1;
+}
+
+[data-ui="r83"] .bm-ribbon.nui-lit .bm-name {
+  text-decoration: underline 3px var(--nb-orange, #ef7a37);
+  text-underline-offset: 4px;
+}
+
+[data-ui="r83"] .tut-draw .tut-tools {
+  gap: 6px;
+  padding: 8px;
+}
+
+[data-ui="r83"] .tut-draw .tut-tools .nb-tool {
+  min-height: 54px;
+  width: 62px;
+}
+
+[data-ui="r83"] .t3-row.nui-target {
+  padding-right: 46px;
+}
+
+/* Loader (/): mouse normal sebelum kamera ON. Input = I-beam, tombol = pointer (menimpa daftar `#dream *` di atas). */
+html.hand-sim [data-ui="r83"] #dream .dream-name-input,
+html.hand-live [data-ui="r83"] #dream .dream-name-input,
+[data-ui="r83"].hand-sim #dream .dream-name-input,
+[data-ui="r83"].hand-live #dream .dream-name-input {
+  cursor: text !important;
+}
+html.hand-sim [data-ui="r83"] #dream button:not(:disabled),
+html.hand-live [data-ui="r83"] #dream button:not(:disabled),
+[data-ui="r83"].hand-sim #dream button:not(:disabled),
+[data-ui="r83"].hand-live #dream button:not(:disabled) {
+  cursor: pointer !important;
+}
+html.hand-sim [data-ui="r83"] #dream button:disabled,
+html.hand-live [data-ui="r83"] #dream button:disabled,
+[data-ui="r83"].hand-sim #dream button:disabled,
+[data-ui="r83"].hand-live #dream button:disabled {
+  cursor: not-allowed !important;
+}

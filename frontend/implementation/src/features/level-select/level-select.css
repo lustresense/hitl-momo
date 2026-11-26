@@ -1,0 +1,121 @@
+/*
+ * Pilih Level (r8.3) — port persis dari proto-html/r83/shared/bab/bab.css, 100% scoped di bawah [data-ui="r83"].
+ * Selektor yang ditimpa oleh 112-r83-paper.css (lc.css §14) memakai :where(...) agar urutan impor CSS aman.
+ */
+
+[data-ui="r83"] { --nb-display: clamp(64px, 8vw, 96px); }
+
+[data-ui="r83"] .level-ribbon-page.bm-page {
+  position: absolute; inset: 0; min-height: 0;
+  display: flex; flex-direction: column; align-items: center;
+  padding: 0 16px clamp(96px, 13vh, 140px); overflow: hidden; box-sizing: border-box;
+}
+[data-ui="r83"] .level-ribbon-page[data-entry-hold] { pointer-events: none; }
+
+[data-ui="r83"] .bm-brand {
+  display: none; position: absolute; z-index: 3; top: 50px; left: 26px;
+  align-items: center; gap: 9px; font-size: var(--nb-body); font-weight: 900; color: var(--nb-ink); letter-spacing: -.01em;
+}
+[data-ui="r83"] .bm-brand__mark {
+  width: 24px; height: 24px; border-radius: 7px; border: 2.5px solid var(--nb-ink);
+  background: repeating-linear-gradient(45deg, var(--nb-ink), var(--nb-ink) 3px, transparent 3px, transparent 7px);
+}
+
+/* Spiral binding: wire rings clipped over the top edge. */
+[data-ui="r83"] .bm-binding { position: absolute; z-index: 4; top: -14px; left: 0; right: 0; height: 52px; display: flex; justify-content: space-evenly; pointer-events: none; }
+[data-ui="r83"] .bm-binding i { display: block; width: 13px; height: 46px; border-radius: 9px; }
+[data-ui="r83"] :where(.bm-binding i) { border: 2.5px solid var(--nb-ink); background: linear-gradient(90deg, #fffdf6 0 35%, #d9d5c6 35% 100%); box-shadow: 2px 3px 0 rgba(17, 17, 17, .25); }
+
+[data-ui="r83"] .bm-shelf {
+  position: relative; z-index: 2; display: flex; justify-content: center; align-items: flex-start;
+  flex-wrap: wrap; row-gap: 24px; gap: clamp(26px, 5vw, 76px);
+  margin-top: clamp(72px, 11vh, 120px); perspective: 1000px;
+}
+[data-ui="r83"] .bm-slot { position: relative; display: flex; flex-direction: column; align-items: center; }
+[data-ui="r83"] .bm-ring-clip { position: absolute; z-index: 5; top: -9px; left: 50%; width: 22px; height: 22px; transform: translateX(-50%); border-radius: 50%; background: #fffdf6; }
+[data-ui="r83"] :where(.bm-ring-clip) { border: 2.5px solid var(--nb-ink); box-shadow: 2px 2px 0 var(--nb-ink); }
+
+[data-ui="r83"] .bm-ribbon.level-card {
+  position: relative; display: block; padding: 0; margin: 0; border: 0; border-radius: 0; background: none; box-shadow: none; overflow: visible;
+  color: var(--nb-ink); font: inherit; text-align: center; cursor: grab; touch-action: none; user-select: none; -webkit-user-select: none; outline: none; transform-origin: 50% 0;
+}
+[data-ui="r83"] .bm-ribbon.level-card::before { content: none; }
+[data-ui="r83"] .bm-ribbon.level-card:hover { transform: none; box-shadow: none; }
+[data-ui="r83"] .bm-ribbon.is-pulling { cursor: grabbing; }
+[data-ui="r83"] .bm-ribbon:focus-visible .bm-outer--body { stroke: var(--nb-sky); stroke-width: 5; }
+[data-ui="r83"] .bm-body { position: relative; display: block; transform-origin: 50% 0; }
+[data-ui="r83"] .bm-shape { display: block; overflow: visible; }
+[data-ui="r83"] :where(.bm-outer--shadow) { fill: var(--nb-ink); }
+[data-ui="r83"] :where(.bm-outer--body) { fill: var(--nb-orange); stroke: var(--nb-ink); stroke-width: 4; stroke-linejoin: round; transition: fill .35s ease; }
+[data-ui="r83"] :where(.bm-stitch) { fill: none; stroke: rgba(255, 250, 240, .6); stroke-width: 2; stroke-dasharray: 6 6; stroke-linecap: round; }
+[data-ui="r83"] :where(.bm-done .bm-outer--body) { fill: #7fbf4a; }
+[data-ui="r83"] :where(.bm-locked .bm-outer--body) { fill: #cfc9bb; }
+[data-ui="r83"] :where(.bm-locked .bm-stitch) { stroke: rgba(17, 17, 17, .3); }
+[data-ui="r83"] .bm-locked .bm-ribbon.level-card { cursor: not-allowed; }
+
+[data-ui="r83"] .bm-content { position: absolute; left: 0; right: 0; top: 26px; display: flex; flex-direction: column; align-items: center; gap: 2px; pointer-events: none; }
+[data-ui="r83"] .bm-tag { font-size: 14px; font-weight: 900; letter-spacing: .18em; text-indent: .18em; color: var(--nb-ink); }
+[data-ui="r83"] .bm-number, [data-ui="r83"] .bm-locked .bm-number { font-size: clamp(56px, 6vw, 84px); font-weight: 900; line-height: .95; color: var(--nb-ink); }
+[data-ui="r83"] .bm-name { max-width: calc(var(--bm-w, 170px) - 36px); margin-top: 4px; font-size: clamp(14px, 1.15vw, 17px); font-weight: 900; line-height: 1.15; color: var(--nb-ink); }
+[data-ui="r83"] .bm-badge { display: grid; place-items: center; width: 48px; height: 48px; margin-top: 12px; color: var(--nb-ink); background: var(--nb-paper); border-radius: 50%; }
+[data-ui="r83"] :where(.bm-badge) { border: 2.5px solid var(--nb-ink); }
+[data-ui="r83"] .bm-badge svg { display: block; }
+[data-ui="r83"] .bm-done .bm-badge { background: var(--nb-green); color: #fffaf0; }
+[data-ui="r83"] .bm-locked .bm-badge { background: #efeadb; }
+[data-ui="r83"] .bm-ribbon.is-armed .bm-badge { background: var(--nb-green); color: #fffaf0; }
+
+/* Pull ring sits in the swallowtail notch. */
+[data-ui="r83"] .bm-ring {
+  position: absolute; z-index: 3; left: 50%; top: calc(var(--bm-len, 420px) - 62px);
+  display: grid; place-items: center; width: 42px; height: 42px; transform: translateX(-50%);
+  color: var(--nb-ink); background: var(--nb-paper); border-radius: 50%; transition: background-color .15s ease, color .15s ease;
+}
+[data-ui="r83"] :where(.bm-ring) { border: 3px solid var(--nb-ink); box-shadow: 3px 3px 0 var(--nb-ink); }
+[data-ui="r83"] .bm-ribbon.is-armed .bm-ring { background: var(--nb-green); color: #fffaf0; }
+[data-ui="r83"] .bm-locked .bm-ring { display: none; }
+
+/* "tek, tek": one pip per notch while pulling. */
+[data-ui="r83"] .bm-notches { position: absolute; right: -22px; top: 30px; display: flex; flex-direction: column; gap: 7px; opacity: 0; transition: opacity .15s ease; pointer-events: none; }
+[data-ui="r83"] .bm-ribbon.is-pulling .bm-notches { opacity: 1; }
+[data-ui="r83"] .bm-notches i { display: block; width: 14px; height: 7px; border-radius: 4px; background: var(--nb-paper); transition: background-color .1s ease, transform .15s var(--nb-ease-pop); }
+[data-ui="r83"] :where(.bm-notches i) { border: 2px solid var(--nb-ink); }
+[data-ui="r83"] .bm-ribbon[data-notch="1"] .bm-notches i:nth-child(-n+1),
+[data-ui="r83"] .bm-ribbon[data-notch="2"] .bm-notches i:nth-child(-n+2),
+[data-ui="r83"] .bm-ribbon[data-notch="3"] .bm-notches i:nth-child(-n+3),
+[data-ui="r83"] .bm-ribbon[data-notch="4"] .bm-notches i:nth-child(-n+4) { background: var(--nb-orange); transform: scaleX(1.25); }
+
+/* The ribbon to pull next: it sways gently. */
+[data-ui="r83"] .bm-slot.is-next .bm-body { animation: r83-bm-sway 3.4s ease-in-out infinite; }
+[data-ui="r83"] .bm-ribbon.is-pulling .bm-body, [data-ui="r83"] .bm-ribbon.is-armed .bm-body { animation: none; }
+@keyframes r83-bm-sway { 0%, 100% { transform: rotate(-1.1deg); } 50% { transform: rotate(1.1deg); } }
+
+/* Unlock burst */
+[data-ui="r83"] .bm-slot.is-unlocking::after {
+  content: ""; position: absolute; top: 120px; left: 50%; width: 30px; height: 30px; margin-left: -15px;
+  border: 4px solid var(--nb-orange); border-radius: 50%; opacity: 0; animation: r83-bm-burst .8s ease-out .05s; pointer-events: none;
+}
+@keyframes r83-bm-burst { 0% { transform: scale(.4); opacity: 1; } 100% { transform: scale(7); opacity: 0; } }
+
+[data-ui="r83"] .bm-foot { position: relative; z-index: 2; margin-top: auto; padding-top: 14px; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+[data-ui="r83"] .bm-title { display: inline-flex; align-items: center; gap: 10px; margin: 0; font-size: var(--nb-h1); font-weight: 900; letter-spacing: -.02em; color: var(--nb-ink); }
+[data-ui="r83"] .bm-title svg { width: 30px; height: 30px; color: var(--nb-orange-deep); }
+[data-ui="r83"] .bm-status { min-height: 34px; display: flex; align-items: center; }
+[data-ui="r83"] .bm-status .k-chip svg { width: 14px; height: 14px; }
+
+@media (max-width: 600px) {
+  [data-ui="r83"] .bm-brand { display: none; }
+  [data-ui="r83"] .bm-shelf { gap: 14px; }
+  [data-ui="r83"] .bm-number { font-size: var(--nb-display); font-weight: 900; line-height: .95; color: var(--nb-ink); }
+  [data-ui="r83"] .bm-name { font-size: 12px; }
+  [data-ui="r83"] .bm-badge { width: 38px; height: 38px; margin-top: 4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="r83"] .bm-slot.is-next .bm-body, [data-ui="r83"] .bm-slot.is-unlocking::after { animation: none; }
+}
+
+[data-ui="r83"] .page-edge-walkers { position: fixed; left: 0; right: 0; bottom: 6px; height: 96px; z-index: 5; pointer-events: none; overflow: hidden; }
+[data-ui="r83"] .page-edge-walkers__pair { position: absolute; bottom: 0; display: flex; align-items: flex-end; gap: 6px; animation: r83-page-edge-walk 28s linear infinite; }
+[data-ui="r83"] .page-edge-walkers__thinman { width: 46px; }
+[data-ui="r83"] .page-edge-walkers__momo { margin-bottom: 30px; }
+@keyframes r83-page-edge-walk { from { transform: translateX(-140px); } to { transform: translateX(calc(100vw + 20px)); } }
+@media (prefers-reduced-motion: reduce) { [data-ui="r83"] .page-edge-walkers__pair { animation: none; left: 24px; } }

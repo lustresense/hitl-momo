@@ -1,0 +1,30 @@
+/* Momo Dream loader, styles from the Owner's HTML (deepseek_html_20261114_14c00d.html) as they are, except:
+   the stage has no background of its own, so the iris that closes on Momo's head opens onto the real cover behind it;
+   the words that land in Momo's bubble use the body font (Hanken Grotesk); the bar's own text keeps the file's rounded UI font. */
+#dream{--ink:#111;--paper:#fffaf0;--leaf:#eff3db;--sky:#a8c8d8;--orange:#ef7a37;--momo-ink:#2e0d06;
+  position:fixed;inset:0;z-index:99999;isolation:isolate;overflow:hidden;color:var(--ink);font-family:var(--font-body,'Hanken Grotesk',system-ui,sans-serif);-webkit-font-smoothing:antialiased;user-select:none}
+#dream,#dream *{box-sizing:border-box}
+#dream button{font:inherit;cursor:pointer}
+#dream button:focus-visible{outline:3px solid var(--orange);outline-offset:3px}
+.dream-sky{z-index:2;position:absolute;inset:0;background:radial-gradient(circle at 50% 24%,#b9d7e5 0%,var(--sky) 58%,#95b9cc 100%);overflow:hidden;will-change:clip-path,opacity}
+.dream-sky::before{content:"";position:absolute;inset:0;opacity:.22;background-image:radial-gradient(rgba(44,76,85,.25) .85px,transparent 1.3px);background-size:22px 22px;pointer-events:none}
+.dream-sky::after{content:"";position:absolute;inset:13px;border:2px dashed rgba(255,250,240,.26);border-radius:10px;pointer-events:none}
+.dream-clouds,.dream-speed{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.cloud{position:absolute;top:0;left:0;height:42px;width:164px;border-radius:110px;background:var(--paper);box-shadow:0 6px 0 rgba(46,76,83,.14);will-change:transform}
+.cloud::before,.cloud::after{content:"";position:absolute;background:inherit;border-radius:50%}
+.cloud::before{left:14%;bottom:8px;width:49%;height:152%}
+.cloud::after{left:48%;bottom:6px;width:36%;height:122%}
+.streak{position:absolute;left:0;top:0;width:2px;height:96px;border-radius:99px;background:linear-gradient(180deg,transparent,rgba(255,250,240,.65),transparent);will-change:transform,opacity;opacity:0}
+.dream-top-cloud-bank{position:absolute;top:-4%;left:-6%;width:112%;height:44%;z-index:4;pointer-events:none;will-change:transform;transform:translate3d(0,-108%,0);filter:drop-shadow(0 8px 0 rgba(46,76,83,.14))}
+.chase{position:absolute;left:50%;top:10%;width:14px;height:14px;transform:translateX(-50%) rotate(45deg);background:var(--paper);border:2px solid #ed9b51;box-shadow:0 0 20px 8px rgba(255,250,240,.72);opacity:.88;pointer-events:none}
+.dream-momo{position:fixed;z-index:3;left:0;top:0;width:176px;height:auto;overflow:visible;transform-origin:50% 42%;will-change:transform;filter:drop-shadow(0 8px 14px rgba(46,13,6,.14));pointer-events:none}
+/* the progress bar that becomes Momo's bubble */
+.dream-shared{position:fixed;z-index:6;left:0;top:0;width:320px;height:48px;border:3px solid var(--ink);border-radius:999px;background-color:var(--paper);box-shadow:4px 4px 0 var(--ink);pointer-events:none;will-change:left,top,width,height,border-radius,background-color,transform,opacity}
+.dream-bar-ui{position:absolute;inset:3px;border-radius:999px;overflow:hidden;background:var(--paper);border:1.5px dashed rgba(17,17,17,.22);display:flex;align-items:center;justify-content:center;pointer-events:none}
+.dream-bar-fill{position:absolute;left:0;top:0;bottom:0;width:0%;background:linear-gradient(90deg,var(--orange) 0%,#f5904f 100%);border-right:2.5px solid var(--ink);border-radius:999px 0 0 999px;will-change:width}
+.dream-bar-fill.is-full{border-right-color:transparent;border-radius:999px}
+.dream-bar-text{position:relative;z-index:1;font-family:ui-rounded,"Arial Rounded MT Bold","Segoe UI",system-ui,-apple-system,sans-serif;font-size:13px;font-weight:900;letter-spacing:-.02em;color:var(--ink);text-shadow:0 1px 0 rgba(255,250,240,.85);font-variant-numeric:tabular-nums;white-space:nowrap}
+.dream-bubble-copy{position:absolute;inset:0;padding:14px 16px;font-size:16px;font-weight:700;line-height:1.4;color:var(--ink);opacity:0;pointer-events:none;text-align:left}
+.dream-bubble-tail{position:absolute;width:14px;height:14px;opacity:0;pointer-events:none;box-sizing:border-box}
+.dream-skip-btn{position:fixed;top:max(16px,env(safe-area-inset-top));right:max(16px,env(safe-area-inset-right));z-index:100;background:rgba(255,250,240,.85);border:2px solid var(--ink);border-radius:999px;padding:6px 14px;font-size:12px;font-weight:800;color:var(--ink);box-shadow:2px 2px 0 var(--ink);cursor:pointer}
+.dream-skip-btn:hover{background:var(--paper);transform:translateY(-1px)}

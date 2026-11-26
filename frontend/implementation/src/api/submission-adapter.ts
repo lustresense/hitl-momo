@@ -1,5 +1,15 @@
 import type { OutboxQueue } from "./outbox";
+import type { ObjectBehavior } from "../domain/types";
 import type { FlowDecisionSnapshot, FlowGameplayResultSnapshot } from "../app/state-machine";
+
+type OutcomeBehavior = "solid" | "danger" | "unresolved";
+
+/** Backend `OutcomeBody` only accepts solid/danger/unresolved; map neutral or unknown values safely. */
+function toOutcomeBehavior(behavior: ObjectBehavior): OutcomeBehavior {
+  return behavior === "solid" || behavior === "danger" || behavior === "unresolved"
+    ? behavior
+    : "unresolved";
+}
 
 /** Class identity of the current classroom session. Null when the student has not joined a class. */
 export interface ClassContext {
@@ -90,7 +100,7 @@ export class SubmissionAdapter {
 
     await this.outbox.enqueueOutcome(submissionKey, {
       outcome: result.outcome,
-      behavior: result.behavior,
+      behavior: toOutcomeBehavior(result.behavior),
     });
   }
 

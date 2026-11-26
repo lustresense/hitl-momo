@@ -1,0 +1,90 @@
+/* Port CSS dunia/intro/place/play/panels dari proto-html/r83/shared/level/level.css (100% di-scope ke [data-ui="r83"]). */
+[data-ui="r83"] .r83-world-root { position: fixed; inset: 0; z-index: 10; overflow: hidden; isolation: isolate; }
+
+/* ===== stage surface (level.css:31-57) ===== */
+[data-ui="r83"] .stage { position: absolute; inset: 0; overflow: hidden; display: grid; place-items: center; }
+[data-ui="r83"] .world { position: relative; width: min(100vw, 177.7778vh); aspect-ratio: 16 / 9; flex: none; }
+[data-ui="r83"] .stage[data-l="1"] .world,
+[data-ui="r83"] .stage[data-l="3"] .world { width: 100vw; }
+@media (min-aspect-ratio: 16 / 9) {
+  [data-ui="r83"] .stage[data-l="1"] .world,
+  [data-ui="r83"] .stage[data-l="3"] .world { position: absolute; left: 0; bottom: 0; }
+}
+[data-ui="r83"] .world > svg.art-svg {
+  position: absolute; inset: 0; width: 100%; height: 100%; display: block;
+  overflow: visible; shape-rendering: geometricPrecision; text-rendering: optimizeLegibility;
+}
+[data-ui="r83"] .world .r83-world-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; z-index: 2; }
+[data-ui="r83"] .world .actors { position: absolute; inset: 0; pointer-events: none; z-index: 3; }
+[data-ui="r83"] .world .cloud-motion,
+[data-ui="r83"] .world .fog-motion,
+[data-ui="r83"] .world .mist-motion { transform-box: fill-box; will-change: transform; pointer-events: none; }
+[data-ui="r83"] .world .cloud-near { animation: r83-cloudNear 21s ease-in-out infinite alternate; }
+[data-ui="r83"] .world .cloud-far { animation: r83-cloudFar 29s ease-in-out infinite alternate; }
+[data-ui="r83"] .world .cloud-mid { animation: r83-cloudMid 26s ease-in-out infinite alternate; }
+[data-ui="r83"] .world .fog-motion { animation: r83-fogBreathe 18s ease-in-out infinite alternate; }
+[data-ui="r83"] .world .mist-motion { animation: r83-mistBreathe 23s ease-in-out infinite alternate; }
+@keyframes r83-cloudNear { 0% { translate: -7px 1px; } 100% { translate: 16px -2px; } }
+@keyframes r83-cloudFar { 0% { translate: 13px 0; } 100% { translate: -12px 2px; } }
+@keyframes r83-cloudMid { 0% { translate: -5px 0; } 100% { translate: 13px -3px; } }
+@keyframes r83-fogBreathe { 0% { translate: 0 0; opacity: .9; } 100% { translate: -12px 4px; opacity: .79; } }
+@keyframes r83-mistBreathe { 0% { translate: 0 0; opacity: .55; } 100% { translate: 11px -3px; opacity: .4; } }
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="r83"] .world .cloud-motion,
+  [data-ui="r83"] .world .fog-motion,
+  [data-ui="r83"] .world .mist-motion { animation: none !important; translate: 0 0 !important; }
+}
+
+/* ===== Thinman, goal pulse & HUD actions (level.css:52-57) ===== */
+[data-ui="r83"] .tm { position: absolute; pointer-events: none; transform-origin: 50% 100%; transform: translate(-50%, -100%); }
+[data-ui="r83"] .tm-art svg,
+[data-ui="r83"] .thinman-art svg { display: block; width: 100%; height: auto; overflow: visible; }
+[data-ui="r83"] .tm.flip .tm-art { transform: scaleX(-1); }
+[data-ui="r83"] .goalbox { position: absolute; aspect-ratio: 1; border: 3px dashed #ef7a37; border-radius: 50%; pointer-events: none; transform: translate(-50%, -50%); }
+[data-ui="r83"] .hud.tr2 { right: 14px; top: 58px; }
+[data-ui="r83"] .r83-world-actions { position: absolute; left: auto; right: 14px; top: 102px; z-index: 12; display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+[data-ui="r83"] .r83-world-actions .nb-btn { min-height: 38px; padding: 6px 12px; font-size: 12.5px; }
+[data-ui="r83"] .r83-world-actions .nb-btn::after { display: none; }
+@media (max-width: 760px) {
+  [data-ui="r83"] .r83-world-actions { top: auto; bottom: 14px; right: 12px; max-width: calc(100vw - 160px); }
+}
+
+/* ===== intro camera & spotlight (level.css:61-70) ===== */
+[data-ui="r83"] .level-intro { position: fixed; inset: 0; z-index: 20; overflow: hidden; }
+[data-ui="r83"] .level-intro .intro-camera,
+[data-ui="r83"] .intro-camera { position: absolute; left: 0; top: 0; width: 100%; height: 300%; will-change: transform; }
+[data-ui="r83"] .intro-camera.r83-world-camera { top: -200%; will-change: auto; }
+[data-ui="r83"] .intro-camera.r83-world-camera.is-rising { will-change: transform; }
+[data-ui="r83"] .cam-screen { position: relative; width: 100%; height: 33.3333%; overflow: hidden; }
+[data-ui="r83"] .cam-screen.world-screen .stage { position: absolute; inset: 0; }
+[data-ui="r83"] .cloud-band { position: absolute; inset: 0; pointer-events: none; }
+[data-ui="r83"] .sky-cloud { position: absolute; display: block; height: auto; }
+[data-ui="r83"] .intro-near { position: absolute; inset: 0; pointer-events: none; z-index: 3; opacity: 0; }
+[data-ui="r83"] .level-intro[data-phase="rise"] .intro-near,
+[data-ui="r83"] .intro-near.on { opacity: 1; }
+[data-ui="r83"] .intro-dim {
+  position: absolute; inset: 0; z-index: 2; pointer-events: none; opacity: 0; transition: opacity .6s ease;
+  background: radial-gradient(circle var(--spot-r, 0px) at var(--spot-x, 50%) var(--spot-y, 50%), rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0) 62%, rgba(0, 0, 0, .55) 100%);
+}
+[data-ui="r83"] .level-intro[data-phase="story"] .intro-dim,
+[data-ui="r83"] .level-intro[data-phase="nudge"] .intro-dim { opacity: 1; }
+[data-ui="r83"] .r83-intro-skip { position: fixed; right: 16px; bottom: 16px; z-index: 60; }
+
+/* ===== placement & objects (level.css:9-15, 99-101) ===== */
+[data-ui="r83"] .obj { position: absolute; pointer-events: auto; touch-action: none; cursor: grab; }
+[data-ui="r83"] .obj svg { display: block; width: 100%; height: 100%; overflow: visible; }
+[data-ui="r83"] .obj.sel { outline: 3px dashed var(--nb-orange); outline-offset: 3px; border-radius: 6px; }
+[data-ui="r83"] .obj.bad { outline: 3px dashed var(--nb-danger); outline-offset: 3px; }
+[data-ui="r83"] .obj.fresh { cursor: grab; }
+[data-ui="r83"] .obj.fresh.sel { cursor: grabbing; }
+[data-ui="r83"] .r83-place-box { position: absolute; pointer-events: none; box-sizing: border-box; border-radius: 8px; }
+[data-ui="r83"] .r83-ring-pinned { position: fixed; z-index: 47; left: 0; top: 0; }
+[data-ui="r83"] .r83-place-error { position: fixed; top: 148px; right: 14px; z-index: 50; }
+
+/* ===== sticker, sparks & fallfx (level.css:15, 92-97, 113-114) ===== */
+[data-ui="r83"] .spark { position: absolute; width: 12px; height: 12px; border-radius: 3px; pointer-events: none; }
+[data-ui="r83"] :where(.sticker .sheet) { position: absolute; inset: 0; background: #fffaf0; border: 4px solid var(--nb-ink); border-radius: 18px; box-shadow: 8px 8px 0 var(--nb-ink); }
+[data-ui="r83"] :where(.sticker .tape) { position: absolute; left: 50%; top: -16px; width: 96px; height: 30px; margin-left: -48px; background: rgba(240, 212, 135, .92); border: 2.5px solid var(--nb-ink); transform: rotate(-3deg); }
+[data-ui="r83"] .land-shadow { position: absolute; display: block; aspect-ratio: 7 / 1; border-radius: 50%; background: rgba(26, 26, 26, .55); pointer-events: none; z-index: 0; transform: translate(-50%, -50%); }
+[data-ui="r83"] .dust { position: absolute; display: block; width: .9%; aspect-ratio: 1; border-radius: 50%; background: #efe6cc; box-shadow: 0 0 0 1.5px rgba(26, 26, 26, .35); pointer-events: none; transform: translate(-50%, -50%); }
+[data-ui="r83"] .r83-fall-sway { position: absolute; pointer-events: none; border: none; opacity: 0; }

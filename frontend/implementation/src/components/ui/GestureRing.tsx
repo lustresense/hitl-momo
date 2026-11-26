@@ -85,6 +85,8 @@ export function GestureRing({
   holdMsRef.current = holdMs;
   const onConfirmRef = useRef(onConfirm);
   onConfirmRef.current = onConfirm;
+  const drainImmediateRef = useRef(drainImmediate);
+  drainImmediateRef.current = drainImmediate;
   const progressRef = useRef(0);
   // Armed only after the hold was seen released once: a pose carried over from the previous screen cannot confirm this one.
   const armedRef = useRef(false);
@@ -103,7 +105,7 @@ export function GestureRing({
       const prev = progressRef.current;
       const next = filling
         ? Math.min(1, prev + dt / holdMsRef.current)
-        : (drainImmediate ? 0 : Math.max(0, prev - (dt / holdMsRef.current) * GESTURE_RING_DRAIN_RATIO));
+        : (drainImmediateRef.current ? 0 : Math.max(0, prev - (dt / holdMsRef.current) * GESTURE_RING_DRAIN_RATIO));
       if (next >= 1) {
         // Full ring: fire once, then latch until the hold is released.
         armedRef.current = false;

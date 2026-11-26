@@ -8,8 +8,9 @@ export interface ClassInfo {
 }
 
 export interface JoinStudentRequest {
-  number: number;
+  number?: number;
   name: string;
+  client_id?: string;
 }
 
 export interface StudentSession {
@@ -33,9 +34,18 @@ export interface ModelInfo {
 }
 
 const SESSION_STORAGE_KEY = "sketchbook_student_session";
+const CLIENT_ID_STORAGE_KEY = "momo.studentClientId";
+
+function generateClientId(): string {
+  if (typeof crypto !== "undefined" && typeof crypto.randomUUID === "function") {
+    return crypto.randomUUID();
+  }
+  return `momo-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
+}
 
 export class StudentSessionStore {
   private inMemorySession: StudentSession | null = null;
+  private inMemoryClientId: string | null = null;
 
   constructor() {
     this.loadFromStorage();
@@ -47,6 +57,10 @@ export class StudentSessionStore {
         const item = window.sessionStorage.getItem(SESSION_STORAGE_KEY);
         if (item) {
           this.inMemorySession = JSON.parse(item) as StudentSession;
+        }
+        const storedClientId = window.sessionStorage.getItem(CLIENT_ID_STORAGE_KEY);
+        if (storedClientId) {
+          this.inMemoryClientId = storedClientId;
         }
       } catch {
         /* storage disabled or restricted */
@@ -60,6 +74,42 @@ export class StudentSessionStore {
 
   getToken(): string | undefined {
     return this.inMemorySession?.student_session_token;
+  }
+
+  getOrCreateClientId(): string {
+    if (this.inMemoryClientId) return this.inMemoryClientId;
+    if (typeof window !== "undefined" && window.sessionStorage) {
+      try {
+        const existing = window.sessionStorage.getItem(CLIENT_ID_STORAGE_KEY);
+        if (existing) {
+          this.inMemoryClientId = existing;
+          return existing;
+        }
+      } catch {
+        /* storage disabled */
+      }
+    }
+    const created = generateClientId();
+    this.inMemoryClientId = created;
+    if (typeof window !== "undefined" && window.sessionStorage) {
+      try {
+        window.sessionStorage.setItem(CLIENT_ID_STORAGE_KEY, created);
+      } catch {
+        /* storage disabled */
+      }
+    }
+    return created;
+  }
+
+  clearClientId(): void {
+    this.inMemoryClientId = null;
+    if (typeof window !== "undefined" && window.sessionStorage) {
+      try {
+        window.sessionStorage.removeItem(CLIENT_ID_STORAGE_KEY);
+      } catch {
+        /* storage disabled */
+      }
+    }
   }
 
   setSession(session: StudentSession): void {
@@ -106,9 +156,12 @@ export class ClassroomClient {
     payload: JoinStudentRequest,
     options?: RequestOptions
   ): Promise<StudentSession> {
+    const body: JoinStudentRequest = { name: payload.name };
+    if (payload.number !== undefined) body.number = payload.number;
+    if (payload.client_id) body.client_id = payload.client_id;
     const res = await this.http.post<StudentSession>(
       `/api/join/${encodeURIComponent(joinToken)}/students`,
-      payload,
+      body,
       options
     );
     const session: StudentSession = {

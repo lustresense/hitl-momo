@@ -1,0 +1,605 @@
+/*
+ * r8.3 Momo stage, speech bubble (.r83-bubble / #su-bubble), ring host, hint, PIP, and shared layout kit.
+ * Ported from proto-html/r83/shared/layout.css:1-53, scoped under [data-ui="r83"].
+ * Because this partial imports after 111-r83-tokens.css (bold.css) and 112-r83-paper.css (lc.css),
+ * properties overridden by bold.css / lc.css in sandbox retain their exact cascaded values here.
+ */
+
+/* ---------- layout.css:4-7 (fullscreen app + scene containers) ---------- */
+[data-ui="r83"] #app {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+[data-ui="r83"] #app,
+[data-ui="r83"] #app *,
+[data-ui="r83"] .r83-bubble,
+[data-ui="r83"] #su-bubble,
+[data-ui="r83"] #skipbar,
+[data-ui="r83"] .r83-hint,
+[data-ui="r83"] #su-hint,
+[data-ui="r83"] .r83-ring,
+[data-ui="r83"] #su-ring {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+[data-ui="r83"] #scene {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+
+[data-ui="r83"] .sc {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+/* ---------- layout.css:9-13 + bold.css:7-10,19 + lc.css:40-44 (Momo bubble) ---------- */
+[data-ui="r83"] .r83-bubble,
+[data-ui="r83"] #su-bubble {
+  position: fixed;
+  z-index: 46;
+  left: 0;
+  top: 0;
+  box-sizing: content-box;
+  width: min(340px, calc(100vw - 24px));
+  padding: 12px 18px;
+  border: var(--nb-border) solid transparent;
+  border-radius: 22px;
+  background: var(--nb-leaf);
+  color: var(--lc-ink);
+  box-shadow: var(--lc-sh);
+  font-family: var(--font-body);
+  font-size: clamp(15px, 1.1vw, 18px);
+  font-weight: 600;
+  line-height: 1.4;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  --tail-y: 24px;
+}
+
+[data-ui="r83"] .r83-bubble[data-side="right"],
+[data-ui="r83"] #su-bubble[data-side="right"] {
+  border-radius: 22px;
+}
+
+[data-ui="r83"] .r83-bubble strong,
+[data-ui="r83"] #su-bubble strong {
+  background: var(--lc-ink);
+  color: var(--nb-paper);
+  font-weight: 700;
+  padding: 1px 8px 2px;
+  border-radius: 8px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+[data-ui="r83"] .r83-bubble::after,
+[data-ui="r83"] #su-bubble::after {
+  content: "";
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  background: var(--nb-leaf);
+  box-sizing: border-box;
+  left: -11px;
+  top: var(--tail-y);
+  transform: translateY(-50%) rotate(45deg);
+  border-left: var(--nb-border) solid transparent;
+  border-bottom: var(--nb-border) solid transparent;
+  border-radius: 0 0 0 7px;
+}
+
+[data-ui="r83"] .r83-bubble[data-side="right"]::after,
+[data-ui="r83"] #su-bubble[data-side="right"]::after {
+  left: auto;
+  right: -11px;
+  border-left: 0;
+  border-bottom: 0;
+  border-right: var(--nb-border) solid transparent;
+  border-top: var(--nb-border) solid transparent;
+  border-radius: 0 7px 0 0;
+}
+
+[data-ui="r83"] .r83-bubble[data-side="up"]::after,
+[data-ui="r83"] #su-bubble[data-side="up"]::after {
+  left: var(--tail-x, 50%);
+  top: auto;
+  bottom: -11px;
+  transform: translateX(-50%) rotate(45deg);
+  border: 0;
+  border-right: var(--nb-border) solid transparent;
+  border-bottom: var(--nb-border) solid transparent;
+  border-radius: 0 0 7px 0;
+}
+
+[data-ui="r83"] .r83-bubble[data-side="down"]::after,
+[data-ui="r83"] #su-bubble[data-side="down"]::after {
+  left: var(--tail-x, 50%);
+  top: -11px;
+  bottom: auto;
+  transform: translateX(-50%) rotate(45deg);
+  border: 0;
+  border-left: var(--nb-border) solid transparent;
+  border-top: var(--nb-border) solid transparent;
+  border-radius: 7px 0 0 0;
+}
+
+[data-ui="r83"] .r83-bubble.is-visible,
+[data-ui="r83"] #su-bubble.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+[data-ui="r83"] .r83-bubble.has-extra,
+[data-ui="r83"] #su-bubble.has-extra {
+  pointer-events: auto;
+  width: min(clamp(340px, 30vw, 460px), calc(100vw - 24px)) !important;
+}
+
+[data-ui="r83"] .r83-bubble__extra,
+[data-ui="r83"] #su-bubble-extra {
+  margin-top: 10px;
+  font-weight: 700;
+}
+
+[data-ui="r83"] .r83-bubble__extra:empty,
+[data-ui="r83"] #su-bubble-extra:empty {
+  display: none;
+}
+
+/* ---------- layout.css:15 (thumb/pinch ring directly under Momo's bubble) ---------- */
+[data-ui="r83"] .r83-ring,
+[data-ui="r83"] #su-ring {
+  position: fixed;
+  z-index: 47;
+  left: 0;
+  top: 0;
+  display: none;
+  opacity: 0;
+}
+
+/* ---------- layout.css:17-22, 49-53 + lc.css:36-37, 65-69 (hint + dev skipbar) ---------- */
+[data-ui="r83"] .r83-hint,
+[data-ui="r83"] #su-hint {
+  position: fixed;
+  z-index: 59;
+  left: 50%;
+  bottom: 54px;
+  transform: translateX(-50%);
+  max-width: min(620px, calc(100vw - 24px));
+  padding: 5px 12px;
+  border: 2px solid transparent;
+  border-radius: 16px;
+  background: var(--nb-leaf);
+  box-shadow: var(--lc-sh-sm);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.35;
+  text-align: center;
+  color: var(--nb-ink);
+  opacity: 0;
+  pointer-events: none;
+}
+
+[data-ui="r83"] .r83-hint:empty,
+[data-ui="r83"] #su-hint:empty {
+  display: none;
+}
+
+[data-ui="r83"] .r83-hint.top,
+[data-ui="r83"] #su-hint.top {
+  bottom: auto;
+  top: 12px;
+}
+
+[data-ui="r83"] .r83-hint.tr,
+[data-ui="r83"] #su-hint.tr {
+  left: auto;
+  right: 14px;
+  transform: none;
+  max-width: min(420px, calc(100vw - 520px));
+}
+
+[data-ui="r83"] #skipbar {
+  position: fixed;
+  z-index: 100020;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 4px 5px 4px 12px;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: var(--nb-leaf);
+  box-shadow: var(--lc-sh);
+  white-space: nowrap;
+}
+
+[data-ui="r83"] #skipbar.is-right {
+  left: auto;
+  right: 14px;
+  transform: none;
+}
+
+[data-ui="r83"] #sk-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--lc-mute);
+}
+
+[data-ui="r83"] #skip {
+  min-height: 30px;
+  padding: 4px 11px;
+  font-size: 12px;
+  border-width: 2px;
+  border-radius: 999px;
+  background: var(--lc-pill);
+  color: var(--lc-ink);
+  box-shadow: none;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+[data-ui="r83"] #skip:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+[data-ui="r83"] #sk-hub {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--nb-ink);
+  text-decoration: none;
+  padding: 5px 8px;
+  border-radius: 8px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+[data-ui="r83"] #sk-hub:hover {
+  background: rgba(17, 17, 17, .08);
+}
+
+[data-ui="r83"] .skip-right #skipbar,
+[data-ui="r83"].skip-right #skipbar {
+  left: auto;
+  right: 14px;
+  transform: none;
+}
+
+/* ---------- layout.css:24-36 + bold.css:12,16 + lc.css:31,34,70-71,94 (shared kit pieces) ---------- */
+[data-ui="r83"] .fc {
+  position: relative;
+  background: #fffaf0;
+  border: 4px solid transparent;
+  border-radius: 28px;
+  box-shadow: var(--lc-sh);
+  color: var(--nb-ink);
+}
+
+[data-ui="r83"] .fc.dots {
+  background: radial-gradient(circle at 1px 1px, rgba(49, 45, 38, .2) 1.2px, transparent 1.6px) 0 0 / 18px 18px, #fffaf0;
+}
+
+[data-ui="r83"] .fc.leaf {
+  background: var(--nb-leaf);
+}
+
+[data-ui="r83"] .k-kicker {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 4px 12px;
+  border: 2.5px solid transparent;
+  border-radius: 999px;
+  background: var(--lc-pill);
+  box-shadow: var(--lc-sh-sm);
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--nb-ink);
+}
+
+[data-ui="r83"] .k-title {
+  margin: 10px 0 6px;
+  font-size: var(--nb-h1);
+  line-height: 1.05;
+  color: var(--nb-ink);
+}
+
+[data-ui="r83"] .k-text {
+  margin: 0;
+  font-size: var(--nb-body);
+  line-height: 1.4;
+  color: var(--nb-ink);
+}
+
+[data-ui="r83"] .nb-btn:disabled {
+  cursor: not-allowed;
+}
+
+[data-ui="r83"] .k-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 5px 12px;
+  border: 2.5px solid transparent;
+  border-radius: 999px;
+  background: var(--lc-pill);
+  box-shadow: var(--lc-sh-sm);
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--nb-ink);
+}
+
+[data-ui="r83"] .k-chip.good {
+  background: var(--lc-tone);
+}
+
+[data-ui="r83"] .k-chip.bad {
+  background: color-mix(in srgb, var(--nb-orange) 28%, #fff);
+}
+
+[data-ui="r83"] .k-chip.warn {
+  background: color-mix(in srgb, var(--nb-yellow) 55%, #fff);
+}
+
+[data-ui="r83"] kbd {
+  font: 800 11px/1 Inter, system-ui, sans-serif;
+  padding: 2px 5px;
+  border: 1.5px solid var(--nb-ink);
+  border-radius: 5px;
+  background: #fff;
+  box-shadow: 1px 1px 0 var(--nb-ink);
+}
+
+[data-ui="r83"] .hud {
+  position: absolute;
+  z-index: 6;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+[data-ui="r83"] .hud.tl,
+[data-ui="r83"] .hud.tr {
+  right: 14px;
+  top: 14px;
+}
+
+[data-ui="r83"] .hud.tl + .hud.tr {
+  top: 58px;
+}
+
+[data-ui="r83"] .hud.bc {
+  left: 0;
+  right: 0;
+  bottom: 100px;
+  justify-content: center;
+  pointer-events: none;
+}
+
+/* ---------- layout.css:38-48 + lc.css:117 (Momo stage host + camera PIP) ---------- */
+[data-ui="r83"] .r83-momo,
+[data-ui="r83"] #momo {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 30;
+  pointer-events: none;
+  transform-origin: 0 0;
+}
+
+[data-ui="r83"] .r83-momo svg,
+[data-ui="r83"] #momo svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  overflow: visible;
+  shape-rendering: geometricPrecision;
+}
+
+[data-ui="r83"] .r83-momo #eyes-closed path,
+[data-ui="r83"] #momo #eyes-closed path,
+[data-ui="r83"] .r83-momo .cL,
+[data-ui="r83"] .r83-momo .cR,
+[data-ui="r83"] #momo .cL,
+[data-ui="r83"] #momo .cR {
+  vector-effect: none;
+  stroke-linecap: round;
+}
+
+[data-ui="r83"] .r83-momo .sleep-breath,
+[data-ui="r83"] .r83-momo .tail-twirl,
+[data-ui="r83"] .r83-momo .wing-left,
+[data-ui="r83"] .r83-momo .wing-right,
+[data-ui="r83"] .r83-momo .root,
+[data-ui="r83"] .r83-momo .tA,
+[data-ui="r83"] .r83-momo .fL,
+[data-ui="r83"] .r83-momo .fR,
+[data-ui="r83"] #momo .sleep-breath,
+[data-ui="r83"] #momo .tail-twirl,
+[data-ui="r83"] #momo .wing-left,
+[data-ui="r83"] #momo .wing-right,
+[data-ui="r83"] #momo .root,
+[data-ui="r83"] #momo .tA,
+[data-ui="r83"] #momo .fL,
+[data-ui="r83"] #momo .fR {
+  will-change: transform;
+}
+
+[data-ui="r83"] #sleep-zzz {
+  display: none;
+}
+
+[data-ui="r83"] .r83-cam-pip,
+[data-ui="r83"] #cam-pip {
+  box-sizing: content-box;
+  position: fixed;
+  z-index: 25;
+  left: clamp(14px, 1.6vw, 28px);
+  bottom: clamp(14px, 2.6vh, 30px);
+  width: clamp(120px, 10.4vw, 190px);
+  aspect-ratio: 5 / 4;
+  border: 4px solid transparent;
+  border-radius: 14px;
+  background: #23211d;
+  box-shadow: var(--lc-sh);
+  pointer-events: none;
+}
+
+[data-ui="r83"] .r83-cam-pip::before,
+[data-ui="r83"] #cam-pip::before {
+  content: "";
+  position: absolute;
+  inset: 12%;
+  border: 1.5px dashed rgba(255, 255, 255, .14);
+  border-radius: 12px;
+}
+
+[data-ui="r83"] .r83-cam-pip::after,
+[data-ui="r83"] #cam-pip::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 34%;
+  height: 22%;
+  margin: -11% 0 0 -17%;
+  border: 3px solid #3a3d44;
+  border-radius: 12px;
+}
+
+[data-ui="r83"] .r83-cam-pip.has-video::before,
+[data-ui="r83"] .r83-cam-pip.has-video::after,
+[data-ui="r83"] #cam-pip.has-video::before,
+[data-ui="r83"] #cam-pip.has-video::after,
+[data-ui="r83"] .r83-cam-pip.is-live::before,
+[data-ui="r83"] .r83-cam-pip.is-live::after,
+[data-ui="r83"] #cam-pip.is-live::before,
+[data-ui="r83"] #cam-pip.is-live::after {
+  display: none;
+}
+
+[data-ui="r83"] .r83-cam-pip .r83-pip-toggle,
+[data-ui="r83"] #cam-pip .r83-pip-toggle {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  z-index: 4;
+  width: 28px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  border-radius: 99px;
+  background: #5a564e;
+  pointer-events: auto;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.35);
+  transition: background 0.18s ease, transform 0.14s ease;
+}
+
+[data-ui="r83"] .r83-cam-pip .r83-pip-toggle.is-on,
+[data-ui="r83"] #cam-pip .r83-pip-toggle.is-on {
+  background: var(--nb-green);
+}
+
+[data-ui="r83"] .r83-cam-pip .r83-pip-toggle::after,
+[data-ui="r83"] #cam-pip .r83-pip-toggle::after {
+  content: "";
+  position: absolute;
+  left: 2px;
+  top: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
+  transition: transform 0.18s ease;
+}
+
+[data-ui="r83"] .r83-cam-pip .r83-pip-toggle.is-on::after,
+[data-ui="r83"] #cam-pip .r83-pip-toggle.is-on::after {
+  transform: translateX(12px);
+}
+
+[data-ui="r83"] .r83-cam-pip .r83-pip-toggle:hover,
+[data-ui="r83"] #cam-pip .r83-pip-toggle:hover {
+  transform: scale(1.06);
+}
+
+[data-ui="r83"] .r83-cam-pip .r83-pip-toggle:focus-visible,
+[data-ui="r83"] #cam-pip .r83-pip-toggle:focus-visible {
+  outline: 2px solid var(--nb-orange);
+  outline-offset: 2px;
+}
+
+/* ---------- Momo 5-finger hand reacquire nudge ---------- */
+[data-ui="r83"] .r83-reacquire-wrap {
+  position: fixed;
+  left: 50%;
+  bottom: clamp(28px, 6vh, 64px);
+  transform: translateX(-50%);
+  z-index: 62;
+  pointer-events: none;
+}
+
+[data-ui="r83"] .r83-reacquire-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: min(470px, calc(100vw - 88px));
+  transform-origin: center bottom;
+  will-change: transform, opacity;
+}
+
+[data-ui="r83"] .r83-reacquire-momo {
+  flex: 0 0 auto;
+  filter: drop-shadow(0 8px 14px rgba(46, 13, 6, 0.16));
+}
+
+[data-ui="r83"] .r83-reacquire-bubble {
+  position: relative;
+  padding: 14px 18px;
+  border-radius: 22px;
+  background: var(--nb-leaf);
+  color: var(--lc-ink);
+  box-shadow: var(--lc-sh);
+  font-family: var(--font-body);
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.4;
+}
+
+[data-ui="r83"] .r83-reacquire-bubble::before {
+  content: "";
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  background: var(--nb-leaf);
+  border-radius: 0 0 0 5px;
+  transform: translateY(-50%) rotate(45deg);
+}
+
+[data-ui="r83"] .r83-reacquire-copy {
+  margin: 0;
+}

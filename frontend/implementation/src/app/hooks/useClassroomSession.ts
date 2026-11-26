@@ -22,8 +22,12 @@ export interface UseClassroomSessionResult {
   isLoading: boolean;
   error: string | null;
   outboxStats: OutboxStats;
-  joinClass: (studentNumber: number, studentName: string) => Promise<StudentSession>;
-  leaveClass: () => void;
+  joinClass: (
+    studentNumber: number | undefined,
+    studentName: string,
+    clientId?: string,
+  ) => Promise<StudentSession>;
+  leaveClass: (options?: { keepJoinInfo?: boolean }) => void;
   classroomClient: ClassroomClient;
   outbox: OutboxQueue;
 }
@@ -117,17 +121,24 @@ export function useClassroomSession(options: UseClassroomSessionOptions = {}): U
   }, [joinToken, classroomClient]);
 
   const joinClass = useCallback(
-    async (studentNumber: number, studentName: string): Promise<StudentSession> => {
+    async (
+      studentNumber: number | undefined,
+      studentName: string,
+      clientId?: string,
+    ): Promise<StudentSession> => {
       if (!joinToken) {
         throw new Error("Token kelas tidak tersedia untuk bergabung.");
       }
       setIsLoading(true);
       setError(null);
       try {
-        const s = await classroomClient.joinStudent(joinToken, {
-          number: studentNumber,
+        const resolvedClientId = clientId ?? sessionStoreRef.current.getOrCreateClientId();
+        const payload = {
           name: studentName,
-        });
+          ...(studentNumber !== undefined ? { number: studentNumber } : {}),
+          ...(resolvedClientId ? { client_id: resolvedClientId } : {}),
+        };
+        const s = await classroomClient.joinStudent(joinToken, payload);
         setSession(s);
         // Jobs blocked by an expired session can use the new token now.
         void outbox.requeueUnauthorized().catch(() => {
@@ -145,10 +156,12 @@ export function useClassroomSession(options: UseClassroomSessionOptions = {}): U
     [joinToken, classroomClient, outbox]
   );
 
-  const leaveClass = useCallback(() => {
+  const leaveClass = useCallback((opts?: { keepJoinInfo?: boolean }) => {
+    const keepJoinInfo = opts?.keepJoinInfo ?? true;
     sessionStoreRef.current.clearSession();
+    sessionStoreRef.current.clearClientId();
     setSession(null);
-    setJoinInfo(null);
+    if (!keepJoinInfo) setJoinInfo(null);
     setError(null);
   }, []);
 

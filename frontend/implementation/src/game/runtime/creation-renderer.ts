@@ -6,16 +6,28 @@
 import type { KAPLAYCtx } from "kaplay";
 import type { WorldCreation } from "../creation-store";
 import { createArtPlanCache, footprintOf, INK_PIXEL_SCALE, LABEL_FONT_SIZE } from "./creations";
-import { hazardZone } from "./footprint";
 import { rectArea } from "./kaplay-helpers";
+import { rasterizeCreationShape, shapeRectsForCreation } from "./shape-collider";
 import type { SceneObject } from "./types";
 
 const INK = [17, 17, 17] as const;
 const PAPER = [255, 250, 240] as const;
 const WARN = [239, 122, 55] as const;
+const FILL_TINT = [30, 33, 38] as const;
+const FILL_TINT_OPACITY = 0.1;
 
-export function createCreationRenderer(k: KAPLAYCtx, labelFont: string, isDestroyed: () => boolean) {
+export interface CreationRendererOptions {
+  readonly shapeCollider?: boolean;
+}
+
+export function createCreationRenderer(
+  k: KAPLAYCtx,
+  labelFont: string,
+  isDestroyed: () => boolean,
+  options: CreationRendererOptions = {},
+) {
   const planFor = createArtPlanCache();
+  const useShape = Boolean(options.shapeCollider);
 
   /** `committed` creations get collision: solid = static body, danger = hazard, unresolved = none. */
   return function drawCreation(item: WorldCreation, committed: boolean): SceneObject {
@@ -31,21 +43,37 @@ export function createCreationRenderer(k: KAPLAYCtx, labelFont: string, isDestro
     // student always sees the character stand on or jump over the object.
     Object.assign(art, { z: -1 });
 
-    // Label pill above the object: solid paper with an ink outline. Danger gets an orange pill and a "!".
+    // Faint interior/stroke fill matching world.js:48 (`rgba(30,33,38,.10)`) behind the ink, with zero collider impact.
+    if (item.drawingInput?.strokes?.length) {
+      const fillRects = rasterizeCreationShape(item).rects;
+      const fillOpacity = FILL_TINT_OPACITY * plan.inkOpacity;
+      for (const r of fillRects) {
+        art.add([
+          k.rect(r.w, r.h),
+          k.pos(r.x, r.y),
+          k.color(FILL_TINT[0], FILL_TINT[1], FILL_TINT[2]),
+          k.opacity(fillOpacity),
+        ]);
+      }
+    }
+
+    // Label pill below the object while placing (`!committed`), matching world.js:53 & level.css:13-14.
     const { label } = plan;
-    const pill = label.warning ? WARN : PAPER;
-    const chip = art.add([
-      k.rect(label.width, label.height, { radius: 7 }),
-      k.pos(Math.round((box.w - label.width) / 2), -label.height - 6),
-      k.color(pill[0], pill[1], pill[2]),
-      k.outline(2, k.rgb(INK[0], INK[1], INK[2])),
-    ]);
-    if (label.warning) chip.add([k.text("!", { size: 12, font: labelFont }), k.pos(6, 2), k.color(INK[0], INK[1], INK[2])]);
-    chip.add([
-      k.text(label.text, { size: LABEL_FONT_SIZE, font: labelFont }),
-      k.pos(label.warning ? 19 : 7, 3),
-      k.color(INK[0], INK[1], INK[2]),
-    ]);
+    if (!committed) {
+      const pill = label.warning ? WARN : PAPER;
+      const chip = art.add([
+        k.rect(label.width, label.height, { radius: 7 }),
+        k.pos(Math.round((box.w - label.width) / 2), box.h + 4),
+        k.color(pill[0], pill[1], pill[2]),
+        k.outline(2, k.rgb(INK[0], INK[1], INK[2])),
+      ]);
+      if (label.warning) chip.add([k.text("!", { size: 12, font: labelFont }), k.pos(6, 2), k.color(INK[0], INK[1], INK[2])]);
+      chip.add([
+        k.text(label.text, { size: LABEL_FONT_SIZE, font: labelFont }),
+        k.pos(label.warning ? 19 : 7, 3),
+        k.color(INK[0], INK[1], INK[2]),
+      ]);
+    }
 
     // The student's own ink, rasterised once per object at its 0 degree size. It turns around its
     // centre, which is the centre of the box, so a quarter turn lands on the rotated box.
@@ -68,15 +96,25 @@ export function createCreationRenderer(k: KAPLAYCtx, labelFont: string, isDestro
       }
     });
 
-    if (committed && item.behavior === "danger") {
-      // Hurts only inside the drawing, not on the empty corners of its box.
-      const zone = hazardZone(box.w, box.h);
-      art.use(k.area({ shape: new k.Rect(k.vec2(zone.x, zone.y), zone.w, zone.h) }));
-    } else if (committed && item.behavior === "solid") {
-      art.use(rectArea(k, box.w, box.h));
+    if (committed && (item.behavior === "solid" || item.behavior === "danger")) {
+      const colliders = shapeRectsForCreation(item, { useShape });
+      const isSolid = item.behavior === "solid";
+      if (colliders.length <= 1) {
+        const r = colliders[0] ?? { x: 0, y: 0, w: box.w, h: box.h };
+        art.use(k.area({ shape: new k.Rect(k.vec2(r.x, r.y), r.w, r.h) }));
+        if (isSolid) art.use(k.body({ isStatic: true }));
+        else art.use("hazard");
+      } else {
+        for (const r of colliders) {
+          art.add([
+            k.pos(r.x, r.y),
+            rectArea(k, r.w, r.h),
+            isSolid ? k.body({ isStatic: true }) : "hazard",
+            { creationId: item.id, label: item.label, creationBehavior: item.behavior },
+          ]);
+        }
+      }
     }
-    if (committed && item.behavior === "solid") art.use(k.body({ isStatic: true }));
-    if (committed && item.behavior === "danger") art.use("hazard");
     return art;
   };
 }

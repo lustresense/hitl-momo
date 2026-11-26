@@ -17,3 +17,9 @@ docs/stage-visual-reference/serve_export.py
 public/models/*.onnx
 public/ort/
 
+# Generated test evidence, parity snapshots & perf logs
+docs/execution/evidence/**/*.webm
+docs/execution/evidence/route-canvas-*/
+docs/migration-r83/parity/
+e2e/r83/logs/
+

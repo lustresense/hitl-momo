@@ -41,11 +41,28 @@ export function recapFromFlow(
   };
 }
 
+const MAX_SESSION_RECAPS = 12;
+
+function recapFingerprint(recap: LevelRecap): string {
+  const strokeSig = recap.strokes
+    .map((stroke) => {
+      const first = stroke[0];
+      const last = stroke[stroke.length - 1];
+      const a = first ? `${Math.round(first.x)},${Math.round(first.y)}` : "";
+      const b = last ? `${Math.round(last.x)},${Math.round(last.y)}` : "";
+      return `${stroke.length}:${a}-${b}`;
+    })
+    .join("|");
+  return `${recap.levelId}::${recap.finalLabel}::${recap.decision}::${recap.firstGuess}::${strokeSig}`;
+}
+
 export interface LevelSessionOptions {
   outbox?: OutboxQueue;
   tokenProvider?: () => string | undefined;
   /** Class identity for submissions; null when the student has not joined a class. */
   classContext?: () => ClassContext | null;
+  /** r8.3 "Lewati": percobaan ini bukan karya/keputusan murid, jadi tidak boleh dikirim ke server. */
+  isDemoAttempt?: (attemptId: string) => boolean;
 }
 
 export function useLevelSession(
@@ -66,12 +83,25 @@ export function useLevelSession(
   const eventSinkRef = useRef<ReturnType<typeof createEventSink> | null>(null);
   const missionSeenLevels = useRef(new Set<string>());
   const [missionOpen, setMissionOpen] = useState(false);
-  /** R9: first decided object per level this session (strokes + decision), for the closing overview. */
+  /** R9: decided objects across all levels this session (multiple per level, deduped, capped at 12). */
   const recapsRef = useRef(new Map<string, LevelRecap>());
   const recordRecap = useCallback((recap: LevelRecap | null) => {
-    if (recap && !recapsRef.current.has(recap.levelId)) recapsRef.current.set(recap.levelId, recap);
+    if (!recap) return;
+    const key = recapFingerprint(recap);
+    if (recapsRef.current.has(key) || recapsRef.current.size >= MAX_SESSION_RECAPS) return;
+    recapsRef.current.set(key, recap);
   }, []);
-  const getRecaps = useCallback(() => [...recapsRef.current.values()].sort((a, b) => a.title.localeCompare(b.title)), []);
+  const getRecaps = useCallback(
+    () =>
+      [...recapsRef.current.values()]
+        .map((recap, idx) => ({ recap, idx }))
+        .sort((a, b) => {
+          const cmp = a.recap.title.localeCompare(b.recap.title);
+          return cmp !== 0 ? cmp : a.idx - b.idx;
+        })
+        .map((entry) => entry.recap),
+    [],
+  );
   /** The level whose story intro is playing (first entry per level per session). */
   const [introLevel, setIntroLevel] = useState<LevelDefinition | null>(null);
   /** The drawing page under the intro becomes visible just before the intro fades out (no blank frame). */
@@ -127,9 +157,11 @@ export function useLevelSession(
         goalCompletesLevel: true,
         // Submission is best effort. A failure here must never reach gameplay.
         onDecisionApplied: (s) => {
+          if (optionsRef.current?.isDemoAttempt?.(s.attemptId)) return;
           void adapter?.handleDecisionApplied(s).catch(() => {});
         },
         onGameplayResult: (r) => {
+          if (optionsRef.current?.isDemoAttempt?.(r.attemptId)) return;
           void adapter?.handleGameplayResult(r).catch(() => {});
         },
       });

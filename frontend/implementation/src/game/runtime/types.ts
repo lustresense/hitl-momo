@@ -8,7 +8,7 @@ import type { TurnDirection } from "./creations";
 
 export type GameOutcome = "success" | "fail";
 export type GamePhase = "falling" | "placing" | "gameplay";
-export type DirectionInput = { left: boolean; right: boolean; jump: boolean };
+export type DirectionInput = { left: boolean; right: boolean; jump: boolean; axis?: number };
 /** Any positioned object of the scene (platform, hazard, creation art). */
 export type SceneObject = GameObj<PosComp>;
 
@@ -27,6 +27,8 @@ export interface KaplayGameHandle {
 
 export interface KaplayGameOptions {
   integrated?: boolean;
+  /** Use stroke-rasterised shape colliders (O-6 / P7b) instead of a single bounding rectangle. */
+  shapeCollider?: boolean;
   creations?: WorldCreation[];
   onCreationsChange?: (items: WorldCreation[]) => void;
   canvas: HTMLCanvasElement;

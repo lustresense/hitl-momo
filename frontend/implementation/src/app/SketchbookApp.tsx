@@ -3,7 +3,8 @@ import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties }
 import { FINAL_LEVEL_STAGE, getLevel, type LevelDefinition } from "@/src/domain/levels";
 import type { DrawingSurface } from "@/src/input";
 import { useFlowSnapshot } from "@/src/hooks/use-flow";
-import { env } from "@/src/config/env";
+import { env, uiR83 } from "@/src/config/env";
+import { R83SketchbookShell } from "./R83SketchbookShell";
 import { MomoBubble } from "@/src/components/momo/MomoBubble";
 import { LevelIntro } from "@/src/components/level/LevelIntro";
 import { TutorialBrochure } from "@/src/components/onboarding/TutorialBrochure";
@@ -43,7 +44,7 @@ function waitForJoin(join: Promise<unknown>): Promise<"joined" | "failed"> {
  * Owns the FlowController instance (single source of truth) and maps phases
  * to screens. Persistent global camera widget stays mounted across all routes.
  */
-export function SketchbookApp() {
+function LegacySketchbookApp() {
   const characterDisplayName = resolveCharacterDisplayName(
     process.env.NEXT_PUBLIC_CHARACTER_DISPLAY_NAME ?? DEFAULT_CHARACTER_NAME,
   );
@@ -339,4 +340,9 @@ export function SketchbookApp() {
       />
     </AppShell>
   );
+}
+
+export function SketchbookApp() {
+  if (uiR83()) return <R83SketchbookShell />;
+  return <LegacySketchbookApp />;
 }

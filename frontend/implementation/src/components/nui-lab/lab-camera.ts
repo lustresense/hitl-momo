@@ -14,6 +14,8 @@ import { classifyCameraError, messageFor } from "@/src/camera/messages";
 export interface LabCameraOptions {
   /** Explicit user-selected camera deviceId (manual choice bypasses IR auto-skip). */
   deviceId?: string | null;
+  /** Skip `frameRate.min: 24` shutter clamping so webcam auto-exposure stays bright and normal. */
+  normalAutoExposure?: boolean;
 }
 
 export type LabCameraResult =
@@ -87,21 +89,29 @@ export function selectDefaultNonIrVideoDevice(
 async function openWithConstraintFallback(
   devices: Pick<MediaDevices, "getUserMedia">,
   deviceId: string | null,
+  normalAutoExposure = false,
 ): Promise<
   | { kind: "ok"; stream: MediaStream; constraintFallback: boolean; fallbackReason: string | null }
   | { kind: "error"; message: string }
 > {
-  try {
-    const stream = await devices.getUserMedia({ video: labCameraConstraints(deviceId), audio: false });
-    return { kind: "ok", stream, constraintFallback: false, fallbackReason: null };
-  } catch (err) {
-    if (!isNamed(err, "OverconstrainedError")) {
-      return { kind: "error", message: messageFor(classifyCameraError(err)) };
+  if (!normalAutoExposure) {
+    try {
+      const stream = await devices.getUserMedia({ video: labCameraConstraints(deviceId), audio: false });
+      return { kind: "ok", stream, constraintFallback: false, fallbackReason: null };
+    } catch (err) {
+      if (!isNamed(err, "OverconstrainedError")) {
+        return { kind: "error", message: messageFor(classifyCameraError(err)) };
+      }
     }
   }
   try {
     const stream = await devices.getUserMedia({ video: labCameraFallbackConstraints(deviceId), audio: false });
-    return { kind: "ok", stream, constraintFallback: true, fallbackReason: "OverconstrainedError" };
+    return {
+      kind: "ok",
+      stream,
+      constraintFallback: !normalAutoExposure,
+      fallbackReason: normalAutoExposure ? null : "OverconstrainedError",
+    };
   } catch (err) {
     if (!isNamed(err, "OverconstrainedError")) {
       return { kind: "error", message: messageFor(classifyCameraError(err)) };
@@ -145,7 +155,8 @@ export async function startLabCamera(
     }
   }
 
-  const first = await openWithConstraintFallback(devices, targetDeviceId);
+  const normalAutoExposure = Boolean(options?.normalAutoExposure);
+  const first = await openWithConstraintFallback(devices, targetDeviceId, normalAutoExposure);
   if (first.kind === "error") return first;
 
   // Post-permission IR guard: if labels were hidden before permission and the OS gave us an IR camera,
@@ -167,7 +178,7 @@ export async function startLabCamera(
               }
             }
           }
-          const switched = await openWithConstraintFallback(devices, picked.deviceId);
+          const switched = await openWithConstraintFallback(devices, picked.deviceId, normalAutoExposure);
           if (switched.kind === "ok") {
             return {
               kind: "ok",

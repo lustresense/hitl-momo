@@ -1,0 +1,104 @@
+/*
+ * Buku 3D curl & layar kenalan nama r8.3 (`proto-html/r83/index.html:118-151, 417-436`).
+ * Di-scope di bawah [data-ui="r83"].
+ */
+
+[data-ui="r83"] #book { position: fixed; inset: 0; z-index: 30; overflow: hidden; padding: 0; }
+[data-ui="r83"] #page-stage { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 5; pointer-events: none; }
+
+[data-ui="r83"] #ruler-page {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  overflow: hidden;
+  padding: clamp(12px, 4vw, 40px);
+}
+[data-ui="r83"] #ruler-page .ruler-heading { font-size: clamp(25px, 5vw, 55px); max-width: 800px; text-align: center; line-height: 1.06; margin: 0 0 17px; }
+[data-ui="r83"] #ruler-page .ruler-sub { font-weight: 650; font-size: clamp(12px, 2.7vw, 16px); text-align: center; line-height: 1.4; margin: 0 0 clamp(22px, 7vh, 62px); }
+
+[data-ui="r83"] #book-front-cover {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  overflow: hidden;
+  background-color: var(--nb-paper);
+  background-image: var(--su-paper-texture), radial-gradient(circle at 1px 1px, rgba(49, 45, 38, .18) 1.1px, transparent 1.5px);
+  background-size: 200px 200px, 22px 22px;
+  clip-path: url(#front-unpeeled-clip);
+}
+[data-ui="r83"] #book-front-cover::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image: var(--su-paper-texture), radial-gradient(circle at 1px 1px, rgba(49, 45, 38, .18) 1.1px, transparent 1.5px);
+  background-size: 200px 200px, 22px 22px;
+  opacity: .55;
+}
+
+[data-ui="r83"] #book-inside-bubble {
+  position: fixed;
+  z-index: 39;
+  box-sizing: content-box;
+  width: clamp(190px, 24vw, 300px);
+  max-width: calc(100vw - 36px);
+  padding: 10px 14px;
+  border: 3px solid transparent;
+  border-radius: 24px;
+  font-family: var(--font-body);
+  font-size: clamp(15px, 1.1vw, 18px);
+  line-height: 1.4;
+  opacity: 0;
+  pointer-events: none;
+}
+[data-ui="r83"] #book[data-arrived="true"] #book-inside-bubble { opacity: 1; }
+[data-ui="r83"] #book-inside-bubble::after {
+  content: "";
+  position: absolute;
+  box-sizing: border-box;
+  width: 14px;
+  height: 14px;
+  right: -9px;
+  left: auto;
+  top: clamp(18px, var(--tail-y, 22px), 46px);
+  bottom: auto;
+  transform: translateY(-50%) rotate(45deg);
+  border: 0;
+  border-right: 3px solid transparent;
+  border-top: 3px solid transparent;
+  border-radius: 0 3px 0 0;
+  pointer-events: none;
+}
+@media (max-width: 699px) {
+  [data-ui="r83"] #book-inside-bubble {
+    font-size: 14px;
+    width: min(185px, 47vw);
+  }
+}
+
+[data-ui="r83"] #name-card { position: relative; z-index: 5; display: grid; justify-items: center; gap: 14px; min-height: 190px; margin-top: 4px; text-align: center; }
+[data-ui="r83"] #name-heard { font-family: var(--font-head); font-size: clamp(44px, 8vw, 96px); line-height: 1.05; color: #4a8c1f; min-height: 1.05em; max-width: 90vw; overflow-wrap: anywhere; }
+[data-ui="r83"] #name-heard.interim { opacity: .45; }
+[data-ui="r83"] #name-card:not(.ready) #name-start,
+[data-ui="r83"] #name-card:not(.ready) .name-typelink { opacity: .4; pointer-events: none; }
+[data-ui="r83"] #name-confirm { display: none; align-items: flex-start; justify-content: center; gap: 56px; }
+[data-ui="r83"] #name-confirm.on { display: flex; }
+[data-ui="r83"] #name-yes .thumb-confirm__label,
+[data-ui="r83"] #name-again .thumb-confirm__label { min-width: 150px; }
+[data-ui="r83"] #confirm .thumb-confirm__face .thumb-confirm__thumb svg,
+[data-ui="r83"] #name-card .thumb-confirm__face .thumb-confirm__thumb svg {
+  width: 42px;
+  height: 42px;
+  display: block;
+}
+[data-ui="r83"] #name-card .name-mic { width: auto !important; height: auto !important; }
+[data-ui="r83"] #name-card .name-mic svg { width: 26px !important; height: 26px !important; flex: none; }
+[data-ui="r83"] #name-start .nm-mic svg { width: 18px; height: 18px; vertical-align: -3px; margin-right: 4px; }
+[data-ui="r83"] .name-typelink { background: none; border: 0; font: 700 13px/1 var(--font-body); text-decoration: underline; color: var(--nb-ink); opacity: .75; padding: 8px; cursor: pointer; }
+[data-ui="r83"] .name-note { font: 600 13px/1.4 var(--font-body); opacity: .8; max-width: 440px; min-height: 1.4em; margin: 0; }

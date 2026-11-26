@@ -192,6 +192,22 @@ export class StrokeStore {
     return false;
   }
 
+  /**
+   * Bersihkan (r8.3): kosongkan kertas sebagai satu langkah undoable, sehingga undo() memulihkan
+   * seluruh goresan dan redo() membersihkannya lagi. Return false bila kertas sudah kosong.
+   */
+  wipe(): boolean {
+    if (this.active) this.endStroke();
+    if (this.eraseBefore !== null) this.endErase();
+    if (this.strokes.length === 0) return false;
+    const before = [...this.strokes];
+    this.strokes = [];
+    this.ops.push({ kind: "erase", before, after: [] });
+    this.undone = [];
+    this.redoOps = [];
+    return true;
+  }
+
   clear(): void {
     if (this.strokes.length > 0) {
       this.undone.push(...this.strokes);

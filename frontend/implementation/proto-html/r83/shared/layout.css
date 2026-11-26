@@ -1,0 +1,53 @@
+/* shared page chrome: fullscreen app, bubble, thumb ring, hint, skip bar, kit pieces */
+:root{--nb-h1:clamp(24px,3.2vw,34px);--nb-h2:clamp(20px,2.4vw,26px);--nb-body:16px;--nb-danger:#d94336;--nb-ring-focus:#111}
+html,body{background-color:var(--nb-paper);background-image:radial-gradient(circle at 1px 1px,rgba(49,45,38,.16) 1px,transparent 1.2px);background-size:22px 22px}
+#app{position:fixed;inset:0;z-index:10;overflow:hidden;isolation:isolate;background:var(--nb-paper);background-image:radial-gradient(circle at 1px 1px,rgba(49,45,38,.16) 1px,transparent 1.2px);background-size:22px 22px}
+#app,#app *,#su-bubble,#skipbar,#su-hint,#su-ring{-webkit-user-select:none;user-select:none}
+#scene{position:absolute;inset:0;z-index:2}
+.sc{position:absolute;inset:0;overflow:hidden}
+/* ---- bubble: repo MomoChat skin, as on the cover ---- */
+#su-bubble{position:fixed;z-index:46;left:0;top:0;width:min(340px,calc(100vw - 24px));padding:10px 14px;border:var(--nb-border) solid var(--nb-ink);border-radius:6px 18px 18px 18px;background:var(--nb-leaf-soft);color:var(--nb-ink);box-shadow:var(--nb-shadow-sm);font-size:16px;font-weight:700;line-height:1.4;opacity:0;pointer-events:none;--tail-y:24px}
+#su-bubble[data-side="right"]{border-radius:18px 6px 18px 18px}
+#su-bubble strong{font-weight:900}
+#su-bubble::after{content:"";position:absolute;width:14px;height:14px;background:var(--nb-leaf-soft);box-sizing:border-box;left:-9px;top:var(--tail-y);transform:translateY(-50%) rotate(45deg);border-left:var(--nb-border) solid var(--nb-ink);border-bottom:var(--nb-border) solid var(--nb-ink);border-radius:0 0 0 3px}
+#su-bubble[data-side="right"]::after{left:auto;right:-9px;border-left:0;border-bottom:0;border-right:var(--nb-border) solid var(--nb-ink);border-top:var(--nb-border) solid var(--nb-ink);border-radius:0 3px 0 0}
+/* ---- thumb ring: directly under Momo's bubble, everywhere ---- */
+#su-ring{position:fixed;z-index:47;left:0;top:0;display:none;opacity:0}
+/* ---- skip + hint: the only persistent chrome ---- */
+#su-hint{position:fixed;z-index:59;left:50%;bottom:54px;transform:translateX(-50%);max-width:min(620px,calc(100vw - 24px));padding:5px 12px;border:2px solid var(--nb-ink);border-radius:10px;background:var(--nb-paper);box-shadow:var(--nb-shadow-sm);font-size:12px;font-weight:750;line-height:1.35;text-align:center;color:var(--nb-ink);opacity:0;pointer-events:none}
+#su-hint:empty{display:none}
+#skipbar{position:fixed;z-index:60;left:50%;bottom:10px;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:4px 5px 4px 12px;border:2px solid var(--nb-ink);border-radius:12px;background:var(--nb-paper);box-shadow:var(--nb-shadow-sm);white-space:nowrap}
+#sk-label{font-size:10px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;color:rgba(17,17,17,.66)}
+#skip{min-height:30px;padding:4px 11px;font-size:12px;border-width:2px;border-radius:9px;box-shadow:2px 2px 0 var(--nb-ink)}
+#skip:active{transform:translate(2px,2px);box-shadow:none}
+/* ---- shared kit pieces ---- */
+.fc{position:relative;background:#fffaf0;border:4px solid var(--nb-ink);border-radius:20px;box-shadow:8px 8px 0 var(--nb-ink);color:var(--nb-ink)}
+.fc.dots{background:radial-gradient(circle at 1px 1px,rgba(49,45,38,.2) 1.2px,transparent 1.6px) 0 0/18px 18px,#fffaf0}
+.fc.leaf{background:var(--nb-leaf)}
+.k-kicker{display:inline-flex;align-items:center;min-height:28px;padding:4px 12px;border:2.5px solid var(--nb-ink);border-radius:999px;background:var(--nb-paper);font-size:11px;font-weight:900;letter-spacing:.14em;text-transform:uppercase;color:var(--nb-ink)}
+.k-title{margin:10px 0 6px;font-weight:900;letter-spacing:-.025em;font-size:var(--nb-h1);line-height:1.05;color:var(--nb-ink)}
+.k-text{margin:0;font-weight:700;font-size:var(--nb-body);line-height:1.45;color:var(--nb-ink)}
+.nb-btn.primary{background:var(--nb-orange)}
+.nb-btn:disabled{opacity:.5;cursor:not-allowed}
+.k-chip{display:inline-flex;align-items:center;gap:7px;min-height:34px;padding:5px 12px;border:2.5px solid var(--nb-ink);border-radius:12px;background:var(--nb-paper);box-shadow:3px 3px 0 var(--nb-ink);font-size:13px;font-weight:800;color:var(--nb-ink)}
+.k-chip.good{background:var(--nb-leaf)}.k-chip.bad{background:#f6c9c4}.k-chip.warn{background:var(--nb-yellow)}
+kbd{font:800 11px/1 Inter,system-ui,sans-serif;padding:2px 5px;border:1.5px solid var(--nb-ink);border-radius:5px;background:#fff;box-shadow:1px 1px 0 var(--nb-ink)}
+.hud{position:absolute;z-index:6;display:flex;gap:8px;flex-wrap:wrap}
+.hud.tl{right:14px;top:14px}.hud.tr{right:14px;top:14px}.hud.tl + .hud.tr{top:58px}.hud.bc{left:0;right:0;bottom:100px;justify-content:center;pointer-events:none}
+
+/* ---- Momo host + camera PIP (bottom-left, as on every screen of the app) ---- */
+#momo{position:fixed;left:0;top:0;z-index:30;pointer-events:none;transform-origin:0 0}
+#momo svg{width:100%;height:100%;display:block;overflow:visible;shape-rendering:geometricPrecision}
+#momo #eyes-closed path{vector-effect:none;stroke-linecap:round}
+#momo .sleep-breath,#momo .tail-twirl,#momo .wing-left,#momo .wing-right{will-change:transform}
+#sleep-zzz{display:none}
+#cam-pip{position:fixed;z-index:25;left:clamp(14px,1.6vw,28px);bottom:clamp(14px,2.6vh,30px);width:clamp(120px,10.4vw,190px);aspect-ratio:5/4;border:4px solid var(--nb-orange);border-radius:14px;background:#23211d;box-shadow:3px 3px 0 var(--nb-ink);pointer-events:none}
+#cam-pip::before{content:"";position:absolute;inset:12%;border:1.5px dashed rgba(255,255,255,.14);border-radius:12px}
+#cam-pip::after{content:"";position:absolute;left:50%;top:50%;width:34%;height:22%;margin:-11% 0 0 -17%;border:3px solid #3a3d44;border-radius:12px}
+#cam-pip i{position:absolute;right:8px;bottom:8px;width:22px;height:12px;border-radius:99px;background:var(--nb-green)}
+#cam-pip i::after{content:"";position:absolute;right:2px;top:2px;width:8px;height:8px;border-radius:50%;background:#fff}
+#sk-hub{font-size:11px;font-weight:800;color:var(--nb-ink);text-decoration:none;padding:5px 8px;border-radius:8px}
+#sk-hub:hover{background:rgba(17,17,17,.08)}
+#su-hint.top{bottom:auto;top:12px}
+#su-hint.tr{left:auto;right:14px;transform:none;max-width:min(420px,calc(100vw - 520px))}
+.skip-right #skipbar{left:auto;right:14px;transform:none}

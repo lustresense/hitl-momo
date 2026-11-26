@@ -1,0 +1,6 @@
+npm_ci	0	77s	npm ci
+typecheck	0	11s	npm run typecheck
+lint	0	14s	npm run lint
+test	1	254s	npm test
+build	0	36s	$env:NEXT_PUBLIC_TEST_HOOKS="0"; npm run build
+DONE

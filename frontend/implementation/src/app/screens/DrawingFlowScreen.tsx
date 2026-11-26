@@ -25,6 +25,12 @@ export interface DrawingFlowScreenProps {
   onCloseMission: () => void;
   onSubmit: () => void;
   onExit: () => void;
+  /** r8.3: tampilkan bilah "Lewati" bila tidak diatur shell. */
+  devTools?: boolean;
+  /** r8.3: urutan benda di level ini (0 = pertama); menentukan gambar contoh saat "Lewati". */
+  demoSampleIndex?: number;
+  /** r8.3: percobaan ini disentuh "Lewati" sehingga tidak boleh dikirim ke server. */
+  onDemoAttempt?: (attemptId: string) => void;
 }
 
 /** Decision calls are guarded by the flow phase / picker validation, so a refusal is not an error to surface. */

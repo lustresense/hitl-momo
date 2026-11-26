@@ -1,8 +1,14 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { FAR_CLOUDS, NEAR_CLOUDS, scaleCloudWidth } from "@/src/features/world/sky-transition";
+
 /**
  * Clouds for the camera rise only. The drawing page itself is clean paper "in the sky": the student passes
  * through this band of clouds on the way up and then sees none. Decorative (aria-hidden).
  */
 const CLOUD = "M24 92 C4 92 2 62 26 60 C26 34 62 26 80 46 C92 20 134 20 144 46 C168 36 196 54 190 74 C214 74 216 94 192 94 Z";
+const BASE_VIEWPORT_W = 1440;
 
 function Cloud({ x, y, w, flip }: { x: number; y: number; w: number; flip?: boolean }) {
   return (
@@ -15,24 +21,28 @@ function Cloud({ x, y, w, flip }: { x: number; y: number; w: number; flip?: bool
 
 /** Far clouds hang in the band; near clouds are a separate layer so the camera move can rush them past. */
 export function CloudBand({ layer }: { layer: "far" | "near" }) {
+  const [viewportW, setViewportW] = useState(BASE_VIEWPORT_W);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const sync = () => setViewportW(window.innerWidth || BASE_VIEWPORT_W);
+    sync();
+    window.addEventListener("resize", sync);
+    return () => window.removeEventListener("resize", sync);
+  }, []);
+
+  const clouds = layer === "far" ? FAR_CLOUDS : NEAR_CLOUDS;
   return (
     <div className={`cloud-band cloud-band--${layer}`} aria-hidden="true">
-      {layer === "far" ? (
-        <>
-          <Cloud x={4} y={10} w={210} />
-          <Cloud x={62} y={4} w={170} flip />
-          <Cloud x={34} y={44} w={240} />
-          <Cloud x={76} y={58} w={150} />
-          <Cloud x={8} y={72} w={160} flip />
-          <Cloud x={52} y={84} w={190} />
-        </>
-      ) : (
-        <>
-          <Cloud x={-4} y={26} w={380} />
-          <Cloud x={70} y={38} w={420} flip />
-          <Cloud x={22} y={70} w={340} />
-        </>
-      )}
+      {clouds.map((bp, idx) => (
+        <Cloud
+          key={`${layer}-${idx}`}
+          x={bp.xPct}
+          y={bp.yPct}
+          w={scaleCloudWidth(bp.baseWidthPx, viewportW)}
+          flip={bp.flip}
+        />
+      ))}
     </div>
   );
 }

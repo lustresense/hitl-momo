@@ -88,6 +88,14 @@ export const env = {
   get testHooksEnabled(): boolean {
     return process.env.NEXT_PUBLIC_TEST_HOOKS === "1";
   },
+  /** Feature flag for the r8.3 UI layer (`NEXT_PUBLIC_UI_R83=1|true`; default false). */
+  get uiR83(): boolean {
+    return flag(process.env.NEXT_PUBLIC_UI_R83);
+  },
+  /** Dev-tools flag (`NEXT_PUBLIC_DEV_TOOLS=1|true`; default false). Gates `/dev/nui` and review controls. */
+  get devTools(): boolean {
+    return flag(process.env.NEXT_PUBLIC_DEV_TOOLS);
+  },
 
   // ---- event pipeline (DRAFT; see docs/execution/PARTNER_CONTRACT_ACTUAL.md) ----
   /** Unset/empty => HTTP event sink disabled => nothing is sent anywhere. */
@@ -113,6 +121,16 @@ export const env = {
     return process.env.NODE_ENV !== "production";
   },
 };
+
+/** Feature flag for the r8.3 UI layer (`NEXT_PUBLIC_UI_R83=1|true`; default false). */
+export function uiR83(): boolean {
+  return env.uiR83;
+}
+
+/** Dev-tools flag (`NEXT_PUBLIC_DEV_TOOLS=1|true`; default false). Gates `/dev/nui` and review controls. */
+export function devTools(): boolean {
+  return env.devTools;
+}
 
 /** A provider that only ever fails loudly: used for REAL/unknown-config states. NEVER fabricates output. */
 function configErrorProvider(message: string): PredictionProvider {

@@ -1,0 +1,548 @@
+/*
+ * Layar Tutorial Tiga Kartu (r8.3) — port persis dari proto-html/r83/shared/kartu/kartu.css:1-76,
+ * 100% di-scope di bawah [data-ui="r83"].
+ * Selektor yang ditimpa oleh 112-r83-paper.css (lc.css §7 & §15) memakai :where(...) agar urutan impor CSS aman.
+ */
+
+[data-ui="r83"] .tut {
+  --gw: 320px;
+  --pw: 560px;
+  --oh: 480px;
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  color: var(--nb-ink);
+}
+
+[data-ui="r83"] .tut-shade {
+  position: absolute;
+  inset: 0;
+  background: rgba(17, 17, 17, 0);
+  pointer-events: none;
+}
+
+[data-ui="r83"] .tut-stage {
+  position: absolute;
+  inset: 0;
+  perspective: 1700px;
+}
+
+[data-ui="r83"] .tut-card {
+  position: absolute;
+  left: 50%;
+  top: var(--cy, 50%);
+  width: var(--gw);
+  height: var(--oh);
+  margin-left: calc(var(--gw) / -2);
+  margin-top: calc(var(--oh) / -2);
+  transform-style: preserve-3d;
+}
+
+[data-ui="r83"] .tut-flip {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+[data-ui="r83"] .tut-face {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+[data-ui="r83"] :where(.tut-face) {
+  border: 4px solid var(--nb-ink);
+  border-radius: 20px;
+  box-shadow: 8px 8px 0 var(--nb-ink);
+}
+
+[data-ui="r83"] .tut-front {
+  display: grid;
+  place-items: center;
+  background: var(--nb-orange);
+}
+
+[data-ui="r83"] .tut-front__stitch {
+  position: absolute;
+  inset: 16px;
+  border: 3px dashed rgba(255, 250, 240, 0.7);
+  border-radius: 12px;
+}
+
+[data-ui="r83"] .tut-front__number {
+  position: relative;
+  font-size: calc(var(--gw) * 0.66);
+  font-weight: 900;
+  line-height: 1;
+  color: var(--nb-ink);
+}
+
+[data-ui="r83"] .tut-front__done {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  display: grid;
+  place-items: center;
+  width: calc(var(--gw) * 0.17);
+  aspect-ratio: 1;
+  padding: 0;
+  box-sizing: border-box;
+  color: #fffaf0;
+  background: var(--nb-green);
+  border-radius: 50%;
+  transform: scale(0);
+}
+
+[data-ui="r83"] :where(.tut-front__done) {
+  border: 4px solid var(--nb-ink);
+}
+
+[data-ui="r83"] .tut-front__done svg {
+  width: 60%;
+  height: 60%;
+  display: block;
+}
+
+[data-ui="r83"] .tut-card.is-done .tut-front__done {
+  width: 44%;
+  right: -4%;
+  top: -3%;
+  padding: 0;
+  border-width: 0;
+}
+
+[data-ui="r83"] .tut-card.is-done .tut-front__done svg {
+  width: 60%;
+  height: 60%;
+  display: block;
+}
+
+[data-ui="r83"] .tut-back {
+  transform: rotateY(180deg);
+  display: flex;
+  flex-direction: column;
+  padding: 26px 24px 22px;
+  background: var(--nb-leaf);
+}
+
+[data-ui="r83"] :where(.tut-back) {
+  border-radius: 20px 6px 6px 20px;
+}
+
+[data-ui="r83"] .tut-steps {
+  display: flex;
+  gap: 8px;
+}
+
+[data-ui="r83"] .tut-steps i {
+  width: 30px;
+  height: 11px;
+  border-radius: 7px;
+}
+
+[data-ui="r83"] :where(.tut-steps i) {
+  border: 2.5px solid var(--nb-ink);
+  background: var(--nb-paper);
+}
+
+[data-ui="r83"] :where(.tut-steps i.is-now) {
+  background: var(--nb-orange);
+}
+
+[data-ui="r83"] :where(.tut-steps i.is-done) {
+  background: var(--nb-green);
+}
+
+[data-ui="r83"] .tut-back .guide-title {
+  margin: 20px 0 0;
+  font-size: var(--nb-h2, clamp(22px, 2.2vw, 30px));
+  font-weight: 900;
+  line-height: 1.05;
+  letter-spacing: -0.025em;
+  color: var(--nb-ink);
+}
+
+[data-ui="r83"] .tut-back .guide-copy {
+  margin: 14px 0 0;
+  font-size: var(--nb-body);
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--nb-ink);
+}
+
+[data-ui="r83"] .tut-back .tut-gesture {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 14px 0 0;
+  padding: 9px 12px;
+  font-size: 15px;
+  font-weight: 800;
+  line-height: 1.35;
+  color: var(--nb-ink);
+  border-radius: 14px;
+}
+
+[data-ui="r83"] :where(.tut-back .tut-gesture) {
+  background: var(--nb-paper);
+  border: 2.5px solid var(--nb-ink);
+}
+
+[data-ui="r83"] .tut-back .tut-gesture > span.gi {
+  flex: none;
+}
+
+[data-ui="r83"] .tut-gesture .gi svg {
+  width: 22px;
+  height: 22px;
+  display: block;
+}
+
+[data-ui="r83"] .tut-back .brochure-cta--thumb {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  justify-content: center;
+  margin-top: auto;
+  min-height: 0;
+  font-weight: 900;
+  font-size: var(--nb-body);
+}
+
+[data-ui="r83"] .tut-thumb-slot {
+  display: flex;
+  justify-content: center;
+  min-height: 104px;
+}
+
+[data-ui="r83"] .tut-thumb--locked {
+  cursor: default;
+}
+
+[data-ui="r83"] .tut-thumb--locked .thumb-confirm__face {
+  background: #e4dfd2;
+  color: #5b564c;
+}
+
+[data-ui="r83"] .tut-thumb--locked .thumb-confirm__fill {
+  stroke: #8a8477;
+}
+
+[data-ui="r83"] .tut-thumb--locked .thumb-confirm__label {
+  color: var(--nb-ink);
+  background: var(--nb-paper);
+}
+
+[data-ui="r83"] .tut-thumb .thumb-confirm__label {
+  font-size: 16px;
+}
+
+[data-ui="r83"] .tut-play {
+  position: absolute;
+  top: 0;
+  left: 100%;
+  width: var(--pw);
+  height: 100%;
+  overflow: hidden;
+  transform-origin: 0 50%;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+[data-ui="r83"] :where(.tut-play) {
+  border: 4px solid var(--nb-ink);
+  border-left-width: 0;
+  border-radius: 6px 20px 20px 6px;
+  box-shadow: 8px 8px 0 var(--nb-ink);
+  background: radial-gradient(circle at 1px 1px, rgba(49, 45, 38, 0.2) 1.2px, transparent 1.6px) 0 0 / 18px 18px,
+    #fffaf0;
+}
+
+[data-ui="r83"] .tut-play::before {
+  content: "";
+  position: absolute;
+  z-index: 4;
+  inset: 0 auto 0 0;
+  pointer-events: none;
+}
+
+[data-ui="r83"] :where(.tut-play)::before {
+  width: 30px;
+  background: linear-gradient(90deg, rgba(17, 17, 17, 0.24), transparent);
+}
+
+[data-ui="r83"] .tut-scene {
+  position: absolute;
+  inset: 0;
+}
+
+/* ---------- Card 1: walk ---------- */
+[data-ui="r83"] .tut-walk {
+  touch-action: none;
+  cursor: ew-resize;
+}
+
+[data-ui="r83"] .tut-handhint {
+  position: absolute;
+  z-index: 2;
+  left: 50%;
+  top: 40px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+[data-ui="r83"] .tut-handhint__hand {
+  display: grid;
+  place-items: center;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+}
+
+[data-ui="r83"] :where(.tut-handhint__hand) {
+  background: var(--nb-paper);
+  border: 3px solid var(--nb-ink);
+}
+
+[data-ui="r83"] .tut-handhint__hand svg {
+  width: 48px;
+  height: 48px;
+}
+
+[data-ui="r83"] .tut-handhint svg {
+  display: block;
+}
+
+[data-ui="r83"] .tut-walk__ground {
+  position: absolute;
+  left: 3%;
+  bottom: 22%;
+  width: 94%;
+  height: 40px;
+}
+
+[data-ui="r83"] .tut-walk__trail {
+  position: absolute;
+  left: 14%;
+  bottom: calc(22% + 18px);
+  height: 0;
+  border-top: 5px dotted var(--nb-orange);
+  border-radius: 3px;
+}
+
+[data-ui="r83"] .tut-walk__man {
+  position: absolute;
+  bottom: calc(22% + 22px);
+  width: clamp(48px, calc(var(--gw) * 0.17), 84px);
+}
+
+[data-ui="r83"] .wb {
+  display: block;
+}
+
+[data-ui="r83"] .wb svg,
+[data-ui="r83"] .tut-walk__man svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+[data-ui="r83"] .tut-walk__flag {
+  position: absolute;
+  right: 7%;
+  bottom: calc(22% + 24px);
+  width: 76px;
+}
+
+[data-ui="r83"] .tut-flag {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+[data-ui="r83"] .tut-win {
+  position: absolute;
+  left: 50%;
+  top: 44px;
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  margin-left: -34px;
+  color: #fffaf0;
+  background: var(--nb-green);
+  border-radius: 50%;
+  transform: scale(0);
+}
+
+[data-ui="r83"] :where(.tut-win) {
+  border: 4px solid var(--nb-ink);
+}
+
+[data-ui="r83"] .tut-win svg {
+  width: 34px;
+  height: 34px;
+}
+
+/* ---------- Card 2: safe vs danger ---------- */
+[data-ui="r83"] .tut-safety {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+[data-ui="r83"] .tut-zone {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 70px 10px 18px;
+}
+
+[data-ui="r83"] .tut-zone--safe {
+  background: radial-gradient(circle at 1px 1px, rgba(74, 140, 31, 0.28) 1.2px, transparent 1.6px) 0 0 / 16px 16px,
+    #eaf3d6;
+}
+
+[data-ui="r83"] .tut-zone--danger {
+  background: repeating-linear-gradient(135deg, rgba(239, 122, 55, 0.16) 0 9px, transparent 9px 18px), #ffe8d6;
+}
+
+[data-ui="r83"] .tut-zone__badge {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px 7px 10px;
+  font-size: 14px;
+  font-weight: 900;
+  white-space: nowrap;
+  border-radius: 999px;
+}
+
+[data-ui="r83"] :where(.tut-zone__badge) {
+  border: 2.5px solid var(--nb-ink);
+}
+
+[data-ui="r83"] .tut-zone__badge svg {
+  width: 16px;
+  height: 16px;
+}
+
+[data-ui="r83"] .tut-zone__badge--ok {
+  color: #fffaf0;
+  background: var(--nb-green);
+}
+
+[data-ui="r83"] .tut-zone__badge--bad {
+  color: var(--nb-ink);
+  background: var(--nb-orange);
+}
+
+[data-ui="r83"] .tut-zone__stage {
+  position: relative;
+  width: 100%;
+  max-width: 280px;
+  aspect-ratio: 1;
+}
+
+[data-ui="r83"] .tut-zone__art {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+
+[data-ui="r83"] .tut-zone__man {
+  position: absolute;
+  width: 17%;
+}
+
+[data-ui="r83"] .tut-zone__man svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+[data-ui="r83"] .tut-zone__man--hop {
+  left: 23.5%;
+  bottom: 41.5%;
+}
+
+[data-ui="r83"] .tut-zone__man--ouch {
+  left: 70%;
+  bottom: 15%;
+}
+
+[data-ui="r83"] .tut-tear {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: 18px;
+  margin-left: -9px;
+  pointer-events: none;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 18 40'%3E%3Cpath d='M9 0L3 10L13 20L4 30L9 40' fill='none' stroke='%23111' stroke-width='3.2' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") center top / 18px 40px repeat-y;
+}
+
+/* ---------- Card 3: canvas & 5 tools ---------- */
+[data-ui="r83"] .tut-draw {
+  display: flex;
+  gap: 16px;
+  padding: 18px;
+}
+
+[data-ui="r83"] .tut-draw__paper {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  border-radius: 14px;
+}
+
+[data-ui="r83"] :where(.tut-draw__paper) {
+  border: 3px solid var(--nb-ink);
+  background: radial-gradient(circle at 1px 1px, rgba(49, 45, 38, 0.16) 1.1px, transparent 1.5px) 0 0 / 16px 16px,
+    #fffdf6;
+}
+
+[data-ui="r83"] .tut-draw__paper .sk-wrap {
+  position: absolute;
+  inset: 0;
+  border-radius: 11px;
+  overflow: hidden;
+}
+
+[data-ui="r83"] .tut-draw__ghost {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  display: grid;
+  place-items: center;
+  width: 74px;
+  height: 74px;
+  margin: -37px 0 0 -37px;
+  color: var(--nb-ink);
+  border: 3px dashed rgba(17, 17, 17, 0.35);
+  border-radius: 50%;
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+[data-ui="r83"] .tut-draw__ghost svg {
+  width: 40px;
+  height: 40px;
+}
+
+[data-ui="r83"] .r83-hint.is-visible {
+  opacity: 1;
+}

@@ -1,20 +1,37 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, type FormEvent } from "react";
 import gsap from "gsap";
 import {
-  getHandLandmarkerStatus,
   subscribeHandLandmarkerStatus,
   warmHandLandmarker,
   type HandLandmarkerStatus,
 } from "../../camera/landmarker-warmup";
+import {
+  subscribeMonuiWarmupStatus,
+  warmMonuiWorker,
+  type MonuiWarmupStatus,
+} from "@/src/app/monui-worker-warmup";
+import { normalizeName } from "@/src/features/cover/name/normalize-name";
 import "./DreamLoader.css";
+
+const MAX_NICKNAME_CHARS = 24;
+const DREAM_REACT_MS = 900;
+/** Batas progres selama Momo menunggu nama (awan atas baru turun setelah progres > 65%). */
+const ASK_PROGRESS_CAP = 35;
+
+type DreamNamePhase = "waiting" | "ask" | "react" | "done";
 
 export interface DreamLoaderProps {
   modelUrl: string;
   wasmRoot?: string;
   onReady?: () => void;
   minDurationMs?: number;
+  warmRuntime?: "legacy" | "monui-worker";
+  allowSkip?: boolean;
+  readonly askNickname?: boolean;
+  readonly classBadge?: string | null;
+  readonly onSubmitNickname?: (name: string) => Promise<void> | void;
 }
 
 const M = {
@@ -41,64 +58,155 @@ const WING_GEOMETRY = {
   L: { a: [151.7, 599.3] as const, b: [184.4, 767.4] as const, tip: [110, 940] as const },
   R: { a: [1254.9, 646.8] as const, b: [1196.4, 775.4] as const, tip: [1306, 917] as const },
 };
-const WING_MAX_SHIFT = 56;
-const WING_FULL_ANGLE = 32;
-const WING_LIMIT_ANGLE = 50;
 
-function frame(side: "L" | "R") {
+const DUR = { intro: 1.5, blast: 1.4, morph: 1.8 };
+const clamp = (v: number, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+const easeInOut = (v: number) => { const t = clamp(v); return t * t * (3 - 2 * t); };
+const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+
+function wingFrame(side: "L" | "R") {
   const { a, b, tip } = WING_GEOMETRY[side];
-  const ax = a[0], ay = a[1];
-  const bx = b[0], by = b[1];
-  const tipX = tip[0], tipY = tip[1];
-  const len = Math.hypot(bx - ax, by - ay);
-  const ux = (bx - ax) / len, uy = (by - ay) / len;
-  let nx = -uy, ny = ux;
-  if (nx * (tipX - ax) + ny * (tipY - ay) < 0) {
+  const len = Math.hypot(b[0] - a[0], b[1] - a[1]);
+  const ux = (b[0] - a[0]) / len;
+  const uy = (b[1] - a[1]) / len;
+  let nx = -uy;
+  let ny = ux;
+  if (nx * (tip[0] - a[0]) + ny * (tip[1] - a[1]) < 0) {
     nx = -nx;
     ny = -ny;
   }
-  const dTip = nx * (tipX - ax) + ny * (tipY - ay);
-  return { ax, ay, ux, uy, nx, ny, dTip };
+  return { ax: a[0], ay: a[1], ux, uy, nx, ny, dTip: nx * (tip[0] - a[0]) + ny * (tip[1] - a[1]) };
 }
 
-function shearFactor(dTip: number, angleDeg: number) {
-  const t = Math.max(-WING_LIMIT_ANGLE, Math.min(WING_LIMIT_ANGLE, angleDeg)) / WING_FULL_ANGLE;
-  return (t * WING_MAX_SHIFT) / dTip;
+const WING_FRAMES = { L: wingFrame("L"), R: wingFrame("R") };
+
+function wingTransform(side: "L" | "R", angleDeg: number): string {
+  const f = WING_FRAMES[side];
+  const k = ((clamp(angleDeg, -50, 50) / 32) * 56) / f.dTip;
+  const a = 1 + k * f.ux * f.nx;
+  const c = k * f.ux * f.ny;
+  const b = k * f.uy * f.nx;
+  const d = 1 + k * f.uy * f.ny;
+  const e = f.ax - a * f.ax - c * f.ay;
+  const g = f.ay - b * f.ax - d * f.ay;
+  return `matrix(${a.toFixed(6)} ${b.toFixed(6)} ${c.toFixed(6)} ${d.toFixed(6)} ${e.toFixed(6)} ${g.toFixed(6)})`;
 }
 
-function wingTransform(side: "L" | "R", angleDeg: number) {
-  const f = frame(side);
-  const k = shearFactor(f.dTip, angleDeg);
-  const a = 1 + k * f.ux * f.nx,
-    c = k * f.ux * f.ny,
-    b = k * f.uy * f.nx,
-    d = 1 + k * f.uy * f.ny;
-  const e = f.ax - a * f.ax - c * f.ay,
-    g = f.ay - b * f.ax - d * f.ay;
-  const r = (n: number) => n.toFixed(6);
-  return `matrix(${r(a)} ${r(b)} ${r(c)} ${r(d)} ${r(e)} ${r(g)})`;
+interface DreamGeo {
+  vw: number;
+  vh: number;
+  momoCenter: { x: number; y: number; w: number; h: number };
+  bar: { x: number; y: number; w: number; h: number };
+  sleepHead: { x: number; y: number };
+  bubble: { x: number; y: number; w: number; h: number };
 }
 
-const clamp = (v: number, a = 0, b = 1) => Math.max(a, Math.min(b, v));
-const easeInOut = (v: number) => {
-  v = clamp(v);
-  return v * v * (3 - 2 * v);
-};
-const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+function computeDreamGeo(liftMomo = false): DreamGeo {
+  const vw = window.innerWidth || 1024;
+  const vh = window.innerHeight || 768;
+  const w = clamp(Math.min(vw * 0.42, vh * 0.25), 140, 215);
+  const h = w * (2058 / 1389);
+  const barW = Math.min(340, vw * 0.84);
+  const barH = 48;
+  const bar = { x: (vw - barW) / 2, y: vh - barH - (vw <= 580 ? 74 : 42), w: barW, h: barH };
+  const mr = document.getElementById("momo")?.getBoundingClientRect();
+  const gr = document.getElementById("gate")?.getBoundingClientRect();
+  const sleepHead = mr && mr.width > 0 && mr.height > 0
+    ? { x: mr.left + mr.width * 0.5, y: mr.top + mr.height * 0.3 }
+    : { x: vw * 0.82, y: vh * 0.72 };
+  const fw = Math.min(295, Math.max(220, vw > 580 ? vw * 0.23 : vw * 0.72));
+  const bubble = gr && gr.width > 0 && gr.height > 0
+    ? { x: gr.left, y: gr.top, w: gr.width, h: gr.height }
+    : { x: clamp(sleepHead.x - fw * 0.8, 16, vw - fw - 16), y: clamp(sleepHead.y - 94, 18, vh - 84), w: fw, h: 64 };
+  const liftOffset = liftMomo ? vh * 0.11 : vh * 0.04;
+  return { vw, vh, momoCenter: { x: (vw - w) / 2, y: (vh - h) / 2 - liftOffset, w, h }, bar, sleepHead, bubble };
+}
+
+function populateAtmosphere(cloudsEl: HTMLDivElement | null, speedEl: HTMLDivElement | null) {
+  const clouds: Array<{ n: HTMLDivElement; x: number; y: number; s: number; scale: number }> = [];
+  const streaks: Array<{ n: HTMLDivElement; x: number; y: number; s: number }> = [];
+  if (cloudsEl) {
+    cloudsEl.replaceChildren();
+    for (let i = 0; i < 9; i++) {
+      const n = document.createElement("div");
+      const w = 115 + ((i * 53) % 130);
+      n.className = "cloud";
+      n.style.width = `${w}px`;
+      n.style.height = `${Math.round(w * 0.25)}px`;
+      cloudsEl.appendChild(n);
+      clouds.push({ n, x: ((i * 43.7) % 112) - 6, y: ((i * 39.1) % 135) - 20, s: 0.52 + (i % 4) * 0.14, scale: 0.74 + (i % 3) * 0.2 });
+    }
+  }
+  if (speedEl) {
+    speedEl.replaceChildren();
+    for (let i = 0; i < 10; i++) {
+      const n = document.createElement("div");
+      n.className = "streak";
+      n.style.height = `${80 + ((i * 43) % 120)}px`;
+      speedEl.appendChild(n);
+      streaks.push({ n, x: (i * 38.3) % 100, y: ((i * 31.1) % 120) - 10, s: 0.75 + (i % 3) * 0.18 });
+    }
+  }
+  return { clouds, streaks };
+}
+
+function applyTailPlacement(tailEl: HTMLDivElement | null, gateEl: HTMLElement | null, cs: CSSStyleDeclaration | null) {
+  if (!tailEl) return;
+  const ink = "3px solid transparent";
+  const bg = cs?.backgroundColor && cs.backgroundColor !== "rgba(0, 0, 0, 0)" ? cs.backgroundColor : "#eff3db";
+  Object.assign(tailEl.style, { background: bg, border: "0", left: "", top: "", bottom: "", right: "" });
+  if (gateEl?.dataset.side === "above") {
+    tailEl.style.left = cs?.getPropertyValue("--tail-x") || "50%";
+    tailEl.style.bottom = "-9px";
+    tailEl.style.transform = "translateX(-50%) rotate(45deg)";
+    tailEl.style.borderRight = ink;
+    tailEl.style.borderBottom = ink;
+  } else {
+    tailEl.style.left = "-9px";
+    tailEl.style.top = `clamp(18px, ${cs?.getPropertyValue("--tail-y") || "22px"}, 46px)`;
+    tailEl.style.transform = "translateY(-50%) rotate(45deg)";
+    tailEl.style.borderLeft = ink;
+    tailEl.style.borderBottom = ink;
+  }
+}
 
 export function DreamLoader({
   modelUrl,
   wasmRoot = "/mediapipe/wasm",
   onReady,
   minDurationMs = 1200,
+  warmRuntime = "legacy",
+  allowSkip = true,
+  askNickname = false,
+  classBadge = null,
+  onSubmitNickname,
 }: DreamLoaderProps) {
-  const [progress, setProgress] = useState(15);
+  const [shouldAskNickname] = useState(() => Boolean(askNickname));
+  const [dreamNamePhase, setDreamNamePhase] = useState<DreamNamePhase>(() =>
+    askNickname ? "waiting" : "done",
+  );
+  const [nameInput, setNameInput] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submittedName, setSubmittedName] = useState("");
+  const [nameError, setNameError] = useState<string | null>(null);
+  const [progress, setProgress] = useState(0);
   const [statusText, setStatusText] = useState("Membuka alam imajinasi…");
   const [loadFailed, setLoadFailed] = useState(false);
   const retryWarmRef = useRef<() => void>(() => undefined);
+  const mouseFallbackRef = useRef<() => void>(() => undefined);
+  const mouseFallbackChosenRef = useRef(false);
+  const maybeCompleteRef = useRef<() => void>(() => undefined);
+  const workerReadyRef = useRef(false);
+  const dreamNamePhaseRef = useRef<DreamNamePhase>(dreamNamePhase);
+  dreamNamePhaseRef.current = dreamNamePhase;
+  const reactTimerRef = useRef<number | null>(null);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const onSubmitNicknameRef = useRef(onSubmitNickname);
+  onSubmitNicknameRef.current = onSubmitNickname;
 
   const stageRef = useRef<HTMLDivElement>(null);
   const skyRef = useRef<HTMLDivElement>(null);
+  const skipBtnRef = useRef<HTMLButtonElement>(null);
   const momoRef = useRef<SVGSVGElement>(null);
   const momoGroupRef = useRef<SVGGElement>(null);
   const wingLRef = useRef<SVGGElement>(null);
@@ -117,7 +225,7 @@ export function DreamLoader({
   const stateRef = useRef({
     phase: "intro" as "intro" | "loading" | "blast" | "morph" | "done",
     introV: 0,
-    progress: 15,
+    progress: 0,
     blastV: 0,
     morphing: false,
     ph: 0,
@@ -128,152 +236,92 @@ export function DreamLoader({
   const morphStartedRef = useRef(false);
   const morphTimelineRef = useRef<gsap.core.Timeline | null>(null);
   const onReadyRef = useRef(onReady);
-  const statusTextRef = useRef(statusText);
   onReadyRef.current = onReady;
+  const allowSkipRef = useRef(allowSkip);
+  allowSkipRef.current = allowSkip;
 
-  // Main Animation & Physics
   useEffect(() => {
-    const stage = stageRef.current;
-    if (!stage) return;
+    if (shouldAskNickname && dreamNamePhase === "ask") {
+      nameInputRef.current?.focus({ preventScroll: true });
+    }
+  }, [shouldAskNickname, dreamNamePhase]);
 
+  useEffect(() => {
+    return () => {
+      if (reactTimerRef.current !== null) {
+        window.clearTimeout(reactTimerRef.current);
+        reactTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!stageRef.current) return;
+    const sharedEl = sharedRef.current;
+    const skyEl = skyRef.current;
     const state = stateRef.current;
-    state.phase = "intro";
-    state.introV = 0;
-    state.progress = 15;
-    state.blastV = 0;
-    state.morphing = false;
-    state.ph = 0;
-    state.windPos = 0;
+    Object.assign(state, { phase: "intro", introV: 0, progress: 0, blastV: 0, morphing: false, ph: 0, windPos: 0 });
+    onReadyCalledRef.current = false;
+    morphStartedRef.current = false;
+    workerReadyRef.current = false;
+    mouseFallbackChosenRef.current = false;
 
-    function getGeo() {
-      const vw = window.innerWidth || 1024;
-      const vh = window.innerHeight || 768;
-      const momoW = clamp(Math.min(vw * 0.42, vh * 0.25), 140, 215);
-      const momoH = momoW * (2058 / 1389);
-      const momoCenter = {
-        x: (vw - momoW) / 2,
-        y: (vh - momoH) / 2 - vh * 0.04,
-        w: momoW,
-        h: momoH,
-      };
-      const barW = Math.min(340, vw * 0.84);
-      const barH = 48;
-      const bottomClearance = vw <= 580 ? 74 : 42;
-      const bar = { x: (vw - barW) / 2, y: vh - barH - bottomClearance, w: barW, h: barH };
-      const sleepHead = { x: vw * 0.82, y: vh * 0.72 };
-      const targetW = Math.min(295, Math.max(220, vw > 580 ? vw * 0.23 : vw * 0.72));
-      const targetH = 64;
-      const bubble = {
-        x: clamp(sleepHead.x - targetW * 0.8, 16, vw - targetW - 16),
-        y: clamp(sleepHead.y - targetH - 30, 18, vh - targetH - 20),
-        w: targetW,
-        h: targetH,
-      };
-      return { vw, vh, momoCenter, bar, sleepHead, bubble };
-    }
+    let geo = computeDreamGeo(shouldAskNickname);
+    let hiddenGateEl: HTMLElement | null = null;
+    let squashedMomoArt: HTMLElement | null = null;
+    const { clouds, streaks } = populateAtmosphere(cloudsContainerRef.current, speedContainerRef.current);
 
-    let geo = getGeo();
-
-    // Populate clouds & streaks
-    const cloudsEl = cloudsContainerRef.current;
-    const speedEl = speedContainerRef.current;
-    const cloudsList: Array<{ n: HTMLDivElement; x: number; y: number; s: number; scale: number }> = [];
-    const streaksList: Array<{ n: HTMLDivElement; x: number; y: number; s: number }> = [];
-
-    if (cloudsEl) {
-      cloudsEl.innerHTML = "";
-      for (let i = 0; i < 9; i++) {
-        const n = document.createElement("div");
-        n.className = "cloud";
-        const w = 115 + ((i * 53) % 130);
-        n.style.width = w + "px";
-        n.style.height = Math.round(w * 0.25) + "px";
-        cloudsEl.appendChild(n);
-        cloudsList.push({
-          n,
-          x: ((i * 43.7) % 112) - 6,
-          y: ((i * 39.1) % 135) - 20,
-          s: 0.52 + (i % 4) * 0.14,
-          scale: 0.74 + (i % 3) * 0.2,
-        });
+    function restoreGateAndMomo() {
+      if (hiddenGateEl) {
+        hiddenGateEl.style.opacity = "";
+        hiddenGateEl.style.transition = "";
+        hiddenGateEl = null;
+      }
+      if (squashedMomoArt) {
+        gsap.killTweensOf(squashedMomoArt);
+        gsap.set(squashedMomoArt, { clearProps: "transform" });
+        squashedMomoArt = null;
       }
     }
 
-    if (speedEl) {
-      speedEl.innerHTML = "";
-      for (let i = 0; i < 10; i++) {
-        const n = document.createElement("div");
-        n.className = "streak";
-        n.style.height = 80 + ((i * 43) % 120) + "px";
-        speedEl.appendChild(n);
-        streaksList.push({
-          n,
-          x: (i * 38.3) % 100,
-          y: ((i * 31.1) % 120) - 10,
-          s: 0.75 + (i % 3) * 0.18,
-        });
-      }
+    function finishReady() {
+      if (onReadyCalledRef.current) return;
+      onReadyCalledRef.current = true;
+      onReadyRef.current?.();
     }
 
     function updateFlight(dt: number) {
-      const isFast = state.phase === "blast";
-      const spd = isFast ? 1.3 : 0.9;
-      const amp = isFast ? 1.0 : 0.85;
-      state.ph += dt * spd;
+      const fast = state.phase === "blast";
+      const amp = fast ? 1.0 : 0.85;
+      state.ph += dt * (fast ? 1.3 : 0.9);
       const T = state.ph;
-
       const fy = amp * 42 * Math.sin((Math.PI * 2 * T) / 2.1 + 0.5);
       const fx = amp * 22 * Math.sin((Math.PI * 2 * T) / 3.1);
-      const bodyRoll = amp * (fx / 22) * 6;
-
-      const flapWave = T * Math.PI * 2 * 0.9;
-      const angleL = Math.sin(flapWave) * 20 * amp;
-      const angleR = Math.sin(flapWave - 0.05) * 20 * amp;
-
-      if (wingLRef.current) wingLRef.current.setAttribute("transform", wingTransform("L", angleL));
-      if (wingRRef.current) wingRRef.current.setAttribute("transform", wingTransform("R", angleR));
-
-      const tailPhase = (Math.PI * 2 * T) / 3.1 - 0.6;
-      const tailSway = amp * 25 * Math.sin(tailPhase);
-      const tailRoll = amp * (tailSway / 25) * 8;
+      const roll = amp * (fx / 22) * 6;
+      const fw = T * Math.PI * 2 * 0.9;
+      if (wingLRef.current) wingLRef.current.setAttribute("transform", wingTransform("L", Math.sin(fw) * 20 * amp));
+      if (wingRRef.current) wingRRef.current.setAttribute("transform", wingTransform("R", Math.sin(fw - 0.05) * 20 * amp));
+      const sway = amp * 25 * Math.sin((Math.PI * 2 * T) / 3.1 - 0.6);
       if (tailGroupRef.current) {
-        tailGroupRef.current.setAttribute(
-          "transform",
-          `translate(696 1388) rotate(${tailRoll.toFixed(2)}) translate(-696 -1388)`
-        );
+        tailGroupRef.current.setAttribute("transform", `translate(696 1388) rotate(${(amp * (sway / 25) * 8).toFixed(2)}) translate(-696 -1388)`);
       }
-
-      let scale = 1;
-      if (state.phase === "intro") {
-        scale = lerp(0.84, 1, state.introV);
-      }
+      const sc = state.phase === "intro" ? lerp(0.84, 1, state.introV) : 1;
       if (momoGroupRef.current) {
         momoGroupRef.current.setAttribute(
           "transform",
-          `translate(${(695 + fx).toFixed(1)} ${(640 + fy).toFixed(1)}) ` +
-            `rotate(${bodyRoll.toFixed(2)}) ` +
-            `scale(${scale.toFixed(3)}) ` +
-            `translate(-695 -640)`
+          `translate(${(695 + fx).toFixed(1)} ${(640 + fy).toFixed(1)}) rotate(${roll.toFixed(2)}) scale(${sc.toFixed(3)}) translate(-695 -640)`,
         );
       }
     }
 
     function updateMomoPosition() {
       let baseY = geo.momoCenter.y;
-      if (state.phase === "intro") {
-        baseY = geo.momoCenter.y + (1 - state.introV) * (geo.vh * 0.58);
-      } else if (state.phase === "loading") {
-        // Reach the clouds at ~90%; the 80% gate below guarantees model readiness first.
-        baseY = geo.momoCenter.y - geo.vh * 0.3 * easeInOut(clamp((state.progress - 80) / 10));
-      } else if (state.phase === "blast") {
-        const atCloud = geo.momoCenter.y - geo.vh * 0.3;
-        baseY = atCloud - state.blastV * (atCloud + geo.momoCenter.h * 1.25);
-      } else if (state.phase === "morph" || state.phase === "done") {
-        baseY = -geo.momoCenter.h * 1.5;
-      }
+      if (state.phase === "intro") baseY = geo.momoCenter.y + (1 - state.introV) * (geo.vh * 0.58);
+      else if (state.phase === "blast") baseY = geo.momoCenter.y - state.blastV * (geo.momoCenter.y + geo.momoCenter.h * 1.25);
+      else if (state.phase === "morph" || state.phase === "done") baseY = -geo.momoCenter.h * 1.5;
 
       if (momoRef.current) {
-        momoRef.current.style.width = geo.momoCenter.w + "px";
+        momoRef.current.style.width = `${geo.momoCenter.w}px`;
         momoRef.current.style.left = "0px";
         momoRef.current.style.top = "0px";
         momoRef.current.style.transform = `translate3d(${geo.momoCenter.x}px, ${baseY}px, 0)`;
@@ -283,140 +331,139 @@ export function DreamLoader({
     function updateTopClouds() {
       if (!topCloudBankRef.current) return;
       let y = -108;
-      if (state.phase === "loading") {
-        const approach = clamp((state.progress - 75) / 15);
-        y = lerp(-108, -6, easeInOut(approach));
-      } else if (state.phase === "blast") {
-        y = lerp(-6, 6, easeInOut(state.blastV));
-      }
+      if (state.phase === "loading") y = lerp(-108, -6, easeInOut(clamp((state.progress - 65) / 35)));
+      else if (state.phase === "blast") y = lerp(-6, 6, easeInOut(state.blastV));
       topCloudBankRef.current.style.transform = `translate3d(0, ${y.toFixed(2)}%, 0)`;
     }
 
     function updateEnvironment(dt: number) {
-      const speedMult =
-        state.phase === "blast" ? 2.5 : state.phase === "intro" ? 0.8 : 1.2 + (state.progress / 100) * 0.8;
-      state.windPos += dt * 60 * speedMult;
-      for (const c of cloudsList) {
-        const yy =
-          (((c.y / 100) * geo.vh + state.windPos * c.s) % (geo.vh + 420) + (geo.vh + 420)) % (geo.vh + 420) - 200;
+      const sp = state.phase === "blast" ? 2.5 : state.phase === "intro" ? 0.8 : 1.2 + (state.progress / 100) * 0.8;
+      state.windPos += dt * 60 * sp;
+      for (const c of clouds) {
+        const yy = (((c.y / 100) * geo.vh + state.windPos * c.s) % (geo.vh + 420) + (geo.vh + 420)) % (geo.vh + 420) - 200;
         c.n.style.transform = `translate3d(${((c.x / 100) * geo.vw).toFixed(1)}px, ${yy.toFixed(1)}px, 0) scale(${c.scale})`;
       }
-      for (const s of streaksList) {
-        const yy =
-          (((s.y / 100) * geo.vh + state.windPos * s.s * 1.25) % (geo.vh + 380) + (geo.vh + 380)) % (geo.vh + 380) - 170;
-        s.n.style.transform = `translate3d(${((s.x / 100) * geo.vw).toFixed(1)}px, ${yy.toFixed(1)}px, 0) scaleY(${1 + speedMult * 0.14})`;
-        s.n.style.opacity = String(state.phase === "intro" ? 0 : clamp(0.14 + speedMult * 0.12, 0, 0.46));
+      for (const s of streaks) {
+        const yy = (((s.y / 100) * geo.vh + state.windPos * s.s * 1.25) % (geo.vh + 380) + (geo.vh + 380)) % (geo.vh + 380) - 170;
+        s.n.style.transform = `translate3d(${((s.x / 100) * geo.vw).toFixed(1)}px, ${yy.toFixed(1)}px, 0) scaleY(${1 + sp * 0.14})`;
+        s.n.style.opacity = String(state.phase === "intro" ? 0 : clamp(0.14 + sp * 0.12, 0, 0.46));
+      }
+    }
+
+    function syncSkyClip(radius: number) {
+      if (!skyRef.current) return;
+      skyRef.current.style.clipPath = `circle(${Math.max(0, radius).toFixed(1)}px at ${geo.sleepHead.x.toFixed(1)}px ${geo.sleepHead.y.toFixed(1)}px)`;
+    }
+
+    function handOver(gateEl: HTMLElement | null) {
+      if (gateEl) {
+        gateEl.style.opacity = "";
+        void gateEl.offsetWidth;
+      }
+      const finishGate = () => {
+        if (gateEl) gateEl.style.transition = "";
+        hiddenGateEl = null;
+        finishReady();
+      };
+      if (sharedRef.current) {
+        gsap.to(sharedRef.current, { opacity: 0, duration: 0.28, ease: "power1.out", onComplete: finishGate });
+      } else {
+        finishGate();
       }
     }
 
     function startDreamMorph() {
-      if (morphStartedRef.current) return;
+      if (morphStartedRef.current || onReadyCalledRef.current) return;
       morphStartedRef.current = true;
       state.phase = "morph";
       state.morphing = true;
-      geo = getGeo();
+      geo = computeDreamGeo(shouldAskNickname);
 
       if (momoRef.current) momoRef.current.style.visibility = "hidden";
+      if (skipBtnRef.current) {
+        gsap.to(skipBtnRef.current, {
+          opacity: 0,
+          duration: 0.3,
+          onComplete: () => { if (skipBtnRef.current) skipBtnRef.current.style.display = "none"; },
+        });
+      }
 
-      const sh = sharedRef.current;
-      const sky = skyRef.current;
+      const realGate = document.getElementById("gate");
+      const realMomo = document.getElementById("momo");
+      const cs = realGate ? getComputedStyle(realGate) : null;
+      const momoArt = realMomo?.querySelector<HTMLElement>(".momo-art") ?? null;
+      squashedMomoArt = momoArt;
+      hiddenGateEl = realGate;
+
+      if (bubbleCopyRef.current) {
+        bubbleCopyRef.current.textContent = document.getElementById("gate-mumble")?.textContent || "Zzz... coba sapa aku, dong.";
+      }
+      applyTailPlacement(bubbleTailRef.current, realGate, cs);
+      if (realGate) {
+        realGate.style.transition = "none";
+        realGate.style.opacity = "0";
+      }
+
+      const D = DUR.morph;
+      const iris = { r: Math.hypot(geo.vw, geo.vh) };
       const morphTl = gsap.timeline({
         onComplete: () => {
+          if (momoArt) gsap.set(momoArt, { clearProps: "transform" });
+          squashedMomoArt = null;
           state.phase = "done";
           state.morphing = false;
-          if (!onReadyCalledRef.current) {
-            onReadyCalledRef.current = true;
-            onReadyRef.current?.();
-          }
+          handOver(realGate);
         },
       });
-
       morphTimelineRef.current = morphTl;
-      const fullRadius = Math.hypot(geo.vw, geo.vh);
-      const iris = { r: fullRadius };
 
-      if (sky) {
-        morphTl.to(
-          iris,
-          {
-            r: 0,
-            duration: 1.4,
-            ease: "expo.inOut",
-            onUpdate: () => {
-              if (sky) {
-                sky.style.clipPath = `circle(${Math.max(0, iris.r).toFixed(1)}px at ${geo.sleepHead.x.toFixed(1)}px ${geo.sleepHead.y.toFixed(1)}px)`;
-              }
-            },
-          },
-          0
-        );
-
-        morphTl.to(
-          sky,
-          {
-            opacity: 0,
-            duration: 0.6,
-            ease: "power2.in",
-          },
-          0.8
-        );
+      if (skyRef.current) {
+        morphTl.to(iris, { r: 0, duration: D * 0.82, ease: "expo.inOut", onUpdate: () => syncSkyClip(iris.r) }, 0);
+        morphTl.to(skyRef.current, { opacity: 0, duration: D * 0.35, ease: "power2.in" }, D * 0.52);
       }
 
-      if (sh) {
-        morphTl.to(
-          sh,
-          {
-            x: 0,
-            xPercent: 0,
-            left: geo.bubble.x,
-            top: geo.bubble.y,
-            bottom: "auto",
-            width: geo.bubble.w,
-            height: geo.bubble.h,
-            backgroundColor: "#eff3db",
-            borderTopLeftRadius: "18px",
-            borderTopRightRadius: "18px",
-            borderBottomRightRadius: "6px",
-            borderBottomLeftRadius: "18px",
-            duration: 1.4,
-            ease: "expo.inOut",
-          },
-          0
-        );
+      if (sharedRef.current) {
+        const bg = cs?.backgroundColor && cs.backgroundColor !== "rgba(0, 0, 0, 0)" ? cs.backgroundColor : "#c8d9a4";
+        morphTl.to(sharedRef.current, {
+          x: 0,
+          xPercent: 0,
+          left: geo.bubble.x,
+          top: geo.bubble.y,
+          bottom: "auto",
+          width: geo.bubble.w,
+          height: geo.bubble.h,
+          backgroundColor: bg,
+          ...(cs?.boxShadow ? { boxShadow: cs.boxShadow } : {}),
+          borderTopLeftRadius: cs?.borderTopLeftRadius || "22px",
+          borderTopRightRadius: cs?.borderTopRightRadius || "22px",
+          borderBottomRightRadius: cs?.borderBottomRightRadius || "22px",
+          borderBottomLeftRadius: cs?.borderBottomLeftRadius || "22px",
+          duration: D * 0.82,
+          ease: "expo.inOut",
+        }, 0);
       }
 
-      if (barUiRef.current) {
-        morphTl.to(barUiRef.current, { opacity: 0, duration: 0.4, ease: "power2.out" }, 0.05);
-      }
-      if (bubbleCopyRef.current) {
-        morphTl.to(bubbleCopyRef.current, { opacity: 1, duration: 0.6, ease: "power2.out" }, 0.8);
-      }
+      if (barUiRef.current) morphTl.to(barUiRef.current, { opacity: 0, duration: D * 0.28, ease: "power2.out" }, 0.05);
+      if (bubbleCopyRef.current) morphTl.to(bubbleCopyRef.current, { opacity: 1, duration: D * 0.38, ease: "power2.out" }, D * 0.56);
       if (bubbleTailRef.current) {
-        morphTl.fromTo(
-          bubbleTailRef.current,
-          { opacity: 0, scale: 0.4 },
-          { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.8)" },
-          0.9
-        );
+        morphTl.fromTo(bubbleTailRef.current, { opacity: 0, scale: 0.4 }, { opacity: 1, scale: 1, duration: D * 0.34, ease: "back.out(1.8)" }, D * 0.62);
+      }
+      if (momoArt) {
+        morphTl.to(momoArt, { scaleX: 1.03, scaleY: 0.95, duration: D * 0.16, ease: "power2.out" }, D * 0.68);
+        morphTl.to(momoArt, { scaleX: 1, scaleY: 1, duration: D * 0.32, ease: "elastic.out(1, 0.5)" }, D * 0.84);
       }
     }
 
     function triggerBlastAndMorph() {
       if (state.phase === "blast" || state.phase === "morph" || state.phase === "done") return;
       state.phase = "blast";
-      gsap.to(state, {
-        blastV: 1,
-        duration: 1.2,
-        ease: "power2.in",
-        onUpdate: updateTopClouds,
-        onComplete: () => {
-          startDreamMorph();
-        },
-      });
+      if (sharedRef.current) {
+        gsap.to(sharedRef.current, { scale: 1.03, duration: 0.18, yoyo: true, repeat: 1, ease: "power2.out" });
+      }
+      gsap.to(state, { blastV: 1, duration: DUR.blast, ease: "power2.in", onUpdate: updateTopClouds, onComplete: startDreamMorph });
     }
 
-    // Ticker loop runs continuously from frame 0
-    const tickerCallback = (time: number, deltaTime: number) => {
+    const tickerCallback = (_time: number, deltaTime: number) => {
       if (state.morphing || state.phase === "done") return;
       const dt = Math.min(deltaTime / 1000, 0.05);
       updateFlight(dt);
@@ -425,87 +472,155 @@ export function DreamLoader({
     };
     gsap.ticker.add(tickerCallback);
 
+    if (sharedRef.current) {
+      gsap.set(sharedRef.current, { left: geo.bar.x, top: geo.bar.y, width: geo.bar.w, height: geo.bar.h, xPercent: 0, bottom: "auto" });
+    }
+    syncSkyClip(Math.hypot(geo.vw, geo.vh));
     updateFlight(0);
     updateMomoPosition();
     updateTopClouds();
 
     const onResize = () => {
-      geo = getGeo();
+      if (state.morphing || state.phase === "done") return;
+      geo = computeDreamGeo(shouldAskNickname);
+      if (sharedRef.current) {
+        gsap.set(sharedRef.current, { left: geo.bar.x, top: geo.bar.y, width: geo.bar.w, height: geo.bar.h, xPercent: 0, bottom: "auto" });
+      }
+      syncSkyClip(Math.hypot(geo.vw, geo.vh));
       updateMomoPosition();
       updateTopClouds();
     };
     window.addEventListener("resize", onResize);
 
-    // Defer MediaPipe initialization until Momo has reached the middle: Web inference is synchronous
-    // and can stall the first flight on low-end machines. Never advance 80% until hand+face init settles.
     let unsub: (() => void) | null = null;
     let run = 0;
-    function animateProgress(target: number, finished?: () => void) {
+
+    function animateProgress(requested: number, finished?: () => void, durationOverride?: number) {
       const seq = ++run;
+      /* Selama nama belum diisi, bar & awan atas tetap tenang supaya Momo tidak terasa "hampir menyentuh awan". */
+      const asking = shouldAskNickname && dreamNamePhaseRef.current !== "done";
+      const target = asking ? Math.min(requested, ASK_PROGRESS_CAP) : requested;
       gsap.killTweensOf(state, "progress");
       gsap.to(state, {
-        progress: target,
-        duration: target === 100 ? 0.45 : 0.55,
+        progress: Math.max(target, asking ? state.progress : 0),
+        duration: durationOverride ?? (target === 100 ? 0.45 : 0.55),
         ease: "power2.out",
         onUpdate: () => {
           const p = Math.round(state.progress);
           setProgress(p);
           if (barFillRef.current) {
-            barFillRef.current.style.width = state.progress.toFixed(1) + "%";
+            barFillRef.current.style.width = `${state.progress.toFixed(1)}%`;
             barFillRef.current.classList.toggle("is-full", state.progress >= 99.5);
           }
-          if (barTextRef.current) barTextRef.current.textContent = `${p}% · ${statusTextRef.current}`;
+          if (barTextRef.current) barTextRef.current.textContent = `${p}%`;
           updateTopClouds();
         },
-        onComplete: () => {
-          if (seq === run && !onReadyCalledRef.current) finished?.();
-        },
+        onComplete: () => { if (seq === run && !onReadyCalledRef.current) finished?.(); },
       });
     }
-    function onModelStatus(status: HandLandmarkerStatus) {
+
+    maybeCompleteRef.current = () => {
       if (state.phase !== "loading" || onReadyCalledRef.current) return;
+      if (shouldAskNickname && dreamNamePhaseRef.current !== "done") return;
+      if (!workerReadyRef.current) return;
+      const isWorker = warmRuntime === "monui-worker";
+      setStatusText(isWorker ? "Model NUI siap. Menuju awan…" : "Pelacak siap. Menuju awan…");
+      animateProgress(100, triggerBlastAndMorph, shouldAskNickname ? 1.3 : undefined);
+    };
+
+    function onModelStatus(status: HandLandmarkerStatus | MonuiWarmupStatus) {
+      if (state.phase !== "loading" || onReadyCalledRef.current || mouseFallbackChosenRef.current) return;
+      const isWorker = warmRuntime === "monui-worker";
       if (status.kind === "loading" || status.kind === "idle") {
-        statusTextRef.current = "Memuat pengenal tangan…";
-        setStatusText(statusTextRef.current);
+        setLoadFailed(false);
+        setStatusText(isWorker ? "Mengunduh model & WASM NUI…" : "Memuat pengenal tangan…");
         animateProgress(45);
       } else if (status.kind === "warming") {
-        statusTextRef.current = `Menyiapkan pengenal tangan (${status.delegate})…`;
-        setStatusText(statusTextRef.current);
+        setLoadFailed(false);
+        setStatusText(isWorker ? "Memanaskan model NUI (coldstart)…" : `Menyiapkan pengenal tangan (${status.delegate})…`);
         animateProgress(75);
       } else if (status.kind === "failed") {
-        // Do not falsely display 80% readiness or 100% success. Student can retry or skip to pointer.
-        statusTextRef.current = "Pelacak gagal dimuat. Coba lagi atau gunakan pointer.";
-        setStatusText(statusTextRef.current);
+        setStatusText(isWorker ? "Model NUI gagal dimuat. Coba lagi atau pakai mouse." : "Pelacak gagal dimuat. Coba lagi atau gunakan pointer.");
         setLoadFailed(true);
         animateProgress(Math.min(state.progress, 75));
       } else if (status.kind === "ready") {
+        workerReadyRef.current = true;
         setLoadFailed(false);
-        statusTextRef.current = `Pelacak siap (${status.delegate}). Menuju awan…`;
-        setStatusText(statusTextRef.current);
-        animateProgress(80, () => animateProgress(90, () => animateProgress(100, triggerBlastAndMorph)));
+        if (shouldAskNickname && dreamNamePhaseRef.current !== "done") {
+          setStatusText(dreamNamePhaseRef.current === "react" ? "Menuju awan…" : "Model NUI siap! Tulis namamu dulu ya…");
+          animateProgress(ASK_PROGRESS_CAP);
+        } else if (shouldAskNickname) {
+          maybeCompleteRef.current();
+        } else {
+          setStatusText(isWorker ? "Model NUI siap. Menuju awan…" : `Pelacak siap (${status.delegate}). Menuju awan…`);
+          animateProgress(80, () => animateProgress(90, () => animateProgress(100, triggerBlastAndMorph)));
+        }
       }
     }
-    function beginLoading() {
+
+    const yoloEnabled = process.env.NEXT_PUBLIC_MONUI_YOLO === "1";
+    const runWarmup = () => {
+      if (warmRuntime === "monui-worker") void warmMonuiWorker({ wasmRoot, modelUrl, yoloEnabled });
+      else void warmHandLandmarker({ wasmRoot, modelUrl });
+    };
+
+    if (warmRuntime === "monui-worker") {
+      runWarmup();
+    }
+
+    const beginLoading = () => {
       if (state.phase !== "intro" || onReadyCalledRef.current) return;
       state.phase = "loading";
-      unsub = subscribeHandLandmarkerStatus(onModelStatus);
-      void warmHandLandmarker({ wasmRoot, modelUrl });
-    }
+      if (shouldAskNickname && dreamNamePhaseRef.current === "waiting") {
+        dreamNamePhaseRef.current = "ask";
+        setDreamNamePhase("ask");
+      }
+      unsub = warmRuntime === "monui-worker" ? subscribeMonuiWarmupStatus(onModelStatus) : subscribeHandLandmarkerStatus(onModelStatus);
+      runWarmup();
+    };
+
     retryWarmRef.current = () => {
       if (state.phase !== "loading" || onReadyCalledRef.current) return;
       setLoadFailed(false);
-      void warmHandLandmarker({ wasmRoot, modelUrl });
+      runWarmup();
     };
-    const mainTl = gsap.timeline({ onComplete: beginLoading });
-    mainTl.to(state, { introV: 1, duration: 1.0, ease: "power3.out" }, 0);
 
-    // Skip handler
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") {
-        if (!onReadyCalledRef.current) {
-          onReadyCalledRef.current = true;
-          onReadyRef.current?.();
+    mouseFallbackRef.current = () => {
+      if (onReadyCalledRef.current) return;
+      mouseFallbackChosenRef.current = true;
+      workerReadyRef.current = true;
+      setLoadFailed(false);
+      unsub?.();
+      unsub = null;
+      const waitingNickname = shouldAskNickname && dreamNamePhaseRef.current !== "done";
+      if (waitingNickname) {
+        setStatusText("Mode mouse siap! Tulis namamu dulu ya…");
+        animateProgress(ASK_PROGRESS_CAP);
+      } else {
+        setStatusText("Lanjut dengan mouse…");
+        state.progress = 100;
+        setProgress(100);
+        if (barFillRef.current) {
+          barFillRef.current.style.width = "100%";
+          barFillRef.current.classList.add("is-full");
         }
+        if (barTextRef.current) barTextRef.current.textContent = "100%";
+        restoreGateAndMomo();
+        finishReady();
+      }
+    };
+
+    const introDur = minDurationMs <= 500 ? 0.3 : DUR.intro;
+    const mainTl = gsap.timeline({ onComplete: beginLoading });
+    if (sharedRef.current) {
+      mainTl.fromTo(sharedRef.current, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: introDur * 0.85, ease: "power3.out" }, 0);
+    }
+    mainTl.to(state, { introV: 1, duration: introDur, ease: "power3.out" }, 0);
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && allowSkipRef.current) {
+        restoreGateAndMomo();
+        finishReady();
       }
     };
     window.addEventListener("keydown", handleKeyDown);
@@ -514,76 +629,119 @@ export function DreamLoader({
       ++run;
       unsub?.();
       retryWarmRef.current = () => undefined;
+      mouseFallbackRef.current = () => undefined;
+      maybeCompleteRef.current = () => undefined;
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("resize", onResize);
+      restoreGateAndMomo();
       try { gsap.ticker.remove(tickerCallback); } catch {}
       try { mainTl?.kill(); } catch {}
       try { morphTimelineRef.current?.kill(); } catch {}
       morphTimelineRef.current = null;
-      try { if (state) gsap.killTweensOf(state); } catch {}
+      try { gsap.killTweensOf(state); } catch {}
+      try { if (sharedEl) gsap.killTweensOf(sharedEl); } catch {}
+      try { if (skyEl) gsap.killTweensOf(skyEl); } catch {}
     };
-  }, [modelUrl, wasmRoot, minDurationMs]);
+  }, [modelUrl, wasmRoot, minDurationMs, warmRuntime, shouldAskNickname]);
+
+  const cleanedName = normalizeName(nameInput);
+
+  const handleNicknameSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (submitting || dreamNamePhaseRef.current === "react" || dreamNamePhaseRef.current === "done") return;
+    const cleaned = normalizeName(nameInput);
+    if (!cleaned) {
+      setNameError("Tulis nama panggilanmu dulu, ya.");
+      nameInputRef.current?.focus({ preventScroll: true });
+      return;
+    }
+    setSubmitting(true);
+    setNameError(null);
+    try {
+      await onSubmitNicknameRef.current?.(cleaned);
+      setSubmittedName(cleaned);
+      setSubmitting(false);
+      dreamNamePhaseRef.current = "react";
+      setDreamNamePhase("react");
+      if (reactTimerRef.current !== null) window.clearTimeout(reactTimerRef.current);
+      reactTimerRef.current = window.setTimeout(() => {
+        reactTimerRef.current = null;
+        dreamNamePhaseRef.current = "done";
+        setDreamNamePhase("done");
+        maybeCompleteRef.current();
+      }, DREAM_REACT_MS);
+    } catch (err) {
+      setSubmitting(false);
+      const msg = err instanceof Error && err.message.trim()
+        ? err.message
+        : "Gagal menyimpan nama. Coba sekali lagi, ya.";
+      setNameError(msg);
+    }
+  };
 
   const handleSkip = () => {
+    if (!allowSkipRef.current) return;
     if (!onReadyCalledRef.current) {
+      const realGate = document.getElementById("gate");
+      if (realGate) {
+        realGate.style.opacity = "";
+        realGate.style.transition = "";
+      }
       onReadyCalledRef.current = true;
       onReadyRef.current?.();
     }
   };
 
+  const showDreamBubble = shouldAskNickname && (dreamNamePhase === "ask" || dreamNamePhase === "react");
+
   return (
-    <main ref={stageRef} className="dream-stage" data-testid="dream-loader" data-model-failed={loadFailed ? "true" : "false"} aria-label="Loading Momo Dream">
-      <button
-        type="button"
-        className="dream-skip-btn"
-        onClick={handleSkip}
-        data-testid="dream-loader-skip"
-        aria-label="Lewati loading"
-      >
-        Lewati ✕
-      </button>
+    <main
+      ref={stageRef}
+      id="dream"
+      className={`dream-stage${shouldAskNickname ? " is-asking-name" : ""}`}
+      data-testid="dream-loader"
+      data-model-failed={loadFailed ? "true" : "false"}
+      aria-label="Loading Momo Dream"
+    >
+      {allowSkip ? (
+        <button
+          ref={skipBtnRef}
+          id="dr-skip"
+          type="button"
+          className="dream-skip-btn"
+          onClick={handleSkip}
+          data-testid="dream-loader-skip"
+          aria-label="Lewati loading"
+        >
+          Lewati ✕
+        </button>
+      ) : null}
 
-      <section ref={skyRef} className="dream-sky" aria-label="Langit mimpi Momo">
+      <section ref={skyRef} id="dr-sky" className="dream-sky" aria-label="Langit mimpi Momo">
         <div className="chase" aria-hidden="true" />
-        <div ref={cloudsContainerRef} className="dream-clouds" aria-hidden="true" />
-        <div ref={speedContainerRef} className="dream-speed" aria-hidden="true" />
+        <div ref={cloudsContainerRef} id="dr-clouds" className="dream-clouds" aria-hidden="true" />
+        <div ref={speedContainerRef} id="dr-speed" className="dream-speed" aria-hidden="true" />
 
-        <svg ref={topCloudBankRef} className="dream-top-cloud-bank" viewBox="0 0 1440 460" preserveAspectRatio="none" aria-hidden="true">
-          <path
-            d="M-80,0 L1520,0 L1520,285 C1410,375 1280,365 1190,295 C1080,395 920,390 810,305 C700,415 530,410 430,305 C330,390 180,385 95,295 C20,355 -35,345 -80,285 Z"
-            fill="#edf3ea"
-          />
-          <path
-            d="M-60,0 L1500,0 L1500,235 C1380,315 1240,300 1140,230 C1020,330 860,320 750,235 C630,335 470,325 360,235 C240,315 90,305 -60,230 Z"
-            fill="#fffaf0"
-          />
+        <svg ref={topCloudBankRef} id="dr-bank" className="dream-top-cloud-bank" viewBox="0 0 1440 460" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M-80,0 L1520,0 L1520,285 C1410,375 1280,365 1190,295 C1080,395 920,390 810,305 C700,415 530,410 430,305 C330,390 180,385 95,295 C20,355 -35,345 -80,285 Z" fill="#edf3ea" />
+          <path d="M-60,0 L1500,0 L1500,235 C1380,315 1240,300 1140,230 C1020,330 860,320 750,235 C630,335 470,325 360,235 C240,315 90,305 -60,230 Z" fill="#fffaf0" />
         </svg>
 
-        <svg
-          ref={momoRef}
-          className="dream-momo"
-          style={{ transform: "translate3d(calc(50vw - 88px), calc(40vh - 100px), 0)" }}
-          viewBox="0 0 1389 2058"
-          role="img"
-          aria-label="Momo terbang di mimpi"
-        >
-          <g ref={momoGroupRef}>
-            <g ref={tailGroupRef}>
+        <svg ref={momoRef} id="dr-momo" className="dream-momo" style={{ transform: "translate3d(calc(50vw - 88px), calc(40vh - 100px), 0)" }} viewBox="0 0 1389 2058" role="img" aria-label="Momo terbang di mimpi">
+          <g ref={momoGroupRef} id="dr-mg">
+            <g ref={tailGroupRef} id="dr-tail">
               <path d={M.tail} fill="#2e0d06" />
               <path d={M.bow} fill="#2e0d06" />
             </g>
-
-            <g ref={wingLRef}>
+            <g ref={wingLRef} id="dr-wl">
               <path d={M.flapL} fill="#2e0d06" />
               <path d={M.o12} fill="#e4551b" />
             </g>
-
-            <g ref={wingRRef}>
+            <g ref={wingRRef} id="dr-wr">
               <path d={M.flapR} fill="#2e0d06" />
               <path d={M.o11} fill="#e4551b" />
             </g>
-
-            <g id="bodyCore">
+            <g>
               <path d={M.body} fill="#2e0d06" />
               <path d={M.green} fill="#b5da93" />
               <path d={M.w9} fill="#e4551b" />
@@ -591,8 +749,7 @@ export function DreamLoader({
               <path d={M.d3} fill="#e4551b" />
               <path d={M.d4} fill="#e4551b" />
             </g>
-
-            <g id="faceGroup" transform="translate(0, -34)">
+            <g transform="translate(0, -34)">
               <path d={M.eyeLp} fill="#380c02" />
               <path d={M.eyeLh} fill="#fff" transform="translate(0, -8)" />
               <path d={M.eyeRp} fill="#380c02" />
@@ -603,36 +760,108 @@ export function DreamLoader({
         </svg>
       </section>
 
-      <div
-        ref={sharedRef}
-        className="dream-shared"
-        style={{ left: "50%", bottom: "42px", transform: "translateX(-50%)" }}
-        role="status"
-        aria-live="polite"
-      >
+      {shouldAskNickname ? (
+        <div
+          className={`dream-name-bubble${showDreamBubble ? " is-open" : ""}${dreamNamePhase === "react" ? " is-react" : ""}`}
+          data-testid="dream-name-bubble"
+          data-nui-off="true"
+        >
+          <span className="dream-name-tail" aria-hidden="true" />
+          {classBadge ? (
+            <div className="dream-class-badge" data-testid="r83-entry-class-badge">
+              {classBadge}
+            </div>
+          ) : null}
+          <p className="dream-name-prompt" data-testid="dream-name-prompt" aria-live="polite">
+            {dreamNamePhase === "react"
+              ? `Oooo... ${submittedName}... zzz...`
+              : "Zzz... eh, siapa nama panggilanmu?"}
+          </p>
+          <div className={`dream-name-collapse${dreamNamePhase === "react" ? " is-collapsed" : ""}`}>
+            <div className="dream-name-collapse-inner">
+              <form
+                className="dream-name-form"
+                data-nui-off="true"
+                onSubmit={(e) => {
+                  void handleNicknameSubmit(e);
+                }}
+              >
+                <input
+                  ref={nameInputRef}
+                  type="text"
+                  className="dream-name-input"
+                  data-testid="r83-entry-name-input"
+                  data-nui-off="true"
+                  maxLength={MAX_NICKNAME_CHARS}
+                  placeholder="Contoh: Rani"
+                  autoComplete="off"
+                  aria-label="Nama panggilan"
+                  disabled={submitting || dreamNamePhase === "react"}
+                  value={nameInput}
+                  onChange={(e) => {
+                    setNameInput(e.target.value);
+                    if (nameError) setNameError(null);
+                  }}
+                />
+                <button
+                  type="submit"
+                  className="dream-name-submit"
+                  data-testid="r83-entry-submit"
+                  data-nui-off="true"
+                  disabled={cleanedName.length === 0 || submitting || dreamNamePhase === "react"}
+                >
+                  {submitting ? "Menyimpan…" : "Lanjut"}
+                </button>
+              </form>
+              {nameError ? (
+                <p className="dream-name-error" role="alert" data-testid="r83-entry-submit-error">
+                  {nameError}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        </div>
+      ) : null}
+
+      <div ref={sharedRef} id="dr-shared" className={`dream-shared${loadFailed ? " is-retry-open" : ""}`} role="status" aria-live="polite">
         <div
           ref={barUiRef}
+          id="dr-barui"
           className="dream-bar-ui"
           role="progressbar"
           aria-label="Memuat Sketchbook Universe"
           aria-valuemin={0}
           aria-valuemax={100}
           aria-valuenow={progress}
+          aria-valuetext={statusText}
         >
-          <div ref={barFillRef} className="dream-bar-fill" />
-          <span ref={barTextRef} className="dream-bar-text" data-testid="dream-loader-status">
-            {progress}% · {statusText}
+          <div ref={barFillRef} id="dr-fill" className="dream-bar-fill" />
+          <span ref={barTextRef} id="dr-text" className="dream-bar-text" data-testid="dream-loader-status">
+            {progress}%
           </span>
         </div>
-        {loadFailed && (
-          <button className="dream-retry-btn" type="button" data-testid="dream-loader-retry" onClick={() => retryWarmRef.current()}>
-            Coba lagi
-          </button>
-        )}
-        <div ref={bubbleCopyRef} className="dream-bubble-copy" aria-hidden="true">
+        {loadFailed ? (
+          <div className="dream-retry-wrap">
+            <p className="dream-retry-msg">{statusText}</p>
+            <div className="dream-retry-actions">
+              <button className="dream-retry-btn" type="button" data-testid="dream-loader-retry" onClick={() => retryWarmRef.current()}>
+                Coba lagi
+              </button>
+              <button
+                className="dream-retry-btn dream-retry-btn--mouse"
+                type="button"
+                data-testid="dream-loader-mouse-fallback"
+                onClick={() => mouseFallbackRef.current()}
+              >
+                Lanjut pakai mouse
+              </button>
+            </div>
+          </div>
+        ) : null}
+        <div ref={bubbleCopyRef} id="dr-copy" className="dream-bubble-copy" aria-hidden="true">
           Zzz... coba sapa aku, dong.
         </div>
-        <div ref={bubbleTailRef} className="dream-bubble-tail" aria-hidden="true" />
+        <div ref={bubbleTailRef} id="dr-tail2" className="dream-bubble-tail" aria-hidden="true" />
       </div>
     </main>
   );

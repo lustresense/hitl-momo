@@ -1,0 +1,271 @@
+/*
+ * Kartu kamera oranye sampul r8.3 -> morph -> PIP kiri-bawah (`proto-html/r83/index.html:24-59, 201-205, 261-282`).
+ * Di-scope di bawah [data-ui="r83"].
+ */
+
+[data-ui="r83"].r83-cover-root #camera.toggle-card {
+  position: fixed;
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+  width: 290px;
+  padding: 14px;
+  user-select: none;
+  color: var(--nb-paper);
+  background: var(--nb-orange);
+  border: 3px solid transparent;
+  border-radius: 18px;
+  box-shadow: 0 9px 0 0 var(--nb-orange), var(--lc-sh);
+  will-change: top, left, width, height;
+}
+
+[data-ui="r83"].r83-cover-root #camera .video-wrap,
+[data-ui="r83"].r83-cover-root #camera .toggle-row,
+[data-ui="r83"].r83-cover-root #camera .camera-select-wrap { position: relative; z-index: 2; }
+
+[data-ui="r83"].r83-cover-root #camera .video-wrap {
+  display: block;
+  width: 100%;
+  height: 0;
+  aspect-ratio: 5 / 4;
+  overflow: hidden;
+  border-radius: 14px;
+  border: 0 solid var(--nb-ink);
+  background: transparent;
+  opacity: 0;
+  pointer-events: none;
+  transition: height .76s cubic-bezier(.16, 1, .3, 1), border-width .16s ease, opacity .4s ease;
+}
+
+[data-ui="r83"].r83-cover-root #stage #camera.on:not(.pip):not(.morphing) .video-wrap,
+[data-ui="r83"].r83-cover-root #stage[data-phase="launch"] #camera:not(.pip):not(.morphing) .video-wrap {
+  height: calc(100% - 67px);
+  min-height: 0;
+  opacity: 1;
+  border-width: 2px;
+  background: var(--nb-ink);
+  pointer-events: auto;
+}
+
+[data-ui="r83"].r83-cover-root #camera .camera-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 38%, #292d31, #1e2126 73%);
+  color: var(--nb-paper);
+}
+
+[data-ui="r83"].r83-cover-root #camera .camera-guide {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  z-index: 2;
+}
+
+[data-ui="r83"].r83-cover-root #camera .camera-video::before,
+[data-ui="r83"].r83-cover-root #camera .camera-guide::before {
+  content: "";
+  position: absolute;
+  inset: 11px;
+  border: 1px dashed rgba(255, 250, 240, .13);
+  border-radius: 12px;
+  pointer-events: none;
+}
+
+[data-ui="r83"].r83-cover-root #camera .camera-video::after,
+[data-ui="r83"].r83-cover-root #camera .camera-guide::after {
+  content: "";
+  position: absolute;
+  width: 40%;
+  height: 28%;
+  border: 2px solid rgba(255, 250, 240, .17);
+  border-radius: 14px;
+  transform: rotate(-3deg);
+  pointer-events: none;
+}
+
+[data-ui="r83"].r83-cover-root #camera.pip .camera-guide,
+[data-ui="r83"].r83-cover-root #camera.pip .camera-video::before,
+[data-ui="r83"].r83-cover-root #camera.pip .camera-video::after,
+[data-ui="r83"].r83-cover-root #camera.morphing .camera-guide {
+  display: none;
+}
+
+[data-ui="r83"].r83-cover-root #camera .video-inner {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, .58);
+  background: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, .06) 1px, transparent 1.2px) 0 0 / 18px 18px, #1e2126;
+  opacity: 1;
+  transition: opacity .3s ease;
+}
+
+[data-ui="r83"].r83-cover-root #camera.has-stream .video-inner { opacity: 0; pointer-events: none; }
+[data-ui="r83"].r83-cover-root #camera .video-inner .label {
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 4px 10px;
+  background: rgba(0, 0, 0, .4);
+  border-radius: 6px;
+}
+
+[data-ui="r83"].r83-cover-root #camera .rec-dot {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 7px;
+  border-radius: 999px;
+  background: rgba(17, 17, 17, 0.72);
+  color: var(--nb-yellow);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: .14em;
+  opacity: 0;
+  pointer-events: none;
+}
+[data-ui="r83"].r83-cover-root #camera.on .rec-dot { opacity: 1; }
+[data-ui="r83"].r83-cover-root #camera .rec-dot::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--nb-yellow); }
+
+[data-ui="r83"].r83-cover-root #camera .toggle-row { display: flex; justify-content: space-between; align-items: center; gap: 14px; min-height: 34px; padding: 2px 2px 0; }
+[data-ui="r83"].r83-cover-root #camera .cam-id { display: flex; align-items: center; gap: 10px; }
+[data-ui="r83"].r83-cover-root #camera .cam-badge { display: grid; place-items: center; flex: none; width: 32px; height: 32px; border-radius: 50%; background: var(--lc-pill); color: var(--nb-ink); }
+[data-ui="r83"].r83-cover-root #camera:not(.pip) .toggle-label { font-size: 13px; font-weight: 900; letter-spacing: .18em; color: var(--nb-ink); }
+
+[data-ui="r83"].r83-cover-root #camera .toggle-switch {
+  position: relative;
+  width: 46px;
+  height: 26px;
+  flex: none;
+  padding: 0;
+  border: 0;
+  border-radius: 99px;
+  background: var(--ink);
+  appearance: none;
+  cursor: pointer;
+  transition: background .22s ease;
+}
+[data-ui="r83"].r83-cover-root #camera .toggle-switch::after { content: ""; position: absolute; top: 4px; left: 4px; width: 18px; height: 18px; background: var(--nb-paper); border-radius: 50%; transition: transform .25s cubic-bezier(.16, 1, .3, 1); }
+[data-ui="r83"].r83-cover-root #camera.on .toggle-switch { background: var(--green-strong); }
+[data-ui="r83"].r83-cover-root #camera.on .toggle-switch::after { transform: translateX(20px); }
+[data-ui="r83"].r83-cover-root #camera.locked .toggle-row { opacity: .78; }
+[data-ui="r83"].r83-cover-root #camera.locked .toggle-switch { background: #6b665b; cursor: not-allowed; }
+[data-ui="r83"].r83-cover-root #camera.locked .toggle-switch::after {
+  background: var(--nb-paper) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23111' stroke-width='2.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='11' width='14' height='9' rx='2'/%3E%3Cpath d='M8 11V8a4 4 0 0 1 8 0v3'/%3E%3C/svg%3E") center/12px no-repeat;
+}
+[data-ui="r83"].r83-cover-root #camera.nudge .toggle-switch { animation: r83Nudge 1.15s ease-out 3; }
+@keyframes r83Nudge { 0% { box-shadow: 0 0 0 0 rgba(240, 212, 135, .95); } 100% { box-shadow: 0 0 0 13px rgba(240, 212, 135, 0); } }
+
+[data-ui="r83"].r83-cover-root #camera .camera-select-wrap { width: 100%; position: relative; }
+[data-ui="r83"].r83-cover-root #camera .camera-select-wrap::after {
+  content: "\2304";
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-56%);
+  color: var(--nb-green-press);
+  font-size: 16px;
+  line-height: 1;
+  pointer-events: none;
+}
+[data-ui="r83"].r83-cover-root #camera .camera-select {
+  width: 100%;
+  appearance: none;
+  padding: 8px 34px 8px 10px;
+  border: 2.5px solid transparent;
+  border-radius: 14px;
+  background: var(--lc-pill);
+  color: var(--nb-green-press);
+  font-size: 11px;
+  font-weight: 800;
+  text-align: center;
+}
+[data-ui="r83"].r83-cover-root #camera .camera-select:disabled {
+  opacity: 1;
+  -webkit-text-fill-color: var(--nb-green-press);
+  cursor: default;
+}
+
+[data-ui="r83"].r83-cover-root #camera.morphing,
+[data-ui="r83"].r83-cover-root #camera.pip { z-index: 39; }
+
+[data-ui="r83"].r83-cover-root #camera.morphing .toggle-row,
+[data-ui="r83"].r83-cover-root #camera.morphing .camera-select-wrap {
+  opacity: 0;
+  transform: translateY(16px);
+  pointer-events: none;
+  transition: opacity .09s ease, transform .16s ease;
+}
+
+[data-ui="r83"].r83-cover-root #camera.morphing .video-wrap,
+[data-ui="r83"].r83-cover-root #camera.pip .video-wrap {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 11px;
+  opacity: 1;
+}
+
+[data-ui="r83"].r83-cover-root #camera.pip,
+[data-ui="r83"].r83-cover-root #camera.pip.on {
+  display: block;
+  padding: 0;
+  gap: 0;
+  overflow: hidden;
+  background: #1e2126;
+  border: 3px solid transparent;
+  border-radius: 14px;
+  box-shadow: var(--lc-sh);
+}
+
+[data-ui="r83"].r83-cover-root #camera.pip .cam-id,
+[data-ui="r83"].r83-cover-root #camera.pip .camera-select-wrap,
+[data-ui="r83"].r83-cover-root #camera.pip .rec-dot { display: none; }
+
+[data-ui="r83"].r83-cover-root #camera.pip .toggle-row {
+  display: flex;
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  z-index: 10;
+  min-height: 0;
+  padding: 0;
+  gap: 0;
+}
+
+[data-ui="r83"].r83-cover-root #camera.pip .toggle-switch { transform: scale(.72); transform-origin: bottom right; }
+
+[data-ui="r83"] #cam-nudge {
+  position: fixed;
+  left: 22px;
+  bottom: 158px;
+  z-index: 45;
+  display: none;
+  max-width: min(260px, calc(100vw - 24px));
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--nb-ink);
+}
+[data-ui="r83"] #cam-nudge.show { display: block; }

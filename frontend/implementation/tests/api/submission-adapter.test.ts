@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { SubmissionAdapter } from "@/src/api/submission-adapter";
-import { MemoryOutboxStorage, OutboxQueue } from "@/src/api/outbox";
+import { MemoryOutboxStorage, OutboxQueue, type OutcomeOutboxJob } from "@/src/api/outbox";
 import { SubmissionClient } from "@/src/api/submission-client";
 import type { FlowDecisionSnapshot, FlowGameplayResultSnapshot } from "@/src/app/state-machine";
 
@@ -112,5 +112,59 @@ describe("SubmissionAdapter (CAN-05 & CAN-06 Orchestration)", () => {
     const outJob = jobs.find((j) => j.type === "outcome");
     expect(outJob?.submissionKey).toBe("key-2");
     expect((outJob as any).payload.outcome).toBe("fail");
+  });
+
+  it("maps 'neutral' and any unsupported behavior to 'unresolved' for OutcomeBody compatibility", async () => {
+    const storage = new MemoryOutboxStorage();
+    const mockClient = {
+      createSubmission: async () => ({ id: 10, status: "created" }),
+      recordOutcome: async () => ({ id: 10, status: "updated" }),
+    } as unknown as SubmissionClient;
+
+    const outbox = new OutboxQueue({ client: mockClient, storage });
+    let counter = 0;
+    const adapter = new SubmissionAdapter({
+      outbox,
+      classContext: () => ({ joinToken: "tok-test-1", studentId: 9 }),
+      idGenerator: () => `key-beh-${++counter}`,
+    });
+
+    await adapter.handleDecisionApplied({ ...dummySnapshot, attemptId: "att-neutral" });
+    await adapter.handleGameplayResult({
+      attemptId: "att-neutral",
+      levelId: "stage-3-validation",
+      outcome: "fail",
+      behavior: "neutral",
+    });
+
+    await adapter.handleDecisionApplied({ ...dummySnapshot, attemptId: "att-unknown" });
+    await adapter.handleGameplayResult({
+      attemptId: "att-unknown",
+      levelId: "stage-3-validation",
+      outcome: "fail",
+      behavior: "custom-invalid" as FlowGameplayResultSnapshot["behavior"],
+    });
+
+    await adapter.handleDecisionApplied({ ...dummySnapshot, attemptId: "att-danger" });
+    await adapter.handleGameplayResult({
+      attemptId: "att-danger",
+      levelId: "stage-3-validation",
+      outcome: "fail",
+      behavior: "danger",
+    });
+
+    const outJobs = (await storage.getAll()).filter((j): j is OutcomeOutboxJob => j.type === "outcome");
+    expect(outJobs.find((j) => j.submissionKey === "key-beh-1")?.payload).toEqual({
+      outcome: "fail",
+      behavior: "unresolved",
+    });
+    expect(outJobs.find((j) => j.submissionKey === "key-beh-2")?.payload).toEqual({
+      outcome: "fail",
+      behavior: "unresolved",
+    });
+    expect(outJobs.find((j) => j.submissionKey === "key-beh-3")?.payload).toEqual({
+      outcome: "fail",
+      behavior: "danger",
+    });
   });
 });

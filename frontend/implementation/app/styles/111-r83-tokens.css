@@ -1,0 +1,328 @@
+/*
+ * r8.3 tokens + bold neobrutalism base.
+ * Ported verbatim from proto-html/r83/shared/tokens.css:1-30 and proto-html/r83/shared/bold.css:1-19
+ * (plus --nb-body and --nb-danger from proto-html/r83/shared/layout.css:2).
+ * All selectors are scoped under [data-ui="r83"] so legacy flag=0 screens are 100% untouched.
+ */
+
+/* ---------- tokens.css:2-13, 17 + layout.css:2 (--nb-body, --nb-danger) ---------- */
+[data-ui="r83"] {
+  --paper: #f7f5ea;
+  --paper-light: #f7f5ea;
+  --ink: #23211d;
+  --ink-strong: #111111;
+  --green-strong: #4a8c1f;
+  --orange: #df6930;
+  --orange-deep: #ba4c10;
+  --nb-ink: #111111;
+  --nb-paper: #fffaf0;
+  --nb-bg: #f7f5ea;
+  --nb-orange: #ef7a37;
+  --nb-orange-press: #df6930;
+  --nb-orange-deep: #ba4c10;
+  --nb-leaf: #c8d9a4;
+  --nb-leaf-soft: #eff3db;
+  --nb-green: #4a8c1f;
+  --nb-green-press: #3e771a;
+  --nb-yellow: #f0d487;
+  --nb-sky: #a8c8d8;
+  --nb-border: 2.5px;
+  --nb-shadow: 4px 4px 0 var(--nb-ink);
+  --nb-shadow-sm: 3px 3px 0 var(--nb-ink);
+  --nb-radius: 16px;
+  --nb-ease-pop: cubic-bezier(.34, 1.56, .64, 1);
+  --shadow: 0 2px 2px rgba(55, 31, 13, .10), 0 8px 18px rgba(55, 31, 13, .12), 0 24px 46px rgba(55, 31, 13, .10);
+  --nb-ring-track: #2b2822;
+  --nb-ring-fill: #4a8c1f;
+  --nb-ring-halo: #f0d487;
+  --nb-ring-focus: #111111;
+  --nb-body: 16px;
+  --nb-danger: #d94336;
+}
+
+/* ---------- tokens.css:14 (scoped container base) ---------- */
+[data-ui="r83"] {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-body);
+  color: var(--nb-ink);
+  background: var(--nb-paper);
+}
+
+/* ---------- tokens.css:15-16 (nb-btn) ---------- */
+[data-ui="r83"] .nb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 10px 18px;
+  font-weight: 800;
+  font-size: 15px;
+  line-height: 1.1;
+  color: var(--nb-ink);
+  background: var(--nb-paper);
+  border: var(--nb-border) solid var(--nb-ink);
+  border-radius: 14px;
+  box-shadow: var(--nb-shadow-sm);
+  transition: transform .12s ease, box-shadow .12s ease;
+}
+
+[data-ui="r83"] .nb-btn:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--nb-ink);
+}
+
+/* ---------- tokens.css:18-30 (thumb-confirm) ---------- */
+[data-ui="r83"] .thumb-confirm {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: 0;
+  padding: 0;
+  font: inherit;
+  color: var(--nb-ink);
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+  cursor: pointer;
+}
+
+[data-ui="r83"] .thumb-confirm:focus-visible {
+  outline: 3px solid var(--nb-ring-focus);
+  outline-offset: 4px;
+  border-radius: 12px;
+}
+
+[data-ui="r83"] .thumb-confirm__face {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: var(--nb-paper);
+  border: var(--nb-border) solid var(--nb-ink);
+  box-shadow: var(--nb-shadow-sm);
+  transition: transform .15s var(--nb-ease-pop);
+}
+
+[data-ui="r83"] .thumb-confirm__ring {
+  position: absolute;
+  inset: -2px;
+  width: calc(100% + 4px);
+  height: calc(100% + 4px);
+}
+
+[data-ui="r83"] .thumb-confirm__track {
+  fill: none;
+  stroke: var(--nb-ring-track);
+  stroke-width: 6;
+}
+
+[data-ui="r83"] .thumb-confirm__fill {
+  fill: none;
+  stroke: var(--nb-ring-fill);
+  stroke-width: 6;
+  stroke-linecap: round;
+}
+
+[data-ui="r83"] .thumb-confirm__thumb {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+
+[data-ui="r83"] .thumb-confirm__label {
+  font-weight: 800;
+  font-size: 14px;
+  line-height: 1.2;
+  text-align: center;
+  padding: 4px 12px;
+  border: var(--nb-border) solid var(--nb-ink);
+  border-radius: 999px;
+  background: var(--nb-paper);
+  color: var(--nb-ink);
+}
+
+[data-ui="r83"] .thumb-confirm.is-holding .thumb-confirm__face {
+  transform: scale(1.06);
+  box-shadow: 0 0 0 6px var(--nb-ring-halo), var(--nb-shadow-sm);
+}
+
+[data-ui="r83"] .thumb-confirm.is-holding .thumb-confirm__label {
+  background: var(--nb-ink);
+  color: var(--nb-paper);
+}
+
+[data-ui="r83"] .thumb-confirm.is-confirmed .thumb-confirm__face {
+  animation: r83-thumb-confirm-pulse .45s var(--nb-ease-pop);
+}
+
+@keyframes r83-thumb-confirm-pulse {
+  0% {
+    transform: scale(1);
+    box-shadow: 0 0 0 0 var(--nb-ring-fill);
+  }
+  50% {
+    transform: scale(1.18);
+    box-shadow: 0 0 0 10px transparent;
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-ui="r83"] .thumb-confirm__face,
+  [data-ui="r83"] .thumb-confirm.is-confirmed .thumb-confirm__face {
+    transition: none;
+    animation: none;
+  }
+}
+
+/* ---------- bold.css:3-19 (Revisi 2: bold neobrutalism overrides) ---------- */
+[data-ui="r83"] {
+  --nb-border: 3px;
+  --nb-shadow: 5px 5px 0 var(--nb-ink);
+  --nb-shadow-sm: 3px 3px 0 var(--nb-ink);
+  --nb-h1: clamp(28px, 3.6vw, 44px);
+  --nb-h2: clamp(22px, 2.6vw, 32px);
+}
+
+/* bold.css:4 */
+[data-ui="r83"] h1,
+[data-ui="r83"] h2,
+[data-ui="r83"] h3,
+[data-ui="r83"] .k-title,
+[data-ui="r83"] .guide-title,
+[data-ui="r83"] .bm-title,
+[data-ui="r83"] .bm-number,
+[data-ui="r83"] .bm-tag,
+[data-ui="r83"] .tut-front__number,
+[data-ui="r83"] .g-head b,
+[data-ui="r83"] .ending-recap__chapter,
+[data-ui="r83"] .sticker .lab,
+[data-ui="r83"] .ruler-heading,
+[data-ui="r83"] .part b,
+[data-ui="r83"] .rc-title {
+  font-family: var(--font-head) !important;
+  font-weight: 400 !important;
+  letter-spacing: .012em !important;
+  text-transform: none;
+}
+
+/* bold.css:5 */
+[data-ui="r83"] .k-text,
+[data-ui="r83"] .guide-copy,
+[data-ui="r83"] .bm-name,
+[data-ui="r83"] .tut-gesture .gt,
+[data-ui="r83"] .ending-recap__line,
+[data-ui="r83"] .part span,
+[data-ui="r83"] .lead,
+[data-ui="r83"] .rc-text {
+  font-family: var(--font-body) !important;
+  font-weight: 500 !important;
+  letter-spacing: 0 !important;
+}
+
+/* bold.css:7-10, 19 (bubble: one radius all round, one tail on the side that faces Momo) */
+[data-ui="r83"] .r83-bubble,
+[data-ui="r83"] .r83-bubble[data-side="right"],
+[data-ui="r83"] #su-bubble,
+[data-ui="r83"] #su-bubble[data-side="right"] {
+  font-family: var(--font-body);
+  font-size: clamp(15px, 1.1vw, 18px);
+  font-weight: 500;
+  line-height: 1.4;
+  border-width: var(--nb-border);
+  border-radius: 24px;
+  padding: 12px 18px;
+}
+
+[data-ui="r83"] .r83-bubble strong,
+[data-ui="r83"] #su-bubble strong {
+  font-weight: 700;
+  background: linear-gradient(transparent 58%, var(--nb-yellow) 58%);
+}
+
+[data-ui="r83"] .r83-bubble::after,
+[data-ui="r83"] #su-bubble::after {
+  width: 18px;
+  height: 18px;
+  left: -11px;
+  border-radius: 0 0 0 7px;
+}
+
+[data-ui="r83"] .r83-bubble[data-side="right"]::after,
+[data-ui="r83"] #su-bubble[data-side="right"]::after {
+  left: auto;
+  right: -11px;
+  border-radius: 0 7px 0 0;
+}
+
+/* bold.css:12-14 */
+[data-ui="r83"] .fc {
+  border-width: 4px;
+  box-shadow: 8px 8px 0 var(--nb-ink);
+}
+
+[data-ui="r83"] .logo-slot .su-logo {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+[data-ui="r83"] .su-logo .lg-ink {
+  fill: var(--nb-ink);
+}
+
+[data-ui="r83"] .su-logo .lg-pap {
+  fill: var(--nb-paper);
+}
+
+/* bold.css:16 */
+[data-ui="r83"] .guide-copy {
+  font-size: 16px;
+  line-height: 1.4;
+}
+
+[data-ui="r83"] .tut-gesture .gt {
+  font-size: 14px;
+}
+
+[data-ui="r83"] .part span {
+  font-size: 15px;
+}
+
+[data-ui="r83"] .k-text {
+  font-size: 16px;
+}
+
+[data-ui="r83"] .ending-recap__line {
+  font-size: 15px;
+}
+
+[data-ui="r83"] .guide-copy b,
+[data-ui="r83"] .k-text b,
+[data-ui="r83"] .guide-copy strong,
+[data-ui="r83"] .k-text strong {
+  font-weight: 700;
+}
+
+/* bold.css:19 (bubble above Momo in the ending: tail at bottom under her head) */
+[data-ui="r83"] .r83-bubble[data-side="up"]::after,
+[data-ui="r83"] #su-bubble[data-side="up"]::after {
+  left: var(--tail-x, 50%);
+  top: auto;
+  bottom: -11px;
+  transform: translateX(-50%) rotate(45deg);
+  border: 0;
+  border-right: var(--nb-border) solid var(--nb-ink);
+  border-bottom: var(--nb-border) solid var(--nb-ink);
+  border-radius: 0 0 7px 0;
+}

@@ -5,6 +5,7 @@
  * the same pending/committed bookkeeping.
  */
 import type { KAPLAYCtx } from "kaplay";
+import { uiR83 } from "../../config/env";
 import { STICKMAN_ASSET } from "../assets/stickman-svg";
 import { CharacterRuntimeBridge } from "../character/character-runtime-bridge";
 import type { WorldCreation } from "../creation-store";
@@ -17,6 +18,7 @@ import { cloneCreation, createPendingCreation, footprintOf, quarterTurn, rotated
 import { releaseEngine } from "./engine";
 import { resolveHorizontalMovementIntent } from "./movement";
 import { integratedGoalReached, integratedPlacementAllowed, rectanglesOverlap } from "./rules";
+import { worldShapeRects } from "./shape-collider";
 import { writeIntegratedTelemetry } from "./telemetry";
 import type {
   DirectionInput,
@@ -129,7 +131,9 @@ class IntegratedScene {
       isDestroyed: () => this.destroyed,
     });
 
-    this.drawCreation = createCreationRenderer(k, labelFont, () => this.destroyed);
+    this.drawCreation = createCreationRenderer(k, labelFont, () => this.destroyed, {
+      shapeCollider: Boolean(o.shapeCollider ?? uiR83()),
+    });
     for (const item of this.creations.values()) {
       this.rendered.set(item.id, this.drawCreation(item, true));
     }
@@ -185,7 +189,12 @@ class IntegratedScene {
   private setInput(i: DirectionInput): void {
     this.input =
       this.phase === "gameplay" && !this.settled
-        ? { left: Boolean(i?.left), right: Boolean(i?.right), jump: Boolean(i?.jump) }
+        ? {
+            left: Boolean(i?.left),
+            right: Boolean(i?.right),
+            jump: Boolean(i?.jump),
+            ...(typeof i?.axis === "number" && Number.isFinite(i.axis) ? { axis: i.axis } : {}),
+          }
         : noInput();
   }
 
@@ -317,7 +326,8 @@ class IntegratedScene {
     const box = footprintOf(turned);
     const others = this.snapshot().filter((item) => item.id !== current.id).map(asBox);
     if (!integratedPlacementAllowed(box, this.geometry, others)) return false;
-    if (this.phase === "gameplay" && this.playerOverlaps(box)) return false;
+    const useShape = Boolean(this.o.shapeCollider ?? uiR83());
+    if (this.phase === "gameplay" && this.playerOverlapsCreation(turned, useShape)) return false;
 
     const committed = this.phase === "gameplay";
     const previousArt = this.rendered.get(current.id);
@@ -335,8 +345,9 @@ class IntegratedScene {
     return true;
   }
 
-  private playerOverlaps(box: { x: number; y: number; w: number; h: number }): boolean {
-    return rectanglesOverlap({ x: this.player.pos.x, y: this.player.pos.y, w: PLAYER_WIDTH, h: PLAYER_HEIGHT }, box);
+  private playerOverlapsCreation(item: WorldCreation, useShape: boolean): boolean {
+    const playerBox = { x: this.player.pos.x, y: this.player.pos.y, w: PLAYER_WIDTH, h: PLAYER_HEIGHT };
+    return worldShapeRects(item, { useShape }).some((rect) => rectanglesOverlap(playerBox, rect));
   }
 
   /** Lock the pending object in at (x, y) and start the play phase. */

@@ -243,7 +243,17 @@ export interface LabWorkerErrorMsg {
   message: string;
 }
 
-export type LabWorkerOutboundMsg = LabWorkerReadyMsg | LabWorkerResultMsg | LabWorkerErrorMsg;
+export interface LabWorkerProgressMsg {
+  type: "PROGRESS";
+  sessionEpoch: number;
+  stage: "warming";
+}
+
+export type LabWorkerOutboundMsg =
+  | LabWorkerReadyMsg
+  | LabWorkerResultMsg
+  | LabWorkerErrorMsg
+  | LabWorkerProgressMsg;
 
 let landmarker: HandLandmarker | null = null;
 let currentEpoch = 0;
@@ -528,6 +538,22 @@ function resolveInitPolicy(msg: LabWorkerInitMsg): OwnerGuardPolicy {
   return "fixed-2";
 }
 
+function warmUpLandmarker(instance: HandLandmarker): void {
+  if (typeof OffscreenCanvas === "undefined") return;
+  try {
+    const canvas = new OffscreenCanvas(64, 64);
+    const ctx = canvas.getContext("2d");
+    if (ctx) {
+      ctx.fillStyle = "#111";
+      ctx.fillRect(0, 0, 64, 64);
+    }
+    instance.detectForVideo(canvas as unknown as ImageBitmap, 0);
+    lastMonotonicTs = 0;
+  } catch {
+    /* best-effort cold-start warmup */
+  }
+}
+
 workerScope.onmessage = async (ev: MessageEvent<LabWorkerInboundMsg>) => {
   const msg = ev.data;
   if (!msg || typeof msg !== "object") return;
@@ -580,6 +606,11 @@ workerScope.onmessage = async (ev: MessageEvent<LabWorkerInboundMsg>) => {
       ]);
       cachedVision = vision;
       cachedModelAssetBuffer = modelAssetBuffer;
+      workerScope.postMessage({
+        type: "PROGRESS",
+        sessionEpoch: currentEpoch,
+        stage: "warming",
+      });
       rescueFsm.reset();
       rescueDisabled = false;
       yoloEnabled = msg.yoloEnabled !== undefined ? msg.yoloEnabled : true;
@@ -606,6 +637,7 @@ workerScope.onmessage = async (ev: MessageEvent<LabWorkerInboundMsg>) => {
         minHandPresenceConfidence: msg.minPresenceConfidence ?? 0.45,
         minTrackingConfidence: msg.minTrackingConfidence ?? 0.45,
       });
+      warmUpLandmarker(landmarker);
       workerScope.postMessage({
         type: "READY",
         sessionEpoch: currentEpoch,

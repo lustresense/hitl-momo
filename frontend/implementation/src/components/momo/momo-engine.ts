@@ -10,6 +10,8 @@ import { wingTransform } from "./momo-wing";
 export const EXPRESSIONS = [
   "Senang", "Tenang", "Penasaran", "Berpikir", "Kaget", "Sedih",
   "Bingung", "Ngantuk", "Malu", "Semangat", "Kedip", "Khawatir",
+  "Ngelindur", "SetengahBangun", "Menguap", "Grumbel", "Datar",
+  "MelekDikit", "SenyumMulai", "Bangga", "Terkejut", "Tarik",
 ] as const;
 export type MomoExpression = (typeof EXPRESSIONS)[number];
 
@@ -60,6 +62,7 @@ function momoSVG(id: string): string {
    <path class="brL" ${line} d="M472 480Q522 446 572 480"/><path class="brR" ${line} d="M817 480Q867 446 917 480"/>
    <path class="mS" fill="#380C02" d="${M.mouth}"/><path class="mF" opacity="0" ${ml} d="M620 712H770"/><path class="mK" opacity="0" ${ml} d="M595 752Q695 660 795 752"/><path class="mW" opacity="0" ${ml} d="M600 724Q647.5 690 695 724T790 724"/>
    <ellipse class="mO" cx="695" cy="716" rx="40" ry="50" fill="#380C02"/>
+   <g class="mY" opacity="0"><ellipse cx="695" cy="710" rx="97" ry="116" fill="#380C02"/><ellipse cx="695" cy="766" rx="53" ry="27" fill="#E4551B"/></g>
    <g class="mD"><path fill="#380C02" d="M585 662Q695 650 805 662Q800 775 695 775Q590 775 585 662Z"/><ellipse cx="695" cy="754" rx="42" ry="19" fill="#E4551B"/></g>
    <g class="eL"><g clip-path="url(#${id}L)"><path fill="#380C02" d="${M.eyeLp}"/><path fill="#FEFEFE" d="${M.eyeLh}"/></g><path class="cL" opacity="0" ${ml} d="M470 566Q522 600 574 566"/></g><g class="eR"><g clip-path="url(#${id}R)"><path fill="#380C02" d="${M.eyeRp}"/><path fill="#FEFEFE" d="${M.eyeRh}"/></g><path class="cR" opacity="0" ${ml} d="M815 566Q867 600 919 566"/></g>
    <g class="tear"><g class="tearI"><path ${drop} d="M500 650Q474 700 500 724Q526 700 500 650Z"/></g></g>
@@ -98,7 +101,7 @@ export function fogFrame(level: number, t: number): { x: number; opacity: number
   return { x, opacity };
 }
 
-const FD: Num = { ex: 1, ey: 1, el: 1, er: 1, dx: 0, dy: 0, brA: 0, bLy: 0, bLr: 0, bRy: 0, bRr: 0, mS: 1, ms: 1, mF: 0, mK: 0, mW: 0, mdy: 0, mrot: 0, mO: 0, os: 1, mD: 0, tear: 0, sweat: 0 };
+const FD: Num = { ex: 1, ey: 1, el: 1, er: 1, dx: 0, dy: 0, brA: 0, bLy: 0, bLr: 0, bRy: 0, bRr: 0, mS: 1, ms: 1, mF: 0, mK: 0, mW: 0, mdy: 0, mrot: 0, mO: 0, os: 1, mY: 0, mD: 0, tear: 0, sweat: 0 };
 const MD: Num = { amp: 1, spd: 1, flut: 1, sway: 1, fl: 0, r: 0 };
 
 const SPECS: Record<MomoExpression, Spec> = {
@@ -109,18 +112,28 @@ const SPECS: Record<MomoExpression, Spec> = {
   Kaget: { f: { ex: 1.2, ey: 1.28, brA: 1, bLy: -44, bRy: -44, mS: 0, mO: 1, dy: -8 }, m: { amp: .5, fl: -16, flut: .8 }, re: [[0, .08, { y: 90, sy: .93, sx: 1.05 }], [.08, .16, { y: -150, sy: 1.08, sx: .95, k: [140, 90] }, "power3.out"], [.24, .8, { y: 0, sy: 1, sx: 1 }, "elastic.out(1,.5)"]] },
   Sedih: { f: { brA: 1, bLr: -16, bRr: 16, bLy: 6, bRy: 6, mS: 0, mK: 1, tear: 1, ex: .95, ey: .95, dy: 12 }, m: { amp: .6, spd: .7, fl: 16, flut: .6, sway: .5, r: -3 }, re: [[0, 1.2, { y: 60, r: -3 }], [1.2, 1.4, { y: 0, r: 0 }]] },
   Bingung: { f: { brA: 1, bLr: -8, bLy: -6, bRr: 4, bRy: -26, mS: 0, mW: 1, mrot: -8, dx: -24 }, m: {}, re: [[0, .35, { r: -8 }], [.35, .5, { r: 7 }], [.85, .5, { r: -5 }], [1.35, .6, { r: 0 }]] },
-  Ngantuk: { f: { el: .45, er: .45, brA: 1, bLy: 30, bRy: 30, mS: 0, mO: 1, os: .45, dy: 6 }, m: { amp: .7, spd: .55, fl: 8, flut: .15, sway: .6 }, re: [[0, 1, { r: 9, y: 50 }, "sine.in"], [1, .16, { r: -3, y: -30 }, "power2.out"], [1.16, .9, { r: 0, y: 0 }]] },
+  Ngantuk: { f: { el: 0, er: 0, brA: 1, bLy: 30, bRy: 30, mS: 0, mO: 1, os: .3, dy: 6 }, m: { amp: .7, spd: .55, fl: 8, flut: .15, sway: .6 }, re: [[0, 1, { r: 9, y: 50 }, "sine.in"], [1, .16, { r: -3, y: -30 }, "power2.out"], [1.16, .9, { r: 0, y: 0 }]] },
   Malu: { f: { dx: -34, dy: 30, ms: .6, ex: .95, ey: .95 }, m: { amp: .8, r: 5 }, re: [[0, .4, { r: 5, y: 20 }], [.4, .8, { r: 0, y: 0 }]] },
-  Semangat: { f: { mS: 0, mD: 1, ex: 1.1, ey: 1.1, brA: 1, bLy: -28, bRy: -28 }, m: { amp: 1.6, spd: 1.7, flut: 2, sway: 1.6 }, re: [[0, .1, { y: 40, sy: .93 }], [.1, .22, { y: -190, sy: 1.07, sx: .96, r: -6, k: [160, 110] }, "power2.out"], [.32, .2, { y: 0, sy: .95, sx: 1.04, r: 0 }, "power2.in"], [.52, .2, { y: -110, sy: 1.04, r: 6 }, "power2.out"], [.72, .5, { y: 0, sy: 1, sx: 1, r: 0 }, "elastic.out(1,.55)"]] },
+  Semangat: { f: { mS: 1, mD: 0, ex: 1.1, ey: 1.1, brA: 1, bLy: -28, bRy: -28 }, m: { amp: 1.6, spd: 1.7, flut: 2, sway: 1.6 }, re: [[0, .1, { y: 40, sy: .93 }], [.1, .22, { y: -190, sy: 1.07, sx: .96, r: -6, k: [160, 110] }, "power2.out"], [.32, .2, { y: 0, sy: .95, sx: 1.04, r: 0 }, "power2.in"], [.52, .2, { y: -110, sy: 1.04, r: 6 }, "power2.out"], [.72, .5, { y: 0, sy: 1, sx: 1, r: 0 }, "elastic.out(1,.55)"]] },
   Kedip: { f: { el: 0, ms: 1.1, mrot: -5 }, m: { amp: 1.1 }, re: [[0, .4, { y: -60, r: -5 }], [.4, .7, { y: 0, r: 0 }]] },
   Khawatir: { f: { brA: 1, bLr: -10, bRr: 10, bLy: -12, bRy: -12, mS: 0, mK: 1, ms: .75, mdy: 6, sweat: 1, dx: 22, dy: -14 }, m: { amp: .8, spd: 1.4, flut: 1.2, fl: 6 }, re: [[0, .12, { r: -3 }], [.12, .12, { r: 3 }], [.24, .12, { r: -3 }], [.36, .12, { r: 3 }], [.48, .4, { r: 0 }]] },
+  Ngelindur: { f: { el: .34, er: .34, mS: 0, mO: 1, os: .3, dy: 4 }, m: { amp: .75, spd: .7, fl: 6, flut: .25 }, re: [[0, .6, { r: 4 }], [.6, .8, { r: 0 }]] },
+  SetengahBangun: { f: { el: .7, er: .7, mS: 0, mF: 1, brA: 1, bLy: 2, bRy: -8, bRr: -6 }, m: { amp: .85, spd: .9, fl: 4 }, re: [[0, .4, { r: -4 }], [.4, .6, { r: 0 }]] },
+  Menguap: { f: { el: 0, er: 0, mS: 0, mY: 1, dy: 0 }, m: { amp: .85, spd: .82, flut: 1.5, sway: 1.0 }, re: [[0, .48, { y: -34, sx: 1.028, sy: 1.04, k: [40, 20] }, "sine.out"], [.48, .68, { y: -38, sx: 1.034, sy: 1.048 }, "sine.inOut"], [1.16, .4, { y: 0, sx: 1, sy: 1 }, "sine.inOut"]] },
+  Grumbel: { f: { el: .5, er: .5, mS: 0, mW: 1, brA: 1, bLy: 4, bRy: -4, bLr: -8, bRr: 8, dy: 8 }, m: { amp: .9, spd: 1.1, r: -3 }, re: [[0, .25, { r: -5 }], [.25, .45, { r: 0 }]] },
+  Datar: { f: { el: .45, er: .45, mS: 0, mF: 1, dy: 6 }, m: { amp: .8, spd: .9 }, re: [] },
+  MelekDikit: { f: { el: .55, er: .55, mS: 0, mF: 1 }, m: { amp: .9, spd: 1, r: 2 }, re: [] },
+  SenyumMulai: { f: { el: .82, er: .82, ms: .65 }, m: { amp: 1.05, spd: 1.1, r: 3 }, re: [[0, .25, { y: -35 }], [.25, .45, { y: 0 }]] },
+  Bangga: { f: { ms: 1.12, ex: 1.06, ey: 1.06, brA: 1, bLy: -16, bRy: -16, dy: -8 }, m: { amp: 1.35, spd: 1.25, flut: 1.3, sway: 1.25, r: 4 }, re: [[0, .14, { y: -70, r: 4 }], [.14, .4, { y: 0, r: 0 }, "elastic.out(1,.55)"]] },
+  Terkejut: { f: { ex: 1.15, ey: 1.22, brA: 1, bLy: -34, bRy: -34, mS: 0, mO: 1, dy: -6 }, m: { amp: 1.1, spd: 1.3 }, re: [[0, .1, { y: -90, sy: 1.05 }], [.1, .45, { y: 0, sy: 1 }, "elastic.out(1,.5)"]] },
+  Tarik: { f: { brA: 1, bLy: -14, bRy: -14, mS: 0, mO: 1, os: .65, dx: -8 }, m: { amp: 1.2, spd: 1.4, r: -7 }, re: [] },
 };
 
 interface Spring { a: number; v: number }
 const spring = (s: Spring, t: number, k: number, c: number, dt: number) => { s.v += (k * (t - s.a) - c * s.v) * dt; s.a += s.v * dt; };
 let uid = 0;
 
-const PARTS = ["root", "tA", "tB", "tC", "bow", "fL", "fR", "brL", "brR", "mS", "mF", "mK", "mW", "lidL", "lidR", "cL", "cR", "mO", "mD", "eL", "eR", "tear", "sweat", "tearI", "sweatI", "fog", "fogI"] as const;
+const PARTS = ["root", "tA", "tB", "tC", "bow", "fL", "fR", "brL", "brR", "mS", "mF", "mK", "mW", "lidL", "lidR", "cL", "cR", "mO", "mY", "mD", "eL", "eR", "tear", "sweat", "tearI", "sweatI", "fog", "fogI"] as const;
 
 export class MomoEngine {
   private g: Record<(typeof PARTS)[number], SVGElement>;
@@ -134,6 +147,7 @@ export class MomoEngine {
   private i: MomoExpression = "Tenang";
   private sp: Record<"fL" | "fR" | "t1" | "t2" | "t3" | "bow", Spring> = { fL: { a: 0, v: 0 }, fR: { a: 0, v: 0 }, t1: { a: 0, v: 0 }, t2: { a: 0, v: 0 }, t3: { a: 0, v: 0 }, bow: { a: 0, v: 0 } };
   private prev = { x: 0, y: 0, r: 0 };
+  private gazeOffset: { x: number; y: number } | null = null;
   private rm = reducedMotionFactor();
   /** Amplitude of the asleep motion (breath, float, nod, wing sag): full, or SLEEP_REDUCED with reduced motion. */
   private sk = this.rm < 1 ? SLEEP_REDUCED : 1;
@@ -188,6 +202,12 @@ export class MomoEngine {
     gsap.to(this.F, { ...FD, ...e.f, duration: instant ? 0 : 0.5, ease: "back.out(1.5)", overwrite: true });
     gsap.to(this.mo, { ...MD, ...e.m, duration: instant ? 0 : 0.7, ease: "sine.inOut", overwrite: true });
     this.react(instant ? 1.2 + Math.random() * 3 : 0);
+    if (instant) this.step(0.016);
+  }
+
+  /** Optional target-following pupil offset in SVG art units (`null` clears gaze). */
+  setGaze(offset: { x: number; y: number } | null): void {
+    this.gazeOffset = offset ? { x: cl(offset.x, -44, 44), y: cl(offset.y, -40, 40) } : null;
   }
 
   /** Scales a motion by `f` (the reduced-motion amplitude by default): distances by `f`, squash and stretch toward 1. Nothing is switched off. */
@@ -225,8 +245,8 @@ export class MomoEngine {
     const e = SPECS[this.i];
     const tl = gsap.timeline({ delay });
     this.rt = tl;
-    // The asleep nod keeps the sleep amplitude, so it stays visible with reduced motion; hops use the lower factor.
-    const f = this.i === "Ngantuk" ? this.sk : this.rm;
+    // The asleep nod keeps the sleep amplitude; Menguap stretches at full sandbox amplitude.
+    const f = this.i === "Ngantuk" ? this.sk : this.i === "Menguap" ? 1 : this.rm;
     e.re.forEach(([at, d, v, ease]) => {
       const { k, ...vals } = v as { k?: number[] } & Record<string, number>;
       tl.to(this.P, { ...this.scaled(vals, f), duration: d, ease: ease || "sine.inOut" }, at);
@@ -246,9 +266,11 @@ export class MomoEngine {
    * Asleep: eyes shut, a slow breath (the body swells 1.5 % and narrows), a gentle float (rises and sinks 7 px,
    * leans 2 degrees), and the wings sag slowly and lift again. All of it keeps moving in reduced motion, at 60 %.
    */
-  sleep(): void {
-    this.set("Ngantuk");
-    gsap.to(this.F, { el: 0, er: 0, os: 0.3, duration: 0.6, ease: "sine.inOut", overwrite: "auto" });
+  sleep(instant = false): void {
+    this.set("Ngantuk", instant);
+    if (!instant) {
+      gsap.to(this.F, { el: 0, er: 0, os: 0.3, duration: 0.6, ease: "sine.inOut", overwrite: "auto" });
+    }
     const k = this.sk;
     this.br = gsap.to(this, { breath: 0.015 * k, duration: 2.1, yoyo: true, repeat: -1, ease: "sine.inOut" });
     this.sway = [this.loop("bob", FLOAT_PX * k), this.loop("tilt", FLOAT_DEG * k)];
@@ -361,7 +383,9 @@ export class MomoEngine {
     tf(g.tA, 0, 0, cl(sp.t1.a, -22, 22), 1, 1, J.j0[0], J.j0[1]); tf(g.tB, 0, 0, cl(sp.t2.a, -22, 22), 1, 1, J.j1[0], J.j1[1]); tf(g.tC, 0, 0, cl(sp.t3.a, -22, 22), 1, 1, J.j2[0], J.j2[1]);
     tf(g.bow, 0, 0, cl(sp.bow.a, -25, 25), 1, 1, 690, 1350);
     // face: eye travel is clamped so the pupils never leave the outline
-    const dx = cl(F.dx!, -44, 44), dy = cl(F.dy!, -40, 40), ex = cl((F.ex! + F.ey!) / 2, 0.6, 1.3), b = this.bl, by = Math.min(dy, 0) * 0.6, oL = cl(F.el! * b, 0, 1), oR = cl(F.er! * b, 0, 1);
+    const gx = this.gazeOffset ? this.gazeOffset.x : F.dx!;
+    const gy = this.gazeOffset ? this.gazeOffset.y : F.dy!;
+    const dx = cl(gx, -44, 44), dy = cl(gy, -40, 40), ex = cl((F.ex! + F.ey!) / 2, 0.6, 1.3), b = this.bl, by = Math.min(dy, 0) * 0.6, oL = cl(F.el! * b, 0, 1), oR = cl(F.er! * b, 0, 1);
     tf(g.eL, dx, dy, 0, ex, ex, 522, 565); tf(g.eR, dx, dy, 0, ex, ex, 867, 565);
     for (const [l, cc, o] of [[g.lidL, g.cL, oL], [g.lidR, g.cR, oR]] as Array<[SVGElement, SVGElement, number]>) {
       l.setAttribute("y", String(626 - 120 * o)); l.setAttribute("height", String(Math.max(0.01, 120 * o))); cc.setAttribute("opacity", String(cl((0.35 - o) / 0.2, 0, 1)));
@@ -369,7 +393,7 @@ export class MomoEngine {
     g.brL.setAttribute("opacity", String(F.brA)); g.brR.setAttribute("opacity", String(F.brA));
     tf(g.brL, dx * 0.3, F.bLy! + by, F.bLr!, 1, 1, 522, 470); tf(g.brR, dx * 0.3, F.bRy! + by, F.bRr!, 1, 1, 867, 470);
     for (const key of ["mS", "mF", "mK", "mW"] as const) { g[key].setAttribute("opacity", String(F[key])); tf(g[key], dx * 0.3, F.mdy!, F.mrot!, F.ms!, F.ms!, 695, 705); }
-    g.mO.setAttribute("opacity", String(F.mO)); tf(g.mO, dx * 0.3, 0, 0, F.os!, F.os!, 695, 716); g.mD.setAttribute("opacity", String(F.mD));
+    g.mO.setAttribute("opacity", String(F.mO)); tf(g.mO, dx * 0.3, 0, 0, F.os!, F.os!, 695, 716); g.mY.setAttribute("opacity", String(F.mY)); g.mD.setAttribute("opacity", String(F.mD));
     g.tear.setAttribute("opacity", String(F.tear)); g.sweat.setAttribute("opacity", String(F.sweat));
   }
 

@@ -1,12 +1,13 @@
 {
   "name": "sketchbook-universe-author-side",
   "private": true,
-  "version": "0.31.0-alpha",
+  "version": "0.32.0-alpha",
   "private_note": "CAN(USER)-owned application side. Frontend-only Next.js static export; partner classifier/backend remain behind client adapters.",
   "scripts": {
     "dev": "next dev",
     "prebuild": "node scripts/copy-ort-wasm.mjs",
     "build": "next build",
+    "build:local": "node scripts/build-local.mjs",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",

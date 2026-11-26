@@ -1,0 +1,1043 @@
+/*
+ * r8.3 Polo Factory surfaces & authentic paper textures.
+ * Ported verbatim from proto-html/r83/shared/lc.css:1-295, scoped to [data-ui="r83"].
+ * Performance guardrails (§5.6): no live fullscreen SVG filter, no mix-blend-mode on
+ * fullscreen overlay layer, no new backdrop-filter; static 256px grain tile in PaperOverlay.
+ */
+
+/* ---------- lc.css:8-20, 202-204 (Polo Factory tokens + cover fiber texture) ---------- */
+[data-ui="r83"] {
+  --lc-ink: var(--nb-ink);
+  --lc-pill: #fff;
+  --lc-soft: var(--nb-leaf-soft);
+  --lc-tone: color-mix(in srgb, var(--nb-leaf) 42%, #fff);
+  --lc-mute: color-mix(in srgb, var(--nb-ink) 70%, transparent);
+  --lc-sh: 0 1px 2px rgba(55, 31, 13, .10), 0 12px 24px -12px rgba(55, 31, 13, .34);
+  --lc-sh-sm: 0 1px 2px rgba(55, 31, 13, .10), 0 7px 14px -9px rgba(55, 31, 13, .32);
+  --nb-ring-track: color-mix(in srgb, var(--nb-ink) 22%, transparent);
+  --lc-line: color-mix(in srgb, var(--nb-orange-deep) 55%, var(--nb-ink));
+  --lc-deep-green: color-mix(in srgb, var(--nb-green-press) 70%, var(--nb-ink));
+  --lc-deep-orange: color-mix(in srgb, var(--nb-orange-deep) 72%, var(--nb-ink));
+  --su-paper-texture: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPScyMDAnIGhlaWdodD0nMjAwJyB2aWV3Qm94PScwIDAgMjAwIDIwMCc+PGcgZmlsbD0nJTIzNmI1MzM1JyBvcGFjaXR5PScwLjA2Jz48Y2lyY2xlIGN4PScxMjUnIGN5PScxODgnIHI9JzI2Jy8+PGNpcmNsZSBjeD0nMTU3JyBjeT0nNDgnIHI9JzQyJy8+PGNpcmNsZSBjeD0nMTAyJyBjeT0nMTI0JyByPSc0MicvPjxjaXJjbGUgY3g9JzEzMScgY3k9JzU3JyByPSczNycvPjxjaXJjbGUgY3g9Jzc5JyBjeT0nNDAnIHI9JzMyJy8+PGNpcmNsZSBjeD0nMTg1JyBjeT0nMTYwJyByPSczNicvPjxjaXJjbGUgY3g9JzE0NCcgY3k9JzI2JyByPSc0MScvPjxjaXJjbGUgY3g9JzE4NycgY3k9JzE2NScgcj0nMjUnLz48L2c+PGcgZmlsbD0nJTIzMmExODBhJyBvcGFjaXR5PScwLjA5Jz48Y2lyY2xlIGN4PScxMjEuNScgY3k9JzEzLjInIHI9JzEnLz48Y2lyY2xlIGN4PScxMzUuMicgY3k9Jzk2LjcnIHI9JzAuOCcvPjxjaXJjbGUgY3g9JzE5OS4xJyBjeT0nMTE5LjMnIHI9JzAuNCcvPjxjaXJjbGUgY3g9JzYuOCcgY3k9Jzk0LjQnIHI9JzAuNCcvPjxjaXJjbGUgY3g9JzExMC4zJyBjeT0nMzkuNycgcj0nMC43Jy8+PGNpcmNsZSBjeD0nMzguNScgY3k9Jzg2LjcnIHI9JzAuNicvPjxjaXJjbGUgY3g9JzEzOC43JyBjeT0nNjQuOScgcj0nMC44Jy8+PGNpcmNsZSBjeD0nMTEwLjgnIGN5PSc0My43JyByPScwLjUnLz48Y2lyY2xlIGN4PScxNDguNicgY3k9JzUxLjcnIHI9JzAuNycvPjxjaXJjbGUgY3g9JzE5My43JyBjeT0nMTMwLjEnIHI9JzAuNCcvPjxjaXJjbGUgY3g9JzQ0LjknIGN5PScxMzcuOScgcj0nMC41Jy8+PC9nPjwvc3ZnPg==");
+}
+
+/* ---------- 1. tombol (lc.css:22-37) ---------- */
+[data-ui="r83"] .nb-btn {
+  font-family: var(--font-body);
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  gap: 14px;
+  padding-right: 10px;
+  color: var(--lc-ink);
+  background: var(--lc-pill);
+  border-color: transparent;
+  border-radius: 14px;
+  box-shadow: var(--lc-sh-sm);
+  transition: transform .14s ease, box-shadow .14s ease, background .16s ease, color .16s ease;
+}
+
+[data-ui="r83"] .nb-btn::after {
+  content: "\2197";
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--lc-ink);
+  color: var(--nb-paper);
+  font: 800 15px/1 var(--font-body);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+[data-ui="r83"] .nb-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: transparent;
+  box-shadow: var(--lc-sh);
+  background: var(--lc-pill);
+}
+
+[data-ui="r83"] .nb-btn:active:not(:disabled) {
+  transform: translateY(1px) scale(.985);
+  border-color: transparent;
+  box-shadow: 0 1px 2px rgba(55, 31, 13, .14);
+}
+
+[data-ui="r83"] .nb-btn.primary,
+[data-ui="r83"] .nb-btn.primary:hover:not(:disabled),
+[data-ui="r83"] #gate[data-state="1"] .gate-go:hover:not(:disabled) {
+  background: var(--nb-orange);
+  border-color: transparent;
+  box-shadow: var(--lc-sh-sm);
+}
+
+[data-ui="r83"] .nb-btn.primary:hover:not(:disabled),
+[data-ui="r83"] #gate[data-state="1"] .gate-go:hover:not(:disabled) {
+  background: var(--nb-orange-press);
+  box-shadow: var(--lc-sh);
+}
+
+[data-ui="r83"] .nb-btn.ghost,
+[data-ui="r83"] .nb-btn.ghost:hover:not(:disabled) {
+  background: var(--lc-tone);
+  border-color: transparent;
+  box-shadow: none;
+  border-style: solid;
+}
+
+[data-ui="r83"] .nb-btn.ghost::after {
+  display: none;
+}
+
+[data-ui="r83"] .nb-btn:disabled {
+  background: var(--lc-tone);
+  color: var(--lc-mute);
+  box-shadow: none;
+  opacity: 1;
+  transform: none;
+}
+
+[data-ui="r83"] .nb-btn:disabled::after {
+  background: color-mix(in srgb, var(--nb-ink) 12%, #fff);
+  color: var(--lc-mute);
+}
+
+[data-ui="r83"] #skip,
+[data-ui="r83"] #replay,
+[data-ui="r83"] #sk-hub,
+[data-ui="r83"] .dream-skip-btn {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+[data-ui="r83"] #skip::after,
+[data-ui="r83"] #replay::after {
+  display: none;
+}
+
+/* ---------- 2. bubble Momo & gate (lc.css:39-52) ---------- */
+[data-ui="r83"] #gate,
+[data-ui="r83"] #bubble,
+[data-ui="r83"] .r83-bubble,
+[data-ui="r83"] #su-bubble,
+[data-ui="r83"] #book-inside-bubble {
+  background: var(--nb-leaf) !important;
+  border-color: transparent !important;
+  border-radius: 22px !important;
+  box-shadow: var(--lc-sh) !important;
+  color: var(--lc-ink);
+}
+
+[data-ui="r83"] #gate::after,
+[data-ui="r83"] #bubble::after,
+[data-ui="r83"] #gate[data-side]::after,
+[data-ui="r83"] .r83-bubble::after,
+[data-ui="r83"] .r83-bubble[data-side]::after,
+[data-ui="r83"] #su-bubble::after,
+[data-ui="r83"] #book-inside-bubble::after,
+[data-ui="r83"] #su-bubble[data-side]::after {
+  background: var(--nb-leaf) !important;
+  border-color: transparent !important;
+}
+
+[data-ui="r83"] .r83-bubble,
+[data-ui="r83"] #su-bubble,
+[data-ui="r83"] #bubble #dialog,
+[data-ui="r83"] #gate-mumble,
+[data-ui="r83"] #book-inside-bubble {
+  font-weight: 600 !important;
+}
+
+[data-ui="r83"] .r83-bubble strong,
+[data-ui="r83"] #su-bubble strong,
+[data-ui="r83"] #bubble #dialog strong {
+  background: var(--lc-ink) !important;
+  color: var(--nb-paper);
+  font-weight: 700;
+  padding: 1px 8px 2px;
+  border-radius: 8px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+
+[data-ui="r83"] .gate-note {
+  border-color: transparent !important;
+  background: var(--lc-soft) !important;
+  border-radius: 14px !important;
+}
+
+[data-ui="r83"] .gate-note__title {
+  color: var(--lc-mute);
+  letter-spacing: .14em;
+}
+
+[data-ui="r83"] .gate-check {
+  font-weight: 700;
+}
+
+[data-ui="r83"] .gate-check .box {
+  border-color: transparent;
+  border-radius: 8px;
+  background: var(--lc-tone);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--nb-ink) 58%, transparent);
+}
+
+[data-ui="r83"] .gate-check input:checked + .box {
+  background: var(--nb-orange);
+  box-shadow: none;
+}
+
+[data-ui="r83"] .gate-go {
+  justify-content: space-between;
+  padding-left: 18px;
+}
+
+[data-ui="r83"] #gate[data-state="2"] .gate-go {
+  color: var(--lc-ink);
+}
+
+[data-ui="r83"] #cam-nudge {
+  border-color: transparent;
+  border-radius: 16px;
+  box-shadow: var(--lc-sh);
+  background: var(--nb-leaf);
+}
+
+/* ---------- 3. cincin cubit / jempol (lc.css:54-62) ---------- */
+[data-ui="r83"] .thumb-confirm__face,
+[data-ui="r83"] .pinch-ring__face {
+  background: var(--lc-pill);
+  border-color: transparent;
+  box-shadow: var(--lc-sh);
+}
+
+[data-ui="r83"] .thumb-confirm__track,
+[data-ui="r83"] .pinch-ring__track {
+  stroke-width: 5;
+}
+
+[data-ui="r83"] .thumb-confirm__fill,
+[data-ui="r83"] .pinch-ring__fill {
+  stroke-width: 5;
+}
+
+[data-ui="r83"] .thumb-confirm__label,
+[data-ui="r83"] .pinch-ring__label {
+  border-color: transparent;
+  background: var(--nb-leaf);
+  box-shadow: var(--lc-sh-sm);
+}
+
+[data-ui="r83"] .thumb-confirm.is-holding .thumb-confirm__face {
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--nb-yellow) 75%, transparent), var(--lc-sh);
+}
+
+[data-ui="r83"] .thumb-confirm.is-holding .thumb-confirm__label {
+  background: var(--lc-ink);
+  color: var(--nb-paper);
+}
+
+[data-ui="r83"] .thumb-confirm__thumb svg {
+  width: 30px;
+  height: 30px;
+  display: block;
+}
+
+[data-ui="r83"] .pinch-help__rail {
+  border-top-color: color-mix(in srgb, var(--nb-ink) 24%, transparent);
+}
+
+/* ---------- 4. chrome kecil (lc.css:64-72) ---------- */
+[data-ui="r83"] #skipbar {
+  border-color: transparent;
+  border-radius: 999px;
+  background: var(--nb-leaf);
+  box-shadow: var(--lc-sh);
+}
+
+[data-ui="r83"] #sk-label {
+  font-weight: 700;
+  letter-spacing: .06em;
+  color: var(--lc-mute);
+}
+
+[data-ui="r83"] #skip {
+  border-radius: 999px;
+  background: var(--lc-pill);
+  color: var(--lc-ink);
+  box-shadow: none;
+}
+
+[data-ui="r83"] #sk-momo {
+  border-color: transparent;
+  border-radius: 999px;
+  background: var(--lc-tone);
+}
+
+[data-ui="r83"] #su-hint,
+[data-ui="r83"] .r83-hint {
+  border-color: transparent;
+  border-radius: 16px;
+  background: var(--nb-leaf);
+  box-shadow: var(--lc-sh-sm);
+  font-weight: 600;
+}
+
+[data-ui="r83"] .k-kicker,
+[data-ui="r83"] .k-chip {
+  border-color: transparent;
+  border-radius: 999px;
+  box-shadow: var(--lc-sh-sm);
+  background: var(--lc-pill);
+}
+
+[data-ui="r83"] .k-chip.good {
+  background: var(--lc-tone);
+}
+
+[data-ui="r83"] .k-chip.warn {
+  background: color-mix(in srgb, var(--nb-yellow) 55%, #fff);
+}
+
+[data-ui="r83"] .k-chip.bad {
+  background: color-mix(in srgb, var(--nb-orange) 28%, #fff);
+}
+
+[data-ui="r83"] .dream-skip-btn {
+  border-color: transparent;
+  background: var(--lc-pill);
+  box-shadow: var(--lc-sh-sm);
+}
+
+/* ---------- 5. toolbar gambar (lc.css:74-82) ---------- */
+[data-ui="r83"] .tut-tools,
+[data-ui="r83"] .nb-toolbar {
+  background: var(--nb-leaf);
+  border-color: transparent;
+  border-radius: 30px;
+  box-shadow: var(--lc-sh);
+}
+
+[data-ui="r83"] .nb-tool {
+  background: transparent;
+  border-color: transparent;
+  border-radius: 22px;
+  font-weight: 700;
+}
+
+[data-ui="r83"] .nb-tool:hover {
+  background: color-mix(in srgb, var(--nb-leaf-soft) 70%, transparent);
+}
+
+[data-ui="r83"] .nb-tool.is-active {
+  background: var(--nb-orange);
+}
+
+[data-ui="r83"] .tut-tool__tick {
+  border-color: transparent;
+  box-shadow: var(--lc-sh-sm);
+}
+
+[data-ui="r83"] .nb-iconbtn {
+  background: var(--nb-leaf);
+  border-color: transparent;
+  border-radius: 999px;
+  box-shadow: var(--lc-sh-sm);
+}
+
+[data-ui="r83"] .nb-iconbtn:hover {
+  transform: translateY(-1px);
+  background: var(--nb-leaf-soft);
+  border-color: transparent;
+  box-shadow: var(--lc-sh);
+}
+
+[data-ui="r83"] .nb-iconbtn:active {
+  transform: scale(.96);
+  border-color: transparent;
+  box-shadow: 0 1px 2px rgba(55, 31, 13, .14);
+}
+
+/* ---------- 6. tiga tebakan Momo (lc.css:84-91) ---------- */
+[data-ui="r83"] .momo-guess {
+  background: transparent;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 0;
+  width: 100%;
+  max-width: none;
+}
+
+[data-ui="r83"] .t3-row {
+  background: var(--lc-pill);
+  border-color: transparent;
+  border-radius: 14px;
+  box-shadow: var(--lc-sh-sm);
+}
+
+[data-ui="r83"] .t3-row.pick:hover:not(:disabled) {
+  background: var(--lc-soft);
+}
+
+[data-ui="r83"] .t3-row.sel {
+  background: var(--lc-ink);
+  color: var(--nb-paper);
+  box-shadow: var(--lc-sh);
+}
+
+[data-ui="r83"] .t3-rank {
+  border-color: transparent;
+  background: var(--lc-tone);
+  color: var(--lc-ink);
+}
+
+[data-ui="r83"] .t3-bar {
+  border-color: transparent;
+  background: var(--lc-tone);
+}
+
+[data-ui="r83"] .t3-row.sel .t3-bar {
+  background: color-mix(in srgb, var(--nb-paper) 24%, transparent);
+}
+
+[data-ui="r83"] .t3-bar i {
+  background: var(--nb-orange);
+}
+
+/* ---------- 7. kartu (lc.css:93-107) ---------- */
+[data-ui="r83"] .fc {
+  border-color: transparent;
+  border-radius: 28px;
+  box-shadow: var(--lc-sh);
+}
+
+[data-ui="r83"] .tut-face,
+[data-ui="r83"] .tut-play {
+  border-color: transparent;
+  box-shadow: var(--lc-sh);
+}
+
+[data-ui="r83"] .tut-front__done,
+[data-ui="r83"] .tut-win {
+  border-color: transparent;
+  box-shadow: var(--lc-sh-sm);
+}
+
+[data-ui="r83"] .tut-steps i {
+  box-sizing: content-box;
+  border-color: transparent;
+  background: var(--lc-pill);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--nb-ink) 18%, transparent);
+}
+
+[data-ui="r83"] .tut-steps i.is-now {
+  background: var(--nb-orange);
+  box-shadow: none;
+}
+
+[data-ui="r83"] .tut-steps i.is-done {
+  background: var(--nb-green);
+  box-shadow: none;
+}
+
+[data-ui="r83"] .tut-back .tut-gesture {
+  border-color: transparent;
+  background: var(--lc-pill);
+  box-shadow: var(--lc-sh-sm);
+}
+
+[data-ui="r83"] .tut-zone__badge {
+  border-color: transparent;
+  box-shadow: var(--lc-sh-sm);
+}
+
+[data-ui="r83"] .tut-handhint__hand {
+  border-color: transparent;
+  background: var(--lc-pill);
+  box-shadow: var(--lc-sh);
+}
+
+[data-ui="r83"] .ending-recap {
+  border-color: transparent;
+  border-radius: 30px;
+  box-shadow: var(--lc-sh);
+  background: color-mix(in srgb, var(--nb-paper) 94%, transparent);
+}
+
+[data-ui="r83"] .ending-recap__counts li {
+  border-color: transparent;
+  border-radius: 999px;
+  background: var(--lc-soft);
+}
+
+[data-ui="r83"] .ending-recap__card {
+  border-color: transparent;
+  border-radius: 16px;
+  box-shadow: var(--lc-sh-sm);
+}
+
+[data-ui="r83"] .rc {
+  border-style: solid;
+  border-color: transparent;
+  background: color-mix(in srgb, var(--nb-leaf) 30%, #fff);
+}
+
+[data-ui="r83"] .rc-slot {
+  border-style: solid;
+  border-color: transparent;
+  background: var(--lc-tone);
+}
+
+[data-ui="r83"] .rc-slot.on,
+[data-ui="r83"] .rc-fly {
+  border-color: transparent;
+  background: var(--lc-pill);
+  box-shadow: var(--lc-sh-sm);
+}
+
+/* ---------- 8. cover: kartu kamera, toggle, select (lc.css:109-117) ---------- */
+[data-ui="r83"] .camera-prototype-root .camera-widget-card.toggle-card:not(.pip) {
+  border-color: transparent !important;
+  box-shadow: 0 9px 0 0 var(--nb-orange), var(--lc-sh) !important;
+}
+
+[data-ui="r83"] .camera-prototype-root .camera-widget-card.toggle-card.morphing,
+[data-ui="r83"] .camera-prototype-root .camera-widget-card.toggle-card.on {
+  box-shadow: var(--lc-sh) !important;
+}
+
+[data-ui="r83"] .camera-prototype-root .toggle-card:not(.pip)::before,
+[data-ui="r83"] .camera-prototype-root .toggle-card:not(.pip)::after {
+  display: none !important;
+}
+
+[data-ui="r83"] .camera-prototype-root .cam-badge {
+  border-color: transparent;
+  background: var(--lc-pill);
+}
+
+[data-ui="r83"] .camera-prototype-root .camera-select {
+  border-color: transparent;
+  border-radius: 14px;
+  background: var(--lc-pill);
+  box-shadow: none;
+  color: var(--nb-green-press);
+}
+
+[data-ui="r83"] .camera-prototype-root .camera-select:disabled {
+  -webkit-text-fill-color: var(--nb-green-press);
+}
+
+[data-ui="r83"] .camera-prototype-root .toggle-card.morphing {
+  box-shadow: var(--lc-sh);
+}
+
+[data-ui="r83"] .camera-prototype-root .toggle-card.pip,
+[data-ui="r83"] .camera-prototype-root .toggle-card.pip.on,
+[data-ui="r83"] #cam-pip,
+[data-ui="r83"] .r83-cam-pip {
+  border-color: transparent;
+  box-shadow: var(--lc-sh);
+}
+
+/* ---------- 9. loader (lc.css:119-123) ---------- */
+[data-ui="r83"] .dream-shared {
+  border-color: transparent;
+  box-shadow: var(--lc-sh);
+  background-color: var(--lc-pill);
+}
+
+[data-ui="r83"] .dream-bar-ui {
+  border-color: transparent;
+  background: var(--lc-pill);
+}
+
+[data-ui="r83"] .dream-bar-fill {
+  background: var(--nb-orange);
+  border-right-color: transparent;
+}
+
+[data-ui="r83"] .dream-bar-text {
+  font-family: var(--font-body);
+  font-weight: 800;
+  letter-spacing: .04em;
+  text-shadow: none;
+}
+
+/* ---------- 10. kontras WCAG AA (lc.css:125-126) ---------- */
+[data-ui="r83"] .nb-btn:focus-visible,
+[data-ui="r83"] .nb-tool:focus-visible,
+[data-ui="r83"] .nb-iconbtn:focus-visible,
+[data-ui="r83"] .t3-row:focus-visible {
+  outline: 3px solid var(--nb-green-press);
+  outline-offset: 3px;
+}
+
+/* ---------- 11. stiker & judul kartu (lc.css:128-131) ---------- */
+[data-ui="r83"] .sticker .sheet {
+  border-color: transparent;
+  background: var(--lc-pill);
+  box-shadow: var(--lc-sh);
+}
+
+[data-ui="r83"] .sticker .tape {
+  border-color: transparent;
+  box-shadow: var(--lc-sh-sm);
+}
+
+[data-ui="r83"] .k-title,
+[data-ui="r83"] .guide-title,
+[data-ui="r83"] .g-head b,
+[data-ui="r83"] .ending-recap__chapter,
+[data-ui="r83"] .sticker .lab,
+[data-ui="r83"] .rc-title {
+  font-family: var(--font-body) !important;
+  font-weight: 800 !important;
+  letter-spacing: -.01em !important;
+}
+
+/* ---------- 12. Momo Polo Factory (lc.css:133-146 + MomoEngine SVG parity) ---------- */
+[data-ui="r83"] #momo .sleep-breath > path[fill="#2e0d06"],
+[data-ui="r83"] #momo .wing-left > path[fill="#2e0d06"],
+[data-ui="r83"] #momo .wing-right > path[fill="#2e0d06"],
+[data-ui="r83"] .r83-momo .sleep-breath > path[fill="#2e0d06"],
+[data-ui="r83"] .r83-momo .wing-left > path[fill="#2e0d06"],
+[data-ui="r83"] .r83-momo .wing-right > path[fill="#2e0d06"],
+[data-ui="r83"] #momo .root > path[fill="#2E0D06" i],
+[data-ui="r83"] #momo .fL > path[fill="#2E0D06" i],
+[data-ui="r83"] #momo .fR > path[fill="#2E0D06" i],
+[data-ui="r83"] .r83-momo .root > path[fill="#2E0D06" i],
+[data-ui="r83"] .r83-momo .fL > path[fill="#2E0D06" i],
+[data-ui="r83"] .r83-momo .fR > path[fill="#2E0D06" i],
+[data-ui="r83"] #dr-mg > g:not([id]) > path[fill="#2e0d06"],
+[data-ui="r83"] #dr-wl > path[fill="#2e0d06"],
+[data-ui="r83"] #dr-wr > path[fill="#2e0d06"] {
+  display: none;
+}
+
+[data-ui="r83"] #momo .tail-twirl path,
+[data-ui="r83"] #momo .tail-twirl circle,
+[data-ui="r83"] #momo .momo-bow path,
+[data-ui="r83"] .r83-momo .tail-twirl path,
+[data-ui="r83"] .r83-momo .tail-twirl circle,
+[data-ui="r83"] .r83-momo .momo-bow path,
+[data-ui="r83"] #momo .tA path,
+[data-ui="r83"] #momo .tA circle,
+[data-ui="r83"] #momo .bow path,
+[data-ui="r83"] .r83-momo .tA path,
+[data-ui="r83"] .r83-momo .tA circle,
+[data-ui="r83"] .r83-momo .bow path,
+[data-ui="r83"] #dr-tail path {
+  fill: var(--lc-deep-green);
+}
+
+[data-ui="r83"] #momo path[fill="#b5da93"],
+[data-ui="r83"] .r83-momo path[fill="#b5da93"],
+[data-ui="r83"] #momo path[fill="#b5da93" i],
+[data-ui="r83"] .r83-momo path[fill="#b5da93" i],
+[data-ui="r83"] #momo path[fill="#B2DB8E" i],
+[data-ui="r83"] .r83-momo path[fill="#B2DB8E" i],
+[data-ui="r83"] #dr-momo path[fill="#b5da93"] {
+  fill: url(#lc-body) #b5da93;
+}
+
+[data-ui="r83"] #momo path[fill="#e4551b"],
+[data-ui="r83"] .r83-momo path[fill="#e4551b"],
+[data-ui="r83"] #momo path[fill="#E4551B" i],
+[data-ui="r83"] .r83-momo path[fill="#E4551B" i],
+[data-ui="r83"] #dr-momo path[fill="#e4551b"] {
+  fill: url(#lc-wing) #e4551b;
+}
+
+[data-ui="r83"] #momo .sleep-breath > path[fill="#e4551b"]:nth-of-type(3),
+[data-ui="r83"] #momo .sleep-breath > path[fill="#e4551b"]:nth-of-type(4),
+[data-ui="r83"] #momo .wing-left > path[fill="#e4551b"],
+[data-ui="r83"] #momo .wing-right > path[fill="#e4551b"],
+[data-ui="r83"] .r83-momo .sleep-breath > path[fill="#e4551b"]:nth-of-type(3),
+[data-ui="r83"] .r83-momo .sleep-breath > path[fill="#e4551b"]:nth-of-type(4),
+[data-ui="r83"] .r83-momo .wing-left > path[fill="#e4551b"],
+[data-ui="r83"] .r83-momo .wing-right > path[fill="#e4551b"],
+[data-ui="r83"] #momo .root > path[fill="#E4551B" i]:nth-of-type(3),
+[data-ui="r83"] #momo .root > path[fill="#E4551B" i]:nth-of-type(4),
+[data-ui="r83"] #momo .fL > path[fill="#E4551B" i],
+[data-ui="r83"] #momo .fR > path[fill="#E4551B" i],
+[data-ui="r83"] .r83-momo .root > path[fill="#E4551B" i]:nth-of-type(3),
+[data-ui="r83"] .r83-momo .root > path[fill="#E4551B" i]:nth-of-type(4),
+[data-ui="r83"] .r83-momo .fL > path[fill="#E4551B" i],
+[data-ui="r83"] .r83-momo .fR > path[fill="#E4551B" i],
+[data-ui="r83"] #dr-mg > g:not([id]) > path[fill="#e4551b"]:nth-of-type(3),
+[data-ui="r83"] #dr-mg > g:not([id]) > path[fill="#e4551b"]:nth-of-type(4),
+[data-ui="r83"] #dr-wl > path[fill="#e4551b"],
+[data-ui="r83"] #dr-wr > path[fill="#e4551b"] {
+  stroke: url(#lc-wing) #e4551b;
+  stroke-width: 46;
+  stroke-linejoin: round;
+}
+
+[data-ui="r83"] #momo path[fill="#380c02"],
+[data-ui="r83"] #momo ellipse[fill="#380c02"],
+[data-ui="r83"] #momo path[fill="#380C02"],
+[data-ui="r83"] #momo ellipse[fill="#380C02"],
+[data-ui="r83"] .r83-momo path[fill="#380c02"],
+[data-ui="r83"] .r83-momo ellipse[fill="#380c02"],
+[data-ui="r83"] .r83-momo path[fill="#380C02"],
+[data-ui="r83"] .r83-momo ellipse[fill="#380C02"],
+[data-ui="r83"] #momo path[fill="#380C02" i],
+[data-ui="r83"] #momo ellipse[fill="#380C02" i],
+[data-ui="r83"] .r83-momo path[fill="#380C02" i],
+[data-ui="r83"] .r83-momo ellipse[fill="#380C02" i],
+[data-ui="r83"] #dr-momo path[fill="#380c02"] {
+  fill: var(--lc-deep-green);
+}
+
+[data-ui="r83"] #momo [stroke="#380C02"],
+[data-ui="r83"] #momo [stroke="#2E0D06"],
+[data-ui="r83"] .r83-momo [stroke="#380C02"],
+[data-ui="r83"] .r83-momo [stroke="#2E0D06"],
+[data-ui="r83"] #momo [stroke="#380C02" i],
+[data-ui="r83"] #momo [stroke="#2E0D06" i],
+[data-ui="r83"] .r83-momo [stroke="#380C02" i],
+[data-ui="r83"] .r83-momo [stroke="#2E0D06" i] {
+  stroke: var(--lc-deep-green);
+}
+
+[data-ui="r83"] #momo,
+[data-ui="r83"] .r83-momo {
+  filter: drop-shadow(0 2px 2px rgba(30, 60, 15, .40)) drop-shadow(0 12px 14px rgba(30, 60, 15, .32));
+}
+
+[data-ui="r83"] #dr-momo {
+  filter: drop-shadow(0 2px 2px rgba(30, 60, 15, .40)) drop-shadow(0 12px 14px rgba(30, 60, 15, .30));
+}
+
+[data-ui="r83"] #sk-momo {
+  display: none;
+}
+
+/* ---------- 13. penggaris (lc.css:148-154) ---------- */
+[data-ui="r83"] #ruler-body {
+  background: linear-gradient(180deg, #f39a64 0%, var(--nb-orange) 52%, #e0672a 100%) !important;
+  border-color: color-mix(in srgb, var(--nb-orange) 55%, var(--nb-orange-deep)) !important;
+  border-radius: 24px !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .38), var(--lc-sh) !important;
+}
+
+[data-ui="r83"] .ruler-tick {
+  border-left-color: color-mix(in srgb, var(--nb-ink) 82%, var(--nb-orange));
+}
+
+[data-ui="r83"] #ruler-needle {
+  background: var(--nb-ink);
+  border-radius: 3px;
+  box-shadow: 0 0 0 2px rgba(255, 250, 240, .85), 0 6px 12px -4px rgba(55, 31, 13, .4);
+}
+
+[data-ui="r83"] .ruler-tick.demo-mark::after {
+  border-color: transparent;
+  box-shadow: 0 0 0 5px var(--nb-yellow), var(--lc-sh-sm);
+}
+
+[data-ui="r83"] #ruler-page .ruler-heading,
+[data-ui="r83"] #ruler-readout {
+  font-family: var(--font-body) !important;
+  font-weight: 800 !important;
+  letter-spacing: -.025em !important;
+}
+
+[data-ui="r83"] #ruler-readout {
+  filter: drop-shadow(0 8px 10px rgba(55, 31, 13, .16)) !important;
+}
+
+/* ---------- 14. pita level (lc.css:156-170) ---------- */
+[data-ui="r83"] .bm-outer--shadow {
+  display: none;
+}
+
+[data-ui="r83"] .bm-outer--body {
+  fill: url(#lc-rib-or) #ef7a37;
+  stroke: color-mix(in srgb, var(--nb-orange) 55%, var(--nb-orange-deep));
+  stroke-width: 2;
+  stroke-linejoin: round;
+}
+
+[data-ui="r83"] .bm-done .bm-outer--body {
+  fill: url(#lc-rib-gr) #7fbf4a;
+  stroke: color-mix(in srgb, #7fbf4a 50%, var(--nb-green-press));
+}
+
+[data-ui="r83"] .bm-locked .bm-outer--body {
+  fill: url(#lc-rib-lk) #cfc9bb;
+  stroke: #948c78;
+}
+
+[data-ui="r83"] .bm-shape {
+  filter: drop-shadow(0 12px 12px rgba(55, 31, 13, .24));
+}
+
+[data-ui="r83"] .bm-stitch {
+  stroke: rgba(255, 250, 240, .55);
+}
+
+[data-ui="r83"] .bm-locked .bm-stitch {
+  stroke: rgba(55, 31, 13, .22);
+}
+
+[data-ui="r83"] .bm-ring-clip,
+[data-ui="r83"] .bm-badge,
+[data-ui="r83"] .bm-ring {
+  box-sizing: content-box;
+  border-color: transparent;
+  box-shadow: var(--lc-sh-sm);
+}
+
+[data-ui="r83"] .bm-notches i {
+  box-sizing: content-box;
+  border-color: transparent;
+  box-shadow: inset 0 0 0 1.5px rgba(55, 31, 13, .22);
+}
+
+[data-ui="r83"] .bm-hint__hand {
+  border-color: transparent;
+  box-shadow: var(--lc-sh);
+}
+
+[data-ui="r83"] .bm-binding i {
+  box-sizing: content-box;
+  border-color: transparent;
+  background: linear-gradient(90deg, #fff 0 38%, #dcd7c8 38% 100%);
+  box-shadow: 0 6px 8px -5px rgba(55, 31, 13, .34);
+}
+
+[data-ui="r83"] .bm-number,
+[data-ui="r83"] .bm-title,
+[data-ui="r83"] .bm-tag {
+  font-family: var(--font-body) !important;
+  font-weight: 800 !important;
+}
+
+/* ---------- 15. kartu tutorial (lc.css:172-176) ---------- */
+[data-ui="r83"] .tut-back {
+  border-radius: 20px 0 0 20px;
+}
+
+[data-ui="r83"] .tut-play {
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 0 20px 20px 0;
+  background-color: color-mix(in srgb, var(--nb-orange) 11%, var(--nb-paper));
+}
+
+[data-ui="r83"] .tut-play::before {
+  width: 22px;
+  background: linear-gradient(90deg, rgba(55, 31, 13, .13), transparent);
+}
+
+[data-ui="r83"] .tut-draw__paper {
+  border-color: transparent;
+  background-color: #fff;
+  box-shadow: var(--lc-sh-sm);
+}
+
+/* ---------- 16. dunia level (lc.css:178-181) ---------- */
+[data-ui="r83"] .art-svg [stroke="#1e2126"] {
+  stroke: var(--lc-line);
+}
+
+[data-ui="r83"] .art-svg [fill="#1e2126"] {
+  fill: var(--lc-line);
+}
+
+[data-ui="r83"] .olabel {
+  border-color: transparent;
+  box-shadow: var(--lc-sh-sm);
+}
+
+/* ---------- 17. cover r8 wordmark & layout (lc.css:183-194) ---------- */
+[data-ui="r83"] #stage::before,
+[data-ui="r83"] #book::before {
+  display: none;
+}
+
+[data-ui="r83"] #cover-hero h1 {
+  color: var(--lc-deep-green) !important;
+  text-shadow: none !important;
+}
+
+[data-ui="r83"] #cover-hero p {
+  color: var(--lc-deep-green) !important;
+}
+
+@media (min-width: 900px) {
+  [data-ui="r83"] #cover-hero h1 {
+    line-height: .98 !important;
+  }
+  [data-ui="r83"] #cover-hero h1:not(.h2) {
+    order: 1 !important;
+  }
+  [data-ui="r83"] #cover-hero h1.h2 {
+    order: 2 !important;
+  }
+  [data-ui="r83"] #cover-hero p {
+    order: 3 !important;
+    margin: calc(var(--fs) * .17) 0 0 !important;
+  }
+}
+
+/* ---------- 18. panel gagal di dalam bubble Momo (lc.css:196-199) ---------- */
+[data-ui="r83"] .fail-ask {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  margin-top: 10px;
+}
+
+[data-ui="r83"] .fail-ask .k-title {
+  margin: 0;
+  font-size: var(--nb-h2);
+  line-height: 1.05;
+}
+
+[data-ui="r83"] .fail-ask .row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+/* ---------- 19. tekstur kertas autentik & grid dots (lc.css:206-237) ---------- */
+[data-ui="r83"].r83-screen-frame {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Cover (sampul): tekstur serat kertas abu-abu autentik + dot grid */
+[data-ui="r83"][data-variant="cover"],
+[data-ui="r83"] #stage {
+  background-color: var(--nb-paper) !important;
+  background-image: var(--su-paper-texture), radial-gradient(circle at 1px 1px, rgba(49, 45, 38, .18) 1.1px, transparent 1.5px) !important;
+  background-size: 200px 200px, 22px 22px !important;
+}
+
+[data-ui="r83"][data-variant="cover"]::after,
+[data-ui="r83"] #stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  display: block !important;
+  background-image: var(--su-paper-texture), radial-gradient(circle at 1px 1px, rgba(49, 45, 38, .18) 1.1px, transparent 1.5px) !important;
+  background-size: 200px 200px, 22px 22px !important;
+  opacity: .55 !important;
+}
+
+[data-ui="r83"][data-variant="cover"]::after {
+  z-index: -1;
+}
+
+/* Semua halaman setelah cover: murni kertas krem + dot grid 22px */
+[data-ui="r83"][data-variant="page"],
+[data-ui="r83"] .paper,
+[data-ui="r83"] .paperfull,
+[data-ui="r83"] .cam-screen,
+[data-ui="r83"] #ruler-page,
+[data-ui="r83"] #book,
+[data-ui="r83"] .tut-draw__paper,
+[data-ui="r83"] #app {
+  background-color: var(--nb-paper) !important;
+  background-image: radial-gradient(circle at 1px 1px, rgba(49, 45, 38, .20) 1.1px, transparent 1.5px) !important;
+  background-size: 22px 22px !important;
+}
+
+/* Grain overlay statis 256px (lc.css:227-237 & §5.6: tanpa live filter, tanpa blend) */
+[data-ui="r83"] #lc-paper-overlay,
+[data-ui="r83"] .r83-paper-overlay {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: .32;
+  overflow: hidden;
+  background-size: 256px 256px;
+  background-repeat: repeat;
+}
+
+/* ---------- 20. visual sound-wave equalizer nama / mic (lc.css:239-295) ---------- */
+[data-ui="r83"] .sound-wave {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  height: 48px;
+  margin: 4px 0 10px;
+}
+
+[data-ui="r83"] .sound-wave.is-active,
+[data-ui="r83"] #name-card.is-listening .sound-wave,
+[data-ui="r83"] .name-mic.is-listening ~ .sound-wave,
+[data-ui="r83"] #name-card:has(.name-mic.is-listening) .sound-wave {
+  display: flex !important;
+}
+
+[data-ui="r83"] .sound-wave .bar {
+  display: block;
+  width: 5px;
+  background: var(--nb-green, #4a8c1f);
+  border-radius: 999px;
+  transform-origin: center center;
+  animation: suWavePulse 0.75s ease-in-out infinite alternate;
+}
+
+[data-ui="r83"] .sound-wave .bar.b1,
+[data-ui="r83"] .sound-wave .b1 { height: 8px; animation-delay: 0.05s; }
+[data-ui="r83"] .sound-wave .bar.b2,
+[data-ui="r83"] .sound-wave .b2 { height: 14px; animation-delay: 0.15s; }
+[data-ui="r83"] .sound-wave .bar.b3,
+[data-ui="r83"] .sound-wave .b3 { height: 22px; animation-delay: 0.25s; }
+[data-ui="r83"] .sound-wave .bar.b4,
+[data-ui="r83"] .sound-wave .b4 { height: 30px; animation-delay: 0.10s; }
+[data-ui="r83"] .sound-wave .bar.b5,
+[data-ui="r83"] .sound-wave .b5 { height: 36px; animation-delay: 0.35s; }
+[data-ui="r83"] .sound-wave .bar.b6,
+[data-ui="r83"] .sound-wave .b6 { height: 26px; animation-delay: 0.20s; }
+[data-ui="r83"] .sound-wave .bar.b7,
+[data-ui="r83"] .sound-wave .b7 { height: 38px; animation-delay: 0.00s; }
+[data-ui="r83"] .sound-wave .bar.b8,
+[data-ui="r83"] .sound-wave .b8 { height: 24px; animation-delay: 0.30s; }
+[data-ui="r83"] .sound-wave .bar.b9,
+[data-ui="r83"] .sound-wave .b9 { height: 34px; animation-delay: 0.12s; }
+[data-ui="r83"] .sound-wave .bar.b10,
+[data-ui="r83"] .sound-wave .b10 { height: 28px; animation-delay: 0.28s; }
+[data-ui="r83"] .sound-wave .bar.b11,
+[data-ui="r83"] .sound-wave .b11 { height: 18px; animation-delay: 0.08s; }
+[data-ui="r83"] .sound-wave .bar.b12,
+[data-ui="r83"] .sound-wave .b12 { height: 12px; animation-delay: 0.22s; }
+[data-ui="r83"] .sound-wave .bar.b13,
+[data-ui="r83"] .sound-wave .b13 { height: 6px; animation-delay: 0.18s; }
+
+@keyframes suWavePulse {
+  0% {
+    height: 6px;
+    transform: scaleY(0.4);
+    opacity: 0.75;
+  }
+  50% {
+    height: 38px;
+    transform: scaleY(1.1);
+    opacity: 1;
+  }
+  100% {
+    height: 12px;
+    transform: scaleY(0.5);
+    opacity: 0.8;
+  }
+}

@@ -7,7 +7,7 @@ import { api, downloadExport, type SchoolDetail } from "@/lib/api";
 import { useRequireUser } from "@/lib/auth";
 
 export default function SchoolDetailPage() {
-  const user = useRequireUser("superadmin");
+  const user = useRequireUser("admin");
   const params = useParams<{ id: string }>();
   const schoolId = Number(params.id);
   const router = useRouter();
@@ -16,9 +16,9 @@ export default function SchoolDetailPage() {
   const [notice, setNotice] = useState<string | null>(null);
   const [studentClass, setStudentClass] = useState<number | "">("");
 
-  const [adminName, setAdminName] = useState("");
-  const [adminEmail, setAdminEmail] = useState("");
-  const [adminPassword, setAdminPassword] = useState("");
+  const [guruName, setGuruName] = useState("");
+  const [guruEmail, setGuruEmail] = useState("");
+  const [guruPassword, setGuruPassword] = useState("");
   const [busy, setBusy] = useState(false);
 
   const load = useCallback(() => {
@@ -48,7 +48,7 @@ export default function SchoolDetailPage() {
       {notice && <div className="alert alert-ok">{notice}</div>}
 
       <div className="grid grid-4">
-        <StatCard label="Akun guru" value={school.admins.length} />
+        <StatCard label="Akun Guru" value={school.admins.length} />
         <StatCard label="Kelas" value={school.classes.length} />
         <StatCard label="Murid" value={school.students.length} />
         <StatCard label="Jawaban" value={totalSubmissions} />
@@ -159,7 +159,7 @@ export default function SchoolDetailPage() {
 
       <div className="card">
         <div className="card-head">
-          <h2>Akun guru (admin)</h2>
+          <h2>Akun Guru</h2>
         </div>
         {school.admins.length > 0 && (
           <div className="table-wrap" style={{ marginBottom: 16 }}>
@@ -186,11 +186,11 @@ export default function SchoolDetailPage() {
             setError(null);
             setNotice(null);
             try {
-              await api.createAdmin(schoolId, { name: adminName, email: adminEmail, password: adminPassword });
-              setNotice(`Akun guru ${adminEmail} dibuat. Berikan email & password ini ke guru tersebut.`);
-              setAdminName("");
-              setAdminEmail("");
-              setAdminPassword("");
+              await api.createGuru(schoolId, { name: guruName, email: guruEmail, password: guruPassword });
+              setNotice(`Akun Guru ${guruEmail} dibuat. Berikan email & password ini ke guru tersebut.`);
+              setGuruName("");
+              setGuruEmail("");
+              setGuruPassword("");
               load();
             } catch (err) {
               setError(err instanceof Error ? err.message : "Gagal membuat akun.");
@@ -201,12 +201,12 @@ export default function SchoolDetailPage() {
         >
           <div className="form-row">
             <label className="field">
-              Nama guru
-              <input required maxLength={120} value={adminName} onChange={(e) => setAdminName(e.target.value)} />
+              Nama Guru
+              <input required maxLength={120} value={guruName} onChange={(e) => setGuruName(e.target.value)} />
             </label>
             <label className="field">
               Email
-              <input type="email" required value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} />
+              <input type="email" required value={guruEmail} onChange={(e) => setGuruEmail(e.target.value)} />
             </label>
             <label className="field">
               Password awal
@@ -216,12 +216,12 @@ export default function SchoolDetailPage() {
                 minLength={8}
                 autoComplete="new-password"
                 placeholder="min. 8 karakter"
-                value={adminPassword}
-                onChange={(e) => setAdminPassword(e.target.value)}
+                value={guruPassword}
+                onChange={(e) => setGuruPassword(e.target.value)}
               />
             </label>
             <button type="submit" className="btn btn-primary" disabled={busy}>
-              {busy ? "Membuat…" : "Buat akun guru"}
+              {busy ? "Membuat…" : "Buat akun Guru"}
             </button>
           </div>
         </form>

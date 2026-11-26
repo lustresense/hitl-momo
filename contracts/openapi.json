@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "Momo Backend",
-    "version": "0.29.1-alpha"
+    "version": "0.31.0-alpha"
   },
   "paths": {
     "/api/auth/login": {
@@ -252,8 +252,8 @@
     },
     "/api/schools/{school_id}/admins": {
       "post": {
-        "summary": "Create Admin",
-        "operationId": "create_admin_api_schools__school_id__admins_post",
+        "summary": "Create Guru",
+        "operationId": "create_guru_api_schools__school_id__admins_post",
         "parameters": [
           {
             "name": "school_id",
@@ -286,7 +286,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/AdminBody"
+                "$ref": "#/components/schemas/GuruBody"
               }
             }
           }
@@ -864,6 +864,74 @@
         }
       }
     },
+    "/api/settings/skip-button": {
+      "get": {
+        "summary": "Get Skip Button",
+        "operationId": "get_skip_button_api_settings_skip_button_get",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Put Skip Button",
+        "operationId": "put_skip_button_api_settings_skip_button_put",
+        "parameters": [
+          {
+            "name": "token",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Token"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SkipButtonBody"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/join/{token}": {
       "get": {
         "summary": "Class Info",
@@ -1086,35 +1154,6 @@
   },
   "components": {
     "schemas": {
-      "AdminBody": {
-        "properties": {
-          "name": {
-            "type": "string",
-            "maxLength": 120,
-            "minLength": 1,
-            "title": "Name"
-          },
-          "email": {
-            "type": "string",
-            "maxLength": 200,
-            "minLength": 3,
-            "title": "Email"
-          },
-          "password": {
-            "type": "string",
-            "maxLength": 200,
-            "minLength": 8,
-            "title": "Password"
-          }
-        },
-        "type": "object",
-        "required": [
-          "name",
-          "email",
-          "password"
-        ],
-        "title": "AdminBody"
-      },
       "Candidate": {
         "properties": {
           "label": {
@@ -1213,6 +1252,35 @@
         ],
         "title": "DrawingPayload"
       },
+      "GuruBody": {
+        "properties": {
+          "name": {
+            "type": "string",
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Name"
+          },
+          "email": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 3,
+            "title": "Email"
+          },
+          "password": {
+            "type": "string",
+            "maxLength": 200,
+            "minLength": 8,
+            "title": "Password"
+          }
+        },
+        "type": "object",
+        "required": [
+          "name",
+          "email",
+          "password"
+        ],
+        "title": "GuruBody"
+      },
       "HTTPValidationError": {
         "properties": {
           "detail": {
@@ -1229,8 +1297,15 @@
       "JoinBody": {
         "properties": {
           "number": {
-            "type": "integer",
-            "minimum": 1.0,
+            "anyOf": [
+              {
+                "type": "integer",
+                "minimum": 1.0
+              },
+              {
+                "type": "null"
+              }
+            ],
             "title": "Number"
           },
           "name": {
@@ -1238,11 +1313,23 @@
             "maxLength": 80,
             "minLength": 1,
             "title": "Name"
+          },
+          "client_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 80,
+                "minLength": 8
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Client Id"
           }
         },
         "type": "object",
         "required": [
-          "number",
           "name"
         ],
         "title": "JoinBody"
@@ -1379,6 +1466,26 @@
           "name"
         ],
         "title": "SchoolBody"
+      },
+      "SkipButtonBody": {
+        "properties": {
+          "enabled": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Enabled"
+          }
+        },
+        "type": "object",
+        "required": [
+          "enabled"
+        ],
+        "title": "SkipButtonBody"
       },
       "SubmissionBody": {
         "properties": {
@@ -1523,13 +1630,6 @@
           "type": {
             "type": "string",
             "title": "Error Type"
-          },
-          "input": {
-            "title": "Input"
-          },
-          "ctx": {
-            "type": "object",
-            "title": "Context"
           }
         },
         "type": "object",

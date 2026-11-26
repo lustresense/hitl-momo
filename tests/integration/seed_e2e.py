@@ -20,7 +20,7 @@ conn = sqlite3.connect(sys.argv[1])
 conn.execute("INSERT INTO schools (name, address) VALUES ('SMP E2E', '')")
 conn.execute("INSERT INTO classes (school_id, name, student_count, join_token) VALUES (1, '7A E2E', 30, ?)", (sys.argv[2],))
 conn.execute(
-    "INSERT INTO users (email, name, password_hash, role, school_id) VALUES (?, 'Guru E2E', ?, 'superadmin', NULL)",
+    "INSERT INTO users (email, name, password_hash, role, school_id) VALUES (?, 'Guru E2E', ?, 'admin', NULL)",
     ("guru@e2e.test", hash_password(os.environ["E2E_TEACHER_PASSWORD"])),
 )
 conn.commit()

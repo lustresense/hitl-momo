@@ -1,19 +1,19 @@
 # backend/app/dashboard.py
-"""Admin (guru) and superadmin endpoints."""
+"""Admin and guru dashboard endpoints."""
 import json
 import secrets
 import sqlite3
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Request, Response
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, StrictBool
 
 from .auth import (
     create_session,
     current_user,
     ensure_school_access,
     hash_password,
-    require_superadmin,
+    require_admin,
     verify_password,
 )
 from .db import get_db
@@ -92,7 +92,7 @@ def logout(request: Request, conn: sqlite3.Connection = Depends(get_db)):
     return {"ok": True}
 
 
-# ---------------------------------------------------------------- schools (superadmin)
+# ---------------------------------------------------------------- schools (admin)
 
 
 class SchoolBody(BaseModel):
@@ -100,14 +100,14 @@ class SchoolBody(BaseModel):
     address: str = Field(default="", max_length=240)
 
 
-class AdminBody(BaseModel):
+class GuruBody(BaseModel):
     name: str = Field(min_length=1, max_length=120)
     email: str = Field(min_length=3, max_length=200)
     password: str = Field(min_length=8, max_length=200)
 
 
 @router.get("/schools")
-def list_schools(_: sqlite3.Row = Depends(require_superadmin), conn: sqlite3.Connection = Depends(get_db)):
+def list_schools(_: sqlite3.Row = Depends(require_admin), conn: sqlite3.Connection = Depends(get_db)):
     rows = conn.execute(
         """
         SELECT s.*,
@@ -122,13 +122,13 @@ def list_schools(_: sqlite3.Row = Depends(require_superadmin), conn: sqlite3.Con
 
 
 @router.post("/schools", status_code=201)
-def create_school(body: SchoolBody, _: sqlite3.Row = Depends(require_superadmin), conn: sqlite3.Connection = Depends(get_db)):
+def create_school(body: SchoolBody, _: sqlite3.Row = Depends(require_admin), conn: sqlite3.Connection = Depends(get_db)):
     cur = conn.execute("INSERT INTO schools (name, address) VALUES (?, ?)", (body.name.strip(), body.address.strip()))
     return dict(conn.execute("SELECT * FROM schools WHERE id = ?", (cur.lastrowid,)).fetchone())
 
 
 @router.get("/schools/{school_id}")
-def get_school(school_id: int, _: sqlite3.Row = Depends(require_superadmin), conn: sqlite3.Connection = Depends(get_db)):
+def get_school(school_id: int, _: sqlite3.Row = Depends(require_admin), conn: sqlite3.Connection = Depends(get_db)):
     school = conn.execute("SELECT * FROM schools WHERE id = ?", (school_id,)).fetchone()
     if school is None:
         raise HTTPException(status_code=404, detail="Sekolah tidak ditemukan.")
@@ -160,22 +160,22 @@ def get_school(school_id: int, _: sqlite3.Row = Depends(require_superadmin), con
 
 
 @router.post("/schools/{school_id}/admins", status_code=201)
-def create_admin(
+def create_guru(
     school_id: int,
-    body: AdminBody,
-    _: sqlite3.Row = Depends(require_superadmin),
+    body: GuruBody,
+    _: sqlite3.Row = Depends(require_admin),
     conn: sqlite3.Connection = Depends(get_db),
 ):
     if conn.execute("SELECT 1 FROM schools WHERE id = ?", (school_id,)).fetchone() is None:
         raise HTTPException(status_code=404, detail="Sekolah tidak ditemukan.")
     try:
         cur = conn.execute(
-            "INSERT INTO users (email, name, password_hash, role, school_id) VALUES (?, ?, ?, 'admin', ?)",
+            "INSERT INTO users (email, name, password_hash, role, school_id) VALUES (?, ?, ?, 'guru', ?)",
             (body.email.strip(), body.name.strip(), hash_password(body.password), school_id),
         )
     except sqlite3.IntegrityError:
         raise HTTPException(status_code=409, detail="Email sudah dipakai akun lain.")
-    return {"id": cur.lastrowid, "name": body.name.strip(), "email": body.email.strip()}
+    return {"id": cur.lastrowid, "name": body.name.strip(), "email": body.email.strip(), "role": "guru"}
 
 
 # ---------------------------------------------------------------- classes
@@ -184,7 +184,7 @@ def create_admin(
 class ClassBody(BaseModel):
     name: str = Field(min_length=1, max_length=80)
     student_count: int = Field(ge=1, le=60)
-    school_id: Optional[int] = None  # required for superadmin; ignored for admin
+    school_id: Optional[int] = None  # required for admin; ignored for guru
 
 
 @router.get("/classes")
@@ -193,7 +193,7 @@ def list_classes(
     user: sqlite3.Row = Depends(current_user),
     conn: sqlite3.Connection = Depends(get_db),
 ):
-    if user["role"] != "superadmin":
+    if user["role"] != "admin":
         school_id = user["school_id"]
     sql = "SELECT c.*, s.name AS school_name FROM classes c JOIN schools s ON s.id = c.school_id"
     params: tuple = ()
@@ -206,7 +206,7 @@ def list_classes(
 
 @router.post("/classes", status_code=201)
 def create_class(body: ClassBody, user: sqlite3.Row = Depends(current_user), conn: sqlite3.Connection = Depends(get_db)):
-    school_id = body.school_id if user["role"] == "superadmin" else user["school_id"]
+    school_id = body.school_id if user["role"] == "admin" else user["school_id"]
     if school_id is None:
         raise HTTPException(status_code=400, detail="Pilih sekolah untuk kelas ini.")
     if conn.execute("SELECT 1 FROM schools WHERE id = ?", (school_id,)).fetchone() is None:
@@ -281,7 +281,7 @@ def submission_image(
     return Response(content=png, media_type="image/png", headers={"Cache-Control": "private, max-age=3600"})
 
 
-# ---------------------------------------------------------------- export (superadmin)
+# ---------------------------------------------------------------- export (admin)
 
 
 def _export_filename(c: sqlite3.Row, ext: str) -> str:
@@ -291,7 +291,7 @@ def _export_filename(c: sqlite3.Row, ext: str) -> str:
 
 @router.get("/classes/{class_id}/export.csv")
 def export_class_csv(
-    class_id: int, user: sqlite3.Row = Depends(require_superadmin), conn: sqlite3.Connection = Depends(get_db)
+    class_id: int, user: sqlite3.Row = Depends(require_admin), conn: sqlite3.Connection = Depends(get_db)
 ):
     c = _get_class(conn, user, class_id)
     return Response(
@@ -303,7 +303,7 @@ def export_class_csv(
 
 @router.get("/classes/{class_id}/export.zip")
 def export_class_zip(
-    class_id: int, user: sqlite3.Row = Depends(require_superadmin), conn: sqlite3.Connection = Depends(get_db)
+    class_id: int, user: sqlite3.Row = Depends(require_admin), conn: sqlite3.Connection = Depends(get_db)
 ):
     c = _get_class(conn, user, class_id)
     return Response(
@@ -313,7 +313,7 @@ def export_class_zip(
     )
 
 
-# ---------------------------------------------------------------- AI difficulty (superadmin)
+# ---------------------------------------------------------------- AI difficulty (admin)
 
 
 class LevelDifficultyBody(BaseModel):
@@ -340,7 +340,7 @@ def get_difficulty_settings(_: sqlite3.Row = Depends(current_user), conn: sqlite
 @router.put("/settings/difficulty")
 def put_difficulty_settings(
     body: DifficultySettingsBody,
-    _: sqlite3.Row = Depends(require_superadmin),
+    _: sqlite3.Row = Depends(require_admin),
     conn: sqlite3.Connection = Depends(get_db),
 ):
     known = {level_id for level_id, _ in LEVELS}
@@ -349,3 +349,47 @@ def put_difficulty_settings(
         raise HTTPException(status_code=400, detail=f"Level tidak dikenal: {', '.join(unknown)}")
     save_settings(conn, [item.model_dump() for item in body.levels])
     return {"levels": get_settings(conn)}
+
+
+# ---------------------------------------------------------------- skip button ("Lewati") switch
+# Dev/demo button of the r8.3 game. Guide: docs/SKIP_BUTTON.md. The same row is written by
+# scripts/skip_button.py.
+
+SKIP_BUTTON_KEY = "skip_button"
+
+
+class SkipButtonBody(BaseModel):
+    # Required. true = show, false = hide, null = no choice (the game follows its build default).
+    enabled: Optional[StrictBool]
+
+
+def _skip_button_state(conn: sqlite3.Connection) -> dict:
+    row = conn.execute("SELECT value, updated_at FROM app_settings WHERE key = ?", (SKIP_BUTTON_KEY,)).fetchone()
+    if row is None:
+        return {"enabled": None, "updated_at": None}
+    return {"enabled": row["value"] == "1", "updated_at": row["updated_at"]}
+
+
+# Public on purpose: the game has no login, and the answer holds no private data.
+@router.get("/settings/skip-button")
+def get_skip_button(conn: sqlite3.Connection = Depends(get_db)):
+    return _skip_button_state(conn)
+
+
+@router.put("/settings/skip-button")
+def put_skip_button(
+    body: SkipButtonBody,
+    _: sqlite3.Row = Depends(require_admin),
+    conn: sqlite3.Connection = Depends(get_db),
+):
+    if body.enabled is None:
+        conn.execute("DELETE FROM app_settings WHERE key = ?", (SKIP_BUTTON_KEY,))
+    else:
+        conn.execute(
+            """
+            INSERT INTO app_settings (key, value, updated_at) VALUES (?, ?, datetime('now'))
+            ON CONFLICT (key) DO UPDATE SET value = excluded.value, updated_at = excluded.updated_at
+            """,
+            (SKIP_BUTTON_KEY, "1" if body.enabled else "0"),
+        )
+    return _skip_button_state(conn)

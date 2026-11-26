@@ -1,5 +1,5 @@
 # backend/app/auth.py
-"""Bearer-token sessions and role checks for admin/superadmin accounts."""
+"""Bearer-token sessions and role checks for admin and guru accounts."""
 import secrets
 import sqlite3
 from datetime import datetime, timedelta, timezone
@@ -49,13 +49,17 @@ def current_user(
     return row
 
 
-def require_superadmin(user: sqlite3.Row = Depends(current_user)) -> sqlite3.Row:
-    if user["role"] != "superadmin":
-        raise HTTPException(status_code=403, detail="Hanya superadmin yang boleh mengakses ini.")
+def require_admin(user: sqlite3.Row = Depends(current_user)) -> sqlite3.Row:
+    if user["role"] != "admin":
+        raise HTTPException(status_code=403, detail="Hanya admin yang boleh mengakses ini.")
     return user
 
 
+# Backward-compatible alias for scripts/modules still importing require_superadmin.
+require_superadmin = require_admin
+
+
 def ensure_school_access(user: sqlite3.Row, school_id: int) -> None:
-    """Admins only see their own school; superadmin sees every school."""
-    if user["role"] != "superadmin" and user["school_id"] != school_id:
+    """Guru only sees their own school; admin sees every school."""
+    if user["role"] != "admin" and user["school_id"] != school_id:
         raise HTTPException(status_code=404, detail="Data tidak ditemukan.")

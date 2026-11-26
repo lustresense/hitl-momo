@@ -29,6 +29,38 @@ def drawing_to_tensor(drawing: dict) -> np.ndarray:
     return rasterize(drawing.get("strokes", []))[0]
 
 
+def _load_keras_compat(model_path: str):
+    """Keras 3.13+ exports extra keys on Initializer/Layers; strip them if Keras 3.12 rejects them."""
+    try:
+        return tf.keras.models.load_model(model_path, safe_mode=True)
+    except TypeError as exc:
+        msg = str(exc)
+        if not any(k in msg for k in ("input_axes", "output_axes", "renorm", "quantization_config")):
+            raise
+        init_base = tf.keras.initializers.Initializer
+        layer_base = tf.keras.layers.Layer
+        orig_init_fc = init_base.from_config.__func__
+        orig_layer_fc = layer_base.from_config.__func__
+        drop_init = ("input_axes", "output_axes")
+        drop_layer = ("renorm", "renorm_clipping", "renorm_momentum", "quantization_config")
+
+        @classmethod
+        def _compat_init_fc(cls, config):
+            return orig_init_fc(cls, {k: v for k, v in config.items() if k not in drop_init})
+
+        @classmethod
+        def _compat_layer_fc(cls, config):
+            return orig_layer_fc(cls, {k: v for k, v in config.items() if k not in drop_layer})
+
+        init_base.from_config = _compat_init_fc
+        layer_base.from_config = _compat_layer_fc
+        try:
+            return tf.keras.models.load_model(model_path, safe_mode=True)
+        finally:
+            init_base.from_config = classmethod(orig_init_fc)
+            layer_base.from_config = classmethod(orig_layer_fc)
+
+
 @lru_cache(maxsize=1)
 def load_model():
     """Memuat model Keras dan melakukan warmup dengan shape (1, 28, 28, 1)."""
@@ -38,7 +70,7 @@ def load_model():
         raise FileNotFoundError(f"Model tidak ditemukan di lokasi: {model_path}")
 
     print(f"Loading model dari: {model_path}")
-    model = tf.keras.models.load_model(model_path, safe_mode=True)
+    model = _load_keras_compat(model_path)
 
     # Warm-up menggunakan input shape (1, 28, 28, 1)
     dummy_input = np.zeros((1, 28, 28, 1), dtype=np.float32)

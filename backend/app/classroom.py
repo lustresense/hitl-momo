@@ -8,8 +8,10 @@ student through `submission_key`.
 """
 import hashlib
 import json
+import random
 import secrets
 import sqlite3
+import time
 from datetime import datetime, timedelta, timezone
 from typing import List, Literal, Optional
 
@@ -22,6 +24,7 @@ router = APIRouter(prefix="/api")
 
 MAX_POINTS = 20_000  # guards against oversized payloads from a single drawing
 STUDENT_SESSION_TTL = timedelta(hours=8)  # one school day
+MAX_JOIN_RETRIES = 10
 
 
 def _hash_token(token: str) -> str:
@@ -70,44 +73,117 @@ def class_info(token: str, conn: sqlite3.Connection = Depends(get_db)):
 
 
 class JoinBody(BaseModel):
-    number: int = Field(ge=1)
+    number: Optional[int] = Field(default=None, ge=1)
     name: str = Field(min_length=1, max_length=80)
+    client_id: Optional[str] = Field(default=None, min_length=8, max_length=80)
 
 
 @router.post("/join/{token}/students")
 def join_class(token: str, body: JoinBody, conn: sqlite3.Connection = Depends(get_db)):
     c = _class_by_token(conn, token)
-    if body.number > c["student_count"]:
-        raise HTTPException(status_code=400, detail=f"Nomor absen di kelas ini hanya 1–{c['student_count']}.")
     name = body.name.strip()
-    # Re-joining with the same number (e.g. another device) keeps one student row.
-    conn.execute(
-        """
-        INSERT INTO students (class_id, number, name) VALUES (?, ?, ?)
-        ON CONFLICT (class_id, number) DO UPDATE SET name = excluded.name
-        """,
-        (c["id"], body.number, name),
-    )
-    row = conn.execute(
-        "SELECT id FROM students WHERE class_id = ? AND number = ?", (c["id"], body.number)
-    ).fetchone()
-    now = datetime.now(timezone.utc)
-    # Drop expired sessions on every join. Keeps the table small without a background job.
-    conn.execute("DELETE FROM student_sessions WHERE expires_at <= ?", (now.isoformat(),))
-    token = secrets.token_urlsafe(32)
-    conn.execute(
-        "INSERT INTO student_sessions (token_hash, student_id, class_id, created_at, expires_at) VALUES (?, ?, ?, ?, ?)",
-        (_hash_token(token), row["id"], c["id"], now.isoformat(), (now + STUDENT_SESSION_TTL).isoformat()),
-    )
-    return {
-        "student_id": row["id"],
-        "number": body.number,
-        "name": name,
-        "class_name": c["name"],
-        "student_session_token": token,
-        "expires_in": int(STUDENT_SESSION_TTL.total_seconds()),
-        "joined_at": now.isoformat(),
-    }
+    if not name:
+        raise HTTPException(status_code=400, detail="Nama panggilan tidak boleh kosong.")
+    client_id = (body.client_id.strip() or None) if body.client_id is not None else None
+    if body.number is not None and body.number > c["student_count"]:
+        raise HTTPException(status_code=400, detail=f"Nomor absen di kelas ini hanya 1–{c['student_count']}.")
+
+    for attempt in range(MAX_JOIN_RETRIES):
+        try:
+            if conn.in_transaction:
+                conn.commit()
+            conn.execute("BEGIN IMMEDIATE")
+
+            if body.number is None:
+                existing = None
+                if client_id is not None:
+                    existing = conn.execute(
+                        "SELECT id, number FROM students WHERE class_id = ? AND client_id = ?",
+                        (c["id"], client_id),
+                    ).fetchone()
+                if existing is not None:
+                    student_id = existing["id"]
+                    assigned_number = existing["number"]
+                    conn.execute("UPDATE students SET name = ? WHERE id = ?", (name, student_id))
+                else:
+                    taken = {
+                        r["number"]
+                        for r in conn.execute("SELECT number FROM students WHERE class_id = ?", (c["id"],))
+                    }
+                    assigned_number = next((n for n in range(1, c["student_count"] + 1) if n not in taken), None)
+                    if assigned_number is None:
+                        conn.rollback()
+                        raise HTTPException(status_code=400, detail="Kelas sudah penuh.")
+                    cur = conn.execute(
+                        "INSERT INTO students (class_id, number, name, client_id) VALUES (?, ?, ?, ?)",
+                        (c["id"], assigned_number, name, client_id),
+                    )
+                    student_id = cur.lastrowid
+            else:
+                assigned_number = body.number
+                # Re-joining with the same number (e.g. another device) keeps one student row.
+                conn.execute(
+                    """
+                    INSERT INTO students (class_id, number, name, client_id) VALUES (?, ?, ?, ?)
+                    ON CONFLICT (class_id, number) DO UPDATE SET
+                        name = excluded.name,
+                        client_id = COALESCE(excluded.client_id, students.client_id)
+                    """,
+                    (c["id"], assigned_number, name, client_id),
+                )
+                row = conn.execute(
+                    "SELECT id FROM students WHERE class_id = ? AND number = ?",
+                    (c["id"], assigned_number),
+                ).fetchone()
+                student_id = row["id"]
+
+            now = datetime.now(timezone.utc)
+            # Drop expired sessions on every join. Keeps the table small without a background job.
+            conn.execute("DELETE FROM student_sessions WHERE expires_at <= ?", (now.isoformat(),))
+            session_token = secrets.token_urlsafe(32)
+            conn.execute(
+                "INSERT INTO student_sessions (token_hash, student_id, class_id, created_at, expires_at) VALUES (?, ?, ?, ?, ?)",
+                (
+                    _hash_token(session_token),
+                    student_id,
+                    c["id"],
+                    now.isoformat(),
+                    (now + STUDENT_SESSION_TTL).isoformat(),
+                ),
+            )
+            conn.commit()
+            return {
+                "student_id": student_id,
+                "number": assigned_number,
+                "name": name,
+                "class_name": c["name"],
+                "student_session_token": session_token,
+                "expires_in": int(STUDENT_SESSION_TTL.total_seconds()),
+                "joined_at": now.isoformat(),
+            }
+        except HTTPException:
+            if conn.in_transaction:
+                conn.rollback()
+            raise
+        except sqlite3.IntegrityError:
+            if conn.in_transaction:
+                conn.rollback()
+            if attempt < MAX_JOIN_RETRIES - 1:
+                time.sleep(random.uniform(0.01, 0.06))
+                continue
+            raise
+        except sqlite3.OperationalError as exc:
+            if conn.in_transaction:
+                conn.rollback()
+            msg = str(exc).lower()
+            if ("locked" in msg or "busy" in msg) and attempt < MAX_JOIN_RETRIES - 1:
+                time.sleep(random.uniform(0.01, 0.06))
+                continue
+            raise
+        except Exception:
+            if conn.in_transaction:
+                conn.rollback()
+            raise
 
 
 class Point(BaseModel):

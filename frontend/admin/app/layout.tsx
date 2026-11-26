@@ -3,8 +3,8 @@ import { AuthProvider } from "@/lib/auth";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Dashboard Guru · Sketchbook Universe",
-  description: "Kelola kelas dan lihat keputusan murid terhadap tebakan AI.",
+  title: "Dashboard Admin & Guru · Sketchbook Universe",
+  description: "Kelola sekolah, kelas, dan pantau keputusan murid terhadap tebakan AI.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

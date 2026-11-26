@@ -28,7 +28,7 @@ function preview(value: number, formula: DifficultySettings["formula"]) {
 }
 
 export default function DifficultyPage() {
-  const user = useRequireUser("superadmin");
+  const user = useRequireUser("admin");
   const [settings, setSettings] = useState<DifficultySettings | null>(null);
   const [draft, setDraft] = useState<LevelDifficulty[]>([]);
   const [error, setError] = useState<string | null>(null);

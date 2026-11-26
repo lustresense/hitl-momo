@@ -54,11 +54,11 @@ export function useAuth(): AuthState {
 
 /** Where each role lands after login. */
 export function homeFor(user: User): string {
-  return user.role === "superadmin" ? "/sekolah" : "/kelas";
+  return user.role === "admin" ? "/sekolah" : "/kelas";
 }
 
-/** Redirects to /login when signed out (and away from superadmin pages for admins). */
-export function useRequireUser(role?: "superadmin"): User | null {
+/** Redirects to /login when signed out (and away from admin-only pages for guru). */
+export function useRequireUser(role?: "admin"): User | null {
   const { user, loading } = useAuth();
   const router = useRouter();
   useEffect(() => {

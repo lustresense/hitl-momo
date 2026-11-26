@@ -7,7 +7,7 @@ import { api, type SchoolSummary } from "@/lib/api";
 import { useRequireUser } from "@/lib/auth";
 
 export default function SchoolsPage() {
-  const user = useRequireUser("superadmin");
+  const user = useRequireUser("admin");
   const router = useRouter();
   const [schools, setSchools] = useState<SchoolSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);

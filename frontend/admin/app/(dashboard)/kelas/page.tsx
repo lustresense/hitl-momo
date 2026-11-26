@@ -9,7 +9,7 @@ import { useAuth } from "@/lib/auth";
 export default function ClassesPage() {
   const { user } = useAuth();
   const router = useRouter();
-  const isSuper = user?.role === "superadmin";
+  const isAdmin = user?.role === "admin";
   const [classes, setClasses] = useState<ClassSummary[] | null>(null);
   const [schools, setSchools] = useState<SchoolSummary[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -26,14 +26,14 @@ export default function ClassesPage() {
 
   useEffect(() => {
     load();
-    if (isSuper) api.listSchools().then(setSchools).catch(() => undefined);
-  }, [load, isSuper]);
+    if (isAdmin) api.listSchools().then(setSchools).catch(() => undefined);
+  }, [load, isAdmin]);
 
   return (
     <div className="stack">
       <div className="page-head">
         <div>
-          <h1>{isSuper ? "Semua Kelas" : "Kelas Saya"}</h1>
+          <h1>{isAdmin ? "Semua Kelas" : "Kelas Saya"}</h1>
           <p>Buat kelas, bagikan link-nya ke murid, lalu pantau keputusan mereka terhadap tebakan AI.</p>
         </div>
       </div>
@@ -50,7 +50,7 @@ export default function ClassesPage() {
             const c = await api.createClass({
               name,
               student_count: count,
-              ...(isSuper ? { school_id: schoolId === "" ? undefined : schoolId } : {}),
+              ...(isAdmin ? { school_id: schoolId === "" ? undefined : schoolId } : {}),
             });
             setCreated(c);
             setName("");
@@ -66,7 +66,7 @@ export default function ClassesPage() {
           <h2>Buat kelas baru</h2>
         </div>
         <div className="form-row">
-          {isSuper && (
+          {isAdmin && (
             <label className="field">
               Sekolah
               <select required value={schoolId} onChange={(e) => setSchoolId(e.target.value ? Number(e.target.value) : "")}>
@@ -103,8 +103,8 @@ export default function ClassesPage() {
             </div>
             <CopyLink url={classLink(created.join_token)} />
             <p className="muted small" style={{ margin: 0 }}>
-              Murid membuka link, memilih nomor absen (1–{created.student_count}) dan menulis nama. Semua jawaban
-              mereka otomatis masuk ke grup kelas ini.
+              Murid membuka link dan cukup memasukkan nama panggilan (nomor absen 1–{created.student_count} diatur
+              otomatis). Semua jawaban mereka otomatis masuk ke grup kelas ini.
             </p>
           </div>
         )}
@@ -125,7 +125,7 @@ export default function ClassesPage() {
               <thead>
                 <tr>
                   <th>Kelas</th>
-                  {isSuper && <th>Sekolah</th>}
+                  {isAdmin && <th>Sekolah</th>}
                   <th className="num">Murid</th>
                   <th className="num">Jawaban</th>
                   <th>Menerima / Merevisi / Menolak</th>
@@ -136,7 +136,7 @@ export default function ClassesPage() {
                 {classes.map((c) => (
                   <tr key={c.id} className="clickable" onClick={() => router.push(`/kelas/${c.id}`)}>
                     <td><strong>{c.name}</strong></td>
-                    {isSuper && <td>{c.school_name}</td>}
+                    {isAdmin && <td>{c.school_name}</td>}
                     <td className="num">{c.students_joined} / {c.student_count}</td>
                     <td className="num">{c.total_submissions}</td>
                     <td style={{ minWidth: 200 }}>

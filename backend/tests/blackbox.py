@@ -73,32 +73,44 @@ def run_blackbox(api, email, password):
     record(3, "Login dengan kata sandi salah", "POST /api/auth/login", "401, akses ditolak",
            s == 401, f"{s} {r.get('detail') if isinstance(r, dict) else r}")
 
-    # Setup: superadmin creates two schools with one teacher each.
+    # Setup: admin creates two schools with one guru each.
     s, r = api.call("POST", "/api/auth/login", {"email": email, "password": password})
     if s != 200:
-        raise SystemExit(f"Login superadmin gagal ({s}): {r}")
+        raise SystemExit(f"Login admin gagal ({s}): {r}")
+    admin_role = r["user"]["role"]
     sup = r["token"]
     stamp = datetime.now().strftime("%H%M%S")
     school_a = api.call("POST", "/api/schools", {"name": f"Sekolah Uji A {stamp}"}, sup)[1]
     school_b = api.call("POST", "/api/schools", {"name": f"Sekolah Uji B {stamp}"}, sup)[1]
     guru = {}
+    guru_roles = {}
     for key, school in (("a", school_a), ("b", school_b)):
         mail = f"guru-{key}-{stamp}@uji.local"
         api.call("POST", f"/api/schools/{school['id']}/admins", {"name": f"Guru {key.upper()}", "email": mail, "password": "gurupass123"}, sup)
-        guru[key] = api.call("POST", "/api/auth/login", {"email": mail, "password": "gurupass123"})[1]["token"]
+        login_res = api.call("POST", "/api/auth/login", {"email": mail, "password": "gurupass123"})[1]
+        guru[key] = login_res["token"]
+        guru_roles[key] = login_res["user"]["role"]
+    record(
+        4,
+        "Peran akun admin dan guru",
+        "Login akun admin utama dan akun guru sekolah",
+        "admin memiliki role 'admin', guru memiliki role 'guru'",
+        admin_role == "admin" and guru_roles == {"a": "guru", "b": "guru"},
+        f"admin={admin_role}, guru={guru_roles}",
+    )
     cls = api.call("POST", "/api/classes", {"name": "7A", "student_count": 5}, guru["a"])[1]
 
     s, r = api.call("GET", f"/api/classes/{cls['id']}", token=guru["b"])
-    record(4, "Guru mengakses kelas sekolah lain", "Guru sekolah B: GET /api/classes/{id} kelas sekolah A",
+    record(5, "Guru mengakses kelas sekolah lain", "Guru sekolah B: GET /api/classes/{id} kelas sekolah A",
            "404, data tidak ditemukan", s == 404, f"{s} {r.get('detail') if isinstance(r, dict) else r}")
 
     s, r = api.call("GET", "/api/join/token-tidak-ada")
-    record(5, "Tautan kelas tidak valid", "GET /api/join/token-tidak-ada", "404, Link kelas tidak valid",
+    record(6, "Tautan kelas tidak valid", "GET /api/join/token-tidak-ada", "404, Link kelas tidak valid",
            s == 404, f"{s} {r.get('detail') if isinstance(r, dict) else r}")
 
     tok = cls["join_token"]
     s, r = api.call("POST", f"/api/join/{tok}/students", {"number": 6, "name": "Lebih"})
-    record(6, "Nomor absen melebihi jumlah siswa", "Kelas 5 siswa: daftar dengan nomor 6", "400, ditolak",
+    record(7, "Nomor absen melebihi jumlah siswa", "Kelas 5 siswa: daftar dengan nomor 6", "400, ditolak",
            s == 400, f"{s} {r.get('detail') if isinstance(r, dict) else r}")
 
     st = api.call("POST", f"/api/join/{tok}/students", {"number": 1, "name": "Andi"})[1]
@@ -117,14 +129,14 @@ def run_blackbox(api, email, password):
     _, detail = api.call("GET", f"/api/classes/{cls['id']}", token=guru["a"])
     counts = detail["stats"]["counts"]
     ok = codes == [201, 201, 201] and counts == {"accept": 1, "correct": 1, "override": 1}
-    record(7, "Terima / Pilih lain / Bukan semua tercatat", "3 keputusan dari 1 siswa, lalu buka detail kelas",
+    record(8, "Terima / Pilih lain / Bukan semua tercatat", "3 keputusan dari 1 siswa, lalu buka detail kelas",
            "Masing-masing tercatat 1 (Menerima, Merevisi, Menolak)", ok, f"kode {codes}, rekap {counts}")
 
     st2 = api.call("POST", f"/api/join/{tok}/students", {"number": 1, "name": "Andi Saputra"})[1]
     _, detail = api.call("GET", f"/api/classes/{cls['id']}", token=guru["a"])
     names = [x["name"] for x in detail["stats"]["students"]]
     ok = st2["student_id"] == st["student_id"] and names == ["Andi Saputra"]
-    record(8, "Nomor absen sama dari perangkat lain", "Daftar ulang nomor 1 dengan nama lain",
+    record(9, "Nomor absen sama dari perangkat lain", "Daftar ulang nomor 1 dengan nama lain",
            "Tetap 1 siswa (ID sama), nama diperbarui", ok, f"ID {st['student_id']}→{st2['student_id']}, siswa {names}")
 
     s1, csv_bytes = api.call("GET", f"/api/classes/{cls['id']}/export.csv", token=sup, raw=True)
@@ -134,15 +146,37 @@ def run_blackbox(api, email, password):
     names_zip = zipfile.ZipFile(io.BytesIO(zip_bytes)).namelist() if s2 == 200 else []
     pngs = [n for n in names_zip if n.endswith(".png")]
     ok = s1 == 200 and len(lines) == 4 and s2 == 200 and "data.csv" in names_zip and len(pngs) == 3 and s3 == 403
-    record(9, "Export data per kelas", "Superadmin: export CSV & ZIP; guru: export CSV",
+    record(10, "Export data per kelas", "Admin: export CSV & ZIP; guru: export CSV",
            "CSV 3 baris data, ZIP berisi data.csv + 3 PNG; guru ditolak (403)", ok,
            f"CSV {s1} ({len(lines)-1} baris), ZIP {s2} ({len(pngs)} PNG), guru {s3}")
+
+    cls_nick = api.call("POST", "/api/classes", {"name": "7B", "student_count": 2}, guru["a"])[1]
+    tok_nick = cls_nick["join_token"]
+    s_n1, n1 = api.call("POST", f"/api/join/{tok_nick}/students", {"name": "Rani"})
+    s_n2, n2 = api.call("POST", f"/api/join/{tok_nick}/students", {"name": "Siti"})
+    s_n3, n3 = api.call("POST", f"/api/join/{tok_nick}/students", {"name": "Budi"})
+    ok_nick = (
+        s_n1 == 200 and n1.get("number") == 1 and bool(n1.get("student_session_token"))
+        and s_n2 == 200 and n2.get("number") == 2 and bool(n2.get("student_session_token"))
+        and s_n3 == 400
+    )
+    record(
+        11,
+        "Gabung kelas hanya dengan nama panggilan",
+        "Kelas 2 siswa: POST /api/join/{token}/students tanpa number (Rani, Siti, Budi)",
+        "Rani mendapat nomor 1, Siti nomor 2, Budi ditolak 400 (kelas penuh)",
+        ok_nick,
+        f"Rani={s_n1}/#{n1.get('number') if isinstance(n1, dict) else n1}, "
+        f"Siti={s_n2}/#{n2.get('number') if isinstance(n2, dict) else n2}, "
+        f"Budi={s_n3} ({n3.get('detail') if isinstance(n3, dict) else n3})",
+    )
+    api.call("DELETE", f"/api/classes/{cls_nick['id']}", token=guru["a"], raw=True)
 
     s, _ = api.call("DELETE", f"/api/classes/{cls['id']}", token=guru["a"], raw=True)
     s_after, _ = api.call("GET", f"/api/classes/{cls['id']}", token=sup)
     s_link, _ = api.call("GET", f"/api/join/{tok}")
     ok = s == 204 and s_after == 404 and s_link == 404
-    record(10, "Hapus kelas", "Guru: DELETE /api/classes/{id}, lalu buka kelas & tautannya",
+    record(12, "Hapus kelas", "Guru: DELETE /api/classes/{id}, lalu buka kelas & tautannya",
            "204; kelas dan tautannya tidak ditemukan lagi (404)", ok, f"hapus {s}, kelas {s_after}, tautan {s_link}")
     return rows
 

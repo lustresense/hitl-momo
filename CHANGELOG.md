@@ -46,6 +46,7 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 
 | Versi | Tanggal | Tipe | Commit |
 |---|---|---|---|
+| 0.31.0-alpha | 2026-11-26 | Fitur | `(0.31.0-alpha)` |
 | 0.30.3-alpha | 2026-11-26 | Dokumen | `(0.30.3-alpha)` |
 | 0.30.2-alpha | 2026-11-26 | Dokumen | `(0.30.2-alpha)` |
 | 0.30.1-alpha | 2026-11-25 | Dokumen | `(0.30.1-alpha)` |
@@ -140,6 +141,22 @@ Versi `-alpha.N` lama dipetakan ke versi baru dari push terakhir grup lama (kolo
 | 0.2.0-alpha | 2026-11-09 | Fitur | `dd46572` |
 | 0.1.1-alpha | 2026-11-09 | Dokumen | `0a2c4ed` (dengan `05b3558`) |
 | 0.1.0-alpha | 2026-11-09 | Fitur | `fe73df3` |
+
+---
+
+## 0.31.0-alpha — 2026-11-26 — Fitur
+
+**Sumber:** Owner 2026-11-26 (versi dipecah per perubahan)
+
+**Perubahan:**
+- Backend: join kelas memakai nama panggilan (nomor opsional, client_id), aman untuk join serentak; role superadmin/admin menjadi admin/guru dengan backup otomatis dan backend/rollback_user_roles.py; penyesuaian muat model Keras.
+- Saklar tombol Lewati: endpoint, tabel app_settings, halaman admin, scripts/skip_button.py, docs/SKIP_BUTTON.md, CORS PUT; kontrak API diselaraskan.
+- 13 file penanda unduhan Windows (:Zone.Identifier) dihapus agar checkout di Windows berhasil.
+- Diketahui: join bernomor dengan client_id yang sama membalas HTTP 500; tampilan r8.3 tidak mengirim nomor.
+
+**Commit:** commit berjudul `(0.31.0-alpha)`
+
+**Bukti:** Tes backend 21/21; API saklar 17/17; admin tsc dan build PASS. Perlu review Dias.
 
 ---
 

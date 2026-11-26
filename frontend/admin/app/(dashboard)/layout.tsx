@@ -11,11 +11,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   if (!user) return <div className="empty">Memuat…</div>;
 
   const nav =
-    user.role === "superadmin"
+    user.role === "admin"
       ? [
           { href: "/sekolah", label: "Sekolah" },
           { href: "/kelas", label: "Semua Kelas" },
           { href: "/kesulitan", label: "Level Kesulitan" },
+          { href: "/tombol-lewati", label: "Tombol Lewati" },
         ]
       : [{ href: "/kelas", label: "Kelas Saya" }];
 
@@ -26,7 +27,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           <span className="brand-mark" aria-hidden="true" />
           <div>
             Sketchbook Universe
-            <small>{user.role === "superadmin" ? "Superadmin" : "Dashboard Guru"}</small>
+            <small>{user.role === "admin" ? "Admin" : "Guru"}</small>
           </div>
         </div>
         <nav className="nav">

@@ -31,7 +31,7 @@ export default function ClassDetailPage() {
   const classId = Number(params.id);
   const { user } = useAuth();
   const router = useRouter();
-  const isSuper = user?.role === "superadmin";
+  const isAdmin = user?.role === "admin";
 
   const [detail, setDetail] = useState<ClassDetail | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -83,7 +83,7 @@ export default function ClassDetailPage() {
         <div>
           <div className="crumb">
             <Link href="/kelas">Kelas</Link>
-            {isSuper && (
+            {isAdmin && (
               <>
                 {" / "}
                 <Link href={`/sekolah/${detail.school_id}`}>{detail.school_name}</Link>
@@ -94,7 +94,7 @@ export default function ClassDetailPage() {
           <p>{detail.school_name} · dibuat {formatDate(detail.created_at)}</p>
         </div>
         <div className="row">
-          {isSuper && (
+          {isAdmin && (
             <>
               <button type="button" className="btn" disabled={exporting !== null} onClick={() => runExport("csv")}>
                 {exporting === "csv" ? "Menyiapkan…" : "Export CSV"}

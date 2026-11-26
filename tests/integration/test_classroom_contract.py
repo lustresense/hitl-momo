@@ -42,7 +42,7 @@ def client():
             (JOIN_TOKEN,),
         )
         conn.execute(
-            "INSERT INTO users (email, name, password_hash, role, school_id) VALUES (?, 'Guru', ?, 'superadmin', NULL)",
+            "INSERT INTO users (email, name, password_hash, role, school_id) VALUES (?, 'Guru', ?, 'admin', NULL)",
             ("guru@contract.test", hash_password("rahasia-uji-123")),
         )
         conn.commit()

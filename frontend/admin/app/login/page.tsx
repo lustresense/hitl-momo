@@ -37,7 +37,7 @@ export default function LoginPage() {
         <div>
           <span className="brand-mark" aria-hidden="true" />
           <h1>Masuk Dashboard</h1>
-          <p className="muted" style={{ margin: 0 }}>Sketchbook Universe — guru & superadmin</p>
+          <p className="muted" style={{ margin: 0 }}>Sketchbook Universe — Admin & Guru</p>
         </div>
         <ErrorBox error={error} />
         <label className="field">
@@ -58,7 +58,7 @@ export default function LoginPage() {
           {busy ? "Memeriksa…" : "Masuk"}
         </button>
         <p className="muted small" style={{ margin: 0 }}>
-          Akun guru dibuat oleh superadmin. Hubungi superadmin jika lupa password.
+          Akun Guru dibuat oleh Admin. Hubungi Admin jika lupa password.
         </p>
       </form>
     </div>

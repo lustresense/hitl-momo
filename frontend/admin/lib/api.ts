@@ -1,4 +1,4 @@
-/** Typed client for the FastAPI admin endpoints (backend/app/dashboard.py). */
+/** Typed client for the FastAPI dashboard endpoints (backend/app/dashboard.py). */
 
 export const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/+$/, "");
 export const GAME_URL = (process.env.NEXT_PUBLIC_GAME_URL ?? "http://localhost:3000").replace(/\/+$/, "");
@@ -12,7 +12,7 @@ export interface User {
   id: number;
   email: string;
   name: string;
-  role: "superadmin" | "admin";
+  role: "admin" | "guru";
   school: { id: number; name: string } | null;
 }
 
@@ -109,6 +109,12 @@ export interface DifficultySettings {
   active: boolean;
 }
 
+/** r8.3 game "Lewati" button: true show, false hide, null = no choice (game follows its build default). */
+export interface SkipButtonSetting {
+  enabled: boolean | null;
+  updated_at: string | null;
+}
+
 export class ApiError extends Error {
   constructor(public status: number, message: string) {
     super(message);
@@ -166,8 +172,12 @@ export const api = {
   listSchools: () => request<SchoolSummary[]>("GET", "/api/schools"),
   createSchool: (name: string, address: string) => request<SchoolSummary>("POST", "/api/schools", { name, address }),
   getSchool: (id: number) => request<SchoolDetail>("GET", `/api/schools/${id}`),
-  createAdmin: (schoolId: number, body: { name: string; email: string; password: string }) =>
+  createGuru: (schoolId: number, body: { name: string; email: string; password: string }) =>
     request<{ id: number }>("POST", `/api/schools/${schoolId}/admins`, body),
+
+  getSkipButton: () => request<SkipButtonSetting>("GET", "/api/settings/skip-button"),
+  saveSkipButton: (enabled: boolean | null) =>
+    request<SkipButtonSetting>("PUT", "/api/settings/skip-button", { enabled }),
 
   getDifficulty: () => request<DifficultySettings>("GET", "/api/settings/difficulty"),
   saveDifficulty: (levels: Pick<LevelDifficulty, "level_id" | "enabled" | "difficulty">[]) =>

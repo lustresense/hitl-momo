@@ -1,5 +1,5 @@
 # backend/create_superadmin.py
-"""Create (or reset the password of) a superadmin account.
+"""Create (or reset the password of) a top-level admin account (role='admin').
 
 Usage (from the project root):
     venv/bin/python backend/create_superadmin.py --email you@example.com --name "Nama"
@@ -23,7 +23,7 @@ def main() -> None:
     parser.add_argument("--password")
     args = parser.parse_args()
 
-    password = args.password or getpass.getpass("Password superadmin: ")
+    password = args.password or getpass.getpass("Password admin: ")
     if len(password) < 8:
         sys.exit("Password minimal 8 karakter.")
 
@@ -31,13 +31,13 @@ def main() -> None:
     with connect() as conn:
         conn.execute(
             """
-            INSERT INTO users (email, name, password_hash, role) VALUES (?, ?, ?, 'superadmin')
+            INSERT INTO users (email, name, password_hash, role) VALUES (?, ?, ?, 'admin')
             ON CONFLICT (email) DO UPDATE SET name = excluded.name, password_hash = excluded.password_hash,
-              role = 'superadmin', school_id = NULL
+              role = 'admin', school_id = NULL
             """,
             (args.email.strip(), args.name.strip(), hash_password(password)),
         )
-    print(f"Superadmin {args.email} siap. Database: {DB_PATH}")
+    print(f"Akun admin {args.email} siap (role='admin'). Database: {DB_PATH}")
 
 
 if __name__ == "__main__":

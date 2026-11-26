@@ -10,7 +10,7 @@ Status: `EXISTING` = ada di source dan diuji. `PROPOSED` = belum ada di source.
 | GET | `/health` | EXISTING | none | ops | `{"status":"ok"}` |
 | POST | `/predict` | EXISTING | none | Can `partner-http-provider` | body `{"drawing": {...}, "levelId"?: string}`; respons `{"candidates": [3 item]}`. Model asli dari `MODEL_PATH`. `prediction_id` belum dikirim. `levelId` opsional (0.28.0-alpha, aditif). Sejak 0.28.1-alpha `AI_DIFFICULTY_ENABLED=1` di `docker-compose.yml` (keputusan Dias, backend saja): respons menambah `difficulty: {levelId, value}` (aditif); Top-3 hanya diubah bila `levelId` dikirim **dan** level itu dinyalakan superadmin. Sejak 0.29.0-alpha (kesepakatan Can + Dias 2026-11-19) game mengirim `levelId`, `attemptId`, `contractVersion` dan header `X-Contract-Version` (`NEXT_PUBLIC_PREDICTION_SEND_CONTEXT=1`); default level: Bab 1 = 0, Bab 2 = 40, Bab 3 = 70, semua aktif. CORS mengizinkan `X-Contract-Version`. Sejak 0.30.0-alpha kode default backend (tanpa env) juga menyala; `AI_DIFFICULTY_ENABLED=0` mematikan. Nama level di `/api/settings/difficulty` berubah dari `Bab N · …` menjadi `Level N · …` (hanya label tampilan; `level_id` tidak berubah). |
 | GET | `/api/join/{token}` | EXISTING | token kelas di path | Can `classroom-client.ts` | info kelas + `taken_numbers` |
-| POST | `/api/join/{token}/students` | EXISTING | token kelas di path | Can `classroom-client.ts` | body `{number, name}`. Respons: `student_id`, `number`, `name`, `class_name`, **`student_session_token`**, `expires_in` (28800), `joined_at`. Token disimpan sebagai SHA-256. |
+| POST | `/api/join/{token}/students` | EXISTING | token kelas di path | Can `classroom-client.ts` | body `{name, number?, client_id?}`. `number` opsional (bila kosong, nomor absen `1..student_count` ditetapkan otomatis secara atomik; 400 bila kelas penuh). `client_id` opsional (8–80 karakter; mengembalikan siswa & nomor yang sama saat refresh/rejoin tanpa baris duplikat). Respons: `student_id`, `number`, `name`, `class_name`, **`student_session_token`**, `expires_in` (28800), `joined_at`. Token disimpan sebagai SHA-256. |
 | POST | `/api/submissions` | EXISTING | **`Authorization: Bearer <student_session_token>`** | Can `submission-client.ts` | body `submission_key` (wajib, idempoten per siswa), `join_token`, `student_id`, `level_id`, `attempt_id?`, `prediction_id?`, `strokes`, `candidates` (tepat 3), `decision_type`, `source_rank?`, `final_label`, `redraw_count?`. Respons **201** `{id, status:"created"}`, atau **200** `{id, status:"duplicate"}` bila key sudah ada. 401 tanpa/salah token, 403 bila token bukan milik murid/kelas tersebut. |
 | PATCH | `/api/submissions/{id}/outcome` | EXISTING | Bearer (pemilik submission) | Can `submission-client.ts` | body `{outcome: success\|fail, behavior: solid\|danger\|unresolved, retry_count?}`. Respons 200 `{id, status:"updated"}`. 404 bila submission bukan milik sesi ini. |
 
@@ -20,13 +20,15 @@ Status: `EXISTING` = ada di source dan diuji. `PROPOSED` = belum ada di source.
 |---|---|---|---|
 | POST | `/api/auth/login` | EXISTING | email + password → `token` (Bearer) |
 | GET | `/api/auth/me`, POST `/api/auth/logout` | EXISTING | Bearer |
-| GET/POST | `/api/schools`, GET `/api/schools/{id}`, POST `/api/schools/{id}/admins` | EXISTING | superadmin |
+| GET/POST | `/api/schools`, GET `/api/schools/{id}`, POST `/api/schools/{id}/admins` | EXISTING | admin |
 | GET/POST | `/api/classes`, GET/DELETE `/api/classes/{id}` | EXISTING | Bearer |
 | GET | `/api/classes/{id}/submissions` | EXISTING | Bearer. Kolom: `id, level_id, decision_type, source_rank, final_label, candidates, created_at, student_id, student_number, student_name` |
 | GET | `/api/submissions/{id}/image.png` | EXISTING | Bearer atau `?token=` |
 | GET | `/api/classes/{id}/export.csv`, `export.zip` | EXISTING | Bearer |
 | GET | `/api/settings/difficulty` | EXISTING (0.28.0-alpha) | Bearer. `{levels: [{level_id, name, enabled, difficulty}], formula, active}`; `active` = status `AI_DIFFICULTY_ENABLED` |
-| PUT | `/api/settings/difficulty` | EXISTING (0.28.0-alpha) | superadmin. body `{levels: [{level_id, enabled, difficulty 0–100}]}`; level tak dikenal → 400 |
+| PUT | `/api/settings/difficulty` | EXISTING (0.28.0-alpha) | admin. body `{levels: [{level_id, enabled, difficulty 0–100}]}`; level tak dikenal → 400 |
+| GET | `/api/settings/skip-button` | EXISTING (0.31.0-alpha) | none | Can `skip-button.ts`, admin | respons `{enabled: true \| false \| null, updated_at: string \| null}`; `null` = belum diatur, game ikut bawaan build |
+| PUT | `/api/settings/skip-button` | EXISTING (0.31.0-alpha) | admin | dashboard `tombol-lewati` | body `{enabled: true \| false \| null}` (wajib; `null` menghapus pilihan). Lihat `docs/SKIP_BUTTON.md` |
 
 ## Belum ada (PROPOSED)
 

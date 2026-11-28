@@ -63,6 +63,8 @@ function make(over: Partial<AudioEngineOptions> = {}) {
     advance: (ms: number) => {
       t += ms;
       ctx.currentTime += ms / 1000;
+      // a real browser fires `ended` once a stopped source passes its stop time
+      for (const src of ctx.sources) if (src.stoppedAt !== null && src.stoppedAt <= ctx.currentTime && !src.ended) src.finish();
     },
     hide: () => {
       doc.hidden = true;
@@ -133,6 +135,23 @@ describe("music director", () => {
     const live = h.ctx.active().filter((s) => s.loop && s.stoppedAt === null);
     expect(live).toHaveLength(1);
     expect(live[0]?.buffer?.duration).toBe(50);
+  });
+
+  it("a burst of already-cached scene changes never stacks more than 3 slots (live + fading + being cut)", async () => {
+    const h = await running();
+    for (const s of ["s1", "s2", "s3"]) {
+      h.engine.scene(s);
+      await flush(40);
+    }
+    let max = 0;
+    const seq = ["s1", "s2", "s3", "s1", "s2", "s3", "s1", "s2"];
+    for (const s of seq) {
+      h.engine.scene(s);
+      await flush(40);
+      h.advance(120);
+      max = Math.max(max, h.engine.snapshot().music.slots);
+    }
+    expect(max).toBeLessThanOrEqual(3);
   });
 
   it("keeps a track running when another scene asks for the same one", async () => {

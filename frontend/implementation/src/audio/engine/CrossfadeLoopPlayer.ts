@@ -15,6 +15,7 @@ interface Slot {
   readonly offset: number; // seconds into the buffer when started
   readonly duration: number;
   fading: boolean;
+  killed?: boolean;
 }
 
 export interface PlayOptions {
@@ -123,6 +124,7 @@ export class CrossfadeLoopPlayer {
     // crossfade: old slots fade out while the new one fades in (equal power)
     this.retireLive();
     this.fadeAllOut(fadeOutS);
+    this.capFadingSlots();
     src.start(t, offset);
     fade.gain.setValueCurveAtTime(FADE_IN, t, fadeInS);
     this.slots.push({ id: assetId, src, filter, fade, trim, startedAt: t, offset, duration: buf.duration, fading: false });
@@ -130,6 +132,29 @@ export class CrossfadeLoopPlayer {
     this.diag.count("music-switch");
     this.diag.log("music", this.name, `play ${assetId} @${offset.toFixed(1)}s in ${fadeInS}s`);
     return true;
+  }
+
+  /**
+   * Rapid scene changes: keep only the most recent departing track on its normal fade; any older ones are cut quickly
+   * so a burst of changes can never stack many half-faded tracks (muddy sound, wasted CPU).
+   */
+  private capFadingSlots(): void {
+    const fading = this.slots.filter((s) => s.fading);
+    const t = this.ctx.currentTime;
+    for (const s of fading.slice(0, Math.max(0, fading.length - 1))) {
+      if (s.killed) continue;
+      s.killed = true;
+      const g = s.fade.gain;
+      const cur = g.value;
+      g.cancelScheduledValues(t);
+      g.setValueAtTime(cur, t);
+      g.linearRampToValueAtTime(0, t + 0.08);
+      try {
+        s.src.stop(t + 0.12);
+      } catch {
+        /* already stopped */
+      }
+    }
   }
 
   /** Report where the departing track was, so the director can resume it later instead of restarting at bar 1. */

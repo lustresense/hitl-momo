@@ -15,7 +15,7 @@ export const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "
 export { sleep };
 export const sha256 = p => crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex");
 
-const MIME = { ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".wasm": "application/wasm", ".task": "application/octet-stream", ".txt": "text/plain", ".ico": "image/x-icon", ".woff2": "font/woff2", ".mjs": "text/javascript" };
+const MIME = { ".ogg": "audio/ogg", ".html": "text/html; charset=utf-8", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".svg": "image/svg+xml", ".png": "image/png", ".jpg": "image/jpeg", ".wasm": "application/wasm", ".task": "application/octet-stream", ".txt": "text/plain", ".ico": "image/x-icon", ".woff2": "font/woff2", ".mjs": "text/javascript" };
 
 export function gitInfo() {
   const g = (...a) => { try { return execFileSync("git", a, { cwd: ROOT, encoding: "utf8" }).trim(); } catch { return null; } };

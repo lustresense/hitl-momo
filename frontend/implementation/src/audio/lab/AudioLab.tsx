@@ -20,6 +20,8 @@ export function AudioLab() {
   const [snap, setSnap] = useState<DiagSnapshot>(() => audio.snapshot());
   const [filter, setFilter] = useState("");
   const [loops] = useState(() => new Map<string, LoopHandle>());
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     audio.setLogging(true);
@@ -38,6 +40,7 @@ export function AudioLab() {
 
   const eventIds = useMemo(() => (Object.keys(AUDIO_EVENTS) as AudioEventId[]).filter((k) => k.includes(filter)), [filter]);
   const sceneIds = Object.keys(AUDIO_SCENES) as AudioSceneId[];
+  if (!mounted) return <main data-testid="audio-lab" />; // client-only state (prefs, diagnostics): avoid a hydration mismatch
 
   const stress = () => {
     const seq: AudioSceneId[] = ["cover", "tutorial", "levels", "canvas", "world1", "cover", "ending", "canvas"];

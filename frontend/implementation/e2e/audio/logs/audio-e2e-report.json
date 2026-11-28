@@ -1,0 +1,879 @@
+{
+ "when": "2026-11-28T07:20:17.988Z",
+ "outDir": "/tmp/claude-0/audio-work/out_after",
+ "evidence": "BROWSER_E2E headless null sink; listening NOT_TESTED",
+ "total": 37,
+ "failed": 2,
+ "checks": [
+  {
+   "name": "before any gesture: no AudioContext, state idle",
+   "ok": true,
+   "detail": {
+    "state": "idle",
+    "sr": null
+   }
+  },
+  {
+   "name": "sound requested before unlock is dropped as locked (never queued)",
+   "ok": true,
+   "detail": {
+    "locked": 3
+   }
+  },
+  {
+   "name": "typing the nickname (a real gesture) unlocks audio",
+   "ok": true,
+   "detail": "running"
+  },
+  {
+   "name": "dream scene music starts (bgm.dream)",
+   "ok": true,
+   "detail": {
+    "track": "bgm.dream",
+    "scene": "dream",
+    "slots": 1,
+    "positionS": 0.2
+   }
+  },
+  {
+   "name": "dream ambience starts",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "muted: no voice starts, drops counted as muted",
+   "ok": true,
+   "detail": {
+    "muted": 5
+   }
+  },
+  {
+   "name": "preferences persisted locally",
+   "ok": true,
+   "detail": {
+    "master": 0.8,
+    "music": 0.6,
+    "sfx": 0.9,
+    "muted": false
+   }
+  },
+  {
+   "name": "40 rapid ui.tap -> at most 2 sounds (cooldown)",
+   "ok": true,
+   "detail": {
+    "played": 1
+   }
+  },
+  {
+   "name": "hidden tab: engine reports suspended",
+   "ok": true,
+   "detail": "suspended"
+  },
+  {
+   "name": "sounds requested while hidden are dropped",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "tab visible again: audio running",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "no console/page errors in dream/controls part",
+   "ok": true,
+   "detail": {
+    "errors": [
+     {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+     }
+    ],
+    "failedResponses": [
+     "404 /api/settings/skip-button"
+    ]
+   }
+  },
+  {
+   "name": "cover: scene cover, music bgm.cover",
+   "ok": true,
+   "detail": {
+    "track": "bgm.cover",
+    "scene": "cover",
+    "slots": 2,
+    "positionS": 0.4
+   }
+  },
+  {
+   "name": "tutorial: scene tutorial, music bgm.tutorial",
+   "ok": true,
+   "detail": {
+    "track": "bgm.tutorial",
+    "scene": "tutorial",
+    "slots": 1,
+    "positionS": 8.5
+   }
+  },
+  {
+   "name": "level select: scene levels, music bgm.levels",
+   "ok": true,
+   "detail": {
+    "track": "bgm.levels",
+    "scene": "levels",
+    "slots": 1,
+    "positionS": 1.5
+   }
+  },
+  {
+   "name": "story intro: scene story, music bgm.story",
+   "ok": true,
+   "detail": {
+    "track": "bgm.story",
+    "scene": "story",
+    "slots": 1,
+    "positionS": 1.9
+   }
+  },
+  {
+   "name": "canvas: scene canvas, music bgm.focus",
+   "ok": true,
+   "detail": {
+    "track": "bgm.focus",
+    "scene": "canvas",
+    "slots": 2,
+    "positionS": 1
+   }
+  },
+  {
+   "name": "valid drawing: pencil loop active while drawing",
+   "ok": true,
+   "detail": {
+    "loops": 1
+   }
+  },
+  {
+   "name": "pencil loop stops after the stroke",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "prediction/HITL keeps the same focus track (no restart, no tension change)",
+   "ok": true,
+   "detail": {
+    "track": "bgm.focus",
+    "scene": "canvas",
+    "slots": 1,
+    "positionS": 12.5
+   }
+  },
+  {
+   "name": "world level 1: scene world1, music bgm.l1",
+   "ok": true,
+   "detail": {
+    "track": "bgm.l1",
+    "scene": "world1",
+    "slots": 2,
+    "positionS": 2
+   }
+  },
+  {
+   "name": "never more than 2 music tracks at once (no duplicate BGM)",
+   "ok": true,
+   "detail": {
+    "maxSlots": 2
+   }
+  },
+  {
+   "name": "no unknown events / missing assets / load failures",
+   "ok": true,
+   "detail": {
+    "locked": 2,
+    "cooldown": 9,
+    "stale": 2
+   }
+  },
+  {
+   "name": "no failed asset loads",
+   "ok": true,
+   "detail": []
+  },
+  {
+   "name": "one hitl.submit, one hitl.reveal, one hitl.decide for one decision",
+   "ok": true,
+   "detail": {
+    "submit": 1,
+    "reveal": 1,
+    "decide": 1
+   }
+  },
+  {
+   "name": "sticker pop and throw once each",
+   "ok": true,
+   "detail": {
+    "pop": 1,
+    "throw": 1
+   }
+  },
+  {
+   "name": "ring commits sounded (nui.commit) for the holds performed",
+   "ok": true,
+   "detail": 8
+  },
+  {
+   "name": "world.fall then world.land for the thrown object",
+   "ok": true,
+   "detail": {
+    "fall": 1,
+    "land": 1
+   }
+  },
+  {
+   "name": "level intro jingle once",
+   "ok": true,
+   "detail": 1
+  },
+  {
+   "name": "memory: decoded buffers stay modest",
+   "ok": true,
+   "detail": {
+    "MB": 64.3
+   }
+  },
+  {
+   "name": "no console/page errors during the journey",
+   "ok": true,
+   "detail": {
+    "errors": [
+     {
+      "type": "console",
+      "text": "Failed to load resource: the server responded with a status of 404 (Not Found)"
+     }
+    ],
+    "failedResponses": [
+     "404 /api/settings/skip-button"
+    ]
+   }
+  },
+  {
+   "name": "blocked music file: failure recorded, game still on the cover",
+   "ok": true,
+   "detail": [
+    {
+     "id": "ui.tap_b",
+     "error": "HTTP 404",
+     "attempts": 1
+    },
+    {
+     "id": "ui.tap_a",
+     "error": "HTTP 404",
+     "attempts": 1
+    },
+    {
+     "id": "bgm.cover",
+     "error": "HTTP 404",
+     "attempts": 2
+    }
+   ]
+  },
+  {
+   "name": "failed loads are bounded (<= 3 attempts)",
+   "ok": true,
+   "detail": [
+    {
+     "id": "ui.tap_b",
+     "error": "HTTP 404",
+     "attempts": 1
+    },
+    {
+     "id": "ui.tap_a",
+     "error": "HTTP 404",
+     "attempts": 1
+    },
+    {
+     "id": "bgm.cover",
+     "error": "HTTP 404",
+     "attempts": 2
+    }
+   ]
+  },
+  {
+   "name": "asset failure raises no uncaught page errors",
+   "ok": true,
+   "detail": []
+  },
+  {
+   "name": "rapid scene stress: exactly one music track audible afterwards",
+   "ok": true,
+   "detail": {
+    "track": "bgm.focus",
+    "scene": "canvas",
+    "slots": 1,
+    "positionS": 4.2
+   }
+  },
+  {
+   "name": "rapid scene stress: never more than 2 tracks during crossfades",
+   "ok": false,
+   "detail": {
+    "maxSlots": 10
+   }
+  },
+  {
+   "name": "lab spam test did not throw",
+   "ok": false,
+   "detail": [
+    {
+     "type": "pageerror",
+     "text": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    },
+    {
+     "type": "pageerror",
+     "text": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    },
+    {
+     "type": "pageerror",
+     "text": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
+    }
+   ]
+  }
+ ],
+ "seen": {
+  "scenes": [
+   {
+    "label": "cover",
+    "scene": "cover",
+    "track": "bgm.cover"
+   },
+   {
+    "label": "tutorial",
+    "scene": "tutorial",
+    "track": "bgm.tutorial"
+   },
+   {
+    "label": "level select",
+    "scene": "levels",
+    "track": "bgm.levels"
+   },
+   {
+    "label": "story intro",
+    "scene": "story",
+    "track": "bgm.story"
+   },
+   {
+    "label": "canvas",
+    "scene": "canvas",
+    "track": "bgm.focus"
+   },
+   {
+    "label": "world level 1",
+    "scene": "world1",
+    "track": "bgm.l1"
+   }
+  ],
+  "tracks": [],
+  "emits": {
+   "sys.ready": 1,
+   "ui.tap": 3,
+   "dream.blast": 1,
+   "dream.iris": 1,
+   "ui.toggle_on": 1,
+   "momo.startle": 2,
+   "momo.flap": 9,
+   "sys.hiccup": 1,
+   "ui.morph": 1,
+   "momo.wave": 1,
+   "momo.hop": 4,
+   "ui.ring_in": 2,
+   "nui.commit": 8,
+   "momo.whoosh": 4,
+   "page.curl": 1,
+   "bubble.show": 6,
+   "card.deal": 1,
+   "card.flip": 3,
+   "card.bifold": 3,
+   "thinman.step": 13,
+   "goal.reach": 1,
+   "card.close": 3,
+   "card.stamp": 3,
+   "tool.tick": 5,
+   "tool.eraser": 1,
+   "nui.release": 2,
+   "tool.undo": 1,
+   "tool.redo": 1,
+   "tool.clear": 1,
+   "card.exit": 1,
+   "ribbon.drop": 1,
+   "ribbon.launch": 1,
+   "jingle.level_intro": 1,
+   "intro.spotlight": 1,
+   "world.rise": 1,
+   "hitl.submit": 1,
+   "hitl.reveal": 1,
+   "nui.lit": 3,
+   "hitl.decide": 1,
+   "sticker.pop": 1,
+   "sticker.throw": 1,
+   "world.fall": 1,
+   "world.land": 1
+  },
+  "snapshot": {
+   "state": "running",
+   "sampleRate": 48000,
+   "baseLatencyMs": 10,
+   "outputLatencyMs": 32,
+   "activeVoices": 0,
+   "activeLoops": 0,
+   "counters": {
+    "emit": 101,
+    "loaded": 90,
+    "played": 88,
+    "music-switch": 12
+   },
+   "dropped": {
+    "locked": 2,
+    "cooldown": 9,
+    "stale": 2
+   },
+   "loadedBuffers": [
+    {
+     "id": "ui.tap_a",
+     "bytesEstimate": 13160,
+     "seconds": 0.06854166666666667
+    },
+    {
+     "id": "bubble.show_a",
+     "bytesEstimate": 28216,
+     "seconds": 0.14695833333333333
+    },
+    {
+     "id": "bubble.show_b",
+     "bytesEstimate": 28308,
+     "seconds": 0.1474375
+    },
+    {
+     "id": "jingle.fail_soft",
+     "bytesEstimate": 876152,
+     "seconds": 2.281645833333333
+    },
+    {
+     "id": "momo.flap_a",
+     "bytesEstimate": 44160,
+     "seconds": 0.23
+    },
+    {
+     "id": "jingle.level_complete",
+     "bytesEstimate": 1364736,
+     "seconds": 3.554
+    },
+    {
+     "id": "jingle.level_intro",
+     "bytesEstimate": 838728,
+     "seconds": 2.1841875
+    },
+    {
+     "id": "momo.flap_c",
+     "bytesEstimate": 44160,
+     "seconds": 0.23
+    },
+    {
+     "id": "momo.flap_b",
+     "bytesEstimate": 44160,
+     "seconds": 0.23
+    },
+    {
+     "id": "momo.hop",
+     "bytesEstimate": 28800,
+     "seconds": 0.15
+    },
+    {
+     "id": "momo.land",
+     "bytesEstimate": 32640,
+     "seconds": 0.17
+    },
+    {
+     "id": "momo.wave",
+     "bytesEstimate": 60472,
+     "seconds": 0.31495833333333334
+    },
+    {
+     "id": "momo.whoosh_a",
+     "bytesEstimate": 198200,
+     "seconds": 0.5161458333333333
+    },
+    {
+     "id": "momo.whoosh_b",
+     "bytesEstimate": 198264,
+     "seconds": 0.5163125
+    },
+    {
+     "id": "nui.commit",
+     "bytesEstimate": 48976,
+     "seconds": 0.25508333333333333
+    },
+    {
+     "id": "nui.hold",
+     "bytesEstimate": 345600,
+     "seconds": 0.9
+    },
+    {
+     "id": "nui.release",
+     "bytesEstimate": 28212,
+     "seconds": 0.1469375
+    },
+    {
+     "id": "nui.lit",
+     "bytesEstimate": 11520,
+     "seconds": 0.06
+    },
+    {
+     "id": "nui.track_found",
+     "bytesEstimate": 71564,
+     "seconds": 0.37272916666666667
+    },
+    {
+     "id": "nui.track_lost",
+     "bytesEstimate": 71520,
+     "seconds": 0.3725
+    },
+    {
+     "id": "sys.hiccup",
+     "bytesEstimate": 97340,
+     "seconds": 0.5069791666666666
+    },
+    {
+     "id": "sys.ready",
+     "bytesEstimate": 121324,
+     "seconds": 0.6318958333333333
+    },
+    {
+     "id": "ui.denied",
+     "bytesEstimate": 43372,
+     "seconds": 0.22589583333333332
+    },
+    {
+     "id": "ui.notice",
+     "bytesEstimate": 37840,
+     "seconds": 0.19708333333333333
+    },
+    {
+     "id": "ui.morph",
+     "bytesEstimate": 166872,
+     "seconds": 0.4345625
+    },
+    {
+     "id": "ui.skip",
+     "bytesEstimate": 20084,
+     "seconds": 0.10460416666666666
+    },
+    {
+     "id": "ui.ring_in",
+     "bytesEstimate": 32028,
+     "seconds": 0.1668125
+    },
+    {
+     "id": "ui.tap_b",
+     "bytesEstimate": 13440,
+     "seconds": 0.07
+    },
+    {
+     "id": "ui.toggle_off",
+     "bytesEstimate": 18872,
+     "seconds": 0.09829166666666667
+    },
+    {
+     "id": "ui.toggle_on",
+     "bytesEstimate": 24892,
+     "seconds": 0.12964583333333332
+    },
+    {
+     "id": "dream.blast",
+     "bytesEstimate": 570584,
+     "seconds": 1.4858958333333334
+    },
+    {
+     "id": "dream.iris",
+     "bytesEstimate": 713536,
+     "seconds": 1.8581666666666667
+    },
+    {
+     "id": "amb.paper_room",
+     "bytesEstimate": 6144000,
+     "seconds": 16
+    },
+    {
+     "id": "momo.startle",
+     "bytesEstimate": 62012,
+     "seconds": 0.32297916666666665
+    },
+    {
+     "id": "page.curl",
+     "bytesEstimate": 712376,
+     "seconds": 1.8551458333333333
+    },
+    {
+     "id": "card.close",
+     "bytesEstimate": 68480,
+     "seconds": 0.3566666666666667
+    },
+    {
+     "id": "card.bifold",
+     "bytesEstimate": 120120,
+     "seconds": 0.625625
+    },
+    {
+     "id": "card.deal",
+     "bytesEstimate": 246600,
+     "seconds": 0.6421875
+    },
+    {
+     "id": "card.flip",
+     "bytesEstimate": 85640,
+     "seconds": 0.44604166666666667
+    },
+    {
+     "id": "card.stamp",
+     "bytesEstimate": 70572,
+     "seconds": 0.3675625
+    },
+    {
+     "id": "card.exit",
+     "bytesEstimate": 84388,
+     "seconds": 0.43952083333333336
+    },
+    {
+     "id": "tool.tick",
+     "bytesEstimate": 24960,
+     "seconds": 0.13
+    },
+    {
+     "id": "thinman.step_c",
+     "bytesEstimate": 14328,
+     "seconds": 0.074625
+    },
+    {
+     "id": "thinman.step_a",
+     "bytesEstimate": 14400,
+     "seconds": 0.075
+    },
+    {
+     "id": "thinman.step_b",
+     "bytesEstimate": 14400,
+     "seconds": 0.075
+    },
+    {
+     "id": "thinman.step_d",
+     "bytesEstimate": 14400,
+     "seconds": 0.075
+    },
+    {
+     "id": "goal.reach",
+     "bytesEstimate": 132108,
+     "seconds": 0.6880625
+    },
+    {
+     "id": "draw.pencil",
+     "bytesEstimate": 307200,
+     "seconds": 0.8
+    },
+    {
+     "id": "tool.eraser",
+     "bytesEstimate": 19200,
+     "seconds": 0.1
+    },
+    {
+     "id": "draw.eraser",
+     "bytesEstimate": 307200,
+     "seconds": 0.8
+    },
+    {
+     "id": "tool.redo",
+     "bytesEstimate": 32640,
+     "seconds": 0.17
+    },
+    {
+     "id": "tool.undo",
+     "bytesEstimate": 32640,
+     "seconds": 0.17
+    },
+    {
+     "id": "tool.clear",
+     "bytesEstimate": 199680,
+     "seconds": 0.52
+    },
+    {
+     "id": "ribbon.drop",
+     "bytesEstimate": 333568,
+     "seconds": 0.8686666666666667
+    },
+    {
+     "id": "ribbon.armed",
+     "bytesEstimate": 46088,
+     "seconds": 0.24004166666666665
+    },
+    {
+     "id": "ribbon.launch",
+     "bytesEstimate": 268800,
+     "seconds": 0.7
+    },
+    {
+     "id": "ribbon.notch",
+     "bytesEstimate": 17280,
+     "seconds": 0.09
+    },
+    {
+     "id": "ribbon.rebound",
+     "bytesEstimate": 96000,
+     "seconds": 0.5
+    },
+    {
+     "id": "ribbon.unlock",
+     "bytesEstimate": 364024,
+     "seconds": 0.9479791666666667
+    },
+    {
+     "id": "amb.world_air",
+     "bytesEstimate": 6912000,
+     "seconds": 18
+    },
+    {
+     "id": "bgm.focus",
+     "bytesEstimate": 24576000,
+     "seconds": 64
+    },
+    {
+     "id": "intro.spotlight",
+     "bytesEstimate": 170184,
+     "seconds": 0.886375
+    },
+    {
+     "id": "world.rise",
+     "bytesEstimate": 843184,
+     "seconds": 2.1957916666666666
+    },
+    {
+     "id": "hitl.decide",
+     "bytesEstimate": 53760,
+     "seconds": 0.28
+    },
+    {
+     "id": "hitl.submit",
+     "bytesEstimate": 80640,
+     "seconds": 0.42
+    },
+    {
+     "id": "hitl.reveal",
+     "bytesEstimate": 193888,
+     "seconds": 0.5049166666666667
+    },
+    {
+     "id": "page.flick",
+     "bytesEstimate": 48048,
+     "seconds": 0.25025
+    },
+    {
+     "id": "mission.open",
+     "bytesEstimate": 61440,
+     "seconds": 0.32
+    },
+    {
+     "id": "sticker.pop",
+     "bytesEstimate": 214152,
+     "seconds": 0.5576875
+    },
+    {
+     "id": "tool.pencil",
+     "bytesEstimate": 17280,
+     "seconds": 0.09
+    },
+    {
+     "id": "sticker.shrink",
+     "bytesEstimate": 80640,
+     "seconds": 0.42
+    },
+    {
+     "id": "sticker.throw",
+     "bytesEstimate": 345600,
+     "seconds": 0.9
+    },
+    {
+     "id": "bgm.l1",
+     "bytesEstimate": 16457144,
+     "seconds": 42.857145833333334
+    },
+    {
+     "id": "world.fall",
+     "bytesEstimate": 161884,
+     "seconds": 0.8431458333333334
+    },
+    {
+     "id": "hazard.hit",
+     "bytesEstimate": 79148,
+     "seconds": 0.41222916666666665
+    },
+    {
+     "id": "place.grab",
+     "bytesEstimate": 17280,
+     "seconds": 0.09
+    },
+    {
+     "id": "fall.abyss",
+     "bytesEstimate": 189240,
+     "seconds": 0.985625
+    },
+    {
+     "id": "world.land",
+     "bytesEstimate": 187536,
+     "seconds": 0.488375
+    },
+    {
+     "id": "place.set",
+     "bytesEstimate": 68036,
+     "seconds": 0.3543541666666667
+    },
+    {
+     "id": "thinman.jump",
+     "bytesEstimate": 40320,
+     "seconds": 0.21
+    },
+    {
+     "id": "place.rotate",
+     "bytesEstimate": 15360,
+     "seconds": 0.08
+    },
+    {
+     "id": "thinman.land_hard",
+     "bytesEstimate": 53760,
+     "seconds": 0.28
+    },
+    {
+     "id": "thinman.land_soft",
+     "bytesEstimate": 28800,
+     "seconds": 0.15
+    },
+    {
+     "id": "win.sparkle",
+     "bytesEstimate": 451904,
+     "seconds": 1.1768333333333334
+    }
+   ],
+   "failedLoads": [],
+   "music": {
+    "track": "bgm.l1",
+    "scene": "world1",
+    "slots": 1,
+    "positionS": 4.7
+   },
+   "ambience": {
+    "track": "amb.world_air"
+   },
+   "prefs": {
+    "master": 0.8,
+    "music": 0.6,
+    "sfx": 0.9,
+    "muted": false
+   },
+   "bufferMemoryMB": 64.3
+  },
+  "maxSlots": 2
+ }
+}

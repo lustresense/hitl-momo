@@ -130,6 +130,8 @@ export interface AudioApi {
   scene(id: string | null): void;
   currentScene(): string | null;
   duck(db: number, holdMs?: number): void;
+  /** A scene was fast-forwarded (developer skip): fade out scene-bound sounds that no longer match the picture. */
+  interrupt(): void;
   musicPatch(p: MusicStatePatch): void;
   warm(ids: readonly string[]): void;
   getPrefs(): AudioPrefsState;

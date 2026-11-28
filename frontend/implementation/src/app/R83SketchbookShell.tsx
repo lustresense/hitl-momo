@@ -20,6 +20,8 @@ import { subscribeMonuiWarmupStatus, warmMonuiWorker, type MonuiWarmupStatus } f
 import { R83CameraDock, type MonuiDetectorState } from "./R83CameraDock";
 import { readSavedCameraIntent } from "./hooks/useR83Camera";
 import { useR83AppState } from "./hooks/useR83AppState";
+import { useShellAudio } from "@/src/audio/bindings/useShellAudio";
+import { NuiAudioBridge } from "@/src/audio/bindings/NuiAudioBridge";
 
 const ROUTE_NOTICE_STYLE: CSSProperties = { position: "fixed", top: 14, left: "50%", transform: "translateX(-50%)", zIndex: 55 };
 const COVER_HIDDEN_STYLE: CSSProperties = { pointerEvents: "none" };
@@ -53,6 +55,14 @@ function R83ActiveView() {
 
   const { cameraActive, cameraState, onCameraToggle } = s.camera;
 
+  useShellAudio({
+    routeKind: route.kind,
+    introPlaying: s.introPlaying,
+    stage: s.activeLevel?.stage ?? null,
+    cameraStatus: cameraState.status,
+    routeNotice: route.kind === "levels" ? s.routeNotice : null,
+  });
+
   useEffect(() => {
     if (!isPostCover || autoReconnectTriedRef.current) return;
     if (!cameraActive && cameraState.status === "idle" && readSavedCameraIntent()) {
@@ -75,6 +85,7 @@ function R83ActiveView() {
   return (
     <>
       <PaperOverlay />
+      <NuiAudioBridge />
       <R83CameraDock
         active={s.camera.cameraActive}
         showPip={isPostCover}

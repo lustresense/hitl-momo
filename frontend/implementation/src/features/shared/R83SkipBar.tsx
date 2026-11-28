@@ -1,5 +1,6 @@
 "use client";
 
+import { audio } from "@/src/audio";
 import { createContext, useContext, useEffect, useRef } from "react";
 
 /**
@@ -44,6 +45,8 @@ export function R83SkipBar({
     // A double press must not run the same scene's skip twice (it would throw or skip two scenes).
     if (last && last.label === label && now - last.at < SKIP_REPEAT_GUARD_MS) return;
     lastPressRef.current = { label, at: now };
+    audio.interrupt();
+    audio.emit("ui.skip");
     onSkip();
   };
 

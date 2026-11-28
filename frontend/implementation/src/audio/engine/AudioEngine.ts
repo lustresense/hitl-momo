@@ -322,6 +322,10 @@ export class AudioEngine implements AudioApi {
     });
   }
 
+  interrupt(): void {
+    this.sfx?.stopSceneBound(60);
+  }
+
   duck(db: number, holdMs = 800): void {
     this.music?.duck(db, holdMs);
   }

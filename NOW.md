@@ -1,5 +1,10 @@
 # NOW.md — Status integrasi bersama
 
+## 2026-11-28 — Audio game (mandat M-047, branch `claude-monorepo`, belum deploy)
+- Owner meminta sistem audio imersif (SFX, musik adaptif per scene, kontrol volume, Audio Lab developer). Momo tetap tanpa suara; teks bubble tetap satu-satunya cara Momo berkomunikasi.
+- **Izin Git (jangan salah baca):** pekerjaan ini hanya boleh di-commit dan di-push ke `claude-monorepo`. **Dilarang push, merge, atau mempromosikan ke `main`** sampai Owner mengizinkan secara eksplisit; instruksi lama yang mengizinkan push `main` bukan izin otomatis. `claude-monorepo` disamakan dengan `main` `901e3c9` lewat force push yang diperintahkan Owner (tip lama `8276abf`).
+- Status dan bukti diperbarui di bagian ini saat checkpoint; sebelum itu semua klaim audio adalah `NOT_TESTED`.
+
 ## 2026-11-26 — Migrasi UI game r8.3 (0.31.0 sampai 0.32.1-alpha, di-push ke `main`, belum deploy)
 - Game: tampilan r8.3 jadi bawaan. Join memakai nama panggilan yang diketik di DreamLoader; server memberi nomor otomatis dan menerima `client_id` (opsional). STT dan penggaris bukan alur produk (D-20261126-03). D-20261126-04/-05/-06 menegaskan tutorial R8.3, pemisahan lab dan tiga tingkat interaksi; revisi ring kursor belum terbukti terimplementasi. Rekonsiliasi ini tidak mengubah kode, runtime, atau status review Dias.
 - Backend (sisi Dias, PERLU REVIEW): join tanpa nomor, role `superadmin/admin` menjadi `admin/guru` (migrasi otomatis saat start, ada backup `.pre-role-migration-*.bak` dan `backend/rollback_user_roles.py`), penyesuaian muat model Keras, endpoint `/api/settings/skip-button`, CORS `PUT`.

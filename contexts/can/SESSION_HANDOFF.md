@@ -1,3 +1,9 @@
+# CAN Agent Session Checkpoint — 2026-11-28 (audio)
+
+- Branch kerja: `claude-monorepo` (upstream `origin/claude-monorepo`). Dasar: `main` `901e3c9`. Force push ke `claude-monorepo` diperintahkan Owner satu kali pada 2026-11-28 (tip lama `8276abf`), dengan `--force-with-lease`.
+- **Izin Git:** commit dan push checkpoint hanya ke `claude-monorepo`. **Jangan push, merge, atau promosikan ke `main`**, dan jangan deploy, sampai Owner memberi izin eksplisit (M-047). Perintah lama yang mengizinkan push `main` adalah sejarah.
+- Tugas: sistem audio (SFX, musik adaptif, kontrol volume, Audio Lab). Momo tidak bersuara. Rincian dan bukti: `frontend/implementation/docs/audio/` (dibuat saat pekerjaan berjalan).
+
 # CAN Agent Session Checkpoint — 2026-11-26
 
 - Di-push ke `main` 2026-11-26 atas perintah Owner, versi `0.32.1-alpha` (commit game `64248dc`). `main` sebelum migrasi tersimpan di branch `backup/main-sebelum-r83`.

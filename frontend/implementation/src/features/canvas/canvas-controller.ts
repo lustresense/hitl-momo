@@ -111,6 +111,7 @@ export class CanvasController {
       this.finishActiveInteraction(true);
       this.activeTool = tool;
       this.store.eraserMode = tool === "eraser";
+      this.opts.onToolAction?.(tool);
       this.emitState();
       return true;
     }
@@ -119,6 +120,7 @@ export class CanvasController {
     const changed = tool === "undo" ? this.store.undo() : tool === "redo" ? this.store.redo() : this.store.wipe();
     if (changed) {
       this.recordToolUsed(tool);
+      this.opts.onToolAction?.(tool);
       this.idleReady = false;
       this.scheduleIdleIfInk();
       this.render();
@@ -152,14 +154,20 @@ export class CanvasController {
     const pt = cr.viewportToCanvasPoint(vpX, vpY, metrics);
 
     if (sample.pinch && !this.prevPinch) {
-      if (!chrome && this.isInsidePaper(vpX, vpY, metrics)) this.beginInteractivePass(sample, metrics, pt);
+      if (!chrome && this.isInsidePaper(vpX, vpY, metrics)) {
+        this.beginInteractivePass(sample, metrics, pt);
+        this.opts.onInk?.({ kind: "begin", tool: this.activeTool, x: vpX, y: vpY, t: sample.t, effective: this.activeTool === "pencil" || this.eraseChanged });
+      }
     } else if (sample.pinch && this.prevPinch) {
       if (this.erasingActive) {
-        if (this.store.eraseAt(pt, this.eraserRadiusCanvasPx())) this.eraseChanged = true;
+        const erased = this.store.eraseAt(pt, this.eraserRadiusCanvasPx());
+        if (erased) this.eraseChanged = true;
         this.render();
+        this.opts.onInk?.({ kind: "move", tool: "eraser", x: vpX, y: vpY, t: sample.t, effective: erased });
       } else if (this.drawingActive) {
         this.store.addPoint(pt);
         this.render();
+        this.opts.onInk?.({ kind: "move", tool: "pencil", x: vpX, y: vpY, t: sample.t, effective: true });
       }
     } else if (!sample.pinch && this.prevPinch && (this.drawingActive || this.erasingActive)) {
       this.completeStrokeAndReschedule();
@@ -203,11 +211,13 @@ export class CanvasController {
   dispose(): void {
     if (this.disposed) return;
     this.disposed = true;
+    this.opts.onInk?.({ kind: "end" });
     this.clearIdleTimer();
     this.stateListeners.clear();
   }
 
   private clearSurface(): void {
+    this.opts.onInk?.({ kind: "end" });
     this.store.clear();
     this.clearIdleTimer();
     this.idleReady = false;
@@ -249,6 +259,7 @@ export class CanvasController {
   }
 
   private finishActiveInteraction(recordUsage: boolean): void {
+    if (this.erasingActive || this.drawingActive) this.opts.onInk?.({ kind: "end" });
     if (this.erasingActive) {
       this.erasingActive = false;
       this.store.endErase();

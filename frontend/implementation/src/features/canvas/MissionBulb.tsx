@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useMemo, useRef } from "react";
 import gsap from "gsap";
 import { OwnerIcon } from "@/src/components/ui/owner-icons";
+import { audio } from "@/src/audio";
 import { CANVAS_COPY } from "@/src/domain/copy/canvas";
 import type { LevelDefinition } from "@/src/domain/levels";
 import { getMissionConfigForLevel } from "@/src/domain/mission-config";
@@ -64,6 +65,13 @@ export function MissionBulb({ level, open, onToggle, hidden = false }: MissionBu
   const popRef = useRef<HTMLElement | null>(null);
   const mission = useMemo(() => getMissionConfigForLevel(level), [level]);
   const examples = mission.examples.length > 0 ? mission.examples : level.catalog;
+
+  // Opening sounds (edge false -> true); closing is silent. Same for button, NUI ring and any other opener.
+  const prevOpenRef = useRef(open);
+  useEffect(() => {
+    if (open && !prevOpenRef.current) audio.emit("mission.open");
+    prevOpenRef.current = open;
+  }, [open]);
 
   useIsoLayoutEffect(() => {
     const el = popRef.current;

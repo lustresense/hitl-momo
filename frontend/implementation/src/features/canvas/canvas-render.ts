@@ -4,6 +4,7 @@ import { eraserRadiusCanvasPx } from "@/src/input/eraser";
 import { normalizeStrokes } from "@/src/input/normalize";
 import { StrokeStore, type HandInputStatus, type InputModeId, type RawStroke } from "@/src/input/types";
 import type { InputSample } from "@/src/nui/core/types";
+import type { InkEvent } from "./draw-sound";
 import type { ActiveBrushTool, CanvasToolId } from "./tools";
 
 export interface CanvasViewportRect {
@@ -43,6 +44,10 @@ export interface CanvasControllerState {
 
 export interface CanvasControllerOptions {
   readonly onToolUsed?: (tool: CanvasToolId) => void;
+  /** Audio observer: a tool really changed (pencil/eraser switched, or undo/redo/clear changed the paper). */
+  readonly onToolAction?: (tool: CanvasToolId) => void;
+  /** Audio observer: pen activity (begin / move / end). Read-only; never alters drawing. */
+  readonly onInk?: (event: InkEvent) => void;
   readonly onStateChange?: (state: CanvasControllerState) => void;
   readonly onRender?: () => void;
   readonly idleMs?: number;

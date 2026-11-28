@@ -2,6 +2,7 @@
 
 import { useCallback, useRef, useState, type RefObject } from "react";
 import gsap from "gsap";
+import { audio } from "@/src/audio";
 import type { MomoStageHandle } from "@/src/features/shared/MomoStage";
 import type { PathPoint } from "@/src/features/shared/bubble-placement";
 import type { WorldIntroFocus } from "@/src/domain/copy/world";
@@ -65,6 +66,8 @@ export function useIntroTimeline(options: UseIntroTimelineOptions): IntroTimelin
 
   const doneRef = useRef(false);
   const risingRef = useRef(false);
+  /** Stage whose intro jingle already played (survives StrictMode effect re-runs; reset only by a new stage). */
+  const jinglePlayedRef = useRef<number | null>(null);
   const spotRef = useRef({ x: 0, y: 0, r: 0 });
   const timersRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
   const ctxRef = useRef<gsap.Context | null>(null);
@@ -133,6 +136,11 @@ export function useIntroTimeline(options: UseIntroTimelineOptions): IntroTimelin
     setPhase("rise");
     setMood("Semangat");
     setFlapKey((k) => k + 1);
+    // The 2.1 s camera rise (real speed only). The dev skip runs it 7x faster, so the long sounds would not match: silent.
+    if (speed === 1) {
+      audio.emit("world.rise");
+      audio.emit("momo.whoosh");
+    }
 
     const root = rootRef.current;
     const cam = cameraRef.current;
@@ -206,6 +214,11 @@ export function useIntroTimeline(options: UseIntroTimelineOptions): IntroTimelin
     const run = async () => {
       await sleep(SCENE_ENTER_DELAY_MS + BOOK_OPEN_PAUSE_MS);
       if (cancelled || risingRef.current) return;
+      // Intro start: the level jingle, once per stage (a StrictMode re-run cancels the first run before it gets here).
+      if (jinglePlayedRef.current !== stage) {
+        jinglePlayedRef.current = stage;
+        audio.emit("jingle.level_intro");
+      }
       await momoRef.current?.moveTo("side", 0);
       const first = spotFor(beats[0]?.focus ?? "thinman");
       const pose = momoRef.current?.pose() ?? { x: first.x, y: first.y, s: first.s, r: 0 };
@@ -215,6 +228,7 @@ export function useIntroTimeline(options: UseIntroTimelineOptions): IntroTimelin
         { t: 1, x: first.x, y: first.y, s: first.s, r: 0 },
       ];
       setFlapKey((k) => k + 1);
+      if (!cancelled && !risingRef.current) audio.emit("momo.whoosh");
       await momoRef.current?.moveAlong(flyPts, FLY_IN_MS);
       if (cancelled || risingRef.current) return;
 
@@ -230,6 +244,7 @@ export function useIntroTimeline(options: UseIntroTimelineOptions): IntroTimelin
             spotRef.current = { ...nextSpot };
             paintSpot();
           } else {
+            audio.emit("intro.spotlight");
             ctxRef.current?.add(() => {
               gsap.killTweensOf(spotRef.current);
               gsap.to(spotRef.current, { ...nextSpot, duration: SPOT_S, ease: "power2.inOut", onUpdate: paintSpot });

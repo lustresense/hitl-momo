@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useRef, type RefObject } from "react";
 import gsap from "gsap";
+import { audio } from "@/src/audio";
 import { OwnerIcon } from "@/src/components/ui/owner-icons";
 import { CANVAS_COPY } from "@/src/domain/copy/canvas";
 import {
@@ -84,6 +85,13 @@ export function GuessRing({
   const hasNui = useOptionalNui() !== null;
   const cfgRef = useRef({ getDrawingRect, bubbleRef });
   cfgRef.current = { getDrawingRect, bubbleRef };
+
+  // The ring pops in (edge false -> true, once per appearance).
+  const wasVisibleRef = useRef(false);
+  useEffect(() => {
+    if (visible && !wasVisibleRef.current) audio.emit("ui.ring_in");
+    wasVisibleRef.current = visible;
+  }, [visible]);
 
   const placeNow = useCallback(() => {
     const el = hostRef.current;

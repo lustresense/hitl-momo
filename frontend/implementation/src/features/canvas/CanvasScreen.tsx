@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { DrawingFlowScreenProps } from "@/src/app/screens/DrawingFlowScreen";
+import { audio } from "@/src/audio";
 import { CANVAS_COPY } from "@/src/domain/copy/canvas";
 import { getMissionConfigForLevel } from "@/src/domain/mission-config";
 import {
@@ -42,6 +43,17 @@ function ignoreRefused(action: () => void): void {
   } catch {
     // Refused by FlowController phase guard or DecisionError.
   }
+}
+
+/** A decision (accept / correct / override) sounds identically and only when the controller really accepted it. */
+function decideWithSound(action: () => void): void {
+  try {
+    action();
+  } catch {
+    // Refused by FlowController phase guard or DecisionError: no sound, no decision.
+    return;
+  }
+  audio.emit("hitl.decide");
 }
 
 /**
@@ -117,6 +129,17 @@ export function CanvasScreen({
     setStickerThrowing(false);
   }, [stamp, phase, snapshot.attemptId]);
 
+  /** Phase EDGES (never notify counts): submit, Top-3 reveal, provider hiccup. Sticker "evaluating" is not a reveal. */
+  const prevPhaseRef = useRef(phase);
+  useEffect(() => {
+    const prev = prevPhaseRef.current;
+    prevPhaseRef.current = phase;
+    if (prev === phase) return;
+    if (prev === "drawing" && phase === "predicting") audio.emit("hitl.submit");
+    else if (prev === "predicting" && phase === "evaluating" && !stamp) audio.emit("hitl.reveal");
+    else if (prev === "predicting" && phase === "prediction-error") audio.emit("sys.hiccup");
+  }, [phase, stamp]);
+
   const targetAnchor: AnchorName = phase === "drawing" && !stamp ? "corner" : "side";
   useEffect(() => {
     void momoRef.current?.moveTo(targetAnchor, 700);
@@ -179,11 +202,21 @@ export function CanvasScreen({
   };
 
   const handleRedraw = useCallback(() => {
-    ignoreRefused(() => {
+    try {
       if (phase === "prediction-error") controller?.redrawFromError();
       else controller?.requestRedraw("evaluation");
-    });
+    } catch {
+      // Refused by FlowController phase guard.
+      return;
+    }
+    audio.emit("hitl.redraw");
   }, [controller, phase]);
+
+  /** "Tebak Gambarku": an empty paper is refused by the controller (feedback "empty-drawing"), which is a soft denial. */
+  const handleGuessSubmit = () => {
+    onSubmit();
+    if (controller && controller.phase === "drawing" && controller.feedback === "empty-drawing") audio.emit("ui.denied");
+  };
 
   const showGuessPanel = !stamp && (phase === "predicting" || phase === "evaluating" || phase === "prediction-error");
   const hideForThrow = Boolean(stamp) && stickerThrowing;
@@ -220,7 +253,7 @@ export function CanvasScreen({
         visible={isDrawingLive && ctrlState.hasInk && ctrlState.idleReady}
         getDrawingRect={() => canvasCtrl.getDrawingViewportRect()}
         bubbleRef={bubbleRef}
-        onSubmit={onSubmit}
+        onSubmit={handleGuessSubmit}
       />
       <MomoStage ref={momoRef} at="corner" expression={momoVisual.expression} fog={momoVisual.fog} />
       <R83Bubble ref={bubbleRef} anchor={targetAnchor} momoRef={momoRef} text={momoVisual.text} visible={!hideForThrow}>
@@ -235,13 +268,15 @@ export function CanvasScreen({
             subMode={guessSubMode}
             onSubModeChange={(next) => {
               if (next === "top3" && guessSubMode === "other") setReturnedToTop3(true);
+              if (next !== guessSubMode) audio.emit("hitl.more");
               setGuessSubMode(next);
             }}
-            onAccept={() => ignoreRefused(() => controller?.decideAccept())}
-            onCorrect={(rank) => ignoreRefused(() => controller?.decideCorrect(rank))}
-            onOverride={(label) => ignoreRefused(() => controller?.decideOverride(label))}
+            onAccept={() => decideWithSound(() => controller?.decideAccept())}
+            onCorrect={(rank) => decideWithSound(() => controller?.decideCorrect(rank))}
+            onOverride={(label) => decideWithSound(() => controller?.decideOverride(label))}
             onRedraw={handleRedraw}
             onRetry={() => {
+              if (controller?.phase === "prediction-error") audio.emit("ui.tap");
               void controller?.retryPrediction();
             }}
           />

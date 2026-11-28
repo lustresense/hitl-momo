@@ -9,7 +9,9 @@ import { momoLevelTone } from "@/src/domain/momo-script";
 import type { PredictionResult } from "@/src/domain/types";
 import type { DrawingSurface } from "@/src/input";
 import { useOptionalNui } from "@/src/nui/react";
+import { audio } from "@/src/audio";
 import { CanvasController, type CanvasControllerState } from "./canvas-controller";
+import { DrawSoundDriver } from "./draw-sound";
 import { buildGuessModel, formatObjectLabel } from "./guess-model";
 import type { GuessSubMode } from "./GuessPanel";
 import type { CanvasToolId } from "./tools";
@@ -34,6 +36,15 @@ function isPaperPoint(x: number, y: number, paper: HTMLElement | null): boolean 
   }
   return true;
 }
+
+/** Sound for a tool that really changed (pencil/eraser switched, undo/redo/clear altered the paper). */
+export const CANVAS_TOOL_SOUND = {
+  pencil: "tool.pencil",
+  eraser: "tool.eraser",
+  undo: "tool.undo",
+  redo: "tool.redo",
+  clear: "tool.clear",
+} as const satisfies Record<CanvasToolId, "tool.pencil" | "tool.eraser" | "tool.undo" | "tool.redo" | "tool.clear">;
 
 export interface UseCanvasBridgeOptions {
   readonly levelId: string;
@@ -68,11 +79,15 @@ export function useCanvasBridge({
   });
 
   const canvasCtrl = useMemo(
-    () =>
-      new CanvasController({
+    () => {
+      const drawSound = new DrawSoundDriver(audio);
+      return new CanvasController({
         isPointOnPaper: (x, y) => isPaperPoint(x, y, paperRef.current),
         getNibBridge: () => nui?.getHandSource() ?? null,
-      }),
+        onToolAction: (tool) => void audio.emit(CANVAS_TOOL_SOUND[tool]),
+        onInk: (e) => drawSound.handle(e),
+      });
+    },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [levelId, cyclesCompleted, drawingRevision, nui, paperRef],
   );

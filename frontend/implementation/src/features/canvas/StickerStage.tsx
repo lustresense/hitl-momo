@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, type RefObject } from "react";
 import gsap from "gsap";
 import type { DrawingStamp } from "@/src/components/drawing/DrawingScreen";
+import { audio } from "@/src/audio";
 import { OwnerIcon } from "@/src/components/ui/owner-icons";
 import { CANVAS_COPY } from "@/src/domain/copy/canvas";
 import {
@@ -108,12 +109,14 @@ export function StickerStage({ stamp, bubbleRef, onThrowStart, testId = "r83-sti
   const triggerThrow = useCallback(() => {
     if (committedRef.current) return;
     committedRef.current = true;
+    audio.emit("sticker.throw");
     setStage("throwing");
   }, []);
 
   const triggerRedraw = useCallback(() => {
     if (committedRef.current) return;
     committedRef.current = true;
+    audio.emit("sticker.shrink");
     setStage("redrawing");
   }, []);
 
@@ -128,6 +131,14 @@ export function StickerStage({ stamp, bubbleRef, onThrowStart, testId = "r83-sti
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [stage, triggerRedraw]);
+
+  // The sticker pops in once per stage instance (the wobble loop below stays silent; ref survives StrictMode re-runs).
+  const poppedRef = useRef(false);
+  useEffect(() => {
+    if (poppedRef.current) return;
+    poppedRef.current = true;
+    audio.emit("sticker.pop");
+  }, []);
 
   // Entrance + wobble animation while ready (stamp.js:28-30).
   useIsoLayoutEffect(() => {

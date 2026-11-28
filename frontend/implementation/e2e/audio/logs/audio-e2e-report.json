@@ -1,9 +1,9 @@
 {
- "when": "2026-11-28T07:20:17.988Z",
+ "when": "2026-11-28T07:28:34.631Z",
  "outDir": "/tmp/claude-0/audio-work/out_after",
  "evidence": "BROWSER_E2E headless null sink; listening NOT_TESTED",
  "total": 37,
- "failed": 2,
+ "failed": 0,
  "checks": [
   {
    "name": "before any gesture: no AudioContext, state idle",
@@ -111,7 +111,7 @@
     "track": "bgm.tutorial",
     "scene": "tutorial",
     "slots": 1,
-    "positionS": 8.5
+    "positionS": 8.4
    }
   },
   {
@@ -121,7 +121,7 @@
     "track": "bgm.levels",
     "scene": "levels",
     "slots": 1,
-    "positionS": 1.5
+    "positionS": 1.6
    }
   },
   {
@@ -163,7 +163,7 @@
     "track": "bgm.focus",
     "scene": "canvas",
     "slots": 1,
-    "positionS": 12.5
+    "positionS": 12.3
    }
   },
   {
@@ -172,8 +172,8 @@
    "detail": {
     "track": "bgm.l1",
     "scene": "world1",
-    "slots": 2,
-    "positionS": 2
+    "slots": 1,
+    "positionS": 2.2
    }
   },
   {
@@ -188,7 +188,7 @@
    "ok": true,
    "detail": {
     "locked": 2,
-    "cooldown": 9,
+    "cooldown": 10,
     "stale": 2
    }
   },
@@ -259,12 +259,12 @@
    "ok": true,
    "detail": [
     {
-     "id": "ui.tap_b",
+     "id": "ui.tap_a",
      "error": "HTTP 404",
      "attempts": 1
     },
     {
-     "id": "ui.tap_a",
+     "id": "ui.tap_b",
      "error": "HTTP 404",
      "attempts": 1
     },
@@ -280,12 +280,12 @@
    "ok": true,
    "detail": [
     {
-     "id": "ui.tap_b",
+     "id": "ui.tap_a",
      "error": "HTTP 404",
      "attempts": 1
     },
     {
-     "id": "ui.tap_a",
+     "id": "ui.tap_b",
      "error": "HTTP 404",
      "attempts": 1
     },
@@ -312,29 +312,16 @@
    }
   },
   {
-   "name": "rapid scene stress: never more than 2 tracks during crossfades",
-   "ok": false,
+   "name": "rapid scene stress: never more than 3 track slots (live + one fading + one being cut)",
+   "ok": true,
    "detail": {
-    "maxSlots": 10
+    "maxSlots": 2
    }
   },
   {
    "name": "lab spam test did not throw",
-   "ok": false,
-   "detail": [
-    {
-     "type": "pageerror",
-     "text": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
-    },
-    {
-     "type": "pageerror",
-     "text": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
-    },
-    {
-     "type": "pageerror",
-     "text": "Error: Minified React error #425; visit https://react.dev/errors/425 for the full message or use the non-minified dev environment for full errors and additional helpful warnings."
-    }
-   ]
+   "ok": true,
+   "detail": []
   }
  ],
  "seen": {
@@ -426,12 +413,12 @@
    "counters": {
     "emit": 101,
     "loaded": 90,
-    "played": 88,
+    "played": 87,
     "music-switch": 12
    },
    "dropped": {
     "locked": 2,
-    "cooldown": 9,
+    "cooldown": 10,
     "stale": 2
    },
    "loadedBuffers": [
@@ -441,14 +428,14 @@
      "seconds": 0.06854166666666667
     },
     {
-     "id": "bubble.show_a",
-     "bytesEstimate": 28216,
-     "seconds": 0.14695833333333333
-    },
-    {
      "id": "bubble.show_b",
      "bytesEstimate": 28308,
      "seconds": 0.1474375
+    },
+    {
+     "id": "bubble.show_a",
+     "bytesEstimate": 28216,
+     "seconds": 0.14695833333333333
     },
     {
      "id": "jingle.fail_soft",
@@ -461,14 +448,14 @@
      "seconds": 0.23
     },
     {
-     "id": "jingle.level_complete",
-     "bytesEstimate": 1364736,
-     "seconds": 3.554
-    },
-    {
      "id": "jingle.level_intro",
      "bytesEstimate": 838728,
      "seconds": 2.1841875
+    },
+    {
+     "id": "jingle.level_complete",
+     "bytesEstimate": 1364736,
+     "seconds": 3.554
     },
     {
      "id": "momo.flap_c",
@@ -476,14 +463,14 @@
      "seconds": 0.23
     },
     {
-     "id": "momo.flap_b",
-     "bytesEstimate": 44160,
-     "seconds": 0.23
-    },
-    {
      "id": "momo.hop",
      "bytesEstimate": 28800,
      "seconds": 0.15
+    },
+    {
+     "id": "momo.flap_b",
+     "bytesEstimate": 44160,
+     "seconds": 0.23
     },
     {
      "id": "momo.land",
@@ -501,14 +488,14 @@
      "seconds": 0.5161458333333333
     },
     {
-     "id": "momo.whoosh_b",
-     "bytesEstimate": 198264,
-     "seconds": 0.5163125
-    },
-    {
      "id": "nui.commit",
      "bytesEstimate": 48976,
      "seconds": 0.25508333333333333
+    },
+    {
+     "id": "momo.whoosh_b",
+     "bytesEstimate": 198264,
+     "seconds": 0.5163125
     },
     {
      "id": "nui.hold",
@@ -516,14 +503,14 @@
      "seconds": 0.9
     },
     {
-     "id": "nui.release",
-     "bytesEstimate": 28212,
-     "seconds": 0.1469375
-    },
-    {
      "id": "nui.lit",
      "bytesEstimate": 11520,
      "seconds": 0.06
+    },
+    {
+     "id": "nui.release",
+     "bytesEstimate": 28212,
+     "seconds": 0.1469375
     },
     {
      "id": "nui.track_found",
@@ -561,14 +548,14 @@
      "seconds": 0.4345625
     },
     {
-     "id": "ui.skip",
-     "bytesEstimate": 20084,
-     "seconds": 0.10460416666666666
-    },
-    {
      "id": "ui.ring_in",
      "bytesEstimate": 32028,
      "seconds": 0.1668125
+    },
+    {
+     "id": "ui.skip",
+     "bytesEstimate": 20084,
+     "seconds": 0.10460416666666666
     },
     {
      "id": "ui.tap_b",
@@ -626,6 +613,11 @@
      "seconds": 0.6421875
     },
     {
+     "id": "card.exit",
+     "bytesEstimate": 84388,
+     "seconds": 0.43952083333333336
+    },
+    {
      "id": "card.flip",
      "bytesEstimate": 85640,
      "seconds": 0.44604166666666667
@@ -636,29 +628,19 @@
      "seconds": 0.3675625
     },
     {
-     "id": "card.exit",
-     "bytesEstimate": 84388,
-     "seconds": 0.43952083333333336
-    },
-    {
      "id": "tool.tick",
      "bytesEstimate": 24960,
      "seconds": 0.13
     },
     {
-     "id": "thinman.step_c",
-     "bytesEstimate": 14328,
-     "seconds": 0.074625
-    },
-    {
-     "id": "thinman.step_a",
-     "bytesEstimate": 14400,
-     "seconds": 0.075
-    },
-    {
      "id": "thinman.step_b",
      "bytesEstimate": 14400,
      "seconds": 0.075
+    },
+    {
+     "id": "thinman.step_c",
+     "bytesEstimate": 14328,
+     "seconds": 0.074625
     },
     {
      "id": "thinman.step_d",
@@ -686,12 +668,12 @@
      "seconds": 0.8
     },
     {
-     "id": "tool.redo",
+     "id": "tool.undo",
      "bytesEstimate": 32640,
      "seconds": 0.17
     },
     {
-     "id": "tool.undo",
+     "id": "tool.redo",
      "bytesEstimate": 32640,
      "seconds": 0.17
     },
@@ -751,11 +733,6 @@
      "seconds": 2.1957916666666666
     },
     {
-     "id": "hitl.decide",
-     "bytesEstimate": 53760,
-     "seconds": 0.28
-    },
-    {
      "id": "hitl.submit",
      "bytesEstimate": 80640,
      "seconds": 0.42
@@ -764,6 +741,11 @@
      "id": "hitl.reveal",
      "bytesEstimate": 193888,
      "seconds": 0.5049166666666667
+    },
+    {
+     "id": "hitl.decide",
+     "bytesEstimate": 53760,
+     "seconds": 0.28
     },
     {
      "id": "page.flick",
@@ -781,14 +763,14 @@
      "seconds": 0.5576875
     },
     {
-     "id": "tool.pencil",
-     "bytesEstimate": 17280,
-     "seconds": 0.09
-    },
-    {
      "id": "sticker.shrink",
      "bytesEstimate": 80640,
      "seconds": 0.42
+    },
+    {
+     "id": "tool.pencil",
+     "bytesEstimate": 17280,
+     "seconds": 0.09
     },
     {
      "id": "sticker.throw",
@@ -806,6 +788,11 @@
      "seconds": 0.8431458333333334
     },
     {
+     "id": "world.land",
+     "bytesEstimate": 187536,
+     "seconds": 0.488375
+    },
+    {
      "id": "hazard.hit",
      "bytesEstimate": 79148,
      "seconds": 0.41222916666666665
@@ -821,9 +808,9 @@
      "seconds": 0.985625
     },
     {
-     "id": "world.land",
-     "bytesEstimate": 187536,
-     "seconds": 0.488375
+     "id": "place.rotate",
+     "bytesEstimate": 15360,
+     "seconds": 0.08
     },
     {
      "id": "place.set",
@@ -836,9 +823,9 @@
      "seconds": 0.21
     },
     {
-     "id": "place.rotate",
-     "bytesEstimate": 15360,
-     "seconds": 0.08
+     "id": "thinman.step_a",
+     "bytesEstimate": 14400,
+     "seconds": 0.075
     },
     {
      "id": "thinman.land_hard",
@@ -861,7 +848,7 @@
     "track": "bgm.l1",
     "scene": "world1",
     "slots": 1,
-    "positionS": 4.7
+    "positionS": 4.9
    },
    "ambience": {
     "track": "amb.world_air"

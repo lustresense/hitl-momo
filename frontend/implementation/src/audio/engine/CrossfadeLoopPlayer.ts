@@ -63,8 +63,9 @@ export class CrossfadeLoopPlayer {
     return this.currentId;
   }
 
+  /** Audible slots: tracks being cut (80 ms ramp-down after a burst of scene changes) are not counted. */
   slotCount(): number {
-    return this.slots.length;
+    return this.slots.filter((s) => !s.killed).length;
   }
 
   /** Playhead (seconds inside the loop) of the current track. */

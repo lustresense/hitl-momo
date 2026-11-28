@@ -8,6 +8,7 @@ Contract:
   ambience(...) fn(rng) -> stereo float array of EXACT loop length (seamless loop, build it with dsp.loop_wrap). Level is set by target RMS.
   music(...)    fn(rng) -> stereo float array of EXACT loop length (seamless loop). bpm/bars document the length.
   stinger(...)  fn(rng) -> stereo float array, one-shot jingle (not looped), keeps its natural tail.
+  sfx_loop(...) fn(rng) -> float array of EXACT loop length (0.4-2 s), seamless (dsp.loop_wrap). Continuous effects such as pencil scratch.
 """
 from __future__ import annotations
 
@@ -21,7 +22,7 @@ SPECS: dict[str, "Spec"] = {}
 class Spec:
     id: str                      # e.g. "sfx.paper.flip.1" (dot-separated, lowercase)
     file: str                    # file stem, e.g. "paper_flip_1" -> public/audio/<kind>/<file>.ogg
-    kind: str                    # sfx | amb | music | stinger
+    kind: str                    # sfx | sfxloop | amb | music | stinger
     group: str                   # preload group: core | cover | tutorial | canvas | world | ending | dream ...
     bus: str                     # sfx | ui | music | amb
     fn: Callable
@@ -65,5 +66,12 @@ def music(id: str, file: str, group: str, bpm: float, bars: int, key: str, rms_d
     meta = {**meta, "bpm": bpm, "bars": bars, "key": key}
     def deco(fn):
         _reg(Spec(id, file, "music", group, "music", fn, desc, True, True, -4.0, rms_db, kbps, meta))
+        return fn
+    return deco
+
+
+def sfx_loop(id: str, file: str, group: str, bus: str = "sfx", rms_db: float = -26.0, kbps: int = 40, desc: str = "", **meta):
+    def deco(fn):
+        _reg(Spec(id, file, "sfxloop", group, bus, fn, desc, True, True, -4.0, rms_db, kbps, meta))
         return fn
     return deco

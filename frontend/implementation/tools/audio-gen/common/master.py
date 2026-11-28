@@ -120,7 +120,7 @@ def qa_sfx(name: str, x: np.ndarray) -> list[str]:
     return issues
 
 
-def qa_loop(name: str, x: np.ndarray) -> list[str]:
+def qa_loop(name: str, x: np.ndarray, relaxed: bool = False) -> list[str]:
     issues = []
     xs = dsp.to_stereo(x)
     if peak(xs) > 0.99:
@@ -130,8 +130,8 @@ def qa_loop(name: str, x: np.ndarray) -> list[str]:
     if jump > max(0.02, 4 * slope):
         issues.append(f"loop seam jump {jump:.4f} (slope {slope:.4f})")
     sr = spectral_report(xs)
-    if sr["presence_2k_5k"] > 0.4:
+    if sr["presence_2k_5k"] > (0.62 if relaxed else 0.4):
         issues.append(f"harsh: presence {sr['presence_2k_5k']}")
-    if sr["air_gt_10k"] > 0.02:
+    if sr["air_gt_10k"] > (0.05 if relaxed else 0.02):
         issues.append(f"too bright: >10k {sr['air_gt_10k']}")
     return issues

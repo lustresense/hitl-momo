@@ -4,6 +4,9 @@ import { LEVELS } from "@/src/domain/levels";
 import { readFileSync } from "node:fs";
 import ts from "typescript";
 
+// This suite stubs a partial `window`; the real audio engine (src/audio) needs a full one and is irrelevant here.
+vi.mock("@/src/audio", () => ({ audio: { emit: () => null, musicPatch: () => undefined }, PENTATONIC_RATES: [1] }));
+
 const factoryCalls: any[] = [];
 const loadedSprites: Array<{ name: string; url: string }> = [];
 

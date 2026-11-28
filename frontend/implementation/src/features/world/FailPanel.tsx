@@ -2,6 +2,7 @@
 
 import { useCallback, useRef } from "react";
 import gsap from "gsap";
+import { audio } from "@/src/audio";
 import { WORLD_COPY } from "@/src/domain/copy/world";
 import { HOLD_MS_DEFAULT } from "@/src/nui/core/constants";
 import { useNuiStatus, useNuiTarget } from "@/src/nui";
@@ -68,9 +69,15 @@ export function FailPanel({ onRetry, onReposition, onRedraw }: FailPanelProps) {
 
   useIsoLayoutEffect(() => {
     const el = rootRef.current;
-    if (!el || prefersReducedMotion()) return;
+    if (!el) return;
+    if (prefersReducedMotion()) {
+      audio.emit("ui.ring_in");
+      return;
+    }
     const ctx = gsap.context(() => {
       gsap.from(el, { opacity: 0, y: 8, duration: 0.4, delay: 0.35, ease: "power2.out" });
+      // Sounded when the panel becomes visible; the context cancels it if the panel goes away first.
+      gsap.delayedCall(0.35, () => audio.emit("ui.ring_in"));
     }, el);
     return () => ctx.revert();
   }, []);

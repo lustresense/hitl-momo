@@ -2,6 +2,8 @@
 
 import { useEffect, useLayoutEffect, useRef, type RefObject } from "react";
 import gsap from "gsap";
+import { audio } from "@/src/audio";
+import type { VoiceHandle } from "@/src/audio/types";
 import { ENDING_COPY } from "@/src/domain/copy/ending";
 import type { MomoStageHandle } from "@/src/features/shared/MomoStage";
 import { computeEndCameraFit, worldPercentW, worldPercentX, worldPercentY } from "./end-camera";
@@ -56,6 +58,12 @@ export function ParachuteScene({
     }
 
     let cancelled = false;
+    const voices: VoiceHandle[] = [];
+    const sound = (id: "ending.chute_open" | "ending.descend" | "ending.touchdown") => {
+      if (cancelled) return;
+      const v = audio.emit(id);
+      if (v) voices.push(v);
+    };
     const timers = new Set<ReturnType<typeof setTimeout>>();
     const sleep = (ms: number): Promise<void> =>
       new Promise((resolve) => {
@@ -137,7 +145,10 @@ export function ParachuteScene({
       sync(0, 16);
 
       const tl = gsap.timeline();
-      tl.to(off, { y: 60, duration: 0.9, ease: "power2.in" }, 0)
+      // Sounds sit on the timeline so they follow the real canopy opening (0.85 s) and the slow descent (0.95 s).
+      tl.call(() => sound("ending.chute_open"), undefined, 0.85)
+        .call(() => sound("ending.descend"), undefined, 0.95)
+        .to(off, { y: 60, duration: 0.9, ease: "power2.in" }, 0)
         .to(
           open,
           {
@@ -201,6 +212,7 @@ export function ParachuteScene({
         chuteEl.style.display = "none";
         hero.place(x0, gy);
         hero.stand(1);
+        sound("ending.touchdown");
         callbacksRef.current.onTouchdown();
         callbacksRef.current.onLineStep(1);
         await sleep(clampMs(ENDING_COPY.payung.landedLines[0].length));
@@ -221,6 +233,9 @@ export function ParachuteScene({
 
     return () => {
       cancelled = true;
+      // A dev skip leaves mid-descent: cut the sounds that belong to the scene we are leaving.
+      for (const v of voices) v.stop(150);
+      voices.length = 0;
       for (const id of timers) clearTimeout(id);
       timers.clear();
       ctx.revert();

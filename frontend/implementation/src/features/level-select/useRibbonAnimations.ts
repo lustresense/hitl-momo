@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, type MutableRefObject, type RefObject } from "react";
 import gsap from "gsap";
+import { audio } from "@/src/audio";
 import type { LevelDefinition } from "@/src/domain/levels";
 import type { RibbonDomRefs } from "./RibbonSlot";
 import { NOTCHES_TO_ARM, NOTCH_PX } from "./ribbon-layout";
@@ -49,6 +50,8 @@ export function useRibbonAnimations({
   onSelectLevel,
 }: RibbonAnimationContext) {
   const activeTweens = useRef(new Set<gsap.core.Animation>());
+  /** Stage whose unlock reveal already sounded: the reveal effect re-runs on resize / StrictMode and must not replay it. */
+  const unlockSoundedRef = useRef<number | null>(null);
 
   const trackTween = useCallback(<T extends gsap.core.Animation>(anim: T, onDone?: () => void): T => {
     activeTweens.current.add(anim);
@@ -61,6 +64,7 @@ export function useRibbonAnimations({
 
   useIsoLayoutEffect(() => {
     if (entryHold || typeof window === "undefined") return;
+    let dropSounded = false;
     const ctx = gsap.context(() => {
       gsap.from(".bm-slot", {
         opacity: 0,
@@ -69,6 +73,8 @@ export function useRibbonAnimations({
         stagger: 0.12,
         ease: "back.out(1.4)",
         clearProps: "transform,opacity",
+        // One drop sound for the whole shelf; a reverted (StrictMode / dep change) run never starts, so it never sounds.
+        onStart: () => { if (!dropSounded) { dropSounded = true; audio.emit("ribbon.drop"); } },
       });
       if (hintRef.current) gsap.fromTo(hintRef.current, { opacity: 0 }, { opacity: 1, duration: 0.25 });
     }, rootRef);
@@ -80,6 +86,10 @@ export function useRibbonAnimations({
     const refs = refsByStage.current.get(freshStage);
     const lenObj = lenMapRef.current.get(freshStage);
     if (!refs?.btn || !lenObj) return;
+    if (unlockSoundedRef.current !== freshStage) {
+      unlockSoundedRef.current = freshStage; // freshStage non-null means consumeFreshUnlock() really returned this stage
+      audio.emit("ribbon.unlock");
+    }
     const ctx = gsap.context(() => {
       gsap
         .timeline()
@@ -121,6 +131,7 @@ export function useRibbonAnimations({
     (level: LevelDefinition, restLength: number) => {
       const refs = refsByStage.current.get(level.stage);
       const lenObj = lenMapRef.current.get(level.stage);
+      audio.emit("ribbon.launch"); // from a released armed pull or from the tap / Enter auto-pull; the controller's launching flag makes it single
       if (!refs?.btn || !lenObj) {
         hideBubble();
         onSelectLevel(level);

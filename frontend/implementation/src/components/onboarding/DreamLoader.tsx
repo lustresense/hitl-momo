@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState, type FormEvent } from "react";
 import gsap from "gsap";
+import { audio } from "@/src/audio";
 import {
   subscribeHandLandmarkerStatus,
   warmHandLandmarker,
@@ -418,6 +419,7 @@ export function DreamLoader({
       morphTimelineRef.current = morphTl;
 
       if (skyRef.current) {
+        audio.emit("dream.iris"); // the sky closes like an iris; morphStartedRef above makes this once per load
         morphTl.to(iris, { r: 0, duration: D * 0.82, ease: "expo.inOut", onUpdate: () => syncSkyClip(iris.r) }, 0);
         morphTl.to(skyRef.current, { opacity: 0, duration: D * 0.35, ease: "power2.in" }, D * 0.52);
       }
@@ -457,6 +459,7 @@ export function DreamLoader({
     function triggerBlastAndMorph() {
       if (state.phase === "blast" || state.phase === "morph" || state.phase === "done") return;
       state.phase = "blast";
+      audio.emit("dream.blast"); // phase guard above: once per load
       if (sharedRef.current) {
         gsap.to(sharedRef.current, { scale: 1.03, duration: 0.18, yoyo: true, repeat: 1, ease: "power2.out" });
       }
@@ -528,9 +531,13 @@ export function DreamLoader({
       animateProgress(100, triggerBlastAndMorph, shouldAskNickname ? 1.3 : undefined);
     };
 
+    // Edge detectors for the model-status sounds: the warm-up may notify the same status more than once.
+    let soundedReady = false;
+    let soundedFailed = false;
     function onModelStatus(status: HandLandmarkerStatus | MonuiWarmupStatus) {
       if (state.phase !== "loading" || onReadyCalledRef.current || mouseFallbackChosenRef.current) return;
       const isWorker = warmRuntime === "monui-worker";
+      if (status.kind !== "failed") soundedFailed = false;
       if (status.kind === "loading" || status.kind === "idle") {
         setLoadFailed(false);
         setStatusText(isWorker ? "Mengunduh model & WASM NUI…" : "Memuat pengenal tangan…");
@@ -540,10 +547,12 @@ export function DreamLoader({
         setStatusText(isWorker ? "Memanaskan model NUI (coldstart)…" : `Menyiapkan pengenal tangan (${status.delegate})…`);
         animateProgress(75);
       } else if (status.kind === "failed") {
+        if (!soundedFailed) { soundedFailed = true; audio.emit("sys.hiccup"); } // neutral: model could not load
         setStatusText(isWorker ? "Model NUI gagal dimuat. Coba lagi atau pakai mouse." : "Pelacak gagal dimuat. Coba lagi atau gunakan pointer.");
         setLoadFailed(true);
         animateProgress(Math.min(state.progress, 75));
       } else if (status.kind === "ready") {
+        if (!soundedReady) { soundedReady = true; audio.emit("sys.ready"); } // only after the models really report ready
         workerReadyRef.current = true;
         setLoadFailed(false);
         if (shouldAskNickname && dreamNamePhaseRef.current !== "done") {
@@ -615,7 +624,8 @@ export function DreamLoader({
     if (sharedRef.current) {
       mainTl.fromTo(sharedRef.current, { opacity: 0, y: 26 }, { opacity: 1, y: 0, duration: introDur * 0.85, ease: "power3.out" }, 0);
     }
-    mainTl.to(state, { introV: 1, duration: introDur, ease: "power3.out" }, 0);
+    // Momo rises into view: one whoosh when the rise starts (a killed StrictMode first run never starts, so it stays single).
+    mainTl.to(state, { introV: 1, duration: introDur, ease: "power3.out", onStart: () => audio.emit("momo.whoosh") }, 0);
 
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape" && allowSkipRef.current) {
@@ -655,6 +665,7 @@ export function DreamLoader({
       nameInputRef.current?.focus({ preventScroll: true });
       return;
     }
+    audio.emit("ui.tap"); // a valid nickname was submitted (the guards above rejected empty / repeated submits)
     setSubmitting(true);
     setNameError(null);
     try {

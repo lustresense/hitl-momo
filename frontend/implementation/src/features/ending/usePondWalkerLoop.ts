@@ -2,6 +2,8 @@
 
 import { useEffect, useLayoutEffect, useRef, type Dispatch, type RefObject } from "react";
 import gsap from "gsap";
+import { audio } from "@/src/audio";
+import { DistanceStepper } from "@/src/game/runtime/gameplay-audio";
 import type { MomoStageHandle } from "@/src/features/shared/MomoStage";
 import { useJoystick } from "@/src/nui";
 import { computeEndCameraFit, computeEndCameraTx, stepEndCameraTx } from "./end-camera";
@@ -39,6 +41,12 @@ export interface UsePondWalkerLoopOptions {
   readonly momoRef: RefObject<MomoStageHandle | null>;
   readonly onThinmanPoke: () => void;
 }
+
+/**
+ * Ending walker footstep pacing, in source units: the side-view stride is 142 px per cycle at 2.6x
+ * velocity scale, so one footfall (half a cycle) is about 27 units of travel.
+ */
+export const END_STEP_DISTANCE = 27;
 
 export interface CamTargetState {
   scale: number;
@@ -87,6 +95,7 @@ export function usePondWalkerLoop({
   const keysRef = useRef<{ left: boolean; right: boolean }>({ left: false, right: false });
   const pondSentRef = useRef(false);
   const spotSentRef = useRef(false);
+  const stepperRef = useRef(new DistanceStepper(END_STEP_DISTANCE));
 
   useIsoLayoutEffect(() => {
     const heroEl = heroRef.current;
@@ -202,6 +211,8 @@ export function usePondWalkerLoop({
           dt,
         );
         walkerRef.current = res.state;
+        // Footfalls follow real travel on the ground (nothing while standing, held or diving).
+        if (res.state.on && stepperRef.current.advance(Math.abs(res.state.x - w.x))) audio.emit("thinman.step");
         renderer.place(res.state.x, res.state.y);
         renderer.update(
           { vx: res.state.vx, vy: res.state.vy, on: res.state.on, face: res.state.face },

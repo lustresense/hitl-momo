@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import gsap from "gsap";
+import { audio } from "@/src/audio";
 import { WORLD_COPY, normalizeWorldStage } from "@/src/domain/copy/world";
 import type { R83BubbleHandle } from "@/src/features/shared/R83Bubble";
 import { getStageGeometry } from "@/src/game/stage-geometry";
@@ -15,6 +16,8 @@ export interface SuccessPanelProps {
   readonly characterDisplayName?: string | null;
   readonly bubbleRef: RefObject<R83BubbleHandle | null>;
   readonly onWin?: () => void;
+  /** Dev "Lewati" forced this win scene: it is a demo, so it gets no win sound. */
+  readonly demo?: boolean;
   readonly onLineChange: (line: string) => void;
   readonly onContinue: () => void;
 }
@@ -36,6 +39,7 @@ export function SuccessPanel({
   characterDisplayName,
   bubbleRef,
   onWin,
+  demo = false,
   onLineChange,
   onContinue,
 }: SuccessPanelProps) {
@@ -59,8 +63,13 @@ export function SuccessPanel({
   useEffect(() => {
     if (wonRef.current) return;
     wonRef.current = true;
+    // The win scene appears exactly when the scene reported success (wonRef = once per panel).
+    if (!demo) {
+      audio.emit("win.sparkle");
+      audio.emit("jingle.level_complete");
+    }
     onWin?.();
-  }, [onWin]);
+  }, [onWin, demo]);
 
   useEffect(() => {
     let cancelled = false;

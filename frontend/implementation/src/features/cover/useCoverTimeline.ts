@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import gsap from "gsap";
+import { audio } from "@/src/audio";
 import type { MomoExpression } from "@/src/components/momo/momo-engine";
 import { COVER_INTRO_COPY } from "@/src/domain/copy/cover";
 import {
@@ -96,6 +97,9 @@ export function useCoverTimeline({
   bookBubbleRef.current = onBookBubble;
   const curlObjRef = useRef({ progress: 0 });
   const cameFromCurlRef = useRef(false);
+  /** Edge flags for one-shot sounds, so a StrictMode re-run or an effect dep change (e.g. skipNameStep) does not repeat them. */
+  const wakeStartledRef = useRef(false);
+  const ayoRingSoundedRef = useRef(false);
 
   useIsoLayoutEffect(() => {
     if (typeof window === "undefined") return;
@@ -161,6 +165,9 @@ export function useCoverTimeline({
       markCameFromCurl: (val) => { cameFromCurlRef.current = val; },
     };
 
+    if (phase !== "wake") wakeStartledRef.current = false;
+    if (phase !== "ayo") ayoRingSoundedRef.current = false;
+
     const ctx = gsap.context(() => {
       if (phase === "sleep" || phase === "gate" || phase === "camera-on") {
         setPipMode(false); setMorphing(false); setNameReady(false); setBookRevealed(false);
@@ -170,7 +177,10 @@ export function useCoverTimeline({
         if (refs.hero.current) gsap.set(refs.hero.current, { opacity: 1 });
         if (refs.shadow.current) gsap.set(refs.shadow.current, { opacity: 0.12 });
         if (isRequestLaunching) {
-          if (requestLaunchAtRef.current === null) requestLaunchAtRef.current = performance.now();
+          if (requestLaunchAtRef.current === null) {
+            requestLaunchAtRef.current = performance.now();
+            audio.emit("momo.startle"); // the toggle was really switched on: the card flies up and Momo is startled (once per request)
+          }
           runCameraRequestLaunch(refs, layout, (mood, opts) => moodRef.current(mood, opts));
         } else {
           requestLaunchAtRef.current = null;
@@ -184,6 +194,9 @@ export function useCoverTimeline({
             ? Math.max(0, (performance.now() - requestLaunchAtRef.current) / 1000)
             : 0;
         setBookRevealed(false);
+        // With no earlier request launch (denied -> continue without camera, dev skip) the wake timeline plays the same card launch itself.
+        if (requestLaunchAtRef.current === null && !wakeStartledRef.current) audio.emit("momo.startle");
+        wakeStartledRef.current = true;
         runWakePhaseTimeline(refs, layout, callbacks, offsetSec);
         return;
       }
@@ -209,6 +222,10 @@ export function useCoverTimeline({
         moodRef.current("Senang");
         applySpotlightState(refs, 0.92, 1, 1);
         if (refs.confirm.current) {
+          if (!ayoRingSoundedRef.current) {
+            ayoRingSoundedRef.current = true;
+            audio.emit("ui.ring_in"); // the "Ayo!" ring pops in (ring fire itself is the NUI bridge's sound)
+          }
           gsap.fromTo(
             refs.confirm.current,
             { opacity: 0, y: 8, scale: 0.9 },
@@ -280,6 +297,7 @@ export function useCoverTimeline({
             p: 1,
             duration: 0.36,
             ease: "none",
+            onStart: () => audio.emit("momo.hop"), // one discrete greeting hop (cooldown covers a StrictMode re-run)
             onUpdate: () => {
               const y = layout.midCY - Math.sin(Math.PI * hopProxy.p) * px;
               setMomoCenterPose(refs.momo.current, layout.midCX, y, layout.finalScale, 0, layout);

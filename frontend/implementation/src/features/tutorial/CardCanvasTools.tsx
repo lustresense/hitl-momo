@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import gsap from "gsap";
+import { audio } from "@/src/audio";
 import { OwnerIcon } from "@/src/components/ui/owner-icons";
 import { TUTORIAL_COPY } from "@/src/domain/copy/tutorial";
 import {
@@ -10,6 +11,8 @@ import {
   type CanvasControllerState,
   type CanvasToolId,
 } from "@/src/features/canvas";
+import { DrawSoundDriver } from "@/src/features/canvas/draw-sound";
+import { CANVAS_TOOL_SOUND } from "@/src/features/canvas/useCanvasBridge";
 import { CanvasCursor, useOptionalNui } from "@/src/nui/react";
 import { TUTORIAL_TOOLS_REQUIRED } from "./tutorial-machine";
 
@@ -64,6 +67,16 @@ export function CardCanvasTools({ active, resizeKey, onComplete }: CardCanvasToo
     return merged;
   }, [ctrlState.usedTools, triedTools]);
 
+  // The check badge pops on a toolbar tool the first time it counts as used: one tick sound per newly used tool.
+  const tickedToolsRef = useRef<Set<CanvasToolId>>(new Set());
+  useEffect(() => {
+    for (const tool of usedTools) {
+      if (tickedToolsRef.current.has(tool)) continue;
+      tickedToolsRef.current.add(tool);
+      audio.emit("tool.tick");
+    }
+  }, [usedTools]);
+
   useEffect(() => {
     if (!doneSentRef.current && usedTools.size >= TUTORIAL_TOOLS_REQUIRED) {
       doneSentRef.current = true;
@@ -74,11 +87,16 @@ export function CardCanvasTools({ active, resizeKey, onComplete }: CardCanvasToo
   }, [usedTools, nui]);
 
   const controller = useMemo(
-    () =>
-      new CanvasController({
+    () => {
+      // Same audio observers as the game canvas (useCanvasBridge): read-only, no effect on drawing.
+      const drawSound = new DrawSoundDriver(audio);
+      return new CanvasController({
         isPointOnPaper: (x, y) => isTutorialPaperPoint(x, y, paperRef.current),
         getNibBridge: () => nui?.getHandSource() ?? null,
-      }),
+        onToolAction: (tool) => void audio.emit(CANVAS_TOOL_SOUND[tool]),
+        onInk: (e) => drawSound.handle(e),
+      });
+    },
     [nui],
   );
 

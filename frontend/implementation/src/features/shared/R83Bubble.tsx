@@ -1,6 +1,7 @@
 "use client";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useLayoutEffect, useMemo, useRef, type ReactNode, type RefObject } from "react";
 import gsap from "gsap";
+import { audio } from "@/src/audio";
 import {
   BUBBLE_REPLACE_MS, clamp, createPlacementThrottle, parseBubbleSegments, placeBubble, placementSignature,
   type AnchorName, type BubbleLayout, type BubbleSide, type Pose, type Rect,
@@ -166,6 +167,7 @@ export const R83Bubble = forwardRef<R83BubbleHandle, R83BubbleProps>(function R8
     placeNow();
     gsap.killTweensOf([el, txt]);
     if (first) {
+      audio.emit("bubble.show"); // edge: hidden -> visible (never on a text swap); wasVisibleRef is the previous value
       gsap.fromTo(el, { opacity: 0, y: 10, scale: 0.94 }, { opacity: 1, y: 0, scale: 1, duration: 0.4, ease: "back.out(1.7)" });
     } else {
       gsap.fromTo(txt, { opacity: 0, y: 5 }, { opacity: 1, y: 0, duration: 0.3, ease: "power2.out" });

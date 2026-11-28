@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useLayoutEffect, useReducer, useRef, useState } from "react";
 import gsap from "gsap";
+import { audio } from "@/src/audio";
 import type { MomoExpression } from "@/src/components/momo/momo-engine";
 import { TUTORIAL_COPY, getTutorialCards } from "@/src/domain/copy/tutorial";
 import type { AnchorName } from "@/src/features/shared/bubble-placement";
@@ -13,6 +14,7 @@ import {
   buildOpenCardTimeline,
   forceOpenCardDom,
   resetCardsForDeal,
+  withSilentAudio,
   type TutorialDomRefs,
 } from "./tutorial-animations";
 import {
@@ -177,6 +179,7 @@ export function useTutorialTimeline({
         syncOpenedDom(init.initialCard);
         dispatch({ type: "CARD_OPENED", index: init.initialCard });
       };
+      audio.emit("card.deal"); // `dealt` above makes the deal single (StrictMode re-run, skip-then-timer)
       const timeline = buildDealTimeline(domRefsRef.current, shadeRef.current, layoutRef.current, init.initialCard, onOpened);
       motionRef.current = { timeline, finish: onOpened };
     };
@@ -339,7 +342,8 @@ export function useTutorialTimeline({
     const motion = motionRef.current;
     if (!motion) return;
     motionRef.current = null;
-    motion.timeline?.progress(1).kill();
+    // The fast-forward would fire every card sound at once: keep it silent, the next real timelines sound normally.
+    withSilentAudio(() => motion.timeline?.progress(1).kill());
     motion.finish();
   }, []);
 

@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
+import { audio } from "@/src/audio";
 import type { FlowController, FlowStateSnapshot } from "@/src/app/state-machine";
 import { env } from "@/src/config/env";
 import type { LevelDefinition } from "@/src/domain/levels";
@@ -33,6 +34,8 @@ export interface WorldRuntimeHandle {
   readonly clearOutcome: () => void;
   /** "Lewati" saat bermain: tampilkan adegan menang; hasil game sesudahnya diabaikan. */
   readonly forceSuccess: () => void;
+  /** True once the dev "Lewati" forced the win scene: that result is a demo, not the student's. */
+  readonly isForced: () => boolean;
 }
 
 /**
@@ -86,6 +89,8 @@ export function useWorldRuntime(options: UseWorldRuntimeOptions): WorldRuntimeHa
             if (cancelled || forcedRef.current) return;
             setOutcome(result);
             setFailReason(reason ?? "");
+            // Reported once per attempt by the scene (settled guard); a success is sounded by SuccessPanel.
+            if (result === "fail") audio.emit("jingle.fail_soft");
             latestRef.current.controller.recordGameplayAttempt(result);
           },
           () => {
@@ -165,6 +170,8 @@ export function useWorldRuntime(options: UseWorldRuntimeOptions): WorldRuntimeHa
     latestRef.current.controller.recordGameplayAttempt("success");
   }, []);
 
+  const isForced = useCallback(() => forcedRef.current, []);
+
   const finishWin = useCallback(() => {
     latestRef.current.controller.reportGameplayOutcome("success");
     latestRef.current.onBackToLevels();
@@ -183,5 +190,6 @@ export function useWorldRuntime(options: UseWorldRuntimeOptions): WorldRuntimeHa
     finishWin,
     clearOutcome,
     forceSuccess,
+    isForced,
   };
 }

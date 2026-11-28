@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
+import { audio } from "@/src/audio";
 import { LegacyGlyph, OwnerIcon } from "@/src/components/ui/owner-icons";
 import { TUTORIAL_COPY } from "@/src/domain/copy/tutorial";
 import { CharacterAnimationAdapter } from "@/src/game/character/character-animation-adapter";
@@ -14,6 +15,7 @@ import {
   WALK_START,
   clampWalk,
 } from "./tutorial-machine";
+import { advanceFootsteps } from "./walk-steps";
 
 export interface CardWalkProps {
   readonly active: boolean;
@@ -47,6 +49,9 @@ export function CardWalk({ active, onComplete }: CardWalkProps) {
   const movedRef = useRef(false);
   const lastMoveRef = useRef(0);
   const lastSvgRef = useRef("");
+  /** Ground travelled since the last footstep sound (px) and the cached scene width used to convert % to px. */
+  const stepAccRef = useRef(0);
+  const sceneWidthRef = useRef(600);
   const physRef = useRef({ vx: 0, vy: 0, on: true, face: 1 as 1 | -1, term: undefined as "win" | undefined });
   const dragRef = useRef<{ startX: number; anchorPos: number } | null>(null);
   const onCompleteRef = useRef(onComplete);
@@ -55,6 +60,7 @@ export function CardWalk({ active, onComplete }: CardWalkProps) {
   const finishWalk = useCallback(() => {
     if (doneRef.current) return;
     doneRef.current = true;
+    audio.emit("goal.reach"); // the flag was really reached (doneRef guards a second call)
     setDone(true);
     physRef.current = { vx: 0, vy: 0, on: true, face: 1, term: "win" };
     if (winRef.current) {
@@ -84,6 +90,12 @@ export function CardWalk({ active, onComplete }: CardWalkProps) {
         setMoved(true);
         if (hintRef.current) gsap.to(hintRef.current, { opacity: 0, duration: 0.35 });
       }
+      if (physRef.current.on) {
+        // Footsteps only while the walker really moves on the ground: one per stride of travel, never per frame.
+        const st = advanceFootsteps(stepAccRef.current, (Math.abs(dx) * sceneWidthRef.current) / 100);
+        stepAccRef.current = st.acc;
+        if (st.step) audio.emit("thinman.step");
+      }
       physRef.current.vx = (dx >= 0 ? 1 : -1) * 130;
       physRef.current.face = dx >= 0 ? 1 : -1;
       lastMoveRef.current = typeof performance !== "undefined" ? performance.now() : Date.now();
@@ -105,6 +117,7 @@ export function CardWalk({ active, onComplete }: CardWalkProps) {
     const body = bodyRef.current;
     if (doneRef.current || !physRef.current.on || !body) return;
     physRef.current.on = false;
+    audio.emit("thinman.jump"); // tap / flick / ArrowUp: the walker really leaves the ground
     physRef.current.vy = -420;
     gsap.fromTo(
       body,
@@ -132,6 +145,23 @@ export function CardWalk({ active, onComplete }: CardWalkProps) {
     ignore: "[data-nui-off],button,a,.tut-thumb",
     onJump: hop,
   });
+
+  // Cache the scene width so the footstep stride (px) needs no layout read while walking.
+  useEffect(() => {
+    const el = sceneRef.current;
+    if (!el) return;
+    const measure = () => {
+      if (el.clientWidth > 0) sceneWidthRef.current = el.clientWidth;
+    };
+    measure();
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", measure);
+      return () => window.removeEventListener("resize", measure);
+    }
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   // Hand sweep idle hint
   useEffect(() => {

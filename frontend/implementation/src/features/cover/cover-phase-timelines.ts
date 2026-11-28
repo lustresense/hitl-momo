@@ -1,6 +1,7 @@
 "use client";
 
 import gsap from "gsap";
+import { audio } from "@/src/audio";
 import type { MomoExpression } from "@/src/components/momo/momo-engine";
 import { COVER_NAME_COPY } from "@/src/domain/copy/cover";
 import {
@@ -128,7 +129,7 @@ export function runWakePhaseTimeline(
     .call(() => cb.onMomoMood("Menguap")).to({}, { duration: 1.56 })
     .call(() => cb.onMomoMood("MelekDikit")).to({}, { duration: 0.24 })
     .addLabel("morph")
-    .call(() => cb.setMorphing(true), undefined, "morph");
+    .call(() => { cb.setMorphing(true); audio.emit("ui.morph"); }, undefined, "morph"); // camera card -> PIP morph starts
   if (cam) {
     tl.fromTo(
       cam,
@@ -214,6 +215,7 @@ export function runBookCurlPhaseTimeline(
       tau: 1,
       duration: 1.75,
       ease: "none",
+      onStart: () => audio.emit("momo.whoosh"), // Momo curves off the page (once: the tween starts once)
       onUpdate: () => {
         const tau = outProxy.tau;
         const u = Math.pow(tau, 1.6);
@@ -231,6 +233,7 @@ export function runBookCurlPhaseTimeline(
     }, 0.22)
     .call(() => cb.onMomoMood("Semangat", { flap: true }), undefined, 0.22 + 1.75 * 0.35)
     .call(() => {
+      audio.emit("page.curl"); // the cover starts to curl open (the reduced/skip path returns earlier and never gets here)
       cb.curlObj.progress = 0;
       refs.bookCurl.current?.resize();
       refs.bookCurl.current?.applyProgress(0);
@@ -254,6 +257,7 @@ export function runBookCurlPhaseTimeline(
         momoPose.r = hd * (1 - smooth01((tau - 0.42) / 0.58));
         syncMomo();
       },
+      onStart: () => audio.emit("momo.whoosh"), // Momo re-enters from the lower right onto the inside page
     }, inPosition)
     .call(() => cb.onMomoMood("Senang", { flap: true }), undefined, "<+0.17");
 }

@@ -73,7 +73,12 @@ export function getAudio(): AudioApi {
       storage = null;
     }
     const dev = devTools();
-    const engine = new AudioEngine({ events: AUDIO_EVENTS, scenes: AUDIO_SCENES, catalog: AUDIO_ASSETS, storage, devTools: dev });
+    let engine: AudioEngine;
+    try {
+      engine = new AudioEngine({ events: AUDIO_EVENTS, scenes: AUDIO_SCENES, catalog: AUDIO_ASSETS, storage, devTools: dev });
+    } catch {
+      return NULL_AUDIO; // a stubbed/partial window (tests) or any construction failure must never break the game
+    }
     if (dev) engine.setLogging(true);
     g.__sketchbookAudio = engine;
     if (env.testHooksEnabled || dev) (window as unknown as { __audioDiag?: AudioApi }).__audioDiag = engine;

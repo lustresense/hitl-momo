@@ -1,6 +1,7 @@
 "use client";
 
 import type { RefObject } from "react";
+import { audio } from "@/src/audio";
 import { COVER_GATE_COPY } from "@/src/domain/copy/cover";
 import type { CoverCameraStatus, GateNudge, GateState } from "./cover-machine";
 
@@ -75,7 +76,10 @@ export function CameraConsentGate({
           data-testid="r83-gate-checkbox"
           checked={gateState >= 1}
           disabled={gateState >= 2}
-          onChange={(e) => onToggleCheck(e.target.checked)}
+          onChange={(e) => {
+            audio.emit(e.target.checked ? "ui.toggle_on" : "ui.toggle_off"); // the box really flipped (it is disabled once confirmed)
+            onToggleCheck(e.target.checked);
+          }}
         />
         <span className="box" aria-hidden="true">
           <svg
@@ -99,7 +103,10 @@ export function CameraConsentGate({
         data-nui-off="true"
         data-testid="r83-gate-go"
         disabled={gateState !== 1}
-        onClick={onConfirmGo}
+        onClick={() => {
+          audio.emit("ui.tap"); // the button is disabled unless the box is checked, so this click is a real confirm
+          onConfirmGo();
+        }}
       >
         {gateState >= 2 ? COVER_GATE_COPY.doneLabel : COVER_GATE_COPY.goLabel}
       </button>
@@ -110,7 +117,10 @@ export function CameraConsentGate({
           className="nb-btn primary gate-fallback"
           data-nui-off="true"
           data-testid="r83-camera-fallback-btn"
-          onClick={onFallbackContinue}
+          onClick={() => {
+            audio.emit("ui.tap");
+            onFallbackContinue();
+          }}
         >
           {COVER_GATE_COPY.cameraFallbackButton}
         </button>

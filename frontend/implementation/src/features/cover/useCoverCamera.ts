@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { audio } from "@/src/audio";
 import { classifyCameraError, messageFor } from "@/src/camera/messages";
 import type { CoverCameraDevice } from "./CoverCameraCard";
 import type { CoverAction, CoverCameraStatus, CoverPhase, GateState } from "./cover-machine";
@@ -123,6 +124,7 @@ export function useCoverCamera({
     }
 
     if (gateState < 2) {
+      audio.emit("ui.denied"); // the toggle is still locked (consent not confirmed): soft refusal, the card shakes
       dispatch({ type: "CAMERA_TOGGLE_LOCKED" });
       return;
     }

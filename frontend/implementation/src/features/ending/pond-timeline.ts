@@ -1,4 +1,6 @@
 import gsap from "gsap";
+import { audio } from "@/src/audio";
+import type { VoiceHandle } from "@/src/audio/types";
 import { CharacterAnimationAdapter } from "@/src/game/character/character-animation-adapter";
 import type { GameTerminalPhase } from "@/src/game/character/character-types";
 import { worldPercentH, worldPercentW, worldPercentX, worldPercentY } from "./end-camera";
@@ -108,7 +110,16 @@ export function runPondDiveSequence(
 ): { readonly promise: Promise<void>; readonly cancel: () => void } {
   const { heroEl, pondEl, fxLayer, worldEl, heroRenderer, startX, onFollowCam, onAlive } = params;
   let cancelled = false;
+  /** True once the whole dive ran to its natural end: its sounds are then left to ring out. */
+  let finished = false;
   const timers = new Set<ReturnType<typeof setTimeout>>();
+  const voices: VoiceHandle[] = [];
+  /** One sound per dive stage, only while the dive is still the live scene (a dev skip cancels it). */
+  const sound = (id: "pond.jump" | "pond.splash" | "pond.sink" | "pond.glint" | "pond.exit") => {
+    if (cancelled) return;
+    const v = audio.emit(id);
+    if (v) voices.push(v);
+  };
   const spawned = new Set<HTMLElement>();
   const tweens = new Set<gsap.core.Animation>();
 
@@ -183,9 +194,11 @@ export function runPondDiveSequence(
     const px = `${worldPercentX(POND_X)}%`;
     const py = `${worldPercentY(cyu)}%`;
 
+    sound("pond.jump");
     await arc([startX, sampleGroundY(startX)], [POND_X, cyu + 3], 0.85, 38, 1);
     if (cancelled) return;
 
+    sound("pond.splash");
     for (let k = 0; k < 14; k++) {
       const d = spawn("ink", `left:${px};top:${py};width:${u * rnd(1.6, 3)}px;height:${u * rnd(1.6, 3)}px`);
       gsap.set(d, { xPercent: -50, yPercent: -50 });
@@ -198,10 +211,12 @@ export function runPondDiveSequence(
       tweens.add(gsap.fromTo(r, { scale: 0.3, opacity: 0.85 }, { scale: 1.5, opacity: 0, duration: 1.1, delay: k * 0.22, ease: "power1.out", onComplete: () => dropNode(r) }));
     }
 
+    sound("pond.sink");
     await tw(heroEl, { y: u * 15, scaleY: 0.5, opacity: 0, duration: 0.55, ease: "power2.in" });
     await sleep(450);
     if (cancelled) return;
 
+    sound("pond.glint");
     const beam = spawn("beam", `left:${px};top:${py};width:${worldPercentW(46)}%;height:${worldPercentH(150)}%`);
     gsap.set(beam, { xPercent: -50, yPercent: -100, transformOrigin: "50% 100%", scaleY: 0, opacity: 0 });
     tweens.add(gsap.to(pondEl, { filter: "drop-shadow(0 0 24px #f0d487)", duration: 0.5, yoyo: true, repeat: 1 }));
@@ -218,6 +233,7 @@ export function runPondDiveSequence(
     gsap.set(heroEl, { opacity: 1, y: 0, scaleY: 1, scale: 0.6, filter: "drop-shadow(0 0 16px #fff4b0) brightness(1.5)" });
     const lx = POND_EXIT_X;
     const ly = sampleGroundY(lx);
+    sound("pond.exit");
     tweens.add(gsap.to(beam, { opacity: 0, duration: 0.9, delay: 0.5, onComplete: () => dropNode(beam) }));
     await arc([POND_X, cyu], [lx, ly], 1.25, 64, -1, (t) => {
       gsap.set(heroEl, { scale: 0.6 + 0.4 * t, rotation: t < 0.8 ? t * 540 : 0 });
@@ -228,12 +244,15 @@ export function runPondDiveSequence(
     heroRenderer.place(lx, ly);
     heroRenderer.update({ vx: 0, vy: 0, on: true, face: -1 }, 0.016);
     await sleep(350);
+    finished = true;
   })();
 
   return {
     promise,
     cancel: () => {
       cancelled = true;
+      if (!finished) for (const v of voices) v.stop(120);
+      voices.length = 0;
       for (const id of timers) clearTimeout(id);
       timers.clear();
       for (const t of tweens) t.kill();

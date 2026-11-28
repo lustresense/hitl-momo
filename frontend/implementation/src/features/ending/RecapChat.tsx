@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import gsap from "gsap";
+import { audio, PENTATONIC_RATES } from "@/src/audio";
 import { strokesToPath, type LevelRecap } from "@/src/components/ending/ending-types";
 import {
   ENDING_COPY,
@@ -23,6 +24,12 @@ export interface RecapChatProps {
   readonly onFlyDone: () => void;
   readonly onCountsDone: () => void;
   readonly onConfirmNext: () => void;
+}
+
+/** Card `index` lands one step higher on the C major pentatonic (C D E G A, then back to C). */
+export function recapLandRate(index: number): number {
+  const i = Number.isFinite(index) ? Math.max(0, Math.floor(index)) : 0;
+  return PENTATONIC_RATES[i % 5] ?? 1;
 }
 
 function RecapSlotContent({ recap, index }: { readonly recap: LevelRecap; readonly index: number }) {
@@ -121,11 +128,15 @@ export function RecapChat({
                   ease: "back.out(1.2)",
                   onComplete: () => {
                     fly.remove();
-                    if (!cancelled) cbRef.current.onItemLanded();
+                    if (!cancelled) {
+                      audio.emit("recap.land", { rate: recapLandRate(i) });
+                      cbRef.current.onItemLanded();
+                    }
                   },
                 },
               );
             } else {
+              audio.emit("recap.land", { rate: recapLandRate(i) });
               cbRef.current.onItemLanded();
             }
           }, i * 430);

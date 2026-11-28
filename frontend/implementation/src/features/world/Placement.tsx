@@ -3,9 +3,11 @@
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
 import { createPortal } from "react-dom";
 import gsap from "gsap";
+import { audio } from "@/src/audio";
 import { env } from "@/src/config/env";
 import { WORLD_COPY } from "@/src/domain/copy/world";
 import type { GameController } from "@/src/game/game-controller";
+import { createRefusalEdge } from "@/src/game/runtime/gameplay-audio";
 import type { TurnDirection } from "@/src/game/runtime/creations";
 import type { R83BubbleHandle } from "@/src/features/shared/R83Bubble";
 import { NuiRing, useDragRelative } from "@/src/nui";
@@ -22,6 +24,8 @@ import {
 import { elementRect, prefersReducedMotion, useIsoLayoutEffect, usePinnedRingPosition } from "./world-ui-helpers";
 
 const ROTATE_STEP_DEG = 15;
+/** Soft "no" for a drag the rules refuse: first refused move of a streak only, at most this often. */
+const DRAG_DENIED_MIN_GAP_MS = 600;
 
 export interface PlacementProps {
   readonly active: boolean;
@@ -70,6 +74,7 @@ export function Placement({ active, canvasRef, worldRef, overlayHost, gameRef, b
   const ringHostRef = useRef<HTMLDivElement | null>(null);
   const visualDegRef = useRef(0);
   const subQuarterDegRef = useRef(0);
+  const dragRefusalEdgeRef = useRef(createRefusalEdge(DRAG_DENIED_MIN_GAP_MS));
 
   useIsoLayoutEffect(() => {
     if (!active) {
@@ -138,7 +143,10 @@ export function Placement({ active, canvasRef, worldRef, overlayHost, gameRef, b
         return;
       }
       const prev = lastValidRef.current;
-      if (game.setPlacement(target.x, target.y)) {
+      const accepted = game.setPlacement(target.x, target.y);
+      // The runtime refuses an illegal spot silently and the object slides on; say so once per streak.
+      if (dragRefusalEdgeRef.current(!accepted, performance.now())) audio.emit("ui.denied");
+      if (accepted) {
         commit(target);
         setIllegalError("");
       } else if (game.setPlacement(target.x, prev.y)) {
@@ -159,6 +167,8 @@ export function Placement({ active, canvasRef, worldRef, overlayHost, gameRef, b
       lastValidRef.current = live.pos;
       boxRef.current = live.box;
       setIllegalError("");
+      dragRefusalEdgeRef.current = createRefusalEdge(DRAG_DENIED_MIN_GAP_MS);
+      audio.emit("place.grab");
       if (boxElRef.current) {
         gsap.to(boxElRef.current, { scale: 1.08, duration: prefersReducedMotion() ? 0 : 0.15, overwrite: "auto" });
       }
@@ -189,8 +199,10 @@ export function Placement({ active, canvasRef, worldRef, overlayHost, gameRef, b
       const crossedQuarter = stepDeg === 90 || nextSub >= 90 || nextSub <= -90;
       if (crossedQuarter && !gameRef.current?.rotate(dir)) {
         setIllegalError(WORLD_COPY.placement.illegalPlacement);
+        audio.emit("ui.denied");
         return;
       }
+      audio.emit("place.rotate");
       if (crossedQuarter) {
         const live = readLiveBox(canvasRef.current);
         lastValidRef.current = live.pos;
@@ -236,6 +248,7 @@ export function Placement({ active, canvasRef, worldRef, overlayHost, gameRef, b
     const live = readLiveBox(canvasRef.current);
     if (!(gameRef.current?.commitPlacementAt(live.pos.x, live.pos.y) ?? false)) {
       setIllegalError(WORLD_COPY.placement.illegalPlacement);
+      audio.emit("ui.denied");
       ctrlRef.current?.markLanded(live.pos.x, live.pos.y, live.box);
     }
   }, [canvasRef, gameRef]);

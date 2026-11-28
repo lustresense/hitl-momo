@@ -5,6 +5,8 @@
  * the same pending/committed bookkeeping.
  */
 import type { KAPLAYCtx } from "kaplay";
+import { audio } from "@/src/audio";
+import type { VoiceHandle } from "@/src/audio/types";
 import { uiR83 } from "../../config/env";
 import { STICKMAN_ASSET } from "../assets/stickman-svg";
 import { CharacterRuntimeBridge } from "../character/character-runtime-bridge";
@@ -16,6 +18,7 @@ import { FALL_DURATION, FALL_START_Y, GRAVITY, JUMP_FORCE, PLAYER_HEIGHT, PLAYER
 import { createCreationRenderer } from "./creation-renderer";
 import { cloneCreation, createPendingCreation, footprintOf, quarterTurn, rotatedAround, type TurnDirection } from "./creations";
 import { releaseEngine } from "./engine";
+import { GameplayAudioObserver, outcomeSoundFor, type OutcomeCause } from "./gameplay-audio";
 import { resolveHorizontalMovementIntent } from "./movement";
 import { integratedGoalReached, integratedPlacementAllowed, rectanglesOverlap } from "./rules";
 import { worldShapeRects } from "./shape-collider";
@@ -73,6 +76,9 @@ class IntegratedScene {
   private readonly characterBridge = new CharacterRuntimeBridge();
   private readonly character: CharacterSpriteLayer;
   private readonly jumpAssist = new JumpAssist();
+  /** Read-only audio observer (footsteps, landings); never feeds back into the physics. */
+  private readonly gameplayAudio = new GameplayAudioObserver();
+  private fallVoice: VoiceHandle | null = null;
   private readonly drawCreation: (item: WorldCreation, committed: boolean) => SceneObject;
   private readonly fall: ReturnType<KAPLAYCtx["tween"]>;
   /** Committed creations (data) and their rendered art. */
@@ -139,6 +145,7 @@ class IntegratedScene {
     }
     this.pendingArt = this.drawCreation({ ...this.pending, y: FALL_START_Y }, false);
 
+    this.fallVoice = audio.emit("world.fall");
     this.fall = k.tween(
       FALL_START_Y,
       this.pending.y,
@@ -165,7 +172,11 @@ class IntegratedScene {
       rotate: (dir) => this.rotate(dir),
       destroy: () => this.destroy(),
       setInput: (i) => this.setInput(i),
-      onFallComplete: () => this.enterPlace(),
+      onFallComplete: () => {
+        // Dev skip: the fall sound would outlive the fall it belongs to.
+        if (this.phase === "falling") this.fallVoice?.stop(60);
+        this.enterPlace();
+      },
       setPlacement: (x, y) => this.setPlacement(x, y),
       selectCreation: (id) => this.selectCreation(id),
       commitPlacementAt: (x, y) => this.commitPlacementAt(x, y),
@@ -182,6 +193,7 @@ class IntegratedScene {
     if (this.destroyed) return;
     this.destroyed = true;
     this.characterBridge.dispose();
+    this.fallVoice?.stop(60);
     this.fall.cancel();
     releaseEngine(this.k);
   }
@@ -204,6 +216,7 @@ class IntegratedScene {
   private stopPlayer(): void {
     this.input = noInput();
     this.jumpAssist.reset();
+    this.gameplayAudio.reset();
     this.player.vel = this.k.vec2(0, 0);
     this.player.isStatic = true;
     this.player.paused = true;
@@ -213,6 +226,7 @@ class IntegratedScene {
   private resetPlayer(): void {
     const { k, o, player } = this;
     this.jumpAssist.reset();
+    this.gameplayAudio.reset();
     delete o.canvas.dataset.outcome;
     delete o.canvas.dataset.failReason;
     const spawn = playerSpawnPoint(this.geometry);
@@ -231,10 +245,12 @@ class IntegratedScene {
 
   // ---- outcome ---------------------------------------------------------------------------
 
-  private reportOutcome(result: GameOutcome, reason?: string): void {
+  private reportOutcome(result: GameOutcome, reason: string | undefined, cause: OutcomeCause): void {
     if (this.settled || this.phase !== "gameplay") return;
     this.settled = true;
     this.stopPlayer();
+    // Only a REAL reported outcome is sounded (the settled guard above), never mere contact.
+    audio.emit(outcomeSoundFor(cause));
     this.o.canvas.dataset.outcome = result;
     if (reason) this.o.canvas.dataset.failReason = reason;
     this.writeTelemetry();
@@ -244,11 +260,11 @@ class IntegratedScene {
   private registerCollisions(): void {
     const { player } = this;
     const hazardContact = (hazardObj?: unknown) => {
-      this.reportOutcome("fail", hazardFailReason(hazardObj as HazardInfo | undefined));
+      this.reportOutcome("fail", hazardFailReason(hazardObj as HazardInfo | undefined), "hazard");
     };
     const goalContact = () => {
       const body = { x: player.pos.x, y: player.pos.y, w: PLAYER_WIDTH, h: PLAYER_HEIGHT };
-      if (integratedGoalReached(body, this.geometry.goal)) this.reportOutcome("success");
+      if (integratedGoalReached(body, this.geometry.goal)) this.reportOutcome("success", undefined, "goal");
     };
     player.onCollide("hazard", hazardContact);
     player.onCollide("goal", goalContact);
@@ -269,6 +285,7 @@ class IntegratedScene {
     this.pendingArt.pos = this.k.vec2(this.pending.x, this.pending.y);
     this.stopPlayer();
     this.writeTelemetry();
+    audio.emit("world.land");
     this.o.onFallComplete();
   }
 
@@ -369,6 +386,7 @@ class IntegratedScene {
     });
     this.writeTelemetry();
     this.o.onCreationsChange?.(this.snapshot());
+    audio.emit("place.set");
     this.o.onCommitPlacement();
     return true;
   }
@@ -401,6 +419,11 @@ class IntegratedScene {
     );
     this.character.syncFromBridge();
     if (this.phase !== "gameplay" || this.settled) return;
+    this.gameplayAudio.step({
+      grounded: Boolean(player.isGrounded?.()),
+      vy: player.vel?.y ?? 0,
+      frameId: this.characterBridge.getCurrentFrameId(),
+    });
     player.move(resolvedVx, 0);
     if (
       this.o.level.stage === 1 &&
@@ -409,13 +432,16 @@ class IntegratedScene {
     ) {
       player.pos.x = Math.max(player.pos.x, STICKMAN_ASSET.foot.x * this.sceneScale - PLAYER_WIDTH / 2 + 2);
     }
-    if (this.jumpAssist.step(Boolean(player.isGrounded?.()), this.input.jump)) player.jump(JUMP_FORCE);
+    if (this.jumpAssist.step(Boolean(player.isGrounded?.()), this.input.jump)) {
+      player.jump(JUMP_FORCE);
+      audio.emit("thinman.jump");
+    }
   }
 
   private update(): void {
     if (!this.playerAlive()) return;
     if (this.phase === "gameplay" && !this.settled && this.player.pos.y > this.geometry.killY) {
-      this.reportOutcome("fail", "Jatuh ke jurang!");
+      this.reportOutcome("fail", "Jatuh ke jurang!", "abyss");
     }
     this.writeTelemetry();
   }

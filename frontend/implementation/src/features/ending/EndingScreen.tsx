@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import gsap from "gsap";
+import { audio } from "@/src/audio";
 import type { CenterOfPageProps } from "@/src/components/ending/CenterOfPage";
 import { ENDING_COPY, ENDING_FINISH_LINES } from "@/src/domain/copy/ending";
 import { MomoStage, type MomoStageHandle } from "@/src/features/shared/MomoStage";
@@ -65,6 +66,7 @@ function EndingScreenContent({ recaps, onChoose, initialPhase = "payung", devToo
   const pokeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pokeTweenRef = useRef<gsap.core.Tween | null>(null);
   const chooseSentRef = useRef(false);
+  const closeJingleRef = useRef(false);
 
   useEffect(() => {
     dispatch({ type: "SYNC_RECAP_COUNT", recapCount: sortedRecaps.length });
@@ -98,6 +100,7 @@ function EndingScreenContent({ recaps, onChoose, initialPhase = "payung", devToo
 
   const handleThinmanPoke = useCallback(() => {
     if (pokeTimerRef.current) return;
+    audio.emit("thinman.poke");
     setPokeShock(true);
     const momo = momoRef.current;
     if (momo) {
@@ -120,6 +123,15 @@ function EndingScreenContent({ recaps, onChoose, initialPhase = "payung", devToo
       });
     }
     pokeTimerRef.current = setTimeout(() => { setPokeShock(false); pokeTimerRef.current = null; }, 900);
+  }, []);
+
+  /** Recap confirmed: the final phase really begins. The closing jingle plays once, never for a dev skip or a restart. */
+  const handleRecapConfirmed = useCallback(() => {
+    if (!closeJingleRef.current) {
+      closeJingleRef.current = true;
+      audio.emit("jingle.ending_close");
+    }
+    dispatch({ type: "REKAP_CONFIRMED" });
   }, []);
 
   const handleConfirmBack = useCallback(() => {
@@ -222,7 +234,7 @@ function EndingScreenContent({ recaps, onChoose, initialPhase = "payung", devToo
               onItemLanded={() => dispatch({ type: "REKAP_ITEM_LANDED" })}
               onFlyDone={() => dispatch({ type: "REKAP_FLY_DONE" })}
               onCountsDone={() => dispatch({ type: "REKAP_COUNTS_DONE" })}
-              onConfirmNext={() => dispatch({ type: "REKAP_CONFIRMED" })}
+              onConfirmNext={handleRecapConfirmed}
             />
           ) : state.phase === "akhir" && state.akhirSubPhase === "waiting-back" ? (
             <BackToCoverRing onConfirm={handleConfirmBack} disabled={state.completed} />

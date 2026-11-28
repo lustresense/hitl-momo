@@ -5,7 +5,7 @@
  */
 import { createIntegratedScene } from "./runtime/integrated-scene";
 import { createLegacyScene } from "./runtime/legacy-scene";
-import { nextLabelFont, quitActiveEngine, setActiveEngine } from "./runtime/engine";
+import { nextLabelFont, quitActiveEngine, setActiveEngine, silenceKaplayAudio } from "./runtime/engine";
 import type { KaplayGameHandle, KaplayGameOptions } from "./runtime/types";
 
 export { CHARACTER_VISUAL_SCALE } from "./runtime/constants";
@@ -31,7 +31,10 @@ export async function createKaplayGame(o: KaplayGameOptions): Promise<KaplayGame
       : {}),
     background: o.integrated ? [0, 0, 0, 0] : [232, 239, 227],
     debug: false,
+    // Audio belongs to src/audio; KAPLAY's own context is closed below, so its hide/show handlers must not touch it.
+    backgroundAudio: true,
   });
+  silenceKaplayAudio(k);
   // No default black loading screen over the world while sprites load: the page behind it stays visible.
   if (o.integrated && typeof k.onLoading === "function") k.onLoading(() => undefined);
   setActiveEngine(k);

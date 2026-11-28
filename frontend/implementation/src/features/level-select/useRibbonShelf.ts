@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type PointerEvent as ReactPointerEvent, type RefObject } from "react";
 import gsap from "gsap";
+import { audio } from "@/src/audio";
 import { consumeFreshUnlock, isStageCompleted } from "@/src/app/level-progress";
 import type { MomoExpression } from "@/src/components/momo/momo-engine";
 import { formatMomoLevelPrompt, type RibbonVisualState } from "@/src/domain/copy/levels";
@@ -15,6 +16,7 @@ import {
   type RibbonActivateResult, type RibbonPullMoveResult, type RibbonPullReleaseResult,
   type RibbonRectLike, type RibbonSlotMeta, type ShelfDims,
 } from "./ribbon-pull";
+import { notchRate, shouldSoundRebound } from "./ribbon-audio";
 import { prefersReducedMotion, useIsoLayoutEffect, useRibbonAnimations } from "./useRibbonAnimations";
 
 const viewportSize = () => (typeof window === "undefined" ? { w: 1280, h: 720 } : { w: window.innerWidth, h: window.innerHeight });
@@ -126,6 +128,7 @@ export function useRibbonShelf(opts: UseRibbonShelfOptions) {
   }, []);
 
   const flashLocked = useCallback((stage: number, msg: string) => {
+    audio.emit("ui.denied"); // tap / Enter on a locked ribbon, or a tugged locked release: soft refusal
     setStatusMessage(msg); setMomoExpression("Berpikir");
     if (statusTimer.current) clearTimeout(statusTimer.current);
     statusTimer.current = setTimeout(() => { setStatusMessage(""); setMomoExpression("Senang"); statusTimer.current = null; }, STATUS_FLASH_MS);
@@ -140,6 +143,9 @@ export function useRibbonShelf(opts: UseRibbonShelfOptions) {
       if (!res.locked) {
         btn.dataset.notch = String(res.notch);
         btn.classList.toggle("is-armed", res.armed);
+        // Locked ribbons never reach here with a notch (computeNotchCount is 0), so no tick for a refused pull.
+        if (res.notchIncreased) audio.emit("ribbon.notch", { rate: notchRate(res.notch) });
+        if (res.armedChanged && res.armed) audio.emit("ribbon.armed");
         if (res.notchIncreased && !prefersReducedMotion()) {
           anims.trackTween(gsap.fromTo(btn, { scaleX: 1.045 }, { scaleX: 1, duration: 0.22, ease: "back.out(3)", transformOrigin: "50% 0%" }));
         }
@@ -155,7 +161,8 @@ export function useRibbonShelf(opts: UseRibbonShelfOptions) {
     if (btn) { btn.classList.remove("is-pulling", "is-armed"); delete btn.dataset.notch; delete btn.dataset.pullProgress; }
     if (rafPaintId.current && typeof window !== "undefined") { window.cancelAnimationFrame(rafPaintId.current); rafPaintId.current = 0; }
     pendingLengths.current.delete(rel.stage);
-    if (rel.action === "launch" && slot) { paintRibbon(rel.stage, rel.fromLength); anims.launchRibbon(slot.level, rel.restLength); return; }
+    if (rel.action === "launch" && slot) { paintRibbon(rel.stage, rel.fromLength); anims.launchRibbon(slot.level, rel.restLength); return; } // launchRibbon emits ribbon.launch
+    if (shouldSoundRebound(rel)) audio.emit("ribbon.rebound");
     if (lenObj && !prefersReducedMotion()) {
       lenObj.length = rel.fromLength;
       const isLocked = rel.action === "rebound-locked";

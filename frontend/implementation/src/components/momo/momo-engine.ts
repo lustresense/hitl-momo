@@ -4,6 +4,7 @@
  * Momo is a text-bubble companion: expressions are visual only, never a decision or an object creator.
  */
 import gsap from "gsap";
+import { audio } from "@/src/audio";
 import { J, M } from "./momo-art";
 import { wingTransform } from "./momo-wing";
 
@@ -298,6 +299,7 @@ export class MomoEngine {
 
   /** Greets with one wing: the screen-left wing tip lifts high and swings a few times (a wave hello), the body leans into it. */
   wave(): void {
+    audio.emit("momo.wave"); // one discrete wing wave; Momo has no voice
     this.wt?.kill();
     this.wt = gsap.timeline()
       .to(this.P, { r: -4, duration: 0.25, ease: "sine.out" }, 0)
@@ -332,6 +334,7 @@ export class MomoEngine {
 
   /** Flap the cloth wings once (used when Momo arrives or celebrates). */
   flap(): void {
+    audio.emit("momo.flap"); // one discrete flap (the 4-beat timeline below is a single action)
     this.ft?.kill();
     this.kick([120, 70]);
     this.ft = gsap.timeline()

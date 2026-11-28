@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type RefObject } from "react";
+import { audio } from "@/src/audio";
 import { COVER_NAME_COPY } from "@/src/domain/copy/cover";
 import { ringAriaLabel } from "@/src/domain/copy/nui";
 import { OwnerIcon } from "@/src/components/ui/owner-icons";
@@ -135,6 +136,7 @@ export function NameStep({ ready, devTools = false, cardRef, onSay, onCaptured }
       return;
     }
     setNoteText("");
+    audio.emit("ui.tap"); // valid typed name (empty input returned above)
     if (typedProviderRef.current) {
       typedProviderRef.current.submit(typedValue);
       return;

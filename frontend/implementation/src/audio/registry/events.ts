@@ -104,7 +104,7 @@ export const AUDIO_EVENTS = {
   "goal.reach": { assets: ["goal.reach"], cooldownMs: 1500, priority: 8 },
   "win.sparkle": { assets: ["win.sparkle"], cooldownMs: 2000, priority: 6, sceneBound: true },
   "jingle.level_complete": { assets: ["jingle.level_complete"], bus: "music", priority: 9, sceneBound: true, duckMusicDb: -14, duckMs: 3600, note: "after the level is really won" },
-  "jingle.fail_soft": { assets: ["jingle.fail_soft"], bus: "music", priority: 9, sceneBound: true, duckMusicDb: -10, duckMs: 2200, note: "gentle; never a buzzer" },
+  "jingle.fail_soft": { assets: ["jingle.fail_soft"], bus: "music", priority: 9, delayMs: 250, sceneBound: true, duckMusicDb: -10, duckMs: 2200, note: "gentle; never a buzzer" },
 
   // ---- ending
   "ending.chute_open": { assets: ["ending.chute_open"], priority: 6 },

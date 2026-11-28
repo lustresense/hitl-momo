@@ -112,13 +112,13 @@ export class AudioEngine implements AudioApi {
     this.doc = opts.doc === undefined ? (typeof document !== "undefined" ? document : null) : opts.doc;
     this.idle = opts.idle ?? defaultIdle;
     this.hiddenFlag = !!this.doc?.hidden;
-    if (this.doc) {
+    if (this.doc && typeof this.doc.addEventListener === "function") {
       const onVis = (): void => this.onVisibility();
       this.doc.addEventListener("visibilitychange", onVis);
       this.cleanups.push(() => this.doc?.removeEventListener("visibilitychange", onVis));
     }
     const win = opts.win === undefined ? (typeof window !== "undefined" ? window : null) : opts.win;
-    if (win) {
+    if (win && typeof win.addEventListener === "function") {
       const onHide = (): void => this.suspendNow();
       win.addEventListener("pagehide", onHide);
       this.cleanups.push(() => win.removeEventListener("pagehide", onHide));

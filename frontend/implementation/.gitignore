@@ -23,3 +23,6 @@ docs/execution/evidence/route-canvas-*/
 docs/migration-r83/parity/
 e2e/r83/logs/
 
+
+# audio event coverage notes are documentation, not test coverage output
+!/docs/audio/coverage/

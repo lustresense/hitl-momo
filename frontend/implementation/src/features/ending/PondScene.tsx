@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, type Dispatch, type RefObject } from "react";
+import { audio } from "@/src/audio";
 import { ENDING_AI_TALK_LINES } from "@/src/domain/copy/ending";
 import type { MomoStageHandle } from "@/src/features/shared/MomoStage";
 import type { R83BubbleHandle } from "@/src/features/shared/R83Bubble";
@@ -144,6 +145,8 @@ export function PondScene({
         await rig.turn();
         if (!active) return;
         rig.idle();
+        // The front-facing Thinman waves at the student (a Momo-side paper/air sound, no voice).
+        audio.emit("momo.wave");
         void rig.wave();
         await momoRef.current?.moveTo("ending", 1000);
         if (active) dispatchRef.current({ type: "BICARA_TURN_DONE" });

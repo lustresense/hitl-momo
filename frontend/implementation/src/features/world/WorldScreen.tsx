@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import type { GameplayScreenProps } from "@/src/app/screens/GameplayScreen";
 import type { MomoExpression } from "@/src/components/momo/momo-engine";
+import { audio } from "@/src/audio";
 import { StageArtwork } from "@/src/components/stage-preview/StageArtwork";
 import type { SceneIndex } from "@/src/components/stage-preview/scene-metadata";
 import { CloudBand } from "@/src/components/ui/SkyBackdrop";
@@ -120,6 +121,15 @@ function WorldScreenInner({
     }
   }, [phase, runtime.outcome, creations, level.minDrawings]);
 
+  // Music follows the activity: a calmer, slightly muffled bed while placing, full while the Thinman plays.
+  // (Falling is left alone; leaving for the canvas changes scene, which resets the patch.)
+  const worldMusicLive = phase === "gameplay" && postPlaceMode === "none";
+  const worldMusicPlacing = phase === "placing" || (phase === "gameplay" && postPlaceMode !== "none");
+  useEffect(() => {
+    if (worldMusicLive) audio.musicPatch({ gain: 1, lowpassHz: 20000, rampS: 1 });
+    else if (worldMusicPlacing) audio.musicPatch({ gain: 0.8, lowpassHz: 6000, rampS: 1 });
+  }, [worldMusicLive, worldMusicPlacing]);
+
   useIsoLayoutEffect(() => {
     const root = rootRef.current;
     const cam = cameraRef.current;
@@ -131,12 +141,15 @@ function WorldScreenInner({
       return;
     }
     const dur = SKY_TRANSITION_DURATIONS.nextRiseS;
+    // The camera really starts rising now (a transition into "rising", not a mount).
+    const riseVoice = audio.emit("world.rise");
     const ctx = gsap.context(() => {
       gsap.fromTo(cam, { yPercent: 0 }, { yPercent: -CAMERA_WORLD_Y_PERCENT, duration: dur, ease: "power2.inOut" });
       if (near) gsap.fromTo(near, { y: -220 }, { y: 260, duration: dur, ease: "power1.inOut" });
     }, root);
     const hideId = window.setTimeout(() => setRiseBubbleHidden(true), Math.round(dur * 1000));
-    return () => { window.clearTimeout(hideId); ctx.revert(); };
+    // Dev skip ends the rise early: do not let its sound outlive the camera move (a natural end is later than the sound).
+    return () => { window.clearTimeout(hideId); ctx.revert(); riseVoice?.stop(150); };
   }, [postPlaceMode]);
 
   useEffect(() => {
@@ -286,6 +299,7 @@ function WorldScreenInner({
           stage={stage}
           characterDisplayName={characterDisplayName}
           bubbleRef={bubbleRef}
+          demo={runtime.isForced()}
           onWin={() => { recordCompletedStage(level.stage); onWon?.(); }}
           onLineChange={setWinLine}
           onContinue={runtime.finishWin}

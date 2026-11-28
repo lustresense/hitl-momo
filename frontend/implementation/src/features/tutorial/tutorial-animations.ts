@@ -1,4 +1,5 @@
 import gsap from "gsap";
+import { audio, type AudioEventId } from "@/src/audio";
 import {
   FAN_ROTATIONS,
   TUTORIAL_CARD_INDICES,
@@ -14,6 +15,26 @@ export interface TutorialDomRefs {
   readonly playRefs: { current: Array<HTMLElement | null> };
   readonly doneRefs: { current: Array<HTMLSpanElement | null> };
 }
+
+/**
+ * Card sounds are emitted from timeline callbacks, so they follow the real animation. A dev "Lewati" fast-forwards a
+ * running timeline with `progress(1)`, which would fire every callback in one tick: wrap that call in `withSilentAudio`.
+ */
+let audioSilenced = false;
+
+export function withSilentAudio<T>(fn: () => T): T {
+  const prev = audioSilenced;
+  audioSilenced = true;
+  try {
+    return fn();
+  } finally {
+    audioSilenced = prev;
+  }
+}
+
+const sfx = (id: AudioEventId): void => {
+  if (!audioSilenced) audio.emit(id);
+};
 
 export function resetCardsForDeal(refs: TutorialDomRefs, layout: R83TutorialLayout): void {
   TUTORIAL_CARD_INDICES.forEach((k) => {
@@ -88,6 +109,7 @@ export function buildOpenCardTimeline(
       if (el) gsap.set(el, { zIndex: j === idx ? 60 : j < idx ? 10 + j : 30 - j });
     });
   }, 0);
+  tl.add(() => sfx("card.flip"), 0).add(() => sfx("card.bifold"), O.bifoldAt);
   for (let j = idx + 1; j < 3; j++) {
     const restCard = refs.cardRefs.current[j];
     if (restCard) {
@@ -161,6 +183,7 @@ export function buildCloseCardTimeline(
     onBeforeClose();
     play.style.pointerEvents = "none";
     card.classList.add("is-done");
+    sfx("card.close");
   }, 0)
     .to(play, { rotationY: -92, duration: C.foldDuration, ease: C.foldEase }, 0)
     .to(card, { x: 0, duration: C.toCentreDuration, ease: "power2.inOut" }, 0)
@@ -168,6 +191,7 @@ export function buildCloseCardTimeline(
     .to(flip, { rotationY: 0, duration: C.flipDuration, ease: C.easeTuck }, C.flipAt)
     .to(card, { ...cardRestTransform(idx, layout), duration: C.flipDuration, ease: C.easeTuck }, C.flipAt);
   if (doneEl) {
+    tl.add(() => sfx("card.stamp"), C.flipAt + 0.25); // the green done stamp lands on the card front
     tl.to(doneEl, { scale: 1, duration: 0.55, ease: "back.out(2.2)" }, C.flipAt + 0.25);
   }
   return tl;
@@ -182,6 +206,7 @@ export function buildExitTimeline(
 ) {
   const vh = typeof window !== "undefined" ? window.innerHeight || 720 : 720;
   const exitTl = gsap.timeline().add(buildCloseCardTimeline(refs, layout, 2, onBeforeClose), 0);
+  exitTl.add(() => sfx("card.exit"), TUTORIAL_TIMING.close.duration + TUTORIAL_TIMING.pause * 0.4); // the three cards fly off
   const allCards = refs.cardRefs.current.filter((c): c is HTMLElement => c !== null);
   if (allCards.length > 0) {
     exitTl.to(

@@ -22,6 +22,7 @@ import { readSavedCameraIntent } from "./hooks/useR83Camera";
 import { useR83AppState } from "./hooks/useR83AppState";
 import { useShellAudio } from "@/src/audio/bindings/useShellAudio";
 import { NuiAudioBridge } from "@/src/audio/bindings/NuiAudioBridge";
+import { AudioControl } from "@/src/audio/ui/AudioControl";
 
 const ROUTE_NOTICE_STYLE: CSSProperties = { position: "fixed", top: 14, left: "50%", transform: "translateX(-50%)", zIndex: 55 };
 const COVER_HIDDEN_STYLE: CSSProperties = { pointerEvents: "none" };
@@ -86,6 +87,7 @@ function R83ActiveView() {
     <>
       <PaperOverlay />
       <NuiAudioBridge />
+      <AudioControl />
       <R83CameraDock
         active={s.camera.cameraActive}
         showPip={isPostCover}

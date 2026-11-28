@@ -118,3 +118,30 @@ export interface DiagSnapshot {
   readonly prefs: AudioPrefsState;
   readonly bufferMemoryMB: number;
 }
+
+/** Public facade used by the app (React, GSAP, KAPLAY callbacks). The server/unsupported implementation is a silent no-op. */
+export interface AudioApi {
+  state(): EngineState;
+  /** Create/resume the AudioContext. Must run inside a real user gesture (the global unlock listener does this). */
+  unlock(): Promise<boolean>;
+  emit(id: string, params?: EmitParams): VoiceHandle | null;
+  loop(id: string, params?: LoopParams): LoopHandle;
+  /** Declare the current scene (idempotent). Fades out scene-bound sounds, crossfades the music. `null` = silence. */
+  scene(id: string | null): void;
+  currentScene(): string | null;
+  duck(db: number, holdMs?: number): void;
+  musicPatch(p: MusicStatePatch): void;
+  warm(ids: readonly string[]): void;
+  getPrefs(): AudioPrefsState;
+  setPrefs(patch: Partial<AudioPrefsState>): void;
+  /** notified on prefs and state changes (useSyncExternalStore) */
+  subscribe(l: () => void): () => void;
+  snapshot(): DiagSnapshot;
+  setLogging(on: boolean): void;
+  events(): readonly DiagEvent[];
+  subscribeDiag(l: (e: DiagEvent) => void): () => void;
+  /** dev/recording only: the mixed output as a MediaStream (null unless devTools) */
+  recordingTap(): MediaStream | null;
+  installUnlock(target: EventTarget): () => void;
+  dispose(): void;
+}

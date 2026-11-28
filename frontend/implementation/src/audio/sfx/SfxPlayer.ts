@@ -22,6 +22,7 @@ interface LoopVoice {
   wanted: boolean;
   baseGain: number;
   rate: number;
+  sceneBound: boolean;
 }
 
 export interface SfxPlayerOptions {
@@ -187,6 +188,7 @@ export class SfxPlayer {
   /** Fade out every voice flagged sceneBound (called on scene change so nothing lingers from the previous scene). */
   stopSceneBound(fadeMs = 120): void {
     for (const v of this.voices.values()) if (v.sceneBound) this.fade(v, fadeMs);
+    for (const [k, l] of [...this.loops.entries()]) if (l.sceneBound) this.stopLoop(k, fadeMs);
   }
 
   stopAll(fadeMs = 60): void {
@@ -201,7 +203,7 @@ export class SfxPlayer {
       this.updateLoop(key, { gain: params.gain, rate: params.rate, rampMs: 60 });
       return this.handle(key);
     }
-    lv = { key, src: null, gain: null, wanted: true, baseGain: params.gain ?? 1, rate: params.rate ?? 1 };
+    lv = { key, src: null, gain: null, wanted: true, baseGain: params.gain ?? 1, rate: params.rate ?? 1, sceneBound: params.sceneBound ?? true };
     this.loops.set(key, lv);
     const begin = (buf: AudioBuffer): void => {
       const cur = this.loops.get(key);

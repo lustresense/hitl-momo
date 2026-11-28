@@ -2,6 +2,8 @@ import type { Diagnostics } from "../diag/Diagnostics";
 
 export interface CatalogEntry {
   readonly url: string;
+  readonly group?: string;
+  readonly kind?: string;
 }
 export type Catalog = Readonly<Record<string, CatalogEntry>>;
 

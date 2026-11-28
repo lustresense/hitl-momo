@@ -21,6 +21,9 @@ export interface PlayOptions {
   readonly fadeInS?: number;
   readonly fadeOutS?: number;
   readonly resumeOffsetS?: number;
+  /** state applied to the NEW track the moment it is created, so a scene change never touches the departing track */
+  readonly gain?: number;
+  readonly lowpassHz?: number;
 }
 
 const POINTS = 96;
@@ -82,6 +85,7 @@ export class CrossfadeLoopPlayer {
     const my = ++this.token;
     if (assetId === this.currentId) {
       this.diag.log("music", this.name, `keep ${assetId ?? "silence"}`);
+      if (assetId !== null) this.setState({ gain: opts.gain, lowpassHz: opts.lowpassHz, rampS: opts.fadeInS });
       return true;
     }
     const fadeInS = Math.max(opts.fadeInS ?? 1.6, 0.05);
@@ -95,6 +99,8 @@ export class CrossfadeLoopPlayer {
     const buf = await this.store.load(assetId);
     if (my !== this.token) return false; // a newer request superseded this one
     if (!buf) return false;
+    if (opts.gain !== undefined) this.stateGain = opts.gain;
+    if (opts.lowpassHz !== undefined) this.stateLowpass = opts.lowpassHz;
     const t = this.ctx.currentTime;
     const src = this.ctx.createBufferSource();
     src.buffer = buf;
